@@ -1,0 +1,55 @@
+
+
+Hello both
+
+I thought it might be worth taking this as a case study of how the sample history is supposed to work.  Please let me know if either of you have any comments.
+
+> we have the attached 4000 samples retrieved for THRIVE, 500 of these were selected for analysis before the others (also attached) we need to come up with a process that makes some sense that allows these samples to be return to storage in their existing boxes in new locations, and to reflect the unusual sample history these 500 samples will now display.
+
+## Original boxes: ##
+
+- Aliquot Allocation creates an entry in `box_name` when a new box is required to store received cryovials (boxes will probably wait in the cold room until they've been filled but there's no direct record of this)
+- BoxReception creates an entry in `l_box_arrival` when the box is allocated a location (site+population+structure)
+- StorageSync creates an entry in `box_store` once the box location has been confirmed [or BoxReception v3, or StoreMan for referred boxes]
+- (boxes may be taken out of storage briefly to retrieve samples from but there's no direct record of this)
+
+## Retrieval boxes: ##
+- StoreMan creates 40 entries in `box_name` to hold the required cryovials when it creates the retrieval job (boxes may just wait in the cold room until they're analysed but, if we need to keep a record:
+  - BoxReception creates an entry in l_box_arrival when the box is allocated a location (site+population+structure)
+  - 	StorageSync creates an entry in `box_store` once the box location has been confirmed
+  - 	StoreMan marks the box_store record "removed for analysis" when it makes the specimen entries for the analysis)
+- `BoxReception` creates [another] entry in `l_box_arrival` when the box is allocated a [new] location
+- StorageSync creates an entry in `box_store` once the box location has been confirmed
+
+## LPA boxes: ##
+
+- StoreMan creates five more entries in box_name to hold the required cryovials
+- (I'm assuming the boxes weren't kept in store for long so there's no need for a record)
+- BoxReception creates an entry in l_box_arrival when the box is allocated a location
+- StorageSync creates an entry in box_store once the box location has been confirmed
+
+## 3500 samples: ##
+
+- Aliquot Allocation creates an entry in cryovial once the tube is scanned in (and aliquots taken, if UK samples)
+- Aliquot Allocation creates an entry in `cryovial_store` once the cryovial has been assigned to a box
+- StoreMan creates a second `cryovial_store` record giving its expected position in one of the retrieval boxes when it creates the retrieval job
+- The retrieval assistant marks the first `cryovial_store` entry "transferred to new box" and updates the second once the sample has been retrieved [it may also 99 the second `cryovial_store` entry of the secondary aliquot if there is one]
+- StoreMan marks the second `cryovial_store` record "removed for analysis" when it makes the specimen entry for the analysis [although it might be better is Specimen Reception did this]
+- StoreMan creates a third `cryovial_store` record when the cryovial is put back in the box [Can this be confirmed?  When?  As things stand we create the third entry when we update the second; this doesn't give much idea of how long the sample was unfrozen for]
+
+## 500 samples: ##
+
+- Aliquot Allocation creates an entry in cryovial once the tube is scanned in (and aliquots taken, if UK samples)
+- Aliquot Allocation creates an entry in `cryovial_store` once the cryovial has been assigned to a box
+- StoreMan creates a second `cryovial_store` record giving its expected position in one of the retrieval boxes when it creates the first retrieval job
+- The retrieval assistant marks the first cryovial_store entry "transferred to new box" and updates the second once the sample has been retrieved [it may also 99 the second `cryovial_store` entry of the secondary aliquot if there is one].
+- StoreMan creates a third `cryovial_store` record giving its expected position in one of the LPA boxes when it creates the second retrieval job
+- The retrieval assistant marks the second `cryovial_store` entry "transferred to new box" and updates the third once the sample has been retrieved
+- StoreMan marks the third `cryovial_store` record "removed for analysis" when it makes the specimen entry for the analysis
+- StoreMan creates a final `cryovial_store` record when the cryovial is put back in the LPA box
+
+The job history needs to be discussed further.  As it stands, we would have several records in `c_retrieval_job` with no obvious link between them with records in `c_box_retrieval` to keep track of the chunks being worked on.
+
+I realise this is somewhat repetitive but I hope it clarifies the process
+-- Nick
+
