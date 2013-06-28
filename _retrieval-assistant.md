@@ -53,3 +53,30 @@ The job history needs to be discussed further.  As it stands, we would have seve
 I realise this is somewhat repetitive but I hope it clarifies the process
 -- Nick
 
+
+> Should I use LCDbCryoJob/s for the jobs we are talking about?
+
+Yes; read from c_retrieval_job
+
+> "For in progress lists these steps should be skipped (REQ 8.3.7). " not clear which steps at the moment....
+
+Check status: only look at status=0
+
+There are four type of job: cryovial retrieval for analysis is the most complex - that's what we talked about this morning; cryovial retrieval for disposal is similar; box retrieval for analysis and box retrieval for disposal are far simpler - they bring whole boxes back to the lab
+
+> Work through list or sub-section by giving the storage location and sample ID of each sample on the list in the order saved above (REQ 8.3.8)" - 'giving??' - does this mean displaying the details of each sample in turn? (ie one at a time - in big letters, I presume?)
+
+Not for next week but yes, display current and destination location of each sample, one at a time (highlighting current sample in the context of five previous and a couple more still to be collected).
+
+> Do I need to interface with the barcode scanner and if so how?
+
+Treat it as reliable keyboard input
+
+> "The option to exit the process saving progress should be offered, with an "are you sure?" message in case of accidental selection (REQ 8.3.12)." - presume this means "The option to exit the process, saving progress" (note comma - punctuation fanatic, me)
+
+Agreed - they can either resume the process immediately if they say they don't want to exit or they can resume later if they say they're sure they want to close the window.  I think the same could apply to 8.3.6 but do whatever's simplest and safest
+
+One more thing about retrieval lists.  There's potentially a two-level hierarchy: a retrieval task (in c_retrieval_job) can belong to a retrieval exercise (in c_object_name).  This is a fairly new idea so, although it's documented for 2.7.2, the data's not all there yet.  That may be why you couldn't find the fields you were looking for
+
+
+
