@@ -1,0 +1,179 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.05.03"/>
+    <PROJECT value="testComms.exe"/>
+    <OBJFILES value="testComms.obj testMain.obj ..\LabsDAO\LCDbAuditTrail.obj 
+      ..\LabsDAO\LCDbProject.obj ..\LabsDAO\LCDbTest.obj 
+      ..\LabsDAO\LCDbObject.obj ..\LabsDAO\LDbWorklist.obj 
+      ..\LabsDAO\LCDbOperator.obj ..\LabsForms\TfrmLogin.obj 
+      ..\CoreUtilities\LQuery.obj ..\LabsDAO\LDbNotes.obj 
+      ..\CoreUtilities\XMLFile.obj ..\LabsObjects\LIMSParams.obj 
+      ..\CoreUtilities\LogFile.obj ..\LabsDAO\LDbIdClasses.obj 
+      ..\LabsDAO\LDbResult.obj ..\LabsDAO\LCDbAnalyser.obj 
+      ..\CoreUtilities\TwoWayTalk.obj ..\LabsDAO\LPDbProfile.obj 
+      ..\LabsDAO\LDbSource.obj ..\CoreUtilities\xmd5.obj 
+      ..\LabsLeasing\lease.obj ..\LabsObjects\LIMSResult.obj 
+      ..\LabsForms\TfrmPassword.obj"/>
+    <RESFILES value="testComms.res"/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES) testMain.dfm ..\LabsForms\TfrmLogin.dfm 
+      ..\LabsForms\TfrmPassword.dfm"/>
+    <LIBFILES value=""/>
+    <LIBRARIES value=""/>
+    <SPARELIBS value="Vcl50.lib Vclbde50.lib vcldb50.lib NMFast50.lib VCLX50.lib"/>
+    <PACKAGES value="Vcl50.bpi Vclx50.bpi Vcldb50.bpi Vclbde50.bpi vcldbx50.bpi vclie50.bpi 
+      Inetdb50.bpi Inet50.bpi NMFast50.bpi"/>
+    <PATHCPP value=".;..\LabsDAO;..\LabsForms;..\CoreUtilities;..\LabsObjects;..\LabsLeasing"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib\release"/>
+    <LINKER value="tlink32"/>
+    <USERDEFINES value="_DEBUG"/>
+    <SYSDEFINES value="NO_STRICT;_RTLDLL;USEPACKAGES"/>
+    <MAINSOURCE value="testComms.cpp"/>
+    <INCLUDEPATH value="..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj"/>
+    <WARNINGS value="-w-par"/>
+  </MACROS>
+  <OPTIONS>
+    <CFLAG1 value="-vGc -vGt -vGd -Od -H=$(BCB)\lib\vcl50.csm -Hc -Vx -Ve -X- -r- -a8 -5 -b- 
+      -k -y -v -vi- -c -tW -tWM"/>
+    <PFLAGS value="-$Y+ -$W -$O- -v -JPHNE -M"/>
+    <RFLAGS value=""/>
+    <AFLAGS value="/mx /w2 /zi"/>
+    <LFLAGS value="-D&quot;&quot; -aa -Tpe -x -v"/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0w32.obj $(PACKAGES) Memmgr.Lib sysinit.obj $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="cg32.lib $(LIBFILES) $(LIBRARIES) import32.lib cp32mti.lib"/>
+  </LINKER>
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=1
+AutoIncBuild=1
+MajorVer=1
+MinorVer=3
+Release=1
+Build=4
+Debug=1
+PreRelease=1
+Special=0
+Private=0
+DLL=0
+Locale=2057
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=1.3.1.4
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[Excluded Packages]
+C:\WINDOWS\System32\ibsmp50.bpl=Borland C++ InterBase Alerter Component
+$(BCB)\Bin\applet50.bpl=Borland Control Panel Applet Package
+$(BCB)\Bin\dclsmpedit50.bpl=Borland Editor Script Enhancements
+$(BCB)\Bin\bcbie50.bpl=Borland C++Builder Internet Explorer 5 Components Package
+$(BCB)\Bin\dclocx50.bpl=Borland Sample Imported ActiveX Controls
+$(BCB)\Bin\dclite50.bpl=Borland Integrated Translation Environment
+$(BCB)\Bin\bcb2kaxserver50.bpl=Borland C++Builder COM Server Components Sample Package
+$(BCB)\Bin\BCBSMP50.BPL=Borland C++ Sample Components
+$(BCB)\Bin\dclqrt50.bpl=QuickReport Components
+$(BCB)\Bin\dcltee50.bpl=TeeChart 5.0 Components
+$(BCB)\Bin\dcltqr50.bpl=TeeChart 5.0 for QuickReport Components Design Package
+$(BCB)\Bin\dclib50.bpl=InterBase Data Access Components
+$(BCB)\Bin\DBWEBXPRT.BPL=Borland Web Wizard Package
+$(BCB)\Bin\mfcwizard.bpl=MFC Wizard
+C:\Program Files\Multilizer\CBuilder5\ML50DBDE50.bpl=Multilizer Components: Data-Aware
+C:\Program Files\Multilizer\CBuilder5\ML50NDDE50.bpl=Multilizer Components
+$(BCB)\Projects\Bpl\hb_components.bpl=c:\program files\borland\cbuilder5\Projects\Bpl\hb_components
+$(BCB)\Projects\Bpl\csg_component.bpl=c:\program files\borland\cbuilder5\Projects\Bpl\csg_component
+
+[HistoryLists\hlIncludePath]
+Count=18
+Item0=..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BCB)\include;$(BCB)\include\vcl
+Item1=..\;..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BCB)\include;$(BCB)\include\vcl
+Item2=..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BCB)\include;$(BCB)\include\vcl
+Item3=..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;..\Shared\LabsLeasing;..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item4=..\Shared\LabsLeasing;..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item5=..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item6=..\Shared\LabUtils;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item7=..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item8=..;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item9=..\;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item10=C:\Pr\;C:\;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item11=C:\Pr;C:\;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item12=C:\;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item13=C:\Pr;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item14=..\shared\classes;..\shared;..;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item15=..\Aliquot Storage;..;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl
+Item16=..\Shared Classes;..\;..\Cryovial Data;$(BCB)\include;$(BCB)\include\vcl
+Item17=Cryovial Data;$(BCB)\include;$(BCB)\include\vcl
+
+[HistoryLists\hlLibraryPath]
+Count=29
+Item0=..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item1=..\;..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;..\Shared\LabsLeasing;..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item2=..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;..\Shared\LabsLeasing;..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item3=..\Shared\LabsLeasing;..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item4=..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item5=..\Shared\LabUtils;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item6=..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item7=$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item8=..;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item9=..\;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item10=C:\Pr\;C:\;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item11=C:\Pr;C:\;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item12=C:\;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item13=$(BCB)\Lib;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item14=$(BCB)\Lib;..\..\Lib;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj
+Item15=..\..\Lib;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item16=..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item17=C:\;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item18=C:\Pr;..\ColourStringGrid;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item19=..\shared\classes;..\shared;..;..\ColourStringGrid;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item20=..;..\ColourStringGrid;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item21=..\;..\ColourStringGrid;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item22=..\ColourStringGrid;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item23=..\Aliquot Storage;..\ColourStringGrid;..;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item24=..\ColourStringGrid;..;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item25=..;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item26=..\;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item27=..\Shared Classes;..\;..\Cryovial Data;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+Item28=Cryovial Data;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=1
+Item0=_DEBUG
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=1
+LinkCGLIB=1
+  </IDEOPTIONS>
+</PROJECT>

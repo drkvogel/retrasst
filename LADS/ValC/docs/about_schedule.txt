@@ -1,0 +1,21 @@
+schedule is a fossil file (www.fossil-scm.org).
+
+It maintains a 'to do' list, for tracking tasks and progress.
+
+To view:
+
+1) Install Fossil
+2) cd to the directory containing the file called 'schedule'.
+3) Type 'fossil ui schedule'. You should find yourself looking at a web page with the title 'ValC Schedule'.
+5) Click on 'Tickets' and then 'All Tickets' in order to obtain the current task list.
+
+Tickets have a 'who' - the person responsible. One of 'Developer', 'Tech Lead', 'Project Mgr'. In reality, one person might be wearing these 3 different hats, but it serves as a means of describing the type of task. 
+
+'Developer' stuff is reasonably well-specified functionality/bugs to be worked on.
+'Tech Lead' is for stuff that needs requirements analysis.
+'Project Mgr' is for tasks relating to the progress of the project, risk management.
+
+
+These distinct roles operate at different levels of abstraction, but are inter-dependent.  The Project Mgr is pre-occupied with the scope of the project. Within that scope, the Tech Lead is responsible for carving up the work and ensuring that it is do-able. The Developer is responsible for doing it.
+
+Last updated by Paul Storey, 6 June 2013

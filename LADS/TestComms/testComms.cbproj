@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{76c931e1-013a-4267-9bab-9684abccceaf}</ProjectGuid>
+    <ProjectType>CppVCLApplication</ProjectType>
+    <MainSource>testComms.cpp</MainSource>
+    <Config Condition="'$(Config)'==''">Debug Build</Config>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+    <Base>true</Base>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Config)'=='Debug Build' or '$(Cfg_1)'!=''">
+    <Base>true</Base>
+    <Cfg_1>true</Cfg_1>
+    <CfgParent>Base</CfgParent>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Config)'=='Release Build' or '$(Cfg_2)'!=''">
+    <Base>true</Base>
+    <Cfg_2>true</Cfg_2>
+    <CfgParent>Base</CfgParent>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Base)'!=''">
+    <OutputExt>exe</OutputExt>
+    <DCC_Optimize>false</DCC_Optimize>
+    <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
+    <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+    <DynamicRTL>true</DynamicRTL>
+    <BCC_MonitorThis>true</BCC_MonitorThis>
+    <BCC_InstructionSet>5</BCC_InstructionSet>
+    <BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
+    <ILINK_AppType>Windows</ILINK_AppType>
+    <BCC_UseRegisterVariables>None</BCC_UseRegisterVariables>
+    <UsePackages>true</UsePackages>
+    <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
+    <BCC_GenerateWindowsApp>true</BCC_GenerateWindowsApp>
+    <ILINK_ObjectSearchPath>..\LabsForms;..\LabsDAO;..\CoreUtilities;..\LabsObjects;..\LabsLeasing</ILINK_ObjectSearchPath>
+    <DCC_MakeModifiedUnits>true</DCC_MakeModifiedUnits>
+    <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
+    <BCC_ZeroLengthEmptyMemberFuncs>true</BCC_ZeroLengthEmptyMemberFuncs>
+    <FinalOutputDir>.</FinalOutputDir>
+    <PackageImports>rtl.bpi;vcl.bpi;vclx.bpi;dbrtl.bpi;vcldb.bpi;bdertl.bpi;vcldbx.bpi;vclie.bpi;inetdb.bpi;inet.bpi</PackageImports>
+    <TASM_AdditionalSwitches> /w2</TASM_AdditionalSwitches>
+    <DCC_UnitSearchPath>.\;$(BDS)\lib;$(BDS)\lib\obj</DCC_UnitSearchPath>
+    <PackageLibs>IndyCore.lib;IndySystem.lib;IndyProtocols.lib</PackageLibs>
+    <BRCC_UserSuppliedOptions> -I..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BDS)\include;$(BDS)\include\vcl;$(BDS)\include\dinkumware</BRCC_UserSuppliedOptions>
+    <BCC_StackFrames>true</BCC_StackFrames>
+    <BCC_GenerateMultithreaded>true</BCC_GenerateMultithreaded>
+    <BCC_PCHCache>true</BCC_PCHCache>
+    <IncludePath>..\LabsForms;..\LabsDAO;..\CoreUtilities;..\LabsObjects;..\LabsLeasing</IncludePath>
+    <BCC_IntegerSizedEnums>false</BCC_IntegerSizedEnums>
+    <DCC_IncludePath>.\;$(BDS)\lib;$(BDS)\lib\obj</DCC_IncludePath>
+    <BRCC_IncludePath>..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BDS)\include;$(BDS)\include\vcl;$(BDS)\include\dinkumware</BRCC_IncludePath>
+    <AllPackageLibs>rtl.lib;vcl.lib;bdertl.lib;dbrtl.lib;vcldb.lib;vclx.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib</AllPackageLibs>
+    <TASM_IncludePath>..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BDS)\include;$(BDS)\include\vcl;$(BDS)\include\dinkumware</TASM_IncludePath>
+    <BCC_IncludePath>..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BDS)\include;$(BDS)\include\vcl;$(BDS)\include\dinkumware</BCC_IncludePath>
+    <ILINK_LibraryPath>..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BDS)\Lib;$(BDS)\Projects\Lib;$(BDS)\lib\obj</ILINK_LibraryPath>
+    <BCC_ZeroLengthEmptyBaseClass>true</BCC_ZeroLengthEmptyBaseClass>
+    <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
+    <Multithreaded>true</Multithreaded>
+    <TASM_Defines>_DEBUG</TASM_Defines>
+    <BRCC_Defines>_DEBUG</BRCC_Defines>
+    <BCC_Defines>NO_STRICT</BCC_Defines>
+    <TASM_Debugging>Full</TASM_Debugging>
+    <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
+    <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+    <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Cfg_1)'!=''">
+    <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+    <ILINK_DisableIncrementalLinking>true</ILINK_DisableIncrementalLinking>
+    <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+    <IntermediateOutputDir>Debug_Build</IntermediateOutputDir>
+    <TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
+    <ILINK_LibraryPath>$(BDS)\lib\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+    <BCC_Defines>_DEBUG;$(BCC_Defines)</BCC_Defines>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Cfg_2)'!=''">
+    <DCC_Optimize>true</DCC_Optimize>
+    <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
+    <BCC_InlineFunctionExpansion>true</BCC_InlineFunctionExpansion>
+    <BCC_UseRegisterVariables>Always</BCC_UseRegisterVariables>
+    <DCC_DebugInformation>false</DCC_DebugInformation>
+    <IntermediateOutputDir>Release_Build</IntermediateOutputDir>
+    <BCC_StackFrames>false</BCC_StackFrames>
+    <ILINK_LibraryPath>$(BDS)\lib\release;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+    <BCC_Defines>NDEBUG;$(BCC_Defines)</BCC_Defines>
+    <TASM_Debugging>None</TASM_Debugging>
+  </PropertyGroup>
+  <ProjectExtensions>
+    <Borland.Personality>CPlusPlusBuilder.Personality</Borland.Personality>
+    <Borland.ProjectType>CppVCLApplication</Borland.ProjectType>
+    <BorlandProject>
+<BorlandProject><CPlusPlusBuilder.Personality><VersionInfo><VersionInfo Name="IncludeVerInfo">False</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">3</VersionInfo><VersionInfo Name="Release">1</VersionInfo><VersionInfo Name="Build">4</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">2057</VersionInfo><VersionInfo Name="CodePage">1252</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.3.1.4</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys><ExcludedPackages><ExcludedPackages Name="C:\WINDOWS\System32\ibsmp50.bpl">Borland C++ InterBase Alerter Component</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\applet50.bpl">Borland Control Panel Applet Package</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\dclsmpedit50.bpl">Borland Editor Script Enhancements</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\bcbie50.bpl">Borland C++Builder Internet Explorer 5 Components Package</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\dclocx50.bpl">Borland Sample Imported ActiveX Controls</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\dclite50.bpl">Borland Integrated Translation Environment</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\bcb2kaxserver50.bpl">Borland C++Builder COM Server Components Sample Package</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\BCBSMP50.BPL">Borland C++ Sample Components</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\dclqrt50.bpl">QuickReport Components</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\dcltee50.bpl">TeeChart 5.0 Components</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\dcltqr50.bpl">TeeChart 5.0 for QuickReport Components Design Package</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\dclib50.bpl">InterBase Data Access Components</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\DBWEBXPRT.BPL">Borland Web Wizard Package</ExcludedPackages><ExcludedPackages Name="$(BCB)\Bin\mfcwizard.bpl">MFC Wizard</ExcludedPackages><ExcludedPackages Name="C:\Program Files\Multilizer\CBuilder5\ML50DBDE50.bpl">Multilizer Components: Data-Aware</ExcludedPackages><ExcludedPackages Name="C:\Program Files\Multilizer\CBuilder5\ML50NDDE50.bpl">Multilizer Components</ExcludedPackages><ExcludedPackages Name="$(BCB)\Projects\Bpl\hb_components.bpl">c:\program files\borland\cbuilder5\Projects\Bpl\hb_components</ExcludedPackages><ExcludedPackages Name="$(BCB)\Projects\Bpl\csg_component.bpl">c:\program files\borland\cbuilder5\Projects\Bpl\csg_component</ExcludedPackages></ExcludedPackages><HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Count">18</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item0">..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item1">..\;..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item2">..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item3">..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;..\Shared\LabsLeasing;..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item4">..\Shared\LabsLeasing;..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item5">..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item6">..\Shared\LabUtils;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item7">..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item8">..;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item9">..\;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item10">C:\Pr\;C:\;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item11">C:\Pr;C:\;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item12">C:\;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item13">C:\Pr;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item14">..\shared\classes;..\shared;..;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item15">..\Aliquot Storage;..;..\Shared Classes;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item16">..\Shared Classes;..\;..\Cryovial Data;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item17">Cryovial Data;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath></HistoryLists_hlIncludePath><HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Count">29</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item0">..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item1">..\;..\LabsObjects;..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;..\Shared\LabsLeasing;..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item2">..\LabsLeasing;..\CoreUtilities;..\LabsForms;..\LabsDAO;..\Shared\LabsLeasing;..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item3">..\Shared\LabsLeasing;..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item4">..\Shared\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsDAO;..\Shared\LabUtils;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item5">..\Shared\LabUtils;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item6">..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item7">$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item8">..;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item9">..\;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item10">C:\Pr\;C:\;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item11">C:\Pr;C:\;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item12">C:\;..\shared classes;$(BCB)\Lib;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item13">$(BCB)\Lib;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item14">$(BCB)\Lib;..\..\Lib;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item15">..\..\Lib;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item16">..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item17">C:\;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item18">C:\Pr;..\ColourStringGrid;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item19">..\shared\classes;..\shared;..;..\ColourStringGrid;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item20">..;..\ColourStringGrid;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item21">..\;..\ColourStringGrid;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item22">..\ColourStringGrid;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item23">..\Aliquot Storage;..\ColourStringGrid;..;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item24">..\ColourStringGrid;..;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item25">..;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item26">..\;..\Shared Classes;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item27">..\Shared Classes;..\;..\Cryovial Data;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item28">Cryovial Data;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath></HistoryLists_hlLibraryPath><HistoryLists_hlDebugSourcePath><HistoryLists_hlDebugSourcePath Name="Count">1</HistoryLists_hlDebugSourcePath><HistoryLists_hlDebugSourcePath Name="Item0">$(BCB)\source\vcl</HistoryLists_hlDebugSourcePath></HistoryLists_hlDebugSourcePath><HistoryLists_hlConditionals><HistoryLists_hlConditionals Name="Count">1</HistoryLists_hlConditionals><HistoryLists_hlConditionals Name="Item0">_DEBUG</HistoryLists_hlConditionals></HistoryLists_hlConditionals><Debugging><Debugging Name="DebugSourceDirs">$(BCB)\source\vcl</Debugging></Debugging><Parameters><Parameters Name="RunParams"></Parameters><Parameters Name="HostApplication"></Parameters><Parameters Name="RemoteHost"></Parameters><Parameters Name="RemotePath"></Parameters><Parameters Name="RemoteDebug">False</Parameters><Parameters Name="Launcher"></Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="DebugCWD"></Parameters><Parameters Name="RemoteParams"></Parameters><Parameters Name="RemoteLauncher"></Parameters><Parameters Name="UseRemoteLauncher">False</Parameters><Parameters Name="RemoteCWD"></Parameters><Parameters Name="Debug Symbols Search Path"></Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><Compiler><Compiler Name="ShowInfoMsgs">0</Compiler><Compiler Name="LinkDebugVcl">1</Compiler><Compiler Name="LinkCGLIB">1</Compiler></Compiler><Linker><Linker Name="LibPrefix"></Linker><Linker Name="LibSuffix"></Linker><Linker Name="LibVersion"></Linker></Linker><ProjectProperties><ProjectProperties Name="AutoShowDeps">False</ProjectProperties><ProjectProperties Name="ManagePaths">True</ProjectProperties><ProjectProperties Name="VerifyPackages">True</ProjectProperties></ProjectProperties><Source><Source Name="MainSource">testComms.cpp</Source></Source></CPlusPlusBuilder.Personality></BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Import Project="$(MSBuildBinPath)\Borland.Cpp.Targets" />
+  <ItemGroup>
+    <CppCompile Include="..\CoreUtilities\LQuery.cpp">
+      <DependentOn>..\CoreUtilities\LQuery.h</DependentOn>
+      <BuildOrder>17</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\CoreUtilities\TwoWayTalk.cpp">
+      <BuildOrder>19</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\CoreUtilities\xMD5.cpp">
+      <BuildOrder>18</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\CoreUtilities\XMLFile.cpp">
+      <DependentOn>..\CoreUtilities\XMLFile.h</DependentOn>
+      <BuildOrder>16</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbAnalyser.cpp">
+      <DependentOn>..\LabsDAO\LCDbAnalyser.h</DependentOn>
+      <BuildOrder>7</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbAuditTrail.cpp">
+      <DependentOn>..\LabsDAO\LCDbAuditTrail.h</DependentOn>
+      <BuildOrder>8</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbObject.cpp">
+      <DependentOn>..\LabsDAO\LCDbObject.h</DependentOn>
+      <BuildOrder>14</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbOperator.cpp">
+      <BuildOrder>9</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbProject.cpp">
+      <DependentOn>..\LabsDAO\LCDbProject.h</DependentOn>
+      <BuildOrder>10</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbTest.cpp">
+      <DependentOn>..\LabsDAO\LCDbTest.h</DependentOn>
+      <BuildOrder>11</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LDbIdClasses.cpp">
+      <DependentOn>..\LabsDAO\LDbIdClasses.h</DependentOn>
+      <BuildOrder>12</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LDbNotes.cpp">
+      <DependentOn>..\LabsDAO\LDbNotes.h</DependentOn>
+      <BuildOrder>15</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LDbResult.cpp">
+      <DependentOn>..\LabsDAO\LDbResult.h</DependentOn>
+      <BuildOrder>4</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LDbSource.cpp">
+      <DependentOn>..\LabsDAO\LDbSource.h</DependentOn>
+      <BuildOrder>5</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LDbWorklist.cpp">
+      <DependentOn>..\LabsDAO\LDbWorklist.h</DependentOn>
+      <BuildOrder>6</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LPDbProfile.cpp">
+      <DependentOn>..\LabsDAO\LPDbProfile.h</DependentOn>
+      <BuildOrder>13</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsForms\TfrmLogin.cpp">
+      <Form>frmLogin</Form>
+      <DependentOn>..\LabsForms\TfrmLogin.h</DependentOn>
+      <BuildOrder>2</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsForms\TfrmPassword.cpp">
+      <Form>frmPassword</Form>
+      <DependentOn>..\LabsForms\TfrmPassword.h</DependentOn>
+      <BuildOrder>3</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsLeasing\lease.cpp">
+      <DependentOn>..\LabsLeasing\lease.h</DependentOn>
+      <BuildOrder>22</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsObjects\LIMSParams.cpp">
+      <DependentOn>..\LabsObjects\LIMSParams.h</DependentOn>
+      <BuildOrder>20</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsObjects\LIMSResult.cpp">
+      <DependentOn>..\LabsObjects\LIMSResult.h</DependentOn>
+      <BuildOrder>21</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="testComms.cpp">
+      <BuildOrder>0</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="testMain.cpp">
+      <Form>testForm</Form>
+      <DependentOn>testMain.h</DependentOn>
+      <BuildOrder>1</BuildOrder>
+    </CppCompile>
+    <FormResources Include="..\LabsForms\TfrmLogin.dfm" />
+    <FormResources Include="..\LabsForms\TfrmPassword.dfm" />
+    <FormResources Include="testMain.dfm" />
+    <BuildConfiguration Include="Debug Build">
+      <Key>Cfg_1</Key>
+    </BuildConfiguration>
+    <BuildConfiguration Include="Release Build">
+      <Key>Cfg_2</Key>
+    </BuildConfiguration>
+  </ItemGroup>
+</Project>

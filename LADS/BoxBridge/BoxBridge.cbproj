@@ -1,0 +1,329 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{7faf71d5-952b-460c-8104-ddd43159e248}</ProjectGuid>
+    <ProjectType>CppVCLApplication</ProjectType>
+    <MainSource>BoxBridge.cpp</MainSource>
+    <Config Condition="'$(Config)'==''">Debug Build</Config>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+    <Base>true</Base>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Config)'=='Debug Build' or '$(Cfg_1)'!=''">
+    <Base>true</Base>
+    <Cfg_1>true</Cfg_1>
+    <CfgParent>Base</CfgParent>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Config)'=='Release Build' or '$(Cfg_2)'!=''">
+    <Base>true</Base>
+    <Cfg_2>true</Cfg_2>
+    <CfgParent>Base</CfgParent>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Base)'!=''">
+    <OutputExt>exe</OutputExt>
+    <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
+    <BCC_InstructionSet>5</BCC_InstructionSet>
+    <ILINK_AppType>Windows</ILINK_AppType>
+    <BCC_UseRegisterVariables>None</BCC_UseRegisterVariables>
+    <UsePackages>true</UsePackages>
+    <BCC_GenerateWindowsApp>true</BCC_GenerateWindowsApp>
+    <ILINK_ObjectSearchPath>$(BDS)\lib;..\LabsDAO;..\Shared;..\CoreUtilities;..\LabsObjects;..\LabsLeasing;..\LabsForms</ILINK_ObjectSearchPath>
+    <DCC_MakeModifiedUnits>true</DCC_MakeModifiedUnits>
+    <FinalOutputDir>.</FinalOutputDir>
+    <PackageImports>rtl.bpi;vcl.bpi;vclx.bpi;bcbsmp.bpi;dbrtl.bpi;vcldb.bpi;bdertl.bpi;vcldbx.bpi;ibxpress.bpi;bcbie.bpi;vclie.bpi;inetdb.bpi;inet.bpi;bcboffice2k.bpi;teeui.bpi;teedb.bpi;tee.bpi</PackageImports>
+    <TASM_AdditionalSwitches> /w2</TASM_AdditionalSwitches>
+    <DCC_UnitSearchPath>.\;$(BDS)\lib;$(BDS)\lib\obj</DCC_UnitSearchPath>
+    <BCC_StackFrames>true</BCC_StackFrames>
+    <BRCC_UserSuppliedOptions> -I$(BDS)\include;$(BDS)\include\vcl;..\LabsDAO;..\Shared;$(BDS)\include\dinkumware</BRCC_UserSuppliedOptions>
+    <BCC_GenerateMultithreaded>true</BCC_GenerateMultithreaded>
+    <PackageLibs>IndyCore.lib;IndySystem.lib;IndyProtocols.lib</PackageLibs>
+    <IncludePath>..\LabsDAO;..\CoreUtilities;..\LabsObjects;..\LabsLeasing;..\LabsForms</IncludePath>
+    <BCC_IntegerSizedEnums>false</BCC_IntegerSizedEnums>
+    <DCC_IncludePath>.\;$(BDS)\lib;$(BDS)\lib\obj</DCC_IncludePath>
+    <BRCC_IncludePath>$(BDS)\include;$(BDS)\include\vcl;..\LabsDAO;..\Shared;$(BDS)\include\dinkumware</BRCC_IncludePath>
+    <AllPackageLibs>rtl.lib;vcl.lib;dbrtl.lib;vcldb.lib;bdertl.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib</AllPackageLibs>
+    <TASM_IncludePath>$(BDS)\include;$(BDS)\include\vcl;..\LabsDAO;..\Shared;$(BDS)\include\dinkumware</TASM_IncludePath>
+    <BCC_IncludePath>$(BDS)\include;$(BDS)\include\vcl;$(BDS)\include\dinkumware;..\LabsDAO;..\CoreUtilities</BCC_IncludePath>
+    <ILINK_LibraryPath>$(BDS)\lib\obj;$(BDS)\lib;..\LabsDAO;..\CoreUtilities;..\LabsObjects;..\LabsLeasing;..\LabsForms</ILINK_LibraryPath>
+    <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
+    <Multithreaded>true</Multithreaded>
+    <TASM_Defines>_DEBUG</TASM_Defines>
+    <BRCC_Defines>_DEBUG</BRCC_Defines>
+    <BCC_Defines>NO_STRICT</BCC_Defines>
+    <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Cfg_1)'!=''">
+    <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+    <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+    <DynamicRTL>true</DynamicRTL>
+    <BCC_MonitorThis>true</BCC_MonitorThis>
+    <ILINK_DelayLoadDll>
+    </ILINK_DelayLoadDll>
+    <BCC_InlineFunctionExpansion>true</BCC_InlineFunctionExpansion>
+    <ILINK_SelectedWarnings>false</ILINK_SelectedWarnings>
+    <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+    <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
+    <ILINK_AllWarnings>true</ILINK_AllWarnings>
+    <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
+    <TASM_SelectedWarnings>false</TASM_SelectedWarnings>
+    <BCC_SelectedWarnings>false</BCC_SelectedWarnings>
+    <ShowGeneralMessages>true</ShowGeneralMessages>
+    <IntermediateOutputDir>Debug_Build</IntermediateOutputDir>
+    <BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
+    <TASM_AllWarnings>true</TASM_AllWarnings>
+    <BCC_wpar>false</BCC_wpar>
+    <TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
+    <DCC_IncludePath>$(BDS)\lib\psdk;$(DCC_IncludePath)</DCC_IncludePath>
+    <ILINK_LibraryPath>$(BDS)\lib\debug;$(BDS)\lib\psdk;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+    <BCC_Defines>_DEBUG;$(BCC_Defines)</BCC_Defines>
+    <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
+    <TASM_Debugging>Full</TASM_Debugging>
+    <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Cfg_2)'!=''">
+    <DCC_Optimize>true</DCC_Optimize>
+    <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
+    <DynamicRTL>false</DynamicRTL>
+    <BCC_MonitorThis>false</BCC_MonitorThis>
+    <ILINK_SelectedWarnings>false</ILINK_SelectedWarnings>
+    <BCC_UseRegisterVariables>Always</BCC_UseRegisterVariables>
+    <DCC_DebugInformation>false</DCC_DebugInformation>
+    <ILINK_AllWarnings>true</ILINK_AllWarnings>
+    <BCC_PCHWithExternalTypeFiles>false</BCC_PCHWithExternalTypeFiles>
+    <BCC_DebugLineNumbers>false</BCC_DebugLineNumbers>
+    <BCC_MonitorGlobalAndStackData>false</BCC_MonitorGlobalAndStackData>
+    <BCC_SelectedWarnings>false</BCC_SelectedWarnings>
+    <BCC_SmartPCHCache>false</BCC_SmartPCHCache>
+    <IntermediateOutputDir>Release_Build</IntermediateOutputDir>
+    <BCC_AllWarnings>true</BCC_AllWarnings>
+    <BCC_StackFrames>false</BCC_StackFrames>
+    <BCC_PCHUsage>None</BCC_PCHUsage>
+    <ILINK_LibraryPath>$(BDS)\lib\release;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+    <BCC_Defines>NDEBUG;$(BCC_Defines)</BCC_Defines>
+    <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+    <TASM_Debugging>None</TASM_Debugging>
+    <BCC_MonitorInlinePtrAccess>false</BCC_MonitorInlinePtrAccess>
+    <BCC_SourceDebuggingOn>false</BCC_SourceDebuggingOn>
+  </PropertyGroup>
+  <ProjectExtensions>
+    <Borland.Personality>CPlusPlusBuilder.Personality</Borland.Personality>
+    <Borland.ProjectType>CppVCLApplication</Borland.ProjectType>
+    <BorlandProject>
+<BorlandProject><CPlusPlusBuilder.Personality><VersionInfo><VersionInfo Name="IncludeVerInfo">True</VersionInfo><VersionInfo Name="AutoIncBuild">True</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">2</VersionInfo><VersionInfo Name="Release">2</VersionInfo><VersionInfo Name="Build">7</VersionInfo><VersionInfo Name="Debug">True</VersionInfo><VersionInfo Name="PreRelease">True</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">2057</VersionInfo><VersionInfo Name="CodePage">1252</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName">CTSU</VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.2.2.7</VersionInfoKeys><VersionInfoKeys Name="InternalName">Storage Sync</VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName">Storage Sync</VersionInfoKeys><VersionInfoKeys Name="ProductVersion">URS 2.2</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys></VersionInfoKeys><HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Count">9</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item0">..\LabsDAO;..\CoreUtilities;..\LabsObjects;..\LabsLeasing;..\LabsForms</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item1">..\LabsLeasing;..\LabsObjects;..\LabsForms;..\LabsDAO;..\Shared;..\CoreUtilities;..\LabsObjects;..\LabsLeasing;..\LabsForms</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item2">..\LabsDAO;..\Shared;..\CoreUtilities;..\LabsObjects;..\LabsLeasing;..\LabsForms</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item3">..\LabsLeasing;..\LabsObjects;..\LabsForms;..\LabsDAO;..\Shared;..\CoreUtilities</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item4">..\LabsLeasing;..\LabsObjects;..\LabsDAO;..\Shared;..\CoreUtilities</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item5">..\LabsDAO;..\Shared</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item6">$(BCB)\include;$(BCB)\include\vcl;..\LabsDAO;..\Shared</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item7">$(BCB)\include;$(BCB)\include\vcl;..\LabsDAO</HistoryLists_hlIncludePath><HistoryLists_hlIncludePath Name="Item8">$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath></HistoryLists_hlIncludePath><HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Count">1</HistoryLists_hlLibraryPath><HistoryLists_hlLibraryPath Name="Item0">$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath></HistoryLists_hlLibraryPath><HistoryLists_hlDebugSourcePath><HistoryLists_hlDebugSourcePath Name="Count">1</HistoryLists_hlDebugSourcePath><HistoryLists_hlDebugSourcePath Name="Item0">$(BCB)\source\vcl</HistoryLists_hlDebugSourcePath></HistoryLists_hlDebugSourcePath><HistoryLists_hlConditionals><HistoryLists_hlConditionals Name="Count">1</HistoryLists_hlConditionals><HistoryLists_hlConditionals Name="Item0">_DEBUG</HistoryLists_hlConditionals></HistoryLists_hlConditionals><Debugging><Debugging Name="DebugSourceDirs">$(BCB)\source\vcl</Debugging></Debugging><Parameters><Parameters Name="RunParams"></Parameters><Parameters Name="HostApplication"></Parameters><Parameters Name="RemoteHost"></Parameters><Parameters Name="RemotePath"></Parameters><Parameters Name="RemoteDebug">False</Parameters><Parameters Name="Launcher"></Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="DebugCWD"></Parameters><Parameters Name="RemoteParams"></Parameters><Parameters Name="RemoteLauncher"></Parameters><Parameters Name="UseRemoteLauncher">False</Parameters><Parameters Name="RemoteCWD"></Parameters><Parameters Name="Debug Symbols Search Path"></Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><Compiler><Compiler Name="ShowInfoMsgs">0</Compiler><Compiler Name="LinkDebugVcl">0</Compiler><Compiler Name="LinkCGLIB">1</Compiler></Compiler><Linker><Linker Name="LibPrefix"></Linker><Linker Name="LibSuffix"></Linker><Linker Name="LibVersion"></Linker></Linker><ProjectProperties><ProjectProperties Name="AutoShowDeps">True</ProjectProperties><ProjectProperties Name="ManagePaths">True</ProjectProperties><ProjectProperties Name="VerifyPackages">True</ProjectProperties></ProjectProperties><Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\bcboffice2k100.bpl">CodeGear C++Builder Office 2000 Servers Package</Excluded_Packages>
+      <Excluded_Packages Name="$(BDS)\bin\bcbofficexp100.bpl">CodeGear C++Builder Office XP Servers Package</Excluded_Packages>
+    </Excluded_Packages><HistoryLists_hlBCC_MaxIdentifierLength><HistoryLists_hlBCC_MaxIdentifierLength Name="Count">1</HistoryLists_hlBCC_MaxIdentifierLength><HistoryLists_hlBCC_MaxIdentifierLength Name="Item0">250</HistoryLists_hlBCC_MaxIdentifierLength></HistoryLists_hlBCC_MaxIdentifierLength><HistoryLists_hlILINK_MaxErrors><HistoryLists_hlILINK_MaxErrors Name="Count">1</HistoryLists_hlILINK_MaxErrors><HistoryLists_hlILINK_MaxErrors Name="Item0">0</HistoryLists_hlILINK_MaxErrors></HistoryLists_hlILINK_MaxErrors><HistoryLists_hlILINK_FileAlignment><HistoryLists_hlILINK_FileAlignment Name="Count">1</HistoryLists_hlILINK_FileAlignment><HistoryLists_hlILINK_FileAlignment Name="Item0">0x200</HistoryLists_hlILINK_FileAlignment></HistoryLists_hlILINK_FileAlignment><HistoryLists_hlILINK_ObjectAlignment><HistoryLists_hlILINK_ObjectAlignment Name="Count">1</HistoryLists_hlILINK_ObjectAlignment><HistoryLists_hlILINK_ObjectAlignment Name="Item0">4096</HistoryLists_hlILINK_ObjectAlignment></HistoryLists_hlILINK_ObjectAlignment><HistoryLists_hlBCC_IncludePath><HistoryLists_hlBCC_IncludePath Name="Count">1</HistoryLists_hlBCC_IncludePath><HistoryLists_hlBCC_IncludePath Name="Item0">$(BDS)\include;$(BDS)\include\vcl;$(BDS)\include\dinkumware;..\LabsDAO;..\CoreUtilities</HistoryLists_hlBCC_IncludePath><HistoryLists_hlBCC_IncludePath Name="Item1">$(BDS)\include;$(BDS)\include\vcl;..\LabsDAO;$(BDS)\include\dinkumware</HistoryLists_hlBCC_IncludePath><HistoryLists_hlBCC_IncludePath Name="Item2">$(BDS)\include;$(BDS)\include\vcl;..\LabsDAO;..\Shared;$(BDS)\include\dinkumware</HistoryLists_hlBCC_IncludePath></HistoryLists_hlBCC_IncludePath><HistoryLists_hlBCC_Defines><HistoryLists_hlBCC_Defines Name="Count">1</HistoryLists_hlBCC_Defines><HistoryLists_hlBCC_Defines Name="Item0">_DEBUG;NO_STRICT</HistoryLists_hlBCC_Defines><HistoryLists_hlBCC_Defines Name="Item1">_DEBUG;NO_STRICT</HistoryLists_hlBCC_Defines><HistoryLists_hlBCC_Defines Name="Item2">NO_STRICT</HistoryLists_hlBCC_Defines></HistoryLists_hlBCC_Defines><Source><Source Name="MainSource">BoxBridge.cpp</Source></Source><HistoryLists_hlFinalOutputDir><HistoryLists_hlFinalOutputDir Name="Count">1</HistoryLists_hlFinalOutputDir><HistoryLists_hlFinalOutputDir Name="Item0">.</HistoryLists_hlFinalOutputDir></HistoryLists_hlFinalOutputDir><HistoryLists_hlILINK_LibraryPath><HistoryLists_hlILINK_LibraryPath Name="Count">1</HistoryLists_hlILINK_LibraryPath><HistoryLists_hlILINK_LibraryPath Name="Item0">$(BDS)\lib\debug;$(BDS)\lib\psdk;$(BDS)\lib\obj;$(BDS)\lib;..\LabsDAO;..\CoreUtilities;..\LabsObjects;..\LabsLeasing;..\LabsForms</HistoryLists_hlILINK_LibraryPath><HistoryLists_hlILINK_LibraryPath Name="Item1">$(BDS)\lib\debug;$(BDS)\lib\psdk;$(BDS)\lib\obj;$(BDS)\lib;..\LabsDAO;..\CoreUtilities;..\LabsObjects;..\LabsLeasing;..\LabsForms</HistoryLists_hlILINK_LibraryPath><HistoryLists_hlILINK_LibraryPath Name="Item2">$(BDS)\lib\obj;$(BDS)\lib;..\LabsDAO;..\CoreUtilities;..\LabsObjects;..\LabsLeasing;..\LabsForms</HistoryLists_hlILINK_LibraryPath><HistoryLists_hlILINK_LibraryPath Name="Item3">$(BDS)\lib\debug;$(BDS)\lib\psdk;$(BDS)\lib\obj;$(BDS)\lib;..\LabsDAO;..\Shared;..\CoreUtilities;..\LabsObjects;..\LabsLeasing;..\LabsForms</HistoryLists_hlILINK_LibraryPath><HistoryLists_hlILINK_LibraryPath Name="Item4">$(BDS)\lib\debug;$(BDS)\lib\obj;$(BDS)\lib</HistoryLists_hlILINK_LibraryPath></HistoryLists_hlILINK_LibraryPath><HistoryLists_hlIntermediateOutputDir><HistoryLists_hlIntermediateOutputDir Name="Count">1</HistoryLists_hlIntermediateOutputDir><HistoryLists_hlIntermediateOutputDir Name="Item0">Debug_Build</HistoryLists_hlIntermediateOutputDir><HistoryLists_hlIntermediateOutputDir Name="Item1">Debug_Build</HistoryLists_hlIntermediateOutputDir></HistoryLists_hlIntermediateOutputDir><HistoryLists_hlTASM_HashTableCapacity><HistoryLists_hlTASM_HashTableCapacity Name="Count">1</HistoryLists_hlTASM_HashTableCapacity><HistoryLists_hlTASM_HashTableCapacity Name="Item0">8192</HistoryLists_hlTASM_HashTableCapacity></HistoryLists_hlTASM_HashTableCapacity><HistoryLists_hlTASM_MaxSymbolLength><HistoryLists_hlTASM_MaxSymbolLength Name="Count">1</HistoryLists_hlTASM_MaxSymbolLength><HistoryLists_hlTASM_MaxSymbolLength Name="Item0">12</HistoryLists_hlTASM_MaxSymbolLength></HistoryLists_hlTASM_MaxSymbolLength><HistoryLists_hlTASM_Passes><HistoryLists_hlTASM_Passes Name="Count">1</HistoryLists_hlTASM_Passes><HistoryLists_hlTASM_Passes Name="Item0">1</HistoryLists_hlTASM_Passes></HistoryLists_hlTASM_Passes><HistoryLists_hlTASM_VersionId><HistoryLists_hlTASM_VersionId Name="Count">1</HistoryLists_hlTASM_VersionId><HistoryLists_hlTASM_VersionId Name="Item0">0</HistoryLists_hlTASM_VersionId></HistoryLists_hlTASM_VersionId><HistoryLists_hlILINK_BaseAddress><HistoryLists_hlILINK_BaseAddress Name="Count">1</HistoryLists_hlILINK_BaseAddress><HistoryLists_hlILINK_BaseAddress Name="Item0">0x00400000</HistoryLists_hlILINK_BaseAddress></HistoryLists_hlILINK_BaseAddress><HistoryLists_hlILINK_HeapCommitSize><HistoryLists_hlILINK_HeapCommitSize Name="Count">1</HistoryLists_hlILINK_HeapCommitSize><HistoryLists_hlILINK_HeapCommitSize Name="Item0">0x00001000</HistoryLists_hlILINK_HeapCommitSize></HistoryLists_hlILINK_HeapCommitSize><HistoryLists_hlILINK_HeapReserveSize><HistoryLists_hlILINK_HeapReserveSize Name="Count">1</HistoryLists_hlILINK_HeapReserveSize><HistoryLists_hlILINK_HeapReserveSize Name="Item0">0x00100000</HistoryLists_hlILINK_HeapReserveSize></HistoryLists_hlILINK_HeapReserveSize><HistoryLists_hlILINK_StackCommitSize><HistoryLists_hlILINK_StackCommitSize Name="Count">1</HistoryLists_hlILINK_StackCommitSize><HistoryLists_hlILINK_StackCommitSize Name="Item0">0x00002000</HistoryLists_hlILINK_StackCommitSize></HistoryLists_hlILINK_StackCommitSize><HistoryLists_hlILINK_StackReserveSize><HistoryLists_hlILINK_StackReserveSize Name="Count">1</HistoryLists_hlILINK_StackReserveSize><HistoryLists_hlILINK_StackReserveSize Name="Item0">0x00100000</HistoryLists_hlILINK_StackReserveSize></HistoryLists_hlILINK_StackReserveSize><HistoryLists_hlDCC_IncludePath><HistoryLists_hlDCC_IncludePath Name="Count">1</HistoryLists_hlDCC_IncludePath><HistoryLists_hlDCC_IncludePath Name="Item0">$(BDS)\lib\psdk;.\;$(BDS)\lib;$(BDS)\lib\obj</HistoryLists_hlDCC_IncludePath><HistoryLists_hlDCC_IncludePath Name="Item1">$(BDS)\lib\psdk;.\;$(BDS)\lib;$(BDS)\lib\obj</HistoryLists_hlDCC_IncludePath></HistoryLists_hlDCC_IncludePath><HistoryLists_hlDCC_CodePage><HistoryLists_hlDCC_CodePage Name="Count">1</HistoryLists_hlDCC_CodePage><HistoryLists_hlDCC_CodePage Name="Item0">0</HistoryLists_hlDCC_CodePage></HistoryLists_hlDCC_CodePage><HistoryLists_hlBRCC_IncludePath><HistoryLists_hlBRCC_IncludePath Name="Count">1</HistoryLists_hlBRCC_IncludePath><HistoryLists_hlBRCC_IncludePath Name="Item0">$(BDS)\include;$(BDS)\include\vcl;..\LabsDAO;..\Shared;$(BDS)\include\dinkumware</HistoryLists_hlBRCC_IncludePath></HistoryLists_hlBRCC_IncludePath><HistoryLists_hlTASM_IncludePath><HistoryLists_hlTASM_IncludePath Name="Count">1</HistoryLists_hlTASM_IncludePath><HistoryLists_hlTASM_IncludePath Name="Item0">$(BDS)\include;$(BDS)\include\vcl;..\LabsDAO;..\Shared;$(BDS)\include\dinkumware</HistoryLists_hlTASM_IncludePath></HistoryLists_hlTASM_IncludePath><HistoryLists_hlDCC_Define><HistoryLists_hlDCC_Define Name="Count">1</HistoryLists_hlDCC_Define><HistoryLists_hlDCC_Define Name="Item0">DEBUG</HistoryLists_hlDCC_Define></HistoryLists_hlDCC_Define><HistoryLists_hlBRCC_Defines><HistoryLists_hlBRCC_Defines Name="Count">1</HistoryLists_hlBRCC_Defines><HistoryLists_hlBRCC_Defines Name="Item0">_DEBUG</HistoryLists_hlBRCC_Defines></HistoryLists_hlBRCC_Defines><HistoryLists_hlTASM_Defines><HistoryLists_hlTASM_Defines Name="Count">1</HistoryLists_hlTASM_Defines><HistoryLists_hlTASM_Defines Name="Item0">_DEBUG</HistoryLists_hlTASM_Defines></HistoryLists_hlTASM_Defines></CPlusPlusBuilder.Personality><ModelSupport>False</ModelSupport></BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Import Project="$(MSBuildBinPath)\Borland.Cpp.Targets" />
+  <ItemGroup>
+    <CppCompile Include="..\CoreUtilities\devnote.cpp">
+      <DependentOn>..\CoreUtilities\devnote.h</DependentOn>
+      <BuildOrder>33</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\CoreUtilities\LQuery.cpp">
+      <DependentOn>..\CoreUtilities\LQuery.h</DependentOn>
+      <BuildOrder>28</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\CoreUtilities\rijndael.cpp">
+      <BuildOrder>34</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\CoreUtilities\xB36Code.cpp">
+      <DependentOn>..\CoreUtilities\xB36Code.h</DependentOn>
+      <BuildOrder>30</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\CoreUtilities\xencode.cpp">
+      <BuildOrder>35</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\CoreUtilities\xMD5.cpp">
+      <BuildOrder>29</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\CoreUtilities\XMLFile.cpp">
+      <DependentOn>..\CoreUtilities\XMLFile.h</DependentOn>
+      <BuildOrder>26</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\CoreUtilities\XMLTokens.cpp">
+      <DependentOn>..\CoreUtilities\XMLTokens.h</DependentOn>
+      <BuildOrder>27</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbAnalyser.cpp">
+      <DependentOn>..\LabsDAO\LCDbAnalyser.h</DependentOn>
+      <BuildOrder>3</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbAuditTrail.cpp">
+      <DependentOn>..\LabsDAO\LCDbAuditTrail.h</DependentOn>
+      <BuildOrder>4</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbBoxCourier.cpp">
+      <DependentOn>..\LabsDAO\LCDbBoxCourier.h</DependentOn>
+      <BuildOrder>19</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbBoxStore.cpp">
+      <DependentOn>..\LabsDAO\LCDbBoxStore.h</DependentOn>
+      <BuildOrder>24</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbObject.cpp">
+      <DependentOn>..\LabsDAO\LCDbObject.h</DependentOn>
+      <BuildOrder>6</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbOperator.cpp">
+      <DependentOn>..\LabsDAO\LCDbOperator.h</DependentOn>
+      <BuildOrder>18</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbProject.cpp">
+      <DependentOn>..\LabsDAO\LCDbProject.h</DependentOn>
+      <BuildOrder>7</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbRack.cpp">
+      <DependentOn>..\LabsDAO\LCDbRack.h</DependentOn>
+      <BuildOrder>5</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbStoreDetail.cpp">
+      <DependentOn>..\LabsDAO\LCDbStoreDetail.h</DependentOn>
+      <BuildOrder>21</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbTankLayout.cpp">
+      <DependentOn>..\LabsDAO\LCDbTankLayout.h</DependentOn>
+      <BuildOrder>22</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbTankMap.cpp">
+      <DependentOn>..\LabsDAO\LCDbTankMap.h</DependentOn>
+      <BuildOrder>20</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LCDbTest.cpp">
+      <DependentOn>..\LabsDAO\LCDbTest.h</DependentOn>
+      <BuildOrder>17</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LDbBoxSize.cpp">
+      <DependentOn>..\LabsDAO\LDbBoxSize.h</DependentOn>
+      <BuildOrder>8</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LDbBoxType.cpp">
+      <DependentOn>..\LabsDAO\LDbBoxType.h</DependentOn>
+      <BuildOrder>9</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LDbIdClasses.cpp">
+      <DependentOn>..\LabsDAO\LDbIdClasses.h</DependentOn>
+      <BuildOrder>10</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LDbNameBase.cpp">
+      <DependentOn>..\LabsDAO\LDbNameBase.h</DependentOn>
+      <BuildOrder>25</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LDbNotes.cpp">
+      <DependentOn>..\LabsDAO\LDbNotes.h</DependentOn>
+      <BuildOrder>11</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LDbSource.cpp">
+      <DependentOn>..\LabsDAO\LDbSource.h</DependentOn>
+      <BuildOrder>16</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LPDbBoxes.cpp">
+      <DependentOn>..\LabsDAO\LPDbBoxes.h</DependentOn>
+      <BuildOrder>12</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LPDbDescriptor.cpp">
+      <DependentOn>..\LabsDAO\LPDbDescriptor.h</DependentOn>
+      <BuildOrder>13</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LPDbProfile.cpp">
+      <DependentOn>..\LabsDAO\LPDbProfile.h</DependentOn>
+      <BuildOrder>15</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LPDbProfileMap.cpp">
+      <DependentOn>..\LabsDAO\LPDbProfileMap.h</DependentOn>
+      <BuildOrder>14</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsDAO\LSDbBox.cpp">
+      <DependentOn>..\LabsDAO\LSDbBox.h</DependentOn>
+      <BuildOrder>23</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsForms\TfrmAboutBox.cpp">
+      <Form>frmAboutBox</Form>
+      <DependentOn>..\LabsForms\TfrmAboutBox.h</DependentOn>
+      <BuildOrder>40</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsForms\TfrmLoginBase.cpp">
+      <Form>frmLoginBase</Form>
+      <DependentOn>..\LabsForms\TfrmLoginBase.h</DependentOn>
+      <BuildOrder>42</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsForms\TfrmPassword.cpp">
+      <Form>frmPassword</Form>
+      <DependentOn>..\LabsForms\TfrmPassword.h</DependentOn>
+      <BuildOrder>41</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsLeasing\lease.cpp">
+      <DependentOn>..\LabsLeasing\lease.h</DependentOn>
+      <BuildOrder>39</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsObjects\LIMSParams.cpp">
+      <DependentOn>..\LabsObjects\LIMSParams.h</DependentOn>
+      <BuildOrder>36</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsObjects\TestRange.cpp">
+      <DependentOn>..\LabsObjects\TestRange.h</DependentOn>
+      <BuildOrder>38</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="..\LabsObjects\ValueFields.cpp">
+      <DependentOn>..\LabsObjects\ValueFields.h</DependentOn>
+      <BuildOrder>37</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="BoxBridge.cpp">
+      <BuildOrder>0</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="esg.cpp">
+      <BuildOrder>44</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="fmLogin.cpp">
+      <Form>frmLoginBoxBridge</Form>
+      <DependentOn>fmLogin.h</DependentOn>
+      <BuildOrder>45</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="fmMain.cpp">
+      <Form>frmMain</Form>
+      <DependentOn>fmMain.h</DependentOn>
+      <BuildOrder>2</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="fmReport.cpp">
+      <Form>frmReport</Form>
+      <DependentOn>fmReport.h</DependentOn>
+      <BuildOrder>46</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="fmResolve.cpp">
+      <Form>frmResolve</Form>
+      <DependentOn>fmResolve.h</DependentOn>
+      <BuildOrder>43</BuildOrder>
+    </CppCompile>
+    <CppCompile Include="frmCommon.cpp">
+      <Form>fmCommon</Form>
+      <DependentOn>frmCommon.h</DependentOn>
+      <BuildOrder>1</BuildOrder>
+    </CppCompile>
+    <None Include="..\CoreUtilities\aes.h">
+      <BuildOrder>31</BuildOrder>
+    </None>
+    <None Include="BoxBridge.todo">
+      <BuildOrder>48</BuildOrder>
+    </None>
+    <LibFiles Include="..\CoreUtilities\aes.lib">
+      <BuildOrder>32</BuildOrder>
+    </LibFiles>
+    <LibFiles Include="aes.lib">
+      <BuildOrder>47</BuildOrder>
+    </LibFiles>
+    <FormResources Include="..\LabsForms\TfrmAboutBox.dfm" />
+    <FormResources Include="..\LabsForms\TfrmLoginBase.dfm" />
+    <FormResources Include="..\LabsForms\TfrmPassword.dfm" />
+    <FormResources Include="fmLogin.dfm" />
+    <FormResources Include="fmMain.dfm" />
+    <FormResources Include="fmReport.dfm" />
+    <FormResources Include="fmResolve.dfm" />
+    <FormResources Include="frmCommon.dfm" />
+    <BuildConfiguration Include="Debug Build">
+      <Key>Cfg_1</Key>
+    </BuildConfiguration>
+    <BuildConfiguration Include="Release Build">
+      <Key>Cfg_2</Key>
+    </BuildConfiguration>
+  </ItemGroup>
+</Project>

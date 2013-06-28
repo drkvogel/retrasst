@@ -1,0 +1,54 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{90b135cf-734f-43a5-9609-928c7e90d45b}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Projects Include="..\Lua.cbproj" />
+    <Projects Include="..\LUA_explore\LUA_Explorer.cbproj" />
+    <Projects Include="LUA_example.cbproj" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Default.Personality</Borland.Personality>
+    <Borland.ProjectType />
+    <BorlandProject>
+<BorlandProject xmlns=""><Default.Personality></Default.Personality></BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Target Name="Lua">
+    <MSBuild Projects="..\Lua.cbproj" Targets="" />
+  </Target>
+  <Target Name="Lua:Clean">
+    <MSBuild Projects="..\Lua.cbproj" Targets="Clean" />
+  </Target>
+  <Target Name="Lua:Make">
+    <MSBuild Projects="..\Lua.cbproj" Targets="Make" />
+  </Target>
+  <Target Name="LUA_example">
+    <MSBuild Projects="LUA_example.cbproj" Targets="" />
+  </Target>
+  <Target Name="LUA_example:Clean">
+    <MSBuild Projects="LUA_example.cbproj" Targets="Clean" />
+  </Target>
+  <Target Name="LUA_example:Make">
+    <MSBuild Projects="LUA_example.cbproj" Targets="Make" />
+  </Target>
+  <Target Name="LUA_Explorer">
+    <MSBuild Projects="..\LUA_explore\LUA_Explorer.cbproj" Targets="" />
+  </Target>
+  <Target Name="LUA_Explorer:Clean">
+    <MSBuild Projects="..\LUA_explore\LUA_Explorer.cbproj" Targets="Clean" />
+  </Target>
+  <Target Name="LUA_Explorer:Make">
+    <MSBuild Projects="..\LUA_explore\LUA_Explorer.cbproj" Targets="Make" />
+  </Target>
+  <Target Name="Build">
+    <CallTarget Targets="Lua;LUA_example;LUA_Explorer" />
+  </Target>
+  <Target Name="Clean">
+    <CallTarget Targets="Lua:Clean;LUA_example:Clean;LUA_Explorer:Clean" />
+  </Target>
+  <Target Name="Make">
+    <CallTarget Targets="Lua:Make;LUA_example:Make;LUA_Explorer:Make" />
+  </Target>
+  <Import Condition="Exists('$(MSBuildBinPath)\Borland.Group.Targets')" Project="$(MSBuildBinPath)\Borland.Group.Targets" />
+</Project>

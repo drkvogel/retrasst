@@ -1,0 +1,202 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.05.03"/>
+    <PROJECT value="Wizard.exe"/>
+    <OBJFILES value="Wizard.obj QCMaterialClass.obj QCLotClass.obj QCTestClass.obj 
+      QCLevelClass.obj rexec_ob.obj Login1.obj WizardLogin1.obj AddValue1.obj 
+      Machine1.obj AddMachine1.obj Profile1.obj AddProfile1.obj 
+      AddTestToProfile1.obj ProfileMap1.obj ChooseProfile1.obj 
+      EditCentralDb1.obj EditProjectDb1.obj AddProfileMapNew1.obj RackSize1.obj 
+      AddTestCalculation1.obj AddRackSize1.obj BoxContent1.obj 
+      AddTankMapping1.obj ProfileReport1.obj MachineCReport1.obj ChooseItem1.obj 
+      Operator1.obj AddOperator1.obj AddQCTest1.obj CentralTest1.obj 
+      CentralTestMachine1.obj AddCentralTest1.obj AddTestMachine1.obj 
+      AddObjectName1.obj ObjectName1.obj AddProject1.obj Descriptor1.obj 
+      QCMaterial1.obj AddQCMaterial1.obj AddQCLevel1.obj AddQCLot1.obj 
+      Project1.obj AddDescriptor1.obj CreateProjectDatabase1.obj 
+      AddProjectNote1.obj ..\CoreUtilities\LQuery.obj 
+      ..\LabsDAO\LCDbAuditTrail.obj ..\CoreUtilities\LogFile.obj 
+      ..\CoreUtilities\xmd5.obj ..\LabsLeasing\lease.obj 
+      ..\LabsDAO\LCDbAnalyser.obj ..\CoreUtilities\xb36Code.obj 
+      ..\LabsDAO\LCDbProject.obj ..\CoreUtilities\XMLFile.obj 
+      ..\LabsDAO\LCDbOperator.obj ..\LabsDAO\LDbIdClasses.obj 
+      ..\LabsForms\TfrmAboutBox.obj ..\LabsDAO\LCDbObject.obj 
+      ..\LabsDAO\LCDbTest.obj ..\LabsDAO\LPDbProfile.obj 
+      ..\LabsDAO\LPDbDescriptor.obj ..\LabsObjects\LIMSProfileMap.obj 
+      ..\LabsDAO\LDbNotes.obj ..\LabsObjects\LIMSParams.obj 
+      ..\LabsDAO\LPDbProfileMap.obj BoxSize1.obj ..\LabsDAO\LCDbBoxStore.obj 
+      AddBoxSize1.obj AddBoxContent1.obj ..\LabsDAO\LDbBoxSize.obj 
+      ..\LabsDAO\LDbBoxType.obj ..\StringGrid\ColourStringGrid.obj"/>
+    <RESFILES value="Wizard.res"/>
+    <IDLFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES) Login1.dfm WizardLogin1.dfm AddValue1.dfm Machine1.dfm 
+      AddMachine1.dfm Profile1.dfm AddProfile1.dfm AddTestToProfile1.dfm 
+      ProfileMap1.dfm ChooseProfile1.dfm EditCentralDb1.dfm EditProjectDb1.dfm 
+      AddProfileMapNew1.dfm RackSize1.dfm AddTestCalculation1.dfm 
+      AddRackSize1.dfm BoxContent1.dfm AddTankMapping1.dfm ProfileReport1.dfm 
+      MachineCReport1.dfm ChooseItem1.dfm Operator1.dfm AddOperator1.dfm 
+      AddQCTest1.dfm CentralTest1.dfm CentralTestMachine1.dfm 
+      AddCentralTest1.dfm AddTestMachine1.dfm AddObjectName1.dfm ObjectName1.dfm 
+      AddProject1.dfm Descriptor1.dfm QCMaterial1.dfm AddQCMaterial1.dfm 
+      AddQCLevel1.dfm AddQCLot1.dfm Project1.dfm AddDescriptor1.dfm 
+      CreateProjectDatabase1.dfm AddProjectNote1.dfm 
+      ..\LabsForms\TfrmAboutBox.dfm BoxSize1.dfm AddBoxSize1.dfm 
+      AddBoxContent1.dfm"/>
+    <LIBFILES value=""/>
+    <LIBRARIES value="Csg_component.lib"/>
+    <SPARELIBS value="vcl50.lib vcldb50.lib vclbde50.lib Csg_component.lib nmfast50.lib 
+      vclx50.lib qrpt50.lib"/>
+    <PACKAGES value="vclx50.bpi vcl50.bpi vcldb50.bpi vclbde50.bpi vcldbx50.bpi bcbsmp50.bpi 
+      dclocx50.bpi qrpt50.bpi vclsmp50.bpi ibsmp50.bpi nmfast50.bpi"/>
+    <PATHCPP value=".;..\CoreUtilities;..\LabsDAO;..\LabsLeasing;..\LabsForms;..\LabsObjects;..\StringGrid"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib\release"/>
+    <LINKER value="ilink32"/>
+    <USERDEFINES value="_DEBUG"/>
+    <SYSDEFINES value="NO_STRICT;_RTLDLL;USEPACKAGES"/>
+    <MAINSOURCE value="Wizard.cpp"/>
+    <INCLUDEPATH value="..\StringGrid;..\LabsObjects;..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include"/>
+    <LIBPATH value="..\StringGrid;..\LabsObjects;..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj"/>
+    <WARNINGS value="-w-par -w-8027 -w-8026"/>
+    <WARNOPTSTR value=""/>
+  </MACROS>
+  <OPTIONS>
+    <CFLAG1 value="-vGc -vGt -vGd -Od -H=$(BCB)\lib\vcl50.csm -Hc -Vx -Ve -Tkh30000 -X- -r- 
+      -a8 -5 -b- -k -y -v -vi- -c -tW -tWM"/>
+    <PFLAGS value="-$Y+ -$W -$O- -v -M -JPHNE"/>
+    <RFLAGS value=""/>
+    <AFLAGS value="/mx /w2 /zi"/>
+    <LFLAGS value="-D&quot;&quot; -aa -Tpe -x -v"/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0w32.obj $(PACKAGES) Memmgr.Lib sysinit.obj $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="cg32.lib $(LIBFILES) $(LIBRARIES) import32.lib cp32mti.lib"/>
+  </LINKER>
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=1
+AutoIncBuild=1
+MajorVer=3
+MinorVer=7
+Release=1
+Build=7
+Debug=1
+PreRelease=1
+Special=0
+Private=0
+DLL=0
+Locale=2057
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=3.7.1.7
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[HistoryLists\hlIncludePath]
+Count=28
+Item0=$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;
+Item1=C:\Pr\;..\LabsObjects;..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;$(BCB)\projects;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;..\StringGrid
+Item2=..\LabsObjects;..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;$(BCB)\projects;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;..\StringGrid
+Item3=C:\Pr;..\LabsObjects;..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;$(BCB)\projects;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;..\StringGrid
+Item4=..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;$(BCB)\projects;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;..\StringGrid
+Item5=..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;..\Shared\LabsForms;..\Shared Classes;..\Shared\LabsLeasing;$(BCB)\projects;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;..\Shared\LabsDAO;..\Shared\CoreUtilities;..\Shared\StringGrid
+Item6=..\Shared\LabsForms;..\Shared Classes;..\Shared\LabsLeasing;$(BCB)\projects;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;..\Shared\LabsDAO;..\Shared\CoreUtilities;..\Shared\StringGrid
+Item7=..\Shared Classes;..\Shared\LabsLeasing;$(BCB)\projects;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;..\Shared\LabsDAO;..\Shared\CoreUtilities;..\Shared\StringGrid
+Item8=..\Shared Classes;..\Shared\LabsLeasing;$(BCB)\projects;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;..\Shared\LabsDAO;..\Shared\CoreUtilities;..\Shared\StringGrid;..\Shared\LabsDAO
+Item9=..\Shared\LabsDAI;..\Shared\LabsDA;..\Shared\LabsD;..\Shared\Labs;..\Shared\Lab;..\Shared\La;..\Shared\L;..\Shared\LabLeasing;..\Shared\LaLeasing;..\Shared\LLeasing;..\Shared\Leasing;..\SharedLeasing;..\ShareLeasing;..\SharLeasing;..\ShaLeasing;..\ShLeasing;..\SLeasing;C:\;s;es;ses;sses;asses;lasses;Classes;dClasses;edClasses;redClasses;aredClasses;haredClasses;C:\SharedClasses\;SharedClasses;..\Shareds;..\Sharedes;..\Sharedses;..\Sharedsses;..\Sharedasses;..\Sharedlasses;..\Shared\CoreUtilitie;..\Shared\CoreUtiliti;..\Shared\CoreUtilit;..\Shared\CoreUtili;..\Shared\CoreUtil;..\Shared\CoreUti;..\Shared\CoreUt;..\Shared\CoreU;..\Shared\Core;..\Shared\Cor;..\Shared\Co;..\Shared\C;..\Shared;..\Leasing;..\SharedClasses;..\Shared Classes;..\Shared\LabsLeasing;$(BCB)\projects;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;..\Shared\LabsDAO;..\Shared\CoreUtilities;..\Shared\StringGrid
+Item10=..\Shared\LabsDAI;..\Shared\LabsDA;..\Shared\LabsD;..\Shared\Labs;..\Shared\Lab;..\Shared\La;..\Shared\L;..\Shared\LabLeasing;..\Shared\LaLeasing;..\Shared\LLeasing;..\Shared\Leasing;..\SharedLeasing;..\ShareLeasing;..\SharLeasing;..\ShaLeasing;..\ShLeasing;..\SLeasing;C:\;s\;es\;ses;sses;asses;lasses;Classes;dClasses;edClasses;redClasses;aredClasses;haredClasses;C:\SharedClasses;SharedClasses;..\Shareds;..\Sharedes;..\Sharedses;..\Sharedsses;..\Sharedasses;..\Sharedlasses;..\Shared\CoreUtilitie;..\Shared\CoreUtiliti;..\Shared\CoreUtilit;..\Shared\CoreUtili;..\Shared\CoreUtil;..\Shared\CoreUti;..\Shared\CoreUt;..\Shared\CoreU;..\Shared\Core;..\Shared\Cor;..\Shared\Co;..\Shared\C;..\Shared;..\Leasing;..\SharedClasses;..\Shared Classes;..\Shared\LabsLeasing;$(BCB)\projects;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;..\Shared\LabsDAO;..\Shared\CoreUtilities;..\Shared\StringGrid
+Item11=..\Leasing;..\SharedClasses;..\Shared Classes;..\Shared\LabsLeasing;$(BCB)\projects;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;..\Shared\LabsDAO;..\Shared\CoreUtilities;..\Shared\StringGrid
+Item12=..\SharedClasses;..\Leasing;$(BCB)\projects;$(BCB)\Bin;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;..\StringGrid
+Item13=..\SharedClasses;..\Leasing;$(BCB)\projects;$(BCB)\Bin;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include;C:\Program Files\Borland\CBuilder5\Projects\wizard\LADS\StringGrid
+Item14=..\SharedClasses;..\Leasing;$(BCB)\projects;$(BCB)\Bin;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include
+Item15=$(BCB)\projects;$(BCB)\Bin;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include
+Item16=C:\Program Files\Borland\CBuilder4\Bin\;$(BCB)\projects;$(BCB)\Bin;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\projects\include
+Item17=C:\Program Files\Borland\CBuilder4\Bin\;$(BCB)\projects;$(BCB)\Bin;$(BCB)\include;$(BCB)\include\vcl
+Item18=..\..\Program Files\Borland\CBuilder4\Bin;$(BCB)\projects;$(BCB)\Bin;$(BCB)\include;$(BCB)\include\vcl
+Item19=$(BCB)\projects;$(BCB)\Bin;$(BCB)\include;$(BCB)\include\vcl
+Item20=C:\program files\borland\cbuilder4\projects;C:\Program Files\Borland\CBuilder4\Bin;C:\program files\borland\cbuilder4\include;C:\program files\borland\cbuilder4\include\vcl
+Item21=..\program files\borland\cbuilder4\projects;..\Program Files\Borland\CBuilder4\Bin;..\program files\borland\cbuilder4\include;..\program files\borland\cbuilder4\include\vcl
+Item22=..\program files\borland\cbuilder4\projects;..\program files\borland\cbuilder4\include\vcl;..\program files\borland\cbuilder4\include
+Item23=..\program files\borland\cbuilder4\include;..\program files\borland\cbuilder4\include\vcl
+Item24=c:\program files\borland\cbuilder4\include;c:\program files\borland\cbuilder4\nclude\vcl
+Item25=$(BCB)\include;$(BCB)\include\vcl
+Item26=..\cbuilder3\bin;d:\boreland\cbuilder3\bin;..\program files\borland\cbuilder3\bin;$(BCB)\include;$(BCB)\include\vcl;..\Components\ColourStringGrid
+Item27=..\..\..\..\wizard1;$(BCB)\include;$(BCB)\include\vcl;C:\Components\ColourStringGrid
+
+[HistoryLists\hlLibraryPath]
+Count=29
+Item0=$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item1=..\..\..\Lib;C:\Pr\;..\LabsObjects;..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item2=..\LabsObjects;..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item3=C:\Pr;..\LabsObjects;..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item4=C:\Pr\;..\LabsObjects;..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item5=C:\Pr;..\LabsObjects;..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsLeasing;..\Shared\LabsDAO;..\Shared\CoreUtilities;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item6=..\LabsObjects;..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsLeasing;..\Shared\LabsDAO;..\Shared\CoreUtilities;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item7=..\LabsForms;..\LabsLeasing;..\LabsDAO;..\CoreUtilities;..\Shared\LabsForms;..\Shared\LabsLeasing;..\Shared\LabsDAO;..\Shared\CoreUtilities;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item8=..\Shared\LabsForms;..\Shared\LabsLeasing;..\Shared\LabsDAO;..\Shared\CoreUtilities;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item9=..\Shared\LabsLeasing;..\Shared\LabsDAO;..\Shared\CoreUtilities;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item10=..\Shared\LabsDAI;..\Shared\LabsDA;..\Shared\LabsD;..\Shared\Labs;..\Shared\Lab;..\Shared\La;..\Shared\L;..\Shared\LabsLeasing;..\Shared\LabLeasing;..\Shared\LaLeasing;..\Shared\LLeasing;..\Shared\Leasing;..\SharedLeasing;..\ShareLeasing;..\SharLeasing;..\ShaLeasing;..\ShLeasing;..\SLeasing;C:\;s;es;ses;sses;asses;lasses;Classes;dClasses;edClasses;redClasses;aredClasses;haredClasses;C:\SharedClasses\;SharedClasses;..\Shared\LabsDAO;..\Shareds;..\Sharedes;..\Sharedses;..\Sharedsses;..\Sharedasses;..\Sharedlasses;..\Shared\CoreUtilities;..\Shared\CoreUtilitie;..\Shared\CoreUtiliti;..\Shared\CoreUtilit;..\Shared\CoreUtili;..\Shared\CoreUtil;..\Shared\CoreUti;..\Shared\CoreUt;..\Shared\CoreU;..\Shared\Core;..\Shared\Cor;..\Shared\Co;..\Shared\C;..\Shared;..\SharedClasses;..\Leasing;..\..\..;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item11=..\Shared\LabsDAI;..\Shared\LabsDA;..\Shared\LabsD;..\Shared\Labs;..\Shared\Lab;..\Shared\La;..\Shared\L;..\Shared\LabsLeasing;..\Shared\LabLeasing;..\Shared\LaLeasing;..\Shared\LLeasing;..\Shared\Leasing;..\SharedLeasing;..\ShareLeasing;..\SharLeasing;..\ShaLeasing;..\ShLeasing;..\SLeasing;C:\;s\;es\;ses;sses;asses;lasses;Classes;dClasses;edClasses;redClasses;aredClasses;haredClasses;C:\SharedClasses;SharedClasses;..\Shared\LabsDAO;..\Shareds;..\Sharedes;..\Sharedses;..\Sharedsses;..\Sharedasses;..\Sharedlasses;..\Shared\CoreUtilities;..\Shared\CoreUtilitie;..\Shared\CoreUtiliti;..\Shared\CoreUtilit;..\Shared\CoreUtili;..\Shared\CoreUtil;..\Shared\CoreUti;..\Shared\CoreUt;..\Shared\CoreU;..\Shared\Core;..\Shared\Cor;..\Shared\Co;..\Shared\C;..\Shared;..\SharedClasses;..\Leasing;..\..\..;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item12=..\SharedClasses;..\Leasing;..\..\..;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item13=..\SharedClasses;..\Leasing;C:\Program Files\Borland\CBuilder5\Projects\;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item14=C:\Program Files\Borland\CBuilder5\Projects\;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item15=C:\Program Files\Borland\CBuilder5\Projects;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item16=C:\Program Files\Borland\CBuilder4\Bin\;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item17=..\..\Program Files\Borland\CBuilder4\Bin;$(BCB)\projects\lib;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj
+Item18=$(BCB)\lib\obj;$(BCB)\Lib;$(BCB)\Bin;$(BCB)\projects\lib
+Item19=$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj;$(BCB)\projects\lib;$(BCB)\Lib\Obj
+Item20=$(BCB)\Lib;$(BCB)\Bin;$(BCB)\lib\obj;$(BCB)\projects\lib
+Item21=$(BCB)\Lib;..\Program Files\Borland\CBuilder4\Bin;..\program files\borland\cbuilder4\lib\obj;..\program files\borland\cbuilder4\lib;..\program files\borland\cbuilder4\projects\lib
+Item22=..\program files\borland\cbuilder4\lib\obj;..\program files\borland\cbuilder4\lib;..\program files\borland\cbuilder4\projects\lib
+Item23=c:\program files\borland\cbuilder4\lib\obj;c:\program files\borland\cbuilder4\lib;..\program files\borland\cbuilder4\projects\lib
+Item24=$(BCB)\lib\obj;$(BCB)\lib;c:\program files\borland\cbuilder4\projects\libItem1=$(BCB)\lib\obj;$(BCB)\lib
+Item25=
+Item26=..\cbuilder3\bin;d:\boreland\cbuilder3\bin;..\wizard1;..\program files\borland\cbuilder3\bin;$(BCB)\lib\obj;$(BCB)\lib;..\Components\ColourStringGrid
+Item27=..\..\..\..\wizard1;$(BCB)\lib\obj;$(BCB)\lib;C:\Components\ColourStringGrid
+Item28=..\..\..\..\wizard1;$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=2
+Item0=_DEBUG
+Item1=_RTLDLL;USEPACKAGES
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=1
+LinkCGLIB=1
+
+[Language]
+ActiveLang=
+ProjectLang=
+RootDir=
+  </IDEOPTIONS>
+</PROJECT>

@@ -1,0 +1,304 @@
+//---------------------------------------------------------------------------
+
+#include <sstream>
+#include "StringUtil.h"
+#include "StoreUtil.h"
+#include "LCDbTankMap.h"
+#include "LCDbObject.h"
+
+#pragma hdrstop
+#pragma package(smart_init)
+
+//---------------------------------------------------------------------------
+
+int Util::getImageIndex( const IPart* data )
+{
+	switch( data->getType() ) {
+		case IPart::SitesType:
+			return SITE_LIST;
+		case IPart::SiteType:
+			return SITE;
+	}
+	switch( data->availability() ) {
+		case IPart::UNAVAILABLE:
+			return OFF_LINE;
+		case IPart::IS_AVAILABLE:
+			return AVAILABLE;
+		case IPart::IS_EMPTY:
+			return NO_CHILDREN;
+		case IPart::PART_FULL:
+			return PART_FILLED;
+		case IPart::IS_FULL:
+			return ALL_FILLED;
+	}
+	return UNKNOWN;
+}
+
+//---------------------------------------------------------------------------
+
+int Util::getImageIndex( TTreeNode * node )
+{
+	if( node != NULL && node -> Data != NULL ) {
+		return getImageIndex( (IPart*)(node->Data) );
+	} else {
+		return UNKNOWN;
+	}
+}
+
+//---------------------------------------------------------------------------
+
+void Util::InitPropertyGrid( TStringGrid *grdProps )
+{
+	grdProps->Cells[0][0] = "Property";
+	grdProps->Cells[1][0] = "Value";
+	grdProps->ColWidths[1] = (int)(grdProps->Width * 0.7);
+	int used = grdProps->ColWidths[1] + 28;
+	grdProps->ColWidths[0] = grdProps->Width - used;
+}
+
+//---------------------------------------------------------------------------
+
+void Util::ShowPropertyGrid(TStringGrid *grdProps, IPart* data)
+{
+	std::auto_ptr<ROSETTA> r = data->getProperties();
+	int row = 1;
+	for( int i = 0; i < r -> count(); i ++ ) {
+		const std::string value = r->getString( i );
+		if( !value.empty() ) {
+			const std::string name = r->getName( i );
+			grdProps->Cells[ 0 ][ row ] = split( name.c_str() );
+			grdProps->Cells[ 1 ][ row ] = value.c_str();
+			row ++;
+		}
+	}
+	grdProps->RowCount = grdProps->FixedRows + row;
+}
+
+//---------------------------------------------------------------------------
+
+const char * Util::split( const char * fieldName )
+{
+	static char buffer[ 45 ];
+	int i = 0;
+	if( fieldName != NULL && fieldName[ 0 ] != '\0' )
+	{
+		buffer[ 0 ] = toupper( fieldName[ 0 ] );
+		while( ++ i < 44 && fieldName[ i ] != '\0' )
+			buffer[ i ] = fieldName[ i ] == '_' ? ' ' : fieldName[ i ];
+	}
+	buffer[ i ] = '\0';
+	return buffer;
+}
+
+//---------------------------------------------------------------------------
+
+void Util::ClearPropertyGrid(TStringGrid *grdProps)
+{
+	for(int i = 1; i < grdProps->RowCount; i++ )
+		grdProps->Rows[i]->Clear();
+	grdProps->RowCount = 2;  
+}
+
+//---------------------------------------------------------------------------
+
+bool Util::validateText( TEdit* txt, TLabel* controlname )
+{
+	String stxt = txt->Text.Trim();
+	if( stxt.Length() > 0 ) {
+		return true;
+	}
+	String buf = controlname->Caption + " not specified";
+	String title = "Validation Error";
+	Application->MessageBox( buf.c_str(), title.c_str(), MB_OK);
+	txt->SetFocus();
+	return false;
+}
+
+//---------------------------------------------------------------------------
+
+int Util::validateInteger( TEdit* txt, int min, int max )
+{
+	String stxt = txt->Text.Trim();
+	int val = stxt.ToIntDef( -1 );
+	if( val >= min && val <= max ) {
+		return val;
+	}
+	String buf;
+	buf.sprintf( L"Enter a number between %d and %d", min, max );
+	Application->MessageBox( buf.c_str(), L"Validation Error", MB_OK );
+	txt->SetFocus();
+	return -1;
+}
+
+//---------------------------------------------------------------------------
+// 	populate a tree node from the database and update the display
+//---------------------------------------------------------------------------
+
+void Util::ShowTreeNode( TTreeView* tree, TTreeNode* parent, bool showGaps, bool update )
+{
+	IPart* data = (IPart*)(parent -> Data);
+	if( update ) {
+		Screen->Cursor = crSQLWait;
+		data -> populate();
+	}
+	if( data -> getChildCount() > 0 ) {
+		char buff[ 20 ];
+		short next = 1;
+		const std::vector<IPart*> & list = data -> getList();
+		for( std::vector<IPart*>::const_iterator li = list.begin(); li != list.end(); ++ li ) {
+			if( showGaps ) {
+				while( next < (**li).getPosition() ) {
+					std::sprintf( buff, "(%d)", next );
+					tree -> Items -> AddChild( parent, buff );
+					next ++;
+				}
+			}
+			String label = (**li).getName().c_str();
+			tree -> Items -> AddChildObject( parent, label, *li );
+			next = (**li).getPosition() + 1;
+		}
+		if( showGaps ) {
+			while( data -> getCapacity() >= next ) {
+				std::sprintf( buff, "(%d)", next );
+				tree -> Items -> AddChild( parent, buff );
+				next ++;
+			}
+		}
+		parent -> Expand( true );
+	}
+	Screen->Cursor = crDefault;
+}
+
+//---------------------------------------------------------------------------
+
+bool Util::isVesselInUse( const std::string & srlno )
+{
+	String error;
+	const LCDbObject * store = LCDbObjects::records().findByName( srlno );
+	if( store != NULL ) {
+		if( store->getObjectType() != LCDbObject::STORAGE_POPULATION ) {
+			error = "Wrong object type for " + String( srlno.c_str() );
+		}
+		for( Range< LCDbTankMap > tmi = LCDbTankMaps::records(); tmi.isValid(); ++ tmi ) {
+			if( tmi->isActive() && tmi->getStorageCID() == store->getID() ) {
+				error = String( srlno.c_str() ) + " is already in use";
+			}
+		}
+	}
+	if( error.IsEmpty() ) {
+		return false;
+	} else {
+		Application->MessageBox( error.c_str(), L"Validation Error", MB_ICONWARNING );
+		return true;
+	}
+}
+
+//---------------------------------------------------------------------------
+//	check if the given name is in use for a storage population (hive)
+//	return (-ve) rack layout CID if it does or a (+ve) error code if not
+//---------------------------------------------------------------------------
+
+int Util::getCurrentLayout( const std::string & name )
+{
+	const LCDbObject * obj = LCDbObjects::records().findByName( name );
+	if( obj == NULL ) {
+		return NOT_FOUND;
+    }
+	else if( obj->getObjectType() != LCDbObject::STORAGE_POPULATION ) {
+		return WRONG_TYPE;
+	} else {
+		return Layouts::getLayoutId( obj->getID() );
+	}
+}
+
+//---------------------------------------------------------------------------
+//	check if given site/position (and shelf) is in use; warn if it is
+//---------------------------------------------------------------------------
+
+bool Util::isPosDuplicate( int locationCID, short pos, short shelf )
+{
+	bool duplicate = false;
+	for( Range< LCDbTankMap > store = LCDbTankMaps::records(); store.isValid(); ++ store ) {
+		if( store->getStatus() < LCDbTankMap::OFFLINE ) {
+			if( store->getLocationCID() == locationCID && store->getPosition() == pos ) {
+				if( shelf == 0 || store->getPopulation() == 0 || store->getPopulation() == shelf ) {
+					duplicate = true;
+				}
+			}
+		}
+	}
+	if( duplicate ) {
+		std::stringstream error;
+		const LCDbObject & loc = LCDbObjects::records().get( locationCID );
+		error << loc.getName() << " position " << pos;
+		if( shelf > 0 ) {
+			error << '[' << shelf << ']';
+		}
+		error  << " is already occupied";
+		String message = error.str().c_str();
+		Application->MessageBox( message.c_str(), NULL, MB_ICONWARNING );
+		return true;
+	}
+	return false;
+}
+
+//---------------------------------------------------------------------------
+
+void Util::ShowSelectedSubTree( TTreeView* tree, unsigned minBoxCount )
+{
+	Screen->Cursor = crSQLWait;
+	TreeParts nodes( minBoxCount );
+	if( tree != NULL && tree -> Selected != NULL )
+		nodes.add( tree -> Selected );
+
+	while( !nodes.finished() )
+	{
+		TTreeNode * next = nodes.getNext();
+		if( next -> HasChildren )
+		{
+			next = next -> getFirstChild();
+			do
+			{	nodes.add( next );
+				next = next -> getNextSibling();
+			} while( next != NULL );
+		}
+		else
+		{	IPart * data = (IPart *)(next -> Data);
+			data -> populate();
+			const std::vector<IPart*> & list = data -> getList();
+			std::vector<IPart*>::const_iterator li = list.begin();
+			while( li != list.end() )
+			{
+				data = *li;
+				String name = data -> getName().c_str();
+				TTreeNode * n = tree->Items->AddChildObject( next, name, data );
+				nodes.add( n );
+				++ li;
+			}
+		}
+	}
+	Screen->Cursor = crDefault;
+}
+
+//---------------------------------------------------------------------------
+
+LQuery Util::projectQuery( int projID, bool ddb ) {
+	LCDbProjects & projList = LCDbProjects::records();
+	int current = projList.getCurrentID();
+	if( projID == 0 ) {
+		projID = current;
+	}
+	const LCDbProject & proj = projList.get( projID );
+	if( projID != current ) {
+		projList.setCurrent( proj );
+	}
+	const std::string & dbname = proj.getDbName();
+	if( ddb ) {
+		return LIMSDatabase::getDistributedDb( dbname );
+	} else {
+		return LIMSDatabase::getProjectDb( dbname );
+	}
+}
+
+//---------------------------------------------------------------------------
+

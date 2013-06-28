@@ -1,0 +1,78 @@
+<io>
+    <rx><ENQ/></rx>
+	<tx><ACK/></tx>
+	<rx><STX/>1H|\^~|||LISHOST|||||||P|LIS2-A|20040318235959<CR/><ETX/>de</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>2P|1||Pat123||Doe^John^L||19901209|M|||||Lisa^Brown| |||||||||||ChildrensMiami<CR/><ETX/>cd</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>3C|1|L|Patient is diabetic|G<CR/><ETX/>60</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>4O|1|Samp1001||^^^CBC|R|||||Bill|A||||S<ETB/>ad</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>5|King^Eric^T|||||||||F||ChildrensMiami^Emergency<CR/><ETX/>fd</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>6P|2||Pat124||Smith^Joe^K||19870902|M|||||||||||||||||ChildrenMiami<CR/><ETX/>d1</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>7O|1|Samp1002||^^^CBC|R||||||A||||S<ETB/>2e</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>0|Blake^Ann|||||||||F||ChildrensMiami<CR/><ETX/>39</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>1O|2|Samp1004||^^^RETIC|R||||||A||||S<ETB/>da</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>2|Blake^Ann|||||||||F<CR/><ETX/>ba</rx>
+	<tx><ACK/></tx>
+    <rx><STX/>3L|1|N<CR/><ETX/>06</rx>
+	<tx><ACK/></tx>
+    <rx><EOT/></rx>
+
+    <rx><ENQ/></rx>
+	<tx><ACK/></tx>
+	<rx><STX/>1H|\^~|||BARRACUDA|||||LIS||P|LIS2-A|20080923072941<CR/><ETX/>21</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>2P|1|||<CR/><ETX/>B3</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>3O|1|1121142090|00161|^^^CDR|R|||||||||20080923072509|S|||||^DevOp|DO|20080923072928|||F<CR/><ETX/>1c</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>4C|1|I|System Event: PLT|I<CR/><ETX/>2B</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>5C|2|I|System Event: D|I<CR/><ETX/>81</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>6C|3|I|System Event: R|I<CR/><ETX/>91</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>7C|4|I|Abn NRBC Pattern|I<CR/><ETX/>94</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>0C|5|I|System Event: WBC|I<CR/><ETX/>17</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>1C|6|I|System Event: N|I<CR/><ETX/>8B</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>2C|7|I|Low AL2 Events|I<CR/><ETX/>E4</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>3C|8|I|System Event: RBC|I<CR/><ETX/>18</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>4R|1|^^^WBC|6.8|g/uL|3.6 to 10.2|A||F||||20080923072716|IEP005_DxH800<CR/><ETX/>3b</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>5R|2|^^^WOW|6.8|mg/uL||A||F||||20080923072716|IEP005_DxH800<CR/><ETX/>50</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>6R|3|^^^RBC|4.52|g/uL|4.06 to 5.63|A||F||||20080923072716|IEP005_DxH800<CR/><ETX/>a3</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>7R|4|^^^HGB|&lt;10|g/dL|12.5 to 16.3|||F||||20080923072716|IEP005_DxH800<CR/><ETX/>1b</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>0R|5|^^^HCT|39.6|%|36.7 to 47.1|A||F||||20080923072716|IEP005_DxH800<CR/><ETX/>80</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>1R|6|^^^MCV|87.5|fL|73.0 to 96.2|A||F||||20080923072716|IEP005_DxH800<CR/><ETX/>17</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>2R|7|^^^MCH|28.7|pg|23.8 to 33.4|A||F||||20080923072716|IEP005_DxH800<CR/><ETX/>29</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>3R|8|^^^MCHC|32.8|g/dL|32.5 to 36.3|A||F||||20080923072716|IEP005_DxH800<CR/><ETX/>d8</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>4R|9|^^^@LHD|&lt;2|%||A||F||||20080923072716|IEP005_DxH800<CR/><ETX/>a4</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>5C|1|I|Parameter is for research use only, not for diagnostics procedures.|G<CR/><ETX/>3f</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>6R|10|^^^RDW|13.4|%|12.1 to 16.2|A||F||||20080923072716|IEP005_DxH800<CR/><ETX/>a7</rx>
+	<tx><ACK/></tx>
+	<rx><STX/>7L|1|N<CR/><ETX/>0A</rx>
+	<tx><ACK/></tx>
+	<rx><EOT/></rx>
+</io>
+

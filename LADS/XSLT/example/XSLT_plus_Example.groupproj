@@ -1,0 +1,44 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{d6d1673d-5157-4d0b-8fab-ca57050960f8}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Projects Include="..\XSLT.cbproj" />
+    <Projects Include="XSLT_example.cbproj" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Default.Personality</Borland.Personality>
+    <Borland.ProjectType />
+    <BorlandProject>
+  <BorlandProject xmlns=""> <Default.Personality> </Default.Personality> </BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Target Name="XSLT">
+    <MSBuild Projects="..\XSLT.cbproj" Targets="" />
+  </Target>
+  <Target Name="XSLT:Clean">
+    <MSBuild Projects="..\XSLT.cbproj" Targets="Clean" />
+  </Target>
+  <Target Name="XSLT:Make">
+    <MSBuild Projects="..\XSLT.cbproj" Targets="Make" />
+  </Target>
+  <Target Name="XSLT_example">
+    <MSBuild Projects="XSLT_example.cbproj" Targets="" />
+  </Target>
+  <Target Name="XSLT_example:Clean">
+    <MSBuild Projects="XSLT_example.cbproj" Targets="Clean" />
+  </Target>
+  <Target Name="XSLT_example:Make">
+    <MSBuild Projects="XSLT_example.cbproj" Targets="Make" />
+  </Target>
+  <Target Name="Build">
+    <CallTarget Targets="XSLT;XSLT_example" />
+  </Target>
+  <Target Name="Clean">
+    <CallTarget Targets="XSLT:Clean;XSLT_example:Clean" />
+  </Target>
+  <Target Name="Make">
+    <CallTarget Targets="XSLT:Make;XSLT_example:Make" />
+  </Target>
+  <Import Condition="Exists('$(MSBuildBinPath)\Borland.Group.Targets')" Project="$(MSBuildBinPath)\Borland.Group.Targets" />
+</Project>

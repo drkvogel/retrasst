@@ -1,0 +1,32 @@
+----------------------------------------------------  
+function applyRules( qc )  
+  
+  if ( qc.material == "RC" ) then
+
+    rules = { OneThreeSDs, TwoTwoSDs }
+
+  elseif ( qc.material == "DC" ) then
+
+    rules = { TwoTwoSDs }
+
+  else
+    
+    rules = { myWestgardRule }
+
+  end
+  
+  return rules[1](qc)
+
+end
+----------------------------------------------------
+function OneThreeSDs( qc )
+
+  return qc.level * 3
+  
+end
+----------------------------------------------------
+function TwoTwoSDs( qc )
+
+  return qc.level * 2
+  
+end

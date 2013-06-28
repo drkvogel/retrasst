@@ -1,0 +1,466 @@
+<HTML>
+<B><h1>ColourStringGrid.cpp</B></h1><P><P>
+
+<B><h2> Index of functions by name :</B></h2><P><P>
+<table border>
+<tr><th>returns<th>name<th>parameters</tr>
+<tr><td>constructor</td><td><A HREF=#f3>__fastcall TColourStringGrid::TColourStringGrid </A></td><td> (TComponent* Owner) 
+ : TStringGrid(Owner), olRowCount(FRowCount), olColCount(FColCount)</td></tr>
+<P><P>
+<tr><td>destructor</td><td><A HREF=#f5>__fastcall TColourStringGrid::~TColourStringGrid </A></td><td> ()</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f8> __fastcall TColourStringGrid::SetColCount </A></td><td> (int value)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f11> __fastcall TColourStringGrid::SetRowCount </A></td><td> (int value)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f14> __fastcall TColourStringGrid::InsertRow </A></td><td> (int row)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f17> __fastcall TColourStringGrid::CopyRow </A></td><td> (int source_row, int dest_row)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f20> __fastcall TColourStringGrid::DeleteRow </A></td><td> (int row)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f22> __fastcall TColourStringGrid::SetCellColour </A></td><td> (int ACol, int ARow, TColor tc)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f24> __fastcall TColourStringGrid::DelCellColour </A></td><td> (int ACol, int ARow)</td></tr>
+<P><P>
+<tr><td>BOOL</td><td><A HREF=#f28> __fastcall TColourStringGrid::GetCellColour </A></td><td> (int ACol, int ARow, TColor& tc)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f30> __fastcall TColourStringGrid::SetColColour </A></td><td> (int ACol, TColor tc)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f32> __fastcall TColourStringGrid::SetRowColour </A></td><td> (int ARow, TColor tc)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f34> __fastcall TColourStringGrid::DelColColour </A></td><td> (int ACol)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f36> __fastcall TColourStringGrid::DelRowColour </A></td><td> (int ARow)</td></tr>
+<P><P>
+<tr><td>BOOL</td><td><A HREF=#f40> __fastcall TColourStringGrid::GetColColour </A></td><td> (int ACol, TColor& tc)</td></tr>
+<P><P>
+<tr><td>BOOL</td><td><A HREF=#f44> __fastcall TColourStringGrid::GetRowColour </A></td><td> (int ARow, TColor& tc)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f46> __fastcall TColourStringGrid::GrowGrid 
+  </A></td><td> (int oldRows, int newRows, nt oldCols, int newCols)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f48> __fastcall TColourStringGrid::ShrinkGrid 
+  </A></td><td> (int oldRows, int newRows, nt oldCols, int newCols)</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f50> __fastcall TColourStringGrid::ExpandColouredCols </A></td><td> ()</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f52> __fastcall TColourStringGrid::ExpandColouredRows </A></td><td> ()</td></tr>
+<P><P>
+<tr><td>void</td><td><A HREF=#f54> __fastcall TColourStringGrid::DrawCell </A></td><td> (int ACol, int ARow, const Windows::TRect &ARect, 
+ TGridDrawState AState)</td></tr>
+<P><P>
+<tr><td>namespace</td><td><A HREF=#f56> Colourst </A></td><td> (namespace Colourstringgrid )</td></tr>
+<P><P>
+
+</table>
+<P>
+<P>
+<hr><hr>
+<h2>Description of functions</h2><P>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f3">__fastcall TColourStringGrid::TColourStringGrid</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Constructor - do not call directly, but install the ColourStringGrid 
+	as a VCL component in C++ Builder 
+
+
+	<B>Returns  :  </B>
+		constructor
+
+	<B>Parameters : </B>
+		TComponent* Owner)  : TStringGrid(Owner)
+		olRowCount(FRowCount)
+		olColCount(FColCount
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f5">__fastcall TColourStringGrid::~TColourStringGrid</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Destructor - do not call directly 
+
+
+	<B>Returns  :  </B>
+		destructor
+
+	<B>Parameters : </B>
+		
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f8"> __fastcall TColourStringGrid::SetColCount</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Use SetColCount to safely resize a ColourStringGrid by increasing or decreasing the number of columns 
+	Alternatively, set the integer property, TColourStringGrid::ColCount directly. 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int value
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f11"> __fastcall TColourStringGrid::SetRowCount</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Use SetRowCount to safely resize a ColourStringGrid by increasing or decreasing the number of rows. 
+	Alternatively, set the integer property, TColourStringGrid::ColCount directly. 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int value
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f14"> __fastcall TColourStringGrid::InsertRow</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	insert a blank row at row 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int row
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f17"> __fastcall TColourStringGrid::CopyRow</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	copy source_row to dest_row and expand grid by 1 row 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int source_row
+		int dest_row
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f20"> __fastcall TColourStringGrid::DeleteRow</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	delete row 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int row
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f22"> __fastcall TColourStringGrid::SetCellColour</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Use SetCellColour to set the colour of an individual cell 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int ACol
+		int ARow
+		TColor tc
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f24"> __fastcall TColourStringGrid::DelCellColour</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Use DelCellColour to reset the colour of an individual cell to no colour
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int ACol
+		int ARow
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f28"> __fastcall TColourStringGrid::GetCellColour</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Use GetCellColour to get the colour of an individual cell. 
+	Returns true if the cell has a colour set, in which case tc will be set to the same Color 
+	Otherwise, returns false. 
+
+
+	<B>Returns  :  </B>
+		BOOL
+
+	<B>Parameters : </B>
+		int ACol
+		int ARow
+		TColor& tc
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f30"> __fastcall TColourStringGrid::SetColColour</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Use SetColColour to set the colour of all the cells in a column (except any fixed cells) 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int ACol
+		TColor tc
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f32"> __fastcall TColourStringGrid::SetRowColour</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Use SetRowColour to set the colour of all the cells in a row (except any fixed cells) 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int ARow
+		TColor tc
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f34"> __fastcall TColourStringGrid::DelColColour</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Use DelColColour to reset a previously coloured column to no colour 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int ACol
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f36"> __fastcall TColourStringGrid::DelRowColour</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Use DelRowColour to reset a previously coloured row to no colour 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int ARow
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f40"> __fastcall TColourStringGrid::GetColColour</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Use GetColColour to get the colour of a complete column. 
+	Returns true if the cell has a colour set, in which case tc will be set to the same Color 
+	Otherwise, returns false. 
+
+
+	<B>Returns  :  </B>
+		BOOL
+
+	<B>Parameters : </B>
+		int ACol
+		TColor& tc
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f44"> __fastcall TColourStringGrid::GetRowColour</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	Use GetRowColour to get the colour of a complete row. 
+	Returns true if the cell has a colour set, in which case tc will be set to the same Color 
+	Otherwise, returns false. 
+
+
+	<B>Returns  :  </B>
+		BOOL
+
+	<B>Parameters : </B>
+		int ARow
+		TColor& tc
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f46"> __fastcall TColourStringGrid::GrowGrid 
+ </a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	GrowGrid is Private to TColourStringGrid, and cannot be called externally 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int oldRows
+		int newRows
+		nt oldCols
+		int newCols
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f48"> __fastcall TColourStringGrid::ShrinkGrid 
+ </a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	ShrinkGrid is Private to TColourStringGrid, and cannot be called externally 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int oldRows
+		int newRows
+		nt oldCols
+		int newCols
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f50"> __fastcall TColourStringGrid::ExpandColouredCols</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	ExpandColouredCols is Private to TColourStringGrid and cannot be called externally 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f52"> __fastcall TColourStringGrid::ExpandColouredRows</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	ExpandColouredRows is Private to TColourStringGrid and cannot be called externally 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f54"> __fastcall TColourStringGrid::DrawCell</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+	DrawCell should not be called externally. 
+
+
+	<B>Returns  :  </B>
+		void
+
+	<B>Parameters : </B>
+		int ACol
+		int ARow
+		const Windows::TRect &ARect
+		TGridDrawState AState
+
+
+
+</pre>
+<P>
+<P>
+<TABLE><TR><TD COLSPAN=3 bgcolor=#dddddd Align=Left><FONT SIZE5 color="#222222"face = "times"><B><a name="f56"> Colourst</a>( )</B> </TR></TABLE>
+<P>
+<pre>
+
+
+	<B>Returns  :  </B>
+		namespace
+
+	<B>Parameters : </B>
+		namespace Colourstringgrid 
+
+
+
+</pre>
+</HTML>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- 
+This is a configuration file to simplify using TUT (a unit-testing framework) in CodeGear.
+Copy this file into C:\Program Files\CodeGear\RAD Studio\5.0\ObjRepos\Code_Templates\c
+Restart CodeGear.
+To use this code template:
+1) add a new header file to your project
+2) In this header file, press CTL-J, select 'tut' and type in the name of the component 
+   that you're wanting to unit test (no spaces), then hit [RETURN].
+-->
+<codetemplate	xmlns="http://schemas.borland.com/Delphi/2005/codetemplates"
+				version="1.0.0">
+	<template name="tut" invoke="manual">
+	    <point name="ComponentUnderTest">
+			<text>
+				TestGroupName
+			</text>
+			<hint>
+				the name of the test group
+			</hint>
+		</point>
+		<description>
+			 tut test group
+		</description>
+		<author>
+			 Paul
+		</author>
+		<code language="C"><![CDATA[
+#include <tut.h>
+
+
+namespace tut
+{
+    class $ComponentUnderTest$TestFixture
+    {
+    };
+
+    typedef test_group<$ComponentUnderTest$TestFixture, 3> $ComponentUnderTest$TestGroup;
+    $ComponentUnderTest$TestGroup testGroup$ComponentUnderTest$(
+                            "$ComponentUnderTest$ tests");
+    typedef $ComponentUnderTest$TestGroup::object test$ComponentUnderTest$;
+
+    template<>
+    template<>
+    void test$ComponentUnderTest$::test<1>()
+    {
+        set_test_name("$end$");
+    }
+};
+
+]]>
+		</code>
+	</template>
+</codetemplate>
