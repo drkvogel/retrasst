@@ -31,6 +31,7 @@
 #include "ReferredBoxes.h"
 #include "StoreUtil.h"
 #include "SampleMove.h"
+#include "RetrievalAssistant.h"
 
 //---------------------------------------------------------------------------
 
@@ -357,7 +358,10 @@ void __fastcall TfrmStoremain::BtnDiscardClick(TObject *Sender)
 	} while (false);
 }
 
-
-
+void __fastcall TfrmStoremain::BtnRetrieveClick(TObject *Sender)
+{
+	frmRetrievalAssistant->init();
+	frmRetrievalAssistant->ShowModal();
+}
 
 

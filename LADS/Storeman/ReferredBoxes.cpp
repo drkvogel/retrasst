@@ -150,9 +150,7 @@ void TfrmReferred::init() {
     clearGridSelection(sgStorage);
     loadBoxes();
     showBoxes();
-    //progressBottom->Visible = false;
     if (MYDEBUG) cbLog->Visible = true;
-    //FormTest->ShowModal();
 }
 
 void __fastcall TfrmReferred::sgReferredBoxesSelectCell(TObject *Sender, int ACol, int ARow, bool &CanSelect) {

@@ -30,7 +30,6 @@ object frmStoremain: TfrmStoremain
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
-    ExplicitTop = 6
     DesignSize = (
       176
       264)
@@ -218,6 +217,7 @@ object frmStoremain: TfrmStoremain
       Caption = 'Retrieval Assistant'
       TabOrder = 2
       WordWrap = True
+      OnClick = BtnRetrieveClick
     end
     object BtnRationalyse: TButton
       Left = 33

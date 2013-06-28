@@ -28,7 +28,7 @@ LADS/SampleReception/
 LADS/SampleStatus/
 LADS/SerialTest/
 LADS/SpecimenWipeout/
-#LADS/StoreMan/ModelSupport_Storeman/
+LADS/StoreMan/ModelSupport_Storeman/
 #LADS/StoreMan/Storeman.cache
 #LADS/StoreMan/Storeman_project.tvsconfig
 #LADS/StringGrid/

@@ -51,6 +51,7 @@ __published:	// IDE-managed Components
 	void __fastcall btnMoveClick(TObject *Sender);
 	void __fastcall BtnReferredClick(TObject *Sender);
 	void __fastcall FormHide(TObject *Sender);
+    void __fastcall BtnRetrieveClick(TObject *Sender);
 
 private:	// User declarations
 

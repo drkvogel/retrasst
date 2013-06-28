@@ -64,14 +64,14 @@
 			<VerInfo_Locale>2057</VerInfo_Locale>
 			<_TCHARMapping>wchar_t</_TCHARMapping>
 			<ProjectType>CppVCLApplication</ProjectType>
-			<ILINK_LibraryPath>..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;..\StoreMan\;..\..\paulst;$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+			<ILINK_LibraryPath>..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;..\StoreMan\;..\..\paulst;$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
 			<PackageImports>rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;DBXInterBaseDriver;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;bindengine;CustomIPTransport;IndyCore;inet;inetdbxpress;dbexpress;IPIndyImpl;$(PackageImports)</PackageImports>
 			<Multithreaded>true</Multithreaded>
 			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
 			<AllPackageLibs>rtl.lib;vcl.lib;dbrtl.lib;bdertl.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib;vcldb.lib;vclimg.lib</AllPackageLibs>
 			<Icon_MainIcon>snowflake.ico</Icon_MainIcon>
 			<UsingDelphiRTL>true</UsingDelphiRTL>
-			<IncludePath>..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;..\StoreMan\;..\..\paulst;$(II_SYSTEM)\ingres\files\;$(BDSINCLUDE);$(IncludePath)</IncludePath>
+			<IncludePath>..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;..\StoreMan\;..\..\paulst;$(II_SYSTEM)\ingres\files\;$(BDSINCLUDE);$(IncludePath)</IncludePath>
 			<DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
 			<DynamicRTL>true</DynamicRTL>
 			<UsePackages>true</UsePackages>
@@ -336,6 +336,10 @@
 				<DependentOn>..\LabsObjects\ValueFields.h</DependentOn>
 				<BuildOrder>70</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="..\paulst\WorkerThread.cpp">
+				<DependentOn>..\paulst\WorkerThread.h</DependentOn>
+				<BuildOrder>89</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="AddSpecimens.cpp">
 				<Form>frmAddSpecimens</Form>
 				<DependentOn>AddSpecimens.h</DependentOn>
@@ -468,6 +472,12 @@
 				<DependentOn>ReferredBoxesSummary.h</DependentOn>
 				<BuildOrder>89</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="RetrievalAssistant.cpp">
+				<Form>frmRetrievalAssistant</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalAssistant.h</DependentOn>
+				<BuildOrder>90</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="RetrieveSamples.cpp">
 				<Form>frmRetrieved</Form>
 				<DependentOn>RetrieveSamples.h</DependentOn>
@@ -554,6 +564,7 @@
 			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
+			<FormResources Include="RetrievalAssistant.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
