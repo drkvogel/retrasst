@@ -13,4 +13,28 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
+  object comboJob: TComboBox
+    Left = 136
+    Top = 56
+    Width = 145
+    Height = 21
+    Style = csDropDownList
+    TabOrder = 0
+  end
+  object sgBoxes: TStringGrid
+    Left = 64
+    Top = 160
+    Width = 320
+    Height = 120
+    FixedCols = 0
+    TabOrder = 1
+  end
+  object lbJobs: TListBox
+    Left = 88
+    Top = 104
+    Width = 121
+    Height = 97
+    ItemHeight = 13
+    TabOrder = 2
+  end
 end
