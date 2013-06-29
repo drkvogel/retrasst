@@ -78,5 +78,14 @@ Agreed - they can either resume the process immediately if they say they don't w
 
 One more thing about retrieval lists.  There's potentially a two-level hierarchy: a retrieval task (in c_retrieval_job) can belong to a retrieval exercise (in c_object_name).  This is a fairly new idea so, although it's documented for 2.7.2, the data's not all there yet.  That may be why you couldn't find the fields you were looking for
 
+### 28/06/2013 22:46
 
+I doubt you'll get as far as thinking about how to store a retrieval plan this week.  If you do, it currently allows for four options:
+
+section = 0, position = 0: fill all the boxes at once, in default order (i.e. by storage population, structure, slot and cryovial position, a.k.a. tank/rack/slot/position)
+section = 0, position > 0: fill the boxes one by one, from start to finish (i.e. by destination position)
+section > 0, position = 0: fill all the boxes in the first section in default order, then the second section, and so on.
+section > 0, position > 0: fill the boxes in the first section one by one, then the second section, and so on.
+
+You might have one section sorted one way and another section sorted the other but I've only allowed for these two possibilities.  From what Martin was saying about needing greater flexibility in future, we may need to change the table structure to list every cryovial, at least in some cases.  I'll look at that when I get back
 
