@@ -10,16 +10,15 @@
 #pragma argsused
 
 #include <tchar.h>
-#include <stdio.h>
+#include <cstdio>
 
 #include "ForceReloadTest.h"
 #include "QueuedSamplesFactoryTest.h"
 
 void pause()
 {
-        std::cout << "[enter] to quit..."  << std::endl;
-        char c;
-        std::cin >> std::noskipws >> c;
+	std::puts( "[enter] to quit...\n" );
+	std::getchar();
 }
 
 int _tmain(int argc, _TCHAR* argv[])

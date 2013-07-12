@@ -58,7 +58,8 @@ void CursorADO::read( int col, bool& outVal )
 {
     Variant value( getValue( col ) );
 
-    outVal = value;
+	int i = value;
+	outVal = i != 0;
 }
 
 void CursorADO::read( int col, char& outVal )

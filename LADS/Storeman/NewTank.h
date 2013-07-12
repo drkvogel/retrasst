@@ -109,8 +109,8 @@ private:	// User declarations
 	void fillSiteList( int selectedID );
 	void fillUpLayouts();
 	void fillStorageTypes( int selectedID );
-	std::string getPopulationName();
-	std::string getPopDescription();
+	std::string getNextPopulation();
+//	std::string getPopDescription();
 	const LCDbObject * findStorageType();
 	void clearLayoutPanel();
 	void changeVessel( String site, String position );

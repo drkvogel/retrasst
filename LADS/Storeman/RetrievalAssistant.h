@@ -12,8 +12,9 @@ class TfrmRetrievalAssistant : public TForm
 {
 __published:	// IDE-managed Components
     TComboBox *comboJob;
-    TStringGrid *sgBoxes;
     TListBox *lbJobs;
+    TGroupBox *GroupBox1;
+    TStringGrid *sgJobs;
 private:	// User declarations
     void loadJobs();
     void loadBoxes();

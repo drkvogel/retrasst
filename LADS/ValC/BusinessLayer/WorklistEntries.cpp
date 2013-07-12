@@ -3,6 +3,7 @@
 #include <boost/foreach.hpp>
 #include "Require.h"
 #include "WorklistEntries.h"
+#include "WorklistEntryIteratorImpl.h"
 
 namespace valc
 {
@@ -22,12 +23,29 @@ void WorklistEntries::add( const WorklistEntry* e )
     }
 }
 
+Range<WorklistEntryIterator> WorklistEntries::equal_range( const std::string& sampleDescriptor ) const
+{
+    WorklistEntriesKeyedOnSampleDescriptor::const_iterator begin, end;
+    std::pair<WorklistEntriesKeyedOnSampleDescriptor::const_iterator, WorklistEntriesKeyedOnSampleDescriptor::const_iterator> entriesForSample;
+
+    entriesForSample = m_mapKeyedOnSampleDescriptor.equal_range(sampleDescriptor);
+
+    begin = entriesForSample.first;
+    end   = entriesForSample.second;
+
+    return Range<WorklistEntryIterator>( 
+        WorklistEntryIterator( new WorklistEntryIteratorImpl( begin, end ) ),
+        WorklistEntryIterator( new WorklistEntryIteratorImpl( end,   end ) )  );
+}
+
 void WorklistEntries::forEach( WorklistDirectory::Func& f, const std::string& sampleDescriptor ) const
 {
+    typedef WorklistEntriesKeyedOnSampleDescriptor::const_iterator Iter;
+
     paulst::AcquireCriticalSection a( m_criticalSection );
 
     {
-        MapKeyedOnSampleDescriptor::const_iterator begin, end;
+        Iter begin, end;
 
         if ( sampleDescriptor.empty() )
         {
@@ -36,7 +54,7 @@ void WorklistEntries::forEach( WorklistDirectory::Func& f, const std::string& sa
         }
         else
         {
-            std::pair<MapKeyedOnSampleDescriptor::const_iterator, MapKeyedOnSampleDescriptor::const_iterator> entriesForSample;
+            std::pair<Iter, Iter> entriesForSample;
 
             entriesForSample = m_mapKeyedOnSampleDescriptor.equal_range(sampleDescriptor);
 
@@ -44,7 +62,7 @@ void WorklistEntries::forEach( WorklistDirectory::Func& f, const std::string& sa
             end   = entriesForSample.second;
         }
 
-        for( MapKeyedOnSampleDescriptor::const_iterator i = begin; i != end; ++i )
+        for( Iter i = begin; i != end; ++i )
         {
             if ( ! sampleDescriptor.empty() )
             {

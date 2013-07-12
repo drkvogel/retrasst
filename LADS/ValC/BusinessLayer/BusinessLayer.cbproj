@@ -5,8 +5,8 @@
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <TargetedPlatforms>1</TargetedPlatforms>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <TargetedPlatforms>2</TargetedPlatforms>
         <AppType>StaticLibrary</AppType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -80,6 +80,11 @@
         <PackageImports>vcldbx;TeeDB;vclib;inetdbbde;Tee;ibxpress;vclimg;intrawebdb_120_160;FMXTee;vcldb;vclactnband;vcldsnap;bindcompvcl;TeeUI;vclie;vcltouch;Intraweb_120_160;bcbsmp;websnap;vclribbon;VclSmp;vcl;CloudService;CodeSiteExpressPkg;FmxTeeUI;dsnapcon;vclx;webdsnap;bdertl;adortl;bcbie;$(PackageImports)</PackageImports>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <TLIB_CaseSensitive>true</TLIB_CaseSensitive>
+        <Manifest_File>None</Manifest_File>
+        <VerInfo_Locale>2057</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0</VerInfo_Keys>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <PackageImports>vcldbx;TeeDB;vclib;inetdbbde;Tee;ibxpress;vclimg;intrawebdb_120_160;FMXTee;vcldb;vclactnband;vcldsnap;bindcompvcl;TeeUI;vclie;vcltouch;Intraweb_120_160;bcbsmp;websnap;vclribbon;VclSmp;vcl;CloudService;CodeSiteExpressPkg;FmxTeeUI;dsnapcon;vclx;webdsnap;bdertl;adortl;bcbie;$(PackageImports)</PackageImports>
         <Defines>STRICT;XSQL_INGRES;BOOST_LEXICAL_CAST_ASSUME_C_LOCALE;$(Defines)</Defines>
     </PropertyGroup>
@@ -186,9 +191,21 @@
             <DependentOn>LoadReferencedWorklistEntries.h</DependentOn>
             <BuildOrder>23</BuildOrder>
         </CppCompile>
+        <CppCompile Include="LoadTestNames.cpp">
+            <DependentOn>LoadTestNames.h</DependentOn>
+            <BuildOrder>37</BuildOrder>
+        </CppCompile>
         <CppCompile Include="LoadWorklistEntries.cpp">
             <DependentOn>LoadWorklistEntries.h</DependentOn>
             <BuildOrder>21</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="MockConnection.cpp">
+            <DependentOn>MockConnection.h</DependentOn>
+            <BuildOrder>33</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="MockConnectionFactory.cpp">
+            <DependentOn>MockConnectionFactory.h</DependentOn>
+            <BuildOrder>32</BuildOrder>
         </CppCompile>
         <CppCompile Include="Projects.cpp">
             <DependentOn>Projects.h</DependentOn>
@@ -221,9 +238,19 @@
             <DependentOn>SampleRunIDResolutionService.h</DependentOn>
             <BuildOrder>28</BuildOrder>
         </CppCompile>
+        <CppCompile Include="StringBackedCursor.cpp">
+            <DependentOn>StringBackedCursor.h</DependentOn>
+            <BuildOrder>31</BuildOrder>
+        </CppCompile>
+        <None Include="TestNames.h">
+            <BuildOrder>36</BuildOrder>
+        </None>
         <CppCompile Include="TestResultImpl.cpp">
             <DependentOn>TestResultImpl.h</DependentOn>
             <BuildOrder>6</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="TestResultIteratorImpl.cpp">
+            <BuildOrder>35</BuildOrder>
         </CppCompile>
         <CppCompile Include="WorklistDirectory.cpp">
             <DependentOn>WorklistDirectory.h</DependentOn>
@@ -241,12 +268,16 @@
             <DependentOn>WorklistEntryImpl.h</DependentOn>
             <BuildOrder>13</BuildOrder>
         </CppCompile>
+        <CppCompile Include="WorklistEntryIteratorImpl.cpp">
+            <DependentOn>WorklistEntryIteratorImpl.h</DependentOn>
+            <BuildOrder>34</BuildOrder>
+        </CppCompile>
         <CppCompile Include="WorklistRelation.cpp">
             <DependentOn>WorklistRelation.h</DependentOn>
             <BuildOrder>12</BuildOrder>
         </CppCompile>
-        <LibFiles Include="..\..\..\paulst\Win32\Release\paulst.lib" Condition="'$(Platform)'=='Win32'">
-            <BuildOrder>11</BuildOrder>
+        <LibFiles Include="..\..\..\paulst\Win64\Release\paulst.a" Condition="'$(Platform)'=='Win64' Or '$(Platform)'=='OSX32'">
+            <BuildOrder>35</BuildOrder>
         </LibFiles>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
@@ -301,8 +332,8 @@
             <Deployment/>
             <Platforms>
                 <Platform value="OSX32">False</Platform>
-                <Platform value="Win32">True</Platform>
-                <Platform value="Win64">False</Platform>
+                <Platform value="Win32">False</Platform>
+                <Platform value="Win64">True</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

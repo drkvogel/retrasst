@@ -5,8 +5,8 @@
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <TargetedPlatforms>1</TargetedPlatforms>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <TargetedPlatforms>2</TargetedPlatforms>
         <AppType>Console</AppType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -65,7 +65,7 @@
         <ILINK_LibraryPath>..\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <ProjectType>CppConsoleApplication</ProjectType>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <IncludePath>..\;$(IncludePath)</IncludePath>
+        <IncludePath>..\;..\..\..\TUT;..\..\..\..\paulst;$(IncludePath)</IncludePath>
         <UsingDelphiRTL>true</UsingDelphiRTL>
         <AllPackageLibs>rtl.lib;vcl.lib</AllPackageLibs>
         <_TCHARMapping>char</_TCHARMapping>
@@ -80,13 +80,17 @@
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\release\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <ILINK_LibraryPath>J:\cvs\paulst\Win32\Release\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <Defines>BOOST_LEXICAL_CAST_ASSUME_C_LOCALE;$(Defines)</Defines>
+        <ILINK_LibraryPath>J:\cvs\LADS\ValC\BusinessLayer\Win32\Debug\;J:\cvs\paulst\Win32\Release\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <IncludePath>$(BDSINCLUDE)\windows\vcl;J:\cvs\LADS\TUT;J:\cvs\paulst;$(IncludePath)</IncludePath>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <PackageImports>vcldbx;frx16;TeeDB;vclib;inetdbbde;Tee;Rave100VCL;ibxpress;vclimg;intrawebdb_120_160;frxDB16;fs16;FMXTee;vcldb;vclactnband;vcldsnap;bindcompvcl;TeeUI;vclie;vcltouch;Intraweb_120_160;bcbsmp;websnap;vclribbon;VclSmp;frxe16;fsDB16;vcl;CloudService;CodeSiteExpressPkg;FmxTeeUI;dsnapcon;vclx;webdsnap;bdertl;adortl;bcbie;$(PackageImports)</PackageImports>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <ILINK_LibraryPath>J:\cvs\paulst\Win64\Release\;J:\cvs\paulst\;J:\cvs\LADS\ValC\BusinessLayer\Win64\Debug\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Locale>1033</VerInfo_Locale>
         <PackageImports>vcldbx;frx16;TeeDB;vclib;inetdbbde;Tee;Rave100VCL;ibxpress;vclimg;intrawebdb_120_160;frxDB16;fs16;FMXTee;vcldb;vclactnband;vcldsnap;bindcompvcl;TeeUI;vclie;vcltouch;Intraweb_120_160;bcbsmp;websnap;vclribbon;VclSmp;frxe16;fsDB16;vcl;CloudService;CodeSiteExpressPkg;FmxTeeUI;dsnapcon;vclx;webdsnap;bdertl;adortl;bcbie;$(PackageImports)</PackageImports>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
@@ -107,13 +111,15 @@
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <Debugger_DebugSourcePath>J:\cvs\paulst\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <Defines>_DEBUG;$(Defines)</Defines>
         <LinkPackageImports>rtl.bpi;vcl.bpi</LinkPackageImports>
         <BCC_PCHUsage>None</BCC_PCHUsage>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>None</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <LinkPackageImports>rtl.bpi;vcl.bpi</LinkPackageImports>
+        <VerInfo_Locale>1033</VerInfo_Locale>
         <Defines>_DEBUG;$(Defines)</Defines>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -126,131 +132,21 @@
         <Defines>NDEBUG;$(Defines)</Defines>
     </PropertyGroup>
     <ItemGroup>
-        <CppCompile Include="..\AllocateLocalResultsToWorklistEntries.cpp">
-            <DependentOn>..\AllocateLocalResultsToWorklistEntries.h</DependentOn>
-            <BuildOrder>31</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\AnalysisActivitySnapshotImpl.cpp">
-            <DependentOn>..\AnalysisActivitySnapshotImpl.h</DependentOn>
-            <BuildOrder>27</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\API.cpp">
-            <DependentOn>..\API.h</DependentOn>
-            <BuildOrder>26</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\BuddyDatabase.cpp">
-            <DependentOn>..\BuddyDatabase.h</DependentOn>
-            <BuildOrder>25</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\BuddyDatabaseBuilder.cpp">
-            <DependentOn>..\BuddyDatabaseBuilder.h</DependentOn>
-            <BuildOrder>24</BuildOrder>
-        </CppCompile>
-        <None Include="..\ClusterIDs.h">
-            <BuildOrder>3</BuildOrder>
-        </None>
-        <CppCompile Include="..\CursorBackedWorklistRelationsDataSource.cpp">
-            <DependentOn>..\CursorBackedWorklistRelationsDataSource.h</DependentOn>
-            <BuildOrder>30</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LoadBuddyDatabase.cpp">
-            <DependentOn>..\LoadBuddyDatabase.h</DependentOn>
-            <BuildOrder>23</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LoadClusterIDs.cpp">
-            <DependentOn>..\LoadClusterIDs.h</DependentOn>
-            <BuildOrder>22</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LoadProjects.cpp">
-            <DependentOn>..\LoadProjects.h</DependentOn>
-            <BuildOrder>21</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LoadReferencedWorklistEntries.cpp">
-            <DependentOn>..\LoadReferencedWorklistEntries.h</DependentOn>
-            <BuildOrder>20</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LoadWorklistEntries.cpp">
-            <DependentOn>..\LoadWorklistEntries.h</DependentOn>
-            <BuildOrder>19</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\Projects.cpp">
-            <DependentOn>..\Projects.h</DependentOn>
-            <BuildOrder>29</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\QueueBuilderParams.cpp">
-            <DependentOn>..\QueueBuilderParams.h</DependentOn>
-            <BuildOrder>28</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\QueuedSamplesBuilderFunction.cpp">
-            <DependentOn>..\QueuedSamplesBuilderFunction.h</DependentOn>
-            <BuildOrder>1</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\ResultDirectory.cpp">
-            <DependentOn>..\ResultDirectory.h</DependentOn>
-            <BuildOrder>18</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\ResultIndex.cpp">
-            <BuildOrder>17</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\SampleRun.cpp">
-            <DependentOn>..\SampleRun.h</DependentOn>
-            <BuildOrder>16</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\SampleRunID.cpp">
-            <DependentOn>..\SampleRunID.h</DependentOn>
-            <BuildOrder>15</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\SampleRunIDResolutionService.cpp">
-            <DependentOn>..\SampleRunIDResolutionService.h</DependentOn>
-            <BuildOrder>14</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\TestResultImpl.cpp">
-            <DependentOn>..\TestResultImpl.h</DependentOn>
-            <BuildOrder>13</BuildOrder>
-        </CppCompile>
         <None Include="ForceReloadTest.h">
             <BuildOrder>32</BuildOrder>
         </None>
         <CppCompile Include="main.cpp">
             <BuildOrder>0</BuildOrder>
         </CppCompile>
-        <CppCompile Include="MockConnection.cpp">
-            <DependentOn>MockConnection.h</DependentOn>
-            <BuildOrder>12</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="MockConnectionFactory.cpp">
-            <DependentOn>MockConnectionFactory.h</DependentOn>
-            <BuildOrder>11</BuildOrder>
-        </CppCompile>
         <None Include="QueuedSamplesFactoryTest.h">
             <BuildOrder>2</BuildOrder>
         </None>
-        <CppCompile Include="StringBackedCursor.cpp">
-            <DependentOn>StringBackedCursor.h</DependentOn>
-            <BuildOrder>10</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\WorklistDirectory.cpp">
-            <DependentOn>..\WorklistDirectory.h</DependentOn>
-            <BuildOrder>12</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\WorklistEntries.cpp">
-            <DependentOn>..\WorklistEntries.h</DependentOn>
-            <BuildOrder>11</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\WorklistEntryBuilder.cpp">
-            <DependentOn>..\WorklistEntryBuilder.h</DependentOn>
-            <BuildOrder>10</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\WorklistEntryImpl.cpp">
-            <DependentOn>..\WorklistEntryImpl.h</DependentOn>
-            <BuildOrder>9</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\WorklistRelation.cpp">
-            <DependentOn>..\WorklistRelation.h</DependentOn>
-            <BuildOrder>8</BuildOrder>
-        </CppCompile>
-        <LibFiles Include="..\..\..\..\paulst\Win32\Release\paulst.lib" Condition="'$(Platform)'=='Win32'">
-            <BuildOrder>5</BuildOrder>
+        <LibFiles Include="..\Win64\Debug\BusinessLayer.a" Condition="'$(Platform)'=='Win64'">
+            <BuildOrder>3</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
+        <LibFiles Include="..\..\..\..\paulst\Win64\Release\paulst.a" Condition="'$(Platform)'=='Win64'">
+            <BuildOrder>4</BuildOrder>
             <IgnorePath>true</IgnorePath>
         </LibFiles>
         <BuildConfiguration Include="Release">
@@ -303,16 +199,16 @@
                     <ProjectProperties Name="VerifyPackages">True</ProjectProperties>
                 </ProjectProperties>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k160.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp160.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k180.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp180.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </CPlusPlusBuilder.Personality>
             <Deployment/>
             <Platforms>
-                <Platform value="Win32">True</Platform>
-                <Platform value="Win64">False</Platform>
+                <Platform value="Win32">False</Platform>
+                <Platform value="Win64">True</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

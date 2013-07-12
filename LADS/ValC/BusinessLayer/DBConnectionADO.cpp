@@ -22,7 +22,7 @@ DBConnectionADO::DBConnectionADO( const Properties& p )
         try
         {
             m_con->Execute( sessionReadLockSetting.c_bstr(), NULL,
-                Adodb_tlb::ExecuteOptionEnum::adExecuteNoRecords );
+				static_cast<long>(Adodb_tlb::ExecuteOptionEnum::adExecuteNoRecords) );
         }
         catch( ... )
         {
@@ -56,7 +56,8 @@ Cursor* DBConnectionADO::executeQuery( const std::string& sql )
 void DBConnectionADO::executeStmt( const std::string& sql )
 {
     WideString sqlWide(sql.c_str());
-    m_con->Execute( sqlWide.c_bstr(), NULL, Adodb_tlb::ExecuteOptionEnum::adExecuteNoRecords );
+	m_con->Execute( sqlWide.c_bstr(), NULL,
+		static_cast<long>(Adodb_tlb::ExecuteOptionEnum::adExecuteNoRecords) );
 }
 
 }

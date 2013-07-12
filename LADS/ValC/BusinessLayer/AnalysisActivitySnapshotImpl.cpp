@@ -12,14 +12,15 @@ namespace valc
 
 AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl( 
     const ClusterIDs* clusterIDs, const Projects* p, const BuddyDatabase* bdb, paulst::LoggingService* log, 
-    const ResultDirectory* rd, const WorklistDirectory* wd )
+    const ResultDirectory* rd, const WorklistDirectory* wd, const TestNames* tns )
     : 
     m_buddyDatabase     ( bdb ),
     m_clusterIDs        ( clusterIDs ),
     m_log               ( log),
     m_projects          ( p ),
     m_resultDirectory   ( rd ),
-    m_worklistDirectory ( wd )
+    m_worklistDirectory ( wd ),
+    m_testNames         ( tns )
 {
     BOOST_FOREACH( const SampleRun& sr, *m_buddyDatabase )
     {
@@ -28,6 +29,12 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
 
     QueuedSamplesBuilderFunction buildQueue( new QueueBuilderParams( bdb, wd, clusterIDs ) );
     buildQueue( &m_queuedSamples ); 
+}
+
+std::string AnalysisActivitySnapshotImpl::getTestName( int testID ) const
+{
+    TestNames::const_iterator i = m_testNames->find( testID );
+    return i == m_testNames->end() ? std::string("Unknown test") : i->second;
 }
 
 LocalEntryIterator AnalysisActivitySnapshotImpl::localBegin() const
@@ -50,23 +57,9 @@ QueuedSampleIterator AnalysisActivitySnapshotImpl::queueEnd()   const
     return m_queuedSamples.end();
 }
 
-class WorklistEntryCollector : public WorklistDirectory::Func
+Range<WorklistEntryIterator> AnalysisActivitySnapshotImpl::getWorklistEntries( const std::string& sampleDescriptor ) const
 {
-public:
-    SampleWorklistEntries worklistEntries;
-
-    void execute( const WorklistEntry* wle )
-    {
-        worklistEntries.push_back( wle );
-    }
-};
-
-
-SampleWorklistEntries AnalysisActivitySnapshotImpl::getWorklistEntries( const std::string& sampleDescriptor ) const
-{
-    WorklistEntryCollector wec;
-    m_worklistDirectory->forEach( wec, sampleDescriptor );
-    return wec.worklistEntries;
+    return m_worklistDirectory->equal_range( sampleDescriptor );
 }
 
 }

@@ -44,7 +44,6 @@ object frmReferredBoxesSummary: TfrmReferredBoxesSummary
       FixedCols = 0
       TabOrder = 0
       OnDrawCell = sgBoxesDrawCell
-      ExplicitHeight = 266
     end
   end
   object Panel1: TPanel
@@ -73,6 +72,17 @@ object frmReferredBoxesSummary: TfrmReferredBoxesSummary
       TabOrder = 1
       OnClick = btnCancelClick
     end
+    object cbDummy: TCheckBox
+      Left = 264
+      Top = 8
+      Width = 97
+      Height = 17
+      Caption = 'Dummy run'
+      Checked = True
+      State = cbChecked
+      TabOrder = 2
+      OnClick = cbDummyClick
+    end
   end
   object GroupBox2: TGroupBox
     Left = 0
@@ -82,21 +92,14 @@ object frmReferredBoxesSummary: TfrmReferredBoxesSummary
     Align = alClient
     Caption = 'Log'
     TabOrder = 2
-    ExplicitLeft = 40
-    ExplicitTop = 312
-    ExplicitWidth = 185
-    ExplicitHeight = 105
     object memoLog: TMemo
       Left = 2
       Top = 15
       Width = 972
       Height = 180
       Align = alClient
+      ScrollBars = ssVertical
       TabOrder = 0
-      ExplicitLeft = 272
-      ExplicitTop = 120
-      ExplicitWidth = 185
-      ExplicitHeight = 89
     end
   end
 end

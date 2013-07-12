@@ -1,6 +1,7 @@
 #ifndef WORKLISTDIRECTORYH
 #define WORKLISTDIRECTORYH
 
+#include "API.h"
 #include <string>
 
 namespace valc
@@ -29,6 +30,8 @@ public:
         for these entries are bound to be consecutive.
     */
     virtual void forEach( Func& f, const std::string& sampleDescriptor = "" ) const = 0;
+    virtual Range<WorklistEntryIterator> equal_range( const std::string& sampleDescriptor = "" ) const = 0;
+
 };
 
 };

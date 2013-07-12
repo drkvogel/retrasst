@@ -1,12 +1,12 @@
 // ************************************************************************ //
 // WARNING                                                                    
-// -------                                                                    
+// -------
 // The types declared in this file were generated from data read from a       
 // Type Library. If this type library is explicitly or indirectly (via        
 // another type library referring to this type library) re-imported, or the   
 // 'Refresh' command of the Type Library Editor activated while editing the   
 // Type Library, the contents of this file will be regenerated and all        
-// manual modifications will be lost.                                         
+// manual modifications will be lost.
 // ************************************************************************ //
 
 // $Rev: 39763 $
@@ -172,58 +172,60 @@ extern __declspec (package) const GUID CLSID_Parameter;
 // *********************************************************************//
 // Forward declaration of types defined in TypeLibrary                    
 // *********************************************************************//
-enum class    CursorTypeEnum;
-enum class    CursorOptionEnum;
-enum class    LockTypeEnum;
-enum class    ExecuteOptionEnum;
-enum class    ConnectOptionEnum;
-enum class    ObjectStateEnum;
-enum class    CursorLocationEnum;
-enum class    DataTypeEnum;
-enum class    FieldAttributeEnum;
-enum class    EditModeEnum;
-enum class    RecordStatusEnum;
-enum class    GetRowsOptionEnum;
-enum class    PositionEnum;
-enum class    BookmarkEnum;
-enum class    MarshalOptionsEnum;
-enum class    AffectEnum;
-enum class    ResyncEnum;
-enum class    CompareEnum;
-enum class    FilterGroupEnum;
-enum class    SearchDirectionEnum;
-enum class    PersistFormatEnum;
-enum class    StringFormatEnum;
-enum class    ConnectPromptEnum;
-enum class    ConnectModeEnum;
-enum class    RecordCreateOptionsEnum;
-enum class    RecordOpenOptionsEnum;
-enum class    IsolationLevelEnum;
-enum class    XactAttributeEnum;
-enum class    PropertyAttributesEnum;
-enum class    ErrorValueEnum;
-enum class    ParameterAttributesEnum;
-enum class    ParameterDirectionEnum;
-enum class    CommandTypeEnum;
-enum class    EventStatusEnum;
-enum class    EventReasonEnum;
-enum class    SchemaEnum;
-enum class    FieldStatusEnum;
-enum class    SeekEnum;
-enum class    ADCPROP_UPDATECRITERIA_ENUM;
-enum class    ADCPROP_ASYNCTHREADPRIORITY_ENUM;
-enum class    ADCPROP_AUTORECALC_ENUM;
-enum class    ADCPROP_UPDATERESYNC_ENUM;
-enum class    MoveRecordOptionsEnum;
-enum class    CopyRecordOptionsEnum;
-enum class    StreamTypeEnum;
-enum class    LineSeparatorEnum;
-enum class    StreamOpenOptionsEnum;
-enum class    StreamWriteEnum;
-enum class    SaveOptionsEnum;
-enum class    FieldEnum;
-enum class    StreamReadEnum;
-enum class    RecordTypeEnum;
+
+enum class    CursorTypeEnum : unsigned long;
+enum class    CursorOptionEnum : unsigned long;
+enum class    LockTypeEnum   : unsigned long;
+enum class    ExecuteOptionEnum : unsigned long;
+enum class    ConnectOptionEnum : unsigned long;
+enum class    ObjectStateEnum : unsigned long;
+enum class    CursorLocationEnum : unsigned long;
+enum class    DataTypeEnum : unsigned long;
+enum class    FieldAttributeEnum : unsigned long;
+enum class    EditModeEnum : unsigned long;
+enum class    RecordStatusEnum : unsigned long;
+enum class    GetRowsOptionEnum : unsigned long;
+enum class    PositionEnum : unsigned long;
+enum class    BookmarkEnum : unsigned long;
+enum class    MarshalOptionsEnum : unsigned long;
+enum class    AffectEnum : unsigned long;
+enum class    ResyncEnum : unsigned long;
+enum class    CompareEnum : unsigned long;
+enum class    FilterGroupEnum : unsigned long;
+enum class    SearchDirectionEnum : unsigned long;
+enum class    PersistFormatEnum : unsigned long;
+enum class    StringFormatEnum : unsigned long;
+enum class    ConnectPromptEnum : unsigned long;
+enum class    ConnectModeEnum : unsigned long;
+enum class    RecordCreateOptionsEnum : unsigned long;
+enum class    RecordOpenOptionsEnum : unsigned long;
+enum class    IsolationLevelEnum : unsigned long;
+enum class    XactAttributeEnum : unsigned long;
+enum class    PropertyAttributesEnum : unsigned long;
+enum class    ErrorValueEnum : unsigned long;
+enum class    ParameterAttributesEnum : unsigned long;
+enum class    ParameterDirectionEnum : unsigned long;
+enum class    CommandTypeEnum : unsigned long;
+enum class    EventStatusEnum : unsigned long;
+enum class    EventReasonEnum : unsigned long;
+enum class    SchemaEnum : unsigned long;
+enum class    FieldStatusEnum : unsigned long;
+enum class    SeekEnum : unsigned long;
+enum class    ADCPROP_UPDATECRITERIA_ENUM : unsigned long;
+enum class    ADCPROP_ASYNCTHREADPRIORITY_ENUM : unsigned long;
+enum class    ADCPROP_AUTORECALC_ENUM : unsigned long;
+enum class    ADCPROP_UPDATERESYNC_ENUM : unsigned long;
+enum class    MoveRecordOptionsEnum : unsigned long;
+enum class    CopyRecordOptionsEnum : unsigned long;
+enum class    StreamTypeEnum : unsigned long;
+enum class    LineSeparatorEnum : unsigned long;
+enum class    StreamOpenOptionsEnum : unsigned long;
+enum class    StreamWriteEnum : unsigned long;
+enum class    SaveOptionsEnum : unsigned long;
+enum class    FieldEnum : unsigned long;
+enum class    StreamReadEnum : unsigned long;
+enum class    RecordTypeEnum : unsigned long;
+
 interface DECLSPEC_UUID("{00000512-0000-0010-8000-00AA006D2EA4}") _Collection;
 typedef TComInterface<_Collection, &IID__Collection> _CollectionPtr;
 
@@ -371,633 +373,633 @@ typedef Adodb_tlb::SearchDirectionEnum SearchDirection;
 // *********************************************************************//
 // Declaration of Enumerations defined in Type Library                    
 // *********************************************************************//
-enum class CursorTypeEnum
+enum class CursorTypeEnum : unsigned long
 {
-  adOpenUnspecified = 0xFFFFFFFF, 
-  adOpenForwardOnly = 0, 
-  adOpenKeyset = 1, 
-  adOpenDynamic = 2, 
+  adOpenUnspecified = 0xFFFFFFFF,
+  adOpenForwardOnly = 0,
+  adOpenKeyset = 1,
+  adOpenDynamic = 2,
   adOpenStatic = 3
 };
 
-enum class CursorOptionEnum
+enum class CursorOptionEnum : unsigned long
 {
-  adHoldRecords = 256, 
-  adMovePrevious = 512, 
-  adAddNew = 16778240, 
-  adDelete = 16779264, 
-  adUpdate = 16809984, 
-  adBookmark = 8192, 
-  adApproxPosition = 16384, 
-  adUpdateBatch = 65536, 
-  adResync = 131072, 
-  adNotify = 262144, 
-  adFind = 524288, 
-  adSeek = 4194304, 
+  adHoldRecords = 256,
+  adMovePrevious = 512,
+  adAddNew = 16778240,
+  adDelete = 16779264,
+  adUpdate = 16809984,
+  adBookmark = 8192,
+  adApproxPosition = 16384,
+  adUpdateBatch = 65536,
+  adResync = 131072,
+  adNotify = 262144,
+  adFind = 524288,
+  adSeek = 4194304,
   adIndex = 8388608
 };
 
-enum class LockTypeEnum
+enum class LockTypeEnum : unsigned long
 {
-  adLockUnspecified = 0xFFFFFFFF, 
-  adLockReadOnly = 1, 
-  adLockPessimistic = 2, 
-  adLockOptimistic = 3, 
+  adLockUnspecified = 0xFFFFFFFF,
+  adLockReadOnly = 1,
+  adLockPessimistic = 2,
+  adLockOptimistic = 3,
   adLockBatchOptimistic = 4
 };
 
-enum class ExecuteOptionEnum
+enum class ExecuteOptionEnum : unsigned long
 {
-  adOptionUnspecified = 0xFFFFFFFF, 
-  adAsyncExecute = 16, 
-  adAsyncFetch = 32, 
-  adAsyncFetchNonBlocking = 64, 
-  adExecuteNoRecords = 128, 
-  adExecuteStream = 1024, 
+  adOptionUnspecified = 0xFFFFFFFF,
+  adAsyncExecute = 16,
+  adAsyncFetch = 32,
+  adAsyncFetchNonBlocking = 64,
+  adExecuteNoRecords = 128,
+  adExecuteStream = 1024,
   adExecuteRecord = 2048
 };
 
-enum class ConnectOptionEnum
+enum class ConnectOptionEnum : unsigned long
 {
-  adConnectUnspecified = 0xFFFFFFFF, 
+  adConnectUnspecified = 0xFFFFFFFF,
   adAsyncConnect = 16
 };
 
-enum class ObjectStateEnum
+enum class ObjectStateEnum : unsigned long
 {
-  adStateClosed = 0, 
-  adStateOpen = 1, 
-  adStateConnecting = 2, 
-  adStateExecuting = 4, 
+  adStateClosed = 0,
+  adStateOpen = 1,
+  adStateConnecting = 2,
+  adStateExecuting = 4,
   adStateFetching = 8
 };
 
-enum class CursorLocationEnum
+enum class CursorLocationEnum  : unsigned long
 {
-  adUseNone = 1, 
-  adUseServer = 2, 
-  adUseClient = 3, 
+  adUseNone = 1,
+  adUseServer = 2,
+  adUseClient = 3,
   adUseClientBatch = 3
 };
 
-enum class DataTypeEnum
+enum class DataTypeEnum : unsigned long
 {
-  adEmpty = 0, 
-  adTinyInt = 16, 
-  adSmallInt = 2, 
-  adInteger = 3, 
-  adBigInt = 20, 
-  adUnsignedTinyInt = 17, 
-  adUnsignedSmallInt = 18, 
-  adUnsignedInt = 19, 
-  adUnsignedBigInt = 21, 
-  adSingle = 4, 
-  adDouble = 5, 
-  adCurrency = 6, 
-  adDecimal = 14, 
-  adNumeric = 131, 
-  adBoolean = 11, 
-  adError = 10, 
-  adUserDefined = 132, 
-  adVariant = 12, 
-  adIDispatch = 9, 
-  adIUnknown = 13, 
-  adGUID = 72, 
-  adDate = 7, 
-  adDBDate = 133, 
-  adDBTime = 134, 
-  adDBTimeStamp = 135, 
-  adBSTR = 8, 
-  adChar = 129, 
-  adVarChar = 200, 
-  adLongVarChar = 201, 
-  adWChar = 130, 
-  adVarWChar = 202, 
-  adLongVarWChar = 203, 
-  adBinary = 128, 
-  adVarBinary = 204, 
-  adLongVarBinary = 205, 
-  adChapter = 136, 
-  adFileTime = 64, 
-  adPropVariant = 138, 
-  adVarNumeric = 139, 
+  adEmpty = 0,
+  adTinyInt = 16,
+  adSmallInt = 2,
+  adInteger = 3,
+  adBigInt = 20,
+  adUnsignedTinyInt = 17,
+  adUnsignedSmallInt = 18,
+  adUnsignedInt = 19,
+  adUnsignedBigInt = 21,
+  adSingle = 4,
+  adDouble = 5,
+  adCurrency = 6,
+  adDecimal = 14,
+  adNumeric = 131,
+  adBoolean = 11,
+  adError = 10,
+  adUserDefined = 132,
+  adVariant = 12,
+  adIDispatch = 9,
+  adIUnknown = 13,
+  adGUID = 72,
+  adDate = 7,
+  adDBDate = 133,
+  adDBTime = 134,
+  adDBTimeStamp = 135,
+  adBSTR = 8,
+  adChar = 129,
+  adVarChar = 200,
+  adLongVarChar = 201,
+  adWChar = 130,
+  adVarWChar = 202,
+  adLongVarWChar = 203,
+  adBinary = 128,
+  adVarBinary = 204,
+  adLongVarBinary = 205,
+  adChapter = 136,
+  adFileTime = 64,
+  adPropVariant = 138,
+  adVarNumeric = 139,
   adArray = 8192
 };
 
-enum class FieldAttributeEnum
+enum class FieldAttributeEnum : unsigned long
 {
-  adFldUnspecified = 0xFFFFFFFF, 
-  adFldMayDefer = 2, 
-  adFldUpdatable = 4, 
-  adFldUnknownUpdatable = 8, 
-  adFldFixed = 16, 
-  adFldIsNullable = 32, 
-  adFldMayBeNull = 64, 
-  adFldLong = 128, 
-  adFldRowID = 256, 
-  adFldRowVersion = 512, 
-  adFldCacheDeferred = 4096, 
-  adFldIsChapter = 8192, 
-  adFldNegativeScale = 16384, 
-  adFldKeyColumn = 32768, 
-  adFldIsRowURL = 65536, 
-  adFldIsDefaultStream = 131072, 
+  adFldUnspecified = 0xFFFFFFFF,
+  adFldMayDefer = 2,
+  adFldUpdatable = 4,
+  adFldUnknownUpdatable = 8,
+  adFldFixed = 16,
+  adFldIsNullable = 32,
+  adFldMayBeNull = 64,
+  adFldLong = 128,
+  adFldRowID = 256,
+  adFldRowVersion = 512,
+  adFldCacheDeferred = 4096,
+  adFldIsChapter = 8192,
+  adFldNegativeScale = 16384,
+  adFldKeyColumn = 32768,
+  adFldIsRowURL = 65536,
+  adFldIsDefaultStream = 131072,
   adFldIsCollection = 262144
 };
 
-enum class EditModeEnum
+enum class EditModeEnum : unsigned long
 {
-  adEditNone = 0, 
-  adEditInProgress = 1, 
-  adEditAdd = 2, 
+  adEditNone = 0,
+  adEditInProgress = 1,
+  adEditAdd = 2,
   adEditDelete = 4
 };
 
-enum class RecordStatusEnum
+enum class RecordStatusEnum : unsigned long
 {
-  adRecOK = 0, 
-  adRecNew = 1, 
-  adRecModified = 2, 
-  adRecDeleted = 4, 
-  adRecUnmodified = 8, 
-  adRecInvalid = 16, 
-  adRecMultipleChanges = 64, 
-  adRecPendingChanges = 128, 
-  adRecCanceled = 256, 
-  adRecCantRelease = 1024, 
-  adRecConcurrencyViolation = 2048, 
-  adRecIntegrityViolation = 4096, 
-  adRecMaxChangesExceeded = 8192, 
-  adRecObjectOpen = 16384, 
-  adRecOutOfMemory = 32768, 
-  adRecPermissionDenied = 65536, 
-  adRecSchemaViolation = 131072, 
+  adRecOK = 0,
+  adRecNew = 1,
+  adRecModified = 2,
+  adRecDeleted = 4,
+  adRecUnmodified = 8,
+  adRecInvalid = 16,
+  adRecMultipleChanges = 64,
+  adRecPendingChanges = 128,
+  adRecCanceled = 256,
+  adRecCantRelease = 1024,
+  adRecConcurrencyViolation = 2048,
+  adRecIntegrityViolation = 4096,
+  adRecMaxChangesExceeded = 8192,
+  adRecObjectOpen = 16384,
+  adRecOutOfMemory = 32768,
+  adRecPermissionDenied = 65536,
+  adRecSchemaViolation = 131072,
   adRecDBDeleted = 262144
 };
 
-enum class GetRowsOptionEnum
+enum class GetRowsOptionEnum : unsigned long
 {
   adGetRowsRest = 0xFFFFFFFF
 };
 
-enum class PositionEnum
+enum class PositionEnum : unsigned long
 {
-  adPosUnknown = 0xFFFFFFFF, 
-  adPosBOF = 0xFFFFFFFE, 
+  adPosUnknown = 0xFFFFFFFF,
+  adPosBOF = 0xFFFFFFFE,
   adPosEOF = 0xFFFFFFFD
 };
 
-enum class BookmarkEnum
+enum class BookmarkEnum : unsigned long
 {
-  adBookmarkCurrent = 0, 
-  adBookmarkFirst = 1, 
+  adBookmarkCurrent = 0,
+  adBookmarkFirst = 1,
   adBookmarkLast = 2
 };
 
-enum class MarshalOptionsEnum
+enum class MarshalOptionsEnum : unsigned long
 {
-  adMarshalAll = 0, 
+  adMarshalAll = 0,
   adMarshalModifiedOnly = 1
 };
 
-enum class AffectEnum
+enum class AffectEnum : unsigned long
 {
-  adAffectCurrent = 1, 
-  adAffectGroup = 2, 
-  adAffectAll = 3, 
+  adAffectCurrent = 1,
+  adAffectGroup = 2,
+  adAffectAll = 3,
   adAffectAllChapters = 4
 };
 
-enum class ResyncEnum
+enum class ResyncEnum : unsigned long
 {
-  adResyncUnderlyingValues = 1, 
+  adResyncUnderlyingValues = 1,
   adResyncAllValues = 2
 };
 
-enum class CompareEnum
+enum class CompareEnum : unsigned long
 {
-  adCompareLessThan = 0, 
-  adCompareEqual = 1, 
-  adCompareGreaterThan = 2, 
-  adCompareNotEqual = 3, 
+  adCompareLessThan = 0,
+  adCompareEqual = 1,
+  adCompareGreaterThan = 2,
+  adCompareNotEqual = 3,
   adCompareNotComparable = 4
 };
 
-enum class FilterGroupEnum
+enum class FilterGroupEnum : unsigned long
 {
-  adFilterNone = 0, 
-  adFilterPendingRecords = 1, 
-  adFilterAffectedRecords = 2, 
-  adFilterFetchedRecords = 3, 
-  adFilterPredicate = 4, 
+  adFilterNone = 0,
+  adFilterPendingRecords = 1,
+  adFilterAffectedRecords = 2,
+  adFilterFetchedRecords = 3,
+  adFilterPredicate = 4,
   adFilterConflictingRecords = 5
 };
 
-enum class SearchDirectionEnum
+enum class SearchDirectionEnum : unsigned long
 {
-  adSearchForward = 1, 
+  adSearchForward = 1,
   adSearchBackward = 0xFFFFFFFF
 };
 
-enum class PersistFormatEnum
+enum class PersistFormatEnum : unsigned long
 {
-  adPersistADTG = 0, 
+  adPersistADTG = 0,
   adPersistXML = 1
 };
 
-enum class StringFormatEnum
+enum class StringFormatEnum : unsigned long
 {
   adClipString = 2
 };
 
-enum class ConnectPromptEnum
+enum class ConnectPromptEnum  : unsigned long
 {
-  adPromptAlways = 1, 
-  adPromptComplete = 2, 
-  adPromptCompleteRequired = 3, 
+  adPromptAlways = 1,
+  adPromptComplete = 2,
+  adPromptCompleteRequired = 3,
   adPromptNever = 4
 };
 
-enum class ConnectModeEnum
+enum class ConnectModeEnum : unsigned long
 {
-  adModeUnknown = 0, 
-  adModeRead = 1, 
-  adModeWrite = 2, 
-  adModeReadWrite = 3, 
-  adModeShareDenyRead = 4, 
-  adModeShareDenyWrite = 8, 
-  adModeShareExclusive = 12, 
-  adModeShareDenyNone = 16, 
+  adModeUnknown = 0,
+  adModeRead = 1,
+  adModeWrite = 2,
+  adModeReadWrite = 3,
+  adModeShareDenyRead = 4,
+  adModeShareDenyWrite = 8,
+  adModeShareExclusive = 12,
+  adModeShareDenyNone = 16,
   adModeRecursive = 4194304
 };
 
-enum class RecordCreateOptionsEnum
+enum class RecordCreateOptionsEnum : unsigned long
 {
-  adCreateCollection = 8192, 
-  adCreateStructDoc = 0x80000000, 
-  adCreateNonCollection = 0, 
-  adOpenIfExists = 33554432, 
-  adCreateOverwrite = 67108864, 
+  adCreateCollection = 8192,
+  adCreateStructDoc = 0x80000000,
+  adCreateNonCollection = 0,
+  adOpenIfExists = 33554432,
+  adCreateOverwrite = 67108864,
   adFailIfNotExists = 0xFFFFFFFF
 };
 
-enum class RecordOpenOptionsEnum
+enum class RecordOpenOptionsEnum : unsigned long
 {
-  adOpenRecordUnspecified = 0xFFFFFFFF, 
-  adOpenSource = 8388608, 
-  adOpenOutput = 8388608, 
-  adOpenAsync = 4096, 
-  adDelayFetchStream = 16384, 
-  adDelayFetchFields = 32768, 
+  adOpenRecordUnspecified = 0xFFFFFFFF,
+  adOpenSource = 8388608,
+  adOpenOutput = 8388608,
+  adOpenAsync = 4096,
+  adDelayFetchStream = 16384,
+  adDelayFetchFields = 32768,
   adOpenExecuteCommand = 65536
 };
 
-enum class IsolationLevelEnum
+enum class IsolationLevelEnum : unsigned long
 {
-  adXactUnspecified = 0xFFFFFFFF, 
-  adXactChaos = 16, 
-  adXactReadUncommitted = 256, 
-  adXactBrowse = 256, 
-  adXactCursorStability = 4096, 
-  adXactReadCommitted = 4096, 
-  adXactRepeatableRead = 65536, 
-  adXactSerializable = 1048576, 
+  adXactUnspecified = 0xFFFFFFFF,
+  adXactChaos = 16,
+  adXactReadUncommitted = 256,
+  adXactBrowse = 256,
+  adXactCursorStability = 4096,
+  adXactReadCommitted = 4096,
+  adXactRepeatableRead = 65536,
+  adXactSerializable = 1048576,
   adXactIsolated = 1048576
 };
 
-enum class XactAttributeEnum
+enum class XactAttributeEnum : unsigned long
 {
-  adXactCommitRetaining = 131072, 
-  adXactAbortRetaining = 262144, 
-  adXactAsyncPhaseOne = 524288, 
+  adXactCommitRetaining = 131072,
+  adXactAbortRetaining = 262144,
+  adXactAsyncPhaseOne = 524288,
   adXactSyncPhaseOne = 1048576
 };
 
-enum class PropertyAttributesEnum
+enum class PropertyAttributesEnum : unsigned long
 {
-  adPropNotSupported = 0, 
-  adPropRequired = 1, 
-  adPropOptional = 2, 
-  adPropRead = 512, 
+  adPropNotSupported = 0,
+  adPropRequired = 1,
+  adPropOptional = 2,
+  adPropRead = 512,
   adPropWrite = 1024
 };
 
-enum class ErrorValueEnum
+enum class ErrorValueEnum : unsigned long
 {
-  adErrProviderFailed = 3000, 
-  adErrInvalidArgument = 3001, 
-  adErrOpeningFile = 3002, 
-  adErrReadFile = 3003, 
-  adErrWriteFile = 3004, 
-  adErrNoCurrentRecord = 3021, 
-  adErrIllegalOperation = 3219, 
-  adErrCantChangeProvider = 3220, 
-  adErrInTransaction = 3246, 
-  adErrFeatureNotAvailable = 3251, 
-  adErrItemNotFound = 3265, 
-  adErrObjectInCollection = 3367, 
-  adErrObjectNotSet = 3420, 
-  adErrDataConversion = 3421, 
-  adErrObjectClosed = 3704, 
-  adErrObjectOpen = 3705, 
-  adErrProviderNotFound = 3706, 
-  adErrBoundToCommand = 3707, 
-  adErrInvalidParamInfo = 3708, 
-  adErrInvalidConnection = 3709, 
-  adErrNotReentrant = 3710, 
-  adErrStillExecuting = 3711, 
-  adErrOperationCancelled = 3712, 
-  adErrStillConnecting = 3713, 
-  adErrInvalidTransaction = 3714, 
-  adErrNotExecuting = 3715, 
-  adErrUnsafeOperation = 3716, 
-  adwrnSecurityDialog = 3717, 
-  adwrnSecurityDialogHeader = 3718, 
-  adErrIntegrityViolation = 3719, 
-  adErrPermissionDenied = 3720, 
-  adErrDataOverflow = 3721, 
-  adErrSchemaViolation = 3722, 
-  adErrSignMismatch = 3723, 
-  adErrCantConvertvalue = 3724, 
-  adErrCantCreate = 3725, 
-  adErrColumnNotOnThisRow = 3726, 
-  adErrURLDoesNotExist = 3727, 
-  adErrTreePermissionDenied = 3728, 
-  adErrInvalidURL = 3729, 
-  adErrResourceLocked = 3730, 
-  adErrResourceExists = 3731, 
-  adErrCannotComplete = 3732, 
-  adErrVolumeNotFound = 3733, 
-  adErrOutOfSpace = 3734, 
-  adErrResourceOutOfScope = 3735, 
-  adErrUnavailable = 3736, 
-  adErrURLNamedRowDoesNotExist = 3737, 
-  adErrDelResOutOfScope = 3738, 
-  adErrPropInvalidColumn = 3739, 
-  adErrPropInvalidOption = 3740, 
-  adErrPropInvalidValue = 3741, 
-  adErrPropConflicting = 3742, 
-  adErrPropNotAllSettable = 3743, 
-  adErrPropNotSet = 3744, 
-  adErrPropNotSettable = 3745, 
-  adErrPropNotSupported = 3746, 
-  adErrCatalogNotSet = 3747, 
-  adErrCantChangeConnection = 3748, 
-  adErrFieldsUpdateFailed = 3749, 
-  adErrDenyNotSupported = 3750, 
-  adErrDenyTypeNotSupported = 3751, 
-  adErrProviderNotSpecified = 3753, 
+  adErrProviderFailed = 3000,
+  adErrInvalidArgument = 3001,
+  adErrOpeningFile = 3002,
+  adErrReadFile = 3003,
+  adErrWriteFile = 3004,
+  adErrNoCurrentRecord = 3021,
+  adErrIllegalOperation = 3219,
+  adErrCantChangeProvider = 3220,
+  adErrInTransaction = 3246,
+  adErrFeatureNotAvailable = 3251,
+  adErrItemNotFound = 3265,
+  adErrObjectInCollection = 3367,
+  adErrObjectNotSet = 3420,
+  adErrDataConversion = 3421,
+  adErrObjectClosed = 3704,
+  adErrObjectOpen = 3705,
+  adErrProviderNotFound = 3706,
+  adErrBoundToCommand = 3707,
+  adErrInvalidParamInfo = 3708,
+  adErrInvalidConnection = 3709,
+  adErrNotReentrant = 3710,
+  adErrStillExecuting = 3711,
+  adErrOperationCancelled = 3712,
+  adErrStillConnecting = 3713,
+  adErrInvalidTransaction = 3714,
+  adErrNotExecuting = 3715,
+  adErrUnsafeOperation = 3716,
+  adwrnSecurityDialog = 3717,
+  adwrnSecurityDialogHeader = 3718,
+  adErrIntegrityViolation = 3719,
+  adErrPermissionDenied = 3720,
+  adErrDataOverflow = 3721,
+  adErrSchemaViolation = 3722,
+  adErrSignMismatch = 3723,
+  adErrCantConvertvalue = 3724,
+  adErrCantCreate = 3725,
+  adErrColumnNotOnThisRow = 3726,
+  adErrURLDoesNotExist = 3727,
+  adErrTreePermissionDenied = 3728,
+  adErrInvalidURL = 3729,
+  adErrResourceLocked = 3730,
+  adErrResourceExists = 3731,
+  adErrCannotComplete = 3732,
+  adErrVolumeNotFound = 3733,
+  adErrOutOfSpace = 3734,
+  adErrResourceOutOfScope = 3735,
+  adErrUnavailable = 3736,
+  adErrURLNamedRowDoesNotExist = 3737,
+  adErrDelResOutOfScope = 3738,
+  adErrPropInvalidColumn = 3739,
+  adErrPropInvalidOption = 3740,
+  adErrPropInvalidValue = 3741,
+  adErrPropConflicting = 3742,
+  adErrPropNotAllSettable = 3743,
+  adErrPropNotSet = 3744,
+  adErrPropNotSettable = 3745,
+  adErrPropNotSupported = 3746,
+  adErrCatalogNotSet = 3747,
+  adErrCantChangeConnection = 3748,
+  adErrFieldsUpdateFailed = 3749,
+  adErrDenyNotSupported = 3750,
+  adErrDenyTypeNotSupported = 3751,
+  adErrProviderNotSpecified = 3753,
   adErrConnectionStringTooLong = 3754
 };
 
-enum class ParameterAttributesEnum
+enum class ParameterAttributesEnum : unsigned long
 {
-  adParamSigned = 16, 
-  adParamNullable = 64, 
+  adParamSigned = 16,
+  adParamNullable = 64,
   adParamLong = 128
 };
 
-enum class ParameterDirectionEnum
+enum class ParameterDirectionEnum : unsigned long
 {
-  adParamUnknown = 0, 
-  adParamInput = 1, 
-  adParamOutput = 2, 
-  adParamInputOutput = 3, 
+  adParamUnknown = 0,
+  adParamInput = 1,
+  adParamOutput = 2,
+  adParamInputOutput = 3,
   adParamReturnValue = 4
 };
 
-enum class CommandTypeEnum
+enum class CommandTypeEnum : unsigned long
 {
-  adCmdUnspecified = 0xFFFFFFFF, 
-  adCmdUnknown = 8, 
-  adCmdText = 1, 
-  adCmdTable = 2, 
-  adCmdStoredProc = 4, 
-  adCmdFile = 256, 
+  adCmdUnspecified = 0xFFFFFFFF,
+  adCmdUnknown = 8,
+  adCmdText = 1,
+  adCmdTable = 2,
+  adCmdStoredProc = 4,
+  adCmdFile = 256,
   adCmdTableDirect = 512
 };
 
-enum class EventStatusEnum
+enum class EventStatusEnum : unsigned long
 {
-  adStatusOK = 1, 
-  adStatusErrorsOccurred = 2, 
-  adStatusCantDeny = 3, 
-  adStatusCancel = 4, 
+  adStatusOK = 1,
+  adStatusErrorsOccurred = 2,
+  adStatusCantDeny = 3,
+  adStatusCancel = 4,
   adStatusUnwantedEvent = 5
 };
 
-enum class EventReasonEnum
+enum class EventReasonEnum : unsigned long
 {
-  adRsnAddNew = 1, 
-  adRsnDelete = 2, 
-  adRsnUpdate = 3, 
-  adRsnUndoUpdate = 4, 
-  adRsnUndoAddNew = 5, 
-  adRsnUndoDelete = 6, 
-  adRsnRequery = 7, 
-  adRsnResynch = 8, 
-  adRsnClose = 9, 
-  adRsnMove = 10, 
-  adRsnFirstChange = 11, 
-  adRsnMoveFirst = 12, 
-  adRsnMoveNext = 13, 
-  adRsnMovePrevious = 14, 
+  adRsnAddNew = 1,
+  adRsnDelete = 2,
+  adRsnUpdate = 3,
+  adRsnUndoUpdate = 4,
+  adRsnUndoAddNew = 5,
+  adRsnUndoDelete = 6,
+  adRsnRequery = 7,
+  adRsnResynch = 8,
+  adRsnClose = 9,
+  adRsnMove = 10,
+  adRsnFirstChange = 11,
+  adRsnMoveFirst = 12,
+  adRsnMoveNext = 13,
+  adRsnMovePrevious = 14,
   adRsnMoveLast = 15
 };
 
-enum class SchemaEnum
+enum class SchemaEnum : unsigned long
 {
-  adSchemaProviderSpecific = 0xFFFFFFFF, 
-  adSchemaAsserts = 0, 
-  adSchemaCatalogs = 1, 
-  adSchemaCharacterSets = 2, 
-  adSchemaCollations = 3, 
-  adSchemaColumns = 4, 
-  adSchemaCheckConstraints = 5, 
-  adSchemaConstraintColumnUsage = 6, 
-  adSchemaConstraintTableUsage = 7, 
-  adSchemaKeyColumnUsage = 8, 
-  adSchemaReferentialContraints = 9, 
-  adSchemaReferentialConstraints = 9, 
-  adSchemaTableConstraints = 10, 
-  adSchemaColumnsDomainUsage = 11, 
-  adSchemaIndexes = 12, 
-  adSchemaColumnPrivileges = 13, 
-  adSchemaTablePrivileges = 14, 
-  adSchemaUsagePrivileges = 15, 
-  adSchemaProcedures = 16, 
-  adSchemaSchemata = 17, 
-  adSchemaSQLLanguages = 18, 
-  adSchemaStatistics = 19, 
-  adSchemaTables = 20, 
-  adSchemaTranslations = 21, 
-  adSchemaProviderTypes = 22, 
-  adSchemaViews = 23, 
-  adSchemaViewColumnUsage = 24, 
-  adSchemaViewTableUsage = 25, 
-  adSchemaProcedureParameters = 26, 
-  adSchemaForeignKeys = 27, 
-  adSchemaPrimaryKeys = 28, 
-  adSchemaProcedureColumns = 29, 
-  adSchemaDBInfoKeywords = 30, 
-  adSchemaDBInfoLiterals = 31, 
-  adSchemaCubes = 32, 
-  adSchemaDimensions = 33, 
-  adSchemaHierarchies = 34, 
-  adSchemaLevels = 35, 
-  adSchemaMeasures = 36, 
-  adSchemaProperties = 37, 
-  adSchemaMembers = 38, 
-  adSchemaTrustees = 39, 
-  adSchemaFunctions = 40, 
-  adSchemaActions = 41, 
-  adSchemaCommands = 42, 
+  adSchemaProviderSpecific = 0xFFFFFFFF,
+  adSchemaAsserts = 0,
+  adSchemaCatalogs = 1,
+  adSchemaCharacterSets = 2,
+  adSchemaCollations = 3,
+  adSchemaColumns = 4,
+  adSchemaCheckConstraints = 5,
+  adSchemaConstraintColumnUsage = 6,
+  adSchemaConstraintTableUsage = 7,
+  adSchemaKeyColumnUsage = 8,
+  adSchemaReferentialContraints = 9,
+  adSchemaReferentialConstraints = 9,
+  adSchemaTableConstraints = 10,
+  adSchemaColumnsDomainUsage = 11,
+  adSchemaIndexes = 12,
+  adSchemaColumnPrivileges = 13,
+  adSchemaTablePrivileges = 14,
+  adSchemaUsagePrivileges = 15,
+  adSchemaProcedures = 16,
+  adSchemaSchemata = 17,
+  adSchemaSQLLanguages = 18,
+  adSchemaStatistics = 19,
+  adSchemaTables = 20,
+  adSchemaTranslations = 21,
+  adSchemaProviderTypes = 22,
+  adSchemaViews = 23,
+  adSchemaViewColumnUsage = 24,
+  adSchemaViewTableUsage = 25,
+  adSchemaProcedureParameters = 26,
+  adSchemaForeignKeys = 27,
+  adSchemaPrimaryKeys = 28,
+  adSchemaProcedureColumns = 29,
+  adSchemaDBInfoKeywords = 30,
+  adSchemaDBInfoLiterals = 31,
+  adSchemaCubes = 32,
+  adSchemaDimensions = 33,
+  adSchemaHierarchies = 34,
+  adSchemaLevels = 35,
+  adSchemaMeasures = 36,
+  adSchemaProperties = 37,
+  adSchemaMembers = 38,
+  adSchemaTrustees = 39,
+  adSchemaFunctions = 40,
+  adSchemaActions = 41,
+  adSchemaCommands = 42,
   adSchemaSets = 43
 };
 
-enum class FieldStatusEnum
+enum class FieldStatusEnum : unsigned long
 {
-  adFieldOK = 0, 
-  adFieldCantConvertValue = 2, 
-  adFieldIsNull = 3, 
-  adFieldTruncated = 4, 
-  adFieldSignMismatch = 5, 
-  adFieldDataOverflow = 6, 
-  adFieldCantCreate = 7, 
-  adFieldUnavailable = 8, 
-  adFieldPermissionDenied = 9, 
-  adFieldIntegrityViolation = 10, 
-  adFieldSchemaViolation = 11, 
-  adFieldBadStatus = 12, 
-  adFieldDefault = 13, 
-  adFieldIgnore = 15, 
-  adFieldDoesNotExist = 16, 
-  adFieldInvalidURL = 17, 
-  adFieldResourceLocked = 18, 
-  adFieldResourceExists = 19, 
-  adFieldCannotComplete = 20, 
-  adFieldVolumeNotFound = 21, 
-  adFieldOutOfSpace = 22, 
-  adFieldCannotDeleteSource = 23, 
-  adFieldReadOnly = 24, 
-  adFieldResourceOutOfScope = 25, 
-  adFieldAlreadyExists = 26, 
-  adFieldPendingInsert = 65536, 
-  adFieldPendingDelete = 131072, 
-  adFieldPendingChange = 262144, 
-  adFieldPendingUnknown = 524288, 
+  adFieldOK = 0,
+  adFieldCantConvertValue = 2,
+  adFieldIsNull = 3,
+  adFieldTruncated = 4,
+  adFieldSignMismatch = 5,
+  adFieldDataOverflow = 6,
+  adFieldCantCreate = 7,
+  adFieldUnavailable = 8,
+  adFieldPermissionDenied = 9,
+  adFieldIntegrityViolation = 10,
+  adFieldSchemaViolation = 11,
+  adFieldBadStatus = 12,
+  adFieldDefault = 13,
+  adFieldIgnore = 15,
+  adFieldDoesNotExist = 16,
+  adFieldInvalidURL = 17,
+  adFieldResourceLocked = 18,
+  adFieldResourceExists = 19,
+  adFieldCannotComplete = 20,
+  adFieldVolumeNotFound = 21,
+  adFieldOutOfSpace = 22,
+  adFieldCannotDeleteSource = 23,
+  adFieldReadOnly = 24,
+  adFieldResourceOutOfScope = 25,
+  adFieldAlreadyExists = 26,
+  adFieldPendingInsert = 65536,
+  adFieldPendingDelete = 131072,
+  adFieldPendingChange = 262144,
+  adFieldPendingUnknown = 524288,
   adFieldPendingUnknownDelete = 1048576
 };
 
-enum class SeekEnum
+enum class SeekEnum : unsigned long
 {
-  adSeekFirstEQ = 1, 
-  adSeekLastEQ = 2, 
-  adSeekAfterEQ = 4, 
-  adSeekAfter = 8, 
-  adSeekBeforeEQ = 16, 
+  adSeekFirstEQ = 1,
+  adSeekLastEQ = 2,
+  adSeekAfterEQ = 4,
+  adSeekAfter = 8,
+  adSeekBeforeEQ = 16,
   adSeekBefore = 32
 };
 
-enum class ADCPROP_UPDATECRITERIA_ENUM
+enum class ADCPROP_UPDATECRITERIA_ENUM : unsigned long
 {
-  adCriteriaKey = 0, 
-  adCriteriaAllCols = 1, 
-  adCriteriaUpdCols = 2, 
+  adCriteriaKey = 0,
+  adCriteriaAllCols = 1,
+  adCriteriaUpdCols = 2,
   adCriteriaTimeStamp = 3
 };
 
-enum class ADCPROP_ASYNCTHREADPRIORITY_ENUM
+enum class ADCPROP_ASYNCTHREADPRIORITY_ENUM : unsigned long
 {
-  adPriorityLowest = 1, 
-  adPriorityBelowNormal = 2, 
-  adPriorityNormal = 3, 
-  adPriorityAboveNormal = 4, 
+  adPriorityLowest = 1,
+  adPriorityBelowNormal = 2,
+  adPriorityNormal = 3,
+  adPriorityAboveNormal = 4,
   adPriorityHighest = 5
 };
 
-enum class ADCPROP_AUTORECALC_ENUM
+enum class ADCPROP_AUTORECALC_ENUM : unsigned long
 {
-  adRecalcUpFront = 0, 
+  adRecalcUpFront = 0,
   adRecalcAlways = 1
 };
 
-enum class ADCPROP_UPDATERESYNC_ENUM
+enum class ADCPROP_UPDATERESYNC_ENUM : unsigned long
 {
-  adResyncNone = 0, 
-  adResyncAutoIncrement = 1, 
-  adResyncConflicts = 2, 
-  adResyncUpdates = 4, 
-  adResyncInserts = 8, 
+  adResyncNone = 0,
+  adResyncAutoIncrement = 1,
+  adResyncConflicts = 2,
+  adResyncUpdates = 4,
+  adResyncInserts = 8,
   adResyncAll = 15
 };
 
-enum class MoveRecordOptionsEnum
+enum class MoveRecordOptionsEnum : unsigned long
 {
-  adMoveUnspecified = 0xFFFFFFFF, 
-  adMoveOverWrite = 1, 
-  adMoveDontUpdateLinks = 2, 
+  adMoveUnspecified = 0xFFFFFFFF,
+  adMoveOverWrite = 1,
+  adMoveDontUpdateLinks = 2,
   adMoveAllowEmulation = 4
 };
 
-enum class CopyRecordOptionsEnum
+enum class CopyRecordOptionsEnum : unsigned long
 {
-  adCopyUnspecified = 0xFFFFFFFF, 
-  adCopyOverWrite = 1, 
-  adCopyAllowEmulation = 4, 
+  adCopyUnspecified = 0xFFFFFFFF,
+  adCopyOverWrite = 1,
+  adCopyAllowEmulation = 4,
   adCopyNonRecursive = 2
 };
 
-enum class StreamTypeEnum
+enum class StreamTypeEnum : unsigned long
 {
-  adTypeBinary = 1, 
+  adTypeBinary = 1,
   adTypeText = 2
 };
 
-enum class LineSeparatorEnum
+enum class LineSeparatorEnum : unsigned long
 {
-  adLF = 10, 
-  adCR = 13, 
+  adLF = 10,
+  adCR = 13,
   adCRLF = 0xFFFFFFFF
 };
 
-enum class StreamOpenOptionsEnum
+enum class StreamOpenOptionsEnum : unsigned long
 {
-  adOpenStreamUnspecified = 0xFFFFFFFF, 
-  adOpenStreamAsync = 1, 
+  adOpenStreamUnspecified = 0xFFFFFFFF,
+  adOpenStreamAsync = 1,
   adOpenStreamFromRecord = 4
 };
 
-enum class StreamWriteEnum
+enum class StreamWriteEnum : unsigned long
 {
-  adWriteChar = 0, 
-  adWriteLine = 1, 
-  stWriteChar = 0, 
+  adWriteChar = 0,
+  adWriteLine = 1,
+  stWriteChar = 0,
   stWriteLine = 1
 };
 
-enum class SaveOptionsEnum
+enum class SaveOptionsEnum : unsigned long
 {
-  adSaveCreateNotExist = 1, 
+  adSaveCreateNotExist = 1,
   adSaveCreateOverWrite = 2
 };
 
-enum class FieldEnum
+enum class FieldEnum : unsigned long
 {
-  adDefaultStream = 0xFFFFFFFF, 
+  adDefaultStream = 0xFFFFFFFF,
   adRecordURL = 0xFFFFFFFE
 };
 
-enum class StreamReadEnum
+enum class StreamReadEnum : unsigned long
 {
-  adReadAll = 0xFFFFFFFF, 
+  adReadAll = 0xFFFFFFFF,
   adReadLine = 0xFFFFFFFE
 };
 
-enum class RecordTypeEnum
+enum class RecordTypeEnum : unsigned long
 {
-  adSimpleRecord = 0, 
-  adCollectionRecord = 1, 
+  adSimpleRecord = 0,
+  adCollectionRecord = 1,
   adStructDoc = 2
 };
 
@@ -1017,16 +1019,16 @@ public:
 
   long __fastcall get_Count(void)
   {
-    long c;
-    OLECHECK(this->get_Count((long*)&c));
-    return c;
+	long c;
+	OLECHECK(this->get_Count((long*)&c));
+	return c;
   }
 
   LPUNKNOWN __fastcall _NewEnum(void)
   {
-    LPUNKNOWN ppvObject;
-    OLECHECK(this->_NewEnum((LPUNKNOWN*)&ppvObject));
-    return ppvObject;
+	LPUNKNOWN ppvObject;
+	OLECHECK(this->_NewEnum((LPUNKNOWN*)&ppvObject));
+	return ppvObject;
   }
 
 
@@ -1069,9 +1071,9 @@ public:
 
   Adodb_tlb::PropertiesPtr __fastcall get_Properties(void)
   {
-    Adodb_tlb::PropertiesPtr ppvObject;
-    OLECHECK(this->get_Properties(&ppvObject));
-    return ppvObject;
+	Adodb_tlb::PropertiesPtr ppvObject;
+	OLECHECK(this->get_Properties(&ppvObject));
+	return ppvObject;
   }
 
 
@@ -1089,8 +1091,8 @@ public:
 interface Properties  : public Adodb_tlb::_Collection
 {
 public:
-  virtual HRESULT STDMETHODCALLTYPE get_Item(VARIANT Index/*[in]*/, 
-                                             Adodb_tlb::Property** ppvObject/*[out,retval]*/) = 0; // [0]
+  virtual HRESULT STDMETHODCALLTYPE get_Item(VARIANT Index/*[in]*/,
+											 Adodb_tlb::Property** ppvObject/*[out,retval]*/) = 0; // [0]
 
 #if !defined(__TLB_NO_INTERFACE_WRAPPERS)
 

@@ -3,9 +3,12 @@
 
 #include <algorithm>
 #include "API.h"
+#include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/variant/get.hpp>
 #include "MockConnectionFactory.h"
+#include <set>
 #include <tut.h>
 
 /*
@@ -20,6 +23,12 @@ namespace tut
     typedef test_group<ForceReloadTestFixture, 10> ForceReloadTestGroup;
 	ForceReloadTestGroup testGroupForceReload( "ForceReload tests");
 	typedef ForceReloadTestGroup::object testForceReload;
+
+    void ensureNumResults( const valc::WorklistEntry* wle, int numExpected )
+    {
+        valc::Range<valc::TestResultIterator> range = wle->getTestResults();
+        ensure( std::distance( range.first, range.second ) == numExpected );
+    }
 
     template<>
     template<>
@@ -71,9 +80,9 @@ namespace tut
 
         ensure_equals( qs.getSampleDescriptor(), "417128/-832455" );
 
-        SampleWorklistEntries wles = s->getWorklistEntries( qs.getSampleDescriptor() );
+        Range<WorklistEntryIterator> wles = s->getWorklistEntries( qs.getSampleDescriptor() );
 
-        ensure_equals( wles.size(), 3 );
+        ensure( std::distance( wles.first, wles.second ) == 3 );
     }
 
     template<>
@@ -124,7 +133,101 @@ namespace tut
         LocalEntry localEntry = *(s->localBegin());
 
         LocalRun lr = boost::get<LocalRun>(localEntry);
+
+        Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
+
+        ensure( std::distance( wles.first, wles.second ) == 4U );
+
+        std::for_each( wles.first, wles.second, boost::bind( ensureNumResults, _1, 1 ) );
     }
+
+    template<>
+    template<>
+	void testForceReload::test<4>()
+    {
+        set_test_name("ForceReload - 1 sample, 1 test, 2 results. (Use Case 1, Type B)");
+
+        using namespace valc;
+
+        MockConnectionFactory connectionFactory;
+
+        connectionFactory.setClusters( "-1019430,\n" );
+        connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
+        connectionFactory.setWorklist(
+//rec  machine  barcode   test     group     c sample project p prof                  timestamp           seq s dil   result
+"-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
+            );
+        connectionFactory.setBuddyDB(
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,res ,a,date analysed      ,restx,update when      ,cbw
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.8 ,0,27-06-2013 11:57:47,1.8,27-06-2013 10:57:49,-36845,,,,,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882432,-1031390,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36845,,,,,,\n"
+            );
+
+
+        boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+        
+        boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
+
+        ensure( s.get() );
+        ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
+        ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+        
+        LocalEntry localEntry = *(s->localBegin());
+
+        LocalRun lr = boost::get<LocalRun>(localEntry);
+
+        Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
+
+        ensure( std::distance( wles.first, wles.second ) == 1 );
+
+        const WorklistEntry* wle = *(wles.first);
+
+        ensureNumResults( wle, 2 );
+
+        std::set<int> expectedResultIDs, actualResultIDs;
+        expectedResultIDs.insert( 882431 );
+        expectedResultIDs.insert( 882432 );
+
+        Range< TestResultIterator > testResults = wle->getTestResults();
+
+        for ( TestResultIterator i = testResults.first; i != testResults.second; ++i )
+        {
+            actualResultIDs.insert(  (*i)->getID() );
+        }
+
+        ensure( actualResultIDs.size() == 2 );
+        ensure( actualResultIDs == expectedResultIDs );
+    }
+
+    template<>
+    template<>
+	void testForceReload::test<5>()
+    {
+        set_test_name("Loading test names");
+
+        using namespace valc;
+
+        MockConnectionFactory connectionFactory;
+        connectionFactory.setTestNames(
+            "-12711493,A1c-IFmc,\n"
+            "-12703509,CD40ccv,\n"
+            "-12703493,CD40cm,\n"
+            "-12703487,CD40cc,\n"
+            "-12703329,CD40scv,\n"
+            "-12703327,CD40sm,\n"
+            "-12703115,BNPccv,\n"
+            "-12703113,BNPcm,\n");
+
+
+        boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+        
+        boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
+
+        ensure( s->getTestName(-12711493) == "A1c-IFmc" );
+        ensure( s->getTestName(-12703329) == "CD40scv" );
+        ensure( s->getTestName(-12703113) == "BNPcm" );
+    }
+
 
 };
 

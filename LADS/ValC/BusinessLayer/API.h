@@ -2,6 +2,7 @@
 #define APIH
 
 #include <System.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 #include <boost/variant.hpp>
 #include "IntList.h"
 #include <map>
@@ -15,6 +16,32 @@ namespace paulst
 
 namespace valc
 {
+
+template<class Iter>
+struct Range : public std::pair<Iter, Iter>
+{
+    Range() 
+    {
+    }
+
+    Range( Iter start, Iter end ) 
+        : std::pair<Iter,Iter>( start, end ) 
+    {
+    }
+
+    Range( const Range& other ) 
+    {
+        first  = other.first;
+        second = other.second;
+    }
+
+    Range& operator=( const Range& other )
+    {
+        first  = other.first;
+        second = other.second;
+        return *this;
+    }
+};
 
 class Cursor
 {
@@ -75,9 +102,6 @@ private:
 
 class WorklistEntry;
 
-
-typedef std::vector< const WorklistEntry* > SampleWorklistEntries;
-
 class LocalRun
 {
 public:
@@ -113,17 +137,41 @@ private:
 typedef std::vector< QueuedSample >     QueuedSamples;
 typedef QueuedSamples::const_iterator   QueuedSampleIterator;
 
+class WorklistEntry;
+class WorklistEntryIteratorImpl;
+
+class WorklistEntryIterator : public 
+  boost::iterator_facade< WorklistEntryIterator, const WorklistEntry*, boost::forward_traversal_tag>
+{
+public:
+    WorklistEntryIterator();
+    WorklistEntryIterator( WorklistEntryIteratorImpl* );
+    WorklistEntryIterator( const WorklistEntryIterator& other );
+    ~WorklistEntryIterator();
+private:
+    WorklistEntryIteratorImpl *m_impl;
+
+    friend class boost::iterator_core_access;
+
+    void                    increment();
+    bool                    equal( WorklistEntryIterator const& other ) const;
+    const WorklistEntry*&   dereference() const;
+};
+
+
+
 /*  An ordered sequence of LocalEntry instances.  */
 class AnalysisActivitySnapshot
 {
 public:
     AnalysisActivitySnapshot();
     virtual ~AnalysisActivitySnapshot();
-    virtual LocalEntryIterator   localBegin() const = 0;
-    virtual LocalEntryIterator   localEnd()   const = 0;
-    virtual QueuedSampleIterator queueBegin() const = 0;
-    virtual QueuedSampleIterator queueEnd()   const = 0;
-    virtual SampleWorklistEntries getWorklistEntries( const std::string& sampleDescriptor ) const = 0;
+    virtual LocalEntryIterator              localBegin()                                                const = 0;
+    virtual LocalEntryIterator              localEnd()                                                  const = 0;
+    virtual QueuedSampleIterator            queueBegin()                                                const = 0;
+    virtual QueuedSampleIterator            queueEnd()                                                  const = 0;
+    virtual Range<WorklistEntryIterator>    getWorklistEntries( const std::string& sampleDescriptor )   const = 0;
+    virtual std::string                     getTestName( int testID )                                   const = 0;
 private:
     AnalysisActivitySnapshot( const AnalysisActivitySnapshot& );
     AnalysisActivitySnapshot& operator=( const AnalysisActivitySnapshot& );
@@ -142,8 +190,6 @@ private:
     SnapshotFactory();
 };
 
-class WorklistEntry;
-
 struct RelatedEntry
 {
     const WorklistEntry* related;
@@ -153,33 +199,53 @@ struct RelatedEntry
 typedef std::vector< RelatedEntry > RelatedEntries;
 
 class TestResult;
+class TestResultIteratorImpl;
+
+class TestResultIterator : public 
+  boost::iterator_facade< TestResultIterator, const TestResult*, boost::forward_traversal_tag>
+{
+public:
+    TestResultIterator();
+    TestResultIterator( TestResultIteratorImpl* );
+    TestResultIterator( const TestResultIterator& other );
+    ~TestResultIterator();
+private:
+    TestResultIteratorImpl *m_impl;
+
+    friend class boost::iterator_core_access;
+
+    void                 increment();
+    bool                 equal( TestResultIterator const& other ) const;
+    const TestResult*&   dereference() const;
+};
+
 
 class WorklistEntry
 {
 public:
     WorklistEntry();
     virtual ~WorklistEntry();
-    virtual std::string         getBarcode()        const = 0;
-    virtual int                 getBuddyResultID()  const = 0;
-    virtual int                 getCategoryID()     const = 0;
-    virtual RelatedEntries      getChildren()       const = 0;
-    virtual float               getDiluent()        const = 0;
-    virtual int                 getGroupID()        const = 0;
-    virtual int                 getID()             const = 0;
-    virtual IntList             getIDsOfRelatedEntries() const = 0;
-    virtual int                 getMachineID()      const = 0;
-    virtual RelatedEntry        getParent()         const = 0;
-    virtual int                 getProfileID()      const = 0;
-    virtual int                 getProjectID()      const = 0;
-    virtual const TestResult*   getTestResult()     const = 0;
-    virtual std::string         getSampleDescriptor () const = 0;// implements Business Rules 2 & 3
-    virtual int                 getSampleID()       const = 0;
-    virtual int                 getTestID()         const = 0;
-    virtual TDateTime           getTimeStamp()      const = 0;
-    virtual int                 getTSSequence()     const = 0;
-    virtual char                getStatus()         const = 0;
-    virtual bool                hasChildren()       const = 0;
-    virtual bool                hasParent()         const = 0;
+    virtual std::string                 getBarcode()                const = 0;
+    virtual int                         getBuddyResultID()          const = 0;
+    virtual int                         getCategoryID()             const = 0;
+    virtual RelatedEntries              getChildren()               const = 0;
+    virtual float                       getDiluent()                const = 0;
+    virtual int                         getGroupID()                const = 0;
+    virtual int                         getID()                     const = 0;
+    virtual IntList                     getIDsOfRelatedEntries()    const = 0;
+    virtual int                         getMachineID()              const = 0;
+    virtual RelatedEntry                getParent()                 const = 0;
+    virtual int                         getProfileID()              const = 0;
+    virtual int                         getProjectID()              const = 0;
+    virtual Range<TestResultIterator>   getTestResults()            const = 0;
+    virtual std::string                 getSampleDescriptor()       const = 0;// implements Business Rules 2 & 3
+    virtual int                         getSampleID()               const = 0;
+    virtual int                         getTestID()                 const = 0;
+    virtual TDateTime                   getTimeStamp()              const = 0;
+    virtual int                         getTSSequence()             const = 0;
+    virtual char                        getStatus()                 const = 0;
+    virtual bool                        hasChildren()               const = 0;
+    virtual bool                        hasParent()                 const = 0;
 private:
     WorklistEntry( const WorklistEntry& );
     WorklistEntry& operator=( const WorklistEntry& );

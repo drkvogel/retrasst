@@ -262,7 +262,9 @@ void TfrmNewTank::TankConfirmInit()
 	TxtLayName1->Text = lay->getLayoutDescription().c_str();
 	ShowGrid( grdProps1, lay->getList() );
 	if( mode == NEW_VESSEL || mode == ADD_LAYOUT || layout_cid != oldtank->getLayoutID() ) {
-		tank->setContent( getPopulationName(), getPopDescription() );
+		std::string population = getNextPopulation();
+		std::string layout = bcsToStd( TxtLayName1 -> Text );
+		tank->setContent( population, layout + ' ' + population );
 	}
 	TxtName1->Text = tank->getContent().c_str();
 	TxtFull1->Text = tank->getDescription().c_str();
@@ -491,38 +493,41 @@ void __fastcall TfrmNewTank::DeleteClick(TObject *Sender)
 }
 
 //---------------------------------------------------------------------------
-//	find name+description for this population that hasn't been used before
+//	suggest name for this population that has not been used before
 //---------------------------------------------------------------------------
 
-std::string TfrmNewTank::getPopulationName() {
-	String location = TxtLocation1->Text.Trim();
-	char site = location.IsEmpty() ? 'P' : location[ 1 ];
-	int pos = TxtPos1->Text.ToIntDef( 1 );
-	int shelf = TxtPop1->Text.ToIntDef( 0 );
-	if( shelf > 0 ) {
-		pos = pos * 10 + shelf;
-	}
-	const LCDbObjects & existing = LCDbObjects::records();
+std::string TfrmNewTank::getNextPopulation() {
+	int next = 1;
+	for( Range< LCDbObject > obj = LCDbObjects::records(); obj.isValid(); ++ obj ) {
+		if( obj->getObjectType() == LCDbObject::STORAGE_POPULATION ) {
+			const char * name = obj->getName().c_str();
+			int num = atoi( name + 1 );
+			if( num >= next ) {
+				next = num + 1;
+            }
+        }
+    }
 	char buff[ 12 ];
-	do {
-		std::sprintf( buff, "%c%d", site, pos ++ );
-	} while( existing.findByName( buff ) != NULL );
+	std::sprintf( buff, "P%d", next );
 	return buff;
 }
 
 //---------------------------------------------------------------------------
-
+//	suggest new description for this population, based on location
+//---------------------------------------------------------------------------
+/*
 std::string TfrmNewTank::getPopDescription() {
 	std::string layout = bcsToStd( TxtLayName1 -> Text );
 	int pos = TxtPos1->Text.ToIntDef( 1 );
+	char ch = 'a';
 	const LCDbObjects & existing = LCDbObjects::records();
 	char buff[ 120 ];
 	do {
-		std::sprintf( buff, "%s %d", layout.c_str(), pos ++ );
+		std::sprintf( buff, "%s %d%c", layout.c_str(), pos, ch ++ );
 	} while( existing.findByName( buff ) != NULL );
 	return buff;
 }
-
+*/
 //---------------------------------------------------------------------------
 
 void TfrmNewTank::fillUpLayouts()

@@ -155,9 +155,9 @@ std::string WorklistEntryImpl::getSampleDescriptor() const
     return m_sampleDescriptor;
 }
 
-const TestResult* WorklistEntryImpl::getTestResult() const
+Range<TestResultIterator> WorklistEntryImpl::getTestResults() const
 {
-    return m_resultDirectory->findResultForWorklistEntry( m_recordNo );
+    return m_resultDirectory->equal_range( getID() );
 }
 
 int WorklistEntryImpl::getSampleID() const

@@ -3,7 +3,7 @@ object frmReferred: TfrmReferred
   Top = 279
   Caption = 'Handle Referred Boxes'
   ClientHeight = 653
-  ClientWidth = 975
+  ClientWidth = 1264
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,7 +18,7 @@ object frmReferred: TfrmReferred
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter3: TSplitter
-    Left = 790
+    Left = 1079
     Top = 0
     Width = 8
     Height = 617
@@ -29,7 +29,7 @@ object frmReferred: TfrmReferred
     ExplicitHeight = 695
   end
   object panelProjectsAndBoxTypes: TPanel
-    Left = 798
+    Left = 1087
     Top = 0
     Width = 177
     Height = 617
@@ -166,7 +166,7 @@ object frmReferred: TfrmReferred
   object panelBoxes: TPanel
     Left = 0
     Top = 0
-    Width = 790
+    Width = 1079
     Height = 617
     Align = alClient
     BevelOuter = bvNone
@@ -174,7 +174,7 @@ object frmReferred: TfrmReferred
     object Splitter2: TSplitter
       Left = 0
       Top = 225
-      Width = 790
+      Width = 1079
       Height = 8
       Cursor = crVSplit
       Align = alBottom
@@ -186,7 +186,7 @@ object frmReferred: TfrmReferred
     object Splitter4: TSplitter
       Left = 0
       Top = 506
-      Width = 790
+      Width = 1079
       Height = 8
       Cursor = crVSplit
       Align = alBottom
@@ -197,13 +197,13 @@ object frmReferred: TfrmReferred
     object groupboxBoxDetails: TGroupBox
       Left = 0
       Top = 167
-      Width = 790
+      Width = 1079
       Height = 58
       Align = alBottom
       Caption = 'Box details'
       TabOrder = 1
       DesignSize = (
-        790
+        1079
         58)
       object Label2: TLabel
         Left = 12
@@ -235,24 +235,33 @@ object frmReferred: TfrmReferred
       end
       object Label5: TLabel
         Left = 296
-        Top = 39
-        Width = 23
+        Top = 38
+        Width = 30
         Height = 13
-        Caption = 'Tank'
+        Caption = 'Vessel'
       end
       object Label6: TLabel
-        Left = 429
-        Top = 39
-        Width = 23
+        Left = 802
+        Top = 38
+        Width = 45
         Height = 13
-        Caption = 'Rack'
+        Anchors = [akTop, akRight]
+        Caption = 'Structure'
       end
       object Label7: TLabel
-        Left = 573
+        Left = 945
         Top = 38
         Width = 18
         Height = 13
+        Anchors = [akTop, akRight]
         Caption = 'Slot'
+      end
+      object Label8: TLabel
+        Left = 522
+        Top = 15
+        Width = 64
+        Height = 13
+        Caption = 'Event history'
       end
       object editBoxName: TEdit
         Left = 45
@@ -309,56 +318,58 @@ object frmReferred: TfrmReferred
           'REFERRED')
       end
       object editSlot: TEdit
-        Left = 597
-        Top = 34
+        Left = 969
+        Top = 35
         Width = 25
         Height = 21
+        Anchors = [akTop, akRight]
         TabOrder = 8
         Text = '1'
       end
       object cbLog: TCheckBox
-        Left = 634
-        Top = 37
+        Left = 802
+        Top = 12
         Width = 68
         Height = 17
-        Anchors = [akTop, akRight]
         Caption = 'Show Log'
         TabOrder = 9
         OnClick = cbLogClick
       end
       object comboEventHistory: TComboBox
-        Left = 520
+        Left = 592
         Top = 12
-        Width = 195
+        Width = 204
         Height = 21
         Style = csDropDownList
-        Anchors = [akLeft, akTop, akRight]
         Constraints.MaxWidth = 250
         TabOrder = 10
       end
       object comboRack: TComboBox
-        Left = 459
+        Left = 855
         Top = 35
-        Width = 110
+        Width = 86
         Height = 21
         Style = csDropDownList
+        Anchors = [akTop, akRight]
         TabOrder = 11
         OnDropDown = comboRackDropDown
       end
       object comboTank: TComboBox
-        Left = 333
+        Left = 332
         Top = 35
-        Width = 93
+        Width = 464
         Height = 21
         Style = csDropDownList
+        Anchors = [akLeft, akTop, akRight]
         TabOrder = 12
         OnDropDown = comboTankDropDown
       end
       object updownSlot: TUpDown
-        Left = 622
-        Top = 34
+        Left = 994
+        Top = 35
         Width = 16
         Height = 21
+        Anchors = [akTop, akRight]
         Associate = editSlot
         Min = 1
         Max = 24
@@ -366,7 +377,7 @@ object frmReferred: TfrmReferred
         TabOrder = 13
       end
       object btnSaveBox: TButton
-        Left = 727
+        Left = 1016
         Top = 12
         Width = 59
         Height = 23
@@ -377,7 +388,7 @@ object frmReferred: TfrmReferred
         OnClick = btnSaveBoxClick
       end
       object btnDiscard: TButton
-        Left = 727
+        Left = 1016
         Top = 35
         Width = 59
         Height = 21
@@ -390,7 +401,7 @@ object frmReferred: TfrmReferred
     object groupboxReferredBoxes: TGroupBox
       Left = 0
       Top = 0
-      Width = 790
+      Width = 1079
       Height = 167
       Align = alClient
       Caption = 'Referred boxes'
@@ -398,7 +409,7 @@ object frmReferred: TfrmReferred
       object sgReferredBoxes: TStringGrid
         Left = 2
         Top = 15
-        Width = 373
+        Width = 662
         Height = 150
         Align = alClient
         ColCount = 11
@@ -410,10 +421,10 @@ object frmReferred: TfrmReferred
         ParentCtl3D = False
         TabOrder = 0
         OnDrawCell = sgReferredBoxesDrawCell
-        OnSelectCell = sgReferredBoxesSelectCell
+        OnMouseUp = sgReferredBoxesMouseUp
       end
       object memoDebug: TMemo
-        Left = 375
+        Left = 664
         Top = 15
         Width = 413
         Height = 150
@@ -428,7 +439,7 @@ object frmReferred: TfrmReferred
     object groupboxFoundIn: TGroupBox
       Left = 0
       Top = 233
-      Width = 790
+      Width = 1079
       Height = 273
       Align = alBottom
       Caption = 'Possible matches found in project database:'
@@ -436,7 +447,7 @@ object frmReferred: TfrmReferred
       object sgMatches: TStringGrid
         Left = 2
         Top = 15
-        Width = 786
+        Width = 1075
         Height = 256
         Align = alClient
         ColCount = 7
@@ -459,7 +470,7 @@ object frmReferred: TfrmReferred
     object groupboxStorageHistory: TGroupBox
       Left = 0
       Top = 514
-      Width = 790
+      Width = 1079
       Height = 103
       Align = alBottom
       Caption = 'Box Storage History'
@@ -467,7 +478,7 @@ object frmReferred: TfrmReferred
       object sgStorage: TStringGrid
         Left = 2
         Top = 15
-        Width = 786
+        Width = 1075
         Height = 86
         Margins.Left = 0
         Margins.Top = 0
@@ -495,7 +506,7 @@ object frmReferred: TfrmReferred
   object progressBottom: TProgressBar
     Left = 0
     Top = 617
-    Width = 975
+    Width = 1264
     Height = 17
     Align = alBottom
     TabOrder = 2
@@ -503,7 +514,7 @@ object frmReferred: TfrmReferred
   object statusBar: TStatusBar
     Left = 0
     Top = 634
-    Width = 975
+    Width = 1264
     Height = 19
     Panels = <>
     SimplePanel = True

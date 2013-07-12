@@ -27,17 +27,17 @@ class LSDbBoxCourier :  public LSDbBox
 				 : LSDbBox()
 				{}
 
-				LSDbBoxCourier( const String & name )
+				LSDbBoxCourier( const std::string & name )
 				 : LSDbBox(name)
 				{}
 				
 				LSDbBoxCourier( const LQuery & query );
 
-				const String & getFirstBarcode  ( void )const {return first_barcode ;}
-				void setFirstBarcode( const String & x){ first_barcode=x; }
+				const std::string & getFirstBarcode  ( void )const {return first_barcode ;}
+				void setFirstBarcode( const std::string & x){ first_barcode=x; }
 
-				const String & getLastBarcode ( void )const  {return last_barcode ;}
-				void setLastBarcode( const String & x ){ last_barcode=x; }
+				const std::string & getLastBarcode ( void )const  {return last_barcode ;}
+				void setLastBarcode( const std::string & x ){ last_barcode=x; }
 
 				const int   getProjectCid( void ) const {return project_cid; }
 				void setProjectCid ( const int x){project_cid=x; }
@@ -57,8 +57,7 @@ class LSDbBoxCourier :  public LSDbBox
 	   protected:
 				bool used;
 				int project_cid;
-				String first_barcode;
-				String last_barcode;
+				std::string first_barcode, last_barcode;
 };
 
 // May not need
@@ -81,9 +80,9 @@ class LDbBoxExpecteds : public LDbCache< LDbBoxExpected >, public LPDbCacheMap< 
 		static void readAll( LQuery central );
 
 		const LDbBoxExpected * find( const int projID
-			, const String & pBoxName
-			,const String & pCryo1
-			,const String & pCryo2
+			, const std::string & pBoxName
+			,const std::string & pCryo1
+			,const std::string & pCryo2
 			,const int pCryoPos1
 			,const int pCryoPos2 ) const;
 
@@ -95,7 +94,7 @@ class LPDbBoxEvent : public LSDbBoxEvent
 	protected:
 
 		int boxID;
-		String text;
+		std::string text;
 
 		LPDbBoxEvent( const LQuery & query ) : LSDbBoxEvent( query )
 		{
@@ -135,7 +134,7 @@ class LDbBoxArrival : public LSDbBoxCourier , public LCDbID
 {
 	   public:
 
-				LDbBoxArrival( const String & boxName )
+				LDbBoxArrival( const std::string & boxName )
 				 : LSDbBoxCourier( boxName ), laptop_cid( 0 ), process_cid( 0 ), tank_cid( 0 ), slotPosition( 0 )
 				{}
 
@@ -155,14 +154,14 @@ class LDbBoxArrival : public LSDbBoxCourier , public LCDbID
 				void setTankCid( const int x ) {tank_cid=x;}
 				const int  getTankCid(void )const { return tank_cid; }
 
-				void setRackNumber( const String &x ){ rack_number=x;}
-				const String & getRackNumber( void )const {return rack_number; }
+				void setRackNumber( const std::string &x ){ rack_number=x;}
+				const std::string & getRackNumber( void )const {return rack_number; }
 
 				void setSlotPosition( const int x ){slotPosition=x;}
 				const int getSlotPosition(void )const{return slotPosition; }
 
-				void setSwipeTime( const TDateTime x ) { swipe_time=x; }
-				const TDateTime getSwipeTime( void ) const{ return swipe_time; }
+				void setSwipeTime( const XTIME & x ) { swipe_time=x; }
+				const XTIME getSwipeTime( void ) const{ return swipe_time; }
 
 				void setStatus( const int x ) { status =x; }
 				const int getStatus(void) const { return status;}
@@ -183,9 +182,9 @@ class LDbBoxArrival : public LSDbBoxCourier , public LCDbID
 				int laptop_cid;
 				int process_cid;
 				int tank_cid;
-				String rack_number;
+				std::string rack_number;
 				int slotPosition;
-				TDateTime swipe_time;
+				XTIME swipe_time;
 				int status;
 				ArrivalStatus boxEntryMatch;
 				BoxEvents bev;
@@ -200,9 +199,9 @@ class LDbBoxArrivals : public LDbCache< LDbBoxArrival >, LPDbCacheMap< LDbBoxArr
 
 		static void readAll( LQuery project );
 
-		const LDbBoxArrival * find( const int pProjectCid, const String & pBoxName
-			,const String & pCryo1
-			,const String & pCryo2
+		const LDbBoxArrival * find( const int pProjectCid, const std::string & pBoxName
+			,const std::string & pCryo1
+			,const std::string & pCryo2
 			,const int pCryoPos1
 			,const int pCryoPos2 ) const;
 };

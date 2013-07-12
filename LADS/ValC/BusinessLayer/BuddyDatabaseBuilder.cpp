@@ -69,6 +69,7 @@ bool BuddyDatabaseBuilder::accept( Cursor* c )
         c->read( COL_BRF_DATE_ANALYSED  , resDateAnalysed   );
         c->read( COL_BRF_RES_TEXT       , resText           );
         c->read( COL_BRF_UPDATE_WHEN    , resUpdateWhen     );
+        c->read( COL_BRF_CBW_RECORD_NO  , resWorklistID     );
     }
 
     if ( ! c->isNull( COL_SR_RUN_ID ) )
@@ -98,6 +99,11 @@ bool BuddyDatabaseBuilder::accept( Cursor* c )
             hasSampleRun ? SampleRunID(srID) : SampleRunID( sampleDescriptor, m_sampleRunIDResolutionService ), 
             resTestID, resValue );
         m_resultIndex->addIndexEntryForLocalResult( result );
+
+        if ( resWorklistID )
+        {
+            m_resultIndex->allocateResultToWorklistEntry( resID, resWorklistID );
+        }
     }
     
     return true;
@@ -107,7 +113,7 @@ void BuddyDatabaseBuilder::reset()
 {
     resActionFlag = '\0';
     resDateAnalysed = resUpdateWhen = srClosedWhen = srCreatedWhen = 0.0;
-    buddySampleID = machineID = resID = alphaSampleID = resTestID = srSequencePosition = srID = srIsOpen = 0;
+    buddySampleID = machineID = resID = alphaSampleID = resTestID = resWorklistID = srSequencePosition = srID = srIsOpen = 0;
     barcode = databaseName = sampleDescriptor = resText = sampleRunID = "";
     resValue = 0.0;
     hasResult = hasSampleRun = false;

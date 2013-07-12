@@ -176,11 +176,12 @@ bool Util::isVesselInUse( const std::string & srlno )
 	String error;
 	const LCDbObject * store = LCDbObjects::records().findByName( srlno );
 	if( store != NULL ) {
-		if( store->getObjectType() != LCDbObject::STORAGE_POPULATION ) {
+		if( store->getObjectType() != LCDbObject::STORAGE_VESSEL ) {
 			error = "Wrong object type for " + String( srlno.c_str() );
 		}
 		for( Range< LCDbTankMap > tmi = LCDbTankMaps::records(); tmi.isValid(); ++ tmi ) {
 			if( tmi->isActive() && tmi->getStorageCID() == store->getID() ) {
+                    //??? store->getId() is a population, tmi->getStorageCID() is a vessel?
 				error = String( srlno.c_str() ) + " is already in use";
 			}
 		}
@@ -194,8 +195,8 @@ bool Util::isVesselInUse( const std::string & srlno )
 }
 
 //---------------------------------------------------------------------------
-//	check if the given name is in use for a storage population (hive)
-//	return (-ve) rack layout CID if it does or a (+ve) error code if not
+//	check if given name is in use for a storage population (hive)
+//	return rack layout CID if it does or an error code if not
 //---------------------------------------------------------------------------
 
 int Util::getCurrentLayout( const std::string & name )

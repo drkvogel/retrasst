@@ -14,11 +14,11 @@ class LSDbBox
 		 :  first( 0 ), last( 0 )
 		{}
 
-		LSDbBox (  const String & pBoxName )
+		LSDbBox (  const std::string & pBoxName )
 		: boxName( pBoxName), first(0), last(0)
 		{}
 
-		LSDbBox (  const String & pBoxName, short pf, short pl )
+		LSDbBox (  const std::string & pBoxName, short pf, short pl )
 		: boxName( pBoxName), first( pf ), last( pl )
 		{}
 
@@ -37,11 +37,11 @@ class LSDbBox
 
 		short getFirst(void )const{return first;}
 		short getLast(void )const{return last;}
-		const String & getBoxName( void ) const {return boxName;}
+		const std::string & getBoxName( void ) const {return boxName;}
 
 	protected:
 			short first, last;
-			String boxName;
+			std::string boxName;
 };
 
 class LSDbBoxEvent
@@ -56,19 +56,19 @@ class LSDbBoxEvent
 
 		int getEventCID(void )        const {return eventCID;}
 		int getOperatorCID(void )     const {return operatorCID;}
-		TDateTime getEventDate(void ) const {return eventDate;}
+		XDATE getEventDate(void ) const {return eventDate;}
 		int getProcessCID(void )      const {return processCID;}
 
 		void setEventCID   ( const int pEventCID )  {eventCID    = pEventCID;}
 		void setOperatorCID( const int pOperatorCID){operatorCID = pOperatorCID;}
-		void setEventDate(const TDateTime pEventDate){eventDate  = pEventDate;}
+		void setEventDate(const XDATE & pEventDate){eventDate  = pEventDate;}
 		void setProcessCID ( const int pProcessCID) {processCID  = pProcessCID;}
 
 	protected:
 
 		int eventCID;
 		int operatorCID;
-		TDateTime eventDate;
+		XDATE eventDate;
 		int processCID;
 
 		LSDbBoxEvent( const LQuery & query );

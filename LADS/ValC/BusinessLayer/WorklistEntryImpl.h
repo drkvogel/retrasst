@@ -35,27 +35,27 @@ public:
         const ResultDirectory*      resultDirectory );
 
     ~WorklistEntryImpl();
-    std::string         getBarcode()    const;
-    int                 getBuddyResultID() const;
-    int                 getCategoryID() const;
-    RelatedEntries      getChildren()   const;
-    float               getDiluent()    const;
-    int                 getGroupID()    const;
-    int                 getID()         const;
-    IntList             getIDsOfRelatedEntries() const;
-    int                 getMachineID()  const;
-    RelatedEntry        getParent()     const;
-    int                 getProfileID()  const;
-    int                 getProjectID()  const;
-    const TestResult*   getTestResult() const;
-    std::string         getSampleDescriptor() const;
-    int                 getSampleID()   const;
-    int                 getTestID()     const;
-    TDateTime           getTimeStamp()  const;
-    int                 getTSSequence() const;
-    char                getStatus()     const;
-    bool                hasChildren()   const;
-    bool                hasParent()     const;
+    std::string                 getBarcode()    const;
+    int                         getBuddyResultID() const;
+    int                         getCategoryID() const;
+    RelatedEntries              getChildren()   const;
+    float                       getDiluent()    const;
+    int                         getGroupID()    const;
+    int                         getID()         const;
+    IntList                     getIDsOfRelatedEntries() const;
+    int                         getMachineID()  const;
+    RelatedEntry                getParent()     const;
+    int                         getProfileID()  const;
+    int                         getProjectID()  const;
+    Range<TestResultIterator>   getTestResults() const;
+    std::string                 getSampleDescriptor() const;
+    int                         getSampleID()   const;
+    int                         getTestID()     const;
+    TDateTime                   getTimeStamp()  const;
+    int                         getTSSequence() const;
+    char                        getStatus()     const;
+    bool                        hasChildren()   const;
+    bool                        hasParent()     const;
 
 private:
     const int                 m_recordNo;

@@ -1,84 +1,72 @@
-﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-		<PropertyGroup>
-			<ProjectGuid>{A2065CA5-CFB8-4BFB-BB4C-7AAF0C56FB98}</ProjectGuid>
-		</PropertyGroup>
-		<ItemGroup>
-			<Projects Include="ForceReloadTest\FRT.cbproj">
-				<Dependencies/>
-			</Projects>
-			<Projects Include="BusinessLayer\BusinessLayer.cbproj">
-				<Dependencies/>
-			</Projects>
-			<Projects Include="db\db.cbproj">
-				<Dependencies/>
-			</Projects>
-			<Projects Include="..\..\paulst\paulst.cbproj">
-				<Dependencies/>
-			</Projects>
-			<Projects Include="BusinessLayer\UnitTests\UnitTests.cbproj">
-				<Dependencies/>
-			</Projects>
-		</ItemGroup>
-		<ProjectExtensions>
-			<Borland.Personality>Default.Personality.12</Borland.Personality>
-			<Borland.ProjectType/>
-			<BorlandProject>
-				<Default.Personality/>
-			</BorlandProject>
-		</ProjectExtensions>
-		<Target Name="FRT">
-			<MSBuild Projects="ForceReloadTest\FRT.cbproj"/>
-		</Target>
-		<Target Name="FRT:Clean">
-			<MSBuild Projects="ForceReloadTest\FRT.cbproj" Targets="Clean"/>
-		</Target>
-		<Target Name="FRT:Make">
-			<MSBuild Projects="ForceReloadTest\FRT.cbproj" Targets="Make"/>
-		</Target>
-		<Target Name="BusinessLayer">
-			<MSBuild Projects="BusinessLayer\BusinessLayer.cbproj"/>
-		</Target>
-		<Target Name="BusinessLayer:Clean">
-			<MSBuild Projects="BusinessLayer\BusinessLayer.cbproj" Targets="Clean"/>
-		</Target>
-		<Target Name="BusinessLayer:Make">
-			<MSBuild Projects="BusinessLayer\BusinessLayer.cbproj" Targets="Make"/>
-		</Target>
-		<Target Name="db">
-			<MSBuild Projects="db\db.cbproj"/>
-		</Target>
-		<Target Name="db:Clean">
-			<MSBuild Projects="db\db.cbproj" Targets="Clean"/>
-		</Target>
-		<Target Name="db:Make">
-			<MSBuild Projects="db\db.cbproj" Targets="Make"/>
-		</Target>
-		<Target Name="paulst">
-			<MSBuild Projects="..\..\paulst\paulst.cbproj"/>
-		</Target>
-		<Target Name="paulst:Clean">
-			<MSBuild Projects="..\..\paulst\paulst.cbproj" Targets="Clean"/>
-		</Target>
-		<Target Name="paulst:Make">
-			<MSBuild Projects="..\..\paulst\paulst.cbproj" Targets="Make"/>
-		</Target>
-		<Target Name="UnitTests">
-			<MSBuild Projects="BusinessLayer\UnitTests\UnitTests.cbproj"/>
-		</Target>
-		<Target Name="UnitTests:Clean">
-			<MSBuild Projects="BusinessLayer\UnitTests\UnitTests.cbproj" Targets="Clean"/>
-		</Target>
-		<Target Name="UnitTests:Make">
-			<MSBuild Projects="BusinessLayer\UnitTests\UnitTests.cbproj" Targets="Make"/>
-		</Target>
-		<Target Name="Build">
-			<CallTarget Targets="FRT;BusinessLayer;db;paulst;UnitTests"/>
-		</Target>
-		<Target Name="Clean">
-			<CallTarget Targets="FRT:Clean;BusinessLayer:Clean;db:Clean;paulst:Clean;UnitTests:Clean"/>
-		</Target>
-		<Target Name="Make">
-			<CallTarget Targets="FRT:Make;BusinessLayer:Make;db:Make;paulst:Make;UnitTests:Make"/>
-		</Target>
-		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
-	</Project>
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{A2065CA5-CFB8-4BFB-BB4C-7AAF0C56FB98}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="ForceReloadTest\FRT.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="BusinessLayer\BusinessLayer.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\paulst\paulst.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="BusinessLayer\UnitTests\UnitTests.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="FRT">
+        <MSBuild Projects="ForceReloadTest\FRT.cbproj"/>
+    </Target>
+    <Target Name="FRT:Clean">
+        <MSBuild Projects="ForceReloadTest\FRT.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="FRT:Make">
+        <MSBuild Projects="ForceReloadTest\FRT.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="BusinessLayer">
+        <MSBuild Projects="BusinessLayer\BusinessLayer.cbproj"/>
+    </Target>
+    <Target Name="BusinessLayer:Clean">
+        <MSBuild Projects="BusinessLayer\BusinessLayer.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="BusinessLayer:Make">
+        <MSBuild Projects="BusinessLayer\BusinessLayer.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="paulst">
+        <MSBuild Projects="..\..\paulst\paulst.cbproj"/>
+    </Target>
+    <Target Name="paulst:Clean">
+        <MSBuild Projects="..\..\paulst\paulst.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="paulst:Make">
+        <MSBuild Projects="..\..\paulst\paulst.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="UnitTests">
+        <MSBuild Projects="BusinessLayer\UnitTests\UnitTests.cbproj"/>
+    </Target>
+    <Target Name="UnitTests:Clean">
+        <MSBuild Projects="BusinessLayer\UnitTests\UnitTests.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="UnitTests:Make">
+        <MSBuild Projects="BusinessLayer\UnitTests\UnitTests.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="FRT;BusinessLayer;paulst;UnitTests"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="FRT:Clean;BusinessLayer:Clean;paulst:Clean;UnitTests:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="FRT:Make;BusinessLayer:Make;paulst:Make;UnitTests:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

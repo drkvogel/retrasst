@@ -65,8 +65,8 @@ void ColourStatus::getColours( ArrivalStatus pMs,String & pTextStatus, TColor& p
 
 LSDbBoxCourier::LSDbBoxCourier( const LQuery & query )
 		: LSDbBox( query.readString( "box_name" )
-				 , query.readShort( "first_position")
-				 , query.readShort( "last_position"))
+				 , query.readInt( "first_position")
+				 , query.readInt( "last_position"))
 		, first_barcode( query.readString("first_barcode"))
 		, last_barcode ( query.readString("last_barcode" ))
 		, project_cid ( query.readInt("project_cid" ))
@@ -143,7 +143,7 @@ LDbBoxArrival::LDbBoxArrival( const LQuery & query )
 		, swipe_time( query.readDateTime("swipe_time"))
 		, tank_cid( query.readInt("tank_cid"))
 		, rack_number (query.readString("rack_number" ))
-		, slotPosition( query.readShort("slot_position" ))
+		, slotPosition( query.readInt("slot_position" ))
 {
 }
 
@@ -154,8 +154,8 @@ LDbBoxArrival::LDbBoxArrival( const LQuery & query )
 
 void LDbBoxArrival::addLinkedEvent( LQuery central, const String & eventCID )
 {
-
-	const LCDbObject * eo = LCDbObjects::records().find( eventCID, LCDbObject::SIS_EVENT );
+	/*
+		const LCDbObject * eo = LCDbObjects::records().find( eventCID, LCDbObject::SIS_EVENT );
 
 		central.setSQL( "insert into l_box_arrival_event_history"
 					   " (box_arrival_id, event_cid, operator_cid,event_date, process_cid, project_cid)"
@@ -168,11 +168,12 @@ void LDbBoxArrival::addLinkedEvent( LQuery central, const String & eventCID )
 		central.setParam( "pjid", LCDbProjects::getCurrentID());
 
 		central.execSQL();
+	*/
 }
 
 bool LDbBoxArrival::saveRecord( LQuery pQuery )
 {
-	setProcessCid( LCDbAuditTrail::getProcessID());
+	setProcessCid( LCDbAuditTrail::getCurrent().getProcessID());
 	if( saved )
 	{
 		// Indexed/find by box_arrival_id
@@ -263,9 +264,9 @@ class LDbBoxExpecteds::Matcher : public std::unary_function< LDbBoxExpected, boo
 public:
 	operator String() const { return boxName; }
 	Matcher( const int pProjectCid
-			,const String & pBoxName
-			,const String & pCryo1
-			,const String & pCryo2
+			,const std::string & pBoxName
+			,const std::string & pCryo1
+			,const std::string & pCryo2
 			,const int pCryoPos1
 			,const int pCryoPos2 )
 	 : projCid( pProjectCid ), boxName( pBoxName ), cryo1( pCryo1 ), cryo2 ( pCryo2 )
@@ -277,10 +278,10 @@ public:
 	{
 				bool t0,t1,t2,t3,t4,t5;
 		t0=( other.getProjectCid() == projCid || projCid==-1 );
-		t1=( boxName.AnsiCompareIC( other.getBoxName() ) == 0 || boxName.IsEmpty() );
+		t1=( boxName.CompareIC( other.getBoxName() ) == 0 || boxName.IsEmpty() );
 // if Cryovial barcodes in l_box_expected are null or '.' ignore this as a way of matching
-		t2=( cryo1.AnsiCompareIC(other.getFirstBarcode())==0  || cryo1.IsEmpty() || other.getFirstBarcode().Length() < 2 );
-		t3=( cryo2.AnsiCompareIC(other.getLastBarcode())  == 0 || cryo2.IsEmpty() || other.getLastBarcode().Length()  < 2 );
+		t2=( cryo1.CompareIC(other.getFirstBarcode())==0  || cryo1.IsEmpty() || other.getFirstBarcode().length() < 2 );
+		t3=( cryo2.CompareIC(other.getLastBarcode())  == 0 || cryo2.IsEmpty() || other.getLastBarcode().length()  < 2 );
 		t4=( other.getFirst() == cryo1Pos ||cryo1Pos ==-1 );
 		t5=( other.getLast() == cryo2Pos ||cryo2Pos ==-1 );
 		return (t0 && t1 && t2 && t3 && t4 && t5);
@@ -289,9 +290,9 @@ public:
 
 //---------------------------------------------------------------------------
 
-const LDbBoxExpected * LDbBoxExpecteds::find( const int pProjectCid, const String & pBoxName
-			,const String & pCryo1
-			,const String & pCryo2
+const LDbBoxExpected * LDbBoxExpecteds::find( const int pProjectCid, const std::string & pBoxName
+			,const std::string & pCryo1
+			,const std::string & pCryo2
 			,const int pCryoPos1
 			,const int pCryoPos2  ) const
 {
@@ -342,10 +343,10 @@ public:
 	{
 				bool t0,t1,t2,t3,t4,t5;
 		t0=( other.getProjectCid() == projCid || projCid==-1 );
-		t1=( boxName.AnsiCompareIC(other.getBoxName()) == 0 || boxName.IsEmpty() );
+		t1=( boxName.CompareIC(other.getBoxName()) == 0 || boxName.IsEmpty() );
 // if Cryovial barcodes in l_box_expected are null or '.' ignore this as a way of matching
-		t2=( cryo1.AnsiCompare(other.getFirstBarcode()) == 0 || cryo1.IsEmpty() || other.getFirstBarcode().Length() < 2 );
-		t3=( cryo2.AnsiCompare(other.getLastBarcode())  == 0 || cryo2.IsEmpty() || other.getLastBarcode().Length()  < 2 );
+		t2=( cryo1.Compare(other.getFirstBarcode()) == 0 || cryo1.IsEmpty() || other.getFirstBarcode().length() < 2 );
+		t3=( cryo2.Compare(other.getLastBarcode())  == 0 || cryo2.IsEmpty() || other.getLastBarcode().length()  < 2 );
 		t4=( other.getFirst() == cryo1Pos ||cryo1Pos ==-1 );
 		t5=( other.getLast() == cryo2Pos ||cryo2Pos ==-1 );
 		return (t0 && t1 && t2 && t3 && t4 && t5);
@@ -354,9 +355,9 @@ public:
 
 //---------------------------------------------------------------------------
 
-const LDbBoxArrival * LDbBoxArrivals::find( const int pProjectCid, const String & pBoxName
-			,const String & pCryo1
-			,const String & pCryo2
+const LDbBoxArrival * LDbBoxArrivals::find( const int pProjectCid, const std::string & pBoxName
+			,const std::string & pCryo1
+			,const std::string & pCryo2
 			,const int pCryoPos1
 			,const int pCryoPos2  ) const
 {
@@ -431,14 +432,14 @@ LDbBoxArrivalEvent::LDbBoxArrivalEvent( const LQuery & query )
 Range< LDbBoxArrivalEvent > LDbBoxArrival::readBoxHistory( LQuery lQuery )
 {
 	static std::vector< LDbBoxArrivalEvent > recent;
-	recent.clear();
+/*	recent.clear();
 	lQuery.setSQL( "select * from l_box_arrival_event_history"
 			" where project_cid = :pid and box_arrival_id = :bid" );
 	lQuery.setParam( "pid", LCDbProjects::getCurrentID() );
 	lQuery.setParam( "bid", getID() );
 	for( lQuery.open(); !lQuery.eof(); lQuery.next() )
 		recent.push_back( LDbBoxArrivalEvent( lQuery ) );
-	return recent;
+*/	return recent;
 }
 
 //---------------------------------------------------------------------------

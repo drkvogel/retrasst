@@ -9,20 +9,25 @@
 namespace valc
 {
 
+typedef boost::shared_ptr< const WorklistEntry > WorklistEntryPtr;
+typedef std::multimap< std::string, WorklistEntryPtr > WorklistEntriesKeyedOnSampleDescriptor;
+
 class WorklistEntries : public WorklistDirectory
 {
 public:
+
+    typedef WorklistEntriesKeyedOnSampleDescriptor::const_iterator const_iterator;
+
     WorklistEntries();
     void add( const WorklistEntry* entry );
+    Range<WorklistEntryIterator> equal_range( const std::string& sampleDescriptor ) const;
     void forEach( WorklistDirectory::Func& f, const std::string& sampleDescriptor = "" ) const;
     const WorklistEntry* get( int id ) const;
     int size() const;
 private:
-    typedef boost::shared_ptr< const WorklistEntry > WorklistEntryPtr;
     typedef std::map< int, WorklistEntryPtr > MapKeyedOnID;
-    typedef std::multimap< std::string, WorklistEntryPtr > MapKeyedOnSampleDescriptor;
     MapKeyedOnID m_mapKeyedOnID;
-    MapKeyedOnSampleDescriptor m_mapKeyedOnSampleDescriptor;
+    WorklistEntriesKeyedOnSampleDescriptor m_mapKeyedOnSampleDescriptor;
     paulst::CritSec m_criticalSection;
 };
 

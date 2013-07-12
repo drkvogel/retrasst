@@ -44,12 +44,13 @@ USEFORM("RetrieveSamples.cpp", frmRetrieved);
 USEFORM("ReferredBoxes.cpp", frmReferred);
 USEFORM("NewTank.cpp", frmNewTank);
 USEFORM("NewType.cpp", frmNewType);
+USEFORM("RetrievalAssistant.cpp", frmRetrievalAssistant);
 USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
 USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
 USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
 USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
 USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
-USEFORM("RetrievalAssistant.cpp", frmRetrievalAssistant);
+
 //---------------------------------------------------------------------------
 WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {

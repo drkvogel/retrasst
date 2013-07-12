@@ -24,12 +24,14 @@ __published:	// IDE-managed Components
     TSplitter *Splitter1;
     TGroupBox *GroupBox2;
     TMemo *memoLog;
+    TCheckBox *cbDummy;
 	void __fastcall btnConfirmClick(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormShow(TObject *Sender);
 	void __fastcall btnCancelClick(TObject *Sender);
     void __fastcall sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
           TGridDrawState State);
+    void __fastcall cbDummyClick(TObject *Sender);
 private:	// User declarations
     vector<string> info;
     vector<string> warnings;
@@ -41,6 +43,7 @@ private:	// User declarations
 	void storeTRS(LQuery & qp, BoxArrivalRecord * box);
     void updateLBA(LQuery & qp, BoxArrivalRecord * box);
     void signOffBoxes();
+    bool dummyRun;
 public:		// User declarations
 	tdvecpBoxArrivalRecord summaryBoxes;
 	__fastcall TfrmReferredBoxesSummary(TComponent* Owner);

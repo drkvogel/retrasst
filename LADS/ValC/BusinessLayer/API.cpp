@@ -12,6 +12,7 @@
 #include "LoadClusterIDs.h"
 #include "LoadProjects.h"
 #include "LoadReferencedWorklistEntries.h"
+#include "LoadTestNames.h"
 #include "LoadWorklistEntries.h"
 #include "LoggingService.h"
 #include <memory>
@@ -19,9 +20,12 @@
 #include "Require.h"
 #include "ResultIndex.h"
 #include "Task.h"
+#include "TestNames.h"
+#include "TestResultIteratorImpl.h"
 #include "Trace.h"
 #include <vector>
 #include "WorklistEntries.h"
+#include "WorklistEntryIteratorImpl.h"
 
 
 #define LOGPATH "C:\\temp\\valc.log"
@@ -56,14 +60,17 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
     WorklistEntries* worklistEntries = new WorklistEntries();
     ClusterIDs*      clusterIDs      = new ClusterIDs();
     Projects*        projects        = new Projects();
+    TestNames*       testNames       = new TestNames();
 
     std::auto_ptr<paulst::LoggingService> log( new paulst::LoggingService( new paulst::ConsoleWriter() ) );
 
     Task<LoadProjects,   int> loadProjectsTask  ( new LoadProjects  ( projects,   log.get(), con ) );
     Task<LoadClusterIDs, int> loadClusterIDsTask( new LoadClusterIDs( clusterIDs, log.get(), con, localMachineID ) );
+    Task<LoadTestNames,  int> loadTestNamesTask ( new LoadTestNames ( testNames,  log.get(), con ) );
 
     loadProjectsTask.start();
     loadClusterIDsTask.start();
+    loadTestNamesTask.start();
     loadProjectsTask.waitFor();
 
     // Task for loading LOCAL analysis activity and LOCAL results
@@ -96,8 +103,9 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
     allocateLocalResultsToWorklistEntries.start();
     loadReferencedWorklistEntries.waitFor();
     allocateLocalResultsToWorklistEntries.waitFor();
+    loadTestNamesTask.waitFor();
 
-    return new AnalysisActivitySnapshotImpl( clusterIDs, projects, buddyDatabase, log.release(), resultIndex, worklistEntries );
+    return new AnalysisActivitySnapshotImpl( clusterIDs, projects, buddyDatabase, log.release(), resultIndex, worklistEntries, testNames );
 }
 
 Cursor::Cursor()
@@ -195,6 +203,77 @@ TestResult::TestResult()
 
 TestResult::~TestResult()
 {
+}
+
+
+WorklistEntryIterator::WorklistEntryIterator()
+    : m_impl( new WorklistEntryIteratorImpl() )
+{
+}
+
+WorklistEntryIterator::WorklistEntryIterator( WorklistEntryIteratorImpl* i )
+    : m_impl( i )
+{
+}
+
+WorklistEntryIterator::WorklistEntryIterator( const WorklistEntryIterator& other )
+    : m_impl( new WorklistEntryIteratorImpl( *(other.m_impl) ) )
+{
+}
+
+WorklistEntryIterator::~WorklistEntryIterator()
+{
+    delete m_impl;
+}
+
+void WorklistEntryIterator::increment()
+{
+    m_impl->increment();
+}
+
+bool WorklistEntryIterator::equal( WorklistEntryIterator const& other ) const
+{
+    return (*m_impl) == *(other.m_impl);
+}
+
+const WorklistEntry*&  WorklistEntryIterator::dereference() const
+{
+    return m_impl->dereference();
+}
+
+TestResultIterator::TestResultIterator()
+    : m_impl( new TestResultIteratorImpl() )
+{
+}
+
+TestResultIterator::TestResultIterator( TestResultIteratorImpl* i )
+    : m_impl( i )
+{
+}
+
+TestResultIterator::TestResultIterator( const TestResultIterator& other )
+    : m_impl( new TestResultIteratorImpl( *(other.m_impl) ) )
+{
+}
+
+TestResultIterator::~TestResultIterator()
+{
+    delete m_impl;
+}
+
+void TestResultIterator::increment()
+{
+    m_impl->increment();
+}
+
+bool TestResultIterator::equal( TestResultIterator const& other ) const
+{
+    return (*m_impl) == *(other.m_impl);
+}
+
+const TestResult*&  TestResultIterator::dereference() const
+{
+    return m_impl->dereference();
 }
 
 }

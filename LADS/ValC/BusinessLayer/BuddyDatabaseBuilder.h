@@ -45,7 +45,7 @@ public:
 private:
     char resActionFlag;
     TDateTime resDateAnalysed, resUpdateWhen, srCreatedWhen, srClosedWhen;
-    int buddySampleID, machineID, resID, alphaSampleID, resTestID, srSequencePosition, srID, srIsOpen;
+    int buddySampleID, machineID, resID, alphaSampleID, resTestID, resWorklistID, srSequencePosition, srID, srIsOpen;
     std::string barcode, databaseName, sampleDescriptor, resText, sampleRunID;
     float resValue;
     bool hasResult, hasSampleRun;

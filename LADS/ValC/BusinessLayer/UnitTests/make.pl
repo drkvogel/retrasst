@@ -30,7 +30,7 @@ push @buildArgs, "/t:$target";
 push @buildArgs, "/verbosity:diagnostic";
 system("$ENV{FrameworkDir}/MSBuild.exe", @buildArgs) == 0 or die "Failed to build $project.cbproj: $!";
 
-system("Win32/Debug/UnitTests.exe");
+system("Win64/Debug/UnitTests.exe");
 
 1;
 

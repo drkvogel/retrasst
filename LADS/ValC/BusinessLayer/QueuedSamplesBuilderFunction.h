@@ -63,9 +63,7 @@ public:
     void operator()( QueuedSamples* out );
     void process( const WorklistEntry* wle );
 
-private:
-
-    class ProcessState
+	class ProcessState
     {
     public:
         ProcessState();
@@ -78,9 +76,11 @@ private:
     private:
         ProcessState( const ProcessState& );
         ProcessState& operator=( const ProcessState& );
-    };
+	};
 
-    typedef std::pair< std::string, QueueTicket > SampleDescriptorWithQueueTicket;
+private:
+
+	typedef std::pair< std::string, QueueTicket > SampleDescriptorWithQueueTicket;
 
     ProcessState*                                   m_state;
     const boost::scoped_ptr< Params >               m_params;

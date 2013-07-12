@@ -15,6 +15,8 @@
 #include "LPDbBoxes.h"
 #include "LDbBoxStore.h"
 #include "BoxSummary.h"
+#include "StoreUtil.h"
+#include "StringUtil.h"
 #include <Vcl.ComCtrls.hpp>
 #include <vector>
 #include <set>
@@ -60,6 +62,7 @@ public:
 	int         box_arrival_id;
 	TDateTime   swipe_time;
 	int         status;
+    int         box_store_status;
 /* LCDbBoxStore::Status {
     EXPECTED = 0, MOVE_EXPECTED = 1, REMOVED = 3, SLOT_ALLOCATED = 5,
 	SLOT_CONFIRMED = 6, REFERRED = 7, DELETED = 99 }; */
@@ -90,14 +93,14 @@ public:
         std::stringstream out;
         out
         //<<"laptop_cid: "<<laptop_cid<<", process_cid: "<<process_cid
-        <<"box_name: "<<box_name
-        <<" project_cid: "<<project_cid<<" first_barcode: "<<first_barcode
-	    <<" first_position: "<<first_position<<" last_barcode: "<<last_barcode<<" last_position: "<<last_position
-        <<" box_arrival_id: "<<box_arrival_id<<" status: "<<status
-        <<", swipe_time: "<<swipe_time.DateTimeString().c_str()
-        <<" tank_cid: "<<tank_cid<<" rack_cid: "<<rack_cid<<" rack_name: "<<rack_name<<" slot_position: "<<slot_position<<" tank_name: "<<tank_name
+        <<" box_arrival_id: "<<box_arrival_id<<", status: "<<status
+        <<", box_name: "<<box_name
+        <<", project_cid: "<<project_cid<<", first_barcode: "<<first_barcode
+	    <<", first_position: "<<first_position<<", last_barcode: "<<last_barcode<<", last_position: "<<last_position
+        <<", swipe_time: "<<bcsToStd(swipe_time.DateTimeString())
+        <<", tank_cid: "<<tank_cid<<", rack_cid: "<<rack_cid<<", rack_name: "<<rack_name<<", slot_position: "<<slot_position<<", tank_name: "<<tank_name
         //<<", time_stamp: "<<time_stamp.DateTimeString()
-        <<" changed: "<<changed<<", typeFromName(): "<<typeFromName();
+        <<", changed: "<<changed<<", typeFromName(): "<<typeFromName();
         return out.str();
     }
 };
@@ -110,7 +113,7 @@ void delete_referenced(Container& c) {
     while (!c.empty()) delete c.back(), c.pop_back();
 }
 
-static const char * boxStoreStatusString[] = {
+static const char * boxStoreStatusStrings[] = {
 //    case LCDbBoxStore::Status::EXPECTED:        // 0
 //    case LPDbBoxName::Status::EMPTY:            // 0
 //    case LCDbBoxStore::Status::UNCONFIRMED:     // 1
@@ -129,9 +132,10 @@ static const char * boxStoreStatusString[] = {
     "SLOT_ALLOCATED [5]", "SLOT_CONFIRMED [6]", "REFERRED [7]", "DESTROYED [8]", "DELETED [99]"
 };
 
-static const char * boxNameStatusString[] = {
+static const char * boxNameStatusStrings[] = {
     "EMPTY [0]", "IN_USE [1]", "CONFIRMED [2]", "[undefined] [3]", "IN_TANK [4]",
     "[undefined] [5]", "[undefined] [6]", "[undefined] [7]", "DESTROYED [8]", "DELETED [99]"
+    // { EMPTY = 0, IN_USE = 1, CONFIRMED = 2, ANALYSED = 3, IN_TANK = 4, DESTROYED = 8, DELETED = 99 };
 };
 
 /** number to string */
@@ -141,9 +145,15 @@ string n2s(T Number) {
 }
 
 static const char * statusString(int status) {
-    return status <= LPDbBoxName::Status::DESTROYED ?
-        boxStoreStatusString[status]
-        : boxStoreStatusString[9]; // DELETED
+    return status < LPDbBoxName::Status::DESTROYED ?
+        boxStoreStatusStrings[status]
+        : boxStoreStatusStrings[9]; // DELETED
+}
+
+static const char * boxStoreStatusString(int status) {
+    return status < LCDbBoxStore::Status::DELETED ?
+        boxStoreStatusStrings[status]
+        : boxStoreStatusStrings[9]; // DELETED
 }
 
 class FindMatchesWorkerThread : public TThread
@@ -231,6 +241,7 @@ __published:	// IDE-managed Components
     TComboBox *comboTank;
     TUpDown *updownSlot;
     TStatusBar *statusBar;
+    TLabel *Label8;
     void __fastcall listboxProjectsClick(TObject *Sender);
     void __fastcall listboxBoxTypesClick(TObject *Sender);
     void __fastcall btnSaveBoxClick(TObject *Sender);
@@ -246,7 +257,6 @@ __published:	// IDE-managed Components
     void __fastcall btnDiscardClick(TObject *Sender);
     void __fastcall btnDoneClick(TObject *Sender);
     void __fastcall sgStorageDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
-    void __fastcall sgReferredBoxesSelectCell(TObject *Sender, int ACol, int ARow, bool &CanSelect);
     void __fastcall timerReferredBoxClickedTimer(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall sgStorageMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y);
@@ -256,6 +266,8 @@ __published:	// IDE-managed Components
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall comboTankDropDown(TObject *Sender);
     void __fastcall comboRackDropDown(TObject *Sender);
+    void __fastcall sgReferredBoxesMouseUp(TObject *Sender, TMouseButton Button,
+          TShiftState Shift, int X, int Y);
 private:	// User declarations
     set<std::string> boxTypes;
     std::vector<BoxArrivalRecord*> totalReferred;
@@ -270,7 +282,7 @@ private:	// User declarations
     void setTRS(BoxArrivalRecord * box);
     void setBoxDetails(BoxArrivalRecord * box);
 
-    BoxArrivalRecord * selectedBox;
+    BoxArrivalRecord * referredBox;
     BoxArrivalRecord editedBox;
     FindMatchesWorkerThread * findMatchesWorkerThread;
     void __fastcall findMatchesWorkerThreadTerminated(TObject *Sender);
@@ -289,6 +301,8 @@ private:	// User declarations
     void okOrDiscard(int status);
     void finishOKorDiscard();
     void signOffBoxes();
+    //const LCDbObject * getVessel(int tank_cid);
+    const string getVesselName(int population_cid);
 protected:
     vector<string> info;
     vector<string> warnings;

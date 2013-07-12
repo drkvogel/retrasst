@@ -3,13 +3,11 @@
 #include <process.h>
 #pragma hdrstop
 #include "ReferredBoxes.h"
-#include "StoreUtil.h"
 #include "TfrmConfirm.h"
 #include "LCDbJob.h"
 #include "LCDbObject.h"
 #include "ReferredBoxesSummary.h"
 #include "SMLogin.h"
-#include "StringUtil.h"
 #include "LCDbTankMap.h"
 #include "StoreDAO.h"
 #include "LCDbRack.h"
@@ -88,14 +86,14 @@ void __fastcall TfrmReferred::cbLogClick(TObject *Sender) {
 void TfrmReferred::init() {
     // referred boxes: l_box_arrival
     sgReferredBoxes->ColWidths[0]  = 200;  // Name
-    sgReferredBoxes->ColWidths[1]  = 140;  // Status
+    sgReferredBoxes->ColWidths[1]  = 120;  // Status
     sgReferredBoxes->ColWidths[2]  = 30;   // 1stpos
-    sgReferredBoxes->ColWidths[3]  = 80;   // 1stID
+    sgReferredBoxes->ColWidths[3]  = 70;   // 1stID
     sgReferredBoxes->ColWidths[4]  = 30;   // Lstpos
-    sgReferredBoxes->ColWidths[5]  = 80;   // LstID
-    sgReferredBoxes->ColWidths[6]  = 40;   // Tank
-    sgReferredBoxes->ColWidths[7]  = 70;   // Rack
-    sgReferredBoxes->ColWidths[8]  = 30;   // Slot
+    sgReferredBoxes->ColWidths[5]  = 70;   // LstID
+    sgReferredBoxes->ColWidths[6]  = 200;  // Tank/Population/Vessel
+    sgReferredBoxes->ColWidths[7]  = 60;   // Rack
+    sgReferredBoxes->ColWidths[8]  = 25;   // Slot
     sgReferredBoxes->ColWidths[9]  = 100;  // Project
     sgReferredBoxes->ColWidths[10] = 140;  // Swiped
     sgReferredBoxes->Cells[0] [0] = "Name"; // col, row
@@ -104,8 +102,8 @@ void TfrmReferred::init() {
     sgReferredBoxes->Cells[3] [0] = "Barcode";
     sgReferredBoxes->Cells[4] [0] = "Lst";
     sgReferredBoxes->Cells[5] [0] = "Barcode";
-    sgReferredBoxes->Cells[6] [0] = "Tank";
-    sgReferredBoxes->Cells[7] [0] = "Rack";
+    sgReferredBoxes->Cells[6] [0] = "Vessel";
+    sgReferredBoxes->Cells[7] [0] = "Struct";
     sgReferredBoxes->Cells[8] [0] = "Slot";
     sgReferredBoxes->Cells[9] [0] = "Project";
     sgReferredBoxes->Cells[10][0] = "Swiped";
@@ -118,6 +116,7 @@ void TfrmReferred::init() {
     sgMatches->ColWidths[4] = 40;       // last pos
     sgMatches->ColWidths[5] = 100;      // last barc
     sgMatches->ColWidths[6] = 40;      // storage history exists
+    //sgMatches->ColWidths[7] = 140;// box2->box_store_status
     sgMatches->Cells[0] [0] = "Name";
     sgMatches->Cells[1] [0] = "Status";
     sgMatches->Cells[2] [0] = "1st";
@@ -125,16 +124,17 @@ void TfrmReferred::init() {
     sgMatches->Cells[4] [0] = "Lst";
     sgMatches->Cells[5] [0] = "Barcode";
     sgMatches->Cells[6] [0] = "Hist";
+    //sgMatches->Cells[7] [0] = "StoreStatus";
 
     // box storage history: box_store
     sgStorage->ColWidths[0] = 150;      // time
-    sgStorage->ColWidths[1] = 100;      // tank
+    sgStorage->ColWidths[1] = 200;      // tank
     sgStorage->ColWidths[2] = 70;       // rank
     sgStorage->ColWidths[3] = 30;       // slot
     sgStorage->ColWidths[4] = 140;      // status
     sgStorage->Cells[0] [0] = "Timestamp";
-    sgStorage->Cells[1] [0] = "Tank";
-    sgStorage->Cells[2] [0] = "Rack";
+    sgStorage->Cells[1] [0] = "Vessel";
+    sgStorage->Cells[2] [0] = "Struct";
     sgStorage->Cells[3] [0] = "Slot";
     sgStorage->Cells[4] [0] = "Status";
     sgStorage->Cells[5] [0] = "Removed";
@@ -153,24 +153,24 @@ void TfrmReferred::init() {
     if (MYDEBUG) cbLog->Visible = true;
 }
 
-void __fastcall TfrmReferred::sgReferredBoxesSelectCell(TObject *Sender, int ACol, int ARow, bool &CanSelect) {
+void __fastcall TfrmReferred::sgReferredBoxesMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y) {
     if (sgReferredBoxes->Row < 1) { return; }
     timerReferredBoxClicked->Enabled = false; // reset
     timerReferredBoxClicked->Enabled = true;
-    selectedBox = (BoxArrivalRecord *)sgReferredBoxes->Objects[0][sgReferredBoxes->Row];
-    if (selectedBox->changed) { // reset
-        selectedBox->status = LCDbBoxStore::Status::REFERRED;
-        selectedBox->changed = false;
+    referredBox = (BoxArrivalRecord *)sgReferredBoxes->Objects[0][sgReferredBoxes->Row];
+    if (referredBox->changed) { // reset
+        referredBox->status = LCDbBoxStore::Status::REFERRED;
+        referredBox->changed = false;
         showBoxes();
-        //sgReferredBoxes->Paint()
     }
     selectedMatch = NULL;
     Screen->Cursor = crSQLWait;
     progressBottom->Style = pbstMarquee;
     clearSG(sgMatches);
     clearSG(sgStorage);
-    setBoxDetails(selectedBox);
-    setTRS(selectedBox);
+    setBoxDetails(referredBox);
+    setTRS(referredBox);
+    debugLog(referredBox->str().c_str());
 }
 
 void TfrmReferred::setBoxDetails(BoxArrivalRecord * box) {
@@ -181,7 +181,7 @@ void TfrmReferred::setBoxDetails(BoxArrivalRecord * box) {
     editLastID->Text = box->last_barcode.c_str();
     comboStatus->Clear();
     for (int i = 0; i < 8; i++) { // xxx
-        comboStatus->AddItem(boxStoreStatusString[i], NULL);
+        comboStatus->AddItem(boxStoreStatusStrings[i], NULL);
     } comboStatus->ItemIndex = statusToIndex(box->status);
 }
 
@@ -255,7 +255,7 @@ void __fastcall TfrmReferred::sgMatchesMouseUp(TObject *Sender, TMouseButton But
     debugLog(selectedMatch->str().c_str());
     Screen->Cursor = crSQLWait;
     setBoxDetails(selectedMatch);
-    setTRS(selectedBox); // so TRS can be reset to l_b_a value if selected store record(s) are not correct
+    setTRS(referredBox); // so TRS can be reset to l_b_a value if selected store record(s) are not correct
     btnSaveBox->Enabled = true;
     sgStorage->RowCount = 1;
     progressBottom->Style = pbstMarquee;
@@ -337,10 +337,10 @@ void __fastcall TfrmReferred::sgMatchesDrawCell(TObject *Sender, int ACol, int A
     } else if (NULL == drawnBox) {
         background = clWindow;
     } else if (drawnBox == probableMatch || State.Contains(gdSelected)) {
-        if (   (ACol == 2 && drawnBox->first_position != selectedBox->first_position)
-            || (ACol == 4 && drawnBox->last_position  != selectedBox->last_position)
-            || (ACol == 3 && 0 != drawnBox->first_barcode.compare(selectedBox->first_barcode))
-            || (ACol == 5 && 0 != drawnBox->last_barcode.compare(selectedBox->last_barcode))
+        if (   (ACol == 2 && drawnBox->first_position != referredBox->first_position)
+            || (ACol == 4 && drawnBox->last_position  != referredBox->last_position)
+            || (ACol == 3 && 0 != drawnBox->first_barcode.compare(referredBox->first_barcode))
+            || (ACol == 5 && 0 != drawnBox->last_barcode.compare(referredBox->last_barcode))
             || (ACol == 1 && drawnBox->status == LPDbBoxName::Status::IN_TANK)
             || (ACol == 6 && drawnBox->slot_position != 1)// ? "*" : ""; // box_store records exist
         ) {
@@ -368,9 +368,9 @@ void __fastcall TfrmReferred::sgStorageDrawCell(TObject *Sender, int ACol, int A
         } else if (NULL == drawnBox) {
             background = clWindow;
         } else if ( // tank, rack or slot don't match
-               (1 == ACol && 0 != String(drawnBox->tank_name.c_str()).CompareIC(selectedBox->tank_name.c_str()))
-            || (2 == ACol && 0 != String(drawnBox->rack_name.c_str()).CompareIC(selectedBox->rack_name.c_str()))
-            || (3 == ACol && drawnBox->slot_position != selectedBox->slot_position)) {
+               (1 == ACol && 0 != String(drawnBox->tank_name.c_str()).CompareIC(referredBox->tank_name.c_str()))
+            || (2 == ACol && 0 != String(drawnBox->rack_name.c_str()).CompareIC(referredBox->rack_name.c_str()))
+            || (3 == ACol && drawnBox->slot_position != referredBox->slot_position)) {
             background = REFERRED_BOXES_ERROR_COLOUR;
         } else if (State.Contains(gdSelected)) {
             background = REFERRED_BOXES_HIGHLIGHT_COLOUR;
@@ -393,7 +393,6 @@ void TfrmReferred::loadBoxes() {
     if (randomStatus) {
         qc.setSQL("SELECT * from l_box_arrival WHERE swipe_time > DATE('now') - DATE('90 days')"); // fake
     } else {
-        //qc.setSQL("SELECT * from l_box_arrival WHERE status <> 99 AND status <> 4 ORDER BY swipe_time DESC"); // real
         qc.setSQL("SELECT * from l_box_arrival WHERE status <> 99 AND status <> 4 ORDER BY status DESC, box_name ASC"); // real
     }
     // XXX boxes in l_box_arrival are for real projects not dev_<project>
@@ -416,10 +415,9 @@ void TfrmReferred::loadBoxes() {
             qc.readString("rack_number"),
             qc.readInt("slot_position"),
             qc.readDateTime("time_stamp"));
-        const LCDbObject * tank = LCDbObjects::records().findByID(box->tank_cid);
-        box->tank_name = tank ? tank->getName().c_str() : "NULL";
-        std::ostringstream out; out << box->slot_position;
-        box->slot_name = out.str();
+        //box->tank_name  = getVesselName(box->tank_cid);
+//        std::ostringstream out; out << box->slot_position;
+//        box->slot_name = out.str();
         totalReferred.push_back(box);
         qc.next();
     }
@@ -478,8 +476,10 @@ void TfrmReferred::filterBoxesByBoxType() {
         sgReferredBoxes->Cells[3] [i] = box->first_barcode.c_str();
         sgReferredBoxes->Cells[4] [i] = box->last_position;
         sgReferredBoxes->Cells[5] [i] = box->last_barcode.c_str();
+        box->tank_name  = getVesselName(box->tank_cid);
         sgReferredBoxes->Cells[6] [i] = box->tank_name.c_str();
         sgReferredBoxes->Cells[7] [i] = box->rack_name.c_str();
+        std::ostringstream out; out << box->slot_position; box->slot_name = out.str();
         sgReferredBoxes->Cells[8] [i] = box->slot_name.c_str();
         sgReferredBoxes->Cells[9] [i] = LCDbProjects::records().get(box->project_cid).getName().c_str();
         sgReferredBoxes->Cells[10][i] = box->swipe_time.DateTimeString();
@@ -529,12 +529,11 @@ void TfrmReferred::signOffBoxes() {
         }
     }
     frmConfirm->initialise(TfrmLogin::REFERRED, "Ready to sign off boxes", projects);  //???
-	//if (mrOk == frmConfirm->ShowModal()) {
-        if (mrOk == frmReferredBoxesSummary->ShowModal()) {
-            loadBoxes();
-            showBoxes();
-        }
-    //xxx}
+    if (mrOk == frmReferredBoxesSummary->ShowModal()) {
+        loadBoxes();
+        showBoxes();
+    }
+    // else, they cancelled - don't refresh???
 }
 
 void __fastcall FindMatchesWorkerThread::Execute() {
@@ -552,7 +551,7 @@ void __fastcall FindMatchesWorkerThread::Execute() {
         "SELECT event_cid, operator_cid, event_date, process_cid, project_cid"
         " FROM l_box_arrival_event_history WHERE box_arrival_id = :baid"
         " ORDER BY event_date DESC");
-    qc.setParam("baid", frmReferred->selectedBox->box_arrival_id);
+    qc.setParam("baid", frmReferred->referredBox->box_arrival_id);
     if (!qc.open()) {
         frmReferred->comboEventHistory->Items->Add("No event history");
     } else {
@@ -635,8 +634,8 @@ void __fastcall FindMatchesWorkerThread::Execute() {
     if (!qp.open()) return; // xxx no results [open() returns bool, not int count]
     while (!qp.eof()) { // Find boxes with either cryovial in
         box_id  = qp.readInt("box_cid");
-        pos_min = qp.readInt("minpos");
-        pos_max = qp.readInt("maxpos");
+        pos_min = qp.readInt("minpos"); // first_position
+        pos_max = qp.readInt("maxpos"); // last_position
         BoxArrivalRecord * box = new BoxArrivalRecord( // just using this as a similar data structure
             0, 0, box_id, // actually project box id, not box_arrival_id
             project, Now(), "", 0,  "", pos_min, "", pos_max, 0, "", 0, Now());
@@ -646,10 +645,11 @@ void __fastcall FindMatchesWorkerThread::Execute() {
 
     // Now find the details you need to display for each box
     tdvecpBoxArrivalRecord::const_iterator it;
+    int new_cid, last_cid = 0;
     for (it = frmReferred->matchingBoxes1.begin(); it != frmReferred->matchingBoxes1.end(); it++) {
         BoxArrivalRecord * box = *it;
         qp.setSQL( // Join includes rack and slot, which we can use with central db to find tank
-            "SELECT b.external_name, b.status, bs.slot_position AS slot,"
+            "SELECT b.box_cid, b.external_name, b.status, bs.status AS storestatus, bs.slot_position AS slot,"
             " s1.cryovial_position AS pos1, c1.cryovial_barcode AS barc1,"
             " s2.cryovial_position AS pos2, c2.cryovial_barcode AS barc2"
             " FROM box_name b LEFT JOIN box_store bs"
@@ -657,22 +657,25 @@ void __fastcall FindMatchesWorkerThread::Execute() {
             " cryovial c1, cryovial_store s1, cryovial c2, cryovial_store s2"
             " WHERE b.box_cid = s1.box_cid AND b.box_cid = s2.box_cid"
             " AND c1.cryovial_id = s1.cryovial_id AND c2.cryovial_id = s2.cryovial_id"
-            " AND b.box_cid = :bid AND s1.cryovial_position = :fpos AND s2.cryovial_position = :lpos");
+            " AND b.box_cid = :bid AND s1.cryovial_position = :fpos AND s2.cryovial_position = :lpos"
+            " ORDER BY b.box_cid" // to remove dupes
+            //" AND bs.status = 6" // cut out dupes?
+            );
         qp.setParam("bid",  box->box_arrival_id);
         qp.setParam("fpos", box->first_position);
         qp.setParam("lpos", box->last_position);
         if (!qp.open()) return; // no results
-        while (!qp.eof()) {
             BoxArrivalRecord * box2 = new BoxArrivalRecord(
                 0, 0, box->box_arrival_id, box->project_cid, Now(), // actually project box id, not box_arrival_id
                 qp.readString("external_name"), qp.readInt("status"),
                 qp.readString("barc1"), qp.readInt("pos1"),
                 qp.readString("barc2"), qp.readInt("pos2"),
                 0, "", qp.fieldExists("slot") ? 1 : 0, Now());
+            box2->box_store_status = qp.readInt("storestatus");
                 //xxx make slot_position non-zero to mark existence of box_store record(s)
             frmReferred->matchingBoxes2.push_back(box2);
             qp.next();
-        }
+//        }
     }
     ReturnValue = 1;
 }
@@ -693,6 +696,7 @@ void __fastcall TfrmReferred::findMatchesWorkerThreadTerminated(TObject *Sender)
             sgMatches->Cells[4][i] = box->last_position;
             sgMatches->Cells[5][i] = box->last_barcode.c_str();
             sgMatches->Cells[6][i] = box->slot_position == 1 ? "*" : ""; //xxx box_store records exist
+            //sgMatches->Cells[7][i] = boxStoreStatusString(box->box_store_status);
             sgMatches->Objects[0][i] = (TObject *)box;
             if (0 == String(box->box_name.c_str()).CompareIC(editBoxName->Text)) {
                 probableMatch = box; // save match on box name
@@ -766,17 +770,40 @@ void __fastcall FindStorageWorkerThread::Execute() {
             " AND ob.status != 99"
             " AND rn.rack_cid = :rack"); // eg -12589136
         qc.setParam("rack", box->rack_cid);
-        if (!qc.open()) { //xxx does this ever happen?
+        if (!qc.open()) { //xxx does this ever happen? yes: ...8146
             box->tank_cid   = 0;
             box->rack_name  = n2s(box->rack_cid);
             box->tank_name  = "unknown";
         } else {
             box->tank_cid   = qc.readInt("tankcid");
             box->rack_name  = qc.readString("rackname");
-            box->tank_name  = LCDbObjects::records().get(box->tank_cid).getName().c_str();
-        }
-        // don't do graphical things in the thread without Synchronising
+            box->tank_name  = frmReferred->getVesselName(box->tank_cid);
+		}
     }
+}
+
+const string TfrmReferred::getVesselName(int population_cid) {
+    if (0 != population_cid) {
+        const LCDbObject pop = LCDbObjects::records().get(population_cid);
+        if (pop.isActive()) { //pop != NULL &&
+            if (pop.getObjectType() != LCDbObject::STORAGE_POPULATION) throw "Wrong object type";
+            for (Range< LCDbTankMap > tmi = LCDbTankMaps::records(); tmi.isValid(); ++tmi) {
+                if (tmi->isActive() && tmi->getTankCID() == pop.getID()) {
+                    int vesselCID = tmi->getStorageCID();
+                    static const LCDbObjects & names = LCDbObjects::records();
+                    const LCDbObject * vessel = names.findByID(vesselCID);
+                    ostringstream oss;
+                    string site = LCDbObjects::records().get(tmi->getLocationCID()).getName();
+                    oss << "["<<LCDbObjects::records().get(population_cid).getName().c_str()<<"] ";
+                    oss << vessel->getDescription() << " at " << site << " " << tmi->getPosition();
+                    if (tmi->getPopulation() != 0) // it's in a shelf
+                        oss<<" [shelf "<<tmi->getPopulation()<<"]";
+                    return oss.str(); // e.g. "Selenium at Cowley pos x [shelf y]"
+                }
+            }
+        }
+    }
+    return "Unknown";
 }
 
 void __fastcall TfrmReferred::findStorageWorkerThreadTerminated(TObject *Sender) {
@@ -791,7 +818,7 @@ void __fastcall TfrmReferred::findStorageWorkerThreadTerminated(TObject *Sender)
             sgStorage->Cells[1][i] = box->tank_name.c_str();
             sgStorage->Cells[2][i] = box->rack_name.c_str();
             sgStorage->Cells[3][i] = box->slot_position;
-            sgStorage->Cells[4][i] = boxStoreStatusString[box->status];
+            sgStorage->Cells[4][i] = boxStoreStatusString(box->status);
             sgStorage->Cells[5][i] = box->removed;
             sgStorage->Objects[0][i] = (TObject *)box;
         }
@@ -805,18 +832,63 @@ void __fastcall TfrmReferred::findStorageWorkerThreadTerminated(TObject *Sender)
 }
 
 void TfrmReferred::okOrDiscard(int status) {
-    LQuery qc(LIMSDatabase::getCentralDb());
     errors.clear(); warnings.clear(); info.clear();
 
     if (LPDbBoxName::Status::DELETED == status) { // discard
-        selectedBox->status = status;
-        selectedBox->changed = true;
+        referredBox->status = status;
+        referredBox->changed = true;
         showBoxes();
         return;
     }
 
-    // copy possibly changed values from box detail controls
-    editedBox = *selectedBox; // initialise
+    //editedBox = *referredBox; // this has the old box_arrival_id, may be wrong
+    if (selectedMatch->box_arrival_id != referredBox->box_arrival_id) { // the ID was wrong in l_b_a - correct it now
+        LQuery qp = Util::projectQuery(referredBox->project_cid, true);
+        ostringstream out;
+        out<<"Correcting l_box_arrival ID from "<<referredBox->box_arrival_id<<" to "<<selectedMatch->box_arrival_id;
+        qp.setSQL("SELECT COUNT(*) FROM l_box_arrival WHERE box_arrival_id = :baid");
+        qp.setParam("baid", selectedMatch->box_arrival_id);
+        qp.open();
+        if (0 != qp.readInt(0)) {
+            out<<" would clash with existing record with ID "<<selectedMatch->box_arrival_id;//"ERROR: "existing l_box_arrival record with id "<<selectedMatch->box_arrival_id;
+            Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
+            return;
+        } else { // else { while (!qp.eof()) { qp.next();
+            debugLog(out.str().c_str());
+        }
+        qp.setSQL("UPDATE l_box_arrival SET status = :stat WHERE box_arrival_id = :baid");
+        qp.setParam("stat", LPDbBoxName::Status::DELETED);
+        qp.setParam("baid", referredBox->box_arrival_id);
+        qp.execSQL();
+        // bit of a bodge - user could quit before signing off and then the lba record has been 99'd and not seen again.
+        // also in signoff, updateLBA will fail. Should create a corrected one as well and update that
+        qp.setSQL("INSERT INTO l_box_arrival"
+				" (laptop_cid, process_cid, box_arrival_id, project_cid, swipe_time, box_name, status,"
+				" first_barcode, first_position, last_barcode, last_position, tank_cid, rack_number, slot_position)"
+                " VALUES (:ltid, :prid, :baid, :pjid, :swip, :name, :stat, :bar1, :pos1, :bar2, :pos2, :tank, :rack, :slot)");
+        qp.setParam("ltid", referredBox->laptop_cid);
+        qp.setParam("prid", referredBox->process_cid);
+        qp.setParam("baid", selectedMatch->box_arrival_id);
+        qp.setParam("pjid", referredBox->project_cid);
+        qp.setParam("swip", XTIME(referredBox->swipe_time));
+        qp.setParam("name", referredBox->box_name);
+        qp.setParam("stat", status);
+        qp.setParam("bar1", referredBox->first_barcode);
+        qp.setParam("pos1", referredBox->first_position);
+        qp.setParam("bar2", referredBox->last_barcode);
+        qp.setParam("pos2", referredBox->last_position);
+        qp.setParam("tank", referredBox->tank_cid);
+        qp.setParam("rack", referredBox->rack_name);
+        qp.setParam("slot", referredBox->slot_position);
+        qp.execSQL();
+    }
+
+    LQuery qc(LIMSDatabase::getCentralDb());
+    editedBox = *selectedMatch; // initialise from canonical box_name record in case box name or ID was wrong in l_b_a
+    debugLog("referredBox->str():");
+    debugLog(referredBox->str().c_str());
+    debugLog("selectedMatch->str():");
+    debugLog(selectedMatch->str().c_str());
     editedBox.box_name      = bcsToStd(editBoxName->Text);
     editedBox.status        = status;
     editedBox.first_position= editFirstPos->Text.ToInt();;
@@ -826,23 +898,26 @@ void TfrmReferred::okOrDiscard(int status) {
     if (0 <= comboTank->ItemIndex) {
         editedBox.tank_cid = (int)comboTank->Items->Objects[comboTank->ItemIndex];
     } else {
-        errors.push_back("Tank not selected");
+        errors.push_back("Vessel not selected");
     }
     if (0 <= comboRack->ItemIndex) {
-        editedBox.rack_name = bcsToStd(comboRack->Items->Strings[comboRack->ItemIndex]); // comboRack shouldn't be relied to have correct name
+        editedBox.rack_name = bcsToStd(comboRack->Items->Strings[comboRack->ItemIndex]); // comboRack shouldn't be relied to have correct name?
         LCDbRack rackData("", editedBox.tank_cid, editedBox.rack_name);
         if (!rackData.findRack(qc)) {
             ostringstream oss;
-            oss <<"Rack not found: tank: "<<editedBox.tank_name<<"["<<editedBox.tank_cid<<"], rack: '"<<editedBox.rack_name<<"'";
+            oss <<"Rack not found.\n\ntank: "<<editedBox.tank_name<<"["<<editedBox.tank_cid<<"]\nrack: '"<<editedBox.rack_name<<"'";
+            oss <<"\n(Is tank correct?)";
             errors.push_back(oss.str());
         }
         editedBox.rack_cid = rackData.getID();
     } else {
         errors.push_back("Rack not selected");
     }
-
     editedBox.slot_position = editSlot->Text.ToInt();
-    debugLog("original box:"); debugLog(selectedBox->str().c_str());
+    if (editedBox.slot_position <= 0) {
+        warnings.push_back("Slot position is zero");
+    }
+    debugLog("original box:"); debugLog(referredBox->str().c_str());
     debugLog("edited box:");   debugLog(editedBox.str().c_str());
 
     // warn if not probable match
@@ -866,8 +941,7 @@ void TfrmReferred::okOrDiscard(int status) {
         return;
     }
     Screen->Cursor = crSQLWait;
-    progressBottom->Style = pbstMarquee;
-    progressBottom->Visible = true;
+    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
     checkTRSWorkerThread = new CheckTRSWorkerThread(editedBox);
     checkTRSWorkerThread->OnTerminate = &checkTRSWorkerThreadTerminated;
 }
@@ -876,7 +950,6 @@ void __fastcall CheckTRSWorkerThread::updateStatus() {
     ostringstream ss;
     ss <<"Searching project '"<<curProj.getName()<<"' ["<<curProj.getDbName()<< "("<<curProj.getID()<<")] storage"<<endl;
     frmReferred->updateStatusBar(ss.str());
-    frmReferred->info.push_back(ss.str());
 }
 
 void __fastcall CheckTRSWorkerThread::Execute() {
@@ -885,7 +958,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
 
     /// FIXME: NG - the slot is valid if the rack exists and layout exists and 1 <= slot <= layout.rack_capacity
 	if (rackData.findRack(qc)) {
-        ostringstream out; out << "Slot "<<box.slot_position<<" in rack "<<box.rack_cid;
+        ostringstream out; out << "Slot "<<box.slot_position<<" in structure "<<box.rack_cid;
         const LCDbSectionDef * layout = LCDbSectionDefs::records().findByID(rackData.getSectionType());
         if (NULL == layout) {
             out <<"layout is NULL";  frmReferred->errors.push_back(out.str()); return;
@@ -900,7 +973,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
     // repeat query for each project database to find out if the slot is occupied
     for (Range< LCDbProject > pr = LCDbProjects::records(); pr.isValid(); ++ pr) { //&& !pr->isCentral())
         curProj = *pr;
-        Synchronize((TThreadMethod)&updateStatus);
+        Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
         LQuery qi(Util::projectQuery(pr->getID()));;
         qi.setSQL(
             "SELECT box_cid, status, time_stamp, removed, process_cid, retrieval_cid"
@@ -915,9 +988,10 @@ void __fastcall CheckTRSWorkerThread::Execute() {
                 int status = qi.readInt("status");
                 switch (status) {
                 case LCDbBoxStore::SLOT_CONFIRMED:
-                    out <<"Position is in use - box_cid: "<<qi.readInt("box_cid")<<endl
-                        <<"is in rack: "<<box.rack_name<<" ["<<box.rack_cid<<"], slot: "<<box.slot_position<<endl
-                        <<"at: "<<bcsToStd(qi.readDateTime("time_stamp").DateTimeString());
+                    out <<"Position is in use.\n\nbox_cid '"<<qi.readInt("box_cid")<<"' is in "//<<endl
+                        <<"structure '"<<box.rack_name<<"' ["<<box.rack_cid<<"], "//<<endl
+                        <<"slot "<<box.slot_position//<<endl
+                        <<" since "<<bcsToStd(qi.readDateTime("time_stamp").DateTimeString());
                     frmReferred->errors.push_back(out.str());
                     return; // abort
                 case LCDbBoxStore::EXPECTED:
@@ -932,9 +1006,10 @@ void __fastcall CheckTRSWorkerThread::Execute() {
                     ;
                 }
             } else {
-                out <<"Box "<<qi.readInt("box_cid")<<" is already marked as stored in "<<endl
-                    <<"rack: "<<box.rack_name<<" ["<<box.rack_cid<<"], slot: "<<box.slot_position<<endl
-                    <<"at: "<<bcsToStd(qi.readDateTime("time_stamp").DateTimeString());
+                out <<"Box "<<qi.readInt("box_cid")<<" is already marked as stored in "//<<endl
+                    <<"structure '"<<box.rack_name<<"' ["<<box.rack_cid<<"], "//<<endl
+                    <<"slot "<<box.slot_position//<<endl
+                    <<" since "<<bcsToStd(qi.readDateTime("time_stamp").DateTimeString())<<endl;
                 frmReferred->warnings.push_back(out.str());
                 break;
             }
@@ -944,6 +1019,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
 
     // compare t/r/s with those in l_b_a
     qc.setSQL("SELECT * FROM l_box_arrival WHERE box_arrival_id = :baid AND status <> 99");
+    //qc.setSQL("SELECT * FROM l_box_arrival WHERE box_arrival_id = :baid"); // including 99'd records, ID might have been corrected
     qc.setParam("baid", box.box_arrival_id);
     if (!qc.open()) { // results
         throw Exception("Box arrival record not found");
@@ -952,20 +1028,20 @@ void __fastcall CheckTRSWorkerThread::Execute() {
         string orig_rackname(qc.readString("rack_number"));
         int orig_slot = qc.readInt("slot_position");
         if (0 == box.tank_cid) {
-            stringstream ss; ss << "No tank selected";
+            stringstream ss; ss << "No vessel selected";
             frmReferred->errors.push_back(ss.str());
             return;
         } else if (orig_tank != box.tank_cid) {
-            stringstream ss; ss << "Tank has changed from "<<(orig_tank == 0 ? string("NULL") : LCDbObjects::records().get(orig_tank).getName())
-                <<" to "<<LCDbObjects::records().get(box.tank_cid).getName();
+            stringstream ss; ss << "Vessel has changed from '"<<(orig_tank == 0 ? string("NULL") : frmReferred->getVesselName(orig_tank)) //LCDbObjects::records().get(orig_tank).getName())
+                <<"' to '"<<LCDbObjects::records().get(box.tank_cid).getName()<<"'";
             frmReferred->warnings.push_back(ss.str());
         }
         if (0 != orig_rackname.compare(box.rack_name)) {
-            stringstream ss; ss << "rack name has changed from '"<<orig_rackname<<"' to '"<<box.rack_name<<"'";
+            stringstream ss; ss << "Structure has changed from '"<<orig_rackname<<"' to '"<<box.rack_name<<"'";
             frmReferred->warnings.push_back(ss.str());
         }
         if (orig_slot != box.slot_position) {
-            stringstream ss; ss << "slot position has changed from "<<orig_slot<<" to "<<box.slot_position;
+            stringstream ss; ss << "Slot has changed from "<<orig_slot<<" to "<<box.slot_position;
             frmReferred->warnings.push_back(ss.str());
         }
     }
@@ -993,14 +1069,13 @@ void TfrmReferred::finishOKorDiscard() {
         ostringstream out;
         for (it = warnings.begin(); it != warnings.end(); it++) { out<<*it<<endl; }
         out << endl << "Are you sure you want to sign off this box?";
-        if (mrYes != Application->MessageBox(String(out.str().c_str()).c_str(), L"Warning", MB_YESNO)) {
+        if (mrYes != Application->MessageBox(String(out.str().c_str()).c_str(), L"Warning", MB_YESNO))
             return;
-        }
     }
 
     // mark for sign-off
-    *selectedBox = editedBox;       // save changes in grid
-    selectedBox->changed = true;    // debugLog(selectedBox->str().c_str());
+    *referredBox = editedBox;       // save changes in grid
+    referredBox->changed = true;    // debugLog(selectedBox->str().c_str());
     showBoxes();                    // refresh to reflect changes
 }
 
@@ -1025,18 +1100,18 @@ void TfrmReferred::findMatchesByBoxName() { findMatches(true); }
 void TfrmReferred::findMatches(bool byBoxName) {
     if (NULL != findMatchesWorkerThread) return; // already searching
     if (sgReferredBoxes->Row < 1) return; //xxx shouldn't happen?
-    //Screen->Cursor = crSQLWait;
+    Screen->Cursor = crSQLWait;
     string dbName, boxname;
     if (byBoxName) { // box name edited, search for it
         boxname.assign(bcsToStd(editBoxName->Text));
     }
     findMatchesWorkerThread = new FindMatchesWorkerThread(
-        selectedBox->project_cid, boxname, bcsToStd(editFirstID->Text), bcsToStd(editLastID->Text));
+        referredBox->project_cid, boxname, bcsToStd(editFirstID->Text), bcsToStd(editLastID->Text));
     findMatchesWorkerThread->OnTerminate = &findMatchesWorkerThreadTerminated;
 
     sgMatches->RowCount = 1; sgStorage->RowCount = 1;
     probableMatch = NULL;
-    {   LQuery qp(Util::projectQuery(selectedBox->project_cid));
+    {   LQuery qp(Util::projectQuery(referredBox->project_cid));
         dbName = qp.getDatabase().getDbName(); }
     std::stringstream out;
     out << "Possible matches found in " << dbName;
@@ -1053,20 +1128,17 @@ void TfrmReferred::updateStatusBar(string status) {
 void __fastcall TfrmReferred::comboTankDropDown(TObject *Sender) {
     comboTank->Clear(); comboRack->Clear();
     Screen->Cursor = crSQLWait;
-//    LQuery qc(LIMSDatabase::getCentralDb());
-//    qc.setSQL("SELECT * FROM c_object_name WHERE object_type = 9 AND status = 1 ORDER BY external_name");
-//    if (qc.open()) {
-//        while (!qc.eof()) {
-//            comboTank->AddItem(qc.readString("external_name").c_str(), (TObject *)qc.readInt("object_cid"));
-//            qc.next();
-//        }
-//    }
-// FIXME should use above sql or below methods?
-// doesn't give all results e.g. not C16a?:
-    //comboTank->AddItem("---", (TObject *)NULL); // test separator
-    for (Range< LCDbTankMap > tmi = LCDbTankMaps::records(); tmi.isValid(); ++ tmi) {
-        //if( tmi->getTankCID() == store->getID() && tmi->isActive() ) {
-        comboTank->AddItem(LCDbObjects::records().get(tmi->getTankCID()).getName().c_str(), (TObject *)tmi->getTankCID());
+
+    // object_type 9 [STORAGE_POPULATION] or 16 [STORAGE_VESSEL]?
+
+	const LCDbObjects & names = LCDbObjects::records();
+    for (Range< LCDbTankMap >tmi = LCDbTankMaps::records(); tmi.isValid(); ++tmi) {
+        if (tmi->getStatus() < LCDbTankMap::OFFLINE) {
+            const LCDbObject * vessel = names.findByID(tmi->getStorageCID());
+            if (vessel != NULL) {
+                comboTank->AddItem(getVesselName(tmi->getTankCID()).c_str(), (TObject *)tmi->getTankCID());
+            }
+        }
     }
     Screen->Cursor = crDefault;
 }
@@ -1075,7 +1147,7 @@ void __fastcall TfrmReferred::comboTankDropDown(TObject *Sender) {
 void __fastcall TfrmReferred::comboRackDropDown(TObject *Sender) {
     comboRack->Clear();
     if (-1 == comboTank->ItemIndex) {
-        comboRack->AddItem("No tank", (TObject *)0);
+        comboRack->AddItem("No vessel", (TObject *)0);
         comboRack->ItemIndex = 0;
         comboRack->ClearSelection();
         return;
@@ -1091,7 +1163,7 @@ void __fastcall TfrmReferred::comboRackDropDown(TObject *Sender) {
             qc.next();
         }
     } else {
-        comboRack->AddItem("No racks", (TObject *)0);
+        comboRack->AddItem("No structures", (TObject *)0);
     }
     Screen->Cursor = crDefault;
 }

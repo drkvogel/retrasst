@@ -4,6 +4,8 @@
 #include "LCDbJob.h"
 #include "StoreUtil.h"
 #include "LCDbAuditTrail.h"
+#include "LCDbObject.h"
+#include "StringUtil.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 TfrmRetrievalAssistant *frmRetrievalAssistant;
@@ -11,13 +13,116 @@ TfrmRetrievalAssistant *frmRetrievalAssistant;
 __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
 
 void TfrmRetrievalAssistant::init() {
+/*
+JobType
+ProjectID
+PrimaryAliquot
+Status
+TimeStamp
+ProcessCID
+UserID
+Reason
+*/
+    sgJobs->Cells[0][0] = "Description";
+    sgJobs->Cells[1][0] = "Job type";
+    sgJobs->Cells[2][0] = "Project";
+    sgJobs->Cells[3][0] = "Reason";
+    sgJobs->Cells[4][0] = "Status";
+    sgJobs->Cells[5][0] = "UserID";
+    sgJobs->Cells[6][0] = "Primary Aliquot";
+    sgJobs->Cells[7][0] = "TimeStamp";
+    sgJobs->ColWidths[0] = 400;
+    sgJobs->ColWidths[1] = 80;
+    sgJobs->ColWidths[2] = 50;
+    sgJobs->ColWidths[3] = 200;
+    sgJobs->ColWidths[4] = 50;
+    sgJobs->ColWidths[5] = 50;
+    sgJobs->ColWidths[6] = 300;
+    sgJobs->ColWidths[7] = 50;
+
+    // exercise_cid
+    // external_name
+    // description
+    // reason
+    // job_type
+    // project_cid
+    // primary_aliquo
+    // process_cid
+    // status
+    // time_stamp
+    // start_date
+    // claimed_until
+    // finish_date
     loadJobs();
 }
 
 void TfrmRetrievalAssistant::loadJobs() {
     LQuery qc(LIMSDatabase::getCentralDb());
 
-    qc.setSQL("SELECT ");
+    LCDbCryoJobs &jobs = LCDbCryoJobs::records();
+//        case LCDbCryoJob::BOX_MOVE:
+//		case LCDbCryoJob::BOX_RETRIEVAL:
+//		case LCDbCryoJob::BOX_DISCARD:
+//		case LCDbCryoJob::SAMPLE_RETRIEVAL:
+//		case LCDbCryoJob::SAMPLE_DISCARD:
+    jobs.read(0, true); // $2 true: readall
+
+    //Range< LCDbCryoJob > jr;
+    //
+	//for (int i=1, jr = jobs; jr.isValid(); ++jr, i++) {
+    int size = 0;
+    for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {
+        if (jr->isAvailable()) size++;
+    }
+    sgJobs->RowCount = size + 1;
+    int i=1;
+    for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr, i++) {
+//        jr->getName();
+//        jr->getDescription();
+//        jr->getJobType();
+//        jr->getProjectID();
+//        jr->getPrimaryAliquot();
+//        jr->getStatus();
+//        jr->getTimeStamp();
+//        jr->getProcessCID();
+//        jr->getUserID();
+//        jr->getReason();
+
+//        std::ostringstream oss;
+//        oss
+//        //<<"Name: "<<jr->getName()
+//        <<", Description: "<<jr->getDescription()
+//        <<", JobType: "<<jr->getJobType()
+//        <<", ProjectID: "<<jr->getProjectID()
+//        <<", PrimaryAliquot: "<<jr->getPrimaryAliquot()
+//        <<", Status: "<<jr->getStatus()
+//        <<", TimeStamp: "<<bcsToStd(jr->getTimeStamp().DateTimeString())
+//        <<", ProcessCID: "<<jr->getProcessCID()
+//        <<", UserID: "<<jr->getUserID()
+//        <<", Reason: "<<jr->getReason();
+//        sgJobs->Cells[0][i] = oss.str().c_str();
+
+        sgJobs->Cells[0][i] = jr->getDescription().c_str();
+        sgJobs->Cells[1][i] = jr->getJobType(); // enum int
+        sgJobs->Cells[2][i] = jr->getProjectID();
+        sgJobs->Cells[3][i] = jr->getReason().c_str();
+        sgJobs->Cells[4][i] = jr->getStatus();
+        sgJobs->Cells[5][i] = jr->getUserID();
+        sgJobs->Cells[6][i] = jr->getPrimaryAliquot(); // int
+        sgJobs->Cells[7][i] = jr->getTimeStamp().DateTimeString();
+
+
+
+
+
+    }
+		//if (jr->isAvailable() && jr->getProjectID() == projectCID
+		//&& (jr->getJobType() == LCDbCryoJob::BOX_RETRIEVAL
+		// || jr->getJobType() == LCDbCryoJob::SAMPLE_RETRIEVAL)) {
+			//writeJob( *jr, row++ );
+		//}
+
+    //qc.setSQL("SELECT ");
 
     //comboJob->AddItem(, (TObject *));
       /*
@@ -37,12 +142,13 @@ std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) {
 
 std::string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
     // c_project
+    return "";
 }
 
-std::string getAliquotDescription(int primary_aliquot) {
+std::string getAliquotDescription(int primary_aliquot_cid) {
     // c_object_name 6: aliquot type?
     std::ostringstream oss;
-    const LCDbObject * primary_aliquot = LCDbObjects::records().findByID(primary_aliquot);
+    const LCDbObject * primary_aliquot = LCDbObjects::records().findByID(primary_aliquot_cid);
     oss << primary_aliquot->getName().c_str();
     return oss.str();
 }
@@ -50,6 +156,7 @@ std::string getAliquotDescription(int primary_aliquot) {
 std::string getAuditInfo(int process_cid) {
     // c_audit_trail
     //LCDbCryoJob::getUserID()
+    return "";
 }
 
 
@@ -58,7 +165,11 @@ std::string getAuditInfo(int process_cid) {
 /*
 jobs are LCDbCryoJob
 
+#define 	LEASEE_STOREMAN		   100		// Storage management; blocks itself and Storage Sync
+
 C_RETRIEVAL_JOB
+
+
 
 A list of one or more tasks for each retrieval exercise. For example, an analysis exercise may include one task retrieving the cryovials and another for analysing them
 
@@ -127,11 +238,11 @@ void TfrmRetrievalAssistant::loadBoxes() {
     LQuery qp = Util::projectQuery(0 /*box->project_cid*/, true); // true 2nd param gets ddb
     // Find where the boxes are supposed to be:
 
-    qp.setSQL("select … from box_name n, box_store bs, c_rack_number r, c_tank_map m"
-        " where n.box_cid=bs.box_cid and bs.rack_cid=r.rack_cid and r.tank_cid=m.tank_cid"
-        " and bs.retrieval_cid = jobID");
-
-    sgBoxes->RowCount = 1;
+//    qp.setSQL("select … from box_name n, box_store bs, c_rack_number r, c_tank_map m"
+//        " where n.box_cid=bs.box_cid and bs.rack_cid=r.rack_cid and r.tank_cid=m.tank_cid"
+//        " and bs.retrieval_cid = jobID");
+//
+//    sgBoxes->RowCount = 1;
 
     for (int i; i < 10; i++) {
         //sgBoxes->Cells[][] = "";

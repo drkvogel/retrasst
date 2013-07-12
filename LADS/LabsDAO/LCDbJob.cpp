@@ -23,16 +23,15 @@ LCDbCryoJob::LCDbCryoJob( const LQuery & query )
  : LCDbID( query.readInt( "retrieval_cid" ) ),
    processID( query.readInt( "process_cid" ) ),
    projectID( query.readInt( "project_cid" ) ),
-   LDbNames( query.readString( "external_name" ),
-			 query.readString( "description" ) ),
+   reason( query.fieldExists( "reason" ) ? query.readString( "reason" ) : query.readString( "description" ) ),
+   LDbNames( query.fieldExists( "external_name" ) ? query.readString( "external_name" ) : reason,
+   			 query.readString( "description" ) ),
    jobType( query.readInt( "job_type" ) ),
    status( query.readInt( "status" ) ),
-   reason( query.readString( "reason" ) ),
-   time_stamp( query.readDateTime( "time_stamp" ) ),
-   claimed_until( query.readDateTime( "claimed_until" ) )
-{
-	aliquotType = query.fieldExists( "primary_aliquot" ) ? query.readInt( "primary_aliquot" ) : 0;
-}
+   claimed_until( query.readDateTime( "claimed_until" ) ),
+   aliquotType( query.fieldExists( "primary_aliquot" ) ? query.readInt( "primary_aliquot" ) : 0 ),
+   time_stamp( query.fieldExists( "time_stamp" ) ? query.readDateTime( "time_stamp" ) : Now() )
+{}
 
 //---------------------------------------------------------------------------
 //	Allocate new ID if necessary and create corresponding external name
@@ -64,7 +63,7 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 
 	if( saved ) {
 		central.setSQL( "update c_retrieval_job"
-					   " set status = :sts, time_stamp = 'now', process_cid = :pid"
+					   " set status = :sts, process_cid = :pid"
 					   " where retrieval_cid = :myid" );
 	} else {
 		if( getName().empty()) {
@@ -73,17 +72,16 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 		if( getID() == 0 ) {
 			claimNextID( central );
 		}
-		std::string fields = "retrieval_cid, external_name, description, reason,"
+		std::string fields = "retrieval_cid, external_name, description,"
 							" project_cid, status, job_type, process_cid";
 		std::string params = ":myid, :nme, :dsc, :rsn, :prid, :sts, :jt, :pid";
 		if( addAliquot ) {
 			fields += ", primary_aliquot";
 			params += ", :at";
 		}
-		central.setSQL( "insert into c_retrieval_job (" + fields + ", time_stamp, claimed_until )"
-					   " values (" + params + ", 'now', date('now') + date('1 minute') )" );
+		central.setSQL( "insert into c_retrieval_job (" + fields + ", claimed_until )"
+					   " values (" + params + ", date('now') + date('1 minute') )" );
 		central.setParam( "nme", getName() );
-		central.setParam( "rsn", reason );
 		central.setParam( "dsc", getDescription() );
 		central.setParam( "prid", projectID );
 		central.setParam( "jt", jobType );

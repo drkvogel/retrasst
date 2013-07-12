@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use DBI;
 use Data::Dumper;
+use File::Slurp qw(edit_file);
 use YAML;
 
 my $verbose = 0;
@@ -93,6 +94,9 @@ sub uploadToIngres {
     my $tableDataFile   = $params->{tableDataFile};
     my $yesTruncate     = defined( $params->{truncateYesNo} ) && ( 'yes' eq $params->{truncateYesNo} );
 
+    # Get rid of any dodgy extra commas in tableDataFile
+    edit_file { s/Lp\(a\),\s*Apo/Lp(a) Apo/g } $tableDataFile;
+    
     my $colSpec = $colSpecFunc->();#`xslt $tableXMLFile create_copy_cmd_col_list.xsl`;
 
     my $copyStmt = sprintf( "copy %s ( %s ) FROM '%s' WITH ON_ERROR = TERMINATE, ERROR_COUNT = 1, ROLLBACK = ENABLED ",
@@ -282,6 +286,8 @@ sub dumpQCs {
 
 # Returns a subroutine which, when invoked for a given QC entry (from buddy_database), queries qc_test_machine and
 # returns the tests that are configured for that QC on the machine on which it was run.
+# Updated (27 June 2013) so tolerant of absence of any configuration for the given QC. Even tolerant of 
+# when cannot find its level in qc_level.  Have experienced this for QCRCl00117.
 sub createTestInfoSource {
     my ($dataSource) = @_;
     my $dbh = DBI->connect( "dbi:ODBC:DSN=$dataSource", undef, undef, {AutoCommit => 1} ) or die $DBI::err;
@@ -290,6 +296,8 @@ sub createTestInfoSource {
 
     sub {
         my ($qc) = @_;
+        my $tests = [];
+        my $level_cid = undef;
 
         die "Bad barcode: $qc->{barcode}" unless ( $qc->{barcode} =~ /QC(\w{2})(\w)/ );
 
@@ -301,29 +309,33 @@ sub createTestInfoSource {
 
         my $row = $stmt->fetchrow_arrayref;
 
-        die "No rows" unless $row;
-
-        my $level_cid = $row->[0];
-
-        $row = $stmt->fetchrow_arrayref;
-
-        die "More than one row" if $row;
-
-        print "level_cid: $level_cid; machine_cid: $machine_cid\n" if ($verbose);
-
-        $stmt = $dbh->prepare( $query_qc_test_machine ) or die $dbh->errstr;
-
-        $stmt->execute( $level_cid, $machine_cid );
-
-        my $tests = [];
-
-        while ( $row = $stmt->fetchrow_arrayref ) {
-            die unless ( defined( $row->[1] ) ); # insist on a value for diluent
-            push @{$tests}, { test_id => $row->[0], diluent => $row->[1] };
+        if ( $row ) {
+            $level_cid = $row->[0];
+        } 
+        else {
+            print "Failed to obtain QC level identifier.\n$query_qc_level\nparams: $material, $level\nbarcode: $qc->{barcode}\n";
         }
 
-        my $numTests = @{$tests};
-        die "No tests listed for material $material, level $level, machine $machine_cid." unless ( $numTests > 0 );
+        if ($level_cid) {
+
+            $row = $stmt->fetchrow_arrayref;
+
+            die "More than one row" if $row;
+
+            print "level_cid: $level_cid; machine_cid: $machine_cid\n" if ($verbose);
+
+            $stmt = $dbh->prepare( $query_qc_test_machine ) or die $dbh->errstr;
+
+            $stmt->execute( $level_cid, $machine_cid );
+
+            while ( $row = $stmt->fetchrow_arrayref ) {
+                die unless ( defined( $row->[1] ) ); # insist on a value for diluent
+                push @{$tests}, { test_id => $row->[0], diluent => $row->[1] };
+            }
+
+            my $numTests = @{$tests};
+            print "No tests listed.\n\tmaterial: $material\n\tlevel: $level\n\tmachine: $machine_cid\n" unless ( $numTests > 0 );
+        }
 
         return $tests;
     }
