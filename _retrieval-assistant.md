@@ -55,25 +55,25 @@ I realise this is somewhat repetitive but I hope it clarifies the process
 
 
 > Should I use LCDbCryoJob/s for the jobs we are talking about?
-
 Yes; read from c_retrieval_job
 
 > "For in progress lists these steps should be skipped (REQ 8.3.7). " not clear which steps at the moment....
-
 Check status: only look at status=0
+There are four type of job: 
+    cryovial retrieval for analysis is the most complex - that's what we talked about this morning; 
+    cryovial retrieval for disposal is similar; 
+    box retrieval for analysis and 
+    box retrieval for disposal are far simpler - they bring whole boxes back to the lab
 
-There are four type of job: cryovial retrieval for analysis is the most complex - that's what we talked about this morning; cryovial retrieval for disposal is similar; box retrieval for analysis and box retrieval for disposal are far simpler - they bring whole boxes back to the lab
-
-> Work through list or sub-section by giving the storage location and sample ID of each sample on the list in the order saved above (REQ 8.3.8)" - 'giving??' - does this mean displaying the details of each sample in turn? (ie one at a time - in big letters, I presume?)
-
+> Work through list or sub-section by giving the storage location and sample ID of each sample on the list in the order saved above (REQ 8.3.8)" 
+> 'giving??' - does this mean displaying the details of each sample in turn? (ie one at a time - in big letters, I presume?)
 Not for next week but yes, display current and destination location of each sample, one at a time (highlighting current sample in the context of five previous and a couple more still to be collected).
 
 > Do I need to interface with the barcode scanner and if so how?
-
 Treat it as reliable keyboard input
 
-> "The option to exit the process saving progress should be offered, with an "are you sure?" message in case of accidental selection (REQ 8.3.12)." - presume this means "The option to exit the process, saving progress" (note comma - punctuation fanatic, me)
-
+> "The option to exit the process saving progress should be offered, with an "are you sure?" message in case of accidental selection (REQ 8.3.12)."
+> presume this means "The option to exit the process, saving progress" (note comma)
 Agreed - they can either resume the process immediately if they say they don't want to exit or they can resume later if they say they're sure they want to close the window.  I think the same could apply to 8.3.6 but do whatever's simplest and safest
 
 One more thing about retrieval lists.  There's potentially a two-level hierarchy: a retrieval task (in c_retrieval_job) can belong to a retrieval exercise (in c_object_name).  This is a fairly new idea so, although it's documented for 2.7.2, the data's not all there yet.  That may be why you couldn't find the fields you were looking for
@@ -88,4 +88,22 @@ section > 0, position = 0: fill all the boxes in the first section in default or
 section > 0, position > 0: fill the boxes in the first section one by one, then the second section, and so on.
 
 You might have one section sorted one way and another section sorted the other but I've only allowed for these two possibilities.  From what Martin was saying about needing greater flexibility in future, we may need to change the table structure to list every cryovial, at least in some cases.  I'll look at that when I get back
+
+### stuff
+
+bool LCDbCryoJob::isAvailable() const
+{
+	return status != INPROGRESS
+		|| processID == LCDbAuditTrail::getCurrent().getProcessID()
+		|| claimed_until < Now();
+
+	enum Category { UNKNOWN, CALIBRANT, REAGENT, ANALYSER_EVENT, SIS_EVENT, CLUSTER = 5,
+					ALIQUOT_TYPE, STORAGE_TYPE, STORAGE_SITE, STORAGE_POPULATION, TANK_LAYOUT = 10,
+					PROGRAM_NAME, SAMPLE_CATEGORY, RESULT_ATTRIBUTE, LAB_NAME, ALIQUOT_CATEGORY = 15,
+					STORAGE_VESSEL, QC_MATERIAL, TUBE_TYPE, CANNED_TEXT, STORAGE_EXERCISE = 20,
+					NUM_TYPES };
+                    
+LCDbProjects::getCurrentID()
+
+short LPDbBoxName::getSize() 
 
