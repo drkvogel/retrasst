@@ -62,10 +62,7 @@ public:
 	int         box_arrival_id;
 	TDateTime   swipe_time;
 	int         status;
-    int         box_store_status;
-/* LCDbBoxStore::Status {
-    EXPECTED = 0, MOVE_EXPECTED = 1, REMOVED = 3, SLOT_ALLOCATED = 5,
-	SLOT_CONFIRMED = 6, REFERRED = 7, DELETED = 99 }; */
+    int         box_store_status; /* LCDbBoxStore::Status { EXPECTED = 0, MOVE_EXPECTED = 1, REMOVED = 3, SLOT_ALLOCATED = 5, SLOT_CONFIRMED = 6, REFERRED = 7, DELETED = 99 }; */
 	int         tank_cid;
     int         rack_cid;       // for t_ldbx::box_store.rack_cid
 	string      rack_name;      // for t_ldbc::l_b_a.rack_number - which is a varchar
@@ -92,8 +89,7 @@ public:
     std::string str() {
         std::stringstream out;
         out
-        //<<"laptop_cid: "<<laptop_cid<<", process_cid: "<<process_cid
-        <<" box_arrival_id: "<<box_arrival_id<<", status: "<<status
+        <<" box_arrival_id: "<<box_arrival_id<<", status: "<<status //<<"laptop_cid: "<<laptop_cid<<", process_cid: "<<process_cid
         <<", box_name: "<<box_name
         <<", project_cid: "<<project_cid<<", first_barcode: "<<first_barcode
 	    <<", first_position: "<<first_position<<", last_barcode: "<<last_barcode<<", last_position: "<<last_position

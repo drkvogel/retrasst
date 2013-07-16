@@ -1,11 +1,11 @@
 #include <vcl.h>
 #pragma hdrstop
 #include "RetrievalAssistant.h"
-#include "LCDbJob.h"
 #include "StoreUtil.h"
 #include "LCDbAuditTrail.h"
 #include "LCDbObject.h"
 #include "StringUtil.h"
+#include "LCDbProject.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 TfrmRetrievalAssistant *frmRetrievalAssistant;
@@ -13,16 +13,7 @@ TfrmRetrievalAssistant *frmRetrievalAssistant;
 __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
 
 void TfrmRetrievalAssistant::init() {
-/*
-JobType
-ProjectID
-PrimaryAliquot
-Status
-TimeStamp
-ProcessCID
-UserID
-Reason
-*/
+
     sgJobs->Cells[0][0] = "Description";
     sgJobs->Cells[1][0] = "Job type";
     sgJobs->Cells[2][0] = "Project";
@@ -32,13 +23,13 @@ Reason
     sgJobs->Cells[6][0] = "Primary Aliquot";
     sgJobs->Cells[7][0] = "TimeStamp";
     sgJobs->ColWidths[0] = 400;
-    sgJobs->ColWidths[1] = 80;
-    sgJobs->ColWidths[2] = 50;
+    sgJobs->ColWidths[1] = 120;
+    sgJobs->ColWidths[2] = 100;
     sgJobs->ColWidths[3] = 200;
-    sgJobs->ColWidths[4] = 50;
+    sgJobs->ColWidths[4] = 100;
     sgJobs->ColWidths[5] = 50;
-    sgJobs->ColWidths[6] = 300;
-    sgJobs->ColWidths[7] = 50;
+    sgJobs->ColWidths[6] = 200;
+    sgJobs->ColWidths[7] = 100;
 
     // exercise_cid
     // external_name
@@ -65,7 +56,7 @@ void TfrmRetrievalAssistant::loadJobs() {
 //		case LCDbCryoJob::BOX_DISCARD:
 //		case LCDbCryoJob::SAMPLE_RETRIEVAL:
 //		case LCDbCryoJob::SAMPLE_DISCARD:
-    jobs.read(0, true); // $2 true: readall
+    jobs.read(LCDbCryoJob::JobKind::UNKNOWN, true); // $2 true: readall
 
     //Range< LCDbCryoJob > jr;
     //
@@ -77,6 +68,7 @@ void TfrmRetrievalAssistant::loadJobs() {
     sgJobs->RowCount = size + 1;
     int i=1;
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr, i++) {
+        if (!jr->isAvailable()) continue;
 //        jr->getName();
 //        jr->getDescription();
 //        jr->getJobType();
@@ -103,18 +95,14 @@ void TfrmRetrievalAssistant::loadJobs() {
 //        sgJobs->Cells[0][i] = oss.str().c_str();
 
         sgJobs->Cells[0][i] = jr->getDescription().c_str();
-        sgJobs->Cells[1][i] = jr->getJobType(); // enum int
-        sgJobs->Cells[2][i] = jr->getProjectID();
+        sgJobs->Cells[1][i] = jobTypeString(jr->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
+        sgJobs->Cells[2][i] = getProjectDescription(jr->getProjectID()).c_str();
         sgJobs->Cells[3][i] = jr->getReason().c_str();
-        sgJobs->Cells[4][i] = jr->getStatus();
+        sgJobs->Cells[4][i] = jobStatusString(jr->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
         sgJobs->Cells[5][i] = jr->getUserID();
-        sgJobs->Cells[6][i] = jr->getPrimaryAliquot(); // int
+        sgJobs->Cells[6][i] = getAliquotDescription(jr->getPrimaryAliquot()).c_str(); // int
         sgJobs->Cells[7][i] = jr->getTimeStamp().DateTimeString();
-
-
-
-
-
+        sgJobs->Objects[0][i] = (TObject *)&(*jr);
     }
 		//if (jr->isAvailable() && jr->getProjectID() == projectCID
 		//&& (jr->getJobType() == LCDbCryoJob::BOX_RETRIEVAL
@@ -141,25 +129,32 @@ std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) {
 }
 
 std::string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
-    // c_project
-    return "";
+    if (0 == project_cid) return "Project not specified";
+    try {
+        return LCDbProjects::records().get(project_cid).getName().c_str();
+    } catch (...) {
+        std::ostringstream oss; oss<<"Project ID "<<project_cid<<" not found"; return oss.str();
+    }
 }
 
-std::string getAliquotDescription(int primary_aliquot_cid) {
+std::string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_cid) {
     // c_object_name 6: aliquot type?
     std::ostringstream oss;
-    const LCDbObject * primary_aliquot = LCDbObjects::records().findByID(primary_aliquot_cid);
-    oss << primary_aliquot->getName().c_str();
+    if (0 == primary_aliquot_cid) return "Aliquot not specified";
+    try {
+        const LCDbObject * primary_aliquot = LCDbObjects::records().findByID(primary_aliquot_cid);
+        oss << primary_aliquot->getName().c_str();
+    } catch (...) {
+        oss << "Aliquot ID "<<primary_aliquot_cid<<" not found";
+    }
     return oss.str();
 }
 
-std::string getAuditInfo(int process_cid) {
+std::string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
     // c_audit_trail
     //LCDbCryoJob::getUserID()
     return "";
 }
-
-
 
 
 /*
@@ -168,8 +163,6 @@ jobs are LCDbCryoJob
 #define 	LEASEE_STOREMAN		   100		// Storage management; blocks itself and Storage Sync
 
 C_RETRIEVAL_JOB
-
-
 
 A list of one or more tasks for each retrieval exercise. For example, an analysis exercise may include one task retrieving the cryovials and another for analysing them
 
@@ -251,5 +244,8 @@ void TfrmRetrievalAssistant::loadBoxes() {
 
 }
 
+void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+    //
+}
 
-// void TfrmRetrievalAssistant::() { }
+

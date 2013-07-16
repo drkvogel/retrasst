@@ -52,9 +52,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goColSizing, goRowSelect]
       TabOrder = 0
-      ExplicitTop = 17
-      ExplicitWidth = 682
-      ExplicitHeight = 297
+      OnDrawCell = sgJobsDrawCell
       ColWidths = (
         196
         64
