@@ -85,16 +85,16 @@ void __fastcall TfrmReferred::cbLogClick(TObject *Sender) {
 
 void TfrmReferred::init() {
     // referred boxes: l_box_arrival
-    sgReferredBoxes->ColWidths[0]  = 200;  // Name
+    sgReferredBoxes->ColWidths[0]  = 290;  // Name
     sgReferredBoxes->ColWidths[1]  = 120;  // Status
     sgReferredBoxes->ColWidths[2]  = 30;   // 1stpos
     sgReferredBoxes->ColWidths[3]  = 70;   // 1stID
     sgReferredBoxes->ColWidths[4]  = 30;   // Lstpos
     sgReferredBoxes->ColWidths[5]  = 70;   // LstID
-    sgReferredBoxes->ColWidths[6]  = 200;  // Tank/Population/Vessel
+    sgReferredBoxes->ColWidths[6]  = 210;  // Tank/Population/Vessel
     sgReferredBoxes->ColWidths[7]  = 60;   // Rack
     sgReferredBoxes->ColWidths[8]  = 25;   // Slot
-    sgReferredBoxes->ColWidths[9]  = 100;  // Project
+    sgReferredBoxes->ColWidths[9]  = 0;  // Project
     sgReferredBoxes->ColWidths[10] = 140;  // Swiped
     sgReferredBoxes->Cells[0] [0] = "Name"; // col, row
     sgReferredBoxes->Cells[1] [0] = "Status";
@@ -408,7 +408,7 @@ void TfrmReferred::loadBoxes() {
             qc.readDateTime("swipe_time"),
             qc.readString("box_name"),
             randomStatus ? (rand() % 3 + 5) : // random status between 5 and 7
-            qc.readInt("status"), //xxx 5 = allocated, 6 = slot confirmed, 7 = referred
+            qc.readInt("status"), // 5 = allocated, 6 = slot confirmed, 7 = referred
             qc.readString("first_barcode"), qc.readInt("first_position"),
             qc.readString("last_barcode"),  qc.readInt("last_position"),
             qc.readInt("tank_cid"),
@@ -794,7 +794,7 @@ const string TfrmReferred::getVesselName(int population_cid) {
                     const LCDbObject * vessel = names.findByID(vesselCID);
                     ostringstream oss;
                     string site = LCDbObjects::records().get(tmi->getLocationCID()).getName();
-                    oss << "["<<LCDbObjects::records().get(population_cid).getName().c_str()<<"] ";
+                    //oss << "["<<LCDbObjects::records().get(population_cid).getName().c_str()<<"] ";
                     oss << vessel->getDescription() << " at " << site << " " << tmi->getPosition();
                     if (tmi->getPopulation() != 0) // it's in a shelf
                         oss<<" [shelf "<<tmi->getPopulation()<<"]";
@@ -849,7 +849,7 @@ void TfrmReferred::okOrDiscard(int status) {
         qp.setSQL("SELECT COUNT(*) FROM l_box_arrival WHERE box_arrival_id = :baid");
         qp.setParam("baid", selectedMatch->box_arrival_id);
         qp.open();
-        if (0 != qp.readInt(0)) {
+        if (0 != qp.readInt(0)) { // doofus check
             out<<" would clash with existing record with ID "<<selectedMatch->box_arrival_id;//"ERROR: "existing l_box_arrival record with id "<<selectedMatch->box_arrival_id;
             Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
             return;
@@ -861,7 +861,8 @@ void TfrmReferred::okOrDiscard(int status) {
         qp.setParam("baid", referredBox->box_arrival_id);
         qp.execSQL();
         // bit of a bodge - user could quit before signing off and then the lba record has been 99'd and not seen again.
-        // also in signoff, updateLBA will fail. Should create a corrected one as well and update that
+        // should be done on signoff ideally
+        // Create a corrected record and one as well and update that
         qp.setSQL("INSERT INTO l_box_arrival"
 				" (laptop_cid, process_cid, box_arrival_id, project_cid, swipe_time, box_name, status,"
 				" first_barcode, first_position, last_barcode, last_position, tank_cid, rack_number, slot_position)"
@@ -956,7 +957,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
     LQuery qc(LIMSDatabase::getCentralDb());
     LCDbRack rackData("", box.tank_cid, box.rack_name);
 
-    /// FIXME: NG - the slot is valid if the rack exists and layout exists and 1 <= slot <= layout.rack_capacity
+    // the slot is valid if the rack exists and layout exists and 1 <= slot <= layout.rack_capacity
 	if (rackData.findRack(qc)) {
         ostringstream out; out << "Slot "<<box.slot_position<<" in structure "<<box.rack_cid;
         const LCDbSectionDef * layout = LCDbSectionDefs::records().findByID(rackData.getSectionType());

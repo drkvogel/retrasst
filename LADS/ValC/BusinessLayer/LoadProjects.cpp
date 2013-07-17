@@ -23,11 +23,6 @@ LoadProjects::~LoadProjects()
     trace( "LoadProjects destructor" );
 }
 
-int LoadProjects::releaseReturnValue()
-{
-    return 1;
-}
-
 void LoadProjects::execute()
 {
     std::string sql = "select project_cid, lower(external_name), lower(db_name) from c_project";

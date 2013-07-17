@@ -64,4 +64,41 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         64)
     end
   end
+  object clbTest: TCheckListBox
+    Left = 456
+    Top = 368
+    Width = 121
+    Height = 97
+    ItemHeight = 13
+    TabOrder = 3
+  end
+  object CategoryButtons1: TCategoryButtons
+    Left = 224
+    Top = 368
+    ButtonFlow = cbfVertical
+    Categories = <
+      item
+        Color = 16771818
+        Collapsed = False
+        Items = <>
+      end
+      item
+        Color = 15400959
+        Collapsed = False
+        Items = <>
+      end
+      item
+        Color = 16777194
+        Collapsed = False
+        Items = <>
+      end
+      item
+        Color = 15395839
+        Collapsed = False
+        Items = <>
+      end>
+    RegularButtonColor = clWhite
+    SelectedButtonColor = 15132390
+    TabOrder = 4
+  end
 end

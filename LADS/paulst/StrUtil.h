@@ -1,28 +1,45 @@
 #ifndef STRUTILH
 #define STRUTILH
 
-#include <cctype>
-#include <string>
-
+#include <algorithm>
 #include <boost/algorithm/string/find.hpp>
-
+#include <cctype>
+#include <iomanip>
 #include "Require.h"
-
+#include <string>
 #include <System.hpp>
 
-std::ostream& operator<<( std::ostream& out, const UnicodeString& s )
-{
-    out << AnsiString( s );
-    return out;
-}
+std::ostream& operator<<( std::ostream& out, const UnicodeString& s );
 
 namespace paulst
 {
 
+void        addTrailingPathSeparatorIfNone( std::string& path, char pathSeparator );
+bool        endsWith( const char* str, const char* substr ); // Does str end with substr?
+std::string formatFileSize( __int64 size );
+bool        caseInsensitiveCompare( char a, char b );
+int         count( const std::string& within, const std::string& substring );
+std::string getErrorMessage( unsigned long windowsErrorCode );
+bool        ifind( const std::string& findWhat, const std::string& inWhat );
+bool        isDigit( char c );
+bool        isSpace( char c );
+std::string loadContentsOf( const std::string& filePath );
+bool        notSpace( char c );
+std::string stdstring( const UnicodeString& s );
+bool        strip_prefix( char* str, const char* prefix );
+void        trim( std::string& value );
+TDateTime   toDateTime( const std::string& s, const TDateTime& defaultVal = TDateTime( 1900, 1, 1, 0, 0, 0, 0) );
+int         toInt( const std::string& s );
+std::string toString( int i );
+std::string toString( const TDateTime& dt, const std::string& format = "yyyy/mm/dd:hh:nn:ss" );
+bool        validateInt ( const std::string& s );
+bool        validateReal( const std::string& s );
+
+
 template<class Str>
 struct SubString
 {
-    Str::const_iterator begin, end;
+    typename Str::const_iterator begin, end;
 };
 
 /*
@@ -33,13 +50,13 @@ returned. Otherwise false.
 */
 template<class Str>
 bool find( 
-    Str::const_iterator start, 
-    Str::const_iterator end, 
+	typename Str::const_iterator start,
+    typename Str::const_iterator end,
     const Str& startPattern, 
     const Str& endPattern, 
     SubString<Str>& found )
 {
-    typedef boost::iterator_range<Str::const_iterator> Range;
+    typedef boost::iterator_range<typename Str::const_iterator> Range;
 
     Range inputSequence(start, end);
 
@@ -65,25 +82,13 @@ bool find(
     return true;
 }
 
-
-void addTrailingPathSeparatorIfNone( std::string& path, char pathSeparator );
-// Does str end with substr?
-bool endsWith( const char* str, const char* substr );
-std::string formatFileSize( __int64 size );
-bool notWhiteSpace( const char& c );
-bool strip_prefix( char* str, const char* prefix );
-
 struct FileSize
 {
     __int64 size;
-    FileSize( __int64 s ) : size(s) {}
+    explicit FileSize( __int64 s ) : size(s) {}
 };
 
-std::ostream& operator<<( std::ostream& os, const FileSize& f )
-{
-    os << formatFileSize( f.size );
-    return os;
-}
+//std::ostream& operator<<( std::ostream& os, const FileSize& f );
 
 struct Equals
 {
@@ -127,7 +132,7 @@ std::string last_line( CharacterIterator begin, CharacterIterator end )
     
     if ( ( endOfLastLine == end /*not found*/ ) || endOfLastLine == begin /*found at start*/) return "";
 
-    require( endOfLastLine > begin );
+    //require( endOfLastLine > begin );
 
     CharacterIterator startOfLastLine = find_last( begin, endOfLastLine, equals('\n') );
 
@@ -138,12 +143,25 @@ std::string last_line( CharacterIterator begin, CharacterIterator end )
 
 template<typename CharacterIterator> char lastNonWhiteSpaceChar( CharacterIterator begin, CharacterIterator end )
 {
-    CharacterIterator i = find_last( begin, end, notWhiteSpace );
+    CharacterIterator i = find_last( begin, end, notSpace );
 
     return i == end ? '\0' : *i;
 }
-};
 
+template<typename IfTrue, typename IfFalse> 
+void conditionBasedOutput( bool condition, IfTrue outputIfTrue, IfFalse outputIfFalse, std::ostream& out )
+{
+    if ( condition )
+    {
+        out << outputIfTrue;
+    }
+    else
+    {
+        out << outputIfFalse;
+    }
+}
+
+};
 
 #endif
 

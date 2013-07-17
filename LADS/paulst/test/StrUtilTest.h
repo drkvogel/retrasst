@@ -11,7 +11,7 @@ namespace tut
     {
     };
 
-    typedef test_group<StrUtilTestFixture, 21> StrUtilTestGroup;
+    typedef test_group<StrUtilTestFixture, 23> StrUtilTestGroup;
 	StrUtilTestGroup testGroupStrUtil( "StrUtil tests");
 	typedef StrUtilTestGroup::object testStrUtil;
 
@@ -223,6 +223,55 @@ namespace tut
         std::string startPattern("brown"), endPattern("=");
         SubString<std::string> found;
         ensure_not( find<std::string>( inputSequence.begin(), inputSequence.end(), "&R#f", "=", found ) );
+    }
+
+    template<>
+    template<>
+	void testStrUtil::test<21>()
+    {
+        set_test_name("ifind");
+        using namespace paulst;
+        std::string inputSequence("The quick brown fox jumped over the lazy dog.");
+        std::string target("brown");
+        ensure    ( "brown", ifind( "brown", inputSequence ) );
+        ensure    ( "Brown", ifind( "Brown", inputSequence ) );
+        ensure    ( " dog.", ifind( " dog.", inputSequence ) );
+        ensure    ( " DOG.", ifind( " DOG.", inputSequence ) );
+        ensure_not( " cat.", ifind( " cat.", inputSequence ) );
+    }
+
+    
+    template<>
+    template<>
+	void testStrUtil::test<22>()
+    {
+        set_test_name("count");
+        using namespace paulst;
+
+        ensure_equals( count( "abc", "a" ), 1 );
+        ensure_equals( count( "aac", "a" ), 2 );
+        ensure_equals( count( "aaa", "a" ), 3 );
+        ensure_equals( count( "aaa", "b" ), 0 );
+        ensure_equals( count( "aaa", "aa" ), 2 );// Unusual?
+        ensure_equals( count( "aaa", "aaa" ), 1 );
+        ensure_equals( count( "aaa", "aaaa" ), 0 );
+    }
+
+    std::string doTrim( const char* str )
+    {
+        std::string s(str);
+        paulst::trim( s );
+        return s;
+    }
+
+    template<>
+    template<>
+	void testStrUtil::test<23>()
+    {
+        set_test_name("trim");
+        using namespace paulst;
+
+        ensure_equals( doTrim( "abc" ), "abc" );
     }
 
 };

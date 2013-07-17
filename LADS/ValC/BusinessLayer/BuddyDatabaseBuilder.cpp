@@ -22,7 +22,7 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder( const Projects* p, ResultIndex* r, S
     m_projects( p ),
     m_resultIndex( r ),
     m_sampleRuns( sampleRuns ),
-    m_candidateSampleRuns( sampleRuns ),
+    m_candidateSampleRuns( candidateSampleRuns ),
     m_sampleRunIDResolutionService( s )
 {
 }
@@ -77,8 +77,12 @@ bool BuddyDatabaseBuilder::accept( Cursor* c )
         hasSampleRun = true;
         c->read( COL_SR_RUN_ID              , srID );
         c->read( COL_SR_IS_OPEN             , srIsOpen );
-        c->read( COL_SR_CREATED_WHEN        , srCreatedWhen );
-        c->read( COL_SR_CLOSED_WHEN         , srClosedWhen );
+		c->read( COL_SR_CREATED_WHEN        , srCreatedWhen );
+		if ( ! srIsOpen )
+		{
+			require( ! c->isNull( COL_SR_CLOSED_WHEN ) );
+			c->read( COL_SR_CLOSED_WHEN, srClosedWhen );
+		}
         c->read( COL_SR_SEQUENCE_POSITION   , srSequencePosition );
     }
 

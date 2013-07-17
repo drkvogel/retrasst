@@ -31,9 +31,7 @@ struct PrimaryKeyEquals
     PrimaryKeyEquals( const std::string& keyName,
         const std::string& keyValue )
     {
-        std::ostringstream s;
-        s << keyName << "=" << keyValue;
-        target = s.str();
+		target = keyName << "=" << keyValue;
     }
 
     bool operator()( const std::string& row )

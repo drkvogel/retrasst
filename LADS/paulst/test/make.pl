@@ -10,7 +10,7 @@ die unless @projects == 1;
 my $project = shift @projects;
 print "Building $project...\n";
 
-$ENV{BDS} = "C:/Program Files (x86)/Embarcadero/RAD Studio/9.0";
+$ENV{BDS} = "C:/Program Files (x86)/Embarcadero/RAD Studio/11.0";
 $ENV{FrameworkDir}="C:/Windows/Microsoft.NET/Framework/v3.5";
 my @buildArgs = ();
 push @buildArgs, $project;

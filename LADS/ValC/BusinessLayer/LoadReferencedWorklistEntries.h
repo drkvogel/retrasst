@@ -32,7 +32,6 @@ public:
         WorklistEntries* worklistEntries, ResultIndex* resultIndex );
     void execute();
     void execute( const WorklistEntry* wle );
-    int releaseReturnValue(); 
 private:
     int m_localMachineID;
     DBConnection* m_con;

@@ -103,6 +103,8 @@ void TfrmRetrievalAssistant::loadJobs() {
         sgJobs->Cells[6][i] = getAliquotDescription(jr->getPrimaryAliquot()).c_str(); // int
         sgJobs->Cells[7][i] = jr->getTimeStamp().DateTimeString();
         sgJobs->Objects[0][i] = (TObject *)&(*jr);
+
+        clbTest->AddItem(jr->getDescription().c_str(), (TObject *)&(*jr));
     }
 		//if (jr->isAvailable() && jr->getProjectID() == projectCID
 		//&& (jr->getJobType() == LCDbCryoJob::BOX_RETRIEVAL

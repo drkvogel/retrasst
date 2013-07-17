@@ -24,11 +24,6 @@ LoadClusterIDs::~LoadClusterIDs()
     trace( "LoadClusterIDs destructor" );
 }
 
-int LoadClusterIDs::releaseReturnValue()
-{
-    return 1;
-}
-
 void LoadClusterIDs::execute()
 {
     std::string sql = std::string("SELECT cluster_cid FROM c_cluster_machine WHERE machine_cid = ") << m_localMachineID;

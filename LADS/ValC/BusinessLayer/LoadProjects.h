@@ -18,7 +18,6 @@ public:
     LoadProjects( Projects* projects, paulst::LoggingService* log, DBConnection* con );
     ~LoadProjects();
     void execute();
-    int releaseReturnValue();
 private:
     paulst::LoggingService* m_log;
     DBConnection* m_con;

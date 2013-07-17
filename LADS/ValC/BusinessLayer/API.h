@@ -110,6 +110,7 @@ public:
     LocalRun( const std::string& sampleDescriptor, const std::string& id );
     LocalRun& operator=( const LocalRun& r );
     std::string getSampleDescriptor() const;
+    std::string getRunID() const;
 private:
     std::string m_id, m_sampleDescriptor;
 };

@@ -15,7 +15,7 @@ Event::Event()
 
 Event::~Event()
 {
-    CloseHandle( m_h );
+	CloseHandle( m_h );
 }
 
 unsigned long Event::wait( unsigned long millis ) const
@@ -25,7 +25,7 @@ unsigned long Event::wait( unsigned long millis ) const
 
 bool Event::reset()
 {
-    return ResetEvent( m_h );
+	return ResetEvent( m_h );
 }
 
 
@@ -44,8 +44,8 @@ Thread::Thread(Runnable* r)
     m_threadStartParams.runnable = r;
     m_threadStartParams.stopSignal = &m_stopSignal;
 
-    m_thread = (HANDLE)_beginthreadex( NULL, 0, &threadStart,
-                         &m_threadStartParams, 0, &m_threadId );
+	m_thread = (HANDLE) _beginthreadex( NULL, 0, &threadStart,
+						 &m_threadStartParams, 0, &m_threadId );
     throwUnless ( m_thread );
 }
 

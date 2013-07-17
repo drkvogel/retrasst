@@ -5,6 +5,8 @@
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.Forms.hpp>
 #include <Vcl.Grids.hpp>
+#include <Vcl.CategoryButtons.hpp>
+#include <Vcl.CheckLst.hpp>
 #include <sstream>
 #include "LCDbJob.h"
 
@@ -33,6 +35,8 @@ __published:	// IDE-managed Components
     TListBox *lbJobs;
     TGroupBox *GroupBox1;
     TStringGrid *sgJobs;
+    TCheckListBox *clbTest;
+    TCategoryButtons *CategoryButtons1;
     void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
           TGridDrawState State);
 private:	// User declarations

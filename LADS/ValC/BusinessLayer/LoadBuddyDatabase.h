@@ -28,11 +28,10 @@ class LoadBuddyDatabase
 {
 public:
     LoadBuddyDatabase( int localMachineID, DBConnection* con, paulst::LoggingService* log, 
-        ResultIndex* resultIndex, Projects* projects );
-    void execute();
-    BuddyDatabase* releaseReturnValue();
+		ResultIndex* resultIndex, Projects* projects, BuddyDatabase** out );
+	void execute();
 private:
-    std::auto_ptr<BuddyDatabase>  m_buddyDatabase;
+    BuddyDatabase** m_buddyDatabase;
     const int       m_localMachineID;
     const Projects* m_projects;
     DBConnection*   m_con;

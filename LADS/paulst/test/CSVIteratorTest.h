@@ -11,7 +11,7 @@ namespace tut
     {
     };
 
-    typedef test_group<CSVIteratorTestFixture, 5> CSVIteratorTestGroup;
+    typedef test_group<CSVIteratorTestFixture, 6> CSVIteratorTestGroup;
     CSVIteratorTestGroup testGroupCSVIterator(
                             "CSVIterator tests");
     typedef CSVIteratorTestGroup::object testCSVIterator;
@@ -60,7 +60,7 @@ namespace tut
         using namespace paulst;
         CSVIterator<','> i(" a ,b  , c  ,"), end;
         ensure( i != end );
-        ensure( *(i) == "a" );
+        ensure_equals( *i, "a" );
         ++i;
         ensure( *i++ == "b" );
         ensure( *i == "c" );
@@ -84,6 +84,18 @@ namespace tut
             ++i;
         }
     }
+
+    template<>
+    template<>
+    void testCSVIterator::test<6>()
+    {
+        set_test_name("newline as separator. Empty string equivalent to end-of-sequence? " );
+        using namespace paulst;
+        std::string s;
+        CSVIterator<'\n'> i(s), end;
+        ensure( i == end );
+    }
+
 };
 
 #endif

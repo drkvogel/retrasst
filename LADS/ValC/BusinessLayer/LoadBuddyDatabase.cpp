@@ -16,13 +16,15 @@ namespace valc
 {
 
 LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, DBConnection* con, 
-    paulst::LoggingService* log, ResultIndex* resultIndex, Projects* projects )
+	paulst::LoggingService* log, ResultIndex* resultIndex, Projects* projects,
+	BuddyDatabase** bd )
     :
     m_localMachineID( localMachineID ),
     m_projects( projects ),
     m_con( con ),
     m_resultIndex( resultIndex ),
-    m_log( log )
+	m_log( log ),
+	m_buddyDatabase(bd)
 {
 }
 
@@ -98,13 +100,19 @@ void LoadBuddyDatabase::execute()
             ( ! cursor->endOfRecordSet() ) && builder.accept( cursor.get() ); cursor->next() );
    
     // Remove duplicates from sampleRuns
-    std::sort( sampleRuns->begin(), sampleRuns->end(), compareRuns );
-    SampleRuns::iterator sampleRunsEnd = std::unique( sampleRuns->begin(), sampleRuns->end(), equivalentRuns );
-    sampleRuns->resize( std::distance( sampleRuns->begin(), sampleRunsEnd ) );
+	std::sort( sampleRuns->begin(), sampleRuns->end(), compareRuns );
+	LOG( std::string("Number of sample-runs before deduplication: ") << sampleRuns->size() );
+	SampleRuns::iterator sampleRunsEnd = std::unique( sampleRuns->begin(), sampleRuns->end(), equivalentRuns );
+	sampleRuns->resize( std::distance( sampleRuns->begin(), sampleRunsEnd ) );
+	LOG( std::string("Number of sample-runs after deduplication: ") << sampleRuns->size() );
     
-    // Remove duplicates from candidateSampleRuns
-    std::sort( candidateSampleRuns->begin(), candidateSampleRuns->end(), compareRuns );
-    SampleRuns::iterator candidatesEnd = std::unique( candidateSampleRuns->begin(), candidateSampleRuns->end(), equivalentRuns );
+	// Remove duplicates from candidateSampleRuns
+	LOG( std::string("Number of candidate-sample-runs before deduplication: ") << candidateSampleRuns->size() );
+	std::sort( candidateSampleRuns->begin(), candidateSampleRuns->end(), compareRuns );
+
+	SampleRuns::iterator candidatesEnd = std::unique( candidateSampleRuns->begin(), candidateSampleRuns->end(), equivalentRuns );
+	LOG( std::string("Number of candidate-sample-runs after deduplication: ") <<
+	std::distance( candidateSampleRuns->begin(), candidatesEnd ) );
 
     // Remove candidates for which there already exists an open sample-run for the same sample.
     // Note that a side-effect of this procedure is that sampleRunIDResolutionService may gain 
@@ -120,12 +128,7 @@ void LoadBuddyDatabase::execute()
 
     LOG( std::string("Number of sample-runs: ") << sampleRuns->size() );
 
-    m_buddyDatabase.reset( new BuddyDatabase( m_localMachineID, sampleRuns.release(), sampleRunIDResolutionService.release() ) );
-}
-
-BuddyDatabase* LoadBuddyDatabase::releaseReturnValue()
-{
-    return m_buddyDatabase.release();
+	*m_buddyDatabase = new BuddyDatabase( m_localMachineID, sampleRuns.release(), sampleRunIDResolutionService.release() );
 }
 
 }

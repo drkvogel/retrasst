@@ -27,7 +27,8 @@ class SampleRun
 public:
     SampleRun();
     SampleRun( const SampleRun& );
-    SampleRun( const std::string& sampleDescriptor, int buddySampleID );
+	SampleRun( const std::string& sampleDescriptor, int buddySampleID );
+	// Note that 'closed' will be garbage if isOpen.
     SampleRun( int dbID, const std::string& sampleDescriptor, bool isOpen, const TDateTime& created, const TDateTime& closed, 
         float sequencePosition );
     SampleRun& operator=( const SampleRun& o );

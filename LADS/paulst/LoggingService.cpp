@@ -1,4 +1,5 @@
 #include "AcquireCriticalSection.h"
+#include <boost/lexical_cast.hpp>
 #include "LoggingService.h"
 #include "Require.h"
 #include "WorkerThread.h"

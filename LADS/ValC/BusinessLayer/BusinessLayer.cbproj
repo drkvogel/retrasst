@@ -252,6 +252,10 @@
         <CppCompile Include="TestResultIteratorImpl.cpp">
             <BuildOrder>35</BuildOrder>
         </CppCompile>
+        <CppCompile Include="ThreadExceptionMsgs.cpp">
+            <DependentOn>ThreadExceptionMsgs.h</DependentOn>
+            <BuildOrder>38</BuildOrder>
+        </CppCompile>
         <CppCompile Include="WorklistDirectory.cpp">
             <DependentOn>WorklistDirectory.h</DependentOn>
             <BuildOrder>16</BuildOrder>

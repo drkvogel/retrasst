@@ -155,11 +155,6 @@ int LoadReferencedWorklistEntries::findReferencedButNotLoaded()
 
     return m_idList.size();
 }
-
-int LoadReferencedWorklistEntries::releaseReturnValue()
-{
-    return 0;
-}
  
 }
 

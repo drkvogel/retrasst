@@ -5,10 +5,11 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include "StringBuilder.h"
 
 std::string relative( const std::string& filePath );
 
-#define LOG(msg) { if(m_log) { std::ostringstream _s;  _s << relative(__FILE__) << "," << __LINE__ << ": " << msg; m_log->log( _s.str() ); } }
+#define LOG(msg) { if(m_log) { m_log->log( relative(__FILE__) << "," << __LINE__  << ": " << msg) ; } } 
 
 namespace paulst
 {

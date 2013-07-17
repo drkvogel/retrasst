@@ -54,9 +54,9 @@ void StringBackedCursor::next()
 
 void StringBackedCursor::parseCurrentRow()
 {
-    m_rowValues.clear();
+	m_rowValues.clear();
     typedef paulst::CSVIterator<','> CSVIter;
-    std::copy( CSVIter(*m_currentRecord), CSVIter(), std::back_inserter( m_rowValues ) );
+	std::copy( CSVIter(*m_currentRecord), CSVIter(), std::back_inserter( m_rowValues ) );
 }
 
 void StringBackedCursor::read( int col, bool&        outVal )
@@ -97,13 +97,24 @@ void StringBackedCursor::read( int col, TDateTime&   outVal )
 	unsigned short day, month, year, hour, minute;
 	// expected format: 21/06/2013 06:43
 	std::string s = colValue(col);
-	day     = extractInt( s,  0, 2 );
-	month   = extractInt( s,  3, 2);
-	year    = extractInt( s,  6, 4);
-	hour    = extractInt( s, 11, 2);
-	minute  = extractInt( s, 14, 2);
-	
-	outVal = TDateTime( year, month, day, hour, minute, 0, 0 );
+	try
+	{
+		day     = extractInt( s,  0, 2 );
+		month   = extractInt( s,  3, 2);
+		year    = extractInt( s,  6, 4);
+		hour    = extractInt( s, 11, 2);
+		minute  = extractInt( s, 14, 2);
+		outVal = TDateTime( year, month, day, hour, minute, 0, 0 );
+	}
+	catch( ... )
+	{
+		std::string msg = std::string()
+			<< "Failed to convert value of '" << s << "' for column "
+			<< col << " to TDateTime. "
+			<< "Current row is: " << *m_currentRecord;
+
+		throw Exception( UnicodeString( msg.c_str() ) );
+    }
 }
 
 }

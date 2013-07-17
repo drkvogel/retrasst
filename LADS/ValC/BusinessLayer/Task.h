@@ -5,77 +5,57 @@
 #include <System.hpp>
 #include <SysUtils.hpp>
 #include "Thread.h"
+#include "ThreadExceptionMsgs.h"
 
 namespace valc
 {
 
-template <class T, class ReturnValue>
-class TaskRunner : public paulst::Runnable
+/*
+Usage: Construct a ThreadTask, call 'start' and wait on the returned HANDLE.
+
+TaskDef must implement 'execute()'.
+*/
+template <class TaskDef>
+class ThreadTask : public paulst::Runnable
 {
 public:
-    TaskRunner( T* task ) 
-        : m_task( task )
-    {
-    }
-
-    void run( const paulst::Event* )
-    {
-        try
-        {
-            m_task->execute();
-        }
-        catch( const std::string& s )
-        {
-            m_errorMsg = UnicodeString( s.c_str() );
-        }
-        catch( const Exception& e )
-        {
-            m_errorMsg = e.Message;
-        }
-        catch( ... )
-        {
-            m_errorMsg = L"Unspecified exception";
-        }
-    }
-
-    ReturnValue releaseReturnValue()
-    {
-        if ( ! m_errorMsg.IsEmpty() )
-        {
-            throw Exception( m_errorMsg );
-        }
-
-        return m_task->releaseReturnValue(); 
-    }
-
-private:
-    boost::scoped_ptr< T > m_task;
-    UnicodeString m_errorMsg;
-};
-
-template <class T, class ReturnValue>
-class Task
-{
-public:
-    Task( T* t ) 
-        : m_taskRunner(t) 
+	ThreadTask( TaskDef* t, ThreadExceptionMsgs * exceptionMsgsOut )
+		:
+		m_taskDef( t ),
+		m_threadExceptionMsgs( exceptionMsgsOut )
     {
     } 
 
-    void start()
-    {
-        m_thread.reset( new paulst::Thread( &m_taskRunner ) );
-    }
+	void run( const paulst::Event* )
+	{
+		try
+		{
+			m_taskDef->execute();
+		}
+		catch( const std::string& s )
+		{
+			m_threadExceptionMsgs->add( s );
+		}
+		catch( const Exception& e )
+		{
+			m_threadExceptionMsgs->add( e.Message );
+		}
+		catch( ... )
+		{
+			m_threadExceptionMsgs->add( "Unknown exception." );
+		}
+	}
 
-    ReturnValue waitFor()
+	HANDLE start()
     {
-        m_thread.reset( 0 );
-        return m_taskRunner.releaseReturnValue();
-    }
+		m_thread.reset( new paulst::Thread( this ) );
+		return m_thread->getHandle();
+	}
 
 private:
     boost::scoped_ptr< paulst::Thread > m_thread;
-    TaskRunner< T, ReturnValue >  m_taskRunner;
+	boost::scoped_ptr< TaskDef > 		m_taskDef;
+	ThreadExceptionMsgs* 				m_threadExceptionMsgs;
 };
 
 };

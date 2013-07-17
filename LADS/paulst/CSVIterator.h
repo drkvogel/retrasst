@@ -4,7 +4,7 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <memory>
 #include <string>
-#include "Util.h"
+#include "StrUtil.h"
 
 namespace paulst
 {

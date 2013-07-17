@@ -22,6 +22,7 @@
 #include "Task.h"
 #include "TestNames.h"
 #include "TestResultIteratorImpl.h"
+#include "ThreadExceptionMsgs.h"
 #include "Trace.h"
 #include <vector>
 #include "WorklistEntries.h"
@@ -54,56 +55,70 @@ DBConnection* DBConnectionFactory::createConnection( const Properties& p )
     return new DBConnectionADO( p );
 }
 
+void wait( HANDLE* array, int howMany, ThreadExceptionMsgs* exceptionMsgs )
+{
+	DWORD waitResult = WaitForMultipleObjectsEx( howMany, array, true, INFINITE, false );
+
+	require(
+		( waitResult >= WAIT_OBJECT_0 			) &&
+		( waitResult < WAIT_OBJECT_0 + howMany 	) );
+
+	exceptionMsgs->throwFirst();
+}
+
 AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, DBConnection* con )
 {
-    ResultIndex*     resultIndex     = new ResultIndex();
-    WorklistEntries* worklistEntries = new WorklistEntries();
-    ClusterIDs*      clusterIDs      = new ClusterIDs();
-    Projects*        projects        = new Projects();
-    TestNames*       testNames       = new TestNames();
+	ResultIndex*     resultIndex     = new ResultIndex();
+	WorklistEntries* worklistEntries = new WorklistEntries();
+	ClusterIDs*      clusterIDs      = new ClusterIDs();
+	Projects*        projects        = new Projects();
+	TestNames*       testNames       = new TestNames();
+	BuddyDatabase*   buddyDatabase   = NULL;
+	ThreadExceptionMsgs threadExceptionMsgs;
+	HANDLE hArray[3];
+	std::auto_ptr<paulst::LoggingService> log( new paulst::LoggingService( new paulst::ConsoleWriter() ) );
 
-    std::auto_ptr<paulst::LoggingService> log( new paulst::LoggingService( new paulst::ConsoleWriter() ) );
+	ThreadTask<LoadProjects>   loadProjectsTask  ( new LoadProjects  ( projects,   log.get(), con ), 					&threadExceptionMsgs );
+	ThreadTask<LoadClusterIDs> loadClusterIDsTask( new LoadClusterIDs( clusterIDs, log.get(), con, localMachineID ), 	&threadExceptionMsgs );
+	ThreadTask<LoadTestNames>  loadTestNamesTask ( new LoadTestNames ( testNames,  log.get(), con ), 					&threadExceptionMsgs );
 
-    Task<LoadProjects,   int> loadProjectsTask  ( new LoadProjects  ( projects,   log.get(), con ) );
-    Task<LoadClusterIDs, int> loadClusterIDsTask( new LoadClusterIDs( clusterIDs, log.get(), con, localMachineID ) );
-    Task<LoadTestNames,  int> loadTestNamesTask ( new LoadTestNames ( testNames,  log.get(), con ) );
+	hArray[0] = loadProjectsTask  .start();
+	hArray[1] = loadClusterIDsTask.start();
+	hArray[2] = loadTestNamesTask .start();
 
-    loadProjectsTask.start();
-    loadClusterIDsTask.start();
-    loadTestNamesTask.start();
-    loadProjectsTask.waitFor();
+	wait( hArray, 3, &threadExceptionMsgs );
 
-    // Task for loading LOCAL analysis activity and LOCAL results
-    Task<LoadBuddyDatabase, BuddyDatabase*> loadBuddyDatabaseTask( 
-        new LoadBuddyDatabase( localMachineID, con, log.get(), resultIndex, projects ) );
-
-    loadClusterIDsTask.waitFor();
+	// Task for loading LOCAL analysis activity and LOCAL results
+	ThreadTask<LoadBuddyDatabase> loadBuddyDatabaseTask(
+		new LoadBuddyDatabase( localMachineID, con, log.get(), resultIndex, projects, &buddyDatabase ),
+		&threadExceptionMsgs );
 
     // Task for loading LOCAL and CLUSTER worklist entries
-    Task<LoadWorklistEntries, int> loadWorklistEntriesTask( 
-        new LoadWorklistEntries( clusterIDs, worklistEntries, localMachineID, con, log.get(), resultIndex ) );
+	ThreadTask<LoadWorklistEntries> loadWorklistEntriesTask(
+		new LoadWorklistEntries( clusterIDs, worklistEntries, localMachineID, con, log.get(), resultIndex ),
+		&threadExceptionMsgs );
 
-    loadBuddyDatabaseTask  .start();
-    loadWorklistEntriesTask.start();
+	hArray[0] = loadBuddyDatabaseTask  .start();
+	hArray[1] = loadWorklistEntriesTask.start();
 
-    BuddyDatabase* buddyDatabase = loadBuddyDatabaseTask.waitFor();
-    loadWorklistEntriesTask.waitFor();
+	wait( hArray, 2, &threadExceptionMsgs );
 
     // Task for loading hither-to unloaded worklist entries that are related to already-loaded worklist entries.
     // In other words, where there exists a row in worklist_relation for which only one of the referenced worklist entries has been loaded, 
     // load the other. 
-    Task<LoadReferencedWorklistEntries, int> loadReferencedWorklistEntries( 
-        new LoadReferencedWorklistEntries( clusterIDs, localMachineID, con, log.get(), worklistEntries, resultIndex ) );
+	ThreadTask<LoadReferencedWorklistEntries> loadReferencedWorklistEntries(
+		new LoadReferencedWorklistEntries( clusterIDs, localMachineID, con, log.get(), worklistEntries, resultIndex ),
+		&threadExceptionMsgs );
 
     // Task for allocating LOCAL results to worklist entries
-    Task<AllocateLocalResultsToWorklistEntries, int> allocateLocalResultsToWorklistEntries(
-        new AllocateLocalResultsToWorklistEntries( localMachineID, clusterIDs, log.get(), worklistEntries, resultIndex ) );
+	ThreadTask<AllocateLocalResultsToWorklistEntries> allocateLocalResultsToWorklistEntries(
+		new AllocateLocalResultsToWorklistEntries( localMachineID, clusterIDs, log.get(), worklistEntries, resultIndex ),
+		&threadExceptionMsgs );
 
-    loadReferencedWorklistEntries.start();
-    allocateLocalResultsToWorklistEntries.start();
-    loadReferencedWorklistEntries.waitFor();
-    allocateLocalResultsToWorklistEntries.waitFor();
-    loadTestNamesTask.waitFor();
+	hArray[0] = loadReferencedWorklistEntries        .start();
+	hArray[1] = allocateLocalResultsToWorklistEntries.start();
+
+	wait( hArray, 2, &threadExceptionMsgs );
 
     return new AnalysisActivitySnapshotImpl( clusterIDs, projects, buddyDatabase, log.release(), resultIndex, worklistEntries, testNames );
 }
@@ -155,6 +170,11 @@ LocalRun& LocalRun::operator=( const LocalRun& o )
     m_id                = o.m_id;
     m_sampleDescriptor  = o.m_sampleDescriptor;
     return *this;
+}
+
+std::string LocalRun::getRunID() const
+{
+    return m_id;
 }
 
 std::string LocalRun::getSampleDescriptor() const

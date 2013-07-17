@@ -1,5 +1,6 @@
 ﻿# .gitignore
-
+*.local
+*.cache
 LADS/AAAComms/
 LADS/AddSpecimens/
 LADS/AliquotStorage/
