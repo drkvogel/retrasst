@@ -5,6 +5,7 @@
  *		16 Sept 2008, NG:	incorporate extra field for [laptop] central limit
  *      17 Sept 2008, NG:	refactored & split IDs required from block size
  *      4 October 08, NG:	refactored again; ask before throwing exception
+ *      17 July 2013, NG:	use (2.7) sequences in place of next_id tables
  *
  *--------------------------------------------------------------------------*/
 
@@ -110,10 +111,10 @@ int LDbAlloc::claimNextID( LQuery & query, int required )
 
 void LDbAlloc::waitForIDs( LQuery & query, int required )
 {
-	int block = (required < 4 ? 4 : required);
+	int block = 1;
 	for( int attempt = 1; attempt < 5; attempt ++ )
 	{
-		int claimed = readIDs( query, block );
+		int claimed = readIDs( query );
 		if( claimed == 0 )
 			Sleep( 500 + random( 1000 * attempt ) );
 		else
@@ -125,81 +126,40 @@ void LDbAlloc::waitForIDs( LQuery & query, int required )
 }
 
 //---------------------------------------------------------------------------
-//	Get next ID from the current project database; increasingly positive
+//	Get next ID from the current project database; increasingly negative
+//	(this replaces getNextID from next_id table; increasingly positive)
 //---------------------------------------------------------------------------
 
-int LPDbID::readIDs( LQuery & query, int count )
+int LPDbID::readIDs( LQuery & query )
 {
-	query.setSQL( "SELECT next_id from next_id" );
-	int id = query.open() ? query.readInt( 0 ) : 0;
-
-	//  Increment the ID for the next user to skip allocated block
-	query.setSQL( "UPDATE next_id set next_id = next_id + :num" );
-	query.setParam( "num", count );
-	query.execSQL();
-
-	//	Use the ID(s) unless table has been updated by anyone else
-	query.setSQL( "SELECT next_id from next_id" );
-	return (query.open() && query.readInt( 0 ) == id + count) ? id : 0;
+	query.setSQL( "select next value for id_sequence" );
+	return query.open() ? query.readInt( 0 ) : 0;
 }
 
 //---------------------------------------------------------------------------
-//	Get next ID from the buddy/cluster database; increasingly positive
+//	Get next [buddy] ID from the central database; increasingly positive
+//	(this replaces getNextID from buddy_next_id table on buddy/cluster)
 //---------------------------------------------------------------------------
 
-int LBDbID::readIDs( LQuery & query, int count )
+int LBDbID::readIDs( LQuery & query )
 {
-	query.setSQL( "SELECT next_id from buddy_next_id" );
-	int id = query.open() ? query.readInt( 0 ) : 0;
-
-	//  Increment the ID for the next user to skip allocated block
-	query.setSQL( "UPDATE buddy_next_id set next_id = next_id + :num" );
-	query.setParam( "num", count );
-	query.execSQL();
-
-	//	Use the ID(s) unless table has been updated by anyone else
-	query.setSQL( "SELECT next_id from buddy_next_id" );
-	return (query.open() && query.readInt( 0 ) == id + count) ? id : 0;
+	query.setSQL( "select next value for c_id_sequence" );
+	return query.open() ? query.readInt( 0 ) : 0;
 }
 
 //---------------------------------------------------------------------------
-//	Get next ID from central database if available; increasingly negative
+//	Get next [central] ID from the central database; increasingly positive
+//	(this replaces getNextID from c_next_cid table; increasingly negative)
 //---------------------------------------------------------------------------
 
-int LCDbID::readIDs( LQuery & query, int count )
+int LCDbID::readIDs( LQuery & query )
 {
-	query.setSQL( "SELECT * from c_next_cid" );
-	int id = query.open() ? query.readInt( "next_cid" ) : 0;
-
-	std::string check = "UPDATE c_next_cid set next_cid = next_cid - :num";
-	if( query.fieldExists( "available_range" ) )
-	{
-		int range = query.readInt( "available_range" );
-		if( range >= count )
-		{
-			// laptop database - keep track of allocations
-			check += ", available_range = available_range - :num";
-		}
-		else if( range == -1 )
-		{
-			// vLab database - can allocate IDs indefinitely
-		}
-		else
-		{
-			throw Exception( "No more central IDs available" );
-		}
-	}
-
-	query.setSQL( check );
-	query.setParam( "num", count );
-	query.execSQL();
-
-	query.setSQL( "SELECT next_cid from c_next_cid" );
-	return (query.open() && query.readInt( 0 ) == id - count) ? id : 0;
+	query.setSQL( "select next value for c_id_sequence" );
+	return query.open() ? query.readInt( 0 ) : 0;
 }
 
 //---------------------------------------------------------------------------
-//	Mintain suuply of allocated IDs for central, project and cluster
+//	Mintain supply of allocated IDs for central, project and cluster
 //---------------------------------------------------------------------------
 
 LDbNextID & LCDbID::getCache() const

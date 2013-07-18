@@ -31,16 +31,17 @@ void TfrmRetrievalAssistant::init() {
     sgJobs->ColWidths[6] = 200;
     sgJobs->ColWidths[7] = 100;
 
-    // exercise_cid
+    // c_retrieval_job
+    // exercise_cid -> c_object_name
     // external_name
     // description
-    // reason
+    // reason          - obsolete
     // job_type
     // project_cid
     // primary_aliquo
     // process_cid
     // status
-    // time_stamp
+    // time_stamp       - obsolete
     // start_date
     // claimed_until
     // finish_date
@@ -50,17 +51,12 @@ void TfrmRetrievalAssistant::init() {
 void TfrmRetrievalAssistant::loadJobs() {
     LQuery qc(LIMSDatabase::getCentralDb());
 
+	// LCDbCryoJob::Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
+	// LCDbCryoJob::JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
+
     LCDbCryoJobs &jobs = LCDbCryoJobs::records();
-//        case LCDbCryoJob::BOX_MOVE:
-//		case LCDbCryoJob::BOX_RETRIEVAL:
-//		case LCDbCryoJob::BOX_DISCARD:
-//		case LCDbCryoJob::SAMPLE_RETRIEVAL:
-//		case LCDbCryoJob::SAMPLE_DISCARD:
     jobs.read(LCDbCryoJob::JobKind::UNKNOWN, true); // $2 true: readall
 
-    //Range< LCDbCryoJob > jr;
-    //
-	//for (int i=1, jr = jobs; jr.isValid(); ++jr, i++) {
     int size = 0;
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {
         if (jr->isAvailable()) size++;

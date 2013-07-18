@@ -16,7 +16,7 @@ class LPDbCryovial : public LPDbID, public LDbNoteCount
 	short status, position;
 
 public:
-	enum Status { EXPECTED, STORED = 1, DESTROYED = 3, DELETED = 99 };
+	enum Status { EXPECTED  = 0, STORED = 1, SPLIT = 2, DESTROYED = 3, DELETED = 99 };
 
 	LPDbCryovial() : LDbNoteCount( 0 ), status( EXPECTED ), retrievalID( 0 ),
 	   sampleID( 0 ), storeID( 0 ), typeID( 0 ), boxID( 0 ), position( 0 )

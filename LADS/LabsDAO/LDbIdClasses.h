@@ -52,7 +52,7 @@ public:
 
 class LDbAlloc : public LDbIdBase
 {
-	virtual int readIDs( LQuery & query, int count ) = 0;
+	virtual int readIDs( LQuery & query ) = 0;
 	virtual LDbNextID & getCache() const = 0;
 	void waitForIDs( LQuery & query, int required );
 
@@ -71,7 +71,7 @@ public:
 class LCDbID : public LDbAlloc
 {
 	LDbNextID & getCache() const;
-	int readIDs( LQuery & query, int count );
+	int readIDs( LQuery & query );
 
 public:
 
@@ -84,7 +84,7 @@ public:
 class LPDbID : public LDbAlloc
 {
 	LDbNextID & getCache() const;
-	int readIDs( LQuery & query, int count );
+	int readIDs( LQuery & query );
 
 public:
 
@@ -97,7 +97,7 @@ public:
 class LBDbID : public LDbAlloc
 {
 	LDbNextID & getCache() const;
-	int readIDs( LQuery & query, int count );
+	int readIDs( LQuery & query );
 
 public:
 

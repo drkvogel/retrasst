@@ -75,6 +75,8 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
   object CategoryButtons1: TCategoryButtons
     Left = 224
     Top = 368
+    Width = 121
+    Height = 97
     ButtonFlow = cbfVertical
     Categories = <
       item

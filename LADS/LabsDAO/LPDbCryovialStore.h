@@ -16,7 +16,7 @@ class LPDbCryovialStore : public LPDbID, public LDbNoteCount
 
 public:
 
-	enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, DELETED = 99 };
+	enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, DELETED = 99 };
 
 	LPDbCryovialStore() : LDbNoteCount( 0 ), status( ALLOCATED ),
 		 cryovialID( 0 ), retrievalID( 0 ), boxID( 0 ), position( 0 )
