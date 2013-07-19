@@ -18,6 +18,47 @@ secondary aliquot (optional/backup)
 
 deal with empty spaces?
 
+## Impromptu discussion one very hot Friday afternoon 2013-07-19
+
+exercise (e.g. 'LPA Boxes') consists of one or more jobs in `c_retrieval_job`, which are created by Create List (in development), e.g.
+
+    job: retrieve 4000 boxes
+        chunk 1
+        chunk 2
+        chunk 3
+    job: get 500 of those
+        chunk 1
+    job: analyse 500
+        chunk 1
+    job: analyse 3500
+        chunk 1
+        chunk 2
+
+as each job (e.g. 'retrieve 4000 boxes') may be too big to do in one go, jobs can be tackled in chunks, which are recorded implicitly in `c_box_retrieval` (currently empty, reserved for retrieval assistant (structure can be changed if necessary):
+
+    box_id          # The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+    retrieval_cid   # The retrieval task this entry is part of
+    retrieval_type  # obsolete
+    section         # Which chunk of the retrieval plan this entry belongs to (0 = retrieve all boxes)
+    position        # The position of this entry in that chunk (may be 0 for sample retrieval, i.e. use l_cryovial_retrieval position)
+    box_name        # obsolete
+    rj_box_cid      # Unique ID for this retrieval list entry (what does rj stand for?)
+    status          # 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
+
+(from `file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_box_retrieval`)
+
+`section` is the chunk - just a number. Each box has a record in here and is linked to the `retrieval_job`
+    
+`l_cryovial_retrieval` (empty and reserved as well) lists the individual cryovials in each box to be retrieved, thus is the actual retrieval list:
+  
+	rj_box_cid      # record id of c_box_retrieval entry for the box the sample should be placed into?
+    position        # Where this sample appears in [the current chunk of] the retrieval plan
+    cryovial_barcode# The barcode on the sample
+    aliquot_type_cid# The aliquot type (cryovial_barcode + aliquot_type_cid should uniquely identify the cryovial within the project)
+    slot_number     # The expected position of the cryovial in the destination box (if two records suggest the same position in the same box, the first should be the primary aliquot; the second will be ignored if the first is found)
+    process_cid     # Who stored it, which program etc.
+    status          # 0: expected; 1: ignored, 2: collected; 3: not found; 99: record deleted
+      
 ## Sample History 
 
 I thought it might be worth taking this as a case study of how the sample history is supposed to work.  Please let me know if either of you have any comments.
@@ -33,21 +74,22 @@ I thought it might be worth taking this as a case study of how the sample histor
 
 ### Retrieval boxes: ##
 
-* StoreMan creates 40 entries in `box_name` to hold the required cryovials when it creates the retrieval job (boxes may just wait in the cold room until they're analysed but, if we need to keep a record:
+* StoreMan::CreateList creates 40 entries in `box_name` to hold the required cryovials when it creates the retrieval job (boxes may just wait in the cold room until they're analysed but, if we need to keep a record:
+  * **Retrieval Assistant deals with the jobs somehow**
   * BoxReception creates an entry in `l_box_arrival` when the box is allocated a location (site+population+structure)
   * StorageSync creates an entry in `box_store` once the box location has been confirmed
-  * StoreMan marks the box_store record "removed for analysis" when it makes the specimen entries for the analysis)
+  * `StoreMan::?` marks the box_store record "removed for analysis" when it makes the specimen entries for the analysis)
 * `BoxReception` creates [another] entry in `l_box_arrival` when the box is allocated a [new] location
 * StorageSync creates an entry in `box_store` once the box location has been confirmed
 
-### LPA boxes: ##
+### Example Exercise: LPA boxes: ###
 
-* StoreMan creates five more entries in `box_name` to hold the required cryovials
+* `StoreMan::CreateList` creates five more entries in `box_name` to hold the required cryovials
 * (I'm assuming the boxes weren't kept in store for long so there's no need for a record)
 * BoxReception creates an entry in `l_box_arrival` when the box is allocated a location
 * StorageSync creates an entry in `box_store` once the box location has been confirmed
 
-### 3500 samples: ##
+#### 3500 samples: ##
 
 * Aliquot Allocation creates an entry in cryovial once the tube is scanned in (and aliquots taken, if UK samples)
 * Aliquot Allocation creates an entry in `cryovial_store` once the cryovial has been assigned to a box
@@ -56,7 +98,7 @@ I thought it might be worth taking this as a case study of how the sample histor
 * StoreMan marks the second `cryovial_store` record "removed for analysis" when it makes the specimen entry for the analysis [although it might be better is Specimen Reception did this]
 * StoreMan creates a third `cryovial_store` record when the cryovial is put back in the box [Can this be confirmed?  When?  As things stand we create the third entry when we update the second; this doesn't give much idea of how long the sample was unfrozen for]
 
-### 500 samples: ##
+#### 500 samples: ##
 
 * Aliquot Allocation creates an entry in cryovial once the tube is scanned in (and aliquots taken, if UK samples)
 * Aliquot Allocation creates an entry in `cryovial_store` once the cryovial has been assigned to a box
@@ -71,6 +113,8 @@ The job history needs to be discussed further.  As it stands, we would have seve
 
 I realise this is somewhat repetitive but I hope it clarifies the process
 -- Nick
+
+## Questions from me ##
 
 > Should I use LCDbCryoJob/s for the jobs we are talking about?
 
