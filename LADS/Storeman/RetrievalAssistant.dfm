@@ -53,32 +53,101 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
     Left = 40
     Top = 392
     Width = 185
-    Height = 105
+    Height = 89
+    Anchors = [akLeft, akBottom]
     Caption = 'Status'
     TabOrder = 1
+    object cbNewJob: TCheckBox
+      Left = 2
+      Top = 15
+      Width = 181
+      Height = 17
+      Align = alTop
+      Caption = 'New Job'
+      Checked = True
+      State = cbChecked
+      TabOrder = 0
+      OnClick = cbNewJobClick
+      ExplicitLeft = 64
+      ExplicitTop = 24
+      ExplicitWidth = 97
+    end
+    object cbInProgress: TCheckBox
+      Left = 2
+      Top = 32
+      Width = 181
+      Height = 17
+      Align = alTop
+      Caption = 'In Progress'
+      Checked = True
+      State = cbChecked
+      TabOrder = 1
+      OnClick = cbInProgressClick
+      ExplicitLeft = 40
+      ExplicitTop = 56
+      ExplicitWidth = 97
+    end
+    object cbDone: TCheckBox
+      Left = 2
+      Top = 49
+      Width = 181
+      Height = 17
+      Align = alTop
+      Caption = 'Done'
+      TabOrder = 2
+      OnClick = cbDoneClick
+      ExplicitLeft = 88
+      ExplicitTop = 80
+      ExplicitWidth = 97
+    end
+    object cbDeleted: TCheckBox
+      Left = 2
+      Top = 66
+      Width = 181
+      Height = 17
+      Align = alTop
+      Caption = 'Deleted'
+      TabOrder = 3
+      OnClick = cbDeletedClick
+      ExplicitLeft = 32
+      ExplicitTop = 88
+      ExplicitWidth = 97
+    end
   end
   object groupRetrievalTypeCheck: TGroupBox
     Left = 360
     Top = 392
     Width = 185
-    Height = 105
+    Height = 66
+    Anchors = [akLeft, akBottom]
     Caption = 'Retrieval Type'
     TabOrder = 2
     object cbBox: TCheckBox
-      Left = 32
-      Top = 24
-      Width = 153
-      Height = 17
-      Caption = 'Box'
+      Left = 2
+      Top = 15
+      Width = 181
+      Height = 18
+      Align = alTop
+      Caption = 'Box Retrieval'
+      Checked = True
+      State = cbChecked
       TabOrder = 0
+      OnClick = cbBoxClick
     end
     object cbSample: TCheckBox
-      Left = 32
-      Top = 56
-      Width = 97
+      Left = 2
+      Top = 33
+      Width = 181
       Height = 17
-      Caption = 'Sample'
+      Align = alTop
+      Caption = 'Sample Retrieval'
+      Checked = True
+      State = cbChecked
       TabOrder = 1
+      OnClick = cbSampleClick
+      ExplicitLeft = 32
+      ExplicitTop = 56
+      ExplicitWidth = 97
     end
   end
 end

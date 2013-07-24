@@ -10,9 +10,10 @@
 #include <sstream>
 #include "LCDbJob.h"
 
+// clGreen
 #define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
 #define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
-#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clGreen
+#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
 #define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
 #define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
@@ -42,7 +43,17 @@ __published:	// IDE-managed Components
     TGroupBox *groupRetrievalTypeCheck;
     TCheckBox *cbBox;
     TCheckBox *cbSample;
+    TCheckBox *cbNewJob;
+    TCheckBox *cbInProgress;
+    TCheckBox *cbDone;
+    TCheckBox *cbDeleted;
     void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
+    void __fastcall cbNewJobClick(TObject *Sender);
+    void __fastcall cbInProgressClick(TObject *Sender);
+    void __fastcall cbDoneClick(TObject *Sender);
+    void __fastcall cbDeletedClick(TObject *Sender);
+    void __fastcall cbBoxClick(TObject *Sender);
+    void __fastcall cbSampleClick(TObject *Sender);
 private:	// User declarations
     tdvecpJob vecJobs;
     void loadJobs();

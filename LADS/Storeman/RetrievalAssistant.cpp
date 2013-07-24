@@ -68,9 +68,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
         } else {
             background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; // error
         }
-    } else if (State.Contains(gdSelected)) { // && sgReferredBoxes->Focused())
-		background = RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR; //clActiveCaption; //clHighlight;
-	} else {
+    } else {
         //background = RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR;
  /*	enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
 	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES }; */
@@ -91,12 +89,29 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
             background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
     }
-	TCanvas * cnv = sgJobs->Canvas;
+    //fsBold
+    TCanvas * cnv = sgJobs->Canvas;
 	cnv->Brush->Color = background;
 	cnv->FillRect(Rect);
-	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgJobs->Cells[ACol][ARow]);
-}
 
+    if (State.Contains(gdSelected)) { // && sgReferredBoxes->Focused())
+		//background = RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR; //clActiveCaption; //clHighlight;
+        TFontStyles oldFontStyle = cnv->Font->Style;
+        TPenStyle oldPenStyle = cnv->Pen->Style;
+
+        cnv->Pen->Style = psDot;
+        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
+        cnv->Font->Style = TFontStyles() << fsBold; // << fsItalic;
+    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgJobs->Cells[ACol][ARow]);
+
+        cnv->Pen->Style     = oldPenStyle;
+        cnv->Font->Style    = oldFontStyle;
+	} else {
+        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgJobs->Cells[ACol][ARow]);
+    }
+
+
+}
 
 void TfrmRetrievalAssistant::loadJobs() {
     LQuery qc(LIMSDatabase::getCentralDb());
@@ -106,6 +121,13 @@ void TfrmRetrievalAssistant::loadJobs() {
     delete_referenced<tdvecpJob>(vecJobs);
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {
         if (!jr->isAvailable()) continue;
+        if (jr->getStatus() == LCDbCryoJob::Status::NEW_JOB            && !cbNewJob->Checked) continue;
+        if (jr->getStatus() == LCDbCryoJob::Status::INPROGRESS         && !cbInProgress->Checked) continue;
+        if (jr->getStatus() == LCDbCryoJob::Status::DONE               && !cbDone->Checked) continue;
+        if (jr->getStatus() == LCDbCryoJob::Status::DELETED            && !cbDeleted->Checked) continue;
+        if (jr->getJobType() == LCDbCryoJob::JobKind::BOX_RETRIEVAL    && !cbBox->Checked) continue;
+        if (jr->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL && !cbBox->Checked) continue;
+
         LCDbCryoJob * job = new LCDbCryoJob();
         *job = *jr;
         vecJobs.push_back(job);
@@ -119,6 +141,13 @@ void TfrmRetrievalAssistant::showJobs() {
     int row = 1;
     for (it = vecJobs.begin(); it != vecJobs.end(); it++, row++) {
         LCDbCryoJob * job = *it;
+//        if (job->getStatus() == LCDbCryoJob::Status::NEW_JOB            && !cbNewJob->Checked) continue;
+//        if (job->getStatus() == LCDbCryoJob::INPROGRESS                 && !cbInProgress->Checked) continue;
+//        if (job->getStatus() == LCDbCryoJob::DONE                       && !cbDone->Checked) continue;
+//        if (job->getStatus() == LCDbCryoJob::DELETED                    && !cbDeleted->Checked) continue;
+//        if (job->getJobType() == LCDbCryoJob::JobKind::BOX_RETRIEVAL    && !cbBox->Checked) continue;
+//        if (job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL && !cbBox->Checked) continue;
+
         sgJobs->Cells[0][row] = job->getDescription().c_str();
         sgJobs->Cells[1][row] = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
         sgJobs->Cells[2][row] = getProjectDescription(job->getProjectID()).c_str();
@@ -167,72 +196,6 @@ std::string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
     return "";
 }
 
-/*
-jobs are LCDbCryoJob
-#define 	LEASEE_STOREMAN		   100		// Storage management; blocks itself and Storage Sync
-
-C_RETRIEVAL_JOB
-A list of one or more tasks for each retrieval exercise. For example, an analysis exercise may include one task retrieving the cryovials and another for analysing them
-Field name	    Type	Key Refers to	Description / Comments
-retrieval_cid	i4	    1	            A unique ID for this task
-exercise_cid	i4		c_object_name	The exercise this task is part of
-external_name	v30			            obsolete - use exercise's name
-description	    v120			        Summarises what needs to be done in this job
-reason	        v120			        obsolete - use exercise's full name
-job_type	    i2			            0: unknown, 1: box move, 2: box retrieval, 3: box disposal, 4: cryovial retrieval, 5: cryovial disposal
-project_cid	    i4		c_project	    The project these boxes comes from (0 if boxes from more than one project)
-primary_aliquot	i4		c_object_name	The aliquot being dealt with or, for sample retrieval, the preferred aliquot
-process_cid	    i4		c_audit_trail	Who set this task up, when, how etc.
-status	        i2			            How near this task is to reaching completion: 0 = new job, 1 = in progress, 2 = completed, 99 = invalid/obsolete
-time_stamp	    d/t			            obsolete
-start_date	    d/t			            When this task started (if status >= 1)
-claimed_until	d/t			            Marks this task as active; no other program can use this record until the specified time
-finish_date	    d/t			            When this task finished (if status == 2)
-
-retrieval_cid, exercise_cid, external_name, description, reason, job_type, project_cid, primary_aliquot, process_cid, status, time_stamp, start_date, claimed_until, finish_date
-
-select jobs, filter by in progress/new, retrieval/disposal
-user selects one
-if new && user wants to divide
-    allow user to define division points
-    present each section for retrieval in turn:
-    foreach retrieval:
-        allow re-order (sort?) by sample ID/primary aliquot location/secondary location/destination
-    endfor
-else # no, don't divide
-    allow re-order by sample ID/primary aliquot location/secondary location/destination
-endif
-
-allow save progress at any time # REQ 8.3.6)
-
-# 'For in progress lists these steps should be skipped (REQ 8.3.7)' ie. pick up a saved in progress job
-
-if divided
-    foreach section
-        foreach sample
-            process_sample()
-        endfor
-    endfor
-    ??
-else
-    foreach sample
-        process_sample()
-    endfor
-endif
-
-process_sample()
-    display sample id/barcode on screen and where it should go
-    user scans/types in sample into textbox (barcode scanner just inputs text)
-    if not correct
-        display error
-    else
-        user puts sample in storage location
-        user says OK somehow
-    endif
-end
-
-*/
-
 void TfrmRetrievalAssistant::loadBoxes() {
     LQuery qp = Util::projectQuery(0 /*box->project_cid*/, true); // true 2nd param gets ddb
 
@@ -247,6 +210,11 @@ void TfrmRetrievalAssistant::loadBoxes() {
     }
 }
 
-
+void __fastcall TfrmRetrievalAssistant::cbNewJobClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbInProgressClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbDoneClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbDeletedClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbBoxClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbSampleClick(TObject *Sender) { loadJobs(); }
 
 
