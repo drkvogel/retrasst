@@ -25,6 +25,7 @@ __published:	// IDE-managed Components
     TGroupBox *GroupBox1;
     TStringGrid *sgChunk;
     TButton *btnSaveChunk;
+    void __fastcall FormShow(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
     __fastcall TfrmRetrievalManager(TComponent* Owner);

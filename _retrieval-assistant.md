@@ -18,6 +18,17 @@ secondary aliquot (optional/backup)
 
 deal with empty spaces?
 
+## Discussion w/Nick 2013-07-24 ##
+
+How to display box chunks and sample chunks. List of samples could be very big - don't want to display by default.
+
+Instead, each of either box list or sample list is displayed as one big chunk to begin with, which contains all boxes or samples in the list. Chunks can be added and edited. Last chunk must contain everything and cannot be deleted.
+
+When configuring a sample list, an option is given to 'auto-chunk' - divide sample list up automatically using algorithm supplied by Martin. If so, List Management screen begins with chunks already created (may be only one chunk if list of samples is few enough).
+
+Run this by Martin when he gets back in 2nd week Aug.
+
+
 ## Impromptu discussion one very hot Friday afternoon 2013-07-19
 
 exercise (e.g. 'LPA Boxes') consists of one or more jobs in `c_retrieval_job`, which are created by Create List (in development), e.g.
