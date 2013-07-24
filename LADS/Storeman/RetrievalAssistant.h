@@ -10,13 +10,12 @@
 #include <sstream>
 #include "LCDbJob.h"
 
-#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR clActiveCaption
-#define RETRIEVAL_ASSISTANT_DONE_COLOUR   clMoneyGreen
-//#define RETRIEVAL_ASSISTANT_BOX_MATCH_COLOUR clMoneyGreen
-#define RETRIEVAL_ASSISTANT_ERROR_COLOUR     clRed
-#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR clSilver
-#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR clGray
-#define RETRIEVAL_ASSISTANT_REFFERED_COLOUR  clSkyBlue
+#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
+#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
+#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clGreen
+#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
+#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
+#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
 
 static const char * jobStatusString(short status) {
     static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Deleted" };
@@ -28,20 +27,27 @@ static const char * jobTypeString(short status) {
     return status < LCDbCryoJob::JobKind::NUM_TYPES ? jobTypeStrings[status] : "Invalid";
 };
 
+//template<typename Container>
+//void delete_referenced(Container& c) {
+//    while (!c.empty()) delete c.back(), c.pop_back();
+//}
+typedef std::vector<LCDbCryoJob *> tdvecpJob;
+
 class TfrmRetrievalAssistant : public TForm
 {
 __published:	// IDE-managed Components
-    TComboBox *comboJob;
-    TListBox *lbJobs;
     TGroupBox *GroupBox1;
     TStringGrid *sgJobs;
-    TCheckListBox *clbTest;
-    TCategoryButtons *CategoryButtons1;
-    void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
-          TGridDrawState State);
+    TGroupBox *groupStatusCheck;
+    TGroupBox *groupRetrievalTypeCheck;
+    TCheckBox *cbBox;
+    TCheckBox *cbSample;
+    void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
 private:	// User declarations
+    tdvecpJob vecJobs;
     void loadJobs();
     void loadBoxes();
+    void showJobs();
     std::string getExerciseDescription(int exercise_cid);
     std::string getProjectDescription(int project_cid);
     std::string getAliquotDescription(int primary_aliquot);

@@ -16,6 +16,11 @@
 
 //---------------------------------------------------------------------------
 
+template<typename Container>
+void delete_referenced(Container& c) {
+    while (!c.empty()) delete c.back(), c.pop_back();
+}
+
 class Util
 {
 	static const char * split( const char * fieldName );

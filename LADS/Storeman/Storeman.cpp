@@ -17,6 +17,9 @@
 
 
 
+
+
+
 USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
 USEFORM("DiscardReason.cpp", frmDiscardReason);
 USEFORM("DiscardNote.cpp", frmDiscardNote);
@@ -35,22 +38,22 @@ USEFORM("SampleMove.cpp", frmMove);
 USEFORM("SampleEntry.cpp", frmRetrieveMain);
 USEFORM("SMLogin.cpp", frmLogin);
 USEFORM("Storemain.cpp", frmStoremain);
-USEFORM("NewJob.cpp", frmNewJob);
 USEFORM("NewSection.cpp", frmNewSection);
-USEFORM("MoveJobs.cpp", frmSelectJob);
 USEFORM("NewSite.cpp", frmNewSite);
-USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
-USEFORM("RetrieveSamples.cpp", frmRetrieved);
-USEFORM("ReferredBoxes.cpp", frmReferred);
+USEFORM("NewJob.cpp", frmNewJob);
+USEFORM("MoveJobs.cpp", frmSelectJob);
 USEFORM("NewTank.cpp", frmNewTank);
-USEFORM("NewType.cpp", frmNewType);
 USEFORM("RetrievalAssistant.cpp", frmRetrievalAssistant);
+USEFORM("RetrieveSamples.cpp", frmRetrieved);
+USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
+USEFORM("NewType.cpp", frmNewType);
+USEFORM("ReferredBoxes.cpp", frmReferred);
 USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
 USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
-USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
 USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
 USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
-
+USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
+USEFORM("Temp.cpp", frmTest);
 //---------------------------------------------------------------------------
 WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
@@ -89,6 +92,7 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmReferredBoxesSummary), &frmReferredBoxesSummary);
          Application->CreateForm(__classid(TfrmSelectBoxes), &frmSelectBoxes);
          Application->CreateForm(__classid(TfrmRetrievalAssistant), &frmRetrievalAssistant);
+         Application->CreateForm(__classid(TfrmTest), &frmTest);
          Application->Run();
 	}
 	catch (Exception &exception)

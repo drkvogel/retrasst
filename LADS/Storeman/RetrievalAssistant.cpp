@@ -8,12 +8,12 @@
 #include "LCDbProject.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
+
 TfrmRetrievalAssistant *frmRetrievalAssistant;
 
 __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
 
 void TfrmRetrievalAssistant::init() {
-
     sgJobs->Cells[0][0] = "Description";
     sgJobs->Cells[1][0] = "Job type";
     sgJobs->Cells[2][0] = "Project";
@@ -30,7 +30,6 @@ void TfrmRetrievalAssistant::init() {
     sgJobs->ColWidths[5] = 50;
     sgJobs->ColWidths[6] = 200;
     sgJobs->ColWidths[7] = 100;
-
     // c_retrieval_job
     // exercise_cid -> c_object_name
     // external_name
@@ -48,74 +47,88 @@ void TfrmRetrievalAssistant::init() {
     loadJobs();
 }
 
+void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+/* clSilver clMoneyGreen  clGray  clSkyBlue
+#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
+#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
+#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clGreen
+#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
+#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
+#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
+ */
+    LCDbCryoJob * job;
+    TColor background = clWindow;
+    if (0 == ARow)
+        job = NULL;
+    else
+        job = (LCDbCryoJob *)sgJobs->Objects[0][ARow];
+    if (NULL == job) {
+        if (0 == ARow) {
+            background = clBtnFace; // header row
+        } else {
+            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; // error
+        }
+    } else if (State.Contains(gdSelected)) { // && sgReferredBoxes->Focused())
+		background = RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR; //clActiveCaption; //clHighlight;
+	} else {
+        //background = RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR;
+ /*	enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
+	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES }; */
+        switch (job->getStatus()) {
+        case LCDbCryoJob::Status::NEW_JOB:
+            background = RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR;
+            break;
+        case LCDbCryoJob::Status::INPROGRESS:
+            background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR;
+            break;
+        case LCDbCryoJob::Status::DONE:
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
+            break;
+        case LCDbCryoJob::Status::DELETED:
+            background = RETRIEVAL_ASSISTANT_DELETED_COLOUR;
+            break;
+        default:
+            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        }
+    }
+	TCanvas * cnv = sgJobs->Canvas;
+	cnv->Brush->Color = background;
+	cnv->FillRect(Rect);
+	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgJobs->Cells[ACol][ARow]);
+}
+
+
 void TfrmRetrievalAssistant::loadJobs() {
     LQuery qc(LIMSDatabase::getCentralDb());
-
-	// LCDbCryoJob::Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
-	// LCDbCryoJob::JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
-
     LCDbCryoJobs &jobs = LCDbCryoJobs::records();
     jobs.read(LCDbCryoJob::JobKind::UNKNOWN, true); // $2 true: readall
 
-    int size = 0;
+    delete_referenced<tdvecpJob>(vecJobs);
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {
-        if (jr->isAvailable()) size++;
-    }
-    sgJobs->RowCount = size + 1;
-    int i=1;
-    for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr, i++) {
         if (!jr->isAvailable()) continue;
-//        jr->getName();
-//        jr->getDescription();
-//        jr->getJobType();
-//        jr->getProjectID();
-//        jr->getPrimaryAliquot();
-//        jr->getStatus();
-//        jr->getTimeStamp();
-//        jr->getProcessCID();
-//        jr->getUserID();
-//        jr->getReason();
-
-//        std::ostringstream oss;
-//        oss
-//        //<<"Name: "<<jr->getName()
-//        <<", Description: "<<jr->getDescription()
-//        <<", JobType: "<<jr->getJobType()
-//        <<", ProjectID: "<<jr->getProjectID()
-//        <<", PrimaryAliquot: "<<jr->getPrimaryAliquot()
-//        <<", Status: "<<jr->getStatus()
-//        <<", TimeStamp: "<<bcsToStd(jr->getTimeStamp().DateTimeString())
-//        <<", ProcessCID: "<<jr->getProcessCID()
-//        <<", UserID: "<<jr->getUserID()
-//        <<", Reason: "<<jr->getReason();
-//        sgJobs->Cells[0][i] = oss.str().c_str();
-
-        sgJobs->Cells[0][i] = jr->getDescription().c_str();
-        sgJobs->Cells[1][i] = jobTypeString(jr->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
-        sgJobs->Cells[2][i] = getProjectDescription(jr->getProjectID()).c_str();
-        sgJobs->Cells[3][i] = jr->getReason().c_str();
-        sgJobs->Cells[4][i] = jobStatusString(jr->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
-        sgJobs->Cells[5][i] = jr->getUserID();
-        sgJobs->Cells[6][i] = getAliquotDescription(jr->getPrimaryAliquot()).c_str(); // int
-        sgJobs->Cells[7][i] = jr->getTimeStamp().DateTimeString();
-        sgJobs->Objects[0][i] = (TObject *)&(*jr);
-
-        clbTest->AddItem(jr->getDescription().c_str(), (TObject *)&(*jr));
+        LCDbCryoJob * job = new LCDbCryoJob();
+        *job = *jr;
+        vecJobs.push_back(job);
     }
-		//if (jr->isAvailable() && jr->getProjectID() == projectCID
-		//&& (jr->getJobType() == LCDbCryoJob::BOX_RETRIEVAL
-		// || jr->getJobType() == LCDbCryoJob::SAMPLE_RETRIEVAL)) {
-			//writeJob( *jr, row++ );
-		//}
+    showJobs();
+}
 
-    //qc.setSQL("SELECT ");
-
-    //comboJob->AddItem(, (TObject *));
-      /*
-    c_retrieval_job.status = new job (0); job type = box retrieval (2) or disposal (3)
-
-
-    */
+void TfrmRetrievalAssistant::showJobs() {
+    sgJobs->RowCount = vecJobs.size() + 1;
+    tdvecpJob::const_iterator it;
+    int row = 1;
+    for (it = vecJobs.begin(); it != vecJobs.end(); it++, row++) {
+        LCDbCryoJob * job = *it;
+        sgJobs->Cells[0][row] = job->getDescription().c_str();
+        sgJobs->Cells[1][row] = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
+        sgJobs->Cells[2][row] = getProjectDescription(job->getProjectID()).c_str();
+        sgJobs->Cells[3][row] = job->getReason().c_str();
+        sgJobs->Cells[4][row] = jobStatusString(job->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
+        sgJobs->Cells[5][row] = job->getUserID();
+        sgJobs->Cells[6][row] = getAliquotDescription(job->getPrimaryAliquot()).c_str(); // int
+        sgJobs->Cells[7][row] = job->getTimeStamp().DateTimeString();
+        sgJobs->Objects[0][row] = (TObject *)job;
+    }
 }
 
 std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) {
@@ -154,16 +167,12 @@ std::string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
     return "";
 }
 
-
 /*
 jobs are LCDbCryoJob
-
 #define 	LEASEE_STOREMAN		   100		// Storage management; blocks itself and Storage Sync
 
 C_RETRIEVAL_JOB
-
 A list of one or more tasks for each retrieval exercise. For example, an analysis exercise may include one task retrieving the cryovials and another for analysing them
-
 Field name	    Type	Key Refers to	Description / Comments
 retrieval_cid	i4	    1	            A unique ID for this task
 exercise_cid	i4		c_object_name	The exercise this task is part of
@@ -181,7 +190,6 @@ claimed_until	d/t			            Marks this task as active; no other program can 
 finish_date	    d/t			            When this task finished (if status == 2)
 
 retrieval_cid, exercise_cid, external_name, description, reason, job_type, project_cid, primary_aliquot, process_cid, status, time_stamp, start_date, claimed_until, finish_date
-
 
 select jobs, filter by in progress/new, retrieval/disposal
 user selects one
@@ -227,23 +235,18 @@ end
 
 void TfrmRetrievalAssistant::loadBoxes() {
     LQuery qp = Util::projectQuery(0 /*box->project_cid*/, true); // true 2nd param gets ddb
-    // Find where the boxes are supposed to be:
 
+// Find where the boxes are supposed to be:
 //    qp.setSQL("select … from box_name n, box_store bs, c_rack_number r, c_tank_map m"
 //        " where n.box_cid=bs.box_cid and bs.rack_cid=r.rack_cid and r.tank_cid=m.tank_cid"
 //        " and bs.retrieval_cid = jobID");
 //
 //    sgBoxes->RowCount = 1;
-
     for (int i; i < 10; i++) {
         //sgBoxes->Cells[][] = "";
     }
-
-
 }
 
-void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-    //
-}
+
 
 

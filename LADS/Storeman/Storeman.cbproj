@@ -528,6 +528,12 @@
 				<DependentOn>StoreUtil.h</DependentOn>
 				<BuildOrder>27</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="Temp.cpp">
+				<Form>frmTest</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>Temp.h</DependentOn>
+				<BuildOrder>91</BuildOrder>
+			</CppCompile>
 			<LibFiles Condition="'$(Platform)'=='Win32'" Include="..\..\paulst\Win32\Release\paulst.lib">
 				<BuildOrder>88</BuildOrder>
 				<IgnorePath>true</IgnorePath>
@@ -565,6 +571,7 @@
 			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
+			<FormResources Include="Temp.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

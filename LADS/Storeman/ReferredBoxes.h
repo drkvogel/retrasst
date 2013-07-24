@@ -104,10 +104,10 @@ public:
 typedef std::vector< BoxArrivalRecord > tdvecBoxArrivalRecord;
 typedef std::vector< BoxArrivalRecord*> tdvecpBoxArrivalRecord;
 
-template<typename Container>
-void delete_referenced(Container& c) {
-    while (!c.empty()) delete c.back(), c.pop_back();
-}
+//template<typename Container>
+//void delete_referenced(Container& c) {
+//    while (!c.empty()) delete c.back(), c.pop_back();
+//}
 
 static const char * boxStoreStatusStrings[] = {
 //    case LCDbBoxStore::Status::EXPECTED:        // 0
