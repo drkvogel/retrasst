@@ -11,6 +11,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poScreenCenter
   DesignSize = (
     710
     504)

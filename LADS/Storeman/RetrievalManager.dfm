@@ -11,6 +11,8 @@ object frmRetrievalManager: TfrmRetrievalManager
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poScreenCenter
+  OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -94,6 +96,13 @@ object frmRetrievalManager: TfrmRetrievalManager
     ExplicitLeft = 224
     ExplicitTop = 368
     ExplicitWidth = 185
+    object Label1: TLabel
+      Left = 64
+      Top = 16
+      Width = 31
+      Height = 13
+      Caption = 'Label1'
+    end
     object btnSave: TButton
       Left = 400
       Top = 8
@@ -109,6 +118,7 @@ object frmRetrievalManager: TfrmRetrievalManager
       Height = 25
       Caption = 'Cancel'
       TabOrder = 1
+      OnClick = btnCancelClick
     end
   end
   object GroupBox1: TGroupBox

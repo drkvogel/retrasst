@@ -219,6 +219,16 @@ void __fastcall TfrmRetrievalAssistant::cbBoxClick(TObject *Sender) { loadJobs()
 void __fastcall TfrmRetrievalAssistant::cbSampleClick(TObject *Sender) { loadJobs(); }
 
 void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
+    //Sender->
+    //g->MouseToCell(X, Y, colno, rowno);
+
+    if (((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]))->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) {
+        frmRetrievalManager->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
+        frmRetrievalManager->jobType = LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL;
+    } else {
+        frmRetrievalManager->autochunk = false; // and form type =
+        frmRetrievalManager->jobType = LCDbCryoJob::JobKind::BOX_RETRIEVAL;
+    }
     frmRetrievalManager->ShowModal();
 }
 

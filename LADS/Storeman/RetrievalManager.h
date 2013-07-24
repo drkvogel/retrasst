@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-
 #ifndef RetrievalManagerH
 #define RetrievalManagerH
-//---------------------------------------------------------------------------
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Grids.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <sstream>
 #include <System.Classes.hpp>
 #include <Vcl.Controls.hpp>
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.Forms.hpp>
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.Grids.hpp>
-//---------------------------------------------------------------------------
+#include "LCDbJob.h"
+
 class TfrmRetrievalManager : public TForm
 {
 __published:	// IDE-managed Components
@@ -25,12 +29,16 @@ __published:	// IDE-managed Components
     TGroupBox *GroupBox1;
     TStringGrid *sgChunk;
     TButton *btnSaveChunk;
+    TLabel *Label1;
     void __fastcall FormShow(TObject *Sender);
-private:	// User declarations
-public:		// User declarations
+    void __fastcall FormCreate(TObject *Sender);
+    void __fastcall btnCancelClick(TObject *Sender);
+private:
+public:
+    bool autochunk;
+    LCDbCryoJob::JobKind jobType;
     __fastcall TfrmRetrievalManager(TComponent* Owner);
 };
-//---------------------------------------------------------------------------
+
 extern PACKAGE TfrmRetrievalManager *frmRetrievalManager;
-//---------------------------------------------------------------------------
 #endif

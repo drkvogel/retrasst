@@ -8,6 +8,11 @@ TfrmRetrievalManager *frmRetrievalManager;
 
 __fastcall TfrmRetrievalManager::TfrmRetrievalManager(TComponent* Owner) : TForm(Owner) { }
 
+void __fastcall TfrmRetrievalManager::FormCreate(TObject *Sender) {
+    autochunk = false;
+    jobType = LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL;
+}
+
 /*
     c_retrieval_job.status = new job (0); job type = box retrieval (2) or disposal (3)
 
@@ -20,5 +25,15 @@ Find where the boxes are supposed to be:
 */
 void __fastcall TfrmRetrievalManager::FormShow(TObject *Sender) {
     // show job: list of boxes or cryovials
+    std::ostringstream oss;
+    oss << (autochunk ? "auto-chunk" : "manual chunk")
+    << ((jobType == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "jobType == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL;" : "jobType != LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL");
+    Label1->Caption = oss.str().c_str();
+
 }
+
+void __fastcall TfrmRetrievalManager::btnCancelClick(TObject *Sender) {
+    Close();
+}
+
 
