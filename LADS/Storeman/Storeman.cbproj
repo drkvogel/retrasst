@@ -478,6 +478,12 @@
 				<DependentOn>RetrievalAssistant.h</DependentOn>
 				<BuildOrder>90</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="RetrievalManager.cpp">
+				<Form>frmRetrievalManager</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalManager.h</DependentOn>
+				<BuildOrder>92</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="RetrieveSamples.cpp">
 				<Form>frmRetrieved</Form>
 				<DependentOn>RetrieveSamples.h</DependentOn>
@@ -572,6 +578,7 @@
 			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
 			<FormResources Include="Temp.dfm"/>
+			<FormResources Include="RetrievalManager.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

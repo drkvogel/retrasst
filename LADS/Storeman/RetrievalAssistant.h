@@ -54,6 +54,7 @@ __published:	// IDE-managed Components
     void __fastcall cbDeletedClick(TObject *Sender);
     void __fastcall cbBoxClick(TObject *Sender);
     void __fastcall cbSampleClick(TObject *Sender);
+    void __fastcall sgJobsDblClick(TObject *Sender);
 private:	// User declarations
     tdvecpJob vecJobs;
     void loadJobs();

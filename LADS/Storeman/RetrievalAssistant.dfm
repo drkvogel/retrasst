@@ -37,6 +37,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goColSizing, goRowSelect]
       TabOrder = 0
+      OnDblClick = sgJobsDblClick
       OnDrawCell = sgJobsDrawCell
       ColWidths = (
         196

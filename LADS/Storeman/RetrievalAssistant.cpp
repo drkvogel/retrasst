@@ -6,6 +6,7 @@
 #include "LCDbObject.h"
 #include "StringUtil.h"
 #include "LCDbProject.h"
+#include "RetrievalManager.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -216,5 +217,9 @@ void __fastcall TfrmRetrievalAssistant::cbDoneClick(TObject *Sender) { loadJobs(
 void __fastcall TfrmRetrievalAssistant::cbDeletedClick(TObject *Sender) { loadJobs(); }
 void __fastcall TfrmRetrievalAssistant::cbBoxClick(TObject *Sender) { loadJobs(); }
 void __fastcall TfrmRetrievalAssistant::cbSampleClick(TObject *Sender) { loadJobs(); }
+
+void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
+    frmRetrievalManager->ShowModal();
+}
 
 
