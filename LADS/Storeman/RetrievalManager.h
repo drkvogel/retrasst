@@ -34,6 +34,7 @@ __published:	// IDE-managed Components
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
 private:
+    void autoChunk();
 public:
     bool autochunk;
     LCDbCryoJob::JobKind jobType;

@@ -26,14 +26,24 @@ Find where the boxes are supposed to be:
 void __fastcall TfrmRetrievalManager::FormShow(TObject *Sender) {
     // show job: list of boxes or cryovials
     std::ostringstream oss;
-    oss << (autochunk ? "auto-chunk" : "manual chunk")
-    << ((jobType == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "jobType == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL;" : "jobType != LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL");
+    oss << (autochunk ? "auto-chunk" : "manual chunk") << ", "
+    << ((jobType == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
     Label1->Caption = oss.str().c_str();
-
 }
 
 void __fastcall TfrmRetrievalManager::btnCancelClick(TObject *Sender) {
     Close();
 }
 
+void TfrmRetrievalManager::autoChunk() {
+/*
+Display the size of the job and ask user if they want to divide up the list.  If they do:
 
+1.	Ask them the maximum section size (default = 500 cryovials)
+2.	Calculate slot/box (where `c_box_size.box_size_cid = box_content.box_size_cid`)
+3.	Ask them to select the size of first section from a list – it must be a multiple of the box size (from 2) and no more than the maximum (from 1)
+4.	Allocate the appropriate number of destination boxes to the first section
+5.	Repeat steps (2) and (3) until every entry has been allocated to a section
+*/
+
+}
