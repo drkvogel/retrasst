@@ -1,0 +1,184 @@
+﻿<!--
+c_box_retrieval
+    box_id          # The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+    retrieval_cid   # The retrieval task this entry is part of
+    retrieval_type  # obsolete
+    section         # Which chunk of the retrieval plan this entry belongs to (0 = retrieve all boxes)
+    position        # The position of this entry in that chunk (may be 0 for sample retrieval, i.e. use l_cryovial_retrieval position)
+    box_name        # obsolete
+    rj_box_cid      # Unique ID for this retrieval list entry (what does rj stand for? - 'retrieval job')
+    status          # 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
+-->
+
+<table style="width: 100%; font-size: 10px;">
+<tbody>
+<tr><td style="background: #e4e4e4; padding: 2px;" colspan="2">c_box_retrieval</td></tr>
+<tr><td>PK</td><td style="padding: 2px;">rj_box_cid</td></tr>
+<tr><td>FK</td><td style="padding: 2px;">box_id</td></tr>
+<tr><td>FK</td><td style="padding: 2px;">retrieval_cid</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;"></td>[retrieval_type(obs)]</tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;"></td>section [chunk]</tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;"></td>position</tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;"></td>[box_name(obs)]</tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;"></td>status</tr>
+</tbody>
+</table>
+
+<!-- draw.io parser doesn't like the above compact (>1 element per line) form; the below is OK: -->
+
+<!-- no, it's just that in the above table I had put text *outside* td elements. You nana! -->
+
+<!-- draw.io does however reformat the code in the following style -->
+
+<table style="width: 100%; font-size: 10px;">
+<tbody>
+<tr>
+<td style="background: #e4e4e4; padding: 2px;" colspan="2">c_box_retrieval</td>
+</tr>
+<tr>
+<td>PK</td>
+<td style="padding: 2px;">rj_box_cid</td>
+</tr>
+<tr>
+<td>FK</td>
+<td style="padding: 2px;">box_id</td>
+</tr>
+<tr>
+<td>FK</td>
+<td style="padding: 2px;">retrieval_cid</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td style="padding: 2px;">retrieval_type(obs)</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td style="padding: 2px;">section</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td style="padding: 2px;">position</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td style="padding: 2px;">box_name(obs)</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td style="padding: 2px;">status</td>
+</tr>
+</tbody>
+</table>
+
+
+
+<!--
+l_cryovial_retrieval
+PK    rj_box_cid      # record id of c_box_retrieval entry for the box the sample should be placed into?
+PK2    position        # Where this sample appears in the current chunk of the retrieval plan
+    cryovial_barcode# The barcode on the sample
+    aliquot_type_cid# The aliquot type (cryovial_barcode + aliquot_type_cid should uniquely identify the cryovial within the project)
+    slot_number     # The expected position of the cryovial in the destination box (if two records suggest the same position in the same box, the first should be the primary aliquot; the second will be ignored if the first is found)
+    process_cid     # Who stored it, which program etc.
+    status          # 0: expected; 1: ignored, 2: collected; 3: not found; 99: record deleted    
+-->
+
+
+<table style="width: 100%; font-size: 10px;">
+<tbody>
+<tr><td style="background: #e4e4e4; padding: 2px;" colspan="2">l_cryovial_retrieval</td></tr>
+<tr><td>PK</td><td style="padding: 2px;">rj_box_cid</td></tr>
+<tr><td>PK</td><td style="padding: 2px;">position</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">cryovial_barcode</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">aliquot_type_cid</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">slot_number</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">process_cid</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">status</td></tr>
+</tbody>
+</table>
+
+<!--
+c_retrieval_job
+
+PK  retrieval_cid       # A unique ID for this task
+    exercise_cid        # [c_object_name] The exercise this task is part of
+    external_name       # A (unique) name for this task
+    description         # Summarises what needs to be done in this task
+    reason              # obsolete - use the full name of the exercise
+    job_type            # 0: unknown, 1: box move, 2: box retrieval, 3: box disposal, 4: cryovial retrieval, 5: cryovial disposal
+    project_cid         # The project these boxes comes from (0 if boxes from more than one project)
+    primary_aliquot     # [c_object_name] The aliquot type being retrieved
+    secondary_aliquot   # [c_object_name] For a box retrieval, the second aliquot type in the boxes. For a sample retrieval, an alternative aliquot if the primary cannot be found. (0 for most tasks for most projects)
+    process_cid         # Who set this task up, when, how etc.
+    status              # How near this task is to reaching completion: 0 = new job, 1 = in progress, 2 = completed, 99 = invalid/obsolete
+    time_stamp          # obsolete
+    start_date          # When this task started (if status >= 1)
+    claimed_until       # Marks this task as active; no other program can use this record until the specified time
+    finish_date         # When this task finished (if status == 2)
+    
+-->
+
+<table style="width: 100%; font-size: 10px;">
+<tbody>
+<tr><td style="background: #e4e4e4; padding: 2px;" colspan="2">c_retrieval_job</td></tr>
+<tr><td>PK</td><td style="padding: 2px;">retrieval_cid</td></tr>
+<tr><td>FK1</td><td style="padding: 2px;">exercise_cid</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">external_name</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">description</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;"><em>reason</em></td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">job_type</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">project_cid</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">primary_aliquot</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">secondary_aliquot</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">process_cid</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">status</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;"><em>time_stamp</em></td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">start_date</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">claimed_until</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">finish_date</td></tr>
+</tbody>
+</table>
+
+<!--
+cryovial_store
+
+Each entry in CRYOVIAL with a status of 1 should have a record in this table showing its current location with no date in removed. Other records give the cryovial's history.
+
+record_id               # A (project-related) ID for this entry
+cryovial_id             # cryovial The cryovial to be stored
+box_cid                 # box_name The ID of the container this cryovial should be put in
+cryovial_position       # Where in the box/sample rack the cryovial is
+time_stamp              # When this tube was put into that container
+removed                 # When this tube was taken out of this box (initially empty)
+status                  # 0 = space allocated, 1 = position confirmed, 2 = removal expected, 3 = removed for disposal (note gives reason), 4 = removed for analysis, 5 = moved to another box, 99 = record invalid/deleted
+note_exists             # 0 = no note; >=1: one or more note in the NOTE table
+process_cid             # c_audit_trail	 The program run that made this entry
+retrieval_cid           # c_retrieval_job The task that caused this cryovial to be moved (initially 0)
+-->
+
+
+<table style="width: 100%; font-size: 10px;">
+<tbody>
+<tr><td style="background: #e4e4e4; padding: 2px;" colspan="2">cryovial_store</td></tr>
+<tr><td>PK</td><td style="padding: 2px;">record_id</td></tr>
+<tr><td>FK1</td><td style="padding: 2px;">cryovial_id</td></tr>
+<tr><td>FK2</td><td style="padding: 2px;">box_cid</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">cryovial_position</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">time_stamp</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">removed</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">status</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">note_exists</td></tr>
+<tr><td>FK3</td><td style="padding: 2px;">cryovial_id</td></tr>
+<tr><td>FK4</td><td style="padding: 2px;">cryovial_id</td></tr>
+</tbody>
+</table>
+
+<!-- template -->
+<table style="width: 100%; font-size: 10px;">
+<tbody>
+<tr><td style="background: #e4e4e4; padding: 2px;" colspan="2">Tablename</td></tr>
+<tr><td>PK</td><td style="padding: 2px;">uniqueId</td></tr>
+<tr><td>FK1</td><td style="padding: 2px;">foreignKey</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">fieldname</td></tr>
+</tbody>
+</table>

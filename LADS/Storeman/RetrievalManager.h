@@ -14,10 +14,56 @@
 #include <Vcl.Grids.hpp>
 #include "LCDbJob.h"
 
+/*
+select * from box_content bc, c_box_size bs where bc.box_size_cid = bs.box_size_cid
+
+select * from c_retrieval_job rj, cryovial_store cs where rj.retrieval_cid = cs.retrieval_cid
+
+c_retrieval_job
+
+c_box_retrieval
+    box_id          # The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+    retrieval_cid   # The retrieval task this entry is part of
+    retrieval_type  # obsolete
+    section         # Which chunk of the retrieval plan this entry belongs to (0 = retrieve all boxes)
+    position        # The position of this entry in that chunk (may be 0 for sample retrieval, i.e. use l_cryovial_retrieval position)
+    box_name        # obsolete
+    rj_box_cid      # Unique ID for this retrieval list entry (what does rj stand for?)
+    status          # 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
+
+l_cryovial_retrieval
+    rj_box_cid      # record id of c_box_retrieval entry for the box the sample should be placed into?
+    position        # Where this sample appears in the current chunk of the retrieval plan
+    cryovial_barcode# The barcode on the sample
+    aliquot_type_cid# The aliquot type (cryovial_barcode + aliquot_type_cid should uniquely identify the cryovial within the project)
+    slot_number     # The expected position of the cryovial in the destination box (if two records suggest the same position in the same box, the first should be the primary aliquot; the second will be ignored if the first is found)
+    process_cid     # Who stored it, which program etc.
+    status          # 0: expected; 1: ignored, 2: collected; 3: not found; 99: record deleted
+
+LCDbCryoJob new fields
+    int exercise, primary, secondary;
+public:
+	int getExerciseID() const { return exercise; }
+	int getPrimaryAliquot() const { return primary; }
+	void setPrimaryAliquot( int typeID ) { primary = typeID; }
+	int getSecondaryAliquot() const { return secondary; }
+	TDateTime getStartDate() const { return start_date; }
+	TDateTime getClaimedUntil() const { return claimed_until; }
+	TDateTime getFinishDate() const { return finish_date; }
+*/
+
 class Chunk {
+    int         retrieval_cid;
+    int         exercise_cid;
+    string      name;
+    string      descrip;
+    int         job_type;
+    int         project_cid;
+    int         primary_aliquot;
 
 };
 
+typedef std::vector< Chunk * > tdvecpChunk;
 
 class TfrmRetrievalManager : public TForm
 {
@@ -39,6 +85,7 @@ __published:	// IDE-managed Components
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
 private:
+    tdvecpChunk chunks;
     void autoChunk();
 public:
     bool autochunk;
