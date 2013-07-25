@@ -10,14 +10,15 @@ namespace valc
 {
 
 AllocateLocalResultsToWorklistEntries::AllocateLocalResultsToWorklistEntries( int localMachineID, const ClusterIDs* clusterIDs, paulst::LoggingService* log, 
-    WorklistEntries* worklistEntries, ResultIndex* resultIndex  )
+    WorklistEntries* worklistEntries, ResultIndex* resultIndex, DBUpdateSchedule* dbUpdateSchedule  )
     :
     m_log( log ),
     m_worklistEntries( worklistEntries ),
     m_resultIndex( resultIndex ),
     m_result(0),
     m_clusterIDs( clusterIDs ),
-    m_localMachineID( localMachineID )
+    m_localMachineID( localMachineID ),
+    m_dbUpdateSchedule( dbUpdateSchedule )
 {
 }
 

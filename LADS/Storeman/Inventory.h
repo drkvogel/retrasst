@@ -394,7 +394,7 @@ class Sample : public IPart		// id from cryovial/cryovial_store; name = barcode
 		int sample_id;
 		XTIME stamp;
 		int project_cid;
-		std::string source_barcode;
+		std::string source_name, source_barcode;
 		int box_id;
 		int aliquot_type;
 

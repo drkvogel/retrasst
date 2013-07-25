@@ -70,9 +70,8 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
             background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; // error
         }
     } else {
-        //background = RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR;
- /*	enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
-	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES }; */
+//	enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
+//	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
         switch (job->getStatus()) {
         case LCDbCryoJob::Status::NEW_JOB:
             background = RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR;
@@ -90,28 +89,22 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
             background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
     }
-    //fsBold
+
     TCanvas * cnv = sgJobs->Canvas;
 	cnv->Brush->Color = background;
 	cnv->FillRect(Rect);
-
-    if (State.Contains(gdSelected)) { // && sgReferredBoxes->Focused())
-		//background = RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR; //clActiveCaption; //clHighlight;
+    if (State.Contains(gdSelected)) {
         TFontStyles oldFontStyle = cnv->Font->Style;
         TPenStyle oldPenStyle = cnv->Pen->Style;
-
         cnv->Pen->Style = psDot;
         cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
         cnv->Font->Style = TFontStyles() << fsBold; // << fsItalic;
     	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgJobs->Cells[ACol][ARow]);
-
         cnv->Pen->Style     = oldPenStyle;
         cnv->Font->Style    = oldFontStyle;
 	} else {
         cnv->TextOut(Rect.Left+5, Rect.Top+5, sgJobs->Cells[ACol][ARow]);
     }
-
-
 }
 
 void TfrmRetrievalAssistant::loadJobs() {

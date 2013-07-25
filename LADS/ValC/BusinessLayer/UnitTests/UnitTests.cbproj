@@ -62,10 +62,10 @@
         <VerInfo_Locale>2057</VerInfo_Locale>
         <PackageImports>bindcompfmx;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;inetdb;DBXInterBaseDriver;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;soaprtl;bindengine;CustomIPTransport;dsnap;IndyCore;fmxase;inet;fmxobj;inetdbxpress;fmxdae;dbexpress;IPIndyImpl;$(PackageImports)</PackageImports>
         <Multithreaded>true</Multithreaded>
-        <ILINK_LibraryPath>..\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>..\..\..\..\paulst\;..\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <ProjectType>CppConsoleApplication</ProjectType>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <IncludePath>..\;..\..\..\TUT;..\..\..\..\paulst;$(IncludePath)</IncludePath>
+        <IncludePath>..\..\..\..\paulst\;..\;..\..\..\TUT;..\..\..\..\paulst;$(IncludePath)</IncludePath>
         <UsingDelphiRTL>true</UsingDelphiRTL>
         <AllPackageLibs>rtl.lib;vcl.lib</AllPackageLibs>
         <_TCHARMapping>char</_TCHARMapping>
@@ -132,6 +132,133 @@
         <Defines>NDEBUG;$(Defines)</Defines>
     </PropertyGroup>
     <ItemGroup>
+        <CppCompile Include="..\ADODB_OCX.cpp">
+            <DependentOn>..\ADODB_OCX.h</DependentOn>
+            <BuildOrder>18</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\ADODB_TLB.cpp">
+            <DependentOn>..\ADODB_TLB.h</DependentOn>
+            <BuildOrder>19</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\AllocateLocalResultsToWorklistEntries.cpp">
+            <DependentOn>..\AllocateLocalResultsToWorklistEntries.h</DependentOn>
+            <BuildOrder>20</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\AnalysisActivitySnapshotImpl.cpp">
+            <DependentOn>..\AnalysisActivitySnapshotImpl.h</DependentOn>
+            <BuildOrder>21</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\API.cpp">
+            <DependentOn>..\API.h</DependentOn>
+            <BuildOrder>22</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BuddyDatabase.cpp">
+            <DependentOn>..\BuddyDatabase.h</DependentOn>
+            <BuildOrder>23</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BuddyDatabaseBuilder.cpp">
+            <DependentOn>..\BuddyDatabaseBuilder.h</DependentOn>
+            <BuildOrder>24</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\ComUtil.cpp">
+            <DependentOn>..\ComUtil.h</DependentOn>
+            <BuildOrder>25</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CursorADO.cpp">
+            <DependentOn>..\CursorADO.h</DependentOn>
+            <BuildOrder>26</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CursorBackedWorklistRelationsDataSource.cpp">
+            <DependentOn>..\CursorBackedWorklistRelationsDataSource.h</DependentOn>
+            <BuildOrder>27</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\DBConnectionADO.cpp">
+            <DependentOn>..\DBConnectionADO.h</DependentOn>
+            <BuildOrder>28</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\DBUpdateSchedule.cpp">
+            <DependentOn>..\DBUpdateSchedule.h</DependentOn>
+            <BuildOrder>29</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LoadBuddyDatabase.cpp">
+            <DependentOn>..\LoadBuddyDatabase.h</DependentOn>
+            <BuildOrder>30</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LoadClusterIDs.cpp">
+            <DependentOn>..\LoadClusterIDs.h</DependentOn>
+            <BuildOrder>31</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LoadProjects.cpp">
+            <DependentOn>..\LoadProjects.h</DependentOn>
+            <BuildOrder>32</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LoadReferencedWorklistEntries.cpp">
+            <DependentOn>..\LoadReferencedWorklistEntries.h</DependentOn>
+            <BuildOrder>33</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LoadTestNames.cpp">
+            <DependentOn>..\LoadTestNames.h</DependentOn>
+            <BuildOrder>34</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LoadWorklistEntries.cpp">
+            <DependentOn>..\LoadWorklistEntries.h</DependentOn>
+            <BuildOrder>35</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\MockConnection.cpp">
+            <DependentOn>..\MockConnection.h</DependentOn>
+            <BuildOrder>36</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\MockConnectionFactory.cpp">
+            <DependentOn>..\MockConnectionFactory.h</DependentOn>
+            <BuildOrder>37</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\Projects.cpp">
+            <DependentOn>..\Projects.h</DependentOn>
+            <BuildOrder>38</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\QueueBuilderParams.cpp">
+            <DependentOn>..\QueueBuilderParams.h</DependentOn>
+            <BuildOrder>39</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\QueuedSamplesBuilderFunction.cpp">
+            <DependentOn>..\QueuedSamplesBuilderFunction.h</DependentOn>
+            <BuildOrder>40</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\ResultDirectory.cpp">
+            <DependentOn>..\ResultDirectory.h</DependentOn>
+            <BuildOrder>41</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\ResultIndex.cpp">
+            <BuildOrder>42</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\SampleRun.cpp">
+            <DependentOn>..\SampleRun.h</DependentOn>
+            <BuildOrder>43</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\SampleRunID.cpp">
+            <DependentOn>..\SampleRunID.h</DependentOn>
+            <BuildOrder>44</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\SampleRunIDResolutionService.cpp">
+            <DependentOn>..\SampleRunIDResolutionService.h</DependentOn>
+            <BuildOrder>45</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\StringBackedCursor.cpp">
+            <DependentOn>..\StringBackedCursor.h</DependentOn>
+            <BuildOrder>46</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\TestResultImpl.cpp">
+            <DependentOn>..\TestResultImpl.h</DependentOn>
+            <BuildOrder>47</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\TestResultIteratorImpl.cpp">
+            <DependentOn>..\TestResultIteratorImpl.h</DependentOn>
+            <BuildOrder>48</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\ThreadExceptionMsgs.cpp">
+            <DependentOn>..\ThreadExceptionMsgs.h</DependentOn>
+            <BuildOrder>49</BuildOrder>
+        </CppCompile>
         <None Include="ForceReloadTest.h">
             <BuildOrder>32</BuildOrder>
         </None>
@@ -141,14 +268,88 @@
         <None Include="QueuedSamplesFactoryTest.h">
             <BuildOrder>2</BuildOrder>
         </None>
-        <LibFiles Include="..\Win64\Debug\BusinessLayer.a" Condition="'$(Platform)'=='Win64'">
-            <BuildOrder>3</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
-        <LibFiles Include="..\..\..\..\paulst\Win64\Release\paulst.a" Condition="'$(Platform)'=='Win64'">
+        <CppCompile Include="..\WorklistDirectory.cpp">
+            <DependentOn>..\WorklistDirectory.h</DependentOn>
+            <BuildOrder>50</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\WorklistEntries.cpp">
+            <DependentOn>..\WorklistEntries.h</DependentOn>
+            <BuildOrder>51</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\WorklistEntryBuilder.cpp">
+            <DependentOn>..\WorklistEntryBuilder.h</DependentOn>
+            <BuildOrder>52</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\WorklistEntryImpl.cpp">
+            <DependentOn>..\WorklistEntryImpl.h</DependentOn>
+            <BuildOrder>53</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\WorklistEntryIteratorImpl.cpp">
+            <DependentOn>..\WorklistEntryIteratorImpl.h</DependentOn>
+            <BuildOrder>54</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\WorklistRelation.cpp">
+            <DependentOn>..\WorklistRelation.h</DependentOn>
+            <BuildOrder>55</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\AcquireCriticalSection.cpp">
+            <DependentOn>..\..\..\..\paulst\AcquireCriticalSection.h</DependentOn>
+            <BuildOrder>17</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\Config.cpp">
+            <BuildOrder>16</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\ConsoleWriter.cpp">
+            <DependentOn>..\..\..\..\paulst\ConsoleWriter.h</DependentOn>
+            <BuildOrder>15</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\CritSec.cpp">
+            <DependentOn>..\..\..\..\paulst\CritSec.h</DependentOn>
+            <BuildOrder>14</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\FileWriterC.cpp">
+            <BuildOrder>13</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\FixedCapacityBuffer.cpp">
+            <DependentOn>..\..\..\..\paulst\FixedCapacityBuffer.h</DependentOn>
+            <BuildOrder>12</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\LoggingService.cpp">
+            <DependentOn>..\..\..\..\paulst\LoggingService.h</DependentOn>
+            <BuildOrder>11</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\Properties.cpp">
+            <DependentOn>..\..\..\..\paulst\Properties.h</DependentOn>
+            <BuildOrder>10</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\StrBuilder.cpp">
+            <DependentOn>..\..\..\..\paulst\StrBuilder.h</DependentOn>
+            <BuildOrder>9</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\StringDB.cpp">
+            <DependentOn>..\..\..\..\paulst\StringDB.h</DependentOn>
+            <BuildOrder>8</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\StrUtil.cpp">
+            <DependentOn>..\..\..\..\paulst\StrUtil.h</DependentOn>
+            <BuildOrder>7</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\Thread.cpp">
+            <DependentOn>..\..\..\..\paulst\Thread.h</DependentOn>
+            <BuildOrder>6</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\TraceTime.cpp">
+            <DependentOn>..\..\..\..\paulst\TraceTime.h</DependentOn>
+            <BuildOrder>5</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\Util.cpp">
+            <DependentOn>..\..\..\..\paulst\Util.h</DependentOn>
             <BuildOrder>4</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\WorkerThread.cpp">
+            <DependentOn>..\..\..\..\paulst\WorkerThread.h</DependentOn>
+            <BuildOrder>3</BuildOrder>
+        </CppCompile>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

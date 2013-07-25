@@ -614,13 +614,22 @@ void StoreDAO::loadBoxHistory( int box_id, int proj_id, std::vector<ROSETTA>& re
 
 void StoreDAO::loadSamples( int box_id, int proj_id, std::vector<ROSETTA>& results )
 {
+	std::string source_field;
+	const LPDbDescriptor * descrip = LPDbDescriptors::records().findByName( "source_name" );
+	if( descrip != NULL ) {
+		source_field = descrip->getSpecimenField();
+	}
+	if( source_field.empty() ) {
+		source_field = "external_name";
+	}
 	results.clear();
-	std::string q = "SELECT s.cryovial_id, s.cryovial_position, s.box_cid, s.time_stamp, ";
-	q += " c.sample_id, c.cryovial_barcode, c.aliquot_type_cid, sp.barcode as source_barcode";
-	q += " FROM cryovial_store s, cryovial c, specimen sp ";
-	q += " WHERE s.box_cid = :bid AND s.status = :css ";
-	q += " AND s.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id ";
-	q += " ORDER BY s.cryovial_position";
+	std::string q = "SELECT s.cryovial_position, s.box_cid, s.time_stamp,"
+			" c.sample_id, c.cryovial_id, c.cryovial_barcode, c.aliquot_type_cid,"
+			" sp.barcode as source_barcode, sp." + source_field + " as source_name"
+			" FROM cryovial_store s, cryovial c, specimen sp "
+			" WHERE s.box_cid = :bid AND s.status = :css "
+			" AND s.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id "
+			" ORDER BY s.cryovial_position";
 	LQuery pQuery = Util::projectQuery( proj_id );
 	pQuery.setSQL( q );
 	pQuery.setParam( "bid", box_id );
@@ -677,7 +686,7 @@ bool StoreDAO::loadAnalysisHistory( const std::string & cryovial_barcode, int al
 	if( aliquot == NULL || descrip == NULL ) {
 		return false;
 	}
-	std::string q = "SELECT date_trunc('day',r.time_stamp) as when, count( result_id ) as results"
+	std::string q = "SELECT date_trunc('day',r.time_stamp) as when, count(result_id) as results"
 		" FROM specimen s, result r WHERE s.sample_id = r.sample_id "
 		" AND " + descrip->getSpecimenField() + " = :atn AND barcode = :bar"
 		" GROUP BY date_trunc('day',r.time_stamp)";

@@ -15,6 +15,7 @@ class SampleRunIDResolutionService
 public:
     SampleRunIDResolutionService();
     void addMapping( const std::string& fromCandidate, const std::string& to );
+    bool canResolve( const std::string& candidateID ) const;
     /*  Returns candidateID, unless a mapping has been added, in which case returns the mapped value. */
     std::string resolve( const std::string& candidateID ) const;
 private:

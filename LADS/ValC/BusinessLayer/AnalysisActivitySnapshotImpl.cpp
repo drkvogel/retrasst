@@ -1,6 +1,7 @@
 #include "AnalysisActivitySnapshotImpl.h"
 #include <boost/foreach.hpp>
 #include "BuddyDatabase.h"
+#include "DBUpdateSchedule.h"
 #include "Projects.h"
 #include "QueueBuilderParams.h"
 #include "QueuedSamplesBuilderFunction.h"
@@ -12,7 +13,7 @@ namespace valc
 
 AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl( 
     const ClusterIDs* clusterIDs, const Projects* p, const BuddyDatabase* bdb, paulst::LoggingService* log, 
-    const ResultDirectory* rd, const WorklistDirectory* wd, const TestNames* tns )
+    const ResultDirectory* rd, const WorklistDirectory* wd, const TestNames* tns, DBUpdateSchedule* dbUpdateSchedule )
     : 
     m_buddyDatabase     ( bdb ),
     m_clusterIDs        ( clusterIDs ),
@@ -20,7 +21,8 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
     m_projects          ( p ),
     m_resultDirectory   ( rd ),
     m_worklistDirectory ( wd ),
-    m_testNames         ( tns )
+    m_testNames         ( tns ),
+    m_dbUpdateSchedule  ( dbUpdateSchedule )
 {
     BOOST_FOREACH( const SampleRun& sr, *m_buddyDatabase )
     {
@@ -29,6 +31,11 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
 
     QueuedSamplesBuilderFunction buildQueue( new QueueBuilderParams( bdb, wd, clusterIDs ) );
     buildQueue( &m_queuedSamples ); 
+}
+
+const DBUpdateStats* AnalysisActivitySnapshotImpl::getDBUpdateStats() const
+{
+    return m_dbUpdateSchedule.get();
 }
 
 std::string AnalysisActivitySnapshotImpl::getTestName( int testID ) const

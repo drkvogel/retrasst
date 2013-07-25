@@ -14,8 +14,10 @@
 class LCDbCryoJob : public LCDbID, public LDbNames
 {
 	short jobType, status;
+	int exercise, primary, secondary;
 	TDateTime time_stamp, claimed_until;
-	int projectID, processID, aliquotType;
+	int projectID, processID;
+	TDateTime start_date, finish_date;
 	std::string reason;
 
 	bool reload( LQuery & central );
@@ -48,14 +50,21 @@ public:
 
 	bool isActive() const { return status != DELETED; }
 	bool isAvailable() const;
+	int getExerciseID() const { return exercise; }
 
-	int getPrimaryAliquot() const { return aliquotType; }
-	void setPrimaryAliquot( int typeID ) { aliquotType = typeID; }
+	int getPrimaryAliquot() const { return primary; }
+	void setPrimaryAliquot( int typeID ) { primary = typeID; }
+	int getSecondaryAliquot() const { return secondary; }
 
 	int getProjectID() const { return projectID; }
 	JobKind getJobType() const { return JobKind( jobType ); }
 	Status getStatus() const { return Status( status ); }
+
 	TDateTime getTimeStamp() const { return time_stamp; }
+	TDateTime getStartDate() const { return start_date; }
+	TDateTime getClaimedUntil() const { return claimed_until; }
+	TDateTime getFinishDate() const { return finish_date; }
+
 	int getProcessCID() const { return processID; }
 	int getUserID() const;
 

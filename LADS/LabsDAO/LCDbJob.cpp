@@ -21,16 +21,20 @@
 
 LCDbCryoJob::LCDbCryoJob( const LQuery & query )
  : LCDbID( query.readInt( "retrieval_cid" ) ),
-   processID( query.readInt( "process_cid" ) ),
-   projectID( query.readInt( "project_cid" ) ),
+   exercise( query.fieldExists( "exercise_cid" ) ? query.readInt( "exercise_cid" ) : 0 ),
+   LDbNames( query.fieldExists( "external_name" ) ? query.readString( "external_name" ) : query.readString( "description" ),
+			 query.readString( "description" ) ),
    reason( query.fieldExists( "reason" ) ? query.readString( "reason" ) : query.readString( "description" ) ),
-   LDbNames( query.fieldExists( "external_name" ) ? query.readString( "external_name" ) : reason,
-   			 query.readString( "description" ) ),
    jobType( query.readInt( "job_type" ) ),
+   projectID( query.readInt( "project_cid" ) ),
+   primary( query.fieldExists( "primary_aliquot" ) ? query.readInt( "primary_aliquot" ) : 0 ),
+   secondary( query.fieldExists( "secondary_aliquot" ) ? query.readInt( "secondary_aliquot" ) : 0 ),
+   processID( query.readInt( "process_cid" ) ),
    status( query.readInt( "status" ) ),
+   time_stamp( query.fieldExists( "time_stamp" ) ? query.readDateTime( "time_stamp" ) : Now() ),
+   start_date( query.fieldExists( "start_date" ) ? query.readDateTime( "start_date" ) : 0 ),
    claimed_until( query.readDateTime( "claimed_until" ) ),
-   aliquotType( query.fieldExists( "primary_aliquot" ) ? query.readInt( "primary_aliquot" ) : 0 ),
-   time_stamp( query.fieldExists( "time_stamp" ) ? query.readDateTime( "time_stamp" ) : Now() )
+   finish_date( query.fieldExists( "finish_date" ) ? query.readDateTime( "finish_date" ) : 0 )
 {}
 
 //---------------------------------------------------------------------------
@@ -53,7 +57,7 @@ void LCDbCryoJob::createName( LQuery central, const std::string & nameBase )
 bool LCDbCryoJob::saveRecord( LQuery central )
 {
 	bool addAliquot = false;
-	if( aliquotType != 0 && aliquotType != -1 && projectID != 0 && projectID != -1 ) {
+	if( primary != 0 && primary != -1 && projectID != 0 && projectID != -1 ) {
 		const LCDbProject * pr = LCDbProjects::records().findByID( projectID );
 		const std::pair< short, short > upgrade( 2, 7 );
 		if( pr != NULL && pr -> getVersion() >= upgrade ) {
@@ -86,7 +90,7 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 		central.setParam( "prid", projectID );
 		central.setParam( "jt", jobType );
 		if( addAliquot ) {
-			central.setParam( "at", aliquotType );
+			central.setParam( "at", primary );
 		}
 	}
 	central.setParam( "myid", getID() );

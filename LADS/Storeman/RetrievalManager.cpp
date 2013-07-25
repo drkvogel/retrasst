@@ -37,6 +37,14 @@ void __fastcall TfrmRetrievalManager::btnCancelClick(TObject *Sender) {
 
 void TfrmRetrievalManager::autoChunk() {
 /*
+
+box_content.box_type_cid
+
+18  EDTA_1(UK)  HPS2-THRIVE EDTA 1 UK samples
+
+c_box_size.box_type_cid
+
+
 Display the size of the job and ask user if they want to divide up the list.  If they do:
 
 1.	Ask them the maximum section size (default = 500 cryovials)

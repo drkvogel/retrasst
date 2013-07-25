@@ -7,6 +7,7 @@
 #include <Vcl.Grids.hpp>
 #include <Vcl.CategoryButtons.hpp>
 #include <Vcl.CheckLst.hpp>
+#include <Vcl.ExtCtrls.hpp>
 #include <sstream>
 #include "LCDbJob.h"
 
@@ -39,14 +40,16 @@ class TfrmRetrievalAssistant : public TForm
 __published:	// IDE-managed Components
     TGroupBox *GroupBox1;
     TStringGrid *sgJobs;
+    TPanel *Panel1;
     TGroupBox *groupStatusCheck;
-    TGroupBox *groupRetrievalTypeCheck;
-    TCheckBox *cbBox;
-    TCheckBox *cbSample;
     TCheckBox *cbNewJob;
     TCheckBox *cbInProgress;
     TCheckBox *cbDone;
     TCheckBox *cbDeleted;
+    TGroupBox *groupRetrievalTypeCheck;
+    TCheckBox *cbBox;
+    TCheckBox *cbSample;
+    TButton *btnExit;
     void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall cbNewJobClick(TObject *Sender);
     void __fastcall cbInProgressClick(TObject *Sender);

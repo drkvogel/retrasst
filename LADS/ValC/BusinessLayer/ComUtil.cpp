@@ -1,6 +1,7 @@
 #include "ComUtil.h"
-#include "Require.h"
 #include <sstream>
+#include <System.hpp>
+#include <SysUtils.hpp>
 #include <Winerror.h>
 
 namespace valc
@@ -13,7 +14,7 @@ void throwUnlessOK( long hresult )
         std::ostringstream errorMsg;
         errorMsg << "Bad return value from COM: " << hresult;
         std::string errorMessage = errorMsg.str();
-        throwRuntimeError(errorMessage);
+        throw Exception( UnicodeString( errorMessage.c_str() ) );
     }
 }
 

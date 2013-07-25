@@ -13,6 +13,7 @@ namespace valc
 
 class BuddyDatabase;
 class DBConnection;
+class DBUpdateSchedule;
 class Projects;
 class ResultIndex;
 /*  Queries for local buddy_database entries, joined with sample_run and with buddy_result_float. These joins are OUTER joins. Thus 
@@ -28,7 +29,7 @@ class LoadBuddyDatabase
 {
 public:
     LoadBuddyDatabase( int localMachineID, DBConnection* con, paulst::LoggingService* log, 
-		ResultIndex* resultIndex, Projects* projects, BuddyDatabase** out );
+		ResultIndex* resultIndex, Projects* projects, BuddyDatabase** out, DBUpdateSchedule* dbUpdateSchedule );
 	void execute();
 private:
     BuddyDatabase** m_buddyDatabase;
@@ -37,6 +38,7 @@ private:
     DBConnection*   m_con;
     ResultIndex*    m_resultIndex;
     paulst::LoggingService* m_log;
+    DBUpdateSchedule* m_dbUpdateSchedule;
 };
 
 };

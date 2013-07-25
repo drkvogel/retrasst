@@ -31,7 +31,6 @@ __published:	// IDE-managed Components
 	TButton *BtnCreate;
 	TButton *BtnPrevious;
 	TButton *BtnRetrieve;
-	TButton *BtnRationalyse;
 	TPanel *Panel4;
 	TLabel *lbBoxesReady;
 	TLabel *lbForRemoval;
@@ -39,6 +38,7 @@ __published:	// IDE-managed Components
 	TLabel *lbRetrievalLists;
 	TTimer *timer;
 	TLabel *Label4;
+	TButton *BtnRationalyse;
 
 	void __fastcall TreeBrowse(TObject *Sender);
 	void __fastcall OnCreateList(TObject *Sender);

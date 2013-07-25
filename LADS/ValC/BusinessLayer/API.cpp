@@ -6,6 +6,7 @@
 #include "ClusterIDs.h"
 #include "ConsoleWriter.h"
 #include "DBConnectionADO.h"
+#include "DBUpdateSchedule.h"
 #include "AllocateLocalResultsToWorklistEntries.h"
 #include <iterator>
 #include "LoadBuddyDatabase.h"
@@ -34,6 +35,13 @@
 namespace valc
 {
 
+DBUpdateStats::DBUpdateStats()
+{
+}
+
+DBUpdateStats::~DBUpdateStats()
+{
+}
 
 Properties::Properties()
 {
@@ -68,12 +76,13 @@ void wait( HANDLE* array, int howMany, ThreadExceptionMsgs* exceptionMsgs )
 
 AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, DBConnection* con )
 {
-	ResultIndex*     resultIndex     = new ResultIndex();
-	WorklistEntries* worklistEntries = new WorklistEntries();
-	ClusterIDs*      clusterIDs      = new ClusterIDs();
-	Projects*        projects        = new Projects();
-	TestNames*       testNames       = new TestNames();
-	BuddyDatabase*   buddyDatabase   = NULL;
+	ResultIndex*        resultIndex        = new ResultIndex();
+	WorklistEntries*    worklistEntries    = new WorklistEntries();
+	ClusterIDs*         clusterIDs         = new ClusterIDs();
+	Projects*           projects           = new Projects();
+	TestNames*          testNames          = new TestNames();
+	BuddyDatabase*      buddyDatabase      = NULL;
+    DBUpdateSchedule*   dbUpdateSchedule   = new DBUpdateSchedule();
 	ThreadExceptionMsgs threadExceptionMsgs;
 	HANDLE hArray[3];
 	std::auto_ptr<paulst::LoggingService> log( new paulst::LoggingService( new paulst::ConsoleWriter() ) );
@@ -90,7 +99,7 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
 
 	// Task for loading LOCAL analysis activity and LOCAL results
 	ThreadTask<LoadBuddyDatabase> loadBuddyDatabaseTask(
-		new LoadBuddyDatabase( localMachineID, con, log.get(), resultIndex, projects, &buddyDatabase ),
+		new LoadBuddyDatabase( localMachineID, con, log.get(), resultIndex, projects, &buddyDatabase, dbUpdateSchedule ),
 		&threadExceptionMsgs );
 
     // Task for loading LOCAL and CLUSTER worklist entries
@@ -112,7 +121,7 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
 
     // Task for allocating LOCAL results to worklist entries
 	ThreadTask<AllocateLocalResultsToWorklistEntries> allocateLocalResultsToWorklistEntries(
-		new AllocateLocalResultsToWorklistEntries( localMachineID, clusterIDs, log.get(), worklistEntries, resultIndex ),
+		new AllocateLocalResultsToWorklistEntries( localMachineID, clusterIDs, log.get(), worklistEntries, resultIndex, dbUpdateSchedule ),
 		&threadExceptionMsgs );
 
 	hArray[0] = loadReferencedWorklistEntries        .start();
@@ -120,7 +129,8 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
 
 	wait( hArray, 2, &threadExceptionMsgs );
 
-    return new AnalysisActivitySnapshotImpl( clusterIDs, projects, buddyDatabase, log.release(), resultIndex, worklistEntries, testNames );
+    return new AnalysisActivitySnapshotImpl( clusterIDs, projects, buddyDatabase, log.release(), resultIndex, worklistEntries, testNames,
+        dbUpdateSchedule );
 }
 
 Cursor::Cursor()

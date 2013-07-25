@@ -5,6 +5,7 @@
 #include <boost/lexical_cast.hpp>
 #include "BuddyDatabase.h"
 #include "BuddyDatabaseBuilder.h"
+#include "DBUpdateSchedule.h"
 #include <iterator>
 #include "LoadBuddyDatabase.h"
 #include "LoggingService.h"
@@ -17,14 +18,15 @@ namespace valc
 
 LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, DBConnection* con, 
 	paulst::LoggingService* log, ResultIndex* resultIndex, Projects* projects,
-	BuddyDatabase** bd )
+	BuddyDatabase** bd, DBUpdateSchedule* dbUpdateSchedule )
     :
     m_localMachineID( localMachineID ),
     m_projects( projects ),
     m_con( con ),
     m_resultIndex( resultIndex ),
 	m_log( log ),
-	m_buddyDatabase(bd)
+	m_buddyDatabase(bd),
+    m_dbUpdateSchedule( dbUpdateSchedule )
 {
 }
 
@@ -94,7 +96,8 @@ void LoadBuddyDatabase::execute()
     std::auto_ptr<SampleRuns> sampleRuns(new SampleRuns()), candidateSampleRuns(new SampleRuns());
     std::auto_ptr<SampleRunIDResolutionService> sampleRunIDResolutionService(new SampleRunIDResolutionService());
 
-    BuddyDatabaseBuilder builder(m_projects, m_resultIndex, sampleRuns.get(), candidateSampleRuns.get(), sampleRunIDResolutionService.get() );
+    BuddyDatabaseBuilder builder(m_projects, m_resultIndex, sampleRuns.get(), candidateSampleRuns.get(), sampleRunIDResolutionService.get(),
+        m_dbUpdateSchedule );
 
     for ( std::auto_ptr<Cursor> cursor( m_con->executeQuery( sql ) ); 
             ( ! cursor->endOfRecordSet() ) && builder.accept( cursor.get() ); cursor->next() );

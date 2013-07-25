@@ -193,6 +193,7 @@ void Site::populate( ) {
 		}
 		partlist.push_back( p );
 	}
+	capacity = 0;
 	sortChildren( );
 }
 
@@ -1384,6 +1385,9 @@ Sample::Sample( const ROSETTA &data ) {
 	if( data.isString( "cryovial_barcode" ) ) {
 		name = data.getString( "cryovial_barcode" );
 	}
+	if( data.isString( "source_name" ) ) {
+		source_name = data.getString( "source_name" );
+	}
 	if( data.isString( "source_barcode" ) ) {
 		source_barcode = data.getString( "source_barcode" );
 	}
@@ -1479,6 +1483,9 @@ std::auto_ptr< ROSETTA >Sample::getProperties( ) {
 	// r->setInt( "box_cid", box_cid );
 	// r->setString( "time_stamp", stamp.DateTimeString() );
 
+	if( !source_name.empty( ) && source_name != name ) {
+		r->setString( "source_name", source_name );
+	}
 	if( !source_barcode.empty( ) && source_barcode != name ) {
 		r->setString( "source_barcode", source_barcode );
 	}

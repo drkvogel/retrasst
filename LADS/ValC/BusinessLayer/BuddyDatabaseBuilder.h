@@ -11,6 +11,7 @@ namespace valc
 class AnalysisActivity;
 class BuddyDatabase;
 class Cursor;
+class DBUpdateSchedule;
 class Projects;
 class ResultIndex;
 class SampleRunIDResolutionService;
@@ -39,7 +40,8 @@ public:
         ResultIndex* r,                         // output parameter
         SampleRuns* sampleRuns,                 // output parameter 
         SampleRuns* candidateSampleRuns,        // output parameter
-        const SampleRunIDResolutionService* s   // input parameter. Used but not changed. 
+        const SampleRunIDResolutionService* s,  // input parameter. Used but not changed. 
+        DBUpdateSchedule* dbUpdateSchedule
         );
     bool accept( Cursor* c );
 private:
@@ -55,6 +57,7 @@ private:
     SampleRuns*         m_sampleRuns;
     SampleRuns*         m_candidateSampleRuns;
     const SampleRunIDResolutionService* m_sampleRunIDResolutionService;
+    DBUpdateSchedule*   m_dbUpdateSchedule;
 
     BuddyDatabaseBuilder( const BuddyDatabaseBuilder& );
     BuddyDatabaseBuilder& operator=( const BuddyDatabaseBuilder& );

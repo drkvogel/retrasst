@@ -13,6 +13,7 @@ namespace paulst
 namespace valc
 {
 
+class DBUpdateSchedule;
 class ResultIndex;
 class TestResult;
 class WorklistEntries;
@@ -31,7 +32,7 @@ class WorklistEntries;
 class AllocateLocalResultsToWorklistEntries : public WorklistDirectory::Func
 {
 public:
-    AllocateLocalResultsToWorklistEntries( int localMachineID, const ClusterIDs* clusterIDs, paulst::LoggingService* log, WorklistEntries* worklistEntries, ResultIndex* resultIndex );
+    AllocateLocalResultsToWorklistEntries( int localMachineID, const ClusterIDs* clusterIDs, paulst::LoggingService* log, WorklistEntries* worklistEntries, ResultIndex* resultIndex, DBUpdateSchedule* dbUpdateSchedule );
     void execute();
     void execute( const WorklistEntry* wle );
     int releaseReturnValue();
@@ -43,6 +44,7 @@ private:
     const TestResult* m_result;
     const ClusterIDs* m_clusterIDs;
     const int m_localMachineID;
+    DBUpdateSchedule* m_dbUpdateSchedule;
 
     bool isWorklistEntryStatusEligibleForAllocatingToResult( char status )
     {

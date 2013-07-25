@@ -14,6 +14,7 @@
 #include "StringBuilder.h"
 #include "Trace.h"
 #include "WorklistEntries.h"
+#include <windows.h>
 
 namespace valc
 {

@@ -1,7 +1,7 @@
 ﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 		<PropertyGroup>
 			<ProjectGuid>{EDFCB6C4-56EC-499A-B289-CAA12C62D92B}</ProjectGuid>
-			<ProjectVersion>13.4</ProjectVersion>
+			<ProjectVersion>14.6</ProjectVersion>
 			<FrameworkType>VCL</FrameworkType>
 			<MainSource>StoreMan.cpp</MainSource>
 			<Base>True</Base>
@@ -544,41 +544,41 @@
 				<BuildOrder>88</BuildOrder>
 				<IgnorePath>true</IgnorePath>
 			</LibFiles>
-			<FormResources Include="DiscardPrologue.dfm"/>
+			<FormResources Include="DiscardSamples.dfm"/>
+			<FormResources Include="DiscardSearch.dfm"/>
 			<FormResources Include="DiscardReason.dfm"/>
 			<FormResources Include="DiscardNote.dfm"/>
-			<FormResources Include="DiscardMethod.dfm"/>
-			<FormResources Include="DiscardSamples.dfm"/>
+			<FormResources Include="DiscardPrologue.dfm"/>
 			<FormResources Include="FindSample.dfm"/>
-			<FormResources Include="DiscardSearch.dfm"/>
-			<FormResources Include="AddSpecimens.dfm"/>
+			<FormResources Include="DiscardMethod.dfm"/>
 			<FormResources Include="AnalyseSamples.dfm"/>
-			<FormResources Include="Configure.dfm"/>
+			<FormResources Include="AddSpecimens.dfm"/>
 			<FormResources Include="BoxTransfer.dfm"/>
 			<FormResources Include="BrowseSample.dfm"/>
-			<FormResources Include="SelectSamples.dfm"/>
+			<FormResources Include="Configure.dfm"/>
 			<FormResources Include="ShowSamples.dfm"/>
-			<FormResources Include="SampleMove.dfm"/>
-			<FormResources Include="SampleEntry.dfm"/>
 			<FormResources Include="SMLogin.dfm"/>
+			<FormResources Include="SelectSamples.dfm"/>
+			<FormResources Include="SampleMove.dfm"/>
+			<FormResources Include="Temp.dfm"/>
 			<FormResources Include="Storemain.dfm"/>
-			<FormResources Include="NewSection.dfm"/>
+			<FormResources Include="SampleEntry.dfm"/>
 			<FormResources Include="NewSite.dfm"/>
-			<FormResources Include="NewJob.dfm"/>
-			<FormResources Include="MoveJobs.dfm"/>
 			<FormResources Include="NewTank.dfm"/>
-			<FormResources Include="RetrievalAssistant.dfm"/>
-			<FormResources Include="RetrieveSamples.dfm"/>
-			<FormResources Include="ReferredBoxesSummary.dfm"/>
+			<FormResources Include="NewSection.dfm"/>
+			<FormResources Include="MoveJobs.dfm"/>
+			<FormResources Include="NewJob.dfm"/>
 			<FormResources Include="NewType.dfm"/>
+			<FormResources Include="RetrievalManager.dfm"/>
+			<FormResources Include="RetrieveSamples.dfm"/>
+			<FormResources Include="RetrievalAssistant.dfm"/>
 			<FormResources Include="ReferredBoxes.dfm"/>
-			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
+			<FormResources Include="ReferredBoxesSummary.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
+			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
-			<FormResources Include="Temp.dfm"/>
-			<FormResources Include="RetrievalManager.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

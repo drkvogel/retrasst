@@ -51,9 +51,9 @@ object frmStoremain: TfrmStoremain
       ExplicitTop = 20
     end
     object BtnConfigure: TButton
-      Left = 33
+      Left = 30
       Top = 162
-      Width = 110
+      Width = 116
       Height = 35
       Anchors = []
       Caption = 'Configure Storage'
@@ -62,9 +62,9 @@ object frmStoremain: TfrmStoremain
       OnClick = ConfigureClick
     end
     object BtnBrowse: TButton
-      Left = 33
+      Left = 30
       Top = 68
-      Width = 110
+      Width = 116
       Height = 35
       Anchors = []
       Caption = 'Browse Samples'
@@ -73,15 +73,25 @@ object frmStoremain: TfrmStoremain
       OnClick = TreeBrowse
     end
     object btnMove: TButton
-      Left = 33
+      Left = 30
       Top = 115
-      Width = 110
+      Width = 116
       Height = 35
       Anchors = []
       Caption = 'Move Boxes'
       TabOrder = 1
       WordWrap = True
       OnClick = btnMoveClick
+    end
+    object BtnRationalyse: TButton
+      Left = 30
+      Top = 210
+      Width = 116
+      Height = 35
+      Anchors = []
+      Caption = 'Rationalise Storage'
+      TabOrder = 3
+      WordWrap = True
     end
   end
   object Panel2: TPanel
@@ -114,9 +124,9 @@ object frmStoremain: TfrmStoremain
       ExplicitTop = 20
     end
     object BtnXfer: TButton
-      Left = 32
+      Left = 30
       Top = 68
-      Width = 110
+      Width = 116
       Height = 35
       Anchors = []
       Caption = 'Boxes for Transfer'
@@ -125,9 +135,9 @@ object frmStoremain: TfrmStoremain
       OnClick = BtnXferClick
     end
     object BtnDiscard: TButton
-      Left = 32
+      Left = 30
       Top = 115
-      Width = 110
+      Width = 116
       Height = 35
       Anchors = []
       Caption = 'Discard Samples'
@@ -136,9 +146,9 @@ object frmStoremain: TfrmStoremain
       OnClick = BtnDiscardClick
     end
     object BtnAnalyse: TButton
-      Left = 32
+      Left = 30
       Top = 162
-      Width = 110
+      Width = 116
       Height = 35
       Anchors = []
       Caption = 'Analyse Samples'
@@ -147,9 +157,9 @@ object frmStoremain: TfrmStoremain
       OnClick = BtnAnalyseClick
     end
     object BtnReferred: TButton
-      Left = 32
+      Left = 30
       Top = 210
-      Width = 110
+      Width = 116
       Height = 35
       Anchors = []
       Caption = 'Referred Boxes'
@@ -188,9 +198,9 @@ object frmStoremain: TfrmStoremain
       ExplicitTop = 20
     end
     object BtnCreate: TButton
-      Left = 33
+      Left = 30
       Top = 115
-      Width = 110
+      Width = 116
       Height = 35
       Anchors = []
       Caption = 'Create List'
@@ -199,9 +209,9 @@ object frmStoremain: TfrmStoremain
       OnClick = OnCreateList
     end
     object BtnPrevious: TButton
-      Left = 33
+      Left = 30
       Top = 68
-      Width = 110
+      Width = 116
       Height = 35
       Anchors = []
       Caption = 'View Lists'
@@ -209,25 +219,15 @@ object frmStoremain: TfrmStoremain
       WordWrap = True
     end
     object BtnRetrieve: TButton
-      Left = 33
+      Left = 30
       Top = 162
-      Width = 110
+      Width = 116
       Height = 35
       Anchors = []
       Caption = 'Retrieval Assistant'
       TabOrder = 2
       WordWrap = True
       OnClick = BtnRetrieveClick
-    end
-    object BtnRationalyse: TButton
-      Left = 33
-      Top = 210
-      Width = 110
-      Height = 35
-      Anchors = []
-      Caption = 'Rationalise Tanks'
-      TabOrder = 3
-      WordWrap = True
     end
   end
   object Panel4: TPanel
@@ -315,7 +315,7 @@ object frmStoremain: TfrmStoremain
   object timer: TTimer
     Enabled = False
     OnTimer = timerTimer
-    Left = 40
-    Top = 216
+    Left = 456
+    Top = 280
   end
 end

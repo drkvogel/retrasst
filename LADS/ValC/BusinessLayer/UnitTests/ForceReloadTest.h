@@ -10,7 +10,9 @@
 #include <cwchar>
 #include "MockConnectionFactory.h"
 #include <set>
+#include "StrUtil.h"
 #include <tut.h>
+#include <vector>
 
 /*
 These tests use MockConnectionFactory.
@@ -140,8 +142,13 @@ namespace tut
 		boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
 
 		boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
-
 		ensure( s.get() );
+
+        const DBUpdateStats* stats = s->getDBUpdateStats();
+
+        ensure( 1 == stats->totalNewSampleRuns() );
+        ensure( 1 == stats->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 1 );
 		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
 
@@ -184,6 +191,13 @@ namespace tut
 		boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
 
 		ensure( s.get() );
+
+        const DBUpdateStats* stats = s->getDBUpdateStats();
+
+        ensure( 1 == stats->totalNewSampleRuns() );
+        ensure( 1 == stats->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+
+
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
 		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
 
@@ -283,6 +297,12 @@ namespace tut
 			boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
 
 			ensure( s.get() );
+
+            const DBUpdateStats* stats = s->getDBUpdateStats();
+
+            ensure( 0 == stats->totalNewSampleRuns() );
+            ensure( 1 == stats->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+
 			ensure( std::distance( s->queueBegin(), s->queueEnd() ) == 0 );
 			unsigned int numSampleRuns = std::distance( s->localBegin(), s->localEnd() );
 			ensure( numSampleRuns == 1U );
@@ -347,6 +367,12 @@ namespace tut
 			boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
 
 			ensure( s.get() );
+
+            const DBUpdateStats* stats = s->getDBUpdateStats();
+
+            ensure( 1 == stats->totalNewSampleRuns() );
+            ensure( 1 == stats->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+
 			ensure( std::distance( s->queueBegin(), s->queueEnd() ) == 0U );
 			unsigned int numSampleRuns = std::distance( s->localBegin(), s->localEnd() );
 			ensure( numSampleRuns == 2U );
@@ -364,6 +390,60 @@ namespace tut
                 ensure( 1 == std::count_if( wles.first, wles.second, boost::bind( hasResultWithRunID, sampleRun.getRunID(), _1 ) ) );
             }
 		}
+		catch( const Exception& e )
+		{
+			std::wprintf( L"Exception: %s\n", e.Message.c_str() );
+			ensure( false );
+		}
+	}
+
+    template<>
+    template<>
+	void testForceReload::test<8>()
+    {
+        set_test_name("ForceReload - 1 sample, 2 tests (with results), both already associated with a CLOSED sample run");
+
+        using namespace valc;
+
+        MockConnectionFactory connectionFactory;
+
+        connectionFactory.setClusters( "-1019430,\n" );
+        connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
+        connectionFactory.setWorklist(
+//rec  machine  barcode   test     group      c sample project p prof                  timestamp           seq s dil  result
+"-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
+"-36846,-1019430,118507091,-1031391,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
+            );
+
+        std::string tests[2] = {
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,res ,a,date analysed      ,restx,update when      ,cbw
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.8 ,0,27-06-2013 11:57:47,1.8,27-06-2013 10:57:49,-36845,",
+"882291,118507091,27-06-2013 11:55:36,REVEAL,432560,-1019349,882432,-1031391,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36846,"
+            };
+
+        //                                runID, isOpen, when created       , when closed      ,sequence position
+        std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,",
+                                         "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290," };
+
+        connectionFactory.setBuddyDB(
+            tests[0] + sampleRunData[0] + "\n" +
+            tests[1] + sampleRunData[1] + "\n"
+            );
+
+        boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+
+		try
+		{
+			boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
+
+			ensure( s.get() );
+
+            const DBUpdateStats* stats = s->getDBUpdateStats();
+
+            ensure( 0 == stats->totalNewSampleRuns() );
+            ensure( 0 == stats->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+
+	    }
 		catch( const Exception& e )
 		{
 			std::wprintf( L"Exception: %s\n", e.Message.c_str() );

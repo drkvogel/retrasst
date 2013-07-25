@@ -2,6 +2,7 @@
 #include "API.h"
 #include <boost/lexical_cast.hpp>
 #include "BuddyDatabase.h"
+#include "DBUpdateSchedule.h"
 #include "Projects.h"
 #include "Require.h"
 #include "ResultIndex.h"
@@ -17,13 +18,14 @@ namespace valc
 {
 
 BuddyDatabaseBuilder::BuddyDatabaseBuilder( const Projects* p, ResultIndex* r, SampleRuns* sampleRuns, SampleRuns* candidateSampleRuns,
-    const SampleRunIDResolutionService* s )
+    const SampleRunIDResolutionService* s, DBUpdateSchedule* dbUpdateSchedule )
     :
     m_projects( p ),
     m_resultIndex( r ),
     m_sampleRuns( sampleRuns ),
     m_candidateSampleRuns( candidateSampleRuns ),
-    m_sampleRunIDResolutionService( s )
+    m_sampleRunIDResolutionService( s ),
+    m_dbUpdateSchedule( dbUpdateSchedule )
 {
 }
 
@@ -88,20 +90,23 @@ bool BuddyDatabaseBuilder::accept( Cursor* c )
 
     require( sampleDescriptor.size() );
 
-    if ( hasSampleRun )
+    SampleRunID sampleRunID      = hasSampleRun ? SampleRunID(srID) : SampleRunID( sampleDescriptor, m_sampleRunIDResolutionService );
+    SampleRuns* targetCollection = hasSampleRun ? m_sampleRuns : m_candidateSampleRuns;
+    SampleRun sampleRun          = hasSampleRun ? 
+                                        SampleRun( srID, sampleDescriptor, srIsOpen != 0, srCreatedWhen, srClosedWhen, srSequencePosition ) :
+                                        SampleRun( sampleDescriptor, buddySampleID );
+
+    targetCollection->push_back( sampleRun );
+
+    if ( ! hasSampleRun )
     {
-        m_sampleRuns->push_back( SampleRun( srID, sampleDescriptor, srIsOpen != 0, srCreatedWhen, srClosedWhen, srSequencePosition ) );
-    }
-    else
-    {
-        m_candidateSampleRuns->push_back( SampleRun( sampleDescriptor, buddySampleID ) );
+        m_dbUpdateSchedule->scheduleUpdate( buddySampleID, sampleRunID );
     }
 
     if ( hasResult )
     {
-        result = new TestResultImpl( resActionFlag, sampleDescriptor, resDateAnalysed, machineID, resID, 
-            hasSampleRun ? SampleRunID(srID) : SampleRunID( sampleDescriptor, m_sampleRunIDResolutionService ), 
-            resTestID, resValue );
+        result = new TestResultImpl( resActionFlag, sampleDescriptor, resDateAnalysed, machineID, resID, sampleRunID, resTestID, resValue );
+
         m_resultIndex->addIndexEntryForLocalResult( result );
 
         if ( resWorklistID )

@@ -14,6 +14,11 @@
 #include <Vcl.Grids.hpp>
 #include "LCDbJob.h"
 
+class Chunk {
+
+};
+
+
 class TfrmRetrievalManager : public TForm
 {
 __published:	// IDE-managed Components

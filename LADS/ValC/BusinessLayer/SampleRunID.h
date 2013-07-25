@@ -27,6 +27,7 @@ public:
     SampleRunID( int dbID ); // lazy binding not required
     SampleRunID( const std::string& candidateID, const SampleRunIDResolutionService* s ); // will bind lazily
     SampleRunID& operator=( const SampleRunID& );
+    bool existsOnDatabase() const;
     std::string toString() const;
 private:
     std::string m_dbID;

@@ -295,7 +295,8 @@ void LIMSParams::removeValue( const std::string & name )
 std::string LIMSParams::getProgVersion() const
 {
 	String progName = Application -> ExeName;
-	std::stringstream out;
+	char version[ 40 ];
+	version[ 0 ] = '\0';
 	DWORD zero, size = GetFileVersionInfoSize( progName.c_str(), &zero );
 	if( size > 0 )
 	{
@@ -312,12 +313,12 @@ std::string LIMSParams::getProgVersion() const
 				DWORD lsdw = ((VS_FIXEDFILEINFO *) fileInfo) -> dwFileVersionLS;
 				int release = lsdw >> 16;
 				int build = lsdw & 0xFFFF;
-				out << major << '.' << minor << '.' << release << '.' << build;
+				std::sprintf( version, "%d.%d.%d.%d", major, minor, release, build );
 			}
 		}
 		delete[] buffer;
 	}
-	return out.str();
+	return version;
 }
 
 //==============================================================================

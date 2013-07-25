@@ -24,6 +24,7 @@ An example:
 class MockConnectionFactory
 {
 public:
+    MockConnectionFactory();
     DBConnection* createConnection();
     void setClusters( const std::string& serializedClusters );
     void setBuddyDB ( const std::string& serializedBuddyDB );
@@ -42,6 +43,9 @@ private:
                 m_worklist,
                 m_buddyDB,
                 m_testNames;
+
+    MockConnectionFactory( const MockConnectionFactory& );
+    MockConnectionFactory& operator=( const MockConnectionFactory& );
 };
 
 };

@@ -42,6 +42,11 @@ SampleRunID& SampleRunID::operator=( const SampleRunID& o )
     return *this;
 }
 
+bool SampleRunID::existsOnDatabase() const
+{
+    return m_dbID.size() || m_sampleRunIDResolutionService->canResolve( m_candidateID );
+}
+
 std::string SampleRunID::toString() const
 {
     return m_dbID.size() ? m_dbID : m_sampleRunIDResolutionService->resolve( m_candidateID );

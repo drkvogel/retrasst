@@ -4,6 +4,10 @@
 namespace valc
 {
 
+MockConnectionFactory::MockConnectionFactory()
+{
+}
+
 DBConnection* MockConnectionFactory::createConnection()
 {
     MockConnection* mc = new MockConnection();

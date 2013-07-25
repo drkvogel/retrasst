@@ -11,6 +11,7 @@ namespace valc
 {
 
 class BuddyDatabase;
+class DBUpdateSchedule;
 class Projects;
 class ResultDirectory;
 class WorklistDirectory;
@@ -25,11 +26,12 @@ class AnalysisActivitySnapshotImpl : public AnalysisActivitySnapshot
 public:
     AnalysisActivitySnapshotImpl( const ClusterIDs* clusterIDs, const Projects* p, const BuddyDatabase* bdb, 
         paulst::LoggingService* log, const ResultDirectory* rd, 
-        const WorklistDirectory* wd, const TestNames* tns );
+        const WorklistDirectory* wd, const TestNames* tns, DBUpdateSchedule* dbUpdateSchedule );
     LocalEntryIterator              localBegin() const;
     LocalEntryIterator              localEnd()   const;
     QueuedSampleIterator            queueBegin() const;
     QueuedSampleIterator            queueEnd()   const;
+    const DBUpdateStats*            getDBUpdateStats() const;
     std::string                     getTestName( int testID ) const;
     Range<WorklistEntryIterator>    getWorklistEntries( const std::string& sampleDescriptor ) const;
 private:
@@ -39,12 +41,14 @@ private:
     typedef boost::scoped_ptr<const WorklistDirectory>  WorklistDirectoryPtr;
     typedef boost::scoped_ptr<const ClusterIDs>         ClusterIDsPtr;
     typedef boost::scoped_ptr<const TestNames>          TestNamesPtr;
+    typedef boost::scoped_ptr<const DBUpdateSchedule>   DBUpdateSchedulePtr;
     BuddyDatabasePtr        m_buddyDatabase;
     ClusterIDsPtr           m_clusterIDs;
     ProjectsPtr             m_projects;
     ResultDirectoryPtr      m_resultDirectory;
     WorklistDirectoryPtr    m_worklistDirectory;
     TestNamesPtr            m_testNames;
+    DBUpdateSchedulePtr     m_dbUpdateSchedule;
     LocalEntries            m_localEntries;
     QueuedSamples           m_queuedSamples;
     boost::scoped_ptr< paulst::LoggingService > m_log;
