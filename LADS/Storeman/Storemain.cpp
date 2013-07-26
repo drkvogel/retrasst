@@ -89,8 +89,8 @@ void __fastcall TfrmStoremain::timerTimer(TObject *Sender)
 {
 	timer -> Enabled = false;
 	if( Active && Visible ) {
-		updateCounts();
-		showCounts();
+		//updateCounts();
+		//showCounts();
 	} else if( updateStatus > PAUSED ) {
 		updateStatus = PAUSED;
 	}

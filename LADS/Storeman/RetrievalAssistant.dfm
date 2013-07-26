@@ -32,7 +32,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
-      ColCount = 8
+      ColCount = 7
       DefaultDrawing = False
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goColSizing, goRowSelect]
@@ -43,7 +43,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       ExplicitHeight = 274
       ColWidths = (
         196
-        64
         64
         64
         64

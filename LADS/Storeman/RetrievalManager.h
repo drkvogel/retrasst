@@ -53,17 +53,22 @@ public:
 */
 
 class Chunk {
+public:
+    Chunk() : section(0), retrieval_cid(0), name(""), start(0), end(0) { }
+    int         section;
     int         retrieval_cid;
-    int         exercise_cid;
-    string      name;
-    string      descrip;
-    int         job_type;
-    int         project_cid;
-    int         primary_aliquot;
-
+    //int         exercise_cid;
+    std::string name;
+    int         start;
+    int         end;
+    //string      descrip;
+    //int         job_type;
+    //int         project_cid;
+    //int         primary_aliquot;
 };
 
-typedef std::vector< Chunk * > tdvecpChunk;
+typedef std::vector< Chunk * >  tdvecpChunk;
+typedef std::vector< Chunk >    tdvecChunk;
 
 class TfrmRetrievalManager : public TForm
 {
@@ -76,17 +81,30 @@ __published:	// IDE-managed Components
     TPanel *Panel2;
     TButton *btnAddChunk;
     TButton *btnDelChunk;
-    TStringGrid *sgChunkList;
+    TStringGrid *sgChunks;
     TGroupBox *GroupBox1;
     TStringGrid *sgChunk;
     TButton *btnSaveChunk;
     TLabel *Label1;
+    TButton *btnIncr;
+    TButton *btnDecr;
+    TMemo *memoDebug;
+    TCheckBox *cbLog;
     void __fastcall FormShow(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
+    void __fastcall btnAddChunkClick(TObject *Sender);
+    void __fastcall btnDelChunkClick(TObject *Sender);
+    void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
+          TGridDrawState State);
+    void __fastcall sgChunksSetEditText(TObject *Sender, int ACol, int ARow,
+          const UnicodeString Value);
+    void __fastcall cbLogClick(TObject *Sender);
 private:
     tdvecpChunk chunks;
     void autoChunk();
+    void loadChunks();
+    void showChunks();
 public:
     bool autochunk;
     LCDbCryoJob::JobKind jobType;

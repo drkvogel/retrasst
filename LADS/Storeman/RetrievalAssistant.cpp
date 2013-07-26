@@ -14,23 +14,30 @@ TfrmRetrievalAssistant *frmRetrievalAssistant;
 
 __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
 
+#define SGJOBS_COL_DESCRIP      0
+#define SGJOBS_COL_JOBTYPE      1
+#define SGJOBS_COL_STATUS       2
+#define SGJOBS_COL_PRIMARY      3
+#define SGJOBS_COL_PROJECT      4
+#define SGJOBS_COL_REASON       5
+#define SGJOBS_COL_TIMESTAMP    6
+
 void TfrmRetrievalAssistant::init() {
-    sgJobs->Cells[0][0] = "Description";
-    sgJobs->Cells[1][0] = "Job type";
-    sgJobs->Cells[2][0] = "Project";
-    sgJobs->Cells[3][0] = "Reason";
-    sgJobs->Cells[4][0] = "Status";
-    sgJobs->Cells[5][0] = "UserID";
-    sgJobs->Cells[6][0] = "Primary Aliquot";
-    sgJobs->Cells[7][0] = "TimeStamp";
-    sgJobs->ColWidths[0] = 400;
-    sgJobs->ColWidths[1] = 120;
-    sgJobs->ColWidths[2] = 100;
-    sgJobs->ColWidths[3] = 200;
-    sgJobs->ColWidths[4] = 100;
-    sgJobs->ColWidths[5] = 50;
-    sgJobs->ColWidths[6] = 200;
-    sgJobs->ColWidths[7] = 100;
+    sgJobs->Cells[SGJOBS_COL_DESCRIP]   [0] = "Description";
+    sgJobs->Cells[SGJOBS_COL_JOBTYPE]   [0] = "Job type";
+    sgJobs->Cells[SGJOBS_COL_STATUS]    [0] = "Status";
+    sgJobs->Cells[SGJOBS_COL_PRIMARY]   [0] = "Primary Aliquot";
+    sgJobs->Cells[SGJOBS_COL_PROJECT]   [0] = "Project";
+    sgJobs->Cells[SGJOBS_COL_REASON]    [0] = "Reason";
+    sgJobs->Cells[6][0] = "TimeStamp";
+    //sgJobs->Cells[5][0] = "UserID";
+    sgJobs->ColWidths[SGJOBS_COL_DESCRIP]   = 200;
+    sgJobs->ColWidths[SGJOBS_COL_JOBTYPE]   = 120;
+    sgJobs->ColWidths[SGJOBS_COL_STATUS]    = 100;
+    sgJobs->ColWidths[SGJOBS_COL_PRIMARY]   = 200;
+    sgJobs->ColWidths[SGJOBS_COL_PROJECT]   = 100;
+    sgJobs->ColWidths[SGJOBS_COL_REASON]    = 200;
+    sgJobs->ColWidths[SGJOBS_COL_TIMESTAMP] = 100;
     // c_retrieval_job
     // exercise_cid -> c_object_name
     // external_name
@@ -108,6 +115,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
 }
 
 void TfrmRetrievalAssistant::loadJobs() {
+    Screen->Cursor = crSQLWait;
     LQuery qc(LIMSDatabase::getCentralDb());
     LCDbCryoJobs &jobs = LCDbCryoJobs::records();
     jobs.read(LCDbCryoJob::JobKind::UNKNOWN, true); // $2 true: readall
@@ -127,6 +135,7 @@ void TfrmRetrievalAssistant::loadJobs() {
         vecJobs.push_back(job);
     }
     showJobs();
+    Screen->Cursor = crDefault;
 }
 
 void TfrmRetrievalAssistant::showJobs() {
@@ -141,15 +150,32 @@ void TfrmRetrievalAssistant::showJobs() {
 //        if (job->getStatus() == LCDbCryoJob::DELETED                    && !cbDeleted->Checked) continue;
 //        if (job->getJobType() == LCDbCryoJob::JobKind::BOX_RETRIEVAL    && !cbBox->Checked) continue;
 //        if (job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL && !cbBox->Checked) continue;
+/*
+    sgJobs->Cells[0][0] = "Description";
+    sgJobs->Cells[1][0] = "Job type";
+    sgJobs->Cells[2][0] = "Status";
+    sgJobs->Cells[3][0] = "Primary Aliquot";
+    sgJobs->Cells[4][0] = "Project";
+    sgJobs->Cells[5][0] = "Reason";
+    sgJobs->Cells[6][0] = "TimeStamp";
 
-        sgJobs->Cells[0][row] = job->getDescription().c_str();
-        sgJobs->Cells[1][row] = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
-        sgJobs->Cells[2][row] = getProjectDescription(job->getProjectID()).c_str();
-        sgJobs->Cells[3][row] = job->getReason().c_str();
-        sgJobs->Cells[4][row] = jobStatusString(job->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
-        sgJobs->Cells[5][row] = job->getUserID();
-        sgJobs->Cells[6][row] = getAliquotDescription(job->getPrimaryAliquot()).c_str(); // int
-        sgJobs->Cells[7][row] = job->getTimeStamp().DateTimeString();
+#define SGJOBS_COL_DESCRIP      0
+#define SGJOBS_COL_JOBTYPE      1
+#define SGJOBS_COL_STATUS       2
+#define SGJOBS_COL_PRIMARY      3
+#define SGJOBS_COL_PROJECT      4
+#define SGJOBS_COL_REASON       5
+#define SGJOBS_COL_TIMESTAMP    6
+
+*/
+        sgJobs->Cells[SGJOBS_COL_DESCRIP]   [row] = job->getDescription().c_str();
+        sgJobs->Cells[SGJOBS_COL_JOBTYPE]   [row] = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
+        sgJobs->Cells[SGJOBS_COL_STATUS]    [row] = jobStatusString(job->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
+        sgJobs->Cells[SGJOBS_COL_PRIMARY]   [row] = getAliquotDescription(job->getPrimaryAliquot()).c_str(); // int
+        sgJobs->Cells[SGJOBS_COL_PROJECT]   [row] = getProjectDescription(job->getProjectID()).c_str();
+        sgJobs->Cells[SGJOBS_COL_REASON]    [row] = job->getReason().c_str();
+        //sgJobs->Cells[5][row] = job->getUserID();
+        sgJobs->Cells[SGJOBS_COL_TIMESTAMP] [row] = job->getTimeStamp().DateTimeString();
         sgJobs->Objects[0][row] = (TObject *)job;
     }
 }
@@ -214,8 +240,9 @@ void __fastcall TfrmRetrievalAssistant::cbSampleClick(TObject *Sender) { loadJob
 void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     //Sender->
     //g->MouseToCell(X, Y, colno, rowno);
-
-    if (((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]))->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) {
+    LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
+    if (    job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL
+        &&  job->getStatus() == LCDbCryoJob::Status::NEW_JOB) {
         frmRetrievalManager->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
         frmRetrievalManager->jobType = LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL;
     } else {

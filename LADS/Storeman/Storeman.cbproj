@@ -107,6 +107,7 @@
 			<ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
 			<LinkPackageImports>rtl.bpi;vcl.bpi;dbrtl.bpi;bdertl.bpi;IndyCore.bpi;IndySystem.bpi;IndyProtocols.bpi;vclx.bpi;vcldb.bpi;vclimg.bpi</LinkPackageImports>
 			<BCC_AllCodeguardOptions>false</BCC_AllCodeguardOptions>
 			<BCC_MonitorThis>true</BCC_MonitorThis>

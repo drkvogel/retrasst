@@ -11,6 +11,13 @@
 #include <sstream>
 #include "LCDbJob.h"
 
+//const bool MYDEBUG =
+//#ifdef _DEBUG
+//    true;
+//#else
+//    false;
+//#endif
+
 // clGreen
 #define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
 #define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen

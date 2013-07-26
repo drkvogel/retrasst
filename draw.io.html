@@ -173,6 +173,34 @@ retrieval_cid           # c_retrieval_job The task that caused this cryovial to 
 </tbody>
 </table>
 
+<!--
+c_object_name
+
+Various objects with an identity in the LIMS system
+
+object_cid              # A unique ID for this object
+process_cid             # c_audit_trail	 the program that first created this entry (0: added by hand)
+external_name           # A unique name for this object, used in programs
+external_full           # A description for this object, shown to the users
+object_type             # 1: calibrant, 2: reagent, 3: analyser event, 4: sample storage event, 5: analyser cluster, 6: aliquot type, 7: storage type (e.g. Nitrogen Vapour), 8: storage site (e.g. Worminghall), 9: storage "population", 10: storage layout, 11: LIMS application, 12: test category (c_buddy_worklist), 13: result attribute type, 14: lab name (e.g. Wolfson Laboratories), 15: aliquot category (c_box_worklist), 16: storage vessel (external_name = serial number), 17: QC material, 18: tube type (e.g. in c_box_size), 19: canned text, 20: storage exercise
+status                  # 0 = new record, 1 = object in use, 99: object no longer in use
+time_stamp              # When this object was added to the system, modified or marked obsolete
+-->
+
+<table style="width: 100%; font-size: 10px;">
+<tbody>
+<tr><td style="background: #e4e4e4; padding: 2px;" colspan="2">Tablename</td></tr>
+<tr><td>PK</td><td style="padding: 2px;">object_cid</td></tr>
+<tr><td>FK1</td><td style="padding: 2px;">process_cid</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">external_name</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">external_full</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">object_type</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">status</td></tr>
+<tr><td>&nbsp;</td><td style="padding: 2px;">time_stamp</td></tr>
+</tbody>
+</table>
+
+
 <!-- template -->
 <table style="width: 100%; font-size: 10px;">
 <tbody>
