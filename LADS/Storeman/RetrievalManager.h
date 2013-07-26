@@ -121,6 +121,8 @@ __published:	// IDE-managed Components
 
 private:
     vecpChunk chunks;
+    vecpBox boxes;
+    vecpVial vials;
     void autoChunk();
     void loadChunks();
     void showChunks();

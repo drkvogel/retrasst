@@ -117,21 +117,27 @@ void TfrmRetrievalManager::loadChunks() {
 }
 
 /*
-    LQuery qc(LIMSDatabase::getCentralDb());
-    LQuery qp(Util::projectQuery(project));
-    qc.setSQL("");
+    LQuery q(LIMSDatabase::getCentralDb());
+    LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
+    q.setSQL("SELECT * FROM obs WHERE ");
     Screen->Cursor = crSQLWait;
-    qc.open();
-    delete_referenced<tdvecp...>(...);
-    while (!qc.eof()) {
-        .push_back(box);
-        qc.next();
+    q.open();
+    delete_referenced<vecpOb>(obs);
+    while (!q.eof()) {
+        Ob * ob = new Ob();
+        ob-> = q.readInt("");
+        ob-> = q.readString("");
+        obs.push_back(ob);
+        q.next();
     }
     Screen->Cursor = crDefault;
 
-    tdvecp::const_iterator it;
+    int row = 1;
+    vecpOb::const_iterator it;
     for (it = .begin(); it != .end(); it++) {
-
+        Ob * ob = *it;
+        sgObs->Cells[SGOBJS_COL_1][row] = ob->;
+        sgObs->Objects[0][row] = (TObject *)ob;
     }
 */
 
@@ -158,7 +164,6 @@ Find where the boxes are supposed to be:
     and bs.retrieval_cid = jobID;
 
 */
-
 
 void TfrmRetrievalManager::autoChunk() {
 /*
@@ -201,8 +206,6 @@ void __fastcall TfrmRetrievalManager::sgChunksSetEditText(TObject *Sender, int A
     }
 }
 
-
-
 void __fastcall TfrmRetrievalManager::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
     // prevent editing
 }
@@ -211,6 +214,33 @@ void TfrmRetrievalManager::loadRows(int numrows) {
     ostringstream oss;
     oss <<__FUNC__<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
+
+//    //LQuery qc(LIMSDatabase::getCentralDb());
+//    LQuery q(Util::projectQuery(project), true);
+//    //qp.setSQL("SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
+//    // no 'chunks' yet, we haven't created them!
+//    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
+//    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
+//    Screen->Cursor = crSQLWait;
+//    q.open();
+//    delete_referenced<vecpBox>(boxes);
+//    while (!q.eof()) {
+//        LCDbBoxStore * box = new LCDbBoxStore();
+//        box->set = q.readInt("");
+//        ob-> = q.readString("");
+//        boxes.push_back(box);
+//        q.next();
+//    }
+//    Screen->Cursor = crDefault;
+//
+//    int row = 1;
+//    vecpOb::const_iterator it;
+//    for (it = .begin(); it != .end(); it++) {
+//        LCDbBoxStore * box = *it;
+//        sgObs->Cells[SGOBJS_COL_1][row] = ob->;
+//        sgObs->Objects[0][row] = (TObject *)ob;
+//    }
+
 }
 
 void __fastcall TfrmRetrievalManager::editCustomRowsChange(TObject *Sender) {
