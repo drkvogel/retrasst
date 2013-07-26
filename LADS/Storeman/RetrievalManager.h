@@ -13,6 +13,9 @@
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.Grids.hpp>
 #include "LCDbJob.h"
+#include "LDbBoxStore.h"
+#include "LPDbCryovialStore.h"
+#include "LPDbCryovial.h"
 
 /*
 select * from box_content bc, c_box_size bs where bc.box_size_cid = bs.box_size_cid
@@ -67,8 +70,11 @@ public:
     //int         primary_aliquot;
 };
 
-typedef std::vector< Chunk * >  tdvecpChunk;
-typedef std::vector< Chunk >    tdvecChunk;
+typedef std::vector< Chunk * >  vecpChunk;
+
+typedef std::vector< LCDbBoxStore *> vecpBox;
+typedef std::vector< LPDbCryovialStore *> vecpVial;
+
 
 class TfrmRetrievalManager : public TForm
 {
@@ -85,11 +91,16 @@ __published:	// IDE-managed Components
     TGroupBox *GroupBox1;
     TStringGrid *sgChunk;
     TButton *btnSaveChunk;
-    TLabel *Label1;
     TButton *btnIncr;
     TButton *btnDecr;
     TMemo *memoDebug;
     TCheckBox *cbLog;
+    TRadioGroup *radgrpRows;
+    TRadioButton *radbutAll;
+    TRadioButton *radbutDefault;
+    TRadioButton *radbutCustom;
+    TEdit *editCustomRows;
+    TTimer *timerCustomRows;
     void __fastcall FormShow(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
@@ -101,11 +112,20 @@ __published:	// IDE-managed Components
           const UnicodeString Value);
     void __fastcall cbLogClick(TObject *Sender);
     void __fastcall btnSaveClick(TObject *Sender);
+    void __fastcall sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow);
+    void __fastcall editCustomRowsChange(TObject *Sender);
+    void __fastcall timerCustomRowsTimer(TObject *Sender);
+    void __fastcall radbutDefaultClick(TObject *Sender);
+    void __fastcall radbutAllClick(TObject *Sender);
+    void __fastcall radbutCustomClick(TObject *Sender);
+
 private:
-    tdvecpChunk chunks;
+    vecpChunk chunks;
     void autoChunk();
     void loadChunks();
     void showChunks();
+    void loadRows(int numrows);
+    void radgrpRowsChange();
 public:
     bool autochunk;
     LCDbCryoJob::JobKind jobType;

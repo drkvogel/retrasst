@@ -12,11 +12,12 @@ void debugLog(String s) { frmRetrievalManager->memoDebug->Lines->Add(s); }
 
 __fastcall TfrmRetrievalManager::TfrmRetrievalManager(TComponent* Owner) : TForm(Owner) { }
 
+#define DEFAULT_NUMROWS 25
+
 #define SGCHUNKS_COL_SECTION    0
 #define SGCHUNKS_COL_START      1
 #define SGCHUNKS_COL_END        2
 #define SGCHUNKS_COL_SIZE       3
-//#define SGCHUNKS_COL_
 
 void __fastcall TfrmRetrievalManager::FormCreate(TObject *Sender) {
     cbLog->Visible = MYDEBUG;
@@ -34,6 +35,7 @@ void __fastcall TfrmRetrievalManager::FormCreate(TObject *Sender) {
     sgChunks->ColWidths[SGCHUNKS_COL_END]       = 100;
     sgChunks->ColWidths[SGCHUNKS_COL_SIZE]      = 100;
     showChunks();
+    radbutDefault->Caption = DEFAULT_NUMROWS;
 }
 
 void __fastcall TfrmRetrievalManager::FormShow(TObject *Sender) {
@@ -41,7 +43,8 @@ void __fastcall TfrmRetrievalManager::FormShow(TObject *Sender) {
     std::ostringstream oss;
     oss << (autochunk ? "auto-chunk" : "manual chunk") << ", "
     << ((jobType == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
-    Label1->Caption = oss.str().c_str();
+    debugLog(oss.str().c_str()); //;
+    btnSave->Enabled = true;
 }
 
 void __fastcall TfrmRetrievalManager::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
@@ -74,6 +77,7 @@ void __fastcall TfrmRetrievalManager::sgChunksDrawCell(TObject *Sender, int ACol
 
 void __fastcall TfrmRetrievalManager::btnSaveClick(TObject *Sender) {
     //
+    btnSave->Enabled = false;
 }
 
 void __fastcall TfrmRetrievalManager::btnCancelClick(TObject *Sender) {
@@ -83,6 +87,7 @@ void __fastcall TfrmRetrievalManager::btnCancelClick(TObject *Sender) {
 void __fastcall TfrmRetrievalManager::btnAddChunkClick(TObject *Sender) {
     // add chunk
     Chunk * chunk = new Chunk;
+    chunk->section = chunks.size() + 1;
     chunks.push_back(chunk);
     if (chunks.size() > 0) btnDelChunk->Enabled = true;
     showChunks();
@@ -93,18 +98,18 @@ void __fastcall TfrmRetrievalManager::cbLogClick(TObject *Sender) {
 }
 
 void __fastcall TfrmRetrievalManager::btnDelChunkClick(TObject *Sender) {
-    // delete chunk
     if (MYDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
-        //sgChunks->Row
-        //tdvecpChunk::iterator it = chunks.back();
-        //Chunk * chunk = *it;
-        //delete chunk;
+        //tdvecpChunk::iterator it = chunks.back();  //Chunk * chunk = *it; //delete chunk;
         delete chunks.back();
         chunks.pop_back();
         showChunks();
     }
     if (chunks.size() == 0) btnDelChunk->Enabled = false;
 }
+
+void __fastcall TfrmRetrievalManager::radbutDefaultClick(TObject *Sender) { radgrpRowsChange(); }
+void __fastcall TfrmRetrievalManager::radbutAllClick(TObject *Sender) { radgrpRowsChange(); }
+void __fastcall TfrmRetrievalManager::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
 
 void TfrmRetrievalManager::loadChunks() {
     chunks.clear();
@@ -132,7 +137,7 @@ void TfrmRetrievalManager::loadChunks() {
 
 void TfrmRetrievalManager::showChunks() {
     sgChunks->RowCount = chunks.size() + 1;
-    tdvecpChunk::const_iterator it;
+    vecpChunk::const_iterator it;
     int row = 1;
     for (it = chunks.begin(); it != chunks.end(); it++, row++) {
         Chunk * chunk = *it;
@@ -178,6 +183,10 @@ Display the size of the job and ask user if they want to divide up the list.  If
 
 void __fastcall TfrmRetrievalManager::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
     // user changed text
+    if (0 == ARow) {
+        // header - prevent editing somehow
+        return;
+    }
     switch (ACol) {
     case SGCHUNKS_COL_SECTION:
         break;
@@ -194,3 +203,47 @@ void __fastcall TfrmRetrievalManager::sgChunksSetEditText(TObject *Sender, int A
 
 
 
+void __fastcall TfrmRetrievalManager::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
+    // prevent editing
+}
+
+void TfrmRetrievalManager::loadRows(int numrows) {
+    ostringstream oss;
+    oss <<__FUNC__<<": numrows: "<<numrows;
+    debugLog(oss.str().c_str());
+}
+
+void __fastcall TfrmRetrievalManager::editCustomRowsChange(TObject *Sender) {
+    // timer
+    timerCustomRows->Enabled = false; // reset
+    timerCustomRows->Enabled = true;;
+}
+
+void __fastcall TfrmRetrievalManager::timerCustomRowsTimer(TObject *Sender) {
+    timerCustomRows->Enabled = false;
+    int numrows = editCustomRows->Text.ToIntDef(0);
+    ostringstream oss;
+    oss <<__FUNC__<<": load"<<": numrows: "<<numrows;
+    debugLog(oss.str().c_str());
+    loadRows(numrows);
+}
+
+void TfrmRetrievalManager::radgrpRowsChange() {
+    int numrows = 0;
+    if (radbutCustom->Checked) {
+        editCustomRows->Enabled = true;
+        return; // allow user to edit value
+    } else {
+        editCustomRows->Enabled = false;
+        if (radbutDefault->Checked) {
+            // load default no of rows
+            numrows = DEFAULT_NUMROWS;
+        } else if (radbutAll->Checked) {
+            numrows = -1;
+        }
+    }
+    ostringstream oss;
+    oss << "radgrpRowsClick: "<<__FUNC__<<": numrows: "<<numrows;
+    debugLog(oss.str().c_str());
+    loadRows(numrows);
+}

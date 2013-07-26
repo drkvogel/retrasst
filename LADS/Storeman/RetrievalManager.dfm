@@ -3,8 +3,8 @@ object frmRetrievalManager: TfrmRetrievalManager
   Top = 0
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Retrieval Manager'
-  ClientHeight = 615
-  ClientWidth = 711
+  ClientHeight = 588
+  ClientWidth = 713
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,7 +21,7 @@ object frmRetrievalManager: TfrmRetrievalManager
   object Splitter1: TSplitter
     Left = 0
     Top = 265
-    Width = 711
+    Width = 713
     Height = 10
     Cursor = crVSplit
     Align = alTop
@@ -31,14 +31,14 @@ object frmRetrievalManager: TfrmRetrievalManager
   object groupList: TGroupBox
     Left = 0
     Top = 0
-    Width = 711
+    Width = 713
     Height = 265
     Align = alTop
     Caption = 'Manage Chunks'
     TabOrder = 0
     ExplicitWidth = 841
     object Panel2: TPanel
-      Left = 627
+      Left = 629
       Top = 15
       Width = 82
       Height = 248
@@ -95,81 +95,127 @@ object frmRetrievalManager: TfrmRetrievalManager
     object sgChunks: TStringGrid
       Left = 2
       Top = 15
-      Width = 625
+      Width = 627
       Height = 248
       Align = alClient
       FixedCols = 0
       Options = [goFixedVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goAlwaysShowEditor, goThumbTracking]
       TabOrder = 1
       OnDrawCell = sgChunksDrawCell
+      OnFixedCellClick = sgChunksFixedCellClick
       OnSetEditText = sgChunksSetEditText
-      ExplicitWidth = 646
-      ExplicitHeight = 128
+      ExplicitTop = 21
+      ExplicitWidth = 625
     end
   end
   object Panel1: TPanel
     Left = 0
-    Top = 574
-    Width = 711
-    Height = 41
+    Top = 544
+    Width = 713
+    Height = 44
     Align = alBottom
     BevelEdges = []
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 428
-    ExplicitWidth = 732
-    object Label1: TLabel
-      Left = 64
-      Top = 16
-      Width = 31
-      Height = 13
-      Caption = 'Label1'
-    end
+    DesignSize = (
+      713
+      44)
     object btnSave: TButton
-      Left = 400
-      Top = 8
+      Left = 552
+      Top = 6
       Width = 75
       Height = 25
+      Anchors = [akRight, akBottom]
       Caption = 'Save'
       TabOrder = 0
       OnClick = btnSaveClick
     end
     object btnCancel: TButton
-      Left = 520
-      Top = 8
+      Left = 633
+      Top = 6
       Width = 75
       Height = 25
-      Caption = 'Cancel'
+      Anchors = [akRight, akBottom]
+      Caption = 'Exit'
       TabOrder = 1
       OnClick = btnCancelClick
     end
     object cbLog: TCheckBox
-      Left = 200
-      Top = 16
-      Width = 97
+      Left = 482
+      Top = 6
+      Width = 64
       Height = 17
+      Anchors = [akRight, akBottom]
       Caption = 'Show Log'
       Checked = True
       State = cbChecked
       TabOrder = 2
       OnClick = cbLogClick
     end
+    object radgrpRows: TRadioGroup
+      Left = 2
+      Top = 0
+      Width = 183
+      Height = 43
+      Caption = 'Show rows'
+      TabOrder = 3
+    end
+    object radbutAll: TRadioButton
+      Left = 48
+      Top = 16
+      Width = 30
+      Height = 17
+      Caption = 'All'
+      TabOrder = 4
+      OnClick = radbutAllClick
+    end
+    object radbutDefault: TRadioButton
+      Left = 10
+      Top = 16
+      Width = 33
+      Height = 17
+      Caption = '25'
+      Checked = True
+      TabOrder = 5
+      TabStop = True
+      OnClick = radbutDefaultClick
+    end
+    object radbutCustom: TRadioButton
+      Left = 84
+      Top = 16
+      Width = 57
+      Height = 17
+      Caption = 'Custom'
+      TabOrder = 6
+      OnClick = radbutCustomClick
+    end
+    object editCustomRows: TEdit
+      Left = 141
+      Top = 15
+      Width = 38
+      Height = 21
+      Enabled = False
+      TabOrder = 7
+      Text = '100'
+      OnChange = editCustomRowsChange
+    end
   end
   object GroupBox1: TGroupBox
     Left = 0
     Top = 275
-    Width = 711
-    Height = 299
+    Width = 713
+    Height = 269
     Align = alClient
     Caption = 'Chunk details'
     TabOrder = 2
     ExplicitTop = 277
     ExplicitWidth = 841
+    ExplicitHeight = 299
     object sgChunk: TStringGrid
       Left = 2
       Top = 15
-      Width = 707
-      Height = 193
+      Width = 709
+      Height = 163
       Align = alClient
       FixedCols = 0
       TabOrder = 0
@@ -178,8 +224,8 @@ object frmRetrievalManager: TfrmRetrievalManager
     end
     object memoDebug: TMemo
       Left = 2
-      Top = 208
-      Width = 707
+      Top = 178
+      Width = 709
       Height = 89
       Align = alBottom
       Lines.Strings = (
@@ -189,5 +235,12 @@ object frmRetrievalManager: TfrmRetrievalManager
       ExplicitTop = 192
       ExplicitWidth = 185
     end
+  end
+  object timerCustomRows: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = timerCustomRowsTimer
+    Left = 352
+    Top = 296
   end
 end
