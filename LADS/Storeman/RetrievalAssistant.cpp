@@ -163,6 +163,7 @@ void TfrmRetrievalAssistant::loadJobs() {
 
 void TfrmRetrievalAssistant::showJobs() {
     sgJobs->RowCount = vecJobs.size() + 1;
+    //sgJobs->FixedRows = 1;
     tdvecpJob::const_iterator it;
     int row = 1;
     for (it = vecJobs.begin(); it != vecJobs.end(); it++, row++) {
@@ -233,7 +234,7 @@ void TfrmRetrievalAssistant::loadBoxes() {
 //        " where n.box_cid=bs.box_cid and bs.rack_cid=r.rack_cid and r.tank_cid=m.tank_cid"
 //        " and bs.retrieval_cid = jobID");
 //
-//    sgBoxes->RowCount = 1;
+//    sgBoxes->RowCount = 1; sgJobs->FixedRows = 1;
     for (int i; i < 10; i++) {
         //sgBoxes->Cells[][] = "";
     }

@@ -138,19 +138,34 @@ void __fastcall TfrmRetrievalManager::radbutAllClick(TObject *Sender) { radgrpRo
 void __fastcall TfrmRetrievalManager::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
 
 void TfrmRetrievalManager::loadChunks() {
-    chunks.clear();
+    ostringstream oss; oss<<__FUNC__<<": var: "; debugLog(oss.str().c_str());
+
+    // load chunks
+    Screen->Cursor = crSQLWait;
+    LQuery q(LIMSDatabase::getCentralDb());
+    //chunks.clear();
+    delete_referenced<vecpChunk>(chunks);
+    q.setSQL("SELECT * FROM c_retrieval_plan_chunk WHERE status != 99");
+    q.open();
+    while (!q.eof()) {
+        Chunk * chunk = new Chunk();
+        //Chunk chunk;
+        //chunk-> = q.readInt("");
+        //chunk-> = q.readString("");
+        chunks.push_back(chunk);
+        q.next();
+    }
     showChunks();
+    Screen->Cursor = crDefault;
 }
 
 /*
-    ostringstream oss;
-    oss<<__FUNC__<<": var: "<<var;
-    debugLog(oss.str().c_str());
-
+    // load
+    ostringstream oss; oss<<__FUNC__<<": var: "; debugLog(oss.str().c_str());
+    Screen->Cursor = crSQLWait;
     LQuery q(LIMSDatabase::getCentralDb());
     LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
     q.setSQL("SELECT * FROM obs WHERE ");
-    Screen->Cursor = crSQLWait;
     q.open();
     delete_referenced<vecpOb>(obs);
     while (!q.eof()) {
@@ -162,6 +177,7 @@ void TfrmRetrievalManager::loadChunks() {
     }
     Screen->Cursor = crDefault;
 
+    // show
     int row = 1;
     sgObs->RowCount = obs.size()+1;
     vecpOb::const_iterator it;
@@ -174,6 +190,7 @@ void TfrmRetrievalManager::loadChunks() {
 
 void TfrmRetrievalManager::showChunks() {
     sgChunks->RowCount = chunks.size() + 1;
+    //sgChunks->FixedRows = 1;
     vecpChunk::const_iterator it;
     int row = 1;
     for (it = chunks.begin(); it != chunks.end(); it++, row++) {
