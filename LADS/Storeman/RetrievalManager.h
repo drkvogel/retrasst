@@ -100,6 +100,7 @@ __published:	// IDE-managed Components
     void __fastcall sgChunksSetEditText(TObject *Sender, int ACol, int ARow,
           const UnicodeString Value);
     void __fastcall cbLogClick(TObject *Sender);
+    void __fastcall btnSaveClick(TObject *Sender);
 private:
     tdvecpChunk chunks;
     void autoChunk();

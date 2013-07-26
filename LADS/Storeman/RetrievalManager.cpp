@@ -34,8 +34,76 @@ void __fastcall TfrmRetrievalManager::FormCreate(TObject *Sender) {
     sgChunks->ColWidths[SGCHUNKS_COL_END]       = 100;
     sgChunks->ColWidths[SGCHUNKS_COL_SIZE]      = 100;
     showChunks();
+}
 
+void __fastcall TfrmRetrievalManager::FormShow(TObject *Sender) {
+    // show job: list of boxes or cryovials
+    std::ostringstream oss;
+    oss << (autochunk ? "auto-chunk" : "manual chunk") << ", "
+    << ((jobType == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
+    Label1->Caption = oss.str().c_str();
+}
 
+void __fastcall TfrmRetrievalManager::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+/*
+#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
+#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
+#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
+#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
+#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
+#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray*/
+    TColor background = clWindow;
+
+    Chunk * chunk = (Chunk *)sgChunks->Objects[0][ARow];
+    TCanvas * cnv = sgChunks->Canvas;
+	cnv->Brush->Color = background;
+	cnv->FillRect(Rect);
+    if (State.Contains(gdSelected)) {
+        TFontStyles oldFontStyle = cnv->Font->Style;
+        TPenStyle oldPenStyle = cnv->Pen->Style;
+        cnv->Pen->Style = psDot;
+        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
+        cnv->Font->Style = TFontStyles() << fsBold;
+    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
+        cnv->Pen->Style     = oldPenStyle;
+        cnv->Font->Style    = oldFontStyle;
+	} else {
+        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
+    }
+}
+
+void __fastcall TfrmRetrievalManager::btnSaveClick(TObject *Sender) {
+    //
+}
+
+void __fastcall TfrmRetrievalManager::btnCancelClick(TObject *Sender) {
+    Close();
+}
+
+void __fastcall TfrmRetrievalManager::btnAddChunkClick(TObject *Sender) {
+    // add chunk
+    Chunk * chunk = new Chunk;
+    chunks.push_back(chunk);
+    if (chunks.size() > 0) btnDelChunk->Enabled = true;
+    showChunks();
+}
+
+void __fastcall TfrmRetrievalManager::cbLogClick(TObject *Sender) {
+    memoDebug->Visible = cbLog->Checked;
+}
+
+void __fastcall TfrmRetrievalManager::btnDelChunkClick(TObject *Sender) {
+    // delete chunk
+    if (MYDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
+        //sgChunks->Row
+        //tdvecpChunk::iterator it = chunks.back();
+        //Chunk * chunk = *it;
+        //delete chunk;
+        delete chunks.back();
+        chunks.pop_back();
+        showChunks();
+    }
+    if (chunks.size() == 0) btnDelChunk->Enabled = false;
 }
 
 void TfrmRetrievalManager::loadChunks() {
@@ -44,7 +112,6 @@ void TfrmRetrievalManager::loadChunks() {
 }
 
 /*
-
     LQuery qc(LIMSDatabase::getCentralDb());
     LQuery qp(Util::projectQuery(project));
     qc.setSQL("");
@@ -86,17 +153,7 @@ Find where the boxes are supposed to be:
     and bs.retrieval_cid = jobID;
 
 */
-void __fastcall TfrmRetrievalManager::FormShow(TObject *Sender) {
-    // show job: list of boxes or cryovials
-    std::ostringstream oss;
-    oss << (autochunk ? "auto-chunk" : "manual chunk") << ", "
-    << ((jobType == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
-    Label1->Caption = oss.str().c_str();
-}
 
-void __fastcall TfrmRetrievalManager::btnCancelClick(TObject *Sender) {
-    Close();
-}
 
 void TfrmRetrievalManager::autoChunk() {
 /*
@@ -118,56 +175,6 @@ Display the size of the job and ask user if they want to divide up the list.  If
 */
 
 }
-void __fastcall TfrmRetrievalManager::btnAddChunkClick(TObject *Sender) {
-    // add chunk
-    Chunk * chunk = new Chunk;
-    chunks.push_back(chunk);
-    if (chunks.size() > 0) btnDelChunk->Enabled = true;
-    showChunks();
-}
-
-void __fastcall TfrmRetrievalManager::btnDelChunkClick(TObject *Sender) {
-    // delete chunk
-    if (IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
-        //sgChunks->Row
-        //tdvecpChunk::iterator it = chunks.back();
-        //Chunk * chunk = *it;
-        //delete chunk;
-        delete chunks.back();
-        chunks.pop_back();
-        showChunks();
-    }
-    if (chunks.size() == 0) btnDelChunk->Enabled = false;
-}
-
-
-void __fastcall TfrmRetrievalManager::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-/*
-#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
-#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
-#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
-#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
-#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
-#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray*/
-    TColor background = clWindow;
-
-    Chunk * chunk = (Chunk *)sgChunks->Objects[0][ARow];
-    TCanvas * cnv = sgChunks->Canvas;
-	cnv->Brush->Color = background;
-	cnv->FillRect(Rect);
-    if (State.Contains(gdSelected)) {
-        TFontStyles oldFontStyle = cnv->Font->Style;
-        TPenStyle oldPenStyle = cnv->Pen->Style;
-        cnv->Pen->Style = psDot;
-        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
-        cnv->Font->Style = TFontStyles() << fsBold; // << fsItalic;
-    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
-        cnv->Pen->Style     = oldPenStyle;
-        cnv->Font->Style    = oldFontStyle;
-	} else {
-        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
-    }
-}
 
 void __fastcall TfrmRetrievalManager::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
     // user changed text
@@ -185,8 +192,5 @@ void __fastcall TfrmRetrievalManager::sgChunksSetEditText(TObject *Sender, int A
     }
 }
 
-void __fastcall TfrmRetrievalManager::cbLogClick(TObject *Sender) {
-    memoDebug->Visible = cbLog->Checked;
-}
 
 

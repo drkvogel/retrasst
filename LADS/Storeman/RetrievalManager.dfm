@@ -1,9 +1,10 @@
 object frmRetrievalManager: TfrmRetrievalManager
   Left = 0
   Top = 0
+  BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Retrieval Manager'
   ClientHeight = 615
-  ClientWidth = 547
+  ClientWidth = 711
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,6 +13,7 @@ object frmRetrievalManager: TfrmRetrievalManager
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
+  WindowState = wsMaximized
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
@@ -19,7 +21,7 @@ object frmRetrievalManager: TfrmRetrievalManager
   object Splitter1: TSplitter
     Left = 0
     Top = 265
-    Width = 547
+    Width = 711
     Height = 10
     Cursor = crVSplit
     Align = alTop
@@ -29,14 +31,14 @@ object frmRetrievalManager: TfrmRetrievalManager
   object groupList: TGroupBox
     Left = 0
     Top = 0
-    Width = 547
+    Width = 711
     Height = 265
     Align = alTop
     Caption = 'Manage Chunks'
     TabOrder = 0
     ExplicitWidth = 841
     object Panel2: TPanel
-      Left = 463
+      Left = 627
       Top = 15
       Width = 82
       Height = 248
@@ -93,7 +95,7 @@ object frmRetrievalManager: TfrmRetrievalManager
     object sgChunks: TStringGrid
       Left = 2
       Top = 15
-      Width = 461
+      Width = 625
       Height = 248
       Align = alClient
       FixedCols = 0
@@ -108,7 +110,7 @@ object frmRetrievalManager: TfrmRetrievalManager
   object Panel1: TPanel
     Left = 0
     Top = 574
-    Width = 547
+    Width = 711
     Height = 41
     Align = alBottom
     BevelEdges = []
@@ -130,6 +132,7 @@ object frmRetrievalManager: TfrmRetrievalManager
       Height = 25
       Caption = 'Save'
       TabOrder = 0
+      OnClick = btnSaveClick
     end
     object btnCancel: TButton
       Left = 520
@@ -155,7 +158,7 @@ object frmRetrievalManager: TfrmRetrievalManager
   object GroupBox1: TGroupBox
     Left = 0
     Top = 275
-    Width = 547
+    Width = 711
     Height = 299
     Align = alClient
     Caption = 'Chunk details'
@@ -165,7 +168,7 @@ object frmRetrievalManager: TfrmRetrievalManager
     object sgChunk: TStringGrid
       Left = 2
       Top = 15
-      Width = 543
+      Width = 707
       Height = 193
       Align = alClient
       FixedCols = 0
@@ -176,7 +179,7 @@ object frmRetrievalManager: TfrmRetrievalManager
     object memoDebug: TMemo
       Left = 2
       Top = 208
-      Width = 543
+      Width = 707
       Height = 89
       Align = alBottom
       Lines.Strings = (
