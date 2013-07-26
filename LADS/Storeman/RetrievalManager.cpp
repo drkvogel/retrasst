@@ -6,12 +6,6 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
-TfrmRetrievalManager *frmRetrievalManager;
-
-void debugLog(String s) { frmRetrievalManager->memoDebug->Lines->Add(s); }
-
-__fastcall TfrmRetrievalManager::TfrmRetrievalManager(TComponent* Owner) : TForm(Owner) { }
-
 #define DEFAULT_NUMROWS 25
 
 #define SGCHUNKS_COL_SECTION    0
@@ -19,13 +13,18 @@ __fastcall TfrmRetrievalManager::TfrmRetrievalManager(TComponent* Owner) : TForm
 #define SGCHUNKS_COL_END        2
 #define SGCHUNKS_COL_SIZE       3
 
+
+TfrmRetrievalManager *frmRetrievalManager;
+
+void debugLog(String s) { frmRetrievalManager->memoDebug->Lines->Add(s); }
+
+__fastcall TfrmRetrievalManager::TfrmRetrievalManager(TComponent* Owner) : TForm(Owner) { }
+
 void __fastcall TfrmRetrievalManager::FormCreate(TObject *Sender) {
     cbLog->Visible = MYDEBUG;
     memoDebug->Visible = MYDEBUG;
-
     autochunk = false;
-    jobType = LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL;
-
+    job = NULL;
     sgChunks->Cells[SGCHUNKS_COL_SECTION]   [0] = "Section";
     sgChunks->Cells[SGCHUNKS_COL_START]     [0] = "Start";
     sgChunks->Cells[SGCHUNKS_COL_END]       [0] = "End";
@@ -42,10 +41,12 @@ void __fastcall TfrmRetrievalManager::FormShow(TObject *Sender) {
     // show job: list of boxes or cryovials
     std::ostringstream oss;
     oss << (autochunk ? "auto-chunk" : "manual chunk") << ", "
-    << ((jobType == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
+    << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
     debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
 }
+
+void __fastcall TfrmRetrievalManager::btnCancelClick(TObject *Sender) { Close(); }
 
 void __fastcall TfrmRetrievalManager::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
 /*
@@ -56,8 +57,12 @@ void __fastcall TfrmRetrievalManager::sgChunksDrawCell(TObject *Sender, int ACol
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
 #define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray*/
     TColor background = clWindow;
-
-    Chunk * chunk = (Chunk *)sgChunks->Objects[0][ARow];
+    if (0 == ARow) {
+        background = clBtnFace;
+    } else {
+        Chunk * chunk = NULL;
+        chunk = (Chunk *)sgChunks->Objects[0][ARow];
+    }
     TCanvas * cnv = sgChunks->Canvas;
 	cnv->Brush->Color = background;
 	cnv->FillRect(Rect);
@@ -78,14 +83,10 @@ void __fastcall TfrmRetrievalManager::sgChunksDrawCell(TObject *Sender, int ACol
 void __fastcall TfrmRetrievalManager::btnSaveClick(TObject *Sender) {
     //
     btnSave->Enabled = false;
-}
-
-void __fastcall TfrmRetrievalManager::btnCancelClick(TObject *Sender) {
-    Close();
+    // insert rows into c_box_retrieval and l_cryovial_retrieval
 }
 
 void __fastcall TfrmRetrievalManager::btnAddChunkClick(TObject *Sender) {
-    // add chunk
     Chunk * chunk = new Chunk;
     chunk->section = chunks.size() + 1;
     chunks.push_back(chunk);
@@ -117,6 +118,10 @@ void TfrmRetrievalManager::loadChunks() {
 }
 
 /*
+    ostringstream oss;
+    oss<<__FUNC__<<": var: "<<var;
+    debugLog(oss.str().c_str());
+
     LQuery q(LIMSDatabase::getCentralDb());
     LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
     q.setSQL("SELECT * FROM obs WHERE ");
@@ -210,10 +215,38 @@ void __fastcall TfrmRetrievalManager::sgChunksFixedCellClick(TObject *Sender, in
     // prevent editing
 }
 
+/*
+
+LPDbCryovialStore::Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, DELETED = 99 };
+LPDbCryovial::Status { EXPECTED  = 0, STORED = 1, SPLIT = 2, DESTROYED = 3, DELETED = 99 };
+
+What is the difference between cryovial_store/LPDbCryovialStore and cryovial/LPDbCryovial?
+cryovial/LPDbCryovial is one record per cryovial.
+cryovial_store/LPDbCryovialStore can have many records per cryovial, detailing the storage history.
+
+retrieve 4000 THRIVE samples:
+
+c_retrieval_job:
+record -1015, job type 4 [SAMPLE_RETRIEVAL], status 0 [NEW_JOB], primary aliquot EDTA_2, no secondary aliquot.
+  (where is secondary aliquot defined? primary aliquot is a field of c_retrieval_job)
+The retrieval assistant might split this into (say) eight chunks of five boxes in c_box_retrieval with cryovials in l_cryovial_retrieval.
+It would set c_retrieval_job.status to 1 and the start date to 'now'.
+The operator would retrieve a chunk at a time, ticked off in in c_box_retrieval and l_cryovial_retrieval.
+When that's finished, it would set c_retrieval_job.status to 2 and finish date to 'now'.
+
+cryovial_store:
+the 4000-odd records saying where the cryovials are at the moment have retrieval_cid -1015, status = 2, removed = ''.
+Set status = 5, removed = 'now' when they're retrieved.
+Each cryovial has a second cryovial_store record giving the expected destination, status = 0.
+Set status = 1 when the position's confirmed
+
+*/
+
 void TfrmRetrievalManager::loadRows(int numrows) {
     ostringstream oss;
-    oss <<__FUNC__<<": numrows: "<<numrows;
+    oss<<__FUNC__<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
+
 
 //    //LQuery qc(LIMSDatabase::getCentralDb());
 //    LQuery q(Util::projectQuery(project), true);
@@ -244,7 +277,6 @@ void TfrmRetrievalManager::loadRows(int numrows) {
 }
 
 void __fastcall TfrmRetrievalManager::editCustomRowsChange(TObject *Sender) {
-    // timer
     timerCustomRows->Enabled = false; // reset
     timerCustomRows->Enabled = true;;
 }
@@ -266,14 +298,13 @@ void TfrmRetrievalManager::radgrpRowsChange() {
     } else {
         editCustomRows->Enabled = false;
         if (radbutDefault->Checked) {
-            // load default no of rows
             numrows = DEFAULT_NUMROWS;
         } else if (radbutAll->Checked) {
             numrows = -1;
         }
     }
     ostringstream oss;
-    oss << "radgrpRowsClick: "<<__FUNC__<<": numrows: "<<numrows;
+    oss <<__FUNC__<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
     loadRows(numrows);
 }

@@ -120,6 +120,7 @@ __published:	// IDE-managed Components
     void __fastcall radbutCustomClick(TObject *Sender);
 
 private:
+    LCDbCryoJob * job;
     vecpChunk chunks;
     vecpBox boxes;
     vecpVial vials;
@@ -129,8 +130,9 @@ private:
     void loadRows(int numrows);
     void radgrpRowsChange();
 public:
+    void setJob(LCDbCryoJob * ajob) { job = ajob; }
     bool autochunk;
-    LCDbCryoJob::JobKind jobType;
+    //LCDbCryoJob::JobKind jobType;
     __fastcall TfrmRetrievalManager(TComponent* Owner);
 };
 

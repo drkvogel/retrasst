@@ -7,10 +7,13 @@
 #include "StringUtil.h"
 #include "LCDbProject.h"
 #include "RetrievalManager.h"
+#include "ReferredBoxes.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
 TfrmRetrievalAssistant *frmRetrievalAssistant;
+
+void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
 
 __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
 
@@ -23,6 +26,8 @@ __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : T
 #define SGJOBS_COL_TIMESTAMP    6
 
 void TfrmRetrievalAssistant::init() {
+    cbLog->Visible = MYDEBUG;
+    memoDebug->Visible = MYDEBUG;
     sgJobs->Cells[SGJOBS_COL_DESCRIP]   [0] = "Description";
     sgJobs->Cells[SGJOBS_COL_JOBTYPE]   [0] = "Job type";
     sgJobs->Cells[SGJOBS_COL_STATUS]    [0] = "Status";
@@ -114,6 +119,18 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
     }
 }
 
+void __fastcall TfrmRetrievalAssistant::cbLogClick(TObject *Sender) { memoDebug->Visible = cbLog->Checked; }
+void __fastcall TfrmRetrievalAssistant::btnExitClick(TObject *Sender) { Close(); }
+void __fastcall TfrmRetrievalAssistant::cbNewJobClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbInProgressClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbDoneClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbDeletedClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbBoxRetrievalClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbSampleRetrievalClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbBoxMoveClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbBoxDiscardClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbSampleDiscardClick(TObject *Sender) { loadJobs(); }
+
 void TfrmRetrievalAssistant::loadJobs() {
     Screen->Cursor = crSQLWait;
     LQuery qc(LIMSDatabase::getCentralDb());
@@ -123,15 +140,19 @@ void TfrmRetrievalAssistant::loadJobs() {
     delete_referenced<tdvecpJob>(vecJobs);
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {
         if (!jr->isAvailable()) continue;
-        if (jr->getStatus() == LCDbCryoJob::Status::NEW_JOB            && !cbNewJob->Checked) continue;
-        if (jr->getStatus() == LCDbCryoJob::Status::INPROGRESS         && !cbInProgress->Checked) continue;
-        if (jr->getStatus() == LCDbCryoJob::Status::DONE               && !cbDone->Checked) continue;
-        if (jr->getStatus() == LCDbCryoJob::Status::DELETED            && !cbDeleted->Checked) continue;
-        if (jr->getJobType() == LCDbCryoJob::JobKind::BOX_RETRIEVAL    && !cbBox->Checked) continue;
-        if (jr->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL && !cbBox->Checked) continue;
-
-        LCDbCryoJob * job = new LCDbCryoJob();
-        *job = *jr;
+        std::ostringstream oss;
+        oss<<__FUNC__<<", type: "<<jr->getJobType()<<": desc: "<<jr->getDescription().c_str();
+        debugLog(oss.str().c_str());
+        if (jr->getStatus() == LCDbCryoJob::Status::NEW_JOB             && !cbNewJob->Checked) continue;
+        if (jr->getStatus() == LCDbCryoJob::Status::INPROGRESS          && !cbInProgress->Checked) continue;
+        if (jr->getStatus() == LCDbCryoJob::Status::DONE                && !cbDone->Checked) continue;
+        if (jr->getStatus() == LCDbCryoJob::Status::DELETED             && !cbDeleted->Checked) continue;
+        if (jr->getJobType() == LCDbCryoJob::JobKind::BOX_RETRIEVAL     && !cbBoxRetrieval->Checked) continue;
+        if (jr->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL  && !cbSampleRetrieval->Checked) continue;
+        if (jr->getJobType() == LCDbCryoJob::JobKind::BOX_MOVE          && !cbBoxMove->Checked) continue;
+        if (jr->getJobType() == LCDbCryoJob::JobKind::BOX_DISCARD       && !cbBoxDiscard->Checked) continue;
+        if (jr->getJobType() == LCDbCryoJob::JobKind::SAMPLE_DISCARD    && !cbSampleDiscard->Checked) continue;
+        LCDbCryoJob * job = new LCDbCryoJob(); *job = *jr;
         vecJobs.push_back(job);
     }
     showJobs();
@@ -144,37 +165,23 @@ void TfrmRetrievalAssistant::showJobs() {
     int row = 1;
     for (it = vecJobs.begin(); it != vecJobs.end(); it++, row++) {
         LCDbCryoJob * job = *it;
+//        std::ostringstream oss;
+//        oss<<__FUNC__<<", type: "<<jr->getJobType()<<": desc: "<<job->getDescription().c_str();
+//        debugLog(oss.str().c_str());
+        // jobs have already been filtered; need to be to know size of array
 //        if (job->getStatus() == LCDbCryoJob::Status::NEW_JOB            && !cbNewJob->Checked) continue;
 //        if (job->getStatus() == LCDbCryoJob::INPROGRESS                 && !cbInProgress->Checked) continue;
 //        if (job->getStatus() == LCDbCryoJob::DONE                       && !cbDone->Checked) continue;
 //        if (job->getStatus() == LCDbCryoJob::DELETED                    && !cbDeleted->Checked) continue;
 //        if (job->getJobType() == LCDbCryoJob::JobKind::BOX_RETRIEVAL    && !cbBox->Checked) continue;
 //        if (job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL && !cbBox->Checked) continue;
-/*
-    sgJobs->Cells[0][0] = "Description";
-    sgJobs->Cells[1][0] = "Job type";
-    sgJobs->Cells[2][0] = "Status";
-    sgJobs->Cells[3][0] = "Primary Aliquot";
-    sgJobs->Cells[4][0] = "Project";
-    sgJobs->Cells[5][0] = "Reason";
-    sgJobs->Cells[6][0] = "TimeStamp";
 
-#define SGJOBS_COL_DESCRIP      0
-#define SGJOBS_COL_JOBTYPE      1
-#define SGJOBS_COL_STATUS       2
-#define SGJOBS_COL_PRIMARY      3
-#define SGJOBS_COL_PROJECT      4
-#define SGJOBS_COL_REASON       5
-#define SGJOBS_COL_TIMESTAMP    6
-
-*/
         sgJobs->Cells[SGJOBS_COL_DESCRIP]   [row] = job->getDescription().c_str();
         sgJobs->Cells[SGJOBS_COL_JOBTYPE]   [row] = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
         sgJobs->Cells[SGJOBS_COL_STATUS]    [row] = jobStatusString(job->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
         sgJobs->Cells[SGJOBS_COL_PRIMARY]   [row] = getAliquotDescription(job->getPrimaryAliquot()).c_str(); // int
         sgJobs->Cells[SGJOBS_COL_PROJECT]   [row] = getProjectDescription(job->getProjectID()).c_str();
         sgJobs->Cells[SGJOBS_COL_REASON]    [row] = job->getReason().c_str();
-        //sgJobs->Cells[5][row] = job->getUserID();
         sgJobs->Cells[SGJOBS_COL_TIMESTAMP] [row] = job->getTimeStamp().DateTimeString();
         sgJobs->Objects[0][row] = (TObject *)job;
     }
@@ -230,13 +237,6 @@ void TfrmRetrievalAssistant::loadBoxes() {
     }
 }
 
-void __fastcall TfrmRetrievalAssistant::cbNewJobClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbInProgressClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbDoneClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbDeletedClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbBoxClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbSampleClick(TObject *Sender) { loadJobs(); }
-
 void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     //Sender->
     //g->MouseToCell(X, Y, colno, rowno);
@@ -244,11 +244,10 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     if (    job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL
         &&  job->getStatus() == LCDbCryoJob::Status::NEW_JOB) {
         frmRetrievalManager->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
-        frmRetrievalManager->jobType = LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL;
     } else {
         frmRetrievalManager->autochunk = false; // and form type =
-        frmRetrievalManager->jobType = LCDbCryoJob::JobKind::BOX_RETRIEVAL;
     }
+    frmRetrievalManager->setJob(job);
     frmRetrievalManager->ShowModal();
 }
 

@@ -98,6 +98,7 @@ object frmRetrievalManager: TfrmRetrievalManager
       Width = 627
       Height = 248
       Align = alClient
+      DefaultDrawing = False
       FixedCols = 0
       Options = [goFixedVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goAlwaysShowEditor, goThumbTracking]
       TabOrder = 1
