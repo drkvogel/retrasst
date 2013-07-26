@@ -55,13 +55,14 @@ public:
 	TDateTime getFinishDate() const { return finish_date; }
 */
 
-class Chunk {
+class Chunk { // c_retrieval_plan_chunk
 public:
-    Chunk() : section(0), retrieval_cid(0), name(""), start(0), end(0) { }
+    //Chunk() : section(0), retrieval_cid(0), name(""), start(0), end(0) { }
+    Chunk() : section(0), start(0), end(0) { }
     int         section;
-    int         retrieval_cid;
+    //int         retrieval_cid;
     //int         exercise_cid;
-    std::string name;
+    //std::string name;
     int         start;
     int         end;
     //string      descrip;
@@ -72,13 +73,41 @@ public:
 
 typedef std::vector< Chunk * >  vecpChunk;
 
+//	enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
+//	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
+class RetrievalPlan : public LCDbID { // c_retrieval_plan
+    int                     retrieval_plan_cid;
+    std::string             name;
+    vecpChunk               chunks;
+    int                     status;
+    LCDbCryoJob::JobKind    jobType;
+public:
+    RetrievalPlan(std::string nm) : retrieval_plan_cid(0), name(nm) { }
+    void readChunks();
+    void deletePlan() { /* set 99 */ }
+    void setCID(int id) { retrieval_plan_cid = id; }
+    void setStatus(int st) { status = st; }
+    int getStatus() { return status; }
+    void setName(std::string nm) { name = nm; }
+    std::string getName() { return name; }
+    void addChunk(Chunk * ch) { chunks.push_back(ch); }
+    void popChunk() { delete chunks.back(); chunks.pop_back(); }
+};
+
+typedef std::vector<RetrievalPlan *> vecpRetrievalPlan;
+
+//class RetrievalPlans : public LCDbID {
+class RetrievalPlans : public LDbCache< RetrievalPlan >, public LDbSingleton< RetrievalPlan > {
+    vecpRetrievalPlan plans;
+public:
+    void read();
+};
+
 typedef std::vector< LCDbBoxStore *> vecpBox;
 typedef std::vector< LPDbCryovialStore *> vecpVial;
 
-
-class TfrmRetrievalManager : public TForm
-{
-__published:	// IDE-managed Components
+class TfrmRetrievalManager : public TForm {
+__published:
     TGroupBox *groupList;
     TPanel *Panel1;
     TButton *btnSave;
@@ -101,15 +130,17 @@ __published:	// IDE-managed Components
     TRadioButton *radbutCustom;
     TEdit *editCustomRows;
     TTimer *timerCustomRows;
+    TGroupBox *GroupBox2;
+    TComboBox *comboPlans;
+    TButton *btnPlanSave;
+    TButton *btnDeletePlan;
     void __fastcall FormShow(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
     void __fastcall btnAddChunkClick(TObject *Sender);
     void __fastcall btnDelChunkClick(TObject *Sender);
-    void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
-          TGridDrawState State);
-    void __fastcall sgChunksSetEditText(TObject *Sender, int ACol, int ARow,
-          const UnicodeString Value);
+    void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
+    void __fastcall sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value);
     void __fastcall cbLogClick(TObject *Sender);
     void __fastcall btnSaveClick(TObject *Sender);
     void __fastcall sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow);
@@ -118,8 +149,12 @@ __published:	// IDE-managed Components
     void __fastcall radbutDefaultClick(TObject *Sender);
     void __fastcall radbutAllClick(TObject *Sender);
     void __fastcall radbutCustomClick(TObject *Sender);
-
+    void __fastcall btnDeletePlanClick(TObject *Sender);
+    void __fastcall btnPlanSaveClick(TObject *Sender);
+    void __fastcall comboPlansSelect(TObject *Sender);
+    void __fastcall comboPlansChange(TObject *Sender);
 private:
+    vecpRetrievalPlan plans;
     LCDbCryoJob * job;
     vecpChunk chunks;
     vecpBox boxes;
@@ -129,10 +164,11 @@ private:
     void showChunks();
     void loadRows(int numrows);
     void radgrpRowsChange();
+    void loadPlans();
+    void showPlans();
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     bool autochunk;
-    //LCDbCryoJob::JobKind jobType;
     __fastcall TfrmRetrievalManager(TComponent* Owner);
 };
 

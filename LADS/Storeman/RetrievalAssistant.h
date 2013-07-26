@@ -42,9 +42,8 @@ static const char * jobTypeString(short status) {
 //}
 typedef std::vector<LCDbCryoJob *> tdvecpJob;
 
-class TfrmRetrievalAssistant : public TForm
-{
-__published:	// IDE-managed Components
+class TfrmRetrievalAssistant : public TForm {
+__published:
     TGroupBox *GroupBox1;
     TStringGrid *sgJobs;
     TPanel *Panel2;
@@ -62,6 +61,7 @@ __published:	// IDE-managed Components
     TButton *btnExit;
     TCheckBox *cbLog;
     TMemo *memoDebug;
+    TRadioGroup *radgrpMode;
     void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall cbNewJobClick(TObject *Sender);
     void __fastcall cbInProgressClick(TObject *Sender);
@@ -75,7 +75,7 @@ __published:	// IDE-managed Components
     void __fastcall cbBoxDiscardClick(TObject *Sender);
     void __fastcall cbSampleDiscardClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
-private:	// User declarations
+private:
     void debugLog(String s);
     tdvecpJob vecJobs;
     void loadJobs();
@@ -85,7 +85,7 @@ private:	// User declarations
     std::string getProjectDescription(int project_cid);
     std::string getAliquotDescription(int primary_aliquot);
     std::string getAuditInfo(int process_cid);
-public:		// User declarations
+public:
     __fastcall TfrmRetrievalAssistant(TComponent* Owner);
     void init();
 };

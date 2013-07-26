@@ -18,6 +18,32 @@ TfrmRetrievalManager *frmRetrievalManager;
 
 void debugLog(String s) { frmRetrievalManager->memoDebug->Lines->Add(s); }
 
+void RetrievalPlan::readChunks() {
+    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
+    LQuery q(LIMSDatabase::getCentralDb());
+    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
+    q.setSQL("SELECT * FROM c_retrieval_plan WHERE status != 99");
+}
+
+void RetrievalPlans::read() {
+    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
+
+    LQuery q(LIMSDatabase::getCentralDb());
+    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
+    q.setSQL("SELECT * FROM c_retrieval_plan WHERE status != 99");
+    Screen->Cursor = crSQLWait;
+    q.open();
+    delete_referenced<vecpRetrievalPlan>(plans);
+    while (!q.eof()) {
+        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
+        //ob-> = q.readInt("");
+        //ob-> = q.readString("");
+        plans.push_back(plan);
+        q.next();
+    }
+    Screen->Cursor = crDefault;
+}
+
 __fastcall TfrmRetrievalManager::TfrmRetrievalManager(TComponent* Owner) : TForm(Owner) { }
 
 void __fastcall TfrmRetrievalManager::FormCreate(TObject *Sender) {
@@ -100,7 +126,6 @@ void __fastcall TfrmRetrievalManager::cbLogClick(TObject *Sender) {
 
 void __fastcall TfrmRetrievalManager::btnDelChunkClick(TObject *Sender) {
     if (MYDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
-        //tdvecpChunk::iterator it = chunks.back();  //Chunk * chunk = *it; //delete chunk;
         delete chunks.back();
         chunks.pop_back();
         showChunks();
@@ -138,8 +163,9 @@ void TfrmRetrievalManager::loadChunks() {
     Screen->Cursor = crDefault;
 
     int row = 1;
+    sgObs->RowCount = obs.size()+1;
     vecpOb::const_iterator it;
-    for (it = .begin(); it != .end(); it++) {
+    for (it = obs.begin(); it != obs.end(); it++, row++) {
         Ob * ob = *it;
         sgObs->Cells[SGOBJS_COL_1][row] = ob->;
         sgObs->Objects[0][row] = (TObject *)ob;
@@ -308,3 +334,94 @@ void TfrmRetrievalManager::radgrpRowsChange() {
     debugLog(oss.str().c_str());
     loadRows(numrows);
 }
+
+void __fastcall TfrmRetrievalManager::btnDeletePlanClick(TObject *Sender) {
+/*
+    ostringstream oss; oss<<__FUNC__<<": var: "<<var;
+    debugLog(oss.str().c_str());
+
+    LQuery q(LIMSDatabase::getCentralDb());
+    LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
+    q.setSQL("SELECT * FROM obs WHERE ");
+    Screen->Cursor = crSQLWait;
+    q.open();
+    delete_referenced<vecpOb>(obs);
+    while (!q.eof()) {
+        Ob * ob = new Ob();
+        ob-> = q.readInt("");
+        ob-> = q.readString("");
+        obs.push_back(ob);
+        q.next();
+    }
+    Screen->Cursor = crDefault;
+
+    int row = 1;
+    vecpOb::const_iterator it;
+    for (it = .begin(); it != .end(); it++) {
+        Ob * ob = *it;
+        sgObs->Cells[SGOBJS_COL_1][row] = ob->;
+        sgObs->Objects[0][row] = (TObject *)ob;
+    }
+*/
+}
+
+void TfrmRetrievalManager::loadPlans() {
+    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
+    Screen->Cursor = crSQLWait;
+    LQuery q(LIMSDatabase::getCentralDb());
+    q.setSQL("SELECT * FROM c_retrieval_plan WHERE status != 99");
+    //q.setParam("name", bcsToStd(comboPlan->Text));
+    q.open();
+    delete_referenced<vecpRetrievalPlan>(plans);
+    while (!q.eof()) {
+        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
+        //ob-> = q.readInt("");
+        //ob-> = q.readString("");
+        plans.push_back(plan);
+        q.next();
+    }
+    showPlans();
+    Screen->Cursor = crDefault;
+}
+
+void TfrmRetrievalManager::showPlans() {
+    int row = 1;
+    comboPlans->Clear();
+    vecpRetrievalPlan::const_iterator it;
+    for (it = plans.begin(); it != plans.end(); it++, row++) {
+        RetrievalPlan * plan = *it;
+        comboPlans->AddItem(plan->getName().c_str(), (TObject *)plan);
+    }
+}
+
+void __fastcall TfrmRetrievalManager::btnPlanSaveClick(TObject *Sender) {
+    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
+    Screen->Cursor = crSQLWait;
+    LQuery q(LIMSDatabase::getCentralDb());
+    RetrievalPlan * plan = (RetrievalPlan *)comboPlans->Items->Objects[comboPlans->ItemIndex];
+    q.setSQL("SELECT * FROM c_retrieval_plan WHERE name = :name");
+    q.setParam("name", bcsToStd(comboPlans->Text));
+    if (q.open()) { // if plan name exists, replace it
+        q.setSQL(   "UPDATE c_retrieval_plan SET "
+                    " WHERE name = :name");
+    } else {
+        plan->claimNextID(q); //
+        plan->getID();
+        q.setSQL(   "INSERT INTO c_retrieval_plan (,,,) "
+                    " VALUES (name = :name, ) ");
+    }
+    q.setParam("name", bcsToStd(comboPlans->Text));
+    q.execSQL();
+    Screen->Cursor = crDefault;
+}
+
+
+void __fastcall TfrmRetrievalManager::comboPlansSelect(TObject *Sender) {
+    //
+}
+
+void __fastcall TfrmRetrievalManager::comboPlansChange(TObject *Sender) {
+    //
+}
+
+

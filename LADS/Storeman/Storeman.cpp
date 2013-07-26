@@ -14,6 +14,9 @@
 
 
 
+
+
+
 USEFORM("DiscardSamples.cpp", frmDiscardSamples);
 USEFORM("DiscardSearch.cpp", frmSearch);
 USEFORM("DiscardReason.cpp", frmDiscardReason);
@@ -49,6 +52,7 @@ USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
 USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
 USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
 USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
+USEFORM("RetrievalProcess.cpp", frmRetrievalProcess);
 //---------------------------------------------------------------------------
 WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
@@ -89,6 +93,7 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmTest), &frmTest);
          Application->CreateForm(__classid(TfrmRetrievalManager), &frmRetrievalManager);
          Application->CreateForm(__classid(TfrmRetrievalAssistant), &frmRetrievalAssistant);
+         Application->CreateForm(__classid(TfrmRetrievalProcess), &frmRetrievalProcess);
          Application->Run();
 	}
 	catch (Exception &exception)

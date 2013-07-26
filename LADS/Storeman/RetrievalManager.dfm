@@ -20,23 +20,23 @@ object frmRetrievalManager: TfrmRetrievalManager
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
-    Top = 265
+    Top = 308
     Width = 713
     Height = 10
     Cursor = crVSplit
     Align = alTop
     Beveled = True
+    ExplicitTop = 265
     ExplicitWidth = 841
   end
   object groupList: TGroupBox
     Left = 0
-    Top = 0
+    Top = 43
     Width = 713
     Height = 265
     Align = alTop
     Caption = 'Manage Chunks'
     TabOrder = 0
-    ExplicitWidth = 841
     object Panel2: TPanel
       Left = 629
       Top = 15
@@ -45,8 +45,6 @@ object frmRetrievalManager: TfrmRetrievalManager
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 648
-      ExplicitHeight = 128
       object btnAddChunk: TButton
         Left = 6
         Top = 0
@@ -105,8 +103,6 @@ object frmRetrievalManager: TfrmRetrievalManager
       OnDrawCell = sgChunksDrawCell
       OnFixedCellClick = sgChunksFixedCellClick
       OnSetEditText = sgChunksSetEditText
-      ExplicitTop = 21
-      ExplicitWidth = 625
     end
   end
   object Panel1: TPanel
@@ -203,38 +199,66 @@ object frmRetrievalManager: TfrmRetrievalManager
   end
   object GroupBox1: TGroupBox
     Left = 0
-    Top = 275
+    Top = 318
     Width = 713
-    Height = 269
+    Height = 226
     Align = alClient
     Caption = 'Chunk details'
     TabOrder = 2
-    ExplicitTop = 277
-    ExplicitWidth = 841
-    ExplicitHeight = 299
     object sgChunk: TStringGrid
       Left = 2
       Top = 15
       Width = 709
-      Height = 163
+      Height = 120
       Align = alClient
       FixedCols = 0
       TabOrder = 0
-      ExplicitWidth = 728
-      ExplicitHeight = 263
     end
     object memoDebug: TMemo
       Left = 2
-      Top = 178
+      Top = 135
       Width = 709
       Height = 89
       Align = alBottom
       Lines.Strings = (
         'memoDebug')
       TabOrder = 1
-      ExplicitLeft = 88
-      ExplicitTop = 192
-      ExplicitWidth = 185
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 0
+    Top = 0
+    Width = 713
+    Height = 43
+    Align = alTop
+    Caption = 'Retrieval Plan'
+    TabOrder = 3
+    object comboPlans: TComboBox
+      Left = 10
+      Top = 16
+      Width = 538
+      Height = 21
+      TabOrder = 0
+      OnChange = comboPlansChange
+      OnSelect = comboPlansSelect
+    end
+    object btnPlanSave: TButton
+      Left = 554
+      Top = 12
+      Width = 75
+      Height = 25
+      Caption = 'Save'
+      TabOrder = 1
+      OnClick = btnPlanSaveClick
+    end
+    object btnDeletePlan: TButton
+      Left = 635
+      Top = 12
+      Width = 75
+      Height = 25
+      Caption = 'Delete'
+      TabOrder = 2
+      OnClick = btnDeletePlanClick
     end
   end
   object timerCustomRows: TTimer

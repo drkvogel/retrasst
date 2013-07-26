@@ -8,6 +8,7 @@
 #include "LCDbProject.h"
 #include "RetrievalManager.h"
 #include "ReferredBoxes.h"
+#include "RetrievalProcess.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -28,6 +29,7 @@ __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : T
 void TfrmRetrievalAssistant::init() {
     cbLog->Visible = MYDEBUG;
     memoDebug->Visible = MYDEBUG;
+    radgrpMode->ItemIndex = 1;
     sgJobs->Cells[SGJOBS_COL_DESCRIP]   [0] = "Description";
     sgJobs->Cells[SGJOBS_COL_JOBTYPE]   [0] = "Job type";
     sgJobs->Cells[SGJOBS_COL_STATUS]    [0] = "Status";
@@ -238,17 +240,46 @@ void TfrmRetrievalAssistant::loadBoxes() {
 }
 
 void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
-    //Sender->
-    //g->MouseToCell(X, Y, colno, rowno);
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
-    if (    job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL
-        &&  job->getStatus() == LCDbCryoJob::Status::NEW_JOB) {
-        frmRetrievalManager->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
-    } else {
-        frmRetrievalManager->autochunk = false; // and form type =
+    switch (job->getJobType()) {
+    case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
+    case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
+        // OK
+        break;
+    default:
+        return;
     }
-    frmRetrievalManager->setJob(job);
-    frmRetrievalManager->ShowModal();
+
+    switch (job->getStatus()) {
+    case LCDbCryoJob::Status::NEW_JOB:
+    case LCDbCryoJob::Status::INPROGRESS:
+        // OK
+        break;
+    default:
+        return;
+    }
+
+    // make INPROGRESS?
+
+    switch (radgrpMode->ItemIndex) {
+    case 0: // manage
+        if (    job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL
+            &&  job->getStatus() == LCDbCryoJob::Status::NEW_JOB) {
+            frmRetrievalManager->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
+        } else {
+            frmRetrievalManager->autochunk = false; // and form type = ?
+        }
+        frmRetrievalManager->setJob(job);
+        frmRetrievalManager->ShowModal();
+        break;
+    case 1: // process
+        frmRetrievalProcess->setJob(job);
+        frmRetrievalProcess->ShowModal();
+        break;
+    default:
+        throw Exception("Unknown mode");
+    }
 }
+
 
 

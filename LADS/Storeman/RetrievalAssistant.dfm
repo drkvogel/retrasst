@@ -40,8 +40,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       OnDblClick = sgJobsDblClick
       OnDrawCell = sgJobsDrawCell
       ExplicitLeft = 3
-      ExplicitTop = 11
-      ExplicitHeight = 367
       ColWidths = (
         196
         64
@@ -220,6 +218,20 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         ExplicitLeft = 25
         ExplicitTop = 254
         ExplicitWidth = 64
+      end
+      object radgrpMode: TRadioGroup
+        Left = 0
+        Top = 203
+        Width = 113
+        Height = 70
+        Align = alTop
+        Caption = 'Mode'
+        Items.Strings = (
+          'Manage'
+          'Process')
+        TabOrder = 4
+        ExplicitLeft = 6
+        ExplicitTop = 201
       end
     end
     object memoDebug: TMemo
