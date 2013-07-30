@@ -20,23 +20,23 @@ object frmRetrievalManager: TfrmRetrievalManager
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
-    Top = 308
+    Top = 265
     Width = 713
     Height = 10
     Cursor = crVSplit
     Align = alTop
     Beveled = True
-    ExplicitTop = 265
     ExplicitWidth = 841
   end
   object groupList: TGroupBox
     Left = 0
-    Top = 43
+    Top = 0
     Width = 713
     Height = 265
     Align = alTop
     Caption = 'Manage Chunks'
     TabOrder = 0
+    ExplicitTop = 43
     object Panel2: TPanel
       Left = 629
       Top = 15
@@ -199,66 +199,34 @@ object frmRetrievalManager: TfrmRetrievalManager
   end
   object GroupBox1: TGroupBox
     Left = 0
-    Top = 318
+    Top = 275
     Width = 713
-    Height = 226
+    Height = 269
     Align = alClient
     Caption = 'Chunk details'
     TabOrder = 2
+    ExplicitTop = 318
+    ExplicitHeight = 226
     object sgChunk: TStringGrid
       Left = 2
       Top = 15
       Width = 709
-      Height = 120
+      Height = 163
       Align = alClient
       FixedCols = 0
       TabOrder = 0
+      ExplicitHeight = 120
     end
     object memoDebug: TMemo
       Left = 2
-      Top = 135
+      Top = 178
       Width = 709
       Height = 89
       Align = alBottom
       Lines.Strings = (
         'memoDebug')
       TabOrder = 1
-    end
-  end
-  object GroupBox2: TGroupBox
-    Left = 0
-    Top = 0
-    Width = 713
-    Height = 43
-    Align = alTop
-    Caption = 'Retrieval Plan'
-    TabOrder = 3
-    object comboPlans: TComboBox
-      Left = 10
-      Top = 16
-      Width = 538
-      Height = 21
-      TabOrder = 0
-      OnChange = comboPlansChange
-      OnSelect = comboPlansSelect
-    end
-    object btnPlanSave: TButton
-      Left = 554
-      Top = 12
-      Width = 75
-      Height = 25
-      Caption = 'Save'
-      TabOrder = 1
-      OnClick = btnPlanSaveClick
-    end
-    object btnDeletePlan: TButton
-      Left = 635
-      Top = 12
-      Width = 75
-      Height = 25
-      Caption = 'Delete'
-      TabOrder = 2
-      OnClick = btnDeletePlanClick
+      ExplicitTop = 135
     end
   end
   object timerCustomRows: TTimer

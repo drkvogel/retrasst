@@ -130,10 +130,6 @@ __published:
     TRadioButton *radbutCustom;
     TEdit *editCustomRows;
     TTimer *timerCustomRows;
-    TGroupBox *GroupBox2;
-    TComboBox *comboPlans;
-    TButton *btnPlanSave;
-    TButton *btnDeletePlan;
     void __fastcall FormShow(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
@@ -149,10 +145,10 @@ __published:
     void __fastcall radbutDefaultClick(TObject *Sender);
     void __fastcall radbutAllClick(TObject *Sender);
     void __fastcall radbutCustomClick(TObject *Sender);
-    void __fastcall btnDeletePlanClick(TObject *Sender);
-    void __fastcall btnPlanSaveClick(TObject *Sender);
-    void __fastcall comboPlansSelect(TObject *Sender);
-    void __fastcall comboPlansChange(TObject *Sender);
+//    void __fastcall btnDeletePlanClick(TObject *Sender);
+//    void __fastcall btnPlanSaveClick(TObject *Sender);
+//    void __fastcall comboPlansSelect(TObject *Sender);
+//    void __fastcall comboPlansChange(TObject *Sender);
 private:
     vecpRetrievalPlan plans;
     LCDbCryoJob * job;
@@ -164,8 +160,8 @@ private:
     void showChunks();
     void loadRows(int numrows);
     void radgrpRowsChange();
-    void loadPlans();
-    void showPlans();
+//    void loadPlans();
+//    void showPlans();
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     bool autochunk;
