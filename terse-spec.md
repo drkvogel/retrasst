@@ -84,3 +84,20 @@ Insert an entry into `c_box_retrieval` for each destination box, recording the s
 
     C_retrieval_job.status = in progress (1) and job.type in (2,3,4,5): act on list [tbd]
     C_retrieval_job.status not in (0,1) or job.type not in (2,3,4,5): complain
+    
+    
+    
+bool LCDbCryoJob::isAvailable() const
+{
+return status != INPROGRESS
+|| processID == LCDbAuditTrail::getCurrent().getProcessID()
+|| claimed_until < Now();
+
+enum Category { UNKNOWN, CALIBRANT, REAGENT, ANALYSER_EVENT, SIS_EVENT, CLUSTER = 5,
+                ALIQUOT_TYPE, STORAGE_TYPE, STORAGE_SITE, STORAGE_POPULATION, TANK_LAYOUT = 10,
+                PROGRAM_NAME, SAMPLE_CATEGORY, RESULT_ATTRIBUTE, LAB_NAME, ALIQUOT_CATEGORY = 15,
+                STORAGE_VESSEL, QC_MATERIAL, TUBE_TYPE, CANNED_TEXT, STORAGE_EXERCISE = 20,
+                NUM_TYPES };
+LCDbProjects::getCurrentID()
+
+short LPDbBoxName::getSize()    

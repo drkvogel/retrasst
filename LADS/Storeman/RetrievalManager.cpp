@@ -17,31 +17,23 @@ TfrmRetrievalManager *frmRetrievalManager;
 
 void debugLog(String s) { frmRetrievalManager->memoDebug->Lines->Add(s); }
 
-void RetrievalPlan::readChunks() {
+/*
     ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
     LQuery q(LIMSDatabase::getCentralDb());
     //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
-    q.setSQL("SELECT * FROM c_retrieval_plan WHERE status != 99");
-}
-
-void RetrievalPlans::read() {
-    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
-
-    LQuery q(LIMSDatabase::getCentralDb());
-    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
-    q.setSQL("SELECT * FROM c_retrieval_plan WHERE status != 99");
+    q.setSQL("SELECT * FROM  WHERE status != 99");
     Screen->Cursor = crSQLWait;
     q.open();
-    delete_referenced<vecpRetrievalPlan>(plans);
+    delete_referenced<vecp>(s);
     while (!q.eof()) {
         RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
         //ob-> = q.readInt("");
         //ob-> = q.readString("");
-        plans.push_back(plan);
+        s.push_back();
         q.next();
     }
     Screen->Cursor = crDefault;
-}
+*/
 
 __fastcall TfrmRetrievalManager::TfrmRetrievalManager(TComponent* Owner) : TForm(Owner) { }
 
@@ -381,7 +373,6 @@ void TfrmRetrievalManager::radgrpRowsChange() {
 //    }
 //*/
 //}
-
 //void TfrmRetrievalManager::loadPlans() {
 //    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
 //    Screen->Cursor = crSQLWait;
@@ -400,7 +391,6 @@ void TfrmRetrievalManager::radgrpRowsChange() {
 //    showPlans();
 //    Screen->Cursor = crDefault;
 //}
-
 //void TfrmRetrievalManager::showPlans() {
 //    int row = 1;
 //    comboPlans->Clear();
@@ -410,7 +400,6 @@ void TfrmRetrievalManager::radgrpRowsChange() {
 //        comboPlans->AddItem(plan->getName().c_str(), (TObject *)plan);
 //    }
 //}
-
 //void __fastcall TfrmRetrievalManager::btnPlanSaveClick(TObject *Sender) {
 //    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
 //    Screen->Cursor = crSQLWait;
@@ -431,8 +420,6 @@ void TfrmRetrievalManager::radgrpRowsChange() {
 //    q.execSQL();
 //    Screen->Cursor = crDefault;
 //}
-
-
 //void __fastcall TfrmRetrievalManager::comboPlansSelect(TObject *Sender) {
 //    //
 //}
@@ -440,5 +427,3 @@ void TfrmRetrievalManager::radgrpRowsChange() {
 //void __fastcall TfrmRetrievalManager::comboPlansChange(TObject *Sender) {
 //    //
 //}
-
-

@@ -36,7 +36,6 @@ object frmRetrievalManager: TfrmRetrievalManager
     Align = alTop
     Caption = 'Manage Chunks'
     TabOrder = 0
-    ExplicitTop = 43
     object Panel2: TPanel
       Left = 629
       Top = 15
@@ -205,8 +204,6 @@ object frmRetrievalManager: TfrmRetrievalManager
     Align = alClient
     Caption = 'Chunk details'
     TabOrder = 2
-    ExplicitTop = 318
-    ExplicitHeight = 226
     object sgChunk: TStringGrid
       Left = 2
       Top = 15
@@ -215,7 +212,6 @@ object frmRetrievalManager: TfrmRetrievalManager
       Align = alClient
       FixedCols = 0
       TabOrder = 0
-      ExplicitHeight = 120
     end
     object memoDebug: TMemo
       Left = 2
@@ -226,7 +222,6 @@ object frmRetrievalManager: TfrmRetrievalManager
       Lines.Strings = (
         'memoDebug')
       TabOrder = 1
-      ExplicitTop = 135
     end
   end
   object timerCustomRows: TTimer

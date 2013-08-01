@@ -97,11 +97,11 @@ public:
 typedef std::vector<RetrievalPlan *> vecpRetrievalPlan;
 
 //class RetrievalPlans : public LCDbID {
-class RetrievalPlans : public LDbCache< RetrievalPlan >, public LDbSingleton< RetrievalPlan > {
-    vecpRetrievalPlan plans;
-public:
-    void read();
-};
+//class RetrievalPlans : public LDbCache< RetrievalPlan >, public LDbSingleton< RetrievalPlan > {
+//    vecpRetrievalPlan plans;
+//public:
+//    void read();
+//};
 
 typedef std::vector< LCDbBoxStore *> vecpBox;
 typedef std::vector< LPDbCryovialStore *> vecpVial;
@@ -145,10 +145,6 @@ __published:
     void __fastcall radbutDefaultClick(TObject *Sender);
     void __fastcall radbutAllClick(TObject *Sender);
     void __fastcall radbutCustomClick(TObject *Sender);
-//    void __fastcall btnDeletePlanClick(TObject *Sender);
-//    void __fastcall btnPlanSaveClick(TObject *Sender);
-//    void __fastcall comboPlansSelect(TObject *Sender);
-//    void __fastcall comboPlansChange(TObject *Sender);
 private:
     vecpRetrievalPlan plans;
     LCDbCryoJob * job;
