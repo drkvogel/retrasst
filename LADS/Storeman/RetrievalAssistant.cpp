@@ -111,22 +111,38 @@ Sample retrieval
 
     At least half of these will be for the primary aliquot
     (i.e. cryovial.aliquot_type_cid = c_retrieval_job.primary_aliquot).
+
     The others may be for the secondary aliquot.
+
     Primary and secondary tubes may have the same barcode but should always come from specimen entries
     with the same source name.
-    Entries for the primary aliquot may have a destination box defined.  You could find these using a left join:
 
-    select ... from cryovial_store s1
-    left join cryovial c on c.cryovial_id = s1.cryovial_id
-    left join box_name n1 on n1.box_cid = s1.box_cid
-    left join cryovial_store s2 on s1.cryovial_id = s2.cryovial_id and s2.status = 0
-    left join box_name n2 on n2.box_cid = s2.box_cid
-    where s1.retrieval_cid = :jobID
+    Entries for the primary aliquot may have a destination box defined.
+    You could find these using a left join:
+
+    select
+        ...
+    from
+        cryovial_store s1
+    left join
+        cryovial c on c.cryovial_id = s1.cryovial_id
+    left join
+        box_name n1 on n1.box_cid = s1.box_cid
+    left join
+        cryovial_store s2 on s1.cryovial_id = s2.cryovial_id and
+        s2.status = 0
+    left join
+        box_name n2 on n2.box_cid = s2.box_cid
+    where
+        s1.retrieval_cid = :jobID
 
     If no destination boxes have been defined, ask for the box type and create suitable entries in box_name.
+
     Piece this information together to create a list giving the destination box+position,
     cryovial barcode and current box+position+structure+location of the primary and secondary aliquots.
+
     The user may want to export and/or import the list to specify the retrieval plan – this needs further thought.
+
     Display the size of the job and ask user if they want to divide up the list.  If they do:
     1.	Ask them the maximum chunk size (default = 500 cryovials)
     2.	Calculate slots/box (where c_box_size.box_size_cid = box_content.box_size_cid)
@@ -142,6 +158,7 @@ Sample retrieval
 
     Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
     and a record into l_cryovial_retrieval for each cryovial, recording its position in the list.
+
     Update c_retrieval_job: set status=in progress (1)
 
     Other jobs
