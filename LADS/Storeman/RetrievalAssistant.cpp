@@ -39,11 +39,28 @@ Box retrieval
 
     Find where the boxes are currently stored:
 
-    Select b.external_name as box, s.external_name as site, m.position, v.external_full as vessel, m.shelf_number,
-    r.external_name as rack, bs.slot_position
-    from box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v
-    where b.box_cid=bs.box_cid and bs.rack_cid = r.rack_cid and r.tank_cid = m.tank_cid and s.object_cid = location_cid
-    and v.object_cid = storage_cid and bs.retrieval_cid = :jobID; // e.g. -636363
+    Select 
+        b.external_name as box, 
+        s.external_name as site, 
+        m.position, 
+        v.external_full as vessel, 
+        m.shelf_number,
+        r.external_name as rack, 
+        bs.slot_position
+    from 
+        box_name b, 
+        box_store bs, 
+        c_rack_number r, 
+        c_tank_map m, 
+        c_object_name s, 
+        c_object_name v
+    where 
+        b.box_cid = bs.box_cid and 
+        bs.rack_cid = r.rack_cid and 
+        r.tank_cid = m.tank_cid and 
+        s.object_cid = location_cid and 
+        v.object_cid = storage_cid and 
+        bs.retrieval_cid = :jobID; // e.g. -636363
 
     *List the name, current structure and expected location of each box.
     The location should include site+position+name+layout, as it does in StoreMan’s storage browser.
@@ -59,14 +76,38 @@ Sample retrieval
 
     Find the samples to be retrieved:
 
-    Select cryovial_barcode, t.external_name as aliquot, b.external_name as box,
-    cryovial_position, s.external_name as site, m.position, v.external_full as vessel, shelf_number,
-    r.external_name as rack, bs.slot_position from cryovial c, cryovial_store cs, box_name b, box_store bs,
-    c_rack_number r, c_tank_map m, c_object_name s, c_object_name v, c_object_name t
-    where c.cryovial_id=cs.cryovial_id and b.box_cid = cs.box_cid and b.box_cid = bs.box_cid
-    and bs.status = 6 and t.object_cid = aliquot_type_cid and bs.rack_cid=r.rack_cid
-    and r.tank_cid = m.tank_cid and s.object_cid = location_cid and v.object_cid = storage_cid
-    and cs.retrieval_cid = :jobID;
+    Select 
+        cryovial_barcode, 
+        t.external_name as aliquot, 
+        b.external_name as box,
+        cryovial_position, 
+        s.external_name as site, 
+        m.position, 
+        v.external_full as vessel, 
+        shelf_number,
+        r.external_name as rack, 
+        bs.slot_position 
+    from 
+        cryovial c, 
+        cryovial_store cs, 
+        box_name b, 
+        box_store bs,
+        c_rack_number r, 
+        c_tank_map m, 
+        c_object_name s,    -- site
+        c_object_name v,    -- vessel 
+        c_object_name t     -- aliquot?
+    where 
+        c.cryovial_id = cs.cryovial_id and 
+        b.box_cid = cs.box_cid and 
+        b.box_cid = bs.box_cid and 
+        bs.status = 6 and   -- 6?
+        t.object_cid = aliquot_type_cid and 
+        bs.rack_cid = r.rack_cid and 
+        r.tank_cid = m.tank_cid and 
+        s.object_cid = location_cid and 
+        v.object_cid = storage_cid and 
+        cs.retrieval_cid = :jobID;
 
     At least half of these will be for the primary aliquot
     (i.e. cryovial.aliquot_type_cid = c_retrieval_job.primary_aliquot).
