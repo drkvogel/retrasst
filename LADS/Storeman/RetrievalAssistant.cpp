@@ -171,7 +171,7 @@ Sample retrieval
 void TfrmRetrievalAssistant::init() {
     cbLog->Visible = MYDEBUG;
     memoDebug->Visible = MYDEBUG;
-    radgrpMode->ItemIndex = 1;
+    radgrpMode->ItemIndex = 0;
     sgJobs->Cells[SGJOBS_COL_DESCRIP]   [0] = "Description";
     sgJobs->Cells[SGJOBS_COL_JOBTYPE]   [0] = "Job type";
     sgJobs->Cells[SGJOBS_COL_STATUS]    [0] = "Status";

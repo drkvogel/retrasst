@@ -22,8 +22,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
     Align = alClient
     Caption = 'Jobs'
     TabOrder = 0
-    ExplicitWidth = 710
-    ExplicitHeight = 408
     object sgJobs: TStringGrid
       Left = 2
       Top = 15
@@ -39,7 +37,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       TabOrder = 0
       OnDblClick = sgJobsDblClick
       OnDrawCell = sgJobsDrawCell
-      ExplicitLeft = 3
       ColWidths = (
         196
         64
@@ -57,9 +54,8 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 662
-      ExplicitTop = 11
-      ExplicitHeight = 367
+      ExplicitLeft = 655
+      ExplicitTop = 9
       object groupStatusCheck: TGroupBox
         Left = 0
         Top = 0
@@ -68,7 +64,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Align = alTop
         Caption = 'Status'
         TabOrder = 0
-        ExplicitWidth = 232
         object cbNewJob: TCheckBox
           Left = 2
           Top = 15
@@ -80,7 +75,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           State = cbChecked
           TabOrder = 0
           OnClick = cbNewJobClick
-          ExplicitWidth = 85
         end
         object cbInProgress: TCheckBox
           Left = 2
@@ -93,7 +87,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           State = cbChecked
           TabOrder = 1
           OnClick = cbInProgressClick
-          ExplicitWidth = 85
         end
         object cbDone: TCheckBox
           Left = 2
@@ -104,7 +97,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           Caption = 'Done'
           TabOrder = 2
           OnClick = cbDoneClick
-          ExplicitWidth = 85
         end
         object cbDeleted: TCheckBox
           Left = 2
@@ -115,7 +107,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           Caption = 'Deleted'
           TabOrder = 3
           OnClick = cbDeletedClick
-          ExplicitWidth = 85
         end
       end
       object groupRetrievalTypeCheck: TGroupBox
@@ -130,7 +121,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Padding.Right = 5
         Padding.Bottom = 5
         TabOrder = 1
-        ExplicitWidth = 232
         object cbBoxRetrieval: TCheckBox
           Left = 7
           Top = 20
@@ -142,7 +132,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           State = cbChecked
           TabOrder = 0
           OnClick = cbBoxRetrievalClick
-          ExplicitWidth = 100
         end
         object cbSampleRetrieval: TCheckBox
           Left = 7
@@ -155,7 +144,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           State = cbChecked
           TabOrder = 1
           OnClick = cbSampleRetrievalClick
-          ExplicitWidth = 100
         end
         object cbBoxMove: TCheckBox
           Left = 7
@@ -166,7 +154,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           Caption = 'Box Move'
           TabOrder = 2
           OnClick = cbBoxMoveClick
-          ExplicitWidth = 100
         end
         object cbBoxDiscard: TCheckBox
           Left = 7
@@ -177,7 +164,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           Caption = 'Box Discard'
           TabOrder = 3
           OnClick = cbBoxDiscardClick
-          ExplicitWidth = 100
         end
         object cbSampleDiscard: TCheckBox
           Left = 7
@@ -188,7 +174,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           Caption = 'Sample Discard'
           TabOrder = 4
           OnClick = cbSampleDiscardClick
-          ExplicitWidth = 100
         end
       end
       object btnExit: TButton
@@ -200,9 +185,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Caption = 'Exit'
         TabOrder = 2
         OnClick = btnExitClick
-        ExplicitLeft = 38
-        ExplicitTop = 40
-        ExplicitWidth = 75
       end
       object cbLog: TCheckBox
         Left = 0
@@ -215,9 +197,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         State = cbChecked
         TabOrder = 3
         OnClick = cbLogClick
-        ExplicitLeft = 25
-        ExplicitTop = 254
-        ExplicitWidth = 64
       end
       object radgrpMode: TRadioGroup
         Left = 0
@@ -230,8 +209,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           'Manage'
           'Process')
         TabOrder = 4
-        ExplicitLeft = 6
-        ExplicitTop = 201
       end
     end
     object memoDebug: TMemo
@@ -241,7 +218,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Height = 78
       Align = alBottom
       TabOrder = 2
-      ExplicitTop = 304
     end
   end
 end

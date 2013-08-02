@@ -17,6 +17,9 @@
 
 
 
+
+
+
 USEFORM("DiscardSamples.cpp", frmDiscardSamples);
 USEFORM("DiscardSearch.cpp", frmSearch);
 USEFORM("DiscardReason.cpp", frmDiscardReason);
@@ -29,6 +32,7 @@ USEFORM("AddSpecimens.cpp", frmAddSpecimens);
 USEFORM("BoxTransfer.cpp", frmBoxList);
 USEFORM("BrowseSample.cpp", frmBrowse);
 USEFORM("Configure.cpp", frmConfigure);
+USEFORM("MoveJobs.cpp", frmSelectJob);
 USEFORM("ShowSamples.cpp", frmAliquotTypes);
 USEFORM("SMLogin.cpp", frmLogin);
 USEFORM("SelectSamples.cpp", frmSelectBoxes);
@@ -36,23 +40,23 @@ USEFORM("SampleMove.cpp", frmMove);
 USEFORM("Temp.cpp", frmTest);
 USEFORM("Storemain.cpp", frmStoremain);
 USEFORM("SampleEntry.cpp", frmRetrieveMain);
-USEFORM("NewSite.cpp", frmNewSite);
 USEFORM("NewTank.cpp", frmNewTank);
-USEFORM("NewSection.cpp", frmNewSection);
-USEFORM("MoveJobs.cpp", frmSelectJob);
-USEFORM("NewJob.cpp", frmNewJob);
 USEFORM("NewType.cpp", frmNewType);
-USEFORM("RetrievalManager.cpp", frmRetrievalManager);
-USEFORM("RetrieveSamples.cpp", frmRetrieved);
-USEFORM("RetrievalAssistant.cpp", frmRetrievalAssistant);
+USEFORM("NewSite.cpp", frmNewSite);
+USEFORM("NewJob.cpp", frmNewJob);
+USEFORM("NewSection.cpp", frmNewSection);
 USEFORM("ReferredBoxes.cpp", frmReferred);
-USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
-USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
-USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
-USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
-USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
-USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
 USEFORM("RetrievalProcess.cpp", frmRetrievalProcess);
+USEFORM("RetrieveSamples.cpp", frmRetrieved);
+USEFORM("RetrievalManager.cpp", frmRetrievalManager);
+USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
+USEFORM("RetrievalAssistant.cpp", frmRetrievalAssistant);
+USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
+USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
+USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
+USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
+USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
+USEFORM("RetrievalAssistantSamples.cpp", frmSamples);
 //---------------------------------------------------------------------------
 WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
@@ -94,6 +98,7 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmRetrievalManager), &frmRetrievalManager);
          Application->CreateForm(__classid(TfrmRetrievalAssistant), &frmRetrievalAssistant);
          Application->CreateForm(__classid(TfrmRetrievalProcess), &frmRetrievalProcess);
+         Application->CreateForm(__classid(TfrmSamples), &frmSamples);
          Application->Run();
 	}
 	catch (Exception &exception)

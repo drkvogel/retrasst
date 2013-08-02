@@ -281,8 +281,6 @@ void TfrmRetrievalManager::loadRows(int numrows) {
     ostringstream oss;
     oss<<__FUNC__<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
-
-
 //    //LQuery qc(LIMSDatabase::getCentralDb());
 //    LQuery q(Util::projectQuery(project), true);
 //    //qp.setSQL("SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");

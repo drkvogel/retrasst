@@ -479,6 +479,12 @@
 				<DependentOn>RetrievalAssistant.h</DependentOn>
 				<BuildOrder>90</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="RetrievalAssistantSamples.cpp">
+				<Form>frmSamples</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalAssistantSamples.h</DependentOn>
+				<BuildOrder>94</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="RetrievalManager.cpp">
 				<Form>frmRetrievalManager</Form>
 				<FormType>dfm</FormType>
@@ -563,6 +569,7 @@
 			<FormResources Include="BoxTransfer.dfm"/>
 			<FormResources Include="BrowseSample.dfm"/>
 			<FormResources Include="Configure.dfm"/>
+			<FormResources Include="MoveJobs.dfm"/>
 			<FormResources Include="ShowSamples.dfm"/>
 			<FormResources Include="SMLogin.dfm"/>
 			<FormResources Include="SelectSamples.dfm"/>
@@ -570,23 +577,23 @@
 			<FormResources Include="Temp.dfm"/>
 			<FormResources Include="Storemain.dfm"/>
 			<FormResources Include="SampleEntry.dfm"/>
-			<FormResources Include="NewSite.dfm"/>
 			<FormResources Include="NewTank.dfm"/>
-			<FormResources Include="NewSection.dfm"/>
-			<FormResources Include="MoveJobs.dfm"/>
-			<FormResources Include="NewJob.dfm"/>
 			<FormResources Include="NewType.dfm"/>
-			<FormResources Include="RetrievalManager.dfm"/>
-			<FormResources Include="RetrieveSamples.dfm"/>
-			<FormResources Include="RetrievalAssistant.dfm"/>
+			<FormResources Include="NewSite.dfm"/>
+			<FormResources Include="NewJob.dfm"/>
+			<FormResources Include="NewSection.dfm"/>
 			<FormResources Include="ReferredBoxes.dfm"/>
-			<FormResources Include="ReferredBoxesSummary.dfm"/>
-			<FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
-			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
-			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
-			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
-			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
 			<FormResources Include="RetrievalProcess.dfm"/>
+			<FormResources Include="RetrieveSamples.dfm"/>
+			<FormResources Include="RetrievalManager.dfm"/>
+			<FormResources Include="ReferredBoxesSummary.dfm"/>
+			<FormResources Include="RetrievalAssistant.dfm"/>
+			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
+			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
+			<FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
+			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
+			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
+			<FormResources Include="RetrievalAssistantSamples.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
