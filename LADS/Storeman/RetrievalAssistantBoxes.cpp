@@ -2,6 +2,8 @@
 #pragma hdrstop
 #include "RetrievalAssistantBoxes.h"
 #include "ReferredBoxes.h"
+#include "StoreUtil.h"
+#include "LQuery.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -35,7 +37,7 @@ void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
     btnSave->Enabled = true;
     showChunks();
     loadRows();
-    //showRows();
+    showRows();
 }
 
 void __fastcall TfrmBoxes::btnCancelClick(TObject *Sender) { Close(); }
@@ -165,25 +167,6 @@ void TfrmBoxes::radgrpRowsChange() {
     loadRows();
 }
 
-//void TfrmRetrievalManager::loadChunks() {
-//    ostringstream oss; oss<<__FUNC__<<": var: "; debugLog(oss.str().c_str());
-//    Screen->Cursor = crSQLWait;
-//    LQuery q(LIMSDatabase::getCentralDb());
-//    delete_referenced<vecpChunk>(chunks);
-//    q.setSQL("SELECT * FROM c_retrieval_plan_chunk WHERE status != 99");
-//    q.open();
-//    while (!q.eof()) {
-//        Chunk * chunk = new Chunk();
-//        //Chunk chunk;
-//        //chunk-> = q.readInt("");
-//        //chunk-> = q.readString("");
-//        chunks.push_back(chunk);
-//        q.next();
-//    }
-//    showChunks();
-//    Screen->Cursor = crDefault;
-//}
-
 /*
     // load
     ostringstream oss; oss<<__FUNC__<<": var: "; debugLog(oss.str().c_str());
@@ -237,16 +220,13 @@ Find where the boxes are supposed to be:
     and bs.retrieval_cid = jobID;
 */
 
-
-
 /*
-
 LPDbCryovialStore::Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, DELETED = 99 };
 LPDbCryovial::Status { EXPECTED  = 0, STORED = 1, SPLIT = 2, DESTROYED = 3, DELETED = 99 };
 
 What is the difference between cryovial_store/LPDbCryovialStore and cryovial/LPDbCryovial?
-cryovial/LPDbCryovial is one record per cryovial.
-cryovial_store/LPDbCryovialStore can have many records per cryovial, detailing the storage history.
+    cryovial/LPDbCryovial is one record per cryovial.
+    cryovial_store/LPDbCryovialStore can have many records per cryovial, detailing the storage history.
 
 retrieve 4000 THRIVE samples:
 
@@ -267,71 +247,44 @@ Set status = 1 when the position's confirmed
 */
 
 void TfrmBoxes::loadRows() {
-    ostringstream oss;
-    oss<<__FUNC__<<": numrows: "<<numrows;
-    debugLog(oss.str().c_str());
+    ostringstream oss; oss<<__FUNC__<<": numrows: "<<numrows; debugLog(oss.str().c_str());
 
-    // numrows
-/*
-
-    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
-    LQuery q(LIMSDatabase::getCentralDb());
-    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
-    q.setSQL("SELECT * FROM  WHERE status != 99");
     Screen->Cursor = crSQLWait;
+    LQuery q(Util::projectQuery(job->getProjectID(), true)); // get ddb
+    delete_referenced<vecpBox>(boxes);
+    q.setSQL("SELECT"
+        " b.external_name as box, s.external_name as site, m.position,"
+        " v.external_full as vessel, m.shelf_number, r.external_name as rack,"
+        " bs.slot_position as slot"
+        " FROM"
+        " box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v"
+        " WHERE"
+        " b.box_cid = bs.box_cid AND"
+        " bs.rack_cid = r.rack_cid AND"
+        " r.tank_cid = m.tank_cid AND"
+        " s.object_cid = location_cid AND"
+        " v.object_cid = storage_cid AND"
+        " bs.retrieval_cid = :jobID"); // e.g. -636363
     q.open();
-    delete_referenced<vecp>(s);
     while (!q.eof()) {
-        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
-        //ob-> = q.readInt("");
+        LCDbBoxStore * box = new LCDbBoxStore(q); // ???
+        //q.readString("name")
+        //box-> = q.readInt("");
         //ob-> = q.readString("");
-        s.push_back();
+        boxes.push_back(box);
         q.next();
     }
-    Screen->Cursor = crDefault;
-
-
-    Select
-        b.external_name as box,
-        s.external_name as site,
-        m.position,
-        v.external_full as vessel,
-        m.shelf_number,
-        r.external_name as rack,
-        bs.slot_position
-    from
-        box_name b,
-        box_store bs,
-        c_rack_number r,
-        c_tank_map m,
-        c_object_name s,
-        c_object_name v
-    where
-        b.box_cid = bs.box_cid and
-        bs.rack_cid = r.rack_cid and
-        r.tank_cid = m.tank_cid and
-        s.object_cid = location_cid and
-        v.object_cid = storage_cid and
-        bs.retrieval_cid = :jobID; // e.g. -636363
-*/
-//    //LQuery qc(LIMSDatabase::getCentralDb());
-//    LQuery q(Util::projectQuery(project), true);
 //    //qp.setSQL("SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
 //    // no 'chunks' yet, we haven't created them!
 //    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
 //    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
-//    Screen->Cursor = crSQLWait;
-//    q.open();
-//    delete_referenced<vecpBox>(boxes);
-//    while (!q.eof()) {
-//        LCDbBoxStore * box = new LCDbBoxStore();
-//        box->set = q.readInt("");
-//        ob-> = q.readString("");
-//        boxes.push_back(box);
-//        q.next();
-//    }
-//    Screen->Cursor = crDefault;
-//
+
+    Screen->Cursor = crDefault;
+}
+
+void TfrmBoxes::showRows() {
+   // numrows
+
 //    int row = 1;
 //    vecpOb::const_iterator it;
 //    for (it = .begin(); it != .end(); it++) {
@@ -340,10 +293,3 @@ void TfrmBoxes::loadRows() {
 //        sgObs->Objects[0][row] = (TObject *)ob;
 //    }
 }
-
-
-
-
-
-
-

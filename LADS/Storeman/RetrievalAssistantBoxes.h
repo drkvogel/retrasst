@@ -81,7 +81,7 @@ public:
 //    void read();
 //};
 
-typedef std::vector< LCDbBoxStore *> vecpBox;
+typedef std::vector<LCDbBoxStore *> vecpBox;
 //typedef std::vector< LPDbCryovialStore *> vecpVial;
 
 class TfrmBoxes : public TForm {
@@ -132,6 +132,7 @@ private:
     vecpBox             boxes;
     void                showChunks();
     void                loadRows();
+    void                showRows();
     void                radgrpRowsChange();
     //void loadChunks();
 public:

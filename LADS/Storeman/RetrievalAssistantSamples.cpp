@@ -1,6 +1,7 @@
 #include <vcl.h>
 #pragma hdrstop
 #include "RetrievalAssistantSamples.h"
+#include "StoreUtil.h"
 //#include "ReferredBoxes.h"
     // for MYDEBUG - should move somewhere else
 #pragma package(smart_init)
@@ -31,7 +32,6 @@ void debugLog(String s) { frmSamples->memoDebug->Lines->Add(s); }
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
 
-
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     //
     cbLog->Visible = RETRASSTDEBUG;
@@ -58,7 +58,7 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     btnSave->Enabled = true;
     showChunks();
     loadRows();
-    //showRows();
+    showRows();
 }
 
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
@@ -128,13 +128,6 @@ void __fastcall TfrmSamples::editCustomRowsChange(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-/*
-#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
-#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
-#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
-#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
-#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
-#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray*/
     TColor background = clWindow;
     if (0 == ARow) {
         background = clBtnFace;
@@ -181,13 +174,11 @@ void TfrmSamples::showChunks() {
 
 void TfrmSamples::autoChunk() {
 /*
-
 box_content.box_type_cid
 
 18  EDTA_1(UK)  HPS2-THRIVE EDTA 1 UK samples
 
 c_box_size.box_type_cid
-
 
 Display the size of the job and ask user if they want to divide up the list.  If they do:
 
@@ -199,28 +190,51 @@ Display the size of the job and ask user if they want to divide up the list.  If
 */
 }
 
-void TfrmSamples::loadRows() {
-    std::ostringstream oss;
-    oss<<__FUNC__<<": numrows: "<<numrows;
-    debugLog(oss.str().c_str());
-//    //LQuery qc(LIMSDatabase::getCentralDb());
-//    LQuery q(Util::projectQuery(project), true);
-//    //qp.setSQL("SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
+/*
+    //"SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
 //    // no 'chunks' yet, we haven't created them!
 //    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
 //    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
-//    Screen->Cursor = crSQLWait;
-//    q.open();
-//    delete_referenced<vecpBox>(boxes);
-//    while (!q.eof()) {
-//        LCDbBoxStore * box = new LCDbBoxStore();
-//        box->set = q.readInt("");
-//        ob-> = q.readString("");
-//        boxes.push_back(box);
-//        q.next();
-//    }
-//    Screen->Cursor = crDefault;
-//
+*/
+
+void TfrmSamples::loadRows() {
+    std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<numrows; debugLog(oss.str().c_str());
+
+    Screen->Cursor = crSQLWait;
+    delete_referenced<vecpVial>(vials);
+    LQuery q(Util::projectQuery(job->getProjectID(), true));
+    q.setSQL("Select"
+        " cryovial_barcode, t.external_name as aliquot, b.external_name as box,"
+        " cryovial_position, s.external_name as site, m.position, v.external_full as vessel,"
+        " shelf_number, r.external_name as rack, bs.slot_position"
+        " from"
+        " cryovial c, cryovial_store cs, box_name b, box_store bs, c_rack_number r,"
+        " c_tank_map m, c_object_name s,"   // site
+        " c_object_name v,"                 // vessel
+        " c_object_name t"                  // aliquot?
+        " where"
+        " c.cryovial_id = cs.cryovial_id and"
+        " b.box_cid = cs.box_cid and"
+        " b.box_cid = bs.box_cid and"
+        " bs.status = 6 and"    // 6?
+        " t.object_cid = aliquot_type_cid and"
+        " bs.rack_cid = r.rack_cid and"
+        " r.tank_cid = m.tank_cid and"
+        " s.object_cid = location_cid and"
+        " v.object_cid = storage_cid and"
+        " cs.retrieval_cid = :jobID;");
+    q.open();
+    while (!q.eof()) {
+        LPDbCryovialStore * vial = new LPDbCryovialStore(q);
+        //        box->set = q.readInt("");
+        //        ob-> = q.readString("");
+        vials.push_back(vial);
+        q.next();
+    }
+    Screen->Cursor = crDefault;
+}
+
+void TfrmSamples::showRows() {
 //    int row = 1;
 //    vecpOb::const_iterator it;
 //    for (it = .begin(); it != .end(); it++) {
@@ -228,7 +242,6 @@ void TfrmSamples::loadRows() {
 //        sgObs->Cells[SGOBJS_COL_1][row] = ob->;
 //        sgObs->Objects[0][row] = (TObject *)ob;
 //    }
-
 }
 
 

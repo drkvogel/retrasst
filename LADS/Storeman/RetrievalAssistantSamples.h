@@ -79,6 +79,7 @@ private:	// User declarations
     void                autoChunk();
     void                showChunks();
     void                loadRows();
+    void                showRows();
     void                radgrpRowsChange();
 public:		// User declarations
     __fastcall          TfrmSamples(TComponent* Owner);
