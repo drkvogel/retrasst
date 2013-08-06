@@ -121,9 +121,72 @@ void __fastcall TfrmBoxes::btnDelChunkClick(TObject *Sender) {
     if (chunks.size() == 0) btnDelChunk->Enabled = false;
 }
 
+void __fastcall TfrmBoxes::btnDecrClick(TObject *Sender) {
+    //
+}
+void __fastcall TfrmBoxes::btnIncrClick(TObject *Sender) {    //
+}
+
+void __fastcall TfrmBoxes::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
+    // user changed text
+    if (0 == ARow) {
+        // header - prevent editing somehow
+        return;
+    }
+    switch (ACol) {
+    case SGCHUNKS_COL_SECTION:
+        break;
+    case SGCHUNKS_COL_START:
+        break;
+    case SGCHUNKS_COL_END:
+        break;
+    case SGCHUNKS_COL_SIZE:
+        break;
+    default:
+        break;
+    }
+}
+
+void __fastcall TfrmBoxes::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
+    // prevent editing
+}
+
 void __fastcall TfrmBoxes::radbutDefaultClick(TObject *Sender) { radgrpRowsChange(); }
 void __fastcall TfrmBoxes::radbutAllClick(TObject *Sender) { radgrpRowsChange(); }
 void __fastcall TfrmBoxes::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
+
+void __fastcall TfrmBoxes::editCustomRowsChange(TObject *Sender) {
+    timerCustomRows->Enabled = false; // reset
+    timerCustomRows->Enabled = true;;
+}
+
+void __fastcall TfrmBoxes::timerCustomRowsTimer(TObject *Sender) {
+    timerCustomRows->Enabled = false;
+    int numrows = editCustomRows->Text.ToIntDef(0);
+    ostringstream oss;
+    oss <<__FUNC__<<": load"<<": numrows: "<<numrows;
+    debugLog(oss.str().c_str());
+    loadRows(numrows);
+}
+
+void TfrmBoxes::radgrpRowsChange() {
+    int numrows = 0;
+    if (radbutCustom->Checked) {
+        editCustomRows->Enabled = true;
+        return; // allow user to edit value
+    } else {
+        editCustomRows->Enabled = false;
+        if (radbutDefault->Checked) {
+            numrows = DEFAULT_NUMROWS;
+        } else if (radbutAll->Checked) {
+            numrows = -1;
+        }
+    }
+    ostringstream oss;
+    oss <<__FUNC__<<": numrows: "<<numrows;
+    debugLog(oss.str().c_str());
+    loadRows(numrows);
+}
 
 //void TfrmRetrievalManager::loadChunks() {
 //    ostringstream oss; oss<<__FUNC__<<": var: "; debugLog(oss.str().c_str());
@@ -197,33 +260,7 @@ Find where the boxes are supposed to be:
     and bs.retrieval_cid = jobID;
 */
 
-void TfrmBoxes::autoChunk() {
-    // not for boxes
-}
 
-void __fastcall TfrmBoxes::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
-    // user changed text
-    if (0 == ARow) {
-        // header - prevent editing somehow
-        return;
-    }
-    switch (ACol) {
-    case SGCHUNKS_COL_SECTION:
-        break;
-    case SGCHUNKS_COL_START:
-        break;
-    case SGCHUNKS_COL_END:
-        break;
-    case SGCHUNKS_COL_SIZE:
-        break;
-    default:
-        break;
-    }
-}
-
-void __fastcall TfrmBoxes::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
-    // prevent editing
-}
 
 /*
 
@@ -281,129 +318,11 @@ void TfrmBoxes::loadRows(int numrows) {
 //        sgObs->Cells[SGOBJS_COL_1][row] = ob->;
 //        sgObs->Objects[0][row] = (TObject *)ob;
 //    }
-
 }
 
-void __fastcall TfrmBoxes::editCustomRowsChange(TObject *Sender) {
-    timerCustomRows->Enabled = false; // reset
-    timerCustomRows->Enabled = true;;
-}
 
-void __fastcall TfrmBoxes::timerCustomRowsTimer(TObject *Sender) {
-    timerCustomRows->Enabled = false;
-    int numrows = editCustomRows->Text.ToIntDef(0);
-    ostringstream oss;
-    oss <<__FUNC__<<": load"<<": numrows: "<<numrows;
-    debugLog(oss.str().c_str());
-    loadRows(numrows);
-}
 
-void TfrmBoxes::radgrpRowsChange() {
-    int numrows = 0;
-    if (radbutCustom->Checked) {
-        editCustomRows->Enabled = true;
-        return; // allow user to edit value
-    } else {
-        editCustomRows->Enabled = false;
-        if (radbutDefault->Checked) {
-            numrows = DEFAULT_NUMROWS;
-        } else if (radbutAll->Checked) {
-            numrows = -1;
-        }
-    }
-    ostringstream oss;
-    oss <<__FUNC__<<": numrows: "<<numrows;
-    debugLog(oss.str().c_str());
-    loadRows(numrows);
-}
 
-void __fastcall TfrmBoxes::btnDecrClick(TObject *Sender) {
-    //
-}
-void __fastcall TfrmBoxes::btnIncrClick(TObject *Sender) {    //
-}
 
-//void __fastcall TfrmRetrievalManager::btnDeletePlanClick(TObject *Sender) {
-///*
-//    ostringstream oss; oss<<__FUNC__<<": var: "<<var;
-//    debugLog(oss.str().c_str());
-//
-//    LQuery q(LIMSDatabase::getCentralDb());
-//    LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
-//    q.setSQL("SELECT * FROM obs WHERE ");
-//    Screen->Cursor = crSQLWait;
-//    q.open();
-//    delete_referenced<vecpOb>(obs);
-//    while (!q.eof()) {
-//        Ob * ob = new Ob();
-//        ob-> = q.readInt("");
-//        ob-> = q.readString("");
-//        obs.push_back(ob);
-//        q.next();
-//    }
-//    Screen->Cursor = crDefault;
-//
-//    int row = 1;
-//    vecpOb::const_iterator it;
-//    for (it = .begin(); it != .end(); it++) {
-//        Ob * ob = *it;
-//        sgObs->Cells[SGOBJS_COL_1][row] = ob->;
-//        sgObs->Objects[0][row] = (TObject *)ob;
-//    }
-//*/
-//}
-//void TfrmRetrievalManager::loadPlans() {
-//    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
-//    Screen->Cursor = crSQLWait;
-//    LQuery q(LIMSDatabase::getCentralDb());
-//    q.setSQL("SELECT * FROM c_retrieval_plan WHERE status != 99");
-//    //q.setParam("name", bcsToStd(comboPlan->Text));
-//    q.open();
-//    delete_referenced<vecpRetrievalPlan>(plans);
-//    while (!q.eof()) {
-//        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
-//        //ob-> = q.readInt("");
-//        //ob-> = q.readString("");
-//        plans.push_back(plan);
-//        q.next();
-//    }
-//    showPlans();
-//    Screen->Cursor = crDefault;
-//}
-//void TfrmRetrievalManager::showPlans() {
-//    int row = 1;
-//    comboPlans->Clear();
-//    vecpRetrievalPlan::const_iterator it;
-//    for (it = plans.begin(); it != plans.end(); it++, row++) {
-//        RetrievalPlan * plan = *it;
-//        comboPlans->AddItem(plan->getName().c_str(), (TObject *)plan);
-//    }
-//}
-//void __fastcall TfrmRetrievalManager::btnPlanSaveClick(TObject *Sender) {
-//    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
-//    Screen->Cursor = crSQLWait;
-//    LQuery q(LIMSDatabase::getCentralDb());
-//    RetrievalPlan * plan = (RetrievalPlan *)comboPlans->Items->Objects[comboPlans->ItemIndex];
-//    q.setSQL("SELECT * FROM c_retrieval_plan WHERE name = :name");
-//    q.setParam("name", bcsToStd(comboPlans->Text));
-//    if (q.open()) { // if plan name exists, replace it
-//        q.setSQL(   "UPDATE c_retrieval_plan SET "
-//                    " WHERE name = :name");
-//    } else {
-//        plan->claimNextID(q); //
-//        plan->getID();
-//        q.setSQL(   "INSERT INTO c_retrieval_plan (,,,) "
-//                    " VALUES (name = :name, ) ");
-//    }
-//    q.setParam("name", bcsToStd(comboPlans->Text));
-//    q.execSQL();
-//    Screen->Cursor = crDefault;
-//}
-//void __fastcall TfrmRetrievalManager::comboPlansSelect(TObject *Sender) {
-//    //
-//}
-//
-//void __fastcall TfrmRetrievalManager::comboPlansChange(TObject *Sender) {
-//    //
-//}
+
 

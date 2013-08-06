@@ -176,6 +176,26 @@ void TfrmSamples::showChunks() {
     }
 }
 
+void TfrmSamples::autoChunk() {
+/*
+
+box_content.box_type_cid
+
+18  EDTA_1(UK)  HPS2-THRIVE EDTA 1 UK samples
+
+c_box_size.box_type_cid
+
+
+Display the size of the job and ask user if they want to divide up the list.  If they do:
+
+1.	Ask them the maximum section size (default = 500 cryovials)
+2.	Calculate slot/box (where `c_box_size.box_size_cid = box_content.box_size_cid`)
+3.	Ask them to select the size of first section from a list – it must be a multiple of the box size (from 2) and no more than the maximum (from 1)
+4.	Allocate the appropriate number of destination boxes to the first section
+5.	Repeat steps (2) and (3) until every entry has been allocated to a section
+*/
+}
+
 void TfrmSamples::loadRows(int numrows) {
     ostringstream oss;
     oss<<__FUNC__<<": numrows: "<<numrows;
@@ -208,22 +228,4 @@ void TfrmSamples::loadRows(int numrows) {
 
 }
 
-void TfrmSamples::autoChunk() {
-/*
 
-box_content.box_type_cid
-
-18  EDTA_1(UK)  HPS2-THRIVE EDTA 1 UK samples
-
-c_box_size.box_type_cid
-
-
-Display the size of the job and ask user if they want to divide up the list.  If they do:
-
-1.	Ask them the maximum section size (default = 500 cryovials)
-2.	Calculate slot/box (where `c_box_size.box_size_cid = box_content.box_size_cid`)
-3.	Ask them to select the size of first section from a list – it must be a multiple of the box size (from 2) and no more than the maximum (from 1)
-4.	Allocate the appropriate number of destination boxes to the first section
-5.	Repeat steps (2) and (3) until every entry has been allocated to a section
-*/
-}

@@ -132,18 +132,13 @@ __published:
     void __fastcall btnDecrClick(TObject *Sender);
     void __fastcall btnIncrClick(TObject *Sender);
 private:
-    //vecpRetrievalPlan plans;
     LCDbCryoJob * job;
     vecpChunk chunks;
     vecpBox boxes;
-    //vecpVial vials;
-    void autoChunk();
     //void loadChunks();
     void showChunks();
     void loadRows(int numrows);
     void radgrpRowsChange();
-//    void loadPlans();
-//    void showPlans();
 public:
     __fastcall TfrmBoxes(TComponent* Owner);
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
