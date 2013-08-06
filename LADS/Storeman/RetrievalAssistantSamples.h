@@ -6,6 +6,7 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.Grids.hpp>
+#include <sstream>
 #include "RetrievalAssistant.h"
 #include "LCDbJob.h"
 #include "LPDbCryovialStore.h"

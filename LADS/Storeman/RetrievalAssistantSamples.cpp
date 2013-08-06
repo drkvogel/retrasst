@@ -1,7 +1,7 @@
 #include <vcl.h>
 #pragma hdrstop
 #include "RetrievalAssistantSamples.h"
-#include "ReferredBoxes.h"
+//#include "ReferredBoxes.h"
     // for MYDEBUG - should move somewhere else
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -34,8 +34,8 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
 
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     //
-    cbLog->Visible = MYDEBUG;
-    memoDebug->Visible = MYDEBUG;
+    cbLog->Visible = RETRASSTDEBUG;
+    memoDebug->Visible = RETRASSTDEBUG;
     autochunk = false;
     job = NULL;
     sgChunks->Cells[SGCHUNKS_COL_SECTION]   [0] = "Section";
@@ -79,7 +79,7 @@ void __fastcall TfrmSamples::cbLogClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
-    if (MYDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
+    if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
         delete chunks.back();
         chunks.pop_back();
         showChunks();
@@ -104,7 +104,7 @@ void TfrmSamples::radgrpRowsChange() {
             numrows = -1;
         }
     }
-    ostringstream oss;
+    std::ostringstream oss;
     oss <<__FUNC__<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
     loadRows(numrows);
@@ -113,7 +113,7 @@ void TfrmSamples::radgrpRowsChange() {
 void __fastcall TfrmSamples::timerCustomRowsTimer(TObject *Sender) {
     timerCustomRows->Enabled = false;
     int numrows = editCustomRows->Text.ToIntDef(0);
-    ostringstream oss;
+    std::ostringstream oss;
     oss <<__FUNC__<<": load"<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
     loadRows(numrows);
@@ -197,7 +197,7 @@ Display the size of the job and ask user if they want to divide up the list.  If
 }
 
 void TfrmSamples::loadRows(int numrows) {
-    ostringstream oss;
+    std::ostringstream oss;
     oss<<__FUNC__<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
 //    //LQuery qc(LIMSDatabase::getCentralDb());

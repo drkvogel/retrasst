@@ -6,12 +6,6 @@
 #include <Vcl.Grids.hpp>
 #include <Vcl.StdCtrls.hpp>
 #include <sstream>
-#include <System.Classes.hpp>
-#include <Vcl.Controls.hpp>
-#include <Vcl.StdCtrls.hpp>
-#include <Vcl.Forms.hpp>
-#include <Vcl.ExtCtrls.hpp>
-#include <Vcl.Grids.hpp>
 #include "RetrievalAssistant.h"
 #include "LCDbJob.h"
 #include "LDbBoxStore.h"

@@ -11,12 +11,13 @@
 #include <sstream>
 #include "LCDbJob.h"
 
-//const bool MYDEBUG =
-//#ifdef _DEBUG
-//    true;
-//#else
-//    false;
-//#endif
+const bool RETRASSTDEBUG =
+#ifdef _DEBUG
+    true;
+#else
+    false;
+#endif
+
 
 #define DEFAULT_NUMROWS 25
 #define SGCHUNKS_COL_SECTION    0

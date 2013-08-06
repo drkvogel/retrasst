@@ -13,6 +13,25 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
+/*
+// template
+    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
+    LQuery q(LIMSDatabase::getCentralDb());
+    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
+    q.setSQL("SELECT * FROM  WHERE status != 99");
+    Screen->Cursor = crSQLWait;
+    q.open();
+    delete_referenced<vecp>(s);
+    while (!q.eof()) {
+        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
+        //ob-> = q.readInt("");
+        //ob-> = q.readString("");
+        s.push_back();
+        q.next();
+    }
+    Screen->Cursor = crDefault;
+*/
+
 TfrmRetrievalAssistant *frmRetrievalAssistant;
 
 void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
@@ -170,8 +189,8 @@ Sample retrieval
 */
 
 void TfrmRetrievalAssistant::init() {
-    cbLog->Visible = MYDEBUG;
-    memoDebug->Visible = MYDEBUG;
+    cbLog->Visible = RETRASSTDEBUG;
+    memoDebug->Visible = RETRASSTDEBUG;
     radgrpMode->ItemIndex = 0;
     sgJobs->Cells[SGJOBS_COL_DESCRIP]   [0] = "Description";
     sgJobs->Cells[SGJOBS_COL_JOBTYPE]   [0] = "Job type";

@@ -9,30 +9,11 @@ TfrmBoxes *frmBoxes;
 
 void debugLog(String s) { frmBoxes->memoDebug->Lines->Add(s); }
 
-/*
-// template
-    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
-    LQuery q(LIMSDatabase::getCentralDb());
-    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
-    q.setSQL("SELECT * FROM  WHERE status != 99");
-    Screen->Cursor = crSQLWait;
-    q.open();
-    delete_referenced<vecp>(s);
-    while (!q.eof()) {
-        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
-        //ob-> = q.readInt("");
-        //ob-> = q.readString("");
-        s.push_back();
-        q.next();
-    }
-    Screen->Cursor = crDefault;
-*/
-
 __fastcall TfrmBoxes::TfrmBoxes(TComponent* Owner) : TForm(Owner) { }
 
 void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
-    cbLog->Visible = MYDEBUG;
-    memoDebug->Visible = MYDEBUG;
+    cbLog->Visible = RETRASSTDEBUG;
+    memoDebug->Visible = RETRASSTDEBUG;
     job = NULL;
     sgChunks->Cells[SGCHUNKS_COL_SECTION]   [0] = "Section";
     sgChunks->Cells[SGCHUNKS_COL_START]     [0] = "Start";
@@ -47,7 +28,6 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
 }
 
 void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
-    // show job: list of boxes or cryovials
     std::ostringstream oss;
     oss //<< (autochunk ? "auto-chunk" : "manual chunk") << ", "
     << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
@@ -58,13 +38,7 @@ void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
 void __fastcall TfrmBoxes::btnCancelClick(TObject *Sender) { Close(); }
 
 void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-/*
-#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
-#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
-#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
-#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
-#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
-#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray*/
+
     TColor background = clWindow;
     if (0 == ARow) {
         background = clBtnFace;
@@ -113,7 +87,7 @@ void __fastcall TfrmBoxes::cbLogClick(TObject *Sender) {
 }
 
 void __fastcall TfrmBoxes::btnDelChunkClick(TObject *Sender) {
-    if (MYDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
+    if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
         delete chunks.back();
         chunks.pop_back();
         showChunks();
@@ -293,6 +267,30 @@ void TfrmBoxes::loadRows(int numrows) {
     ostringstream oss;
     oss<<__FUNC__<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
+/*
+    Select
+        b.external_name as box,
+        s.external_name as site,
+        m.position,
+        v.external_full as vessel,
+        m.shelf_number,
+        r.external_name as rack,
+        bs.slot_position
+    from
+        box_name b,
+        box_store bs,
+        c_rack_number r,
+        c_tank_map m,
+        c_object_name s,
+        c_object_name v
+    where
+        b.box_cid = bs.box_cid and
+        bs.rack_cid = r.rack_cid and
+        r.tank_cid = m.tank_cid and
+        s.object_cid = location_cid and
+        v.object_cid = storage_cid and
+        bs.retrieval_cid = :jobID; // e.g. -636363
+*/
 //    //LQuery qc(LIMSDatabase::getCentralDb());
 //    LQuery q(Util::projectQuery(project), true);
 //    //qp.setSQL("SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
