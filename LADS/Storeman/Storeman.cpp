@@ -20,6 +20,9 @@
 
 
 
+
+
+
 USEFORM("DiscardSamples.cpp", frmDiscardSamples);
 USEFORM("DiscardSearch.cpp", frmSearch);
 USEFORM("DiscardReason.cpp", frmDiscardReason);
@@ -46,9 +49,9 @@ USEFORM("NewSite.cpp", frmNewSite);
 USEFORM("NewJob.cpp", frmNewJob);
 USEFORM("NewSection.cpp", frmNewSection);
 USEFORM("ReferredBoxes.cpp", frmReferred);
-USEFORM("RetrievalProcess.cpp", frmRetrievalProcess);
+USEFORM("RetrievalProcess.cpp", frmProcess);
 USEFORM("RetrieveSamples.cpp", frmRetrieved);
-USEFORM("RetrievalManager.cpp", frmRetrievalManager);
+USEFORM("RetrievalAssistantBoxes.cpp", frmBoxes);
 USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
 USEFORM("RetrievalAssistant.cpp", frmRetrievalAssistant);
 USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
@@ -95,9 +98,9 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmSelectBoxes), &frmSelectBoxes);
          Application->CreateForm(__classid(TfrmReferredBoxesSummary), &frmReferredBoxesSummary);
          Application->CreateForm(__classid(TfrmTest), &frmTest);
-         Application->CreateForm(__classid(TfrmRetrievalManager), &frmRetrievalManager);
+         Application->CreateForm(__classid(TfrmBoxes), &frmBoxes);
          Application->CreateForm(__classid(TfrmRetrievalAssistant), &frmRetrievalAssistant);
-         Application->CreateForm(__classid(TfrmRetrievalProcess), &frmRetrievalProcess);
+         Application->CreateForm(__classid(TfrmProcess), &frmProcess);
          Application->CreateForm(__classid(TfrmSamples), &frmSamples);
          Application->Run();
 	}

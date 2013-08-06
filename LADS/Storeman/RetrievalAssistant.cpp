@@ -374,40 +374,44 @@ void TfrmRetrievalAssistant::loadBoxes() {
 
 void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
-    switch (job->getJobType()) {
-    case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
-    case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
-        // OK
-        break;
-    default:
-        return;
-    }
-
-    switch (job->getStatus()) {
-    case LCDbCryoJob::Status::NEW_JOB:
-    case LCDbCryoJob::Status::INPROGRESS:
-        // OK
-        break;
-    default:
-        return;
-    }
-
-    // make INPROGRESS?
 
     switch (radgrpMode->ItemIndex) {
     case 0: // manage
-        if (    job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL
-            &&  job->getStatus() == LCDbCryoJob::Status::NEW_JOB) {
-            frmSamples->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
-        } else {
-            frmSamples->autochunk = false; // and form type = ?
+        switch (job->getJobType()) {
+        case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
+            if (job->getStatus() == LCDbCryoJob::Status::NEW_JOB) {
+                frmSamples->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
+            } else {
+                frmSamples->autochunk = false; // and form type = ?
+            }
+            frmSamples->setJob(job);
+            if (IDOK == frmSamples->ShowModal()) {
+                // make INPROGRESS?
+            }
+            break;
+        case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
+            frmBoxes->setJob(job);
+            if (IDOK == frmBoxes->ShowModal()) {
+                // make INPROGRESS?
+            }
+            break;
+        default:
+            throw Exception("Unknown job type");
         }
-        frmSamples->setJob(job);
-        frmSamples->ShowModal();
         break;
     case 1: // process
-        frmRetrievalProcess->setJob(job);
-        frmRetrievalProcess->ShowModal();
+        switch (job->getJobType()) {
+        case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
+            frmProcess->setJob(job);
+            frmProcess->ShowModal();
+            break;
+        case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
+            frmProcess->setJob(job);
+            frmProcess->ShowModal();
+            break;
+        default:
+            throw Exception("Unknown job type");
+        }
         break;
     default:
         throw Exception("Unknown mode");

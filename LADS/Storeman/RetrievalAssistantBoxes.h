@@ -1,5 +1,5 @@
-#ifndef RetrievalManagerH
-#define RetrievalManagerH
+#ifndef RetrievalAssistantBoxesH
+#define RetrievalAssistantBoxesH
 #include <System.Classes.hpp>
 #include <Vcl.Controls.hpp>
 #include <Vcl.ExtCtrls.hpp>

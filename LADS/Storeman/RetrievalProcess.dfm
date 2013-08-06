@@ -1,4 +1,4 @@
-object frmRetrievalProcess: TfrmRetrievalProcess
+object frmProcess: TfrmProcess
   Left = 0
   Top = 0
   Caption = 'Process Retrieval Job'
@@ -24,7 +24,6 @@ object frmRetrievalProcess: TfrmRetrievalProcess
     Align = alClient
     Caption = 'GroupBox1'
     TabOrder = 0
-    ExplicitHeight = 273
     object StringGrid1: TStringGrid
       Left = 2
       Top = 15
@@ -33,10 +32,6 @@ object frmRetrievalProcess: TfrmRetrievalProcess
       Align = alClient
       FixedCols = 0
       TabOrder = 0
-      ExplicitLeft = 296
-      ExplicitTop = 88
-      ExplicitWidth = 320
-      ExplicitHeight = 120
     end
     object GroupBox3: TGroupBox
       Left = 2
@@ -82,7 +77,6 @@ object frmRetrievalProcess: TfrmRetrievalProcess
     Align = alBottom
     Caption = 'Sign Off'
     TabOrder = 1
-    ExplicitTop = 404
     object Label1: TLabel
       Left = 14
       Top = 32
@@ -104,9 +98,6 @@ object frmRetrievalProcess: TfrmRetrievalProcess
       Align = alRight
       Caption = 'Accept'
       TabOrder = 0
-      ExplicitLeft = 304
-      ExplicitTop = 40
-      ExplicitHeight = 25
     end
     object btnSkip: TButton
       Left = 551
@@ -116,9 +107,6 @@ object frmRetrievalProcess: TfrmRetrievalProcess
       Align = alRight
       Caption = 'Skip'
       TabOrder = 1
-      ExplicitLeft = 504
-      ExplicitTop = 48
-      ExplicitHeight = 25
     end
     object editBarcode: TEdit
       Left = 192

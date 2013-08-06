@@ -1,0 +1,53 @@
+﻿# spec simplified
+
+Basically, the procedure has the same steps for both box retrieval/discard and for sample retrieval/discard. I have split these functions in to two forms, nonetheless.
+
+1. List stuff
+2. Divide stuff
+3. (TBC)
+4. Sort stuff
+5. Save stuff
+6. Insert stuff
+7. Update stuff
+
+# box retrieval/discard
+
+1. Find where the boxes are currently stored:
+    List the name, current structure and expected location of each box. The location should include site+position+name+layout, as it does in StoreMan’s storage browser.
+
+3. Allow the user to divide up the list (if necessary; see below for more details).
+
+4. Show each chunk in turn and allow the user to sort by location, otherwise show the whole list and allow them to sort that.
+
+5. Ask the user to save changes with the option of going back to re-order if necessary.
+
+6. Insert a record into c_box_retrieval for each box in turn
+
+7. Update c_retrieval_job: set status=in progress (1)
+
+# sample retrieval/discard
+
+1. Find the samples to be retrieved:
+    At least half of these will be for the primary aliquot (i.e. cryovial.aliquot_type_cid = c_retrieval_job.primary_aliquot). The others may be for the secondary aliquot.
+    Primary and secondary tubes may have the same barcode but should always come from specimen entries with the same source name.
+    Entries for the primary aliquot may have a destination box defined. You could find these using a left join:
+    If no destination boxes have been defined, ask for the box type and create suitable entries in box_name.
+    Piece this information together to create a list giving the destination box+position, cryovial barcode and current box+position+structure+location of the primary and secondary aliquots.
+
+2? The user may want to export and/or import the list to specify the retrieval plan – this needs further thought.
+
+3. Display the size of the job and ask user if they want to divide up the list.
+    If they do:
+        Ask them the maximum chunk size (default = 500 cryovials)
+        Calculate slots/box (where c_box_size.box_size_cid = box_content.box_size_cid)
+        Ask them to select the size of first chunk from a list – it must be a multiple of the box size (from 2) and no more than the maximum (from 1)
+        Allocate the appropriate number of destination boxes to the first chunk
+        Repeat steps (2) and (3) until every entry has been allocated to a chunk
+
+4. After division, show each chunk in turn and allow the user to sort by location, otherwise show the whole list and allow them to sort that.
+
+5. Ask the user to save changes with the option of going back to re-order if necessary.
+
+6. Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in, and a record into l_cryovial_retrieval for each cryovial, recording its position in the list.
+
+7. Update c_retrieval_job: set status=in progress (1)

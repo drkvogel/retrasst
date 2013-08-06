@@ -8,7 +8,7 @@
 #include <Vcl.Menus.hpp>
 #include "LCDbJob.h"
 
-class TfrmRetrievalProcess : public TForm {
+class TfrmProcess : public TForm {
 __published:
     TGroupBox *GroupBox1;
     TGroupBox *GroupBox2;
@@ -29,8 +29,8 @@ private:
     LCDbCryoJob * job;
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
-    __fastcall TfrmRetrievalProcess(TComponent* Owner);
+    __fastcall TfrmProcess(TComponent* Owner);
 };
 
-extern PACKAGE TfrmRetrievalProcess *frmRetrievalProcess;
+extern PACKAGE TfrmProcess *frmProcess;
 #endif

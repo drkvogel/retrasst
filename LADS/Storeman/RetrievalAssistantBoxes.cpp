@@ -1,6 +1,6 @@
 #include <vcl.h>
 #pragma hdrstop
-#include "RetrievalManager.h"
+#include "RetrievalAssistantBoxes.h"
 #include "ReferredBoxes.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -317,6 +317,12 @@ void TfrmBoxes::radgrpRowsChange() {
     loadRows(numrows);
 }
 
+void __fastcall TfrmBoxes::btnDecrClick(TObject *Sender) {
+    //
+}
+void __fastcall TfrmBoxes::btnIncrClick(TObject *Sender) {    //
+}
+
 //void __fastcall TfrmRetrievalManager::btnDeletePlanClick(TObject *Sender) {
 ///*
 //    ostringstream oss; oss<<__FUNC__<<": var: "<<var;
@@ -399,9 +405,5 @@ void TfrmBoxes::radgrpRowsChange() {
 //
 //void __fastcall TfrmRetrievalManager::comboPlansChange(TObject *Sender) {
 //    //
-//}void __fastcall TfrmRetrievalManager::btnDecrClick(TObject *Sender) {    //
-}
-void __fastcall TfrmBoxes::btnIncrClick(TObject *Sender) {    //
-}
-
+//}
 
