@@ -223,6 +223,21 @@ void TfrmSamples::loadRows() {
         " s.object_cid = location_cid and"
         " v.object_cid = storage_cid and"
         " cs.retrieval_cid = :jobID;");
+    /* -- may have destination box defined, could find with left join:
+    from
+         cryovial_store s1
+    left join
+        cryovial c on c.cryovial_id = s1.cryovial_id
+    left join
+        box_name n1 on n1.box_cid = s1.box_cid
+    left join
+        cryovial_store s2 on s1.cryovial_id = s2.cryovial_id and
+        s2.status = 0
+    left join
+        box_name n2 on n2.box_cid = s2.box_cid
+    where
+        s1.retrieval_cid = :jobID*/
+
     q.open();
     while (!q.eof()) {
         LPDbCryovialStore * vial = new LPDbCryovialStore(q);
