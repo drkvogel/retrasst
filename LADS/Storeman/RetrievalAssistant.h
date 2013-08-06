@@ -18,13 +18,36 @@
 //    false;
 //#endif
 
-// clGreen
+#define DEFAULT_NUMROWS 25
+#define SGCHUNKS_COL_SECTION    0
+#define SGCHUNKS_COL_START      1
+#define SGCHUNKS_COL_END        2
+#define SGCHUNKS_COL_SIZE       3
+
 #define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
 #define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
 #define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
 #define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
 #define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
+
+class Chunk { // not recorded in database
+public:
+    //Chunk() : section(0), retrieval_cid(0), name(""), start(0), end(0) { }
+    Chunk() : section(0), start(0), end(0) { }
+    int         section;
+    //int         retrieval_cid;
+    //int         exercise_cid;
+    //std::string name;
+    int         start;
+    int         end;
+    //string      descrip;
+    //int         job_type;
+    //int         project_cid;
+    //int         primary_aliquot;
+};
+
+typedef std::vector< Chunk * >  vecpChunk;
 
 static const char * jobStatusString(short status) {
     static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Deleted" };

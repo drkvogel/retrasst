@@ -79,6 +79,7 @@ object frmRetrievalManager: TfrmRetrievalManager
         Height = 25
         Caption = '+'
         TabOrder = 3
+        OnClick = btnIncrClick
       end
       object btnDecr: TButton
         Left = 6
@@ -87,6 +88,7 @@ object frmRetrievalManager: TfrmRetrievalManager
         Height = 25
         Caption = '-'
         TabOrder = 4
+        OnClick = btnDecrClick
       end
     end
     object sgChunks: TStringGrid

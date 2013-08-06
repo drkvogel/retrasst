@@ -12,10 +12,11 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.Grids.hpp>
+#include "RetrievalAssistant.h"
 #include "LCDbJob.h"
 #include "LDbBoxStore.h"
-#include "LPDbCryovialStore.h"
-#include "LPDbCryovial.h"
+//#include "LPDbCryovialStore.h"
+//#include "LPDbCryovial.h"
 
 /*
 select * from box_content bc, c_box_size bs where bc.box_size_cid = bs.box_size_cid
@@ -55,23 +56,6 @@ public:
 	TDateTime getFinishDate() const { return finish_date; }
 */
 
-class Chunk { // c_retrieval_plan_chunk
-public:
-    //Chunk() : section(0), retrieval_cid(0), name(""), start(0), end(0) { }
-    Chunk() : section(0), start(0), end(0) { }
-    int         section;
-    //int         retrieval_cid;
-    //int         exercise_cid;
-    //std::string name;
-    int         start;
-    int         end;
-    //string      descrip;
-    //int         job_type;
-    //int         project_cid;
-    //int         primary_aliquot;
-};
-
-typedef std::vector< Chunk * >  vecpChunk;
 
 //	enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
 //	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
@@ -104,7 +88,7 @@ typedef std::vector<RetrievalPlan *> vecpRetrievalPlan;
 //};
 
 typedef std::vector< LCDbBoxStore *> vecpBox;
-typedef std::vector< LPDbCryovialStore *> vecpVial;
+//typedef std::vector< LPDbCryovialStore *> vecpVial;
 
 class TfrmRetrievalManager : public TForm {
 __published:
@@ -145,23 +129,24 @@ __published:
     void __fastcall radbutDefaultClick(TObject *Sender);
     void __fastcall radbutAllClick(TObject *Sender);
     void __fastcall radbutCustomClick(TObject *Sender);
+    void __fastcall btnDecrClick(TObject *Sender);
+    void __fastcall btnIncrClick(TObject *Sender);
 private:
-    vecpRetrievalPlan plans;
+    //vecpRetrievalPlan plans;
     LCDbCryoJob * job;
     vecpChunk chunks;
     vecpBox boxes;
-    vecpVial vials;
+    //vecpVial vials;
     void autoChunk();
-    void loadChunks();
+    //void loadChunks();
     void showChunks();
     void loadRows(int numrows);
     void radgrpRowsChange();
 //    void loadPlans();
 //    void showPlans();
 public:
-    void setJob(LCDbCryoJob * ajob) { job = ajob; }
-    bool autochunk;
     __fastcall TfrmRetrievalManager(TComponent* Owner);
+    void setJob(LCDbCryoJob * ajob) { job = ajob; }
 };
 
 extern PACKAGE TfrmRetrievalManager *frmRetrievalManager;

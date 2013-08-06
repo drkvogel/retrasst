@@ -11,6 +11,8 @@ object frmSamples: TfrmSamples
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnCreate = FormCreate
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter1: TSplitter
@@ -50,6 +52,7 @@ object frmSamples: TfrmSamples
         Height = 25
         Caption = 'Add chunk'
         TabOrder = 0
+        OnClick = btnAddChunkClick
       end
       object btnDelChunk: TButton
         Left = 6
@@ -59,6 +62,7 @@ object frmSamples: TfrmSamples
         Caption = 'Del chunk'
         Enabled = False
         TabOrder = 1
+        OnClick = btnDelChunkClick
       end
       object btnSaveChunk: TButton
         Left = 6
@@ -96,6 +100,7 @@ object frmSamples: TfrmSamples
       FixedCols = 0
       Options = [goFixedVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goAlwaysShowEditor, goThumbTracking]
       TabOrder = 1
+      OnDrawCell = sgChunksDrawCell
       ExplicitWidth = 627
     end
   end
@@ -122,6 +127,7 @@ object frmSamples: TfrmSamples
       Anchors = [akRight, akBottom]
       Caption = 'Save'
       TabOrder = 0
+      OnClick = btnSaveClick
       ExplicitLeft = 552
     end
     object btnCancel: TButton
@@ -132,6 +138,7 @@ object frmSamples: TfrmSamples
       Anchors = [akRight, akBottom]
       Caption = 'Exit'
       TabOrder = 1
+      OnClick = btnCancelClick
       ExplicitLeft = 633
     end
     object cbLog: TCheckBox
@@ -144,6 +151,7 @@ object frmSamples: TfrmSamples
       Checked = True
       State = cbChecked
       TabOrder = 2
+      OnClick = cbLogClick
       ExplicitLeft = 482
     end
     object radgrpRows: TRadioGroup
@@ -161,6 +169,7 @@ object frmSamples: TfrmSamples
       Height = 17
       Caption = 'All'
       TabOrder = 4
+      OnClick = radbutAllClick
     end
     object radbutDefault: TRadioButton
       Left = 10
@@ -171,6 +180,7 @@ object frmSamples: TfrmSamples
       Checked = True
       TabOrder = 5
       TabStop = True
+      OnClick = radbutDefaultClick
     end
     object radbutCustom: TRadioButton
       Left = 84
@@ -179,6 +189,7 @@ object frmSamples: TfrmSamples
       Height = 17
       Caption = 'Custom'
       TabOrder = 6
+      OnClick = radbutCustomClick
     end
     object editCustomRows: TEdit
       Left = 141
@@ -188,6 +199,7 @@ object frmSamples: TfrmSamples
       Enabled = False
       TabOrder = 7
       Text = '100'
+      OnChange = editCustomRowsChange
     end
   end
   object GroupBox1: TGroupBox
@@ -229,6 +241,7 @@ object frmSamples: TfrmSamples
   object timerCustomRows: TTimer
     Enabled = False
     Interval = 500
+    OnTimer = timerCustomRowsTimer
     Left = 352
     Top = 296
   end

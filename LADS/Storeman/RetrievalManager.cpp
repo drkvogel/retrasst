@@ -1,23 +1,16 @@
 #include <vcl.h>
 #pragma hdrstop
 #include "RetrievalManager.h"
-#include "RetrievalAssistant.h"
 #include "ReferredBoxes.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-
-#define DEFAULT_NUMROWS 25
-
-#define SGCHUNKS_COL_SECTION    0
-#define SGCHUNKS_COL_START      1
-#define SGCHUNKS_COL_END        2
-#define SGCHUNKS_COL_SIZE       3
 
 TfrmRetrievalManager *frmRetrievalManager;
 
 void debugLog(String s) { frmRetrievalManager->memoDebug->Lines->Add(s); }
 
 /*
+// template
     ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
     LQuery q(LIMSDatabase::getCentralDb());
     //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
@@ -40,7 +33,6 @@ __fastcall TfrmRetrievalManager::TfrmRetrievalManager(TComponent* Owner) : TForm
 void __fastcall TfrmRetrievalManager::FormCreate(TObject *Sender) {
     cbLog->Visible = MYDEBUG;
     memoDebug->Visible = MYDEBUG;
-    autochunk = false;
     job = NULL;
     sgChunks->Cells[SGCHUNKS_COL_SECTION]   [0] = "Section";
     sgChunks->Cells[SGCHUNKS_COL_START]     [0] = "Start";
@@ -57,7 +49,7 @@ void __fastcall TfrmRetrievalManager::FormCreate(TObject *Sender) {
 void __fastcall TfrmRetrievalManager::FormShow(TObject *Sender) {
     // show job: list of boxes or cryovials
     std::ostringstream oss;
-    oss << (autochunk ? "auto-chunk" : "manual chunk") << ", "
+    oss //<< (autochunk ? "auto-chunk" : "manual chunk") << ", "
     << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
     debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
@@ -133,24 +125,24 @@ void __fastcall TfrmRetrievalManager::radbutDefaultClick(TObject *Sender) { radg
 void __fastcall TfrmRetrievalManager::radbutAllClick(TObject *Sender) { radgrpRowsChange(); }
 void __fastcall TfrmRetrievalManager::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
 
-void TfrmRetrievalManager::loadChunks() {
-    ostringstream oss; oss<<__FUNC__<<": var: "; debugLog(oss.str().c_str());
-    Screen->Cursor = crSQLWait;
-    LQuery q(LIMSDatabase::getCentralDb());
-    delete_referenced<vecpChunk>(chunks);
-    q.setSQL("SELECT * FROM c_retrieval_plan_chunk WHERE status != 99");
-    q.open();
-    while (!q.eof()) {
-        Chunk * chunk = new Chunk();
-        //Chunk chunk;
-        //chunk-> = q.readInt("");
-        //chunk-> = q.readString("");
-        chunks.push_back(chunk);
-        q.next();
-    }
-    showChunks();
-    Screen->Cursor = crDefault;
-}
+//void TfrmRetrievalManager::loadChunks() {
+//    ostringstream oss; oss<<__FUNC__<<": var: "; debugLog(oss.str().c_str());
+//    Screen->Cursor = crSQLWait;
+//    LQuery q(LIMSDatabase::getCentralDb());
+//    delete_referenced<vecpChunk>(chunks);
+//    q.setSQL("SELECT * FROM c_retrieval_plan_chunk WHERE status != 99");
+//    q.open();
+//    while (!q.eof()) {
+//        Chunk * chunk = new Chunk();
+//        //Chunk chunk;
+//        //chunk-> = q.readInt("");
+//        //chunk-> = q.readString("");
+//        chunks.push_back(chunk);
+//        q.next();
+//    }
+//    showChunks();
+//    Screen->Cursor = crDefault;
+//}
 
 /*
     // load
@@ -206,24 +198,7 @@ Find where the boxes are supposed to be:
 */
 
 void TfrmRetrievalManager::autoChunk() {
-/*
-
-box_content.box_type_cid
-
-18  EDTA_1(UK)  HPS2-THRIVE EDTA 1 UK samples
-
-c_box_size.box_type_cid
-
-
-Display the size of the job and ask user if they want to divide up the list.  If they do:
-
-1.	Ask them the maximum section size (default = 500 cryovials)
-2.	Calculate slot/box (where `c_box_size.box_size_cid = box_content.box_size_cid`)
-3.	Ask them to select the size of first section from a list – it must be a multiple of the box size (from 2) and no more than the maximum (from 1)
-4.	Allocate the appropriate number of destination boxes to the first section
-5.	Repeat steps (2) and (3) until every entry has been allocated to a section
-*/
-
+    // not for boxes
 }
 
 void __fastcall TfrmRetrievalManager::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
@@ -424,4 +399,9 @@ void TfrmRetrievalManager::radgrpRowsChange() {
 //
 //void __fastcall TfrmRetrievalManager::comboPlansChange(TObject *Sender) {
 //    //
-//}
+//}void __fastcall TfrmRetrievalManager::btnDecrClick(TObject *Sender) {    //
+}
+void __fastcall TfrmRetrievalManager::btnIncrClick(TObject *Sender) {    //
+}
+
+

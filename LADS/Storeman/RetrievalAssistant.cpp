@@ -9,6 +9,7 @@
 #include "RetrievalManager.h"
 #include "ReferredBoxes.h"
 #include "RetrievalProcess.h"
+#include "RetrievalAssistantSamples.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -397,12 +398,12 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     case 0: // manage
         if (    job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL
             &&  job->getStatus() == LCDbCryoJob::Status::NEW_JOB) {
-            frmRetrievalManager->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
+            frmSamples->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
         } else {
-            frmRetrievalManager->autochunk = false; // and form type = ?
+            frmSamples->autochunk = false; // and form type = ?
         }
-        frmRetrievalManager->setJob(job);
-        frmRetrievalManager->ShowModal();
+        frmSamples->setJob(job);
+        frmSamples->ShowModal();
         break;
     case 1: // process
         frmRetrievalProcess->setJob(job);
