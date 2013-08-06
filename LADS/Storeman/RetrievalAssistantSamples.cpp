@@ -37,6 +37,7 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Visible = RETRASSTDEBUG;
     memoDebug->Visible = RETRASSTDEBUG;
     autochunk = false;
+    numrows = DEFAULT_NUMROWS;
     job = NULL;
     sgChunks->Cells[SGCHUNKS_COL_SECTION]   [0] = "Section";
     sgChunks->Cells[SGCHUNKS_COL_START]     [0] = "Start";
@@ -46,24 +47,26 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     sgChunks->ColWidths[SGCHUNKS_COL_START]     = 100;
     sgChunks->ColWidths[SGCHUNKS_COL_END]       = 100;
     sgChunks->ColWidths[SGCHUNKS_COL_SIZE]      = 100;
-    showChunks();
     radbutDefault->Caption = DEFAULT_NUMROWS;
 }
 
 void __fastcall TfrmSamples::FormShow(TObject *Sender) {
-    // show job: list of cryovials
     std::ostringstream oss;
     oss << (autochunk ? "auto-chunk" : "manual chunk") << ", "
     << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
     debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
+    showChunks();
+    loadRows();
+    //showRows();
 }
 
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
 
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
-    btnSave->Enabled = false;
-    // insert rows into c_box_retrieval and l_cryovial_retrieval?
+    //btnSave->Enabled = false;
+    // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
+    // TODO update c_retrieval_job (in progress)
 }
 
 void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
@@ -92,7 +95,7 @@ void __fastcall TfrmSamples::radbutAllClick(TObject *Sender) { radgrpRowsChange(
 void __fastcall TfrmSamples::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
 
 void TfrmSamples::radgrpRowsChange() {
-    int numrows = 0;
+    numrows = 0;
     if (radbutCustom->Checked) {
         editCustomRows->Enabled = true;
         return; // allow user to edit value
@@ -107,16 +110,16 @@ void TfrmSamples::radgrpRowsChange() {
     std::ostringstream oss;
     oss <<__FUNC__<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
-    loadRows(numrows);
+    loadRows();
 }
 
 void __fastcall TfrmSamples::timerCustomRowsTimer(TObject *Sender) {
     timerCustomRows->Enabled = false;
-    int numrows = editCustomRows->Text.ToIntDef(0);
+    numrows = editCustomRows->Text.ToIntDef(0);
     std::ostringstream oss;
     oss <<__FUNC__<<": load"<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
-    loadRows(numrows);
+    loadRows();
 }
 
 void __fastcall TfrmSamples::editCustomRowsChange(TObject *Sender) {
@@ -196,7 +199,7 @@ Display the size of the job and ask user if they want to divide up the list.  If
 */
 }
 
-void TfrmSamples::loadRows(int numrows) {
+void TfrmSamples::loadRows() {
     std::ostringstream oss;
     oss<<__FUNC__<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());

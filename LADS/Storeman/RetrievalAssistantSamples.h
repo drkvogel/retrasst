@@ -59,8 +59,7 @@ __published:	// IDE-managed Components
     TTimer *timerCustomRows;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
-    void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
-          TGridDrawState State);
+    void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall btnSaveClick(TObject *Sender);
     void __fastcall btnAddChunkClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
@@ -73,17 +72,18 @@ __published:	// IDE-managed Components
     void __fastcall btnCancelClick(TObject *Sender);
 private:	// User declarations
     LCDbCryoJob * job;
+    int                 numrows; // rows to show at a time
     //vecpRetrievalPlan plans;
-    vecpChunk chunks;
-    vecpVial vials;
-    void autoChunk();
-    void showChunks();
-    void loadRows(int numrows);
-    void radgrpRowsChange();
+    vecpChunk           chunks;
+    vecpVial            vials;
+    void                autoChunk();
+    void                showChunks();
+    void                loadRows();
+    void                radgrpRowsChange();
 public:		// User declarations
-    __fastcall TfrmSamples(TComponent* Owner);
-    void setJob(LCDbCryoJob * ajob) { job = ajob; }
-    bool autochunk;
+    __fastcall          TfrmSamples(TComponent* Owner);
+    void                setJob(LCDbCryoJob * ajob) { job = ajob; }
+    bool                autochunk;
 };
 
 extern PACKAGE TfrmSamples *frmSamples;

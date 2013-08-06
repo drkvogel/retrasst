@@ -53,26 +53,26 @@ public:
 
 //	enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
 //	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
-class RetrievalPlan : public LCDbID { // c_retrieval_plan
-    int                     retrieval_plan_cid;
-    std::string             name;
-    vecpChunk               chunks;
-    int                     status;
-    LCDbCryoJob::JobKind    jobType;
-public:
-    RetrievalPlan(std::string nm) : retrieval_plan_cid(0), name(nm) { }
-    void readChunks();
-    void deletePlan() { /* set 99 */ }
-    void setCID(int id) { retrieval_plan_cid = id; }
-    void setStatus(int st) { status = st; }
-    int getStatus() { return status; }
-    void setName(std::string nm) { name = nm; }
-    std::string getName() { return name; }
-    void addChunk(Chunk * ch) { chunks.push_back(ch); }
-    void popChunk() { delete chunks.back(); chunks.pop_back(); }
-};
-
-typedef std::vector<RetrievalPlan *> vecpRetrievalPlan;
+//class RetrievalPlan : public LCDbID { // c_retrieval_plan
+//    int                     retrieval_plan_cid;
+//    std::string             name;
+//    vecpChunk               chunks;
+//    int                     status;
+//    LCDbCryoJob::JobKind    jobType;
+//public:
+//    RetrievalPlan(std::string nm) : retrieval_plan_cid(0), name(nm) { }
+//    void readChunks();
+//    void deletePlan() { /* set 99 */ }
+//    void setCID(int id) { retrieval_plan_cid = id; }
+//    void setStatus(int st) { status = st; }
+//    int getStatus() { return status; }
+//    void setName(std::string nm) { name = nm; }
+//    std::string getName() { return name; }
+//    void addChunk(Chunk * ch) { chunks.push_back(ch); }
+//    void popChunk() { delete chunks.back(); chunks.pop_back(); }
+//};
+//
+//typedef std::vector<RetrievalPlan *> vecpRetrievalPlan;
 
 //class RetrievalPlans : public LCDbID {
 //class RetrievalPlans : public LDbCache< RetrievalPlan >, public LDbSingleton< RetrievalPlan > {
@@ -126,16 +126,17 @@ __published:
     void __fastcall btnDecrClick(TObject *Sender);
     void __fastcall btnIncrClick(TObject *Sender);
 private:
-    LCDbCryoJob * job;
-    vecpChunk chunks;
-    vecpBox boxes;
+    int                 numrows; // rows to show at a time
+    LCDbCryoJob *       job;
+    vecpChunk           chunks;
+    vecpBox             boxes;
+    void                showChunks();
+    void                loadRows();
+    void                radgrpRowsChange();
     //void loadChunks();
-    void showChunks();
-    void loadRows(int numrows);
-    void radgrpRowsChange();
 public:
-    __fastcall TfrmBoxes(TComponent* Owner);
-    void setJob(LCDbCryoJob * ajob) { job = ajob; }
+    __fastcall          TfrmBoxes(TComponent* Owner);
+    void                setJob(LCDbCryoJob * ajob) { job = ajob; }
 };
 
 extern PACKAGE TfrmBoxes *frmBoxes;

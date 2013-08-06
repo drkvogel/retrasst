@@ -15,6 +15,7 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     cbLog->Visible = RETRASSTDEBUG;
     memoDebug->Visible = RETRASSTDEBUG;
     job = NULL;
+    numrows = DEFAULT_NUMROWS;
     sgChunks->Cells[SGCHUNKS_COL_SECTION]   [0] = "Section";
     sgChunks->Cells[SGCHUNKS_COL_START]     [0] = "Start";
     sgChunks->Cells[SGCHUNKS_COL_END]       [0] = "End";
@@ -29,10 +30,12 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
 
 void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
     std::ostringstream oss;
-    oss //<< (autochunk ? "auto-chunk" : "manual chunk") << ", "
-    << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
+    oss << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
     debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
+    showChunks();
+    loadRows();
+    //showRows();
 }
 
 void __fastcall TfrmBoxes::btnCancelClick(TObject *Sender) { Close(); }
@@ -69,9 +72,9 @@ void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow,
 }
 
 void __fastcall TfrmBoxes::btnSaveClick(TObject *Sender) {
-    //
-    btnSave->Enabled = false;
-    // insert rows into c_box_retrieval and l_cryovial_retrieval
+    //btnSave->Enabled = false;
+    // TODO insert rows into c_box_retrieval
+    // TODO update c_retrieval_job (in progress)
 }
 
 void __fastcall TfrmBoxes::btnAddChunkClick(TObject *Sender) {
@@ -136,15 +139,15 @@ void __fastcall TfrmBoxes::editCustomRowsChange(TObject *Sender) {
 
 void __fastcall TfrmBoxes::timerCustomRowsTimer(TObject *Sender) {
     timerCustomRows->Enabled = false;
-    int numrows = editCustomRows->Text.ToIntDef(0);
+    numrows = editCustomRows->Text.ToIntDef(0);
     ostringstream oss;
     oss <<__FUNC__<<": load"<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
-    loadRows(numrows);
+    loadRows();
 }
 
 void TfrmBoxes::radgrpRowsChange() {
-    int numrows = 0;
+    numrows = 0;
     if (radbutCustom->Checked) {
         editCustomRows->Enabled = true;
         return; // allow user to edit value
@@ -159,7 +162,7 @@ void TfrmBoxes::radgrpRowsChange() {
     ostringstream oss;
     oss <<__FUNC__<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
-    loadRows(numrows);
+    loadRows();
 }
 
 //void TfrmRetrievalManager::loadChunks() {
@@ -263,11 +266,31 @@ Set status = 1 when the position's confirmed
 
 */
 
-void TfrmBoxes::loadRows(int numrows) {
+void TfrmBoxes::loadRows() {
     ostringstream oss;
     oss<<__FUNC__<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
+
+    // numrows
 /*
+
+    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
+    LQuery q(LIMSDatabase::getCentralDb());
+    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
+    q.setSQL("SELECT * FROM  WHERE status != 99");
+    Screen->Cursor = crSQLWait;
+    q.open();
+    delete_referenced<vecp>(s);
+    while (!q.eof()) {
+        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
+        //ob-> = q.readInt("");
+        //ob-> = q.readString("");
+        s.push_back();
+        q.next();
+    }
+    Screen->Cursor = crDefault;
+
+
     Select
         b.external_name as box,
         s.external_name as site,
