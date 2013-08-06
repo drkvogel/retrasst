@@ -485,17 +485,17 @@
 				<DependentOn>RetrievalAssistantBoxes.h</DependentOn>
 				<BuildOrder>92</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="RetrievalAssistantProcess.cpp">
+				<Form>frmProcess</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalAssistantProcess.h</DependentOn>
+				<BuildOrder>93</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="RetrievalAssistantSamples.cpp">
 				<Form>frmSamples</Form>
 				<FormType>dfm</FormType>
 				<DependentOn>RetrievalAssistantSamples.h</DependentOn>
 				<BuildOrder>94</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="RetrievalProcess.cpp">
-				<Form>frmProcess</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>RetrievalProcess.h</DependentOn>
-				<BuildOrder>93</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="RetrieveSamples.cpp">
 				<Form>frmRetrieved</Form>
@@ -583,7 +583,7 @@
 			<FormResources Include="NewJob.dfm"/>
 			<FormResources Include="NewSection.dfm"/>
 			<FormResources Include="ReferredBoxes.dfm"/>
-			<FormResources Include="RetrievalProcess.dfm"/>
+			<FormResources Include="RetrievalAssistantProcess.dfm"/>
 			<FormResources Include="RetrieveSamples.dfm"/>
 			<FormResources Include="RetrievalAssistantBoxes.dfm"/>
 			<FormResources Include="ReferredBoxesSummary.dfm"/>

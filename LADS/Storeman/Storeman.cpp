@@ -23,6 +23,7 @@
 
 
 
+
 USEFORM("DiscardSamples.cpp", frmDiscardSamples);
 USEFORM("DiscardSearch.cpp", frmSearch);
 USEFORM("DiscardReason.cpp", frmDiscardReason);
@@ -49,7 +50,7 @@ USEFORM("NewSite.cpp", frmNewSite);
 USEFORM("NewJob.cpp", frmNewJob);
 USEFORM("NewSection.cpp", frmNewSection);
 USEFORM("ReferredBoxes.cpp", frmReferred);
-USEFORM("RetrievalProcess.cpp", frmProcess);
+USEFORM("RetrievalAssistantProcess.cpp", frmProcess);
 USEFORM("RetrieveSamples.cpp", frmRetrieved);
 USEFORM("RetrievalAssistantBoxes.cpp", frmBoxes);
 USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
