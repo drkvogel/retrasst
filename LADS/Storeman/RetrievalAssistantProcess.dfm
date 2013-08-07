@@ -12,6 +12,7 @@ object frmProcess: TfrmProcess
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = False
+  WindowState = wsMaximized
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96

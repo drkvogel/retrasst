@@ -9,15 +9,53 @@
 
 TfrmBoxes *frmBoxes;
 
+/* some queries
+select * from c_retrieval_job rj, c_box_retrieval br where rj.retrieval_cid = br.retrieval_cid
+  only two:
+    -1180118
+    -116
+
+# query showing existing jobs, one a sample retrieval (4), one a box retrieval (2)
+# you can see that no cryovials are attached to the boxes in the second job, and not to all boxes in the first
+# ie these show existing *retrieval plans* - not the source boxes
+
+select
+  rj.retrieval_cid,
+  rj.external_name,
+  rj.description,
+  rj.primary_aliquot,
+  rj.secondary_aliquot,
+  br.section,
+  br.box_id,
+  br.rj_box_cid,
+  cr.position,
+  cr.cryovial_barcode,
+  rj.finish_date
+from
+  c_retrieval_job rj, c_box_retrieval br
+left join
+  l_cryovial_retrieval cr on cr.rj_box_cid = br.rj_box_cid
+  and cr.position < 10
+where
+  rj.retrieval_cid = br.retrieval_cid
+order by
+  rj_box_cid, position
+
+  (not allowed on ddb)
+
+*/
+
+enum {SGBOXES_COL_1, SGBOXES_COL_2, SGBOXES_COL_3, SGBOXES_COL_4, SGBOXES_COL_5} sg_boxes_cols;
+
 void debugLog(String s) { frmBoxes->memoDebug->Lines->Add(s); }
 
 __fastcall TfrmBoxes::TfrmBoxes(TComponent* Owner) : TForm(Owner) { }
 
 void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
-    cbLog->Visible = RETRASSTDEBUG;
-    memoDebug->Visible = RETRASSTDEBUG;
-    job = NULL;
-    numrows = DEFAULT_NUMROWS;
+    cbLog->Visible      = RETRASSTDEBUG;
+    memoDebug->Visible  = RETRASSTDEBUG;
+    job                 = NULL;
+    numrows             = DEFAULT_NUMROWS;
     sgChunks->Cells[SGCHUNKS_COL_SECTION]   [0] = "Section";
     sgChunks->Cells[SGCHUNKS_COL_START]     [0] = "Start";
     sgChunks->Cells[SGCHUNKS_COL_END]       [0] = "End";
@@ -26,7 +64,6 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     sgChunks->ColWidths[SGCHUNKS_COL_START]     = 100;
     sgChunks->ColWidths[SGCHUNKS_COL_END]       = 100;
     sgChunks->ColWidths[SGCHUNKS_COL_SIZE]      = 100;
-    //????showChunks();
     radbutDefault->Caption = DEFAULT_NUMROWS;
 }
 
@@ -36,7 +73,7 @@ void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
     debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
     //showChunks();
-    //loadRows();
+    loadRows();
     //showRows();
 }
 
@@ -248,7 +285,6 @@ Set status = 1 when the position's confirmed
 
 void TfrmBoxes::loadRows() {
     ostringstream oss; oss<<__FUNC__<<": numrows: "<<numrows; debugLog(oss.str().c_str());
-
     Screen->Cursor = crSQLWait;
     LQuery q(Util::projectQuery(job->getProjectID(), true)); // get ddb
     delete_referenced<vecpBox>(boxes);
@@ -265,9 +301,11 @@ void TfrmBoxes::loadRows() {
         " s.object_cid = location_cid AND"
         " v.object_cid = storage_cid AND"
         " bs.retrieval_cid = :jobID"); // e.g. -636363
+    q.setParam("jobID", job->getID());
     q.open();
     while (!q.eof()) {
         LCDbBoxStore * box = new LCDbBoxStore(q); // ???
+        //box->
         //q.readString("name")
         //box-> = q.readInt("");
         //ob-> = q.readString("");
@@ -283,13 +321,12 @@ void TfrmBoxes::loadRows() {
 }
 
 void TfrmBoxes::showRows() {
-   // numrows
-
-//    int row = 1;
-//    vecpOb::const_iterator it;
-//    for (it = .begin(); it != .end(); it++) {
-//        LCDbBoxStore * box = *it;
-//        sgObs->Cells[SGOBJS_COL_1][row] = ob->;
-//        sgObs->Objects[0][row] = (TObject *)ob;
-//    }
+    int row = 1;
+    vecpBox::const_iterator it;
+    for (it = boxes.begin(); it != boxes.end(); it++, row++) {
+        LCDbBoxStore * box = *it;
+        sgBoxes->Cells[SGBOXES_COL_1][row] = box->getBoxID();
+        sgBoxes->Objects[0][row] = (TObject *)box;
+        if (row >= numrows) break;
+    }
 }

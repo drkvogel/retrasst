@@ -11,7 +11,6 @@ TfrmSamples *frmSamples;
 void debugLog(String s) { frmSamples->memoDebug->Lines->Add(s); }
 
 /*
-
 // template
     ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
     LQuery q(LIMSDatabase::getCentralDb());
@@ -30,15 +29,17 @@ void debugLog(String s) { frmSamples->memoDebug->Lines->Add(s); }
     Screen->Cursor = crDefault;
 */
 
+enum {SGVIALS_COL_1, SGVIALS_COL_2, SGVIALS_COL_3, SGVIALS_COL_4, SGVIALS_COL_5} sg_vials_cols;
+
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
 
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     //
-    cbLog->Visible = RETRASSTDEBUG;
-    memoDebug->Visible = RETRASSTDEBUG;
-    autochunk = false;
-    numrows = DEFAULT_NUMROWS;
-    job = NULL;
+    cbLog->Visible      = RETRASSTDEBUG;
+    memoDebug->Visible  = RETRASSTDEBUG;
+    autochunk           = false;
+    numrows             = DEFAULT_NUMROWS;
+    job                 = NULL;
     sgChunks->Cells[SGCHUNKS_COL_SECTION]   [0] = "Section";
     sgChunks->Cells[SGCHUNKS_COL_START]     [0] = "Start";
     sgChunks->Cells[SGCHUNKS_COL_END]       [0] = "End";
@@ -59,6 +60,9 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     showChunks();
     //loadRows();
     //showRows();
+    if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {
+        autoChunk();
+    }
 }
 
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
@@ -199,7 +203,6 @@ Display the size of the job and ask user if they want to divide up the list.  If
 
 void TfrmSamples::loadRows() {
     std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<numrows; debugLog(oss.str().c_str());
-
     Screen->Cursor = crSQLWait;
     delete_referenced<vecpVial>(vials);
     LQuery q(Util::projectQuery(job->getProjectID(), true));
@@ -223,6 +226,7 @@ void TfrmSamples::loadRows() {
         " s.object_cid = location_cid and"
         " v.object_cid = storage_cid and"
         " cs.retrieval_cid = :jobID;");
+    q.setParam("jobID", job->getID());
     /* -- may have destination box defined, could find with left join:
     from
          cryovial_store s1
@@ -250,13 +254,18 @@ void TfrmSamples::loadRows() {
 }
 
 void TfrmSamples::showRows() {
-//    int row = 1;
-//    vecpOb::const_iterator it;
-//    for (it = .begin(); it != .end(); it++) {
-//        LCDbBoxStore * box = *it;
-//        sgObs->Cells[SGOBJS_COL_1][row] = ob->;
-//        sgObs->Objects[0][row] = (TObject *)ob;
-//    }
+    int row = 1;
+    vecpVial::const_iterator it;
+    for (it = vials.begin(); it != vials.end(); it++, row++) {
+        LPDbCryovialStore * vial = *it;
+        sgVials->Cells[SGVIALS_COL_1][row] = vial->getID();
+        sgVials->Objects[0][row] = (TObject *)vial;
+        if (row >= numrows) break;
+    }
+}
+
+void __fastcall TfrmSamples::btnAutoChunkClick(TObject *Sender) {
+    autoChunk();
 }
 
 

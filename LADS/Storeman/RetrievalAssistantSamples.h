@@ -54,9 +54,10 @@ __published:	// IDE-managed Components
     TRadioButton *radbutCustom;
     TEdit *editCustomRows;
     TGroupBox *GroupBox1;
-    TStringGrid *sgChunk;
+    TStringGrid *sgVials;
     TMemo *memoDebug;
     TTimer *timerCustomRows;
+    TButton *btnAutoChunk;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
@@ -70,6 +71,7 @@ __published:	// IDE-managed Components
     void __fastcall timerCustomRowsTimer(TObject *Sender);
     void __fastcall editCustomRowsChange(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
+    void __fastcall btnAutoChunkClick(TObject *Sender);
 private:	// User declarations
     LCDbCryoJob * job;
     int                 numrows; // rows to show at a time

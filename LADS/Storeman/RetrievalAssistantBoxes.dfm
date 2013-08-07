@@ -45,50 +45,69 @@ object frmBoxes: TfrmBoxes
       BevelOuter = bvNone
       TabOrder = 0
       object btnAddChunk: TButton
-        Left = 6
+        Left = 0
         Top = 0
-        Width = 75
+        Width = 82
         Height = 25
+        Align = alTop
         Caption = 'Add chunk'
         TabOrder = 0
         OnClick = btnAddChunkClick
+        ExplicitLeft = 6
+        ExplicitWidth = 75
       end
       object btnDelChunk: TButton
-        Left = 6
-        Top = 31
-        Width = 75
+        Left = 0
+        Top = 25
+        Width = 82
         Height = 25
+        Align = alTop
         Caption = 'Del chunk'
         Enabled = False
         TabOrder = 1
         OnClick = btnDelChunkClick
+        ExplicitLeft = 6
+        ExplicitTop = 31
+        ExplicitWidth = 75
       end
       object btnSaveChunk: TButton
-        Left = 6
-        Top = 62
-        Width = 75
+        Left = 0
+        Top = 50
+        Width = 82
         Height = 25
+        Align = alTop
         Caption = 'Save chunk'
         Enabled = False
         TabOrder = 2
+        ExplicitLeft = 6
+        ExplicitTop = 62
+        ExplicitWidth = 75
       end
       object btnIncr: TButton
-        Left = 6
-        Top = 93
-        Width = 75
+        Left = 0
+        Top = 75
+        Width = 82
         Height = 25
+        Align = alTop
         Caption = '+'
         TabOrder = 3
         OnClick = btnIncrClick
+        ExplicitLeft = 6
+        ExplicitTop = 93
+        ExplicitWidth = 75
       end
       object btnDecr: TButton
-        Left = 6
-        Top = 124
-        Width = 75
+        Left = 0
+        Top = 100
+        Width = 82
         Height = 25
+        Align = alTop
         Caption = '-'
         TabOrder = 4
         OnClick = btnDecrClick
+        ExplicitLeft = 6
+        ExplicitTop = 124
+        ExplicitWidth = 75
       end
     end
     object sgChunks: TStringGrid
@@ -104,6 +123,8 @@ object frmBoxes: TfrmBoxes
       OnDrawCell = sgChunksDrawCell
       OnFixedCellClick = sgChunksFixedCellClick
       OnSetEditText = sgChunksSetEditText
+      ExplicitLeft = 3
+      ExplicitTop = 11
     end
   end
   object Panel1: TPanel
@@ -204,9 +225,9 @@ object frmBoxes: TfrmBoxes
     Width = 713
     Height = 269
     Align = alClient
-    Caption = 'Chunk details'
+    Caption = 'Boxes in chunk'
     TabOrder = 2
-    object sgChunk: TStringGrid
+    object sgBoxes: TStringGrid
       Left = 2
       Top = 15
       Width = 709

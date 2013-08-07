@@ -96,7 +96,7 @@ __published:
     TButton *btnDelChunk;
     TStringGrid *sgChunks;
     TGroupBox *GroupBox1;
-    TStringGrid *sgChunk;
+    TStringGrid *sgBoxes;
     TButton *btnSaveChunk;
     TButton *btnIncr;
     TButton *btnDecr;

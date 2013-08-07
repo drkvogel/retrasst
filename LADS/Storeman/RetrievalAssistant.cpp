@@ -397,20 +397,21 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     case LCDbCryoJob::Status::NEW_JOB: // manage
         switch (job->getJobType()) {
         case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
-            if (job->getStatus() == LCDbCryoJob::Status::NEW_JOB) {
-                frmSamples->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
-            } else {
-                frmSamples->autochunk = false; // and form type = ?
-            }
+//            if (job->getStatus() == LCDbCryoJob::Status::NEW_JOB) {
+//                //frmSamples->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
+//                frmSamples->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
+//            } else {
+//                frmSamples->autochunk = false; // and form type = ?
+//            }
             frmSamples->setJob(job);
             if (IDOK == frmSamples->ShowModal()) {
-                // make INPROGRESS?
+                // then make INPROGRESS?
             }
             break;
         case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
             frmBoxes->setJob(job);
             if (IDOK == frmBoxes->ShowModal()) {
-                // make INPROGRESS?
+                // then make INPROGRESS?
             }
             break;
         default:
