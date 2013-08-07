@@ -57,8 +57,8 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
     showChunks();
-    loadRows();
-    showRows();
+    //loadRows();
+    //showRows();
 }
 
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }

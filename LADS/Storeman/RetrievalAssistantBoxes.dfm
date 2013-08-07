@@ -2,7 +2,7 @@ object frmBoxes: TfrmBoxes
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu, biMaximize]
-  Caption = 'Retrieval Manager'
+  Caption = 'Box Retrieval Plan'
   ClientHeight = 588
   ClientWidth = 713
   Color = clBtnFace
@@ -34,7 +34,7 @@ object frmBoxes: TfrmBoxes
     Width = 713
     Height = 265
     Align = alTop
-    Caption = 'Manage Chunks'
+    Caption = 'Chunks'
     TabOrder = 0
     object Panel2: TPanel
       Left = 629

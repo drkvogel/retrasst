@@ -191,7 +191,7 @@ Sample retrieval
 void TfrmRetrievalAssistant::init() {
     cbLog->Visible = RETRASSTDEBUG;
     memoDebug->Visible = RETRASSTDEBUG;
-    radgrpMode->ItemIndex = 0;
+    //radgrpMode->ItemIndex = 0;
     sgJobs->Cells[SGJOBS_COL_DESCRIP]   [0] = "Description";
     sgJobs->Cells[SGJOBS_COL_JOBTYPE]   [0] = "Job type";
     sgJobs->Cells[SGJOBS_COL_STATUS]    [0] = "Status";
@@ -393,9 +393,8 @@ void TfrmRetrievalAssistant::loadBoxes() {
 
 void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
-
-    switch (radgrpMode->ItemIndex) {
-    case 0: // manage
+    switch (job->getStatus()) {
+    case LCDbCryoJob::Status::NEW_JOB: // manage
         switch (job->getJobType()) {
         case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
             if (job->getStatus() == LCDbCryoJob::Status::NEW_JOB) {
@@ -418,7 +417,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
             throw Exception("Unknown job type");
         }
         break;
-    case 1: // process
+    case LCDbCryoJob::INPROGRESS: // process
         switch (job->getJobType()) {
         case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
             frmProcess->setJob(job);
@@ -433,7 +432,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
         }
         break;
     default:
-        throw Exception("Unknown mode");
+        throw Exception("Unknown status");
     }
 }
 

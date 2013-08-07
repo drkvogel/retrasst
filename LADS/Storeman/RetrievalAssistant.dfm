@@ -198,18 +198,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         TabOrder = 3
         OnClick = cbLogClick
       end
-      object radgrpMode: TRadioGroup
-        Left = 0
-        Top = 203
-        Width = 113
-        Height = 70
-        Align = alTop
-        Caption = 'Mode'
-        Items.Strings = (
-          'Manage'
-          'Process')
-        TabOrder = 4
-      end
     end
     object memoDebug: TMemo
       Left = 2

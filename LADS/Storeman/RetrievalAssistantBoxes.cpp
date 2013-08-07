@@ -26,7 +26,7 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     sgChunks->ColWidths[SGCHUNKS_COL_START]     = 100;
     sgChunks->ColWidths[SGCHUNKS_COL_END]       = 100;
     sgChunks->ColWidths[SGCHUNKS_COL_SIZE]      = 100;
-    showChunks();
+    //????showChunks();
     radbutDefault->Caption = DEFAULT_NUMROWS;
 }
 
@@ -35,9 +35,9 @@ void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
     oss << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
     debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
-    showChunks();
-    loadRows();
-    showRows();
+    //showChunks();
+    //loadRows();
+    //showRows();
 }
 
 void __fastcall TfrmBoxes::btnCancelClick(TObject *Sender) { Close(); }

@@ -1,7 +1,7 @@
 object frmSamples: TfrmSamples
   Left = 0
   Top = 0
-  Caption = 'frmSamples'
+  Caption = 'Sample Retrieval Plan'
   ClientHeight = 756
   ClientWidth = 746
   Color = clBtnFace
@@ -32,7 +32,7 @@ object frmSamples: TfrmSamples
     Width = 746
     Height = 265
     Align = alTop
-    Caption = 'Manage Chunks'
+    Caption = 'Chunks'
     TabOrder = 0
     ExplicitLeft = -295
     ExplicitWidth = 713

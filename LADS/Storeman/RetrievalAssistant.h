@@ -85,7 +85,6 @@ __published:
     TButton *btnExit;
     TCheckBox *cbLog;
     TMemo *memoDebug;
-    TRadioGroup *radgrpMode;
     void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall cbNewJobClick(TObject *Sender);
     void __fastcall cbInProgressClick(TObject *Sender);
