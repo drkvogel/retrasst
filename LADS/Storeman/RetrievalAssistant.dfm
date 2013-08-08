@@ -1,6 +1,7 @@
 object frmRetrievalAssistant: TfrmRetrievalAssistant
   Left = 0
   Top = 0
+  BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Retrieval Assistant'
   ClientHeight = 504
   ClientWidth = 771

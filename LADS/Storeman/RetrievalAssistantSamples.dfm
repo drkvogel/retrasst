@@ -1,6 +1,7 @@
 object frmSamples: TfrmSamples
   Left = 0
   Top = 0
+  BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Sample Retrieval Plan'
   ClientHeight = 618
   ClientWidth = 758
@@ -35,8 +36,7 @@ object frmSamples: TfrmSamples
     Align = alTop
     Caption = 'Chunks'
     TabOrder = 0
-    ExplicitLeft = -295
-    ExplicitWidth = 713
+    ExplicitTop = 4
     object Panel2: TPanel
       Left = 674
       Top = 15

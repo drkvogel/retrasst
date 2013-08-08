@@ -232,6 +232,8 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
 #define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
 #define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
+enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
+enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
  */
     LCDbCryoJob * job;
     TColor background = clWindow;
@@ -246,8 +248,6 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
             background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; // error
         }
     } else {
-//	enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
-//	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
         switch (job->getStatus()) {
         case LCDbCryoJob::Status::NEW_JOB:
             background = RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR;
@@ -300,7 +300,6 @@ void TfrmRetrievalAssistant::loadJobs() {
     LQuery qc(LIMSDatabase::getCentralDb());
     LCDbCryoJobs &jobs = LCDbCryoJobs::records();
     jobs.read(LCDbCryoJob::JobKind::UNKNOWN, true); // $2 true: readall
-
     delete_referenced<tdvecpJob>(vecJobs);
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {
         if (!jr->isAvailable()) continue;
@@ -325,7 +324,6 @@ void TfrmRetrievalAssistant::loadJobs() {
 
 void TfrmRetrievalAssistant::showJobs() {
     sgJobs->RowCount = vecJobs.size() + 1;
-    //sgJobs->FixedRows = 1;
     tdvecpJob::const_iterator it;
     int row = 1;
     for (it = vecJobs.begin(); it != vecJobs.end(); it++, row++) {
@@ -397,12 +395,6 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     case LCDbCryoJob::Status::NEW_JOB: // manage
         switch (job->getJobType()) {
         case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
-//            if (job->getStatus() == LCDbCryoJob::Status::NEW_JOB) {
-//                //frmSamples->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
-//                frmSamples->autochunk = (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO));
-//            } else {
-//                frmSamples->autochunk = false; // and form type = ?
-//            }
             frmSamples->setJob(job);
             if (IDOK == frmSamples->ShowModal()) {
                 // then make INPROGRESS?
