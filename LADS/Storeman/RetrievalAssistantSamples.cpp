@@ -51,6 +51,7 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     sgVials->ColCount = SGVIALS_NUMCOLS;
     for (int i=0; i<SGVIALS_NUMCOLS; i++) {
         sgVials->Cells[i][0] = sgVialColName[i];
+        sgVials->ColWidths[i] = sgVialColWidth[i];
     }
     radbutDefault->Caption = DEFAULT_NUMROWS;
 }
@@ -118,7 +119,8 @@ void TfrmSamples::radgrpRowsChange() {
     std::ostringstream oss;
     oss <<__FUNC__<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
-    loadRows();
+    //loadRows();
+    showRows();
 }
 
 void __fastcall TfrmSamples::timerCustomRowsTimer(TObject *Sender) {
@@ -127,7 +129,8 @@ void __fastcall TfrmSamples::timerCustomRowsTimer(TObject *Sender) {
     std::ostringstream oss;
     oss <<__FUNC__<<": load"<<": numrows: "<<numrows;
     debugLog(oss.str().c_str());
-    loadRows();
+    //loadRows();
+    showRows();
 }
 
 void __fastcall TfrmSamples::editCustomRowsChange(TObject *Sender) {
@@ -166,8 +169,13 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
 }
 
 void TfrmSamples::showChunks() {
-    sgChunks->RowCount = chunks.size() + 1;
-    //sgChunks->FixedRows = 1;
+    if (0 == chunks.size()) { // must always have one chunk anyway
+        clearGridSelection(sgChunks);
+    } else {
+        sgChunks->RowCount = chunks.size() + 1;
+        sgChunks->FixedRows = 1; // "Fixed row count must be LESS than row count"
+        // use clearSG/clearGridSelection
+    }
     vecpChunk::const_iterator it;
     int row = 1;
     for (it = chunks.begin(); it != chunks.end(); it++, row++) {

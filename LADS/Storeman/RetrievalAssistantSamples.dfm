@@ -173,7 +173,7 @@ object frmSamples: TfrmSamples
       TabOrder = 3
     end
     object radbutAll: TRadioButton
-      Left = 48
+      Left = 49
       Top = 16
       Width = 30
       Height = 17

@@ -43,7 +43,6 @@ SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, strin
         "   s.external_name AS site, m.position, v.external_full AS vessel,"
         "   shelf_number, r.external_name AS rack, bs.slot_position"
                 */
-                                  //, SGVIALS_
 
 enum {
     SGVIALS_BARCODE,
@@ -65,6 +64,8 @@ static const char * sgVialColName[SGVIALS_NUMCOLS] = {
     "Structure",
     "Location",
 };
+
+static int sgVialColWidth[SGVIALS_NUMCOLS] = { 100, 100, 30, 100, 30, 100, 100 };
 
 //typedef std::vector< LPDbCryovialStore *> vecpVial;
 

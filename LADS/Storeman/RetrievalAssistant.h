@@ -18,7 +18,6 @@ const bool RETRASSTDEBUG =
     false;
 #endif
 
-
 #define DEFAULT_NUMROWS 25
 #define SGCHUNKS_COL_SECTION    0
 #define SGCHUNKS_COL_START      1
@@ -31,6 +30,25 @@ const bool RETRASSTDEBUG =
 #define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
 #define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
+
+void clearGridSelection(TStringGrid * sg) { // put this in storeutil?
+    TGridRect myRect;
+    myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
+    sg->Selection = myRect;
+}
+
+void clearSG(TStringGrid * sg) { // put this in storeutil?
+    clearGridSelection(sg);
+    sg->FixedRows = 0;
+    sg->RowCount = 0;
+    sg->RowCount = 2;
+    sg->FixedRows = 1;
+    for (int i = 0; i < sg->ColCount; i++) {
+        sg->Cells[i][1] = "";
+        sg->Objects[i][1] = NULL;
+    }
+    sg->Cells[0][1] = "No results.";
+}
 
 class Chunk { // not recorded in database
 public:
