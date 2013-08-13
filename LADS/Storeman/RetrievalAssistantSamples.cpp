@@ -29,7 +29,7 @@ void debugLog(String s) { frmSamples->memoDebug->Lines->Add(s); }
     Screen->Cursor = crDefault;
 */
 
-enum {SGVIALS_COL_1, SGVIALS_COL_2, SGVIALS_COL_3, SGVIALS_COL_4, SGVIALS_COL_5} sg_vials_cols;
+//enum {SGVIALS_COL_1, SGVIALS_COL_2, SGVIALS_COL_3, SGVIALS_COL_4, SGVIALS_COL_5, SGVIALS_NUMCOLS} sg_vials_cols;
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
 
@@ -48,6 +48,10 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     sgChunks->ColWidths[SGCHUNKS_COL_START]     = 100;
     sgChunks->ColWidths[SGCHUNKS_COL_END]       = 100;
     sgChunks->ColWidths[SGCHUNKS_COL_SIZE]      = 100;
+    sgVials->ColCount = SGVIALS_NUMCOLS;
+    for (int i=0; i<SGVIALS_NUMCOLS; i++) {
+        sgVials->Cells[i][0] = sgVialColName[i];
+    }
     radbutDefault->Caption = DEFAULT_NUMROWS;
 }
 
@@ -58,8 +62,8 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
     showChunks();
-    //loadRows();
-    //showRows();
+    loadRows();
+    showRows();
     if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {
         autoChunk();
     }
@@ -204,34 +208,47 @@ Display the size of the job and ask user if they want to divide up the list.  If
 void TfrmSamples::loadRows() {
     std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<numrows; debugLog(oss.str().c_str());
     Screen->Cursor = crSQLWait;
-    delete_referenced<vecpVial>(vials);
+    delete_referenced<vecpSampleRow>(vials);
     LQuery q(Util::projectQuery(job->getProjectID(), true));
-    q.setSQL("Select"
-        " cryovial_barcode, t.external_name as aliquot, b.external_name as box,"
-        " cryovial_position, s.external_name as site, m.position, v.external_full as vessel,"
-        " shelf_number, r.external_name as rack, bs.slot_position"
-        " from"
-        " cryovial c, cryovial_store cs, box_name b, box_store bs, c_rack_number r,"
-        " c_tank_map m, c_object_name s,"   // site
-        " c_object_name v,"                 // vessel
-        " c_object_name t"                  // aliquot?
-        " where"
-        " c.cryovial_id = cs.cryovial_id and"
-        " b.box_cid = cs.box_cid and"
-        " b.box_cid = bs.box_cid and"
-        " bs.status = 6 and"    // 6?
-        " t.object_cid = aliquot_type_cid and"
-        " bs.rack_cid = r.rack_cid and"
-        " r.tank_cid = m.tank_cid and"
-        " s.object_cid = location_cid and"
-        " v.object_cid = storage_cid and"
-        " cs.retrieval_cid = :jobID;");
+    q.setSQL(
+    /*
+    LPDbCryovialStore(q) expects:
+     Cryovial_id, Note_Exists, retrieval_cid, box_cid, status, cryovial_position, cryovial_id
+ */
+
+//        "SELECT"
+//        "   Cryovial_id, Note_Exists, retrieval_cid, box_cid, status, cryovial_position, cryovial_id,"
+//        "   cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
+//        "   cryovial_position, s.external_name AS site, m.position, v.external_full AS vessel,"
+//        "   shelf_number, r.external_name AS rack, bs.slot_position"
+        "SELECT"
+        "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
+        "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
+        "   s.external_name AS site, m.position, v.external_full AS vessel,"
+        "   shelf_number, r.external_name AS rack, bs.slot_position"
+
+        " FROM"
+        "   cryovial c, cryovial_store cs, box_name b, box_store bs, c_rack_number r,"
+        "   c_tank_map m, c_object_name s,"   // site
+        "   c_object_name v,"                 // vessel
+        "   c_object_name t"                  // aliquot?
+        " WHERE"
+        "   c.cryovial_id = cs.cryovial_id AND"
+        "   b.box_cid = cs.box_cid AND"
+        "   b.box_cid = bs.box_cid AND"
+        "   bs.status = 6 AND"    // 6?
+        "   t.object_cid = aliquot_type_cid AND"
+        "   bs.rack_cid = r.rack_cid AND"
+        "   r.tank_cid = m.tank_cid AND"
+        "   s.object_cid = location_cid AND"
+        "   v.object_cid = storage_cid AND"
+        "   cs.retrieval_cid = :jobID");
     q.setParam("jobID", job->getID());
     /* -- may have destination box defined, could find with left join:
     from
          cryovial_store s1
     left join
-        cryovial c on c.cryovial_id = s1.cryovial_id
+        cryovial c on c.cryovial_cid = s1.cryovial_id
     left join
         box_name n1 on n1.box_cid = s1.box_cid
     left join
@@ -244,10 +261,41 @@ void TfrmSamples::loadRows() {
 
     q.open();
     while (!q.eof()) {
+        /*
+        LPDbCryovialStore * store_record;
+        std::string     cryovial_barcode;
+        std::string     aliquote_type_name;
+        std::string     box_name;
+        std::string     site_name;
+        int             position;
+        std::string     vessel_name;
+        int             shelf_number;
+        std::string     rack_name;
+        int             slot_position;*/
+
+
         LPDbCryovialStore * vial = new LPDbCryovialStore(q);
-        //        box->set = q.readInt("");
-        //        ob-> = q.readString("");
-        vials.push_back(vial);
+/*    SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
+                string site, int pos, string vessel, int shelf, string rack, int slot) :
+
+        "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
+        "   s.external_name AS site, m.position, v.external_full AS vessel,"
+        "   shelf_number, r.external_name AS rack, bs.slot_position"
+                */
+
+        pSampleRow  row = new SampleRow(
+            vial,
+            q.readString("cryovial_barcode"),
+            q.readString("aliquot"),
+            q.readString("box"),
+            q.readString("site"),
+            q.readInt("position"),
+            q.readString("vessel"),
+            q.readInt("shelf_number"),
+            q.readString("rack"),
+            q.readInt("slot_position")
+            );
+        vials.push_back(row);
         q.next();
     }
     Screen->Cursor = crDefault;
@@ -255,11 +303,30 @@ void TfrmSamples::loadRows() {
 
 void TfrmSamples::showRows() {
     int row = 1;
-    vecpVial::const_iterator it;
+    vecpSampleRow::const_iterator it;
     for (it = vials.begin(); it != vials.end(); it++, row++) {
-        LPDbCryovialStore * vial = *it;
-        sgVials->Cells[SGVIALS_COL_1][row] = vial->getID();
-        sgVials->Objects[0][row] = (TObject *)vial;
+        pSampleRow sampleRow = *it;
+        LPDbCryovialStore * vial = sampleRow->store_record;
+/*    SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
+                string site, int pos, string vessel, int shelf, string rack, int slot) :
+
+        "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
+        "   s.external_name AS site, m.position, v.external_full AS vessel,"
+        "   shelf_number, r.external_name AS rack, bs.slot_position"
+                */
+
+        //sgVials->Cells[SGVIALS_COL_1][row] = vial->getID();
+        //sgVials->Cells[][row] = vial->;
+        //sgVials->Cells[][row] = sampleRow->;
+        sgVials->Cells[SGVIALS_BARCODE][row] = sampleRow->cryovial_barcode.c_str();
+        sgVials->Cells[SGVIALS_DESTBOX][row] = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_DESTPOS][row] = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_CURRBOX][row] = sampleRow->box_name.c_str();
+        sgVials->Cells[SGVIALS_CURRPOS][row] = sampleRow->position;
+        sgVials->Cells[SGVIALS_STRUCTURE][row] = sampleRow->vessel_name.c_str(); //??
+        sgVials->Cells[SGVIALS_LOCATION][row] = sampleRow->site_name.c_str();
+
+        sgVials->Objects[0][row] = (TObject *)sampleRow;
         if (row >= numrows) break;
     }
 }

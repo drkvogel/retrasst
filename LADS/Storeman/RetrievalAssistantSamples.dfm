@@ -146,9 +146,6 @@ object frmSamples: TfrmSamples
     BevelEdges = []
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = -295
-    ExplicitTop = 238
-    ExplicitWidth = 713
     DesignSize = (
       758
       44)
