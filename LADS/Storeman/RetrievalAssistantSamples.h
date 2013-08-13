@@ -145,6 +145,9 @@ __published:	// IDE-managed Components
     void __fastcall editCustomRowsChange(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
     void __fastcall btnAutoChunkClick(TObject *Sender);
+    void __fastcall btnIncrClick(TObject *Sender);
+    void __fastcall btnDecrClick(TObject *Sender);
+    void __fastcall btnSaveChunkClick(TObject *Sender);
 private:	// User declarations
     LCDbCryoJob * job;
     int                 numrows; // rows to show at a time

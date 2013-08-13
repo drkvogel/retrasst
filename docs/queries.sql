@@ -27,9 +27,6 @@ some samples have destination boxes
     // secondary aliquots if defined?
     SGVIALS_NUMCOLS} sg_vials_cols;
 
-
-
-
 /* show retrieval jobs */
 
 select * from c_retrieval_job 

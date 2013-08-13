@@ -335,4 +335,16 @@ void __fastcall TfrmSamples::btnAutoChunkClick(TObject *Sender) {
     autoChunk();
 }
 
+void __fastcall TfrmSamples::btnIncrClick(TObject *Sender) {
+    //
+}
+
+void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
+    //
+}
+
+
+void __fastcall TfrmSamples::btnSaveChunkClick(TObject *Sender) {
+    //?? not needed? not 'saving' chunks anywhere, not to db anyway
+}
 

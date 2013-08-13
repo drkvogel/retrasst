@@ -36,7 +36,6 @@ object frmSamples: TfrmSamples
     Align = alTop
     Caption = 'Chunks'
     TabOrder = 0
-    ExplicitTop = 4
     object Panel2: TPanel
       Left = 674
       Top = 15
@@ -45,7 +44,6 @@ object frmSamples: TfrmSamples
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 629
       object btnAddChunk: TButton
         Left = 0
         Top = 25
@@ -55,9 +53,6 @@ object frmSamples: TfrmSamples
         Caption = 'Add chunk'
         TabOrder = 0
         OnClick = btnAddChunkClick
-        ExplicitLeft = 6
-        ExplicitTop = 0
-        ExplicitWidth = 75
       end
       object btnDelChunk: TButton
         Left = 0
@@ -69,9 +64,6 @@ object frmSamples: TfrmSamples
         Enabled = False
         TabOrder = 1
         OnClick = btnDelChunkClick
-        ExplicitLeft = 6
-        ExplicitTop = 55
-        ExplicitWidth = 75
       end
       object btnSaveChunk: TButton
         Left = 0
@@ -82,9 +74,7 @@ object frmSamples: TfrmSamples
         Caption = 'Save chunk'
         Enabled = False
         TabOrder = 2
-        ExplicitLeft = 6
-        ExplicitTop = 86
-        ExplicitWidth = 75
+        OnClick = btnSaveChunkClick
       end
       object btnIncr: TButton
         Left = 0
@@ -94,9 +84,7 @@ object frmSamples: TfrmSamples
         Align = alTop
         Caption = '+'
         TabOrder = 3
-        ExplicitLeft = 6
-        ExplicitTop = 117
-        ExplicitWidth = 75
+        OnClick = btnIncrClick
       end
       object btnDecr: TButton
         Left = 0
@@ -106,9 +94,7 @@ object frmSamples: TfrmSamples
         Align = alTop
         Caption = '-'
         TabOrder = 4
-        ExplicitLeft = 6
-        ExplicitTop = 148
-        ExplicitWidth = 75
+        OnClick = btnDecrClick
       end
       object btnAutoChunk: TButton
         Left = 0
@@ -119,8 +105,6 @@ object frmSamples: TfrmSamples
         Caption = 'Auto-Chunk'
         TabOrder = 5
         OnClick = btnAutoChunkClick
-        ExplicitLeft = 6
-        ExplicitTop = -15
       end
     end
     object sgChunks: TStringGrid
@@ -134,7 +118,6 @@ object frmSamples: TfrmSamples
       Options = [goFixedVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goAlwaysShowEditor, goThumbTracking]
       TabOrder = 1
       OnDrawCell = sgChunksDrawCell
-      ExplicitWidth = 627
     end
   end
   object Panel1: TPanel
@@ -158,7 +141,6 @@ object frmSamples: TfrmSamples
       Caption = 'Save'
       TabOrder = 0
       OnClick = btnSaveClick
-      ExplicitLeft = 552
     end
     object btnCancel: TButton
       Left = 678
@@ -169,7 +151,6 @@ object frmSamples: TfrmSamples
       Caption = 'Exit'
       TabOrder = 1
       OnClick = btnCancelClick
-      ExplicitLeft = 633
     end
     object cbLog: TCheckBox
       Left = 527
@@ -182,7 +163,6 @@ object frmSamples: TfrmSamples
       State = cbChecked
       TabOrder = 2
       OnClick = cbLogClick
-      ExplicitLeft = 482
     end
     object radgrpRows: TRadioGroup
       Left = 2
@@ -240,10 +220,6 @@ object frmSamples: TfrmSamples
     Align = alClient
     Caption = 'Vials in chunk'
     TabOrder = 2
-    ExplicitLeft = -295
-    ExplicitTop = 13
-    ExplicitWidth = 713
-    ExplicitHeight = 269
     object sgVials: TStringGrid
       Left = 2
       Top = 15
@@ -251,9 +227,8 @@ object frmSamples: TfrmSamples
       Height = 193
       Align = alClient
       FixedCols = 0
+      Options = [goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
       TabOrder = 0
-      ExplicitWidth = 709
-      ExplicitHeight = 163
     end
     object memoDebug: TMemo
       Left = 2
@@ -264,8 +239,6 @@ object frmSamples: TfrmSamples
       Lines.Strings = (
         'memoDebug')
       TabOrder = 1
-      ExplicitTop = 178
-      ExplicitWidth = 709
     end
   end
   object timerCustomRows: TTimer
