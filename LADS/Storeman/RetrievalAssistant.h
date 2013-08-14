@@ -73,41 +73,24 @@ std::string printColWidths(TStringGrid * sg) {
 // end utilities
 
 // chunk stringgrid setup
-enum {
-    SGCHUNKS_SECTION,
-    SGCHUNKS_START,
-    SGCHUNKS_END,
-    SGCHUNKS_SIZE,
-    SGCHUNKS_NUMCOLS
-};// sgChunks_cols;
-//static const char * sgChunksColName[SGCHUNKS_NUMCOLS] = {
-static const char * sgChunksColName[SGCHUNKS_NUMCOLS] = {
-    "Section",
-    "Start",
-    "End",
-    "Size"
-};
-static const int sgChunksColWidth[SGCHUNKS_NUMCOLS] = {
-    100, 100, 30, 100
-};
+enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
+static const char * sgChunksColName[SGCHUNKS_NUMCOLS]   = { "Section", "Start", "End", "Size" };
+static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 100, 100, 30, 100 };
 
 class Chunk { // not recorded in database
 public:
-    //Chunk() : section(0), retrieval_cid(0), name(""), start(0), end(0) { }
     Chunk() : section(0), start(0), end(0) { }
     int         section;
-    //int         retrieval_cid;
-    //int         exercise_cid;
     //std::string name;
     int         start;
     int         end;
-    //string      descrip;
-    //int         job_type;
-    //int         project_cid;
-    //int         primary_aliquot;
 };
-
 typedef std::vector< Chunk * >  vecpChunk;
+
+// jobs grid setup
+enum { SGJOBS_DESCRIP, SGJOBS_JOBTYPE, SGJOBS_STATUS, SGJOBS_PRIMARY, SGJOBS_PROJECT, SGJOBS_REASON, SGJOBS_TIMESTAMP, SGJOBS_NUMCOLS };
+static const char * sgJobsColName[SGJOBS_NUMCOLS]   = { "Description", "Job type", "Status", "Primary Aliquot", "Project", "Reason", "Timestamp" };
+static const int    sgJobsColWidth[SGJOBS_NUMCOLS]  = { 200, 120, 100, 200, 100, 200, 100 };
 
 static const char * jobStatusString(short status) {
     static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Deleted" };
@@ -157,7 +140,6 @@ private:
     void debugLog(String s);
     tdvecpJob vecJobs;
     void loadJobs();
-    void loadBoxes();
     void showJobs();
     std::string getExerciseDescription(int exercise_cid);
     std::string getProjectDescription(int project_cid);

@@ -21,8 +21,7 @@ enum {
 } sgRetrieval_cols;
 
 static const char * sgRetrievalColName[SGRETRIEVAL_NUMCOLS] = {
-    "Barcode",
-    "Location",
+    "Barcode", "Location",
 //    "Pos",
 //    "Curr box",
 //    "Pos",

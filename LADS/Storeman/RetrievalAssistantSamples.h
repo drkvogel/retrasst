@@ -90,23 +90,28 @@ static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 156, 43, 195, 37, 461, 122, }
         "   c_object_name v,"                 // vessel
         "   c_object_name t"                  // aliquot? */
 
-struct SampleLocation { // to include in SampleRow for each aliquot?
-    int dummy;
-};
+//struct SampleLocation { // to include in SampleRow for each aliquot?
+//    int dummy;
+//};
+//
+//class Sorter {
+//    int dummy;
+//};
 
 class SampleRow {
 public:
-    struct Sort1 {
-        bool operator()(const SampleRow &a, const SampleRow &b) const {
-            return a.position < b.position;
-        }
-    };
-
-    enum SortType {
-        SORT1,
-        SORT2,
-        SORT3
-    } SortType;
+//    struct Sort1 : public Sorter {
+//        bool operator()(const SampleRow &a, const SampleRow &b) const {
+//            return a.position < b.position;
+//        }
+//    } sort1;
+//    bool less_than(const SampleRow &a, const SampleRow &b) { return a.position < b.position; }
+//
+//    enum SortType {
+//        SORT1,
+//        SORT2,
+//        SORT3
+//    } SortType;
 
     SampleRow() {}
     SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
@@ -182,7 +187,10 @@ private:
     void                loadRows();
     void                showRows();
     void                radgrpRowsChange();
-    void                sortList(enum SampleRow::SortType);
+    //void                sortList(enum SampleRow::SortType);
+    //void                sortList(void *); // function argument
+    //void                sortList(Sorter sorter); // struct argument - structs could be encapsulated in e.g. SampleRow
+    void                sortList(int sortType); //
 public:
     __fastcall          TfrmSamples(TComponent* Owner);
     void                debugLog(String s);

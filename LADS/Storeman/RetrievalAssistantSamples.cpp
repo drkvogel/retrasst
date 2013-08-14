@@ -356,3 +356,21 @@ void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) { // print current co
     oss << printColWidths(sgVials); // so we can copy them into the source
     debugLog(oss.str().c_str());
 }
+
+//void TfrmSamples::sortList(void *) {
+//void TfrmSamples::sortList(SampleRow::SortType sortType) {
+void TfrmSamples::sortList(int sortType) {
+    //struct Sort1 : public Sorter {
+//    struct Sort1 {
+//        //bool operator()(const SampleRow &a, const SampleRow &b) const {
+//        bool operator()(int a, int b) const {
+//            return a < b; //a.position < b.position;
+//        }
+//    } sort2;
+
+    //std::sort(vials.begin(), vials.end(), sort2);
+    //std::sort(vials.begin(), vials.end(), SampleRow::less_than);
+
+
+    // std::sort( rackList.begin(), rackList.end(), Rack::less_than );
+}

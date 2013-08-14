@@ -19,9 +19,6 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     //
 }
 
-
-
-
 /*
  * Work through list or sub-section by giving the storage location and sample ID of each sample on the list in the order saved above (REQ 8.3.8);
  * As each sample is retrieved its barcode should be scanned, if the scanned barcode matches that on the list

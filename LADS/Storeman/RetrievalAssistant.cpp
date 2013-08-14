@@ -38,14 +38,6 @@ void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
 
 __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
 
-#define SGJOBS_COL_DESCRIP      0
-#define SGJOBS_COL_JOBTYPE      1
-#define SGJOBS_COL_STATUS       2
-#define SGJOBS_COL_PRIMARY      3
-#define SGJOBS_COL_PROJECT      4
-#define SGJOBS_COL_REASON       5
-#define SGJOBS_COL_TIMESTAMP    6
-
 /*
 StoreMan allows the user to create lists of boxes or cryovials to be retrieved for analysis (8.2) or disposal (7.2).
 Sample retrieval for analysis may specify two aliquots: the secondary can be used if the primary is not available.
@@ -122,7 +114,7 @@ Sample retrieval
         b.box_cid = cs.box_cid and 
         b.box_cid = bs.box_cid and 
         bs.status = 6 and   -- 6?
-        t.object_cid = aliquot_type_cid and 
+        t.object_cid = aliquot_type_cid and
         bs.rack_cid = r.rack_cid and 
         r.tank_cid = m.tank_cid and 
         s.object_cid = location_cid and 
@@ -191,36 +183,7 @@ Sample retrieval
 void TfrmRetrievalAssistant::init() {
     cbLog->Visible = RETRASSTDEBUG;
     memoDebug->Visible = RETRASSTDEBUG;
-    //radgrpMode->ItemIndex = 0;
-    sgJobs->Cells[SGJOBS_COL_DESCRIP]   [0] = "Description";
-    sgJobs->Cells[SGJOBS_COL_JOBTYPE]   [0] = "Job type";
-    sgJobs->Cells[SGJOBS_COL_STATUS]    [0] = "Status";
-    sgJobs->Cells[SGJOBS_COL_PRIMARY]   [0] = "Primary Aliquot";
-    sgJobs->Cells[SGJOBS_COL_PROJECT]   [0] = "Project";
-    sgJobs->Cells[SGJOBS_COL_REASON]    [0] = "Reason";
-    sgJobs->Cells[6][0] = "TimeStamp";
-    //sgJobs->Cells[5][0] = "UserID";
-    sgJobs->ColWidths[SGJOBS_COL_DESCRIP]   = 200;
-    sgJobs->ColWidths[SGJOBS_COL_JOBTYPE]   = 120;
-    sgJobs->ColWidths[SGJOBS_COL_STATUS]    = 100;
-    sgJobs->ColWidths[SGJOBS_COL_PRIMARY]   = 200;
-    sgJobs->ColWidths[SGJOBS_COL_PROJECT]   = 100;
-    sgJobs->ColWidths[SGJOBS_COL_REASON]    = 200;
-    sgJobs->ColWidths[SGJOBS_COL_TIMESTAMP] = 100;
-    // c_retrieval_job
-    // exercise_cid -> c_object_name
-    // external_name
-    // description
-    // reason          - obsolete
-    // job_type
-    // project_cid
-    // primary_aliquo
-    // process_cid
-    // status
-    // time_stamp       - obsolete
-    // start_date
-    // claimed_until
-    // finish_date
+    setupStringGrid(sgJobs, SGJOBS_NUMCOLS, sgJobsColName, sgJobsColWidth);
     loadJobs();
 }
 
@@ -328,19 +291,18 @@ void TfrmRetrievalAssistant::showJobs() {
     int row = 1;
     for (it = vecJobs.begin(); it != vecJobs.end(); it++, row++) {
         LCDbCryoJob * job = *it;
-        sgJobs->Cells[SGJOBS_COL_DESCRIP]   [row] = job->getDescription().c_str();
-        sgJobs->Cells[SGJOBS_COL_JOBTYPE]   [row] = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
-        sgJobs->Cells[SGJOBS_COL_STATUS]    [row] = jobStatusString(job->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
-        sgJobs->Cells[SGJOBS_COL_PRIMARY]   [row] = getAliquotDescription(job->getPrimaryAliquot()).c_str(); // int
-        sgJobs->Cells[SGJOBS_COL_PROJECT]   [row] = getProjectDescription(job->getProjectID()).c_str();
-        sgJobs->Cells[SGJOBS_COL_REASON]    [row] = job->getReason().c_str();
-        sgJobs->Cells[SGJOBS_COL_TIMESTAMP] [row] = job->getTimeStamp().DateTimeString();
+        sgJobs->Cells[SGJOBS_DESCRIP]   [row] = job->getDescription().c_str();
+        sgJobs->Cells[SGJOBS_JOBTYPE]   [row] = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
+        sgJobs->Cells[SGJOBS_STATUS]    [row] = jobStatusString(job->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
+        sgJobs->Cells[SGJOBS_PRIMARY]   [row] = getAliquotDescription(job->getPrimaryAliquot()).c_str(); // int
+        sgJobs->Cells[SGJOBS_PROJECT]   [row] = getProjectDescription(job->getProjectID()).c_str();
+        sgJobs->Cells[SGJOBS_REASON]    [row] = job->getReason().c_str();
+        sgJobs->Cells[SGJOBS_TIMESTAMP] [row] = job->getTimeStamp().DateTimeString();
         sgJobs->Objects[0][row] = (TObject *)job;
     }
 }
 
-std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) {
-    // c_object_name: 20: storage exercise
+std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { // c_object_name: 20: storage exercise
     std::ostringstream oss;
     const LCDbObject * exercise = LCDbObjects::records().findByID(exercise_cid);
     oss << exercise->getName().c_str();
@@ -356,8 +318,7 @@ std::string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
     }
 }
 
-std::string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_cid) {
-    // c_object_name 6: aliquot type?
+std::string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_cid) { // c_object_name 6: aliquot type?
     std::ostringstream oss;
     if (0 == primary_aliquot_cid) return "Aliquot not specified";
     try {
@@ -373,20 +334,6 @@ std::string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
     // c_audit_trail
     //LCDbCryoJob::getUserID()
     return "";
-}
-
-void TfrmRetrievalAssistant::loadBoxes() {
-    LQuery qp = Util::projectQuery(0 /*box->project_cid*/, true); // true 2nd param gets ddb
-
-// Find where the boxes are supposed to be:
-//    qp.setSQL("select … from box_name n, box_store bs, c_rack_number r, c_tank_map m"
-//        " where n.box_cid=bs.box_cid and bs.rack_cid=r.rack_cid and r.tank_cid=m.tank_cid"
-//        " and bs.retrieval_cid = jobID");
-//
-//    sgBoxes->RowCount = 1; sgJobs->FixedRows = 1;
-    for (int i; i < 10; i++) {
-        //sgBoxes->Cells[][] = "";
-    }
 }
 
 void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {

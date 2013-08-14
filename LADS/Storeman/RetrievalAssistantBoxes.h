@@ -140,6 +140,5 @@ public:
     void                setJob(LCDbCryoJob * ajob) { job = ajob; }
     void                debugLog(String s);
 };
-
 extern PACKAGE TfrmBoxes *frmBoxes;
 #endif
