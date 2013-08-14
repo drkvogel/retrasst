@@ -3,6 +3,7 @@
 #include "RetrievalAssistantSamples.h"
 #include "StoreUtil.h"
 #include "LCDbRack.h"
+#include "RetrievalAssistantAutoChunk.h"
 //#include "ReferredBoxes.h"
     // for MYDEBUG - should move somewhere else
 #pragma package(smart_init)
@@ -70,6 +71,10 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
+    addChunk();
+}
+
+void TfrmSamples::addChunk() {
     Chunk * chunk = new Chunk;
     chunk->section = chunks.size() + 1;
     chunks.push_back(chunk);
@@ -184,6 +189,7 @@ void TfrmSamples::showChunks() {
 }
 
 void TfrmSamples::autoChunk() {
+    frmAutoChunk->ShowModal();
 /*
 box_content.box_type_cid
 
@@ -220,7 +226,6 @@ void TfrmSamples::loadRows() {
         "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
         "   s.external_name AS site, m.position, v.external_full AS vessel,"
         "   shelf_number, r.external_name AS rack, bs.slot_position"
-
         " FROM"
         "   cryovial c, cryovial_store cs, box_name b, box_store bs, c_rack_number r,"
         "   c_tank_map m, c_object_name s,"   // site

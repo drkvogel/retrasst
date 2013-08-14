@@ -67,7 +67,8 @@ void __fastcall TfrmStoremain::FormShow(TObject *Sender)
 {
 	updateStatus = STARTING;
 	resetCounts();
-	//timer -> Enabled = true;
+    if (!RETRASSTDEBUG)
+	    timer -> Enabled = true;
 }
 
 //---------------------------------------------------------------------------
@@ -89,8 +90,8 @@ void __fastcall TfrmStoremain::timerTimer(TObject *Sender)
 {
 	timer -> Enabled = false;
 	if( Active && Visible ) {
-		//updateCounts();
-		//showCounts();
+		updateCounts();
+		showCounts();
 	} else if( updateStatus > PAUSED ) {
 		updateStatus = PAUSED;
 	}

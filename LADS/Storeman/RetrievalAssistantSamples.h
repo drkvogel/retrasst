@@ -200,6 +200,7 @@ public:
     void                debugLog(String s);
     void                setJob(LCDbCryoJob * ajob) { job = ajob; }
     bool                autochunk;
+    void                addChunk();
 };
 
 extern PACKAGE TfrmSamples *frmSamples;

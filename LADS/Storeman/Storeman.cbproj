@@ -479,6 +479,12 @@
 				<DependentOn>RetrievalAssistant.h</DependentOn>
 				<BuildOrder>90</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="RetrievalAssistantAutoChunk.cpp">
+				<Form>frmAutoChunk</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalAssistantAutoChunk.h</DependentOn>
+				<BuildOrder>95</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="RetrievalAssistantBoxes.cpp">
 				<Form>frmBoxes</Form>
 				<FormType>dfm</FormType>
@@ -557,19 +563,20 @@
 				<BuildOrder>88</BuildOrder>
 				<IgnorePath>true</IgnorePath>
 			</LibFiles>
-			<FormResources Include="DiscardSamples.dfm"/>
 			<FormResources Include="DiscardSearch.dfm"/>
-			<FormResources Include="DiscardReason.dfm"/>
-			<FormResources Include="DiscardNote.dfm"/>
+			<FormResources Include="DiscardSamples.dfm"/>
 			<FormResources Include="DiscardPrologue.dfm"/>
+			<FormResources Include="DiscardReason.dfm"/>
+			<FormResources Include="MoveJobs.dfm"/>
 			<FormResources Include="FindSample.dfm"/>
-			<FormResources Include="DiscardMethod.dfm"/>
+			<FormResources Include="DiscardNote.dfm"/>
+			<FormResources Include="BoxTransfer.dfm"/>
 			<FormResources Include="AnalyseSamples.dfm"/>
 			<FormResources Include="AddSpecimens.dfm"/>
-			<FormResources Include="BoxTransfer.dfm"/>
 			<FormResources Include="BrowseSample.dfm"/>
+			<FormResources Include="DiscardMethod.dfm"/>
 			<FormResources Include="Configure.dfm"/>
-			<FormResources Include="MoveJobs.dfm"/>
+			<FormResources Include="NewJob.dfm"/>
 			<FormResources Include="ShowSamples.dfm"/>
 			<FormResources Include="SMLogin.dfm"/>
 			<FormResources Include="SelectSamples.dfm"/>
@@ -577,23 +584,23 @@
 			<FormResources Include="Temp.dfm"/>
 			<FormResources Include="Storemain.dfm"/>
 			<FormResources Include="SampleEntry.dfm"/>
-			<FormResources Include="NewTank.dfm"/>
 			<FormResources Include="NewType.dfm"/>
-			<FormResources Include="NewSite.dfm"/>
-			<FormResources Include="NewJob.dfm"/>
-			<FormResources Include="NewSection.dfm"/>
 			<FormResources Include="ReferredBoxes.dfm"/>
-			<FormResources Include="RetrievalAssistantProcess.dfm"/>
-			<FormResources Include="RetrieveSamples.dfm"/>
-			<FormResources Include="RetrievalAssistantBoxes.dfm"/>
+			<FormResources Include="NewTank.dfm"/>
+			<FormResources Include="NewSection.dfm"/>
+			<FormResources Include="NewSite.dfm"/>
 			<FormResources Include="ReferredBoxesSummary.dfm"/>
+			<FormResources Include="RetrievalAssistantSamples.dfm"/>
+			<FormResources Include="RetrieveSamples.dfm"/>
+			<FormResources Include="RetrievalAssistantProcess.dfm"/>
 			<FormResources Include="RetrievalAssistant.dfm"/>
+			<FormResources Include="RetrievalAssistantBoxes.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
 			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
-			<FormResources Include="RetrievalAssistantSamples.dfm"/>
+			<FormResources Include="RetrievalAssistantAutoChunk.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
