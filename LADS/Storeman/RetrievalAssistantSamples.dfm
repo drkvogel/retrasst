@@ -65,36 +65,27 @@ object frmSamples: TfrmSamples
         TabOrder = 1
         OnClick = btnDelChunkClick
       end
-      object btnSaveChunk: TButton
+      object btnIncr: TButton
         Left = 0
         Top = 75
         Width = 82
         Height = 25
         Align = alTop
-        Caption = 'Save chunk'
-        Enabled = False
+        Caption = '+'
         TabOrder = 2
-        OnClick = btnSaveChunkClick
+        OnClick = btnIncrClick
+        ExplicitTop = 100
       end
-      object btnIncr: TButton
+      object btnDecr: TButton
         Left = 0
         Top = 100
         Width = 82
         Height = 25
         Align = alTop
-        Caption = '+'
-        TabOrder = 3
-        OnClick = btnIncrClick
-      end
-      object btnDecr: TButton
-        Left = 0
-        Top = 125
-        Width = 82
-        Height = 25
-        Align = alTop
         Caption = '-'
-        TabOrder = 4
+        TabOrder = 3
         OnClick = btnDecrClick
+        ExplicitTop = 125
       end
       object btnAutoChunk: TButton
         Left = 0
@@ -103,7 +94,7 @@ object frmSamples: TfrmSamples
         Height = 25
         Align = alTop
         Caption = 'Auto-Chunk'
-        TabOrder = 5
+        TabOrder = 4
         OnClick = btnAutoChunkClick
       end
     end

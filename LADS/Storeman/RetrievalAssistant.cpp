@@ -428,6 +428,3 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
         throw Exception("Unknown status");
     }
 }
-
-
-

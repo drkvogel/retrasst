@@ -46,6 +46,8 @@ SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, strin
 
 // encapsulate data about a stringgrid in a class?
 class SgData {
+    // key-value (stl?) lookup func instead of enums; map eg. "barcode" to (column) 4
+    int colNum(std::string colName);
     TStringGrid *   sg;
     String          caption;
     enum            cols {};
@@ -64,7 +66,7 @@ enum {
     SGVIALS_LOCATION, // site/vessel/
     // secondary aliquots if defined?
     SGVIALS_NUMCOLS
-} sg_vials_cols;
+};
 static const char * sgVialColName[SGVIALS_NUMCOLS] = {
     "Barcode",
     "Dest box",
@@ -123,7 +125,6 @@ __published:	// IDE-managed Components
     TPanel *Panel2;
     TButton *btnAddChunk;
     TButton *btnDelChunk;
-    TButton *btnSaveChunk;
     TButton *btnIncr;
     TButton *btnDecr;
     TStringGrid *sgChunks;
@@ -157,25 +158,20 @@ __published:	// IDE-managed Components
     void __fastcall btnAutoChunkClick(TObject *Sender);
     void __fastcall btnIncrClick(TObject *Sender);
     void __fastcall btnDecrClick(TObject *Sender);
-    void __fastcall btnSaveChunkClick(TObject *Sender);
     void __fastcall sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow);
     void __fastcall sgVialsColumnMoved(TObject *Sender, int FromIndex, int ToIndex);
     void __fastcall sgVialsClick(TObject *Sender);
-
-
-
-private:	// User declarations
+private:
     LCDbCryoJob * job;
     int                 numrows; // rows to show at a time
-    //vecpRetrievalPlan plans;
     vecpChunk           chunks;
-    vecpSampleRow         vials;
+    vecpSampleRow       vials;
     void                autoChunk();
     void                showChunks();
     void                loadRows();
     void                showRows();
     void                radgrpRowsChange();
-public:		// User declarations
+public:
     __fastcall          TfrmSamples(TComponent* Owner);
     void                debugLog(String s);
     void                setJob(LCDbCryoJob * ajob) { job = ajob; }

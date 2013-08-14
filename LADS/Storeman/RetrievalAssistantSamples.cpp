@@ -38,34 +38,11 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     memoDebug->Visible  = RETRASSTDEBUG;
-
     autochunk           = false;
     numrows             = DEFAULT_NUMROWS;
     job                 = NULL;
-//    sgChunks->Cells[SGCHUNKS_COL_SECTION]   [0] = "Section";
-//    sgChunks->Cells[SGCHUNKS_COL_START]     [0] = "Start";
-//    sgChunks->Cells[SGCHUNKS_COL_END]       [0] = "End";
-//    sgChunks->Cells[SGCHUNKS_COL_SIZE]      [0] = "Size";
-//    sgChunks->ColWidths[SGCHUNKS_COL_SECTION]   = 100;
-//    sgChunks->ColWidths[SGCHUNKS_COL_START]     = 100;
-//    sgChunks->ColWidths[SGCHUNKS_COL_END]       = 100;
-//    sgChunks->ColWidths[SGCHUNKS_COL_SIZE]      = 100;
-
-    //setupStringGrid(TStringGrid * sg, const int cols, char * colnames[], int colwidths[])
-//    sgChunks->ColCount = SGCHUNKS_NUMCOLS;
-//    for (int i=0; i<SGCHUNKS_NUMCOLS; i++) {
-//        sgChunks->Cells[i][0]    = sgChunksColName[i];
-//        sgChunks->ColWidths[i]   = sgChunksColWidth[i];
-//    }
     setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
-
-//    sgVials->ColCount = SGVIALS_NUMCOLS;
-//    for (int i=0; i<SGVIALS_NUMCOLS; i++) {
-//        sgVials->Cells[i][0]    = sgVialColName[i];
-//        sgVials->ColWidths[i]   = sgVialColWidth[i];
-//    }
     setupStringGrid(sgVials, SGVIALS_NUMCOLS, sgVialColName, sgVialColWidth);
-
     radbutDefault->Caption = DEFAULT_NUMROWS;
 }
 
@@ -323,6 +300,12 @@ void TfrmSamples::loadRows() {
 }
 
 void TfrmSamples::showRows() {
+    if (vials.size() <= 0) {
+        clearSG(sgVials);
+    } else {
+        sgVials->RowCount = vials.size() + 1;
+    }
+
     int row = 1;
     vecpSampleRow::const_iterator it;
     for (it = vials.begin(); it != vials.end(); it++, row++) {
@@ -330,15 +313,10 @@ void TfrmSamples::showRows() {
         LPDbCryovialStore * vial = sampleRow->store_record;
 /*    SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
                 string site, int pos, string vessel, int shelf, string rack, int slot) :
-
         "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
         "   s.external_name AS site, m.position, v.external_full AS vessel,"
         "   shelf_number, r.external_name AS rack, bs.slot_position"
                 */
-
-        //sgVials->Cells[SGVIALS_COL_1][row] = vial->getID();
-        //sgVials->Cells[][row] = vial->;
-        //sgVials->Cells[][row] = sampleRow->;
         sgVials->Cells[SGVIALS_BARCODE][row] = sampleRow->cryovial_barcode.c_str();
         sgVials->Cells[SGVIALS_DESTBOX][row] = "tba"; //sampleRow->;
         sgVials->Cells[SGVIALS_DESTPOS][row] = "tba"; //sampleRow->;
@@ -346,7 +324,6 @@ void TfrmSamples::showRows() {
         sgVials->Cells[SGVIALS_CURRPOS][row] = sampleRow->position;
         sgVials->Cells[SGVIALS_STRUCTURE][row] = sampleRow->vessel_name.c_str(); //??
         sgVials->Cells[SGVIALS_LOCATION][row] = sampleRow->site_name.c_str();
-
         sgVials->Objects[0][row] = (TObject *)sampleRow;
         if (row >= numrows) break;
     }
@@ -364,22 +341,14 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
     //
 }
 
-
-void __fastcall TfrmSamples::btnSaveChunkClick(TObject *Sender) {
-    //?? not needed? not 'saving' chunks anywhere, not to db anyway
-}
-
-
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) {
     // sort by column
 }
-
 
 void __fastcall TfrmSamples::sgVialsColumnMoved(TObject *Sender, int FromIndex, int ToIndex) {
     ostringstream oss; oss << __FUNC__ << " ok";
     debugLog(oss.str().c_str());
 }
-
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
     ostringstream oss; oss << __FUNC__;

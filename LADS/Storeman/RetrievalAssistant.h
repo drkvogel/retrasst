@@ -119,10 +119,6 @@ static const char * jobTypeString(short status) {
     return status < LCDbCryoJob::JobKind::NUM_TYPES ? jobTypeStrings[status] : "Invalid";
 };
 
-//template<typename Container>
-//void delete_referenced(Container& c) {
-//    while (!c.empty()) delete c.back(), c.pop_back();
-//}
 typedef std::vector<LCDbCryoJob *> tdvecpJob;
 
 class TfrmRetrievalAssistant : public TForm {

@@ -13,6 +13,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
+  WindowState = wsMaximized
   PixelsPerInch = 96
   TextHeight = 13
   object GroupBox1: TGroupBox
