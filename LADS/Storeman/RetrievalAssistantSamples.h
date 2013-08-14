@@ -7,10 +7,10 @@
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.Grids.hpp>
 #include <sstream>
-#include "RetrievalAssistant.h"
 #include "LCDbJob.h"
 #include "LPDbCryovialStore.h"
 #include "LPDbCryovial.h"
+#include "RetrievalAssistant.h"
 
 using namespace std;
 
@@ -44,6 +44,16 @@ SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, strin
         "   shelf_number, r.external_name AS rack, bs.slot_position"
                 */
 
+// encapsulate data about a stringgrid in a class?
+class SgData {
+    TStringGrid *   sg;
+    String          caption;
+    enum            cols {};
+    char *          colnames[];
+    int             colwidths[];
+};
+
+// vials
 enum {
     SGVIALS_BARCODE,
     SGVIALS_DESTBOX,
@@ -53,8 +63,8 @@ enum {
     SGVIALS_STRUCTURE,
     SGVIALS_LOCATION, // site/vessel/
     // secondary aliquots if defined?
-    SGVIALS_NUMCOLS} sg_vials_cols;
-
+    SGVIALS_NUMCOLS
+} sg_vials_cols;
 static const char * sgVialColName[SGVIALS_NUMCOLS] = {
     "Barcode",
     "Dest box",
@@ -62,9 +72,8 @@ static const char * sgVialColName[SGVIALS_NUMCOLS] = {
     "Curr box",
     "Pos",
     "Structure",
-    "Location",
+    "Location"
 };
-
 static int sgVialColWidth[SGVIALS_NUMCOLS] = { 100, 100, 30, 100, 30, 100, 100 };
 
 //typedef std::vector< LPDbCryovialStore *> vecpVial;
@@ -149,12 +158,17 @@ __published:	// IDE-managed Components
     void __fastcall btnIncrClick(TObject *Sender);
     void __fastcall btnDecrClick(TObject *Sender);
     void __fastcall btnSaveChunkClick(TObject *Sender);
+    void __fastcall sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow);
+    void __fastcall sgVialsColumnMoved(TObject *Sender, int FromIndex, int ToIndex);
+    void __fastcall sgVialsClick(TObject *Sender);
+
+
+
 private:	// User declarations
     LCDbCryoJob * job;
     int                 numrows; // rows to show at a time
     //vecpRetrievalPlan plans;
     vecpChunk           chunks;
-    //vecpVial            vials;
     vecpSampleRow         vials;
     void                autoChunk();
     void                showChunks();
@@ -163,6 +177,7 @@ private:	// User declarations
     void                radgrpRowsChange();
 public:		// User declarations
     __fastcall          TfrmSamples(TComponent* Owner);
+    void                debugLog(String s);
     void                setJob(LCDbCryoJob * ajob) { job = ajob; }
     bool                autochunk;
 };

@@ -31,6 +31,8 @@ const bool RETRASSTDEBUG =
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
 #define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
 
+// utilities
+
 void clearGridSelection(TStringGrid * sg) { // put this in storeutil?
     TGridRect myRect;
     myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
@@ -49,6 +51,35 @@ void clearSG(TStringGrid * sg) { // put this in storeutil?
     }
     sg->Cells[0][1] = "No results.";
 }
+
+void setupStringGrid(TStringGrid * sg, const int cols, const char * colnames[], const int colwidths[]) {
+    sg->ColCount = cols;
+    for (int i=0; i<cols; i++) {
+        sg->Cells[i][0]    = colnames[i];
+        sg->ColWidths[i]   = colwidths[i];
+    }
+}
+
+// end utilities
+
+// chunk stringgrid setup
+enum {
+    SGCHUNKS_SECTION,
+    SGCHUNKS_START,
+    SGCHUNKS_END,
+    SGCHUNKS_SIZE,
+    SGCHUNKS_NUMCOLS
+};// sgChunks_cols;
+//static const char * sgChunksColName[SGCHUNKS_NUMCOLS] = {
+static const char * sgChunksColName[SGCHUNKS_NUMCOLS] = {
+    "Section",
+    "Start",
+    "End",
+    "Size"
+};
+static const int sgChunksColWidth[SGCHUNKS_NUMCOLS] = {
+    100, 100, 30, 100
+};
 
 class Chunk { // not recorded in database
 public:

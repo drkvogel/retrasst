@@ -8,15 +8,41 @@
 #include <Vcl.Menus.hpp>
 #include "LCDbJob.h"
 
+// sgRetrieval
+
+enum {
+    SGRETRIEVAL_BARCODE,
+    SGRETRIEVAL_LOCATION,
+//    SGRETRIEVAL_,
+//    SGRETRIEVAL_,
+//    SGRETRIEVAL_,
+//    SGRETRIEVAL_,
+    SGRETRIEVAL_NUMCOLS
+} sgRetrieval_cols;
+
+static const char * sgRetrievalColName[SGRETRIEVAL_NUMCOLS] = {
+    "Barcode",
+    "Location",
+//    "Pos",
+//    "Curr box",
+//    "Pos",
+//    "Structure",
+//    "Location",
+};
+
+static int sgRetrievalColWidth[SGRETRIEVAL_NUMCOLS] = { 100, 100
+    //, 30, 100, 30, 100, 100
+};
+
 class TfrmProcess : public TForm {
 __published:
-    TGroupBox *GroupBox1;
+    TGroupBox *List;
     TGroupBox *GroupBox2;
     TButton *btnAccept;
     TButton *btnSkip;
     TEdit *editBarcode;
     TLabel *Label1;
-    TStringGrid *StringGrid1;
+    TStringGrid *sgRetrieval;
     TGroupBox *GroupBox3;
     TLabel *Label3;
     TLabel *Label2;

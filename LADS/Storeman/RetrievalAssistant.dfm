@@ -55,8 +55,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 655
-      ExplicitTop = 9
       object groupStatusCheck: TGroupBox
         Left = 0
         Top = 0
@@ -206,6 +204,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Width = 767
       Height = 78
       Align = alBottom
+      ScrollBars = ssVertical
       TabOrder = 2
     end
   end

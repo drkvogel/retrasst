@@ -47,7 +47,7 @@ order by
 
 enum {SGBOXES_COL_1, SGBOXES_COL_2, SGBOXES_COL_3, SGBOXES_COL_4, SGBOXES_COL_5} sg_boxes_cols;
 
-void debugLog(String s) { frmBoxes->memoDebug->Lines->Add(s); }
+void TfrmBoxes::debugLog(String s) { frmBoxes->memoDebug->Lines->Add(s); }
 
 __fastcall TfrmBoxes::TfrmBoxes(TComponent* Owner) : TForm(Owner) { }
 

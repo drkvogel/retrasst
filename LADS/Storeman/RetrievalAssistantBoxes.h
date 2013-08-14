@@ -138,6 +138,7 @@ private:
 public:
     __fastcall          TfrmBoxes(TComponent* Owner);
     void                setJob(LCDbCryoJob * ajob) { job = ajob; }
+    void                debugLog(String s);
 };
 
 extern PACKAGE TfrmBoxes *frmBoxes;

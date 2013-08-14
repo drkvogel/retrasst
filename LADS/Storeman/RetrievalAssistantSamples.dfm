@@ -229,6 +229,9 @@ object frmSamples: TfrmSamples
       FixedCols = 0
       Options = [goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
       TabOrder = 0
+      OnClick = sgVialsClick
+      OnColumnMoved = sgVialsColumnMoved
+      OnFixedCellClick = sgVialsFixedCellClick
     end
     object memoDebug: TMemo
       Left = 2
@@ -236,9 +239,9 @@ object frmSamples: TfrmSamples
       Width = 754
       Height = 89
       Align = alBottom
-      Lines.Strings = (
-        'memoDebug')
+      ScrollBars = ssVertical
       TabOrder = 1
+      ExplicitTop = 210
     end
   end
   object timerCustomRows: TTimer

@@ -8,7 +8,9 @@
 #pragma resource "*.dfm"
 TfrmSamples *frmSamples;
 
-void debugLog(String s) { frmSamples->memoDebug->Lines->Add(s); }
+void TfrmSamples::debugLog(String s) {
+    frmSamples->memoDebug->Lines->Add(s);
+}
 
 /*
 // template
@@ -34,25 +36,36 @@ void debugLog(String s) { frmSamples->memoDebug->Lines->Add(s); }
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
 
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
-    //
     cbLog->Visible      = RETRASSTDEBUG;
     memoDebug->Visible  = RETRASSTDEBUG;
+
     autochunk           = false;
     numrows             = DEFAULT_NUMROWS;
     job                 = NULL;
-    sgChunks->Cells[SGCHUNKS_COL_SECTION]   [0] = "Section";
-    sgChunks->Cells[SGCHUNKS_COL_START]     [0] = "Start";
-    sgChunks->Cells[SGCHUNKS_COL_END]       [0] = "End";
-    sgChunks->Cells[SGCHUNKS_COL_SIZE]      [0] = "Size";
-    sgChunks->ColWidths[SGCHUNKS_COL_SECTION]   = 100;
-    sgChunks->ColWidths[SGCHUNKS_COL_START]     = 100;
-    sgChunks->ColWidths[SGCHUNKS_COL_END]       = 100;
-    sgChunks->ColWidths[SGCHUNKS_COL_SIZE]      = 100;
-    sgVials->ColCount = SGVIALS_NUMCOLS;
-    for (int i=0; i<SGVIALS_NUMCOLS; i++) {
-        sgVials->Cells[i][0] = sgVialColName[i];
-        sgVials->ColWidths[i] = sgVialColWidth[i];
-    }
+//    sgChunks->Cells[SGCHUNKS_COL_SECTION]   [0] = "Section";
+//    sgChunks->Cells[SGCHUNKS_COL_START]     [0] = "Start";
+//    sgChunks->Cells[SGCHUNKS_COL_END]       [0] = "End";
+//    sgChunks->Cells[SGCHUNKS_COL_SIZE]      [0] = "Size";
+//    sgChunks->ColWidths[SGCHUNKS_COL_SECTION]   = 100;
+//    sgChunks->ColWidths[SGCHUNKS_COL_START]     = 100;
+//    sgChunks->ColWidths[SGCHUNKS_COL_END]       = 100;
+//    sgChunks->ColWidths[SGCHUNKS_COL_SIZE]      = 100;
+
+    //setupStringGrid(TStringGrid * sg, const int cols, char * colnames[], int colwidths[])
+//    sgChunks->ColCount = SGCHUNKS_NUMCOLS;
+//    for (int i=0; i<SGCHUNKS_NUMCOLS; i++) {
+//        sgChunks->Cells[i][0]    = sgChunksColName[i];
+//        sgChunks->ColWidths[i]   = sgChunksColWidth[i];
+//    }
+    setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
+
+//    sgVials->ColCount = SGVIALS_NUMCOLS;
+//    for (int i=0; i<SGVIALS_NUMCOLS; i++) {
+//        sgVials->Cells[i][0]    = sgVialColName[i];
+//        sgVials->ColWidths[i]   = sgVialColWidth[i];
+//    }
+    setupStringGrid(sgVials, SGVIALS_NUMCOLS, sgVialColName, sgVialColWidth);
+
     radbutDefault->Caption = DEFAULT_NUMROWS;
 }
 
@@ -355,4 +368,24 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 void __fastcall TfrmSamples::btnSaveChunkClick(TObject *Sender) {
     //?? not needed? not 'saving' chunks anywhere, not to db anyway
 }
+
+
+void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) {
+    // sort by column
+}
+
+
+void __fastcall TfrmSamples::sgVialsColumnMoved(TObject *Sender, int FromIndex, int ToIndex) {
+    ostringstream oss; oss << __FUNC__ << " ok";
+    debugLog(oss.str().c_str());
+}
+
+
+void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
+    ostringstream oss; oss << __FUNC__;
+
+    oss << " ok";
+    debugLog(oss.str().c_str());
+}
+
 

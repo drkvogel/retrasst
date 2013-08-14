@@ -17,15 +17,15 @@ object frmProcess: TfrmProcess
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object GroupBox1: TGroupBox
+  object List: TGroupBox
     Left = 0
     Top = 0
     Width = 628
     Height = 400
     Align = alClient
-    Caption = 'GroupBox1'
+    Caption = 'Retrieval List'
     TabOrder = 0
-    object StringGrid1: TStringGrid
+    object sgRetrieval: TStringGrid
       Left = 2
       Top = 15
       Width = 624
