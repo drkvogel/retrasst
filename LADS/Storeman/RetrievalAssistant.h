@@ -60,6 +60,16 @@ void setupStringGrid(TStringGrid * sg, const int cols, const char * colnames[], 
     }
 }
 
+std::string printColWidths(TStringGrid * sg) {
+    std::ostringstream oss; //oss << __FUNC__;
+    oss << sg->Name.c_str() << ": {";
+    for (int i=0; i<sg->ColCount; i++) {
+        oss << sg->ColWidths[i] << ", ";
+    }
+    oss << "}";
+    return oss.str();
+}
+
 // end utilities
 
 // chunk stringgrid setup

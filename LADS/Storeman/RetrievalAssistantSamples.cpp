@@ -383,8 +383,8 @@ void __fastcall TfrmSamples::sgVialsColumnMoved(TObject *Sender, int FromIndex, 
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
     ostringstream oss; oss << __FUNC__;
-
     oss << " ok";
+    oss << printColWidths(sgVials);
     debugLog(oss.str().c_str());
 }
 
