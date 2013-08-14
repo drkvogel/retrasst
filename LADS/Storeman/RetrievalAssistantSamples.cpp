@@ -160,7 +160,7 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
 
 void TfrmSamples::showChunks() {
     if (0 == chunks.size()) { // must always have one chunk anyway
-        clearGridSelection(sgChunks);
+        clearSG(sgChunks);
     } else {
         sgChunks->RowCount = chunks.size() + 1;
         sgChunks->FixedRows = 1; // "Fixed row count must be LESS than row count"
@@ -304,8 +304,8 @@ void TfrmSamples::showRows() {
         clearSG(sgVials);
     } else {
         sgVials->RowCount = vials.size() + 1;
+        sgVials->FixedRows = 1;
     }
-
     int row = 1;
     vecpSampleRow::const_iterator it;
     for (it = vials.begin(); it != vials.end(); it++, row++) {
@@ -350,11 +350,9 @@ void __fastcall TfrmSamples::sgVialsColumnMoved(TObject *Sender, int FromIndex, 
     debugLog(oss.str().c_str());
 }
 
-void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
+void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) { // print current column widths
     ostringstream oss; oss << __FUNC__;
     oss << " ok";
-    oss << printColWidths(sgVials);
+    oss << printColWidths(sgVials); // so we can copy them into the source
     debugLog(oss.str().c_str());
 }
-
-

@@ -34,7 +34,6 @@ using namespace std;
 
 // spec: show
 // cryovial barcode, destination box, position, current box, position, structure and location of the primary and secondary
-
 /*
     cs.Cryovial_id, cs.Note_Exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,
 SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
@@ -76,8 +75,8 @@ static const char * sgVialColName[SGVIALS_NUMCOLS] = {
     "Structure",
     "Location"
 };
-static int sgVialColWidth[SGVIALS_NUMCOLS] = { 100, 100, 30, 100, 30, 100, 100 };
-
+//static int sgVialColWidth[SGVIALS_NUMCOLS] = { 100, 100, 30, 100, 30, 100, 100 };
+static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 156, 43, 195, 37, 461, 122, };
 //typedef std::vector< LPDbCryovialStore *> vecpVial;
 
 /*
@@ -97,6 +96,18 @@ struct SampleLocation { // to include in SampleRow for each aliquot?
 
 class SampleRow {
 public:
+    struct Sort1 {
+        bool operator()(const SampleRow &a, const SampleRow &b) const {
+            return a.position < b.position;
+        }
+    };
+
+    enum SortType {
+        SORT1,
+        SORT2,
+        SORT3
+    } SortType;
+
     SampleRow() {}
     SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
                 string site, int pos, string vessel, int shelf, string rack, int slot) :
@@ -171,6 +182,7 @@ private:
     void                loadRows();
     void                showRows();
     void                radgrpRowsChange();
+    void                sortList(enum SampleRow::SortType);
 public:
     __fastcall          TfrmSamples(TComponent* Owner);
     void                debugLog(String s);

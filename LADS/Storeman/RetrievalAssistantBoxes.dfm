@@ -53,8 +53,6 @@ object frmBoxes: TfrmBoxes
         Caption = 'Add chunk'
         TabOrder = 0
         OnClick = btnAddChunkClick
-        ExplicitLeft = 6
-        ExplicitWidth = 75
       end
       object btnDelChunk: TButton
         Left = 0
@@ -66,9 +64,6 @@ object frmBoxes: TfrmBoxes
         Enabled = False
         TabOrder = 1
         OnClick = btnDelChunkClick
-        ExplicitLeft = 6
-        ExplicitTop = 31
-        ExplicitWidth = 75
       end
       object btnSaveChunk: TButton
         Left = 0
@@ -79,9 +74,6 @@ object frmBoxes: TfrmBoxes
         Caption = 'Save chunk'
         Enabled = False
         TabOrder = 2
-        ExplicitLeft = 6
-        ExplicitTop = 62
-        ExplicitWidth = 75
       end
       object btnIncr: TButton
         Left = 0
@@ -92,9 +84,6 @@ object frmBoxes: TfrmBoxes
         Caption = '+'
         TabOrder = 3
         OnClick = btnIncrClick
-        ExplicitLeft = 6
-        ExplicitTop = 93
-        ExplicitWidth = 75
       end
       object btnDecr: TButton
         Left = 0
@@ -105,9 +94,6 @@ object frmBoxes: TfrmBoxes
         Caption = '-'
         TabOrder = 4
         OnClick = btnDecrClick
-        ExplicitLeft = 6
-        ExplicitTop = 124
-        ExplicitWidth = 75
       end
     end
     object sgChunks: TStringGrid
@@ -123,8 +109,6 @@ object frmBoxes: TfrmBoxes
       OnDrawCell = sgChunksDrawCell
       OnFixedCellClick = sgChunksFixedCellClick
       OnSetEditText = sgChunksSetEditText
-      ExplicitLeft = 3
-      ExplicitTop = 11
     end
   end
   object Panel1: TPanel
@@ -166,8 +150,6 @@ object frmBoxes: TfrmBoxes
       Height = 17
       Anchors = [akRight, akBottom]
       Caption = 'Show Log'
-      Checked = True
-      State = cbChecked
       TabOrder = 2
       OnClick = cbLogClick
     end

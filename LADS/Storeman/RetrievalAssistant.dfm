@@ -193,8 +193,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Height = 17
         Align = alBottom
         Caption = 'Show Log'
-        Checked = True
-        State = cbChecked
         TabOrder = 3
         OnClick = cbLogClick
       end

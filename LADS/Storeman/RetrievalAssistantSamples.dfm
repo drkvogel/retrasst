@@ -150,8 +150,6 @@ object frmSamples: TfrmSamples
       Height = 17
       Anchors = [akRight, akBottom]
       Caption = 'Show Log'
-      Checked = True
-      State = cbChecked
       TabOrder = 2
       OnClick = cbLogClick
     end
