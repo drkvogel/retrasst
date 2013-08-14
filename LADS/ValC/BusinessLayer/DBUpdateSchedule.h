@@ -1,25 +1,29 @@
 #ifndef DBUPDATESCHEDULEH
 #define DBUPDATESCHEDULEH
 
-#include "API.h"
-#include <map>
-#include "SampleRunID.h"
+#include "CritSec.h"
+#include <deque>
 #include <set>
+#include <string>
 
 namespace valc
 {
 
-class SampleRunIDResolutionService;
+class DBUpdateTask;
 
-class DBUpdateSchedule : public DBUpdateStats
+class DBUpdateSchedule
 {
 public:
-    DBUpdateSchedule( );
-    int totalNewSampleRuns()                        const;
-    int totalUpdatesForSampleRunIDOnBuddyDatabase() const;
-    void scheduleUpdate( int forBuddySampleID, const SampleRunID& sampleRunID );
+    DBUpdateSchedule();
+    ~DBUpdateSchedule();
+    bool noMoreUpdates() const;
+    DBUpdateTask* front() const;
+    void pop_front();
+    void scheduleUpdate( int forBuddySampleID, const std::string& candidateNewSampleRunID );
 private:
-    std::map< int, SampleRunID > m_sampleRunIDUpdates;
+    std::deque< DBUpdateTask* >         m_updates;
+    paulst::CritSec m_cs;
+    std::set< int > m_buddyDatabaseEntriesScheduledForUpdate;
 };
 
 };

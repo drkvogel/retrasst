@@ -2,8 +2,8 @@ object frmRetrieveMain: TfrmRetrieveMain
   Left = 0
   Top = 0
   Caption = 'Retrieve Sample'
-  ClientHeight = 571
-  ClientWidth = 620
+  ClientHeight = 689
+  ClientWidth = 791
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,11 +11,15 @@ object frmRetrieveMain: TfrmRetrieveMain
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnResize = FormResize
+  DesignSize = (
+    791
+    689)
   PixelsPerInch = 96
   TextHeight = 13
   object LblCaption: TLabel
-    Left = 211
-    Top = 168
+    Left = 213
+    Top = 179
     Width = 199
     Height = 16
     Caption = 'List of samples to be retrieved'
@@ -26,88 +30,136 @@ object frmRetrieveMain: TfrmRetrieveMain
     Font.Style = [fsBold]
     ParentFont = False
   end
-  object LblSample: TLabel
-    Left = 10
-    Top = 57
-    Width = 39
-    Height = 13
-    Caption = 'Barcode'
-  end
   object LblAliquot1: TLabel
-    Left = 10
-    Top = 89
-    Width = 77
+    Left = 12
+    Top = 116
+    Width = 75
     Height = 13
-    Caption = 'Aliquot Choice 1'
+    Caption = 'Primary aliquot:'
   end
   object LblAliquot2: TLabel
-    Left = 256
-    Top = 89
-    Width = 77
+    Left = 306
+    Top = 116
+    Width = 90
     Height = 13
-    Caption = 'Aliquot Choice 2'
+    Caption = 'Secondary aliquot:'
+  end
+  object Label1: TLabel
+    Left = 12
+    Top = 20
+    Width = 38
+    Height = 13
+    Caption = 'Project:'
   end
   object grdSamples: TStringGrid
-    Left = 10
-    Top = 200
-    Width = 600
-    Height = 321
+    Left = 8
+    Top = 209
+    Width = 775
+    Height = 457
+    Anchors = [akLeft, akTop, akRight, akBottom]
     ColCount = 6
+    DefaultColWidth = 90
     FixedCols = 0
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goFixedRowClick]
     TabOrder = 0
-  end
-  object TxtBarcode: TEdit
-    Left = 93
-    Top = 54
-    Width = 102
-    Height = 21
-    TabOrder = 1
+    OnFixedCellClick = grdSamplesFixedCellClick
   end
   object BtnAdd: TButton
-    Left = 10
-    Top = 129
+    Left = 12
+    Top = 156
     Width = 75
     Height = 25
     Caption = 'Add'
-    TabOrder = 2
+    TabOrder = 1
     OnClick = AddClick
   end
   object BtnRetrieve: TButton
-    Left = 535
-    Top = 538
+    Left = 471
+    Top = 156
     Width = 75
     Height = 25
     Caption = 'Retrieve'
-    TabOrder = 3
+    TabOrder = 2
     OnClick = Retrieve
   end
   object CmbAliquot1: TComboBox
-    Left = 93
-    Top = 86
-    Width = 145
+    Left = 106
+    Top = 113
+    Width = 146
     Height = 21
-    TabOrder = 4
+    Sorted = True
+    TabOrder = 3
+    OnDropDown = cbaDropDown
   end
   object RadIDType: TRadioGroup
     Left = 10
-    Top = 2
-    Width = 185
+    Top = 51
+    Width = 240
     Height = 38
-    Caption = 'Select Item Type'
+    Caption = 'Item Type'
     Columns = 3
     ItemIndex = 0
     Items.Strings = (
       'Sample'
       'Cryovial'
       'Box')
-    TabOrder = 5
+    TabOrder = 4
   end
   object CmbAliquot2: TComboBox
-    Left = 339
-    Top = 86
-    Width = 145
+    Left = 410
+    Top = 113
+    Width = 136
     Height = 21
+    Sorted = True
+    TabOrder = 5
+    OnDropDown = cbaDropDown
+  end
+  object RadioGroup1: TRadioGroup
+    Left = 306
+    Top = 51
+    Width = 240
+    Height = 38
+    Caption = 'Source'
+    Columns = 2
+    ItemIndex = 0
+    Items.Strings = (
+      'Text file'
+      'Specimen table')
     TabOrder = 6
+  end
+  object cbProject: TComboBox
+    Left = 106
+    Top = 17
+    Width = 146
+    Height = 21
+    Sorted = True
+    TabOrder = 7
+    OnChange = cbProjectChange
+    OnDropDown = cbProjectDropDown
+  end
+  object progress: TProgressBar
+    Left = 0
+    Top = 672
+    Width = 791
+    Height = 17
+    Align = alBottom
+    Step = 1
+    TabOrder = 8
+    ExplicitLeft = 688
+    ExplicitTop = 688
+    ExplicitWidth = 150
+  end
+  object BtnDest: TButton
+    Left = 640
+    Top = 72
+    Width = 75
+    Height = 25
+    Caption = 'New Boxes'
+    TabOrder = 9
+    OnClick = BtnDestClick
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 130
+    Top = 155
   end
 end

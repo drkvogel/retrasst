@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <boost/bind.hpp>
 #include "MockConnection.h"
 #include "StringBackedCursor.h"
 #include "StrUtil.h"
@@ -25,12 +27,12 @@ Cursor* MockConnection::executeQuery( const std::string& sql )
     {
         str = m_clusters;
     }
-    else if ( paulst::ifind( "valc_worklist", sql ) && ! paulst::ifind( "c_worklist_relation", sql ) )
+    else if ( paulst::ifind( "valc_worklist wl", sql ) && ! paulst::ifind( "c_worklist_relation", sql ) )
     {
         // query for worklist entries
         str = m_worklist;
     }
-    else if ( paulst::ifind( "buddy_result_float", sql ) )
+    else if ( paulst::ifind( "buddy_database bd left join buddy_result_float_valc", sql ) )
     {
         // query for buddy_database entries, results, sample-runs
         str = m_buddyDB;
@@ -40,12 +42,17 @@ Cursor* MockConnection::executeQuery( const std::string& sql )
         // query for test names
         str = m_testNames;
     }
+    else if ( paulst::ifind( "sample_run_id.nextval", sql ) )
+    {
+        str = "1,\n";
+    }
 
     return new StringBackedCursor( str );
 }
 
 void MockConnection::executeStmt ( const std::string& sql )
 {
+    m_updateStmts.push_back( sql );
 }
 
 void MockConnection::setBuddyDB( const std::string& buddyDB )
@@ -71,6 +78,16 @@ void MockConnection::setTestNames( const std::string& testNames )
 void MockConnection::setWorklist( const std::string& worklist )
 {
     m_worklist = worklist;
+}
+
+int MockConnection::totalNewSampleRuns() const
+{
+    return std::count_if( m_updateStmts.begin(), m_updateStmts.end(), boost::bind( paulst::ifind, "into sample_run", _1 ) );
+}
+
+int MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() const
+{
+    return std::count_if( m_updateStmts.begin(), m_updateStmts.end(), boost::bind( paulst::ifind, "set sample_run_id", _1 ) );
 }
 
 }

@@ -3,10 +3,13 @@
 #include "API.h"
 #include <boost/bind.hpp>
 #include <boost/functional.hpp>
+#include <cstdio>
 #include <iterator>
+#include "LoggingService.h"
 #include "Require.h"
 #include "ResultIndex.h"
 #include <set>
+#include "StringBuilder.h"
 #include "TestResultIteratorImpl.h"
 
 namespace valc
@@ -16,7 +19,7 @@ ResultIndex::ResultIndex()
 {
 }
 
-void ResultIndex::addIndexEntryForLocalResult( const TestResult* r )
+void ResultIndex::addIndexEntryForResult( const TestResult* r )
 {
     paulst::AcquireCriticalSection a( m_criticalSection );
 
@@ -49,12 +52,48 @@ Range<TestResultIterator> ResultIndex::equal_range( int worklistID ) const
     }
 }
 
+bool resultNotLoaded( const ResultIDsKeyedOnWorklistID::value_type& t, const std::map< int, const TestResult*>& loaded )
+{
+    const int resultID = t.second;
+    return 0 == loaded.count( resultID );
+}
+
+void ResultIndex::removeReferencesToResultsNotLoaded( paulst::LoggingService* log )
+{
+    paulst::AcquireCriticalSection a( m_criticalSection );
+
+    {
+        ResultIDsKeyedOnWorklistID::iterator i;
+        char buffer[1024];
+
+        while ( m_mapWorklistIDToResultID.end() != 
+                ( i = std::find_if( 
+                    m_mapWorklistIDToResultID.begin(), 
+                    m_mapWorklistIDToResultID.end(), 
+                    boost::bind( resultNotLoaded, _1, m_resultMap ) ) ) )
+        {
+            if ( log )
+            {
+                std::sprintf( buffer, "Removing worklist->result %d -> %d", i->first, i->second );
+                log->log( std::string(buffer) );
+            }
+            m_mapWorklistIDToResultID.erase( i );
+        }
+    }
+}
+
 const TestResult* ResultIndex::findResult( int resultID ) const
 {
     paulst::AcquireCriticalSection a( m_criticalSection );
 
     {
         ResultsKeyedOnID::const_iterator i = m_resultMap.find( resultID );
+
+        if( i == m_resultMap.end() )
+        {
+            const std::string exceptionMsg = std::string("Failed to find result with ID of ") << resultID;
+            throw Exception( UnicodeString( exceptionMsg.c_str() ) );
+        }
 
         return i == m_resultMap.end() ? 0 : i->second;
     }
@@ -71,7 +110,7 @@ void copyValue( const ResultIDsKeyedOnWorklistID::value_type& vt, std::set<int>*
 }
 
 
-void ResultIndex::listUnallocatedLocalResults( IntList& unallocatedResultIDs ) const
+void ResultIndex::listUnallocatedResults( IntList& unallocatedResultIDs ) const
 {
     paulst::AcquireCriticalSection a( m_criticalSection );
 

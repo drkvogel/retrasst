@@ -66,7 +66,7 @@ class StoreDAO : public LDbSingleton< StoreDAO >
 		bool loadAnalysisHistory( const std::string & cryovial_barcode, int aliquot_type_id, int proj_id, std::vector<ROSETTA>& results );
 		void loadAliquotTypes( std::vector<ROSETTA>& results );
 
-		std::string prepareSampleQuery( std::string sid, std::string cid, std::string aid );
+		bool loadCryovials( std::string sid, std::string cid, int aid, std::vector<ROSETTA>& results );
 };
 
 //---------------------------------------------------------------------------

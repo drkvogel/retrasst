@@ -6,6 +6,11 @@
 #include <map>
 #include "ResultDirectory.h"
 
+namespace paulst
+{
+    class LoggingService;
+};
+
 namespace valc
 {
 
@@ -19,11 +24,12 @@ public:
     typedef ResultIDsKeyedOnWorklistID::const_iterator const_iterator;
 
     ResultIndex();
-    void addIndexEntryForLocalResult( const TestResult* tr );
+    void addIndexEntryForResult( const TestResult* tr );
     void allocateResultToWorklistEntry( int resultID, int toWorklistID );
     Range<TestResultIterator> equal_range( int worklistID ) const;
     const TestResult* findResult( int resultID ) const;
-    void listUnallocatedLocalResults( IntList& unallocatedResultIDs ) const;
+    void listUnallocatedResults( IntList& unallocatedResultIDs ) const;
+    void removeReferencesToResultsNotLoaded( paulst::LoggingService* log = 0 );
 private:
 
     ResultsKeyedOnID m_resultMap;

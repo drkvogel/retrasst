@@ -5,6 +5,8 @@
 #include <boost/lexical_cast.hpp>
 #include "BuddyDatabase.h"
 #include "BuddyDatabaseBuilder.h"
+#include "BuddyDatabaseEntryIndex.h"
+#include "BuddySampleIDKeyedOnSampleRunID.h"
 #include "DBUpdateSchedule.h"
 #include <iterator>
 #include "LoadBuddyDatabase.h"
@@ -18,7 +20,9 @@ namespace valc
 
 LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, DBConnection* con, 
 	paulst::LoggingService* log, ResultIndex* resultIndex, Projects* projects,
-	BuddyDatabase** bd, DBUpdateSchedule* dbUpdateSchedule )
+	BuddyDatabase** bd, DBUpdateSchedule* dbUpdateSchedule,
+    SampleRunIDResolutionService* sampleRunIDResolutionService,
+    const std::string& sql )
     :
     m_localMachineID( localMachineID ),
     m_projects( projects ),
@@ -26,7 +30,9 @@ LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, DBConnection* con,
     m_resultIndex( resultIndex ),
 	m_log( log ),
 	m_buddyDatabase(bd),
-    m_dbUpdateSchedule( dbUpdateSchedule )
+    m_dbUpdateSchedule( dbUpdateSchedule ),
+    m_sampleRunIDResolutionService( sampleRunIDResolutionService ),
+    m_sql( sql )
 {
 }
 
@@ -75,31 +81,21 @@ bool equivalentRuns( const SampleRun& a, const SampleRun& b )
 
 void LoadBuddyDatabase::execute()
 {
-    std::string sql = std::string(
-"select bd.buddy_sample_id, bd.barcode, bd.date_analysed, bd.database_name, bd.alpha_sample_id, bd.machine_cid, "
-"brf.buddy_result_id, brf.test_id, brf.res_value, brf.action_flag, brf.date_analysed, brf.res_text, brf.update_when, brf.cbw_record_no, "
-"sr.run_id, sr.is_open, sr.created_when, sr.closed_when, sr.sequence_position from "
-"(                                                                                                      "
-"    ( buddy_database bd left join buddy_result_float_valc brf on bd.buddy_sample_id = brf.buddy_sample_id ) "
-"    left join sample_run sr on bd.sample_run_id = sr.run_id                                            "
-")                                                                                                      "
-"where bd.machine_cid = ") << m_localMachineID << " and                                                 "
-"( ( bd.barcode like 'QC%' ) or ( bd.alpha_sample_id != 0 ) ) and                                       "
-"NVL( sr.fao_level_one, 'y' ) = 'y'                                                                     "
-"order by NVL( sr.sequence_position, bd.buddy_sample_id )                                               ";
-
     /*  sampleRuns:             a list of SampleRun instances each of which represents a row in the sample_run table
         candidateSampleRuns:    these do NOT exist in the sample_run table, but buddy_database activity suggests they are needed
 
         Note that both are LISTS. There is nothing to stop them including duplicates.
     */
-    std::auto_ptr<SampleRuns> sampleRuns(new SampleRuns()), candidateSampleRuns(new SampleRuns());
-    std::auto_ptr<SampleRunIDResolutionService> sampleRunIDResolutionService(new SampleRunIDResolutionService());
+    std::auto_ptr<SampleRuns>                      sampleRuns             ( new SampleRuns()), 
+                                                   candidateSampleRuns    ( new SampleRuns());
+    std::auto_ptr<BuddyDatabaseEntryIndex>         buddyDatabaseEntryIndex( new BuddyDatabaseEntryIndex() );
+    std::auto_ptr<BuddySampleIDKeyedOnSampleRunID> buddySampleIDKeyedOnSampleRunID
+                                                                          ( new BuddySampleIDKeyedOnSampleRunID(m_sampleRunIDResolutionService));
 
-    BuddyDatabaseBuilder builder(m_projects, m_resultIndex, sampleRuns.get(), candidateSampleRuns.get(), sampleRunIDResolutionService.get(),
-        m_dbUpdateSchedule );
+    BuddyDatabaseBuilder builder(m_projects, m_resultIndex, sampleRuns.get(), candidateSampleRuns.get(), m_sampleRunIDResolutionService,
+        m_dbUpdateSchedule, buddySampleIDKeyedOnSampleRunID.get(), buddyDatabaseEntryIndex.get() );
 
-    for ( std::auto_ptr<Cursor> cursor( m_con->executeQuery( sql ) ); 
+    for ( std::auto_ptr<Cursor> cursor( m_con->executeQuery( m_sql ) ); 
             ( ! cursor->endOfRecordSet() ) && builder.accept( cursor.get() ); cursor->next() );
    
     // Remove duplicates from sampleRuns
@@ -121,7 +117,7 @@ void LoadBuddyDatabase::execute()
     // Note that a side-effect of this procedure is that sampleRunIDResolutionService may gain 
     // mappings, in order to avoid TestResult instances having dangling references to removed candidate-sample runs.
     candidatesEnd = std::remove_if( candidateSampleRuns->begin(), candidatesEnd, 
-        ExistsAnOpenSampleRunMatchingOnSampleDescriptor( *sampleRuns, *sampleRunIDResolutionService ) );
+        ExistsAnOpenSampleRunMatchingOnSampleDescriptor( *sampleRuns, *m_sampleRunIDResolutionService ) );
 
     // Remaining candidates represent genuine sample-runs that don't yet exist in the sample_run table. Add them to sampleRuns.
     std::copy( candidateSampleRuns->begin(), candidatesEnd, std::back_inserter( *sampleRuns ) );
@@ -131,7 +127,8 @@ void LoadBuddyDatabase::execute()
 
     LOG( std::string("Number of sample-runs: ") << sampleRuns->size() );
 
-	*m_buddyDatabase = new BuddyDatabase( m_localMachineID, sampleRuns.release(), sampleRunIDResolutionService.release() );
+	*m_buddyDatabase = new BuddyDatabase( m_localMachineID, sampleRuns.release(), buddySampleIDKeyedOnSampleRunID.release(),
+        buddyDatabaseEntryIndex.release() );
 }
 
 }

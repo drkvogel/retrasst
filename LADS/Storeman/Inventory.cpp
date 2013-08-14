@@ -935,15 +935,12 @@ Rack::Rack( const ROSETTA &data ) {
 
 std::auto_ptr< ROSETTA >Rack::getProperties( ) {
 	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
-	r->setInt( "position_in_section", position );
+	r->setInt( "position", position );
 	if( capacity > 0 ) {
 		r->setInt( "capacity", capacity );
 	}
 	if( childCount > 0 ) {
 		r->setInt( "slots_used", childCount );
-	}
-	if( posInTank > 0 ) {
-		r->setInt( "position_in_vessel", posInTank );
 	}
 	if( emptySlots > 0 ) {
 		r->setInt( "empty_slots", emptySlots );

@@ -12,21 +12,9 @@ SampleRun::SampleRun()
 {
 }
 
-SampleRun::SampleRun( const std::string& sampleDescriptor, int buddySampleID )
+SampleRun::SampleRun( const std::string& runID, const std::string& sampleDescriptor, bool isOpen, const TDateTime& created, const TDateTime& closed, float sequencePosition )
     :
-    m_id(sampleDescriptor),
-    m_sampleDescriptor( sampleDescriptor ),
-    m_isOpen( true ),
-    m_created( Now() ),
-    m_closed( TDateTime() ),
-    m_sequencePosition( buddySampleID )
-{
-}
-
-SampleRun::SampleRun( int dbID, const std::string& sampleDescriptor, bool isOpen, const TDateTime& created, const TDateTime& closed, float sequencePosition )
-    :
-    m_databaseID( std::string() << dbID ),
-    m_id( std::string() << dbID),
+    m_runID( runID ),
     m_sampleDescriptor( sampleDescriptor ),
     m_isOpen( isOpen ),
     m_created( created ),
@@ -37,8 +25,7 @@ SampleRun::SampleRun( int dbID, const std::string& sampleDescriptor, bool isOpen
 
 SampleRun::SampleRun( const SampleRun& o )
     :
-    m_databaseID        (   o.m_databaseID      ),
-    m_id                (   o.m_id              ),
+    m_runID             (   o.m_runID           ),
     m_sampleDescriptor  (   o.m_sampleDescriptor),
     m_isOpen            (   o.m_isOpen          ),
     m_created           (   o.m_created         ),
@@ -49,8 +36,7 @@ SampleRun::SampleRun( const SampleRun& o )
 
 SampleRun& SampleRun::operator=( const SampleRun& o )
 {
-    m_databaseID        = o.m_databaseID;
-    m_id                = o.m_id;
+    m_runID             = o.m_runID;
     m_sampleDescriptor  = o.m_sampleDescriptor;
     m_isOpen            = o.m_isOpen;
     m_created           = o.m_created;
@@ -59,14 +45,9 @@ SampleRun& SampleRun::operator=( const SampleRun& o )
     return *this;
 }
 
-std::string SampleRun::getDatabaseID() const
-{
-    return m_databaseID;
-}
-
 std::string SampleRun::getID() const
 {
-    return m_id;
+    return m_runID;
 }
 
 std::string SampleRun::getSampleDescriptor() const
@@ -79,38 +60,10 @@ float SampleRun::getSequencePosition() const
     return m_sequencePosition;
 }
 
-bool SampleRun::hasDatabaseID() const
-{
-    return m_databaseID.size();
-}
-
 bool SampleRun::isOpen() const
 {
     return m_isOpen;
 }
-
-/*
-bool SampleRun::operator==( const SampleRun& o ) const
-{
-    return  ( 
-                ( hasDatabaseID() && o.hasDatabaseID() )
-                &&
-                ( getDatabaseID() == o.getDatabaseID() )
-            )
-            ||
-            (
-                ( getSampleDescriptor() == o.getSampleDescriptor() )
-                &&
-                ( 
-                    ( ( ! hasDatabaseID() ) && ( ! o.hasDatabaseID() ) )
-                    ||
-                    ( ( !   hasDatabaseID() ) && o.hasDatabaseID() && o.isOpen() )
-                    ||
-                    ( ( ! o.hasDatabaseID() ) &&   hasDatabaseID() &&   isOpen() )
-                )
-            );
-}
-*/
 
 }
 

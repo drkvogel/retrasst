@@ -1,11 +1,13 @@
 #include "AnalysisActivitySnapshotImpl.h"
 #include <boost/foreach.hpp>
 #include "BuddyDatabase.h"
+#include "DBUpdateConsumer.h"
 #include "DBUpdateSchedule.h"
 #include "Projects.h"
 #include "QueueBuilderParams.h"
 #include "QueuedSamplesBuilderFunction.h"
 #include "ResultDirectory.h"
+#include "SampleRunIDResolutionService.h"
 #include "WorklistDirectory.h"
 
 namespace valc
@@ -13,7 +15,8 @@ namespace valc
 
 AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl( 
     const ClusterIDs* clusterIDs, const Projects* p, const BuddyDatabase* bdb, paulst::LoggingService* log, 
-    const ResultDirectory* rd, const WorklistDirectory* wd, const TestNames* tns, DBUpdateSchedule* dbUpdateSchedule )
+    const ResultDirectory* rd, const WorklistDirectory* wd, const TestNames* tns, DBUpdateSchedule* dbUpdateSchedule,
+    SampleRunIDResolutionService* sampleRunIDResolutionService )
     : 
     m_buddyDatabase     ( bdb ),
     m_clusterIDs        ( clusterIDs ),
@@ -22,7 +25,8 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
     m_resultDirectory   ( rd ),
     m_worklistDirectory ( wd ),
     m_testNames         ( tns ),
-    m_dbUpdateSchedule  ( dbUpdateSchedule )
+    m_dbUpdateSchedule  ( dbUpdateSchedule ),
+    m_sampleRunIDResolutionService( sampleRunIDResolutionService )
 {
     BOOST_FOREACH( const SampleRun& sr, *m_buddyDatabase )
     {
@@ -33,9 +37,27 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
     buildQueue( &m_queuedSamples ); 
 }
 
-const DBUpdateStats* AnalysisActivitySnapshotImpl::getDBUpdateStats() const
+bool AnalysisActivitySnapshotImpl::compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID )    const
 {
-    return m_dbUpdateSchedule.get();
+    return m_sampleRunIDResolutionService->compareSampleRunIDs( oneRunID, anotherRunID );
+}
+
+
+BuddyDatabaseEntries AnalysisActivitySnapshotImpl::listBuddyDatabaseEntriesFor( const std::string& sampleRunID )   const
+{
+    return m_buddyDatabase->listBuddyDatabaseEntriesFor( sampleRunID );
+}
+
+void AnalysisActivitySnapshotImpl::runPendingDatabaseUpdates( DBConnection* c, DBUpdateExceptionHandlingPolicy* exceptionCallback, 
+    bool block )
+{
+    m_dbUpdateConsumer.reset( 
+        new DBUpdateConsumer( c, m_log, m_sampleRunIDResolutionService.get(), m_dbUpdateSchedule.get(), exceptionCallback ) );
+
+    if ( block )
+    {
+        m_dbUpdateConsumer->waitFor();
+    }
 }
 
 std::string AnalysisActivitySnapshotImpl::getTestName( int testID ) const

@@ -1,7 +1,6 @@
 #ifndef LOADREFERENCEDWORKLISTENTRIESH
 #define LOADREFERENCEDWORKLISTENTRIESH
 
-#include "ClusterIDs.h"
 #include "IntList.h"
 #include "WorklistDirectory.h"
 
@@ -28,18 +27,25 @@ class WorklistEntries;
 class LoadReferencedWorklistEntries : public WorklistDirectory::Func
 {
 public:
-    LoadReferencedWorklistEntries( const ClusterIDs* clusterIDs, int localMachineID, DBConnection* con, paulst::LoggingService* log, 
-        WorklistEntries* worklistEntries, ResultIndex* resultIndex );
+    LoadReferencedWorklistEntries( 
+        DBConnection*           con, 
+        paulst::LoggingService* log, 
+        WorklistEntries*        worklistEntries, 
+        ResultIndex*            resultIndex,
+        const std::string&      tempTableName,
+        const std::string&      worklistSQL,
+        const std::string&      worklistRelationSQL );
     void execute();
     void execute( const WorklistEntry* wle );
 private:
-    int m_localMachineID;
-    DBConnection* m_con;
+    DBConnection*           m_con;
     paulst::LoggingService* m_log;
-    WorklistEntries* m_worklistEntries;
-    ResultIndex* m_resultIndex;
-    IntList m_idList;
-    const ClusterIDs* m_clusterIDs;
+    WorklistEntries*        m_worklistEntries;
+    ResultIndex*            m_resultIndex;
+    IntList                 m_idList;
+    std::string             m_tempTableName,
+                            m_worklistSQL,
+                            m_worklistRelationSQL;
 
     LoadReferencedWorklistEntries( const LoadReferencedWorklistEntries& );
     LoadReferencedWorklistEntries& operator=( const LoadReferencedWorklistEntries& );

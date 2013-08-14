@@ -89,7 +89,7 @@ object frmStoremain: TfrmStoremain
       Width = 116
       Height = 35
       Anchors = []
-      Caption = 'Rationalise Storage'
+      Caption = 'Rationalise'
       TabOrder = 3
       WordWrap = True
     end

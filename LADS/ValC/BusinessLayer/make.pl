@@ -5,7 +5,7 @@ use Cwd;
 
 my $userArg = shift(@ARGV);
 my ($target,$config);
-my $project = 'BusinessLayer';
+my $project = 'BusinessLayerFM';
 
 $userArg = "Make" unless defined($userArg);
 

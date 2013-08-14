@@ -2,6 +2,8 @@
 #include "API.h"
 #include <boost/lexical_cast.hpp>
 #include "BuddyDatabase.h"
+#include "BuddyDatabaseEntryIndex.h"
+#include "BuddySampleIDKeyedOnSampleRunID.h"
 #include "DBUpdateSchedule.h"
 #include "Projects.h"
 #include "Require.h"
@@ -17,15 +19,25 @@
 namespace valc
 {
 
-BuddyDatabaseBuilder::BuddyDatabaseBuilder( const Projects* p, ResultIndex* r, SampleRuns* sampleRuns, SampleRuns* candidateSampleRuns,
-    const SampleRunIDResolutionService* s, DBUpdateSchedule* dbUpdateSchedule )
+BuddyDatabaseBuilder::BuddyDatabaseBuilder( 
+    const Projects*                     p, 
+    ResultIndex*                        r, 
+    SampleRuns*                         sampleRuns, 
+    SampleRuns*                         candidateSampleRuns,
+    const SampleRunIDResolutionService* s, 
+    DBUpdateSchedule*                   dbUpdateSchedule,
+    BuddySampleIDKeyedOnSampleRunID*    buddySampleIDKeyedOnSampleRunID,
+    BuddyDatabaseEntryIndex*            buddyDatabaseEntryIndex
+ )
     :
-    m_projects( p ),
-    m_resultIndex( r ),
-    m_sampleRuns( sampleRuns ),
-    m_candidateSampleRuns( candidateSampleRuns ),
-    m_sampleRunIDResolutionService( s ),
-    m_dbUpdateSchedule( dbUpdateSchedule )
+    m_projects                          ( p ),
+    m_resultIndex                       ( r ),
+    m_sampleRuns                        ( sampleRuns ),
+    m_candidateSampleRuns               ( candidateSampleRuns ),
+    m_sampleRunIDResolutionService      ( s ),
+    m_dbUpdateSchedule                  ( dbUpdateSchedule ),
+    m_buddySampleIDKeyedOnSampleRunID   ( buddySampleIDKeyedOnSampleRunID ),
+    m_buddyDatabaseEntryIndex           ( buddyDatabaseEntryIndex )
 {
 }
 
@@ -36,85 +48,101 @@ bool BuddyDatabaseBuilder::isQC() const
 
 bool BuddyDatabaseBuilder::accept( Cursor* c )
 {
-    reset();
-
-    enum Cols { 
-        COL_BUDDY_SAMPLE_ID, COL_BARCODE, COL_DATE_ANALYSED, COL_DATABASE_NAME, COL_ALPHA_SAMPLE_ID, COL_MACHINE_CID, // from buddy_database
-        COL_BRF_BUDDY_RESULT_ID, COL_BRF_TEST_ID, COL_BRF_RES_VALUE, COL_BRF_ACTION_FLAG, COL_BRF_DATE_ANALYSED, // from buddy_result_float
-        COL_BRF_RES_TEXT, COL_BRF_UPDATE_WHEN, COL_BRF_CBW_RECORD_NO,
-        COL_SR_RUN_ID, COL_SR_IS_OPEN, COL_SR_CREATED_WHEN, COL_SR_CLOSED_WHEN, COL_SR_SEQUENCE_POSITION  }; // from sample_run
-
-    c->read( COL_BUDDY_SAMPLE_ID    , buddySampleID );
-    c->read( COL_BARCODE            , barcode       );
-    c->read( COL_MACHINE_CID        , machineID     );
-    c->read( COL_ALPHA_SAMPLE_ID    , alphaSampleID );
-    c->read( COL_DATABASE_NAME      , databaseName  );
-
-    if ( isQC() )
+    do
     {
-        sampleDescriptor = barcode << "/" << machineID;
-    }
-    else
-    {
-        sampleDescriptor = std::string() << alphaSampleID << "/" << ( m_projects->findProjectIDForDatabase( databaseName ) );
-    }
+        reset();
 
-    // Negotiate the outer joins...
+        enum Cols { 
+            COL_BUDDY_SAMPLE_ID, COL_BARCODE, COL_DATE_ANALYSED, COL_DATABASE_NAME, COL_ALPHA_SAMPLE_ID, COL_MACHINE_CID, // from buddy_database
+            COL_BRF_BUDDY_RESULT_ID, COL_BRF_TEST_ID, COL_BRF_RES_VALUE, COL_BRF_ACTION_FLAG, COL_BRF_DATE_ANALYSED, // from buddy_result_float
+            COL_BRF_RES_TEXT, COL_BRF_UPDATE_WHEN, COL_BRF_CBW_RECORD_NO,
+            COL_SR_RUN_ID, COL_SR_IS_OPEN, COL_SR_CREATED_WHEN, COL_SR_CLOSED_WHEN, COL_SR_SEQUENCE_POSITION  }; // from sample_run
 
-    if ( ! c->isNull( COL_BRF_BUDDY_RESULT_ID ) )
-    {
-        hasResult = true;
-        c->read( COL_BRF_BUDDY_RESULT_ID, resID             );
-        c->read( COL_BRF_TEST_ID        , resTestID         );
-        c->read( COL_BRF_RES_VALUE      , resValue          );
-        c->read( COL_BRF_ACTION_FLAG    , resActionFlag     );
-        c->read( COL_BRF_DATE_ANALYSED  , resDateAnalysed   );
-        c->read( COL_BRF_RES_TEXT       , resText           );
-        c->read( COL_BRF_UPDATE_WHEN    , resUpdateWhen     );
-        c->read( COL_BRF_CBW_RECORD_NO  , resWorklistID     );
-    }
+        c->read( COL_BUDDY_SAMPLE_ID    , buddySampleID );
+        c->read( COL_BARCODE            , barcode       );
+        c->read( COL_DATE_ANALYSED      , dateAnalysed  );
+        c->read( COL_MACHINE_CID        , machineID     );
+        c->read( COL_ALPHA_SAMPLE_ID    , alphaSampleID );
+        c->read( COL_DATABASE_NAME      , databaseName  );
 
-    if ( ! c->isNull( COL_SR_RUN_ID ) )
-    {
-        hasSampleRun = true;
-        c->read( COL_SR_RUN_ID              , srID );
-        c->read( COL_SR_IS_OPEN             , srIsOpen );
-		c->read( COL_SR_CREATED_WHEN        , srCreatedWhen );
-		if ( ! srIsOpen )
-		{
-			require( ! c->isNull( COL_SR_CLOSED_WHEN ) );
-			c->read( COL_SR_CLOSED_WHEN, srClosedWhen );
-		}
-        c->read( COL_SR_SEQUENCE_POSITION   , srSequencePosition );
-    }
+        // Negotiate the outer joins...
 
-    require( sampleDescriptor.size() );
-
-    SampleRunID sampleRunID      = hasSampleRun ? SampleRunID(srID) : SampleRunID( sampleDescriptor, m_sampleRunIDResolutionService );
-    SampleRuns* targetCollection = hasSampleRun ? m_sampleRuns : m_candidateSampleRuns;
-    SampleRun sampleRun          = hasSampleRun ? 
-                                        SampleRun( srID, sampleDescriptor, srIsOpen != 0, srCreatedWhen, srClosedWhen, srSequencePosition ) :
-                                        SampleRun( sampleDescriptor, buddySampleID );
-
-    targetCollection->push_back( sampleRun );
-
-    if ( ! hasSampleRun )
-    {
-        m_dbUpdateSchedule->scheduleUpdate( buddySampleID, sampleRunID );
-    }
-
-    if ( hasResult )
-    {
-        result = new TestResultImpl( resActionFlag, sampleDescriptor, resDateAnalysed, machineID, resID, sampleRunID, resTestID, resValue );
-
-        m_resultIndex->addIndexEntryForLocalResult( result );
-
-        if ( resWorklistID )
+        if ( ! c->isNull( COL_BRF_BUDDY_RESULT_ID ) )
         {
-            m_resultIndex->allocateResultToWorklistEntry( resID, resWorklistID );
+            hasResult = true;
+            c->read( COL_BRF_BUDDY_RESULT_ID, resID             );
+            c->read( COL_BRF_TEST_ID        , resTestID         );
+            c->read( COL_BRF_RES_VALUE      , resValue          );
+            c->read( COL_BRF_ACTION_FLAG    , resActionFlag     );
+            c->read( COL_BRF_DATE_ANALYSED  , resDateAnalysed   );
+            c->read( COL_BRF_RES_TEXT       , resText           );
+            c->read( COL_BRF_UPDATE_WHEN    , resUpdateWhen     );
+            c->read( COL_BRF_CBW_RECORD_NO  , resWorklistID     );
+        }
+
+        if ( ! c->isNull( COL_SR_RUN_ID ) )
+        {
+            hasSampleRun = true;
+            c->read( COL_SR_RUN_ID              , srID );
+            c->read( COL_SR_IS_OPEN             , srIsOpen );
+            c->read( COL_SR_CREATED_WHEN        , srCreatedWhen );
+            if ( ! srIsOpen )
+            {
+                require( ! c->isNull( COL_SR_CLOSED_WHEN ) );
+                c->read( COL_SR_CLOSED_WHEN, srClosedWhen );
+            }
+            c->read( COL_SR_SEQUENCE_POSITION   , srSequencePosition );
+        }
+        else
+        {
+            srIsOpen = true;
+            srSequencePosition = buddySampleID;
+            srCreatedWhen = Now();
+        }
+
+        if ( hasResult && ! ( resActionFlag == '0' || resActionFlag == 'X' ) )
+        {
+            break;
+        }
+
+        if ( isQC() )
+        {
+            sampleDescriptor = barcode << "/" << machineID;
+        }
+        else
+        {
+            sampleDescriptor = std::string() << alphaSampleID << "/" << ( m_projects->findProjectIDForDatabase( databaseName ) );
+        }
+
+        std::string sampleRunID      = hasSampleRun ? paulst::toString(srID) : sampleDescriptor;
+        SampleRuns* targetCollection = hasSampleRun ? m_sampleRuns : m_candidateSampleRuns;
+        SampleRun   sampleRun( sampleRunID, sampleDescriptor, srIsOpen != 0, srCreatedWhen, srClosedWhen, srSequencePosition );
+
+        m_buddyDatabaseEntryIndex->add( buddySampleID, alphaSampleID, barcode, databaseName, dateAnalysed );
+
+        targetCollection->push_back( sampleRun );
+
+        m_buddySampleIDKeyedOnSampleRunID->addEntry( sampleRunID, buddySampleID );
+
+        if ( ! hasSampleRun )
+        {
+            m_dbUpdateSchedule->scheduleUpdate( buddySampleID, sampleRunID );
+        }
+
+        if ( hasResult )
+        {
+            result = new TestResultImpl( resActionFlag, sampleDescriptor, resDateAnalysed, machineID, resID, sampleRunID, resTestID, resValue );
+
+            m_resultIndex->addIndexEntryForResult( result );
+
+            if ( resWorklistID )
+            {
+                m_resultIndex->allocateResultToWorklistEntry( resID, resWorklistID );
+            }
         }
     }
-    
+    while ( false );
+
     return true;
 }
 

@@ -30,7 +30,7 @@ push @buildArgs, "/t:$target";
 push @buildArgs, "/verbosity:diagnostic";
 system("$ENV{FrameworkDir}/MSBuild.exe", @buildArgs) == 0 or die "Failed to build $project.cbproj: $!";
 
-my $exe = "Win32/$config/$project.exe";
+my $exe = "Win64/$config/$project.exe";
 my $deployDir = 'C:/temp/';
 
 copy( $exe, $deployDir ) or die "Failed to copy $exe to $deployDir: $!";

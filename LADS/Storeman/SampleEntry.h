@@ -10,6 +10,8 @@
 #include <Grids.hpp>
 #include "inventory.h"
 #include <ExtCtrls.hpp>
+#include <Vcl.Dialogs.hpp>
+#include <Vcl.ComCtrls.hpp>
 
 //---------------------------------------------------------------------------
 class TfrmRetrieveMain : public TForm
@@ -17,8 +19,6 @@ class TfrmRetrieveMain : public TForm
 __published:	// IDE-managed Components
 	TStringGrid *grdSamples;
 	TLabel *LblCaption;
-	TLabel *LblSample;
-	TEdit *TxtBarcode;
 	TLabel *LblAliquot1;
 	TButton *BtnAdd;
 	TButton *BtnRetrieve;
@@ -26,27 +26,41 @@ __published:	// IDE-managed Components
 	TRadioGroup *RadIDType;
 	TComboBox *CmbAliquot2;
 	TLabel *LblAliquot2;
+	TRadioGroup *RadioGroup1;
+	TOpenDialog *OpenDialog1;
+	TLabel *Label1;
+	TComboBox *cbProject;
+	TProgressBar *progress;
+	TButton *BtnDest;
 	void __fastcall AddClick(TObject *Sender);
 	void __fastcall Retrieve(TObject *Sender);
+	void __fastcall cbaDropDown(TObject *Sender);
+	void __fastcall cbProjectChange(TObject *Sender);
+	void __fastcall cbProjectDropDown(TObject *Sender);
+	void __fastcall grdSamplesFixedCellClick(TObject *Sender, int ACol, int ARow);
+	void __fastcall FormResize(TObject *Sender);
+	void __fastcall BtnDestClick(TObject *Sender);
+
 private:	// User declarations
 
-//	Projects projs;
-//	std::vector<AliquotType*> typelist;
-//	Project* proj;
-	int selectedProject;
+	enum Cols { SAMPLE, CRYOVIAL, ALIQUOT, OLD_BOX, OLD_POS, VESSEL, SHELF, STRUCTURE, NEW_BOX, NEW_POS, COL_COUNT };
+
+	void drawGrid();
+	void clearGrid();
 
 public:		// User declarations
-//	AliquotTypes ats;
+
 	struct GridEntry
 	{
-		std::string sid;
-		std::string cid;
-		std::string aid;
+		std::string sid, cid;
+		int aid;
 		std::string adesc;
-		int pid;
-		GridEntry( std::string p_sid, std::string p_cid,
-			std::string p_aid, std::string p_adesc, int p_pid ) :
-			sid( p_sid ), cid( p_cid ), aid( p_aid ), adesc( p_adesc ), pid( p_pid ) {};
+		std::string old_box, new_box;
+		short old_pos, new_pos;
+		std::string vessel, structure;
+		short shelf;
+
+		GridEntry( const ROSETTA & row );
 	};
 
 	std::vector<GridEntry> rows;
@@ -54,7 +68,6 @@ public:		// User declarations
 
 	__fastcall TfrmRetrieveMain(TComponent* Owner);
 	void init();
-	void clearGrid();
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TfrmRetrieveMain *frmRetrieveMain;

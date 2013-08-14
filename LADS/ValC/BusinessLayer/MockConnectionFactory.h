@@ -4,7 +4,7 @@
 namespace valc
 {
 
-class DBConnection;
+class MockConnection;
 
 /*
 ConnectionFactory from which can be obtained connections which run 
@@ -25,7 +25,7 @@ class MockConnectionFactory
 {
 public:
     MockConnectionFactory();
-    DBConnection* createConnection();
+    MockConnection* createConnection();
     void setClusters( const std::string& serializedClusters );
     void setBuddyDB ( const std::string& serializedBuddyDB );
     void setProjects( const std::string& serializedProjects );

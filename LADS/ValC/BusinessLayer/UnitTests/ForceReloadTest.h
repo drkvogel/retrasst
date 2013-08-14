@@ -8,11 +8,20 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/variant/get.hpp>
 #include <cwchar>
+#include "LoggingService.h"
+#include "MockConnection.h"
 #include "MockConnectionFactory.h"
+#include "MockConfig.h"
 #include <set>
 #include "StrUtil.h"
 #include <tut.h>
 #include <vector>
+
+class NoLogging : public paulst::Writer
+{
+public:
+    void write( const std::string& msg ) {}
+};
 
 /*
 These tests use MockConnectionFactory.
@@ -30,10 +39,92 @@ bool hasResultWithRunID( const std::string& runID, const valc::WorklistEntry* wl
     return std::count_if( resultRange.first, resultRange.second, boost::bind( runIDEquals, runID, _1 ) );
 }
 
+const valc::TestResult* testResultFor( const valc::WorklistEntry* wle )
+{
+    using namespace valc;
+    Range<TestResultIterator> resultRange = wle->getTestResults();
+    if ( std::distance( resultRange.first, resultRange.second ) != 1 )
+    {
+        throw Exception( "Worklist entry does not have a single test result." );
+    }
+    return *(resultRange.first);
+}
+
+const valc::WorklistEntry* worklistEntry( valc::Range<valc::WorklistEntryIterator>& worklistEntries, int id )
+{
+    using namespace valc;
+    const WorklistEntry* wle = 0;
+    for ( WorklistEntryIterator i = worklistEntries.first; i != worklistEntries.second; ++i )
+    {
+        if ( (*i)->getID() == id )
+        {
+            wle = *i;
+            break;
+        }
+    }
+
+    if ( wle == 0 )
+    {
+        throw Exception( "Failed to find expected worklist entry." );
+    }
+
+    return wle;
+}
+
+class ExceptionListener : public valc::DBUpdateExceptionHandlingPolicy
+{
+public:
+
+    void handleException( const std::string& msg )
+    {
+        m_msgs.push_back( msg );
+    }
+
+    bool noExceptions() const
+    {
+        return m_msgs.empty();
+    }
+
+private:
+    std::vector< std::string > m_msgs;
+};
+
+bool sortOnBuddySampleID( const valc::BuddyDatabaseEntry& e1, const valc::BuddyDatabaseEntry& e2 )
+{
+    return e1.buddy_sample_id < e2.buddy_sample_id;
+}
+
 namespace tut
 {
 	class ForceReloadTestFixture
     {
+    public:
+        static const int LOCAL_MACHINE_ID = -1019349;
+        static const int USER_ID          = 1234;
+
+        valc::AnalysisActivitySnapshot* s;
+        paulst::LoggingService* log;
+
+        ForceReloadTestFixture( valc::DBConnection* c = 0 )
+            : log(0), s(0)
+        {
+            if ( c )
+            {
+                log = new paulst::LoggingService( new NoLogging() );
+                s   = valc::SnapshotFactory::load( LOCAL_MACHINE_ID, USER_ID, c, log, valc::MockConfig::config );
+            }
+        }
+        
+        ~ForceReloadTestFixture()
+        {
+            delete s;
+            delete log;
+        }
+
+        valc::AnalysisActivitySnapshot* operator->() const
+        {
+            return s;
+        }
     };
 
     typedef test_group<ForceReloadTestFixture, 10> ForceReloadTestGroup;
@@ -59,17 +150,17 @@ namespace tut
 
 		boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
 
-		boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
+        ForceReloadTestFixture s( connection.get() );
 
-		ensure( s.get() );
-		ensure( s->localBegin() == s->localEnd() );
-		ensure( s->queueBegin() == s->queueEnd() );
+		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
+		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 0 );
 	}
 
 	template<>
 	template<>
 	void testForceReload::test<2>()
 	{
+
 		set_test_name("ForceReload - 3 tests queued, single sample.");
 
 		using namespace valc;
@@ -87,11 +178,10 @@ namespace tut
 
 		boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
 
-		boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
+        ForceReloadTestFixture s( connection.get() );
 
-		ensure( s.get() );
-		ensure( s->localBegin() == s->localEnd() );
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 1 );
+		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 0 );
 
 		QueuedSample qs = *(s->queueBegin());
 
@@ -139,15 +229,19 @@ namespace tut
 			);
 
 
-		boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+		boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
 
-		boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
-		ensure( s.get() );
+        ForceReloadTestFixture s( connection.get() );
 
-        const DBUpdateStats* stats = s->getDBUpdateStats();
+        const bool blockTillNoPendingUpdates = true;
+        ExceptionListener exceptionListener;
 
-        ensure( 1 == stats->totalNewSampleRuns() );
-        ensure( 1 == stats->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+        s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
+
+        ensure( exceptionListener.noExceptions() );
+        ensure( "Expected 1 new sample-run", 1 == connection->totalNewSampleRuns() );
+        const int actualUpdatesOfSampleRunID = connection->totalUpdatesForSampleRunIDOnBuddyDatabase();
+        ensure_equals( actualUpdatesOfSampleRunID, 1 );
 
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 1 );
 		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
@@ -160,6 +254,12 @@ namespace tut
 
 		ensure( std::distance( wles.first, wles.second ) == 4U );
 
+        // Check that the TestResult runID matches the runID of the local run
+        const WorklistEntry* wle = *(wles.first);
+        Range<TestResultIterator> testResults = wle->getTestResults();
+        ensure( 1 == std::distance( testResults.first, testResults.second ) );
+        const TestResult* result = *(testResults.first);
+        ensure( result->getSampleRunID() == lr.getRunID() );
 		std::for_each( wles.first, wles.second, boost::bind( ensureNumResults, _1, 1 ) );
 	}
 
@@ -186,17 +286,18 @@ namespace tut
 			);
 
 
-		boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+		boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
 
-		boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
+        ForceReloadTestFixture s( connection.get() );
 
-		ensure( s.get() );
+        const bool blockTillNoPendingUpdates = true;
+        ExceptionListener exceptionListener;
 
-        const DBUpdateStats* stats = s->getDBUpdateStats();
+        s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
 
-        ensure( 1 == stats->totalNewSampleRuns() );
-        ensure( 1 == stats->totalUpdatesForSampleRunIDOnBuddyDatabase() );
-
+        ensure( exceptionListener.noExceptions() );
+        ensure( 1 == connection->totalNewSampleRuns() );
+        ensure( 1 == connection->totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
 		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
@@ -250,7 +351,7 @@ namespace tut
 
 		boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
 
-		boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
+        ForceReloadTestFixture s( connection.get() );
 
 		ensure( s->getTestName(-12711493) == "A1c-IFmc" );
 		ensure( s->getTestName(-12703329) == "CD40scv" );
@@ -290,18 +391,20 @@ namespace tut
             tests[1] + sampleRunData[1] + "\n"
             );
 
-        boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+        boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
 
 		try
 		{
-			boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
+            ForceReloadTestFixture s( connection.get() );
 
-			ensure( s.get() );
+            const bool blockTillNoPendingUpdates = true;
+            ExceptionListener exceptionListener;
 
-            const DBUpdateStats* stats = s->getDBUpdateStats();
+            s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
 
-            ensure( 0 == stats->totalNewSampleRuns() );
-            ensure( 1 == stats->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+            ensure( exceptionListener.noExceptions() );
+            ensure( 0 == connection->totalNewSampleRuns() );
+            ensure( 1 == connection->totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
 			ensure( std::distance( s->queueBegin(), s->queueEnd() ) == 0 );
 			unsigned int numSampleRuns = std::distance( s->localBegin(), s->localEnd() );
@@ -314,11 +417,13 @@ namespace tut
 			Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
 			ensure( std::distance( wles.first, wles.second ) == 2 );
+        
+            ensure(     testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID() == lr.getRunID() );
+            ensure_not( testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID() == lr.getRunID() );
 
-            for ( WorklistEntryIterator i = wles.first; i != wles.second; ++i )
-            {
-                ensure( hasResultWithRunID( lr.getRunID(), *i ) );
-            }
+            ensure( s->compareSampleRunIDs( testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID(), lr.getRunID() ) );
+
+            ensure( s->compareSampleRunIDs( testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID(), lr.getRunID() ) );
 		}
 		catch( const Exception& e )
 		{
@@ -360,18 +465,20 @@ namespace tut
             tests[1] + sampleRunData[1] + "\n"
             );
 
-        boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+        boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
 
 		try
 		{
-			boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
+            ForceReloadTestFixture s( connection.get() );
 
-			ensure( s.get() );
+            const bool blockTillNoPendingUpdates = true;
+            ExceptionListener exceptionListener;
 
-            const DBUpdateStats* stats = s->getDBUpdateStats();
+            s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
 
-            ensure( 1 == stats->totalNewSampleRuns() );
-            ensure( 1 == stats->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+            ensure( exceptionListener.noExceptions() );
+            ensure( 1 == connection->totalNewSampleRuns() );
+            ensure( 1 == connection->totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
 			ensure( std::distance( s->queueBegin(), s->queueEnd() ) == 0U );
 			unsigned int numSampleRuns = std::distance( s->localBegin(), s->localEnd() );
@@ -430,18 +537,27 @@ namespace tut
             tests[1] + sampleRunData[1] + "\n"
             );
 
-        boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+        boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
 
 		try
 		{
-			boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( -1019349, 1234, connection.get() ) );
+            ForceReloadTestFixture s( connection.get() );
 
-			ensure( s.get() );
+            const bool blockTillNoPendingUpdates = true;
+            ExceptionListener exceptionListener;
 
-            const DBUpdateStats* stats = s->getDBUpdateStats();
+            s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
 
-            ensure( 0 == stats->totalNewSampleRuns() );
-            ensure( 0 == stats->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+            ensure( exceptionListener.noExceptions() );
+            ensure( 0 == connection->totalNewSampleRuns() );
+            ensure( 0 == connection->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+
+            ensure( 1 == std::distance( s->localBegin(), s->localEnd() ) );
+            BuddyDatabaseEntries buddyDatabaseEntries = s->listBuddyDatabaseEntriesFor( "12" );
+            ensure( 2 == buddyDatabaseEntries.size() );
+            std::sort( buddyDatabaseEntries.begin(), buddyDatabaseEntries.end(), sortOnBuddySampleID );
+            ensure( 882290 == buddyDatabaseEntries.at(0).buddy_sample_id );
+            ensure( 882291 == buddyDatabaseEntries.at(1).buddy_sample_id );
 
 	    }
 		catch( const Exception& e )

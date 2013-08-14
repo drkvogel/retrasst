@@ -156,6 +156,14 @@
             <DependentOn>BuddyDatabaseBuilder.h</DependentOn>
             <BuildOrder>26</BuildOrder>
         </CppCompile>
+        <CppCompile Include="BuddyDatabaseEntryIndex.cpp">
+            <DependentOn>BuddyDatabaseEntryIndex.h</DependentOn>
+            <BuildOrder>57</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="BuddySampleIDKeyedOnSampleRunID.cpp">
+            <DependentOn>BuddySampleIDKeyedOnSampleRunID.h</DependentOn>
+            <BuildOrder>58</BuildOrder>
+        </CppCompile>
         <None Include="ClusterIDs.h">
             <BuildOrder>26</BuildOrder>
         </None>
@@ -175,9 +183,25 @@
             <DependentOn>DBConnectionADO.h</DependentOn>
             <BuildOrder>2</BuildOrder>
         </CppCompile>
+        <CppCompile Include="DBUpdateConsumer.cpp">
+            <DependentOn>DBUpdateConsumer.h</DependentOn>
+            <BuildOrder>53</BuildOrder>
+        </CppCompile>
         <CppCompile Include="DBUpdateSchedule.cpp">
             <DependentOn>DBUpdateSchedule.h</DependentOn>
             <BuildOrder>39</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DBUpdateTask.cpp">
+            <DependentOn>DBUpdateTask.h</DependentOn>
+            <BuildOrder>54</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DBUpdateTaskInsertSampleRun.cpp">
+            <DependentOn>DBUpdateTaskInsertSampleRun.h</DependentOn>
+            <BuildOrder>55</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DBUpdateTaskUpdateSampleRunID.cpp">
+            <DependentOn>DBUpdateTaskUpdateSampleRunID.h</DependentOn>
+            <BuildOrder>56</BuildOrder>
         </CppCompile>
         <CppCompile Include="LoadBuddyDatabase.cpp">
             <DependentOn>LoadBuddyDatabase.h</DependentOn>
@@ -233,10 +257,6 @@
         <CppCompile Include="SampleRun.cpp">
             <DependentOn>SampleRun.h</DependentOn>
             <BuildOrder>27</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="SampleRunID.cpp">
-            <DependentOn>SampleRunID.h</DependentOn>
-            <BuildOrder>29</BuildOrder>
         </CppCompile>
         <CppCompile Include="SampleRunIDResolutionService.cpp">
             <DependentOn>SampleRunIDResolutionService.h</DependentOn>

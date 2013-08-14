@@ -26,7 +26,7 @@ void AllocateLocalResultsToWorklistEntries::execute()
 {
     IntList unallocated;
 
-    m_resultIndex->listUnallocatedLocalResults( unallocated );
+    m_resultIndex->listUnallocatedResults( unallocated );
 
     LOG( std::string("Number of unallocated results: ") << unallocated.size() );
 

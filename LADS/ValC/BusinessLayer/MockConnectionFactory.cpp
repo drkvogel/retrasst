@@ -8,7 +8,7 @@ MockConnectionFactory::MockConnectionFactory()
 {
 }
 
-DBConnection* MockConnectionFactory::createConnection()
+MockConnection* MockConnectionFactory::createConnection()
 {
     MockConnection* mc = new MockConnection();
     mc->setBuddyDB  ( m_buddyDB   );

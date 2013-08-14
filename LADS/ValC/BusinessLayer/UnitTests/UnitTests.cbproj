@@ -132,10 +132,6 @@
         <Defines>NDEBUG;$(Defines)</Defines>
     </PropertyGroup>
     <ItemGroup>
-        <CppCompile Include="..\ADODB_OCX.cpp">
-            <DependentOn>..\ADODB_OCX.h</DependentOn>
-            <BuildOrder>18</BuildOrder>
-        </CppCompile>
         <CppCompile Include="..\ADODB_TLB.cpp">
             <DependentOn>..\ADODB_TLB.h</DependentOn>
             <BuildOrder>19</BuildOrder>
@@ -160,6 +156,14 @@
             <DependentOn>..\BuddyDatabaseBuilder.h</DependentOn>
             <BuildOrder>24</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\BuddyDatabaseEntryIndex.cpp">
+            <DependentOn>..\BuddyDatabaseEntryIndex.h</DependentOn>
+            <BuildOrder>59</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BuddySampleIDKeyedOnSampleRunID.cpp">
+            <DependentOn>..\BuddySampleIDKeyedOnSampleRunID.h</DependentOn>
+            <BuildOrder>60</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\ComUtil.cpp">
             <DependentOn>..\ComUtil.h</DependentOn>
             <BuildOrder>25</BuildOrder>
@@ -176,9 +180,25 @@
             <DependentOn>..\DBConnectionADO.h</DependentOn>
             <BuildOrder>28</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\DBUpdateConsumer.cpp">
+            <DependentOn>..\DBUpdateConsumer.h</DependentOn>
+            <BuildOrder>58</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\DBUpdateSchedule.cpp">
             <DependentOn>..\DBUpdateSchedule.h</DependentOn>
             <BuildOrder>29</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\DBUpdateTask.cpp">
+            <DependentOn>..\DBUpdateTask.h</DependentOn>
+            <BuildOrder>55</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\DBUpdateTaskInsertSampleRun.cpp">
+            <DependentOn>..\DBUpdateTaskInsertSampleRun.h</DependentOn>
+            <BuildOrder>56</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\DBUpdateTaskUpdateSampleRunID.cpp">
+            <DependentOn>..\DBUpdateTaskUpdateSampleRunID.h</DependentOn>
+            <BuildOrder>57</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\LoadBuddyDatabase.cpp">
             <DependentOn>..\LoadBuddyDatabase.h</DependentOn>
@@ -187,6 +207,10 @@
         <CppCompile Include="..\LoadClusterIDs.cpp">
             <DependentOn>..\LoadClusterIDs.h</DependentOn>
             <BuildOrder>31</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LoadNonLocalResults.cpp">
+            <DependentOn>..\LoadNonLocalResults.h</DependentOn>
+            <BuildOrder>62</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\LoadProjects.cpp">
             <DependentOn>..\LoadProjects.h</DependentOn>
@@ -203,6 +227,10 @@
         <CppCompile Include="..\LoadWorklistEntries.cpp">
             <DependentOn>..\LoadWorklistEntries.h</DependentOn>
             <BuildOrder>35</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\MockConfig.cpp">
+            <DependentOn>..\MockConfig.h</DependentOn>
+            <BuildOrder>63</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\MockConnection.cpp">
             <DependentOn>..\MockConnection.h</DependentOn>
@@ -235,10 +263,6 @@
             <DependentOn>..\SampleRun.h</DependentOn>
             <BuildOrder>43</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\SampleRunID.cpp">
-            <DependentOn>..\SampleRunID.h</DependentOn>
-            <BuildOrder>44</BuildOrder>
-        </CppCompile>
         <CppCompile Include="..\SampleRunIDResolutionService.cpp">
             <DependentOn>..\SampleRunIDResolutionService.h</DependentOn>
             <BuildOrder>45</BuildOrder>
@@ -259,6 +283,9 @@
             <DependentOn>..\ThreadExceptionMsgs.h</DependentOn>
             <BuildOrder>49</BuildOrder>
         </CppCompile>
+        <None Include="BuddySampleIDKeyedOnSampleRunIDTest.h">
+            <BuildOrder>61</BuildOrder>
+        </None>
         <None Include="ForceReloadTest.h">
             <BuildOrder>32</BuildOrder>
         </None>
@@ -267,6 +294,9 @@
         </CppCompile>
         <None Include="QueuedSamplesFactoryTest.h">
             <BuildOrder>2</BuildOrder>
+        </None>
+        <None Include="SampleRunIDResolutionServiceTest.h">
+            <BuildOrder>62</BuildOrder>
         </None>
         <CppCompile Include="..\WorklistDirectory.cpp">
             <DependentOn>..\WorklistDirectory.h</DependentOn>

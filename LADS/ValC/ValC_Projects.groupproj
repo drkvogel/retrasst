@@ -6,13 +6,13 @@
         <Projects Include="ForceReloadTest\FRT.cbproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="BusinessLayer\BusinessLayer.cbproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="..\..\paulst\paulst.cbproj">
             <Dependencies/>
         </Projects>
         <Projects Include="BusinessLayer\UnitTests\UnitTests.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="BusinessLayer\BusinessLayerFM.cbproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -32,15 +32,6 @@
     <Target Name="FRT:Make">
         <MSBuild Projects="ForceReloadTest\FRT.cbproj" Targets="Make"/>
     </Target>
-    <Target Name="BusinessLayer">
-        <MSBuild Projects="BusinessLayer\BusinessLayer.cbproj"/>
-    </Target>
-    <Target Name="BusinessLayer:Clean">
-        <MSBuild Projects="BusinessLayer\BusinessLayer.cbproj" Targets="Clean"/>
-    </Target>
-    <Target Name="BusinessLayer:Make">
-        <MSBuild Projects="BusinessLayer\BusinessLayer.cbproj" Targets="Make"/>
-    </Target>
     <Target Name="paulst">
         <MSBuild Projects="..\..\paulst\paulst.cbproj"/>
     </Target>
@@ -59,14 +50,23 @@
     <Target Name="UnitTests:Make">
         <MSBuild Projects="BusinessLayer\UnitTests\UnitTests.cbproj" Targets="Make"/>
     </Target>
+    <Target Name="BusinessLayerFM">
+        <MSBuild Projects="BusinessLayer\BusinessLayerFM.cbproj"/>
+    </Target>
+    <Target Name="BusinessLayerFM:Clean">
+        <MSBuild Projects="BusinessLayer\BusinessLayerFM.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="BusinessLayerFM:Make">
+        <MSBuild Projects="BusinessLayer\BusinessLayerFM.cbproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="FRT;BusinessLayer;paulst;UnitTests"/>
+        <CallTarget Targets="FRT;paulst;UnitTests;BusinessLayerFM"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="FRT:Clean;BusinessLayer:Clean;paulst:Clean;UnitTests:Clean"/>
+        <CallTarget Targets="FRT:Clean;paulst:Clean;UnitTests:Clean;BusinessLayerFM:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="FRT:Make;BusinessLayer:Make;paulst:Make;UnitTests:Make"/>
+        <CallTarget Targets="FRT:Make;paulst:Make;UnitTests:Make;BusinessLayerFM:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

@@ -7,10 +7,10 @@ namespace valc
 TestResultImpl::TestResultImpl(
         char actionFlag,
         const std::string& sampleDescriptor,
-        TDateTime& dateAnalysed,
+        const TDateTime& dateAnalysed,
         int machineID,
         int resultID,
-        const SampleRunID& sampleRunID,
+        const std::string& sampleRunID,
         int testID,
         float resultValue )
     : 
@@ -61,7 +61,7 @@ std::string TestResultImpl::getSampleDescriptor() const
 
 std::string TestResultImpl::getSampleRunID() const
 {
-    return m_sampleRunID.toString();
+    return m_sampleRunID;
 }
 
 int TestResultImpl::getTestID() const

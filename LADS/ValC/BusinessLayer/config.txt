@@ -1,0 +1,101 @@
+LoadWorklistEntries:
+SELECT wl.record_no, machine_cid, barcode, test_cid, group_id,
+category_id, sample_id, project_cid,                         
+profile_id, profile_name, time_stamp, ts_sequence, status,  
+diluent, buddy_result_id                                   
+from valc_worklist wl                                     
+WHERE                                                    
+wl.machine_cid in (-1019349, -1019430)                  
+and wl.status in ('Q','P','C','S','W', 'X')            
+ORDER BY wl.record_no                                 
+
+
+
+LoadWorklistRelations:
+SELECT wl.record_no, wr.rerun_id, wr.parent_id, wr.motivation 
+FROM valc_worklist wl, c_worklist_relation wr                
+WHERE wl.record_no in ( wr.rerun_id, wr.parent_id )         
+and                                                        
+wl.machine_cid in (-1019349, -1019430)                    
+and wl.status in ('Q','P','C','S','W', 'X')              
+ORDER BY wl.record_no                                   
+
+
+
+RefTempTableName:
+Q109Temp
+
+
+
+# The following queries both reference a session temporary table.  Results from each are processed IN PARALLEL.                
+# A possible problem is that one set of results is not obtained, with the complaint that the session                          
+# temporary table is not visible or does not exist. A cause of such a problem is that, behind the scenes, the ODBC           
+# driver has created a distinct connection/session.                                                                         
+#                                                                                                                          
+# Ways of resolving this:                                                                                                 
+# 1) Use SysWOW64/odbcad32 to Configure the User Data Source. On the Advanced tab, select 'Cursors' rather than 'Select Loops'.
+#                                                                                                                             
+# 2) Alternatively, don't use a session temporary table. Use an ordinary table.                                              
+
+
+LoadReferencedWorklistEntries:
+SELECT wl.record_no, machine_cid, barcode, test_cid, group_id, 
+category_id, sample_id, project_cid,                          
+profile_id, profile_name, time_stamp, ts_sequence, status,   
+diluent, buddy_result_id                                    
+FROM valc_worklist wl, Q109Temp tt                         
+WHERE                                                     
+wl.record_no == tt.record_no                             
+ORDER BY wl.record_no                                   
+
+
+
+LoadReferencedWorklistRelations:
+SELECT wl.record_no, wr.rerun_id, wr.parent_id, wr.motivation 
+FROM c_worklist_relation wr, Q109Temp wl                     
+WHERE wl.record_no in ( wr.rerun_id, wr.parent_id )         
+ORDER BY wl.record_no                                      
+
+
+
+LoadNonLocalResults:
+SELECT bd.barcode, bd.machine_cid, bd.alpha_sample_id,        
+bd.database_name, brf.buddy_result_id, brf.test_id,          
+brf.res_value, brf.action_flag, brf.date_analysed,          
+brf.res_text, brf.update_when, cbw.record_no               
+FROM valc_worklist cbw, buddy_database bd,                
+buddy_result_float_valc brf                              
+WHERE                                                   
+( (brf.cbw_record_no = cbw.record_no)                  
+  or                                                  
+  (brf.buddy_result_id = cbw.buddy_result_id)        
+)                                                   
+and brf.buddy_sample_id = bd.buddy_sample_id       
+and bd.machine_cid != -1019349                    
+and cbw.machine_cid in (-1019349, -1019430)      
+and cbw.status in ('Q','P','C','S','W', 'X')    
+
+
+
+LoadBuddyDatabase:
+SELECT bd.buddy_sample_id, bd.barcode, bd.date_analysed,       
+bd.database_name, bd.alpha_sample_id, bd.machine_cid,         
+brf.buddy_result_id, brf.test_id, brf.res_value,             
+brf.action_flag, brf.date_analysed, brf.res_text,           
+brf.update_when, brf.cbw_record_no, sr.run_id, sr.is_open, 
+sr.created_when, sr.closed_when, sr.sequence_position     
+FROM                                                     
+(                                                       
+    ( buddy_database bd left join buddy_result_float_valc brf  
+      on bd.buddy_sample_id = brf.buddy_sample_id )           
+    left join sample_run sr on bd.sample_run_id = sr.run_id  
+)                                                           
+WHERE                                                      
+bd.machine_cid = -1019349                                 
+AND                                                      
+( ( bd.barcode like 'QC%' ) OR ( bd.alpha_sample_id != 0 ) )   
+AND                                                           
+NVL( sr.fao_level_one, 'y' ) = 'y'                           
+order by NVL( sr.sequence_position, bd.buddy_sample_id )
+
+

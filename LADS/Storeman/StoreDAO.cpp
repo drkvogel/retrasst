@@ -717,18 +717,23 @@ void StoreDAO::loadAliquotTypes( std::vector<ROSETTA>& results )
 
 //---------------------------------------------------------------------------
 
-std::string StoreDAO::prepareSampleQuery( std::string sid, std::string cid, std::string aid )
-{ //box (query to be written )
-	if( sid.length( ) == 0 && cid.length( ) == 0 && aid.length( ) == 0 ) {
-		return "";
+bool StoreDAO::loadCryovials( std::string sid, std::string cid, int aid, std::vector<ROSETTA>& results )
+{
+	results.clear();
+	if( sid.length( ) == 0 && cid.length( ) == 0 && aid == 0 ) {
+		return false;
 	}
 
-	std::string q = "SELECT c.cryovial_id, c.sample_id, s.box_cid, s.cryovial_position, ";
-	q += " s.time_stamp, c.cryovial_barcode, c.aliquot_type_cid ";
-	q += " FROM cryovial_store s, cryovial c, specimen sp ";
-	q += " WHERE s.status = 1 ";
-	q += " AND s.cryovial_id = c.cryovial_id ";
-	q += " AND c.sample_id = sp.sample_id ";
+	std::string q = "SELECT c.cryovial_id, c.sample_id, cs.box_cid, cs.cryovial_position,"
+			" cs.time_stamp, c.cryovial_barcode, c.aliquot_type_cid, sp.barcode, b.external_name as box, "
+			" r.external_name as structure, shelf_number, v.external_full as vessel"
+			" FROM cryovial_store cs, cryovial c, specimen sp, box_name b, box_store bs,"
+			" c_rack_number r, c_tank_map m, c_object_name v "
+			" WHERE cs.status = 1 AND bs.status = 6"	// confirmed
+			" AND cs.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id "
+			" AND b.box_cid = cs.box_cid AND bs.box_cid = cs.box_cid "
+			" AND bs.rack_cid = r.rack_cid AND r.tank_cid = m.tank_cid"
+			" AND m.storage_cid = v.object_cid";
 
 	if( sid.length( ) > 0 ) {
 		q += " AND sp.barcode = '" + sid + "' ";
@@ -738,11 +743,16 @@ std::string StoreDAO::prepareSampleQuery( std::string sid, std::string cid, std:
 		q += " AND c.cryovial_barcode = '" + sid + "' ";
 	}
 
-	if( aid.length( ) > 0 ) {
+	if( aid != 0 ) {
 		q += " AND c.aliquot_type_cid = " + aid;
 	}
 
-	return q;
+	LQuery pQuery = Util::projectQuery( LCDbProjects::getCurrentID(), true );
+	pQuery.setSQL( q.c_str() );
+	for( pQuery.open(); !pQuery.eof(); pQuery.next() ) {
+		results.push_back( pQuery.getRecord() );
+	}
+	return !results.empty();
 }
 
 //---------------------------------------------------------------------------

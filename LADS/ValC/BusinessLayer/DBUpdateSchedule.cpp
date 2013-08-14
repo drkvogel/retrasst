@@ -1,5 +1,9 @@
-#include <algorithm>
+#include "AcquireCriticalSection.h"
+#include <boost/foreach.hpp>
 #include "DBUpdateSchedule.h"
+#include "DBUpdateTaskInsertSampleRun.h"
+#include "DBUpdateTaskUpdateSampleRunID.h"
+#include <set>
 
 namespace valc
 {
@@ -8,47 +12,57 @@ DBUpdateSchedule::DBUpdateSchedule()
 {
 }
 
-bool compare( const SampleRunID& r1, const SampleRunID& r2 )
+DBUpdateSchedule::~DBUpdateSchedule()
 {
-    return r1.toString() < r2.toString();
-}
+    paulst::AcquireCriticalSection a(m_cs);
 
-bool equivalent( const SampleRunID& r1, const SampleRunID& r2 )
-{
-    return r1.toString() == r2.toString();
-}
-
-int DBUpdateSchedule::totalNewSampleRuns() const
-{
-    typedef std::vector< SampleRunID > RunIDs;
-
-    RunIDs newRunIDs;
-
-    for ( std::map< int, SampleRunID >::const_iterator i = m_sampleRunIDUpdates.begin(); i != m_sampleRunIDUpdates.end(); ++i )
     {
-        const SampleRunID runID = i->second;
-        
-        if ( ! runID.existsOnDatabase() ) 
+        BOOST_FOREACH( DBUpdateTask* t, m_updates )
         {
-            newRunIDs.push_back( runID );
+            delete t;
         }
     }
-
-    std::sort( newRunIDs.begin(), newRunIDs.end(), compare );
-
-    RunIDs::iterator newEnd = std::unique( newRunIDs.begin(), newRunIDs.end(), equivalent );
-
-    return std::distance( newRunIDs.begin(), newEnd );
 }
 
-int DBUpdateSchedule::totalUpdatesForSampleRunIDOnBuddyDatabase() const
+DBUpdateTask* DBUpdateSchedule::front() const
 {
-    return m_sampleRunIDUpdates.size();
+    paulst::AcquireCriticalSection a(m_cs);
+
+    {
+        return m_updates.front();
+    }
 }
 
-void DBUpdateSchedule::scheduleUpdate( int forBuddySampleID, const SampleRunID& sampleRunID )
+bool DBUpdateSchedule::noMoreUpdates() const
 {
-    m_sampleRunIDUpdates.insert( std::make_pair( forBuddySampleID, sampleRunID ) );
+    paulst::AcquireCriticalSection a(m_cs);
+
+    {
+        return m_updates.empty();
+    }
+}
+
+void DBUpdateSchedule::pop_front()
+{
+    paulst::AcquireCriticalSection a(m_cs);
+
+    {
+        m_updates.pop_front();
+    }
+}
+
+void DBUpdateSchedule::scheduleUpdate( int forBuddySampleID, const std::string& candidateNewSampleRunID )
+{
+    paulst::AcquireCriticalSection a(m_cs);
+
+    {
+        if ( 0U == m_buddyDatabaseEntriesScheduledForUpdate.count( forBuddySampleID ) )
+        {
+            m_updates.push_front( new DBUpdateTaskInsertSampleRun  ( candidateNewSampleRunID, forBuddySampleID ) );
+            m_updates.push_back ( new DBUpdateTaskUpdateSampleRunID( candidateNewSampleRunID, forBuddySampleID ) );
+            m_buddyDatabaseEntriesScheduledForUpdate.insert( forBuddySampleID );
+        }
+    }
 }
 
 }

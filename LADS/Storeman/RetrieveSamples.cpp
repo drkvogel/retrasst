@@ -61,7 +61,7 @@ void TfrmRetrieved::Retrieve()
 		grdSamples->Cells[0][i+1] = sid.c_str();
 		grdSamples->Cells[1][i+1] = cid.c_str();
 		grdSamples->Cells[2][i+1] = adesc.c_str();
-		qry = StoreDAO::records().prepareSampleQuery(sid, cid, aid);
+//		qry = StoreDAO::records().prepareSampleQuery(sid, cid, aid);
 		if( qry.length() == 0 )
 		{
 			continue;

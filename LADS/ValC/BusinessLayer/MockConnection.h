@@ -2,6 +2,7 @@
 #define MOCKCONNECTIONH
 
 #include "API.h"
+#include <vector>
 
 namespace valc
 {
@@ -18,12 +19,16 @@ public:
     void    setProjects ( const std::string& projects  );
     void    setTestNames( const std::string& testNames );
     void    setWorklist ( const std::string& worklist  );
+    int     totalNewSampleRuns() const;
+    int     totalUpdatesForSampleRunIDOnBuddyDatabase() const;
 private:
     std::string m_clusters,
                 m_projects,
                 m_worklist,
                 m_buddyDB,
                 m_testNames;
+
+    std::vector< std::string > m_updateStmts;
 };
 
 };

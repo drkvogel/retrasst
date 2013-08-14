@@ -4,13 +4,14 @@
 #include <boost/lexical_cast.hpp>
 #include "BuddyDatabase.h"
 #include "ClusterIDs.h"
-#include "ConsoleWriter.h"
+#include "Config.h"
 #include "DBConnectionADO.h"
 #include "DBUpdateSchedule.h"
 #include "AllocateLocalResultsToWorklistEntries.h"
 #include <iterator>
 #include "LoadBuddyDatabase.h"
 #include "LoadClusterIDs.h"
+#include "LoadNonLocalResults.h"
 #include "LoadProjects.h"
 #include "LoadReferencedWorklistEntries.h"
 #include "LoadTestNames.h"
@@ -20,6 +21,7 @@
 #include "Projects.h"
 #include "Require.h"
 #include "ResultIndex.h"
+#include "SampleRunIDResolutionService.h"
 #include "Task.h"
 #include "TestNames.h"
 #include "TestResultIteratorImpl.h"
@@ -34,14 +36,6 @@
 
 namespace valc
 {
-
-DBUpdateStats::DBUpdateStats()
-{
-}
-
-DBUpdateStats::~DBUpdateStats()
-{
-}
 
 Properties::Properties()
 {
@@ -74,7 +68,8 @@ void wait( HANDLE* array, int howMany, ThreadExceptionMsgs* exceptionMsgs )
 	exceptionMsgs->throwFirst();
 }
 
-AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, DBConnection* con )
+AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, DBConnection* con, paulst::LoggingService* log, 
+    const std::string& configString )
 {
 	ResultIndex*        resultIndex        = new ResultIndex();
 	WorklistEntries*    worklistEntries    = new WorklistEntries();
@@ -83,13 +78,14 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
 	TestNames*          testNames          = new TestNames();
 	BuddyDatabase*      buddyDatabase      = NULL;
     DBUpdateSchedule*   dbUpdateSchedule   = new DBUpdateSchedule();
+    std::auto_ptr<SampleRunIDResolutionService> sampleRunIDResolutionService(new SampleRunIDResolutionService());
+    paulst::Config      config(configString);
 	ThreadExceptionMsgs threadExceptionMsgs;
 	HANDLE hArray[3];
-	std::auto_ptr<paulst::LoggingService> log( new paulst::LoggingService( new paulst::ConsoleWriter() ) );
 
-	ThreadTask<LoadProjects>   loadProjectsTask  ( new LoadProjects  ( projects,   log.get(), con ), 					&threadExceptionMsgs );
-	ThreadTask<LoadClusterIDs> loadClusterIDsTask( new LoadClusterIDs( clusterIDs, log.get(), con, localMachineID ), 	&threadExceptionMsgs );
-	ThreadTask<LoadTestNames>  loadTestNamesTask ( new LoadTestNames ( testNames,  log.get(), con ), 					&threadExceptionMsgs );
+	ThreadTask<LoadProjects>   loadProjectsTask  ( new LoadProjects  ( projects,   log, con ), 					&threadExceptionMsgs );
+	ThreadTask<LoadClusterIDs> loadClusterIDsTask( new LoadClusterIDs( clusterIDs, log, con, localMachineID ), 	&threadExceptionMsgs );
+	ThreadTask<LoadTestNames>  loadTestNamesTask ( new LoadTestNames ( testNames,  log, con ), 					&threadExceptionMsgs );
 
 	hArray[0] = loadProjectsTask  .start();
 	hArray[1] = loadClusterIDsTask.start();
@@ -99,12 +95,14 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
 
 	// Task for loading LOCAL analysis activity and LOCAL results
 	ThreadTask<LoadBuddyDatabase> loadBuddyDatabaseTask(
-		new LoadBuddyDatabase( localMachineID, con, log.get(), resultIndex, projects, &buddyDatabase, dbUpdateSchedule ),
+		new LoadBuddyDatabase( localMachineID, con, log, resultIndex, projects, &buddyDatabase, dbUpdateSchedule, 
+            sampleRunIDResolutionService.get(), config.get("LoadBuddyDatabase") ),
 		&threadExceptionMsgs );
 
     // Task for loading LOCAL and CLUSTER worklist entries
 	ThreadTask<LoadWorklistEntries> loadWorklistEntriesTask(
-		new LoadWorklistEntries( clusterIDs, worklistEntries, localMachineID, con, log.get(), resultIndex ),
+		new LoadWorklistEntries( worklistEntries, con, log, resultIndex, config.get( "LoadWorklistEntries" ), 
+            config.get( "LoadWorklistRelations" ) ),
 		&threadExceptionMsgs );
 
 	hArray[0] = loadBuddyDatabaseTask  .start();
@@ -112,25 +110,42 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
 
 	wait( hArray, 2, &threadExceptionMsgs );
 
+    // Task for allocating LOCAL results to worklist entries
+	ThreadTask<AllocateLocalResultsToWorklistEntries> allocateLocalResultsToWorklistEntries(
+		new AllocateLocalResultsToWorklistEntries( localMachineID, clusterIDs, log, worklistEntries, resultIndex, dbUpdateSchedule ),
+		&threadExceptionMsgs );
+
+	hArray[1] = allocateLocalResultsToWorklistEntries.start();
+
+    wait( hArray, 1, &threadExceptionMsgs );
+
     // Task for loading hither-to unloaded worklist entries that are related to already-loaded worklist entries.
     // In other words, where there exists a row in worklist_relation for which only one of the referenced worklist entries has been loaded, 
     // load the other. 
 	ThreadTask<LoadReferencedWorklistEntries> loadReferencedWorklistEntries(
-		new LoadReferencedWorklistEntries( clusterIDs, localMachineID, con, log.get(), worklistEntries, resultIndex ),
+		new LoadReferencedWorklistEntries(      con, 
+                                                log, 
+                                                worklistEntries, 
+                                                resultIndex,
+                                                config.get("RefTempTableName"),
+                                                config.get("LoadReferencedWorklistEntries"),
+                                                config.get("LoadReferencedWorklistRelations") ),
 		&threadExceptionMsgs );
 
-    // Task for allocating LOCAL results to worklist entries
-	ThreadTask<AllocateLocalResultsToWorklistEntries> allocateLocalResultsToWorklistEntries(
-		new AllocateLocalResultsToWorklistEntries( localMachineID, clusterIDs, log.get(), worklistEntries, resultIndex, dbUpdateSchedule ),
-		&threadExceptionMsgs );
+    // Task for loading non-local results for worklist entries loaded by LoadWorklistEntries (above).
+    ThreadTask<LoadNonLocalResults> loadNonLocalResults( 
+        new LoadNonLocalResults( projects, con, log, resultIndex, config.get("LoadNonLocalResults") ),
+        &threadExceptionMsgs );
 
 	hArray[0] = loadReferencedWorklistEntries        .start();
-	hArray[1] = allocateLocalResultsToWorklistEntries.start();
+	hArray[1] = loadNonLocalResults                  .start();
 
 	wait( hArray, 2, &threadExceptionMsgs );
 
-    return new AnalysisActivitySnapshotImpl( clusterIDs, projects, buddyDatabase, log.release(), resultIndex, worklistEntries, testNames,
-        dbUpdateSchedule );
+    resultIndex->removeReferencesToResultsNotLoaded();
+
+    return new AnalysisActivitySnapshotImpl( clusterIDs, projects, buddyDatabase, log, resultIndex, worklistEntries, testNames,
+        dbUpdateSchedule, sampleRunIDResolutionService.release() );
 }
 
 Cursor::Cursor()
@@ -149,12 +164,52 @@ DBConnection::~DBConnection()
 {
 }
 
+DBUpdateExceptionHandlingPolicy::DBUpdateExceptionHandlingPolicy()
+{
+}
+
+DBUpdateExceptionHandlingPolicy::~DBUpdateExceptionHandlingPolicy()
+{
+}
+
 AnalysisActivitySnapshot::AnalysisActivitySnapshot()
 {
 }
 
 AnalysisActivitySnapshot::~AnalysisActivitySnapshot()
 {
+}
+
+BuddyDatabaseEntry::BuddyDatabaseEntry()
+    : buddy_sample_id(0), alpha_sample_id(0)
+{
+}
+
+BuddyDatabaseEntry::BuddyDatabaseEntry( int buddySampleID, int alphaSampleID, const std::string& bcode, const std::string& databaseName,
+    const TDateTime& dateAnalysed )
+    : buddy_sample_id( buddySampleID), alpha_sample_id( alphaSampleID ), barcode( bcode ), database_name( databaseName ),
+    date_analysed( dateAnalysed )
+{
+}
+
+BuddyDatabaseEntry::BuddyDatabaseEntry( const BuddyDatabaseEntry& other )
+    :
+    buddy_sample_id ( other.buddy_sample_id ),
+    alpha_sample_id ( other.alpha_sample_id ),
+    barcode         ( other.barcode ),
+    database_name   ( other.database_name ),
+    date_analysed   ( other.date_analysed )
+{
+}
+
+BuddyDatabaseEntry& BuddyDatabaseEntry::operator=( const BuddyDatabaseEntry& other )
+{
+    buddy_sample_id = other.buddy_sample_id;
+    alpha_sample_id = other.alpha_sample_id;
+    barcode         = other.barcode;
+    database_name   = other.database_name;
+    date_analysed   = other.date_analysed;
+    return *this;
 }
 
 LocalRun::LocalRun()

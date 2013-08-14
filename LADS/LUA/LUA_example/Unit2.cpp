@@ -49,13 +49,14 @@ void __fastcall TForm2::Button1Click(TObject *Sender)
 
     lua_register(L, "getTestResult", getTestResult);
 	/* load the script */
-	luaL_dostring(L, script->Text.c_str());
+	AnsiString scriptTextA( script->Text.c_str() );
+	luaL_dostring(L, scriptTextA.c_str());
 	
 	/* the function name */
 	lua_getglobal(L, "validateTestResult");
 
 	/* the first argument */
-	lua_pushnumber(L, std::atoi( testResult->Text.c_str() ) );
+	lua_pushnumber(L, testResult->Text.ToInt() );
 
 	/* call the function with 1
 	   argument, return 1 result */

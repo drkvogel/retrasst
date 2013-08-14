@@ -10,6 +10,8 @@ namespace valc
 
 class AnalysisActivity;
 class BuddyDatabase;
+class BuddyDatabaseEntryIndex;
+class BuddySampleIDKeyedOnSampleRunID;
 class Cursor;
 class DBUpdateSchedule;
 class Projects;
@@ -36,28 +38,32 @@ class BuddyDatabaseBuilder
 {
 public:
     BuddyDatabaseBuilder( 
-        const Projects* p,                      // input parameter. Used, but not changed.
-        ResultIndex* r,                         // output parameter
-        SampleRuns* sampleRuns,                 // output parameter 
-        SampleRuns* candidateSampleRuns,        // output parameter
-        const SampleRunIDResolutionService* s,  // input parameter. Used but not changed. 
-        DBUpdateSchedule* dbUpdateSchedule
+        const Projects*                     p,                      // input parameter. Used, but not changed.
+        ResultIndex*                        r,                      // output parameter
+        SampleRuns*                         sampleRuns,             // output parameter 
+        SampleRuns*                         candidateSampleRuns,    // output parameter
+        const SampleRunIDResolutionService* s,                      // input parameter. Used but not changed. 
+        DBUpdateSchedule*                   dbUpdateSchedule,
+        BuddySampleIDKeyedOnSampleRunID*    buddySampleIDKeyedOnSampleRunID,
+        BuddyDatabaseEntryIndex*            buddyDatabaseEntryIndex
         );
     bool accept( Cursor* c );
 private:
     char resActionFlag;
-    TDateTime resDateAnalysed, resUpdateWhen, srCreatedWhen, srClosedWhen;
+    TDateTime dateAnalysed, resDateAnalysed, resUpdateWhen, srCreatedWhen, srClosedWhen;
     int buddySampleID, machineID, resID, alphaSampleID, resTestID, resWorklistID, srSequencePosition, srID, srIsOpen;
     std::string barcode, databaseName, sampleDescriptor, resText, sampleRunID;
     float resValue;
     bool hasResult, hasSampleRun;
-    TestResultImpl* result;
-    ResultIndex*        m_resultIndex;
-    const Projects*     m_projects;
-    SampleRuns*         m_sampleRuns;
-    SampleRuns*         m_candidateSampleRuns;
+    TestResultImpl*                     result;
+    ResultIndex*                        m_resultIndex;
+    const Projects*                     m_projects;
+    SampleRuns*                         m_sampleRuns;
+    SampleRuns*                         m_candidateSampleRuns;
     const SampleRunIDResolutionService* m_sampleRunIDResolutionService;
-    DBUpdateSchedule*   m_dbUpdateSchedule;
+    DBUpdateSchedule*                   m_dbUpdateSchedule;
+    BuddySampleIDKeyedOnSampleRunID*    m_buddySampleIDKeyedOnSampleRunID;
+    BuddyDatabaseEntryIndex*            m_buddyDatabaseEntryIndex;
 
     BuddyDatabaseBuilder( const BuddyDatabaseBuilder& );
     BuddyDatabaseBuilder& operator=( const BuddyDatabaseBuilder& );

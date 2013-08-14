@@ -7,168 +7,258 @@
 #include "RetrieveSamples.h"
 #include "showsamples.h"
 #include "StoreDAO.h"
-//---------------------------------------------------------------------------
+#include "LCDbObject.h"
+
 #pragma package(smart_init)
 #pragma resource "*.dfm"
+
 TfrmRetrieveMain *frmRetrieveMain;
+
 //---------------------------------------------------------------------------
+
 __fastcall TfrmRetrieveMain::TfrmRetrieveMain(TComponent* Owner)
 	: TForm(Owner)
-{
-}
+{}
+
 //---------------------------------------------------------------------------
 
 void TfrmRetrieveMain::init()
 {
-	this->ActiveControl = RadIDType;
+	grdSamples->ColCount = COL_COUNT;
+	grdSamples->Cells[SAMPLE][0] = "Sample";
+	grdSamples->Cells[CRYOVIAL][0] = "Cryovial";
+	grdSamples->Cells[ALIQUOT][0] = "Aliquot";
+	grdSamples->Cells[OLD_BOX][0] = "Old Box";
+	grdSamples->Cells[OLD_POS][0] = "Position";
+	grdSamples->Cells[STRUCTURE][0] = "Structure";
+	grdSamples->Cells[SHELF][0] = "Shelf";
+	grdSamples->Cells[VESSEL][0] = "Vessel";
+	grdSamples->Cells[NEW_BOX][0] = "New Box";
+	grdSamples->Cells[NEW_POS][0] = "Position";
 	clearGrid();
-/*	selectedProject = p_selectedProject;
-	projs.loadAll();
-	proj = projs.findProject( selectedProject );
-	ats.loadAll();
-	typelist = ats.getList();
-	for( int i = 0; i < (int) typelist.size(); i++ )
-	{
-		CmbAliquot1->Items->Add( typelist[i]->getName().c_str() );
-		CmbAliquot2->Items->Add( typelist[i]->getName().c_str() );
-	}
-*/
-	grdSamples->Cells[0][0] = "Sample ID";
-	grdSamples->Cells[1][0] = "Cryovial ID";
-	grdSamples->Cells[2][0] = "Aliquot Choice 1";
-	grdSamples->ColWidths[0] = (int)(grdSamples->ClientWidth * 0.33);
-	grdSamples->ColWidths[1] = (int)(grdSamples->ClientWidth * 0.33);
-	grdSamples->ColWidths[2] = (int)(grdSamples->ClientWidth * 0.33);
+	this->ActiveControl = RadIDType;
 }
+
+//---------------------------------------------------------------------------
 
 void TfrmRetrieveMain::clearGrid()
 {
-	for(int i = 1; i < grdSamples->RowCount; i++ )
-		grdSamples->Rows[i]->Clear();
+	int minColWidth = grdSamples->Width / (COL_COUNT + 2);
+	grdSamples->DefaultColWidth = minColWidth;
+	int boxCols = (grdSamples->Width - 40) - (minColWidth * (COL_COUNT - 2));
+	grdSamples->ColWidths[OLD_BOX] = boxCols / 2;
+	grdSamples->ColWidths[NEW_BOX] = boxCols / 2;
 	grdSamples->RowCount = 2;
-
-	rows.clear();
+	grdSamples->Rows[1]->Clear();
 }
+
+//---------------------------------------------------------------------------
 
 void __fastcall TfrmRetrieveMain::AddClick(TObject *Sender)
 {
-//make sure that two different aliquot types are selected in 2 combos
-	//Add data to grid
-	int row = grdSamples->RowCount - 1;
-	if( row <= 0 )
-	{
-		Application->MessageBox(L"Invalid row", L"Info", MB_OK);
+	/// FIXME: check primary aliquot set if sample or cryovial selected
+	/// FIXME: check secondary aliquot doesn't match primary if set
+
+	if( !OpenDialog1->Execute() ) {
 		return;
 	}
-	bool bIncrement = false;
-	Sample* s = NULL;
+	std::unique_ptr< TStrings > idList( new TStringList );
+	idList->LoadFromFile(OpenDialog1->FileName);
 
-	AnsiString sid = ""; //Sample barcode
-	AnsiString cid = ""; //Cryovial barcode
-	AnsiString bid = ""; //box barcode
-	switch (RadIDType->ItemIndex)
-	{
-		case 0: //sample
-			sid = TxtBarcode->Text.Trim();
-			break;
+	int aid = 0;		/// FIXME - primary or secondary
 
-		case 1: //cryovial
-			cid = TxtBarcode->Text.Trim();
-			break;
+	std::vector< ROSETTA > results;
+	StoreDAO & dao = StoreDAO::records();
+	Screen->Cursor = crSQLWait;
+	progress -> Position = 0;
+	progress -> Max = idList->Count;
+	for( int i = 0; i < idList->Count; i++ ) {
+		AnsiString id = idList->Strings[ i ];
+		std::string sid, cid, box;
+		switch (RadIDType->ItemIndex)
+		{
+			case 0: //sample
+				sid = id.c_str();
+				break;
 
-		case 2: //box (query to be written )
-			bid = TxtBarcode->Text.Trim();
-			break;
+			case 1: //cryovial
+				cid = id.c_str();
+				break;
+
+			case 2: //box (query to be written )
+				box = id.c_str();
+				break;
+		}
+		if( !dao.loadCryovials( sid, cid, aid, results ) ) {
+			String error = "No samples found for " + id;
+			Application->MessageBox(error.c_str(), NULL, MB_OK);
+		}
+		for( int i = 0; i < results.size(); i ++ ) {
+			rows.push_back( GridEntry( results[i] ) );
+		}
+		drawGrid();
+		progress -> StepIt();
+		Application -> ProcessMessages();
 	}
+	Screen->Cursor = crDefault;
+}
 
-	if( sid.Length() != 0 )
-	{
-		bIncrement = true;
-	}
+//---------------------------------------------------------------------------
 
-	int index = CmbAliquot1->ItemIndex;
-	std::string adesc = "", aid = "";
-	if( index >= 0 )
-	{
-		if( !bIncrement )
-		{
-			Application->MessageBox(L"Provide sample_id or cryovial_id", L"Info", MB_OK);
-			return;
-		}
-		bIncrement = true;
-//		adesc = typelist[index]->getName();
-//		aid = AnsiString ( typelist[index]->getID() ).c_str();
-	}
-
-	if( bIncrement )
-	{
-		std::string qry = StoreDAO::records().prepareSampleQuery( sid.c_str(), cid.c_str(), aid.c_str());
-//		proj->loadAllSamples( qry );
-//		slist = proj->getSampleList();
-		if( slist.size() == 0 )
-		{
-			Application->MessageBox(L"No samples found", L"Info", MB_OK);
-			return;
-		}
-		else if( slist.size() > 1 )
-		{
-			frmAliquotTypes->init();
-			if( frmAliquotTypes->ShowModal() == mrCancel )
-				return;
-			grdSamples->RowCount++;
-			s = (Sample*) slist[frmAliquotTypes->selrow - 1];
-/*			AliquotType* at;
-			at = frmRetrieveMain->ats.find( s->getAliquot_type() );
-			if( at != NULL )
-			{
-				aid = AnsiString( at->getID() ).c_str();
-				adesc = at->getName();
-			}
-*/
-			TxtBarcode->Text = "";
-			grdSamples->Cells[2][row] = adesc.c_str();
-			CmbAliquot1->ItemIndex = -1;
-
-			if( RadIDType->ItemIndex == 0 )
-			{
-				grdSamples->Cells[0][row] = sid;
-				grdSamples->Cells[1][row] = "";
-				rows.push_back( GridEntry(s->getName(), "", aid, adesc, selectedProject) );
-			}
-			else if( RadIDType->ItemIndex == 1 )
-			{
-				grdSamples->Cells[0][row] = "";
-				grdSamples->Cells[1][row] = cid;
-				rows.push_back( GridEntry( "", cid.c_str(), aid, adesc, selectedProject) );
-			}
-
-			return;
-		}
-
-		TxtBarcode->Text = "";
-//		grdSamples->Cells[2][row] = typelist[index]->getName().c_str();
-		CmbAliquot1->ItemIndex = -1;
-		s = (Sample*) slist[0];
-		if( RadIDType->ItemIndex == 0 )
-		{
-			grdSamples->Cells[0][row] = sid;
-			grdSamples->Cells[1][row] = "";
-			rows.push_back( GridEntry(s->getName(), "", aid, adesc, selectedProject) );
-		}
-		else if( RadIDType->ItemIndex == 1 )
-		{
-			grdSamples->Cells[0][row] = "";
-			grdSamples->Cells[1][row] = cid;
-			rows.push_back( GridEntry("", cid.c_str(), aid, adesc, selectedProject) );
-		}
-		grdSamples->RowCount++;
+void TfrmRetrieveMain::drawGrid()
+{
+	for( int i = 0; i < rows.size(); i ++ ) {
+		int row = i + 1;
+		grdSamples->Cells[SAMPLE][row] = rows[i].sid.c_str();
+		grdSamples->Cells[CRYOVIAL][row] = rows[i].cid.c_str();
+		grdSamples->Cells[ALIQUOT][row] = rows[i].aid;
+		grdSamples->Cells[OLD_BOX][row] = rows[i].old_box.c_str();
+		grdSamples->Cells[OLD_POS][row] = rows[i].old_pos;
+		grdSamples->Cells[NEW_BOX][row] = rows[i].new_box.c_str();
+		grdSamples->Cells[NEW_POS][row] = rows[i].new_pos;
+		grdSamples->Cells[STRUCTURE][row] = rows[i].structure.c_str();
+		grdSamples->Cells[SHELF][row] = rows[i].shelf;
+		grdSamples->Cells[VESSEL][row] = rows[i].vessel.c_str();
+		grdSamples->RowCount = row + 1;
 	}
 }
+
 //---------------------------------------------------------------------------
+
+TfrmRetrieveMain::GridEntry::GridEntry( const ROSETTA & row )
+: sid(row.getString("barcode")),
+ cid(row.getString("cryovial_barcode")),
+ aid(row.getInt("aliquot_type_cid")),
+ old_pos(row.getInt("cryovial_position")),
+ old_box(row.getString("box")),
+ shelf(row.getInt("shelf_number")),
+ vessel(row.getString("vessel")),
+ structure(row.getString("structure")),
+ new_pos( 0 )
+{}
+
+//---------------------------------------------------------------------------
+
 void __fastcall TfrmRetrieveMain::Retrieve(TObject *Sender)
 {
 	frmRetrieved->init( NULL );
 	frmRetrieved->ShowModal();
 }
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::cbaDropDown(TObject *Sender)
+{
+	TComboBox * cb = dynamic_cast< TComboBox * >( Sender );
+	if( cb ) {
+		cb->Clear();
+		for( Range< LCDbObject > at = LCDbObjects::records(); at.isValid(); ++ at ) {
+			if( at -> isActive() && at -> getObjectType() == LCDbObject::ALIQUOT_TYPE ) {
+				cb->Items->Add( at -> getName().c_str() );
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::cbProjectChange(TObject *Sender)
+{
+	LCDbProjects &projList = LCDbProjects::records( );
+	AnsiString proj = cbProject->Text;
+	const LCDbProject *selected = projList.findByName( proj.c_str() );
+	if( selected != NULL ) {
+		projList.setCurrent( *selected );
+	}
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::cbProjectDropDown(TObject *Sender)
+{
+	int selected = -1;
+	for( Range< LCDbProject >pr = LCDbProjects::records( ); pr.isValid( ); ++pr ) {
+		if( pr->isValid( ) && pr->isActive( ) && !pr->isCentral( ) ) {
+			if( pr->getID( ) == LCDbProjects::getCurrentID( ) ) {
+				selected = cbProject->Items->Count;
+			}
+			cbProject->Items->Add( pr->getName( ).c_str( ) );
+		}
+	}
+	cbProject->ItemIndex = selected;
+}
+
+//---------------------------------------------------------------------------
+
+typedef const TfrmRetrieveMain::GridEntry & GER;
+static bool compareSample( GER i, GER j ) { return i.sid < j.sid; }
+static bool compareCryovial( GER i, GER j ) { return i.cid < j.cid; }
+static bool compareBox( GER i, GER j ) { return i.old_box < j.old_box; }
+static bool compareShelf( GER i, GER j ) { return i.shelf < j.shelf; }
+static bool compareVessel( GER i, GER j ) { return i.vessel < j.vessel; }
+static bool compareStructure( GER i, GER j ) { return i.structure < j.structure; }
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::grdSamplesFixedCellClick(TObject *Sender, int ACol, int ARow)
+{
+	bool (*compare)( GER, GER );
+	switch( ACol ) {
+		case SAMPLE:
+			compare = compareSample;
+			break;
+		case CRYOVIAL:
+			compare = compareCryovial;
+			break;
+		case OLD_BOX:
+			compare = compareBox;
+			break;
+		case VESSEL:
+			compare = compareVessel;
+			break;
+		case SHELF:
+			compare = compareShelf;
+			break;
+		case STRUCTURE:
+			compare = compareStructure;
+			break;
+		default:
+			return;
+	}
+	std::sort( rows.begin(), rows.end(), compare );
+    drawGrid();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::FormResize(TObject *Sender)
+{
+	clearGrid();
+	drawGrid();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::BtnDestClick(TObject *Sender)
+{
+	AnsiString proj = cbProject->Text;
+
+	// fixme - get new ID and (probably) box type
+	int boxID = 12345, pos = 1;
+
+	char box_name[ 90 ];
+	for( int i = 0; i < rows.size(); i ++ ) {
+		std::sprintf( box_name, "%s %d", proj.c_str(), boxID );
+		rows[i].new_box = box_name;
+		rows[i].new_pos = pos;
+		if( pos == 100 ) {	// fixme: check box size
+			boxID ++; pos = 1;
+		} else {
+			pos ++;
+		}
+	}
+	drawGrid();
+}
+
 //---------------------------------------------------------------------------
 

@@ -2,7 +2,6 @@
 #define TESTRESULTIMPLH
 
 #include "API.h"
-#include "SampleRunID.h"
 
 namespace valc
 {
@@ -13,10 +12,10 @@ public:
     TestResultImpl(
         char actionFlag,
         const std::string& sampleDescriptor,
-        TDateTime& dateAnalysed,
+        const TDateTime& dateAnalysed,
         int machineID,
         int resultID,
-        const SampleRunID& sampleRunID,
+        const std::string& sampleRunID,
         int testID,
         float resultValue );
     ~TestResultImpl();
@@ -34,7 +33,7 @@ private:
     const TDateTime     m_dateAnalysed;
     const int           m_machineID;
     const int           m_resultID;
-    const SampleRunID   m_sampleRunID;
+    const std::string   m_sampleRunID;
     const int           m_testID;
     const float         m_resultValue;
 

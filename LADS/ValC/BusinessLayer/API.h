@@ -7,6 +7,8 @@
 #include "IntList.h"
 #include <map>
 #include <string>
+#include "StringBuilder.h"
+#include <SysUtils.hpp>
 #include <vector>
 
 namespace paulst
@@ -87,6 +89,20 @@ private:
     Cursor( const Cursor& );
     Cursor& operator=( const Cursor& );
 };
+
+template<typename T>
+T read( Cursor& c, int col, bool tolerateNull = false )
+{
+    if ( (!tolerateNull) && c.isNull( col ) )
+    {
+        std::string msg = std::string("Null value obtained for column ") << col << ".";
+        throw Exception( UnicodeString( msg.c_str() ) );
+    }
+
+    T t;
+    c.read( col, t );
+    return t;
+}
 
 /*
     Abstract representation of a connection to a database that 
@@ -241,6 +257,8 @@ class WorklistEntryIteratorImpl;
     Dereferencing a WorklistEntryIterator 
     yields the following datatype: const WorklistEntry*
     Do NOT delete the WorklistEntry instances exposed in this way.
+    The exposted instances of WorklistEntry have the same lifetime as 
+    the AnalysisActivitySnapshot from which they are obtained.
 
     Increment a WorklistEntryIterator in order to 
     access the next WorklistEntry in the sequence.
@@ -264,20 +282,41 @@ private:
 };
 
 /*
-    This interface primarly exists for unit testing and debug purposes.
+    API users must implement this policy and pass it as a parameter in order to
+    'enableDatabaseUpdates' on AnalysisActivitySnapshot.
 */
-class DBUpdateStats
+class DBUpdateExceptionHandlingPolicy
 {
 public:
-    DBUpdateStats();
-    virtual ~DBUpdateStats();
-    virtual int totalNewSampleRuns()                        const = 0;
-    virtual int totalUpdatesForSampleRunIDOnBuddyDatabase() const = 0;
-private:
-    DBUpdateStats( const DBUpdateStats& );
-    DBUpdateStats& operator=( const DBUpdateStats& );
+    DBUpdateExceptionHandlingPolicy();
+    virtual ~DBUpdateExceptionHandlingPolicy();
+    /*
+        Implement this method to explain that there has been a database update failure.
+        Note that callbacks on this method are asynchronous, from a different thread.
+        Implementations should not block the thread. e.g. consider using 'PostMessage'
+        or some other asynchronous technique in order not to tie up the calling thread.
+    */
+    virtual void handleException( const std::string& msg ) = 0;
 };
 
+
+/*
+    Describes a row in the buddy_database table.
+*/
+struct BuddyDatabaseEntry
+{
+    int buddy_sample_id, alpha_sample_id;
+    std::string barcode, database_name;
+    TDateTime date_analysed;
+    
+    BuddyDatabaseEntry();
+    BuddyDatabaseEntry( int buddySampleID, int alphaSampleID, const std::string& bcode, const std::string& databaseName,
+        const TDateTime& dateAnalysed );
+    BuddyDatabaseEntry( const BuddyDatabaseEntry& );
+    BuddyDatabaseEntry& operator=( const BuddyDatabaseEntry& );
+};
+
+typedef std::vector<BuddyDatabaseEntry> BuddyDatabaseEntries;
 
 /*  
     AnalysisActivitySnapshot is the model of which the ValC
@@ -320,24 +359,50 @@ class AnalysisActivitySnapshot
 public:
     AnalysisActivitySnapshot();
     virtual ~AnalysisActivitySnapshot();
-    virtual LocalEntryIterator              localBegin()                                                const = 0;
-    virtual LocalEntryIterator              localEnd()                                                  const = 0;
-    virtual QueuedSampleIterator            queueBegin()                                                const = 0;
-    virtual QueuedSampleIterator            queueEnd()                                                  const = 0;
+    /*
+        A thread updates the database following the loading of a snapshot.
+        This thread doesn't run automatically, but only when this method is called.
+        Parameters:
+            - the connection on which updates should be performed
+                (might be the same as the connection used to load the snapshot).
+            - an implementation of DBUpdateExceptionHandlingPolicy
+                (e.g. to show a message to the user). Note that callbacks on
+                this policy will be asynchronous, from a background thread.
+            - whether the method should block until all updates have been performed, or allow 
+                updates to continue in the background
+    */
+    virtual void runPendingDatabaseUpdates( DBConnection* c, DBUpdateExceptionHandlingPolicy* p, bool block ) = 0;
+    /*
+        How to test that a TestResult is associated with a particular LocalRun? 
+        The only way to find out is to use this method, supplying the runID of the LocalRun
+        and the sampleRunID of the TestResult. ie
+            compareSampleRunIDs( myTestResult.getSampleRunID(), myLocalRun.getRunID() );
+    */
+    virtual bool compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID )        const = 0;
+    virtual LocalEntryIterator              localBegin()                                                    const = 0;
+    virtual LocalEntryIterator              localEnd()                                                      const = 0;
+    virtual QueuedSampleIterator            queueBegin()                                                    const = 0;
+    virtual QueuedSampleIterator            queueEnd()                                                      const = 0;
     /*
         Returns a pair of iterators that describe the set 
         of worklist entries that are associated with 
         the specified sample.
     */
-    virtual Range<WorklistEntryIterator>    getWorklistEntries( const std::string& sampleDescriptor )   const = 0;
+    virtual Range<WorklistEntryIterator>    getWorklistEntries( const std::string& sampleDescriptor )       const = 0;
     /*
         Returns the (short) name for the specified test.
+        Implementatin uses a cache and is therefore efficient and cheap.
     */
-    virtual std::string                     getTestName( int testID )                                   const = 0;
+    virtual std::string                     getTestName( int testID )                                       const = 0;
     /*
-        For debug and unit-testing purposes.
+        A diagnostic method for identifying the rows in buddy_database that are associated with 
+        the specified sample-run.
+
+        The original motivation for this method was that sometimes a LocalRun has no worklist entries 
+        associated with it.  In such cases, the interface can only show a blank entry for the LocalRun.
+        In such cases, it would be useful to know more.
     */
-    virtual const DBUpdateStats*            getDBUpdateStats()                                          const = 0;
+    virtual BuddyDatabaseEntries            listBuddyDatabaseEntriesFor( const std::string& sampleRunID )   const = 0;
 private:
     AnalysisActivitySnapshot( const AnalysisActivitySnapshot& );
     AnalysisActivitySnapshot& operator=( const AnalysisActivitySnapshot& );
@@ -356,7 +421,27 @@ class ResultIndex;
 class SnapshotFactory
 {
 public:
-    static AnalysisActivitySnapshot* load( int localMachineID, int user, DBConnection* c );
+    /*
+    Parameters:
+        localMachineID the ID of the local analyser
+        user            the ID of the user
+        c               connection for querying the central database (for worklist entries, results, sample-runs...)
+        log             a logging service
+        configString    configuration. Load config.txt into a string. e.g. (in paulst/StrUtil.h) loadContentsOf("config.txt")
+
+    Use DBConnectionFactory to create an instance of DBConnection. Deleting connection before obtaining an instance of
+    AnalysisActivitySnapshot will result in unpredictable behaviour.
+
+    Deleting the log instance before deleting the obtained instance of AnalysisActivitySnapshot will result in 
+    unpredictable behaviour.
+
+    Example of how to create an instance of LoggingService:
+
+        paulst::LoggingService* log = new paulst::LoggingService( new paulst::ConsoleWriter() );
+
+    */
+    static AnalysisActivitySnapshot* load( int localMachineID, int user, DBConnection* c, paulst::LoggingService* log,
+    const std::string& configString );
 private:
     SnapshotFactory();
 };
@@ -391,6 +476,8 @@ class TestResultIteratorImpl;
     Dereferencing a TestResultIterator 
     yields the following datatype: const TestResult*
     Do NOT delete the TestResult instances exposed in this way.
+    The exposted instances of TestResult have the same lifetime as 
+    the AnalysisActivitySnapshot from which they are obtained.
 
     Increment a TestResultIterator in order to 
     access the next TestResult in the sequence.
