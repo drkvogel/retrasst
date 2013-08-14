@@ -29,6 +29,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Top = 15
       Width = 654
       Height = 409
+      Margins.Bottom = 10
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
@@ -37,8 +38,10 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goColSizing, goRowSelect]
       TabOrder = 0
+      OnClick = sgJobsClick
       OnDblClick = sgJobsDblClick
       OnDrawCell = sgJobsDrawCell
+      ExplicitLeft = 3
       ColWidths = (
         196
         64
@@ -205,6 +208,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Align = alBottom
       ScrollBars = ssVertical
       TabOrder = 2
+      Visible = False
     end
   end
 end

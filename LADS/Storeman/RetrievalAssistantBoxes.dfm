@@ -224,9 +224,8 @@ object frmBoxes: TfrmBoxes
       Width = 709
       Height = 89
       Align = alBottom
-      Lines.Strings = (
-        'memoDebug')
       TabOrder = 1
+      Visible = False
     end
   end
   object timerCustomRows: TTimer

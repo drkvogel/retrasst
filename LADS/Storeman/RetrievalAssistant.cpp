@@ -180,12 +180,17 @@ Sample retrieval
 
 */
 
-void TfrmRetrievalAssistant::init() {
-    cbLog->Visible = RETRASSTDEBUG;
-    memoDebug->Visible = RETRASSTDEBUG;
-    setupStringGrid(sgJobs, SGJOBS_NUMCOLS, sgJobsColName, sgJobsColWidth);
-    loadJobs();
-}
+void __fastcall TfrmRetrievalAssistant::cbLogClick(TObject *Sender) { memoDebug->Visible = cbLog->Checked; }
+void __fastcall TfrmRetrievalAssistant::btnExitClick(TObject *Sender) { Close(); }
+void __fastcall TfrmRetrievalAssistant::cbNewJobClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbInProgressClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbDoneClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbDeletedClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbBoxRetrievalClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbSampleRetrievalClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbBoxMoveClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbBoxDiscardClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbSampleDiscardClick(TObject *Sender) { loadJobs(); }
 
 void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
 /* clSilver clMoneyGreen  clGray  clSkyBlue
@@ -228,7 +233,6 @@ enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, 
             background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
     }
-
     TCanvas * cnv = sgJobs->Canvas;
 	cnv->Brush->Color = background;
 	cnv->FillRect(Rect);
@@ -246,17 +250,38 @@ enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, 
     }
 }
 
-void __fastcall TfrmRetrievalAssistant::cbLogClick(TObject *Sender) { memoDebug->Visible = cbLog->Checked; }
-void __fastcall TfrmRetrievalAssistant::btnExitClick(TObject *Sender) { Close(); }
-void __fastcall TfrmRetrievalAssistant::cbNewJobClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbInProgressClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbDoneClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbDeletedClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbBoxRetrievalClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbSampleRetrievalClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbBoxMoveClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbBoxDiscardClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbSampleDiscardClick(TObject *Sender) { loadJobs(); }
+std::string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
+    if (0 == project_cid) return "Project not specified";
+    try {
+        return LCDbProjects::records().get(project_cid).getName().c_str();
+    } catch (...) {
+        std::ostringstream oss; oss<<"Project ID "<<project_cid<<" not found"; return oss.str();
+    }
+}
+
+std::string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_cid) { // c_object_name 6: aliquot type?
+    std::ostringstream oss;
+    if (0 == primary_aliquot_cid) return "Aliquot not specified";
+    try {
+        const LCDbObject * primary_aliquot = LCDbObjects::records().findByID(primary_aliquot_cid);
+        oss << primary_aliquot->getName().c_str();
+    } catch (...) {
+        oss << "Aliquot ID "<<primary_aliquot_cid<<" not found";
+    }
+    return oss.str();
+}
+
+std::string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
+    // c_audit_trail
+    //LCDbCryoJob::getUserID()
+    return "";
+}
+
+void TfrmRetrievalAssistant::init() {
+    cbLog->Visible = RETRASSTDEBUG;
+    setupStringGrid(sgJobs, SGJOBS_NUMCOLS, sgJobsColName, sgJobsColWidth);
+    loadJobs();
+}
 
 void TfrmRetrievalAssistant::loadJobs() {
     Screen->Cursor = crSQLWait;
@@ -309,33 +334,6 @@ std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { /
     return oss.str();
 }
 
-std::string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
-    if (0 == project_cid) return "Project not specified";
-    try {
-        return LCDbProjects::records().get(project_cid).getName().c_str();
-    } catch (...) {
-        std::ostringstream oss; oss<<"Project ID "<<project_cid<<" not found"; return oss.str();
-    }
-}
-
-std::string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_cid) { // c_object_name 6: aliquot type?
-    std::ostringstream oss;
-    if (0 == primary_aliquot_cid) return "Aliquot not specified";
-    try {
-        const LCDbObject * primary_aliquot = LCDbObjects::records().findByID(primary_aliquot_cid);
-        oss << primary_aliquot->getName().c_str();
-    } catch (...) {
-        oss << "Aliquot ID "<<primary_aliquot_cid<<" not found";
-    }
-    return oss.str();
-}
-
-std::string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
-    // c_audit_trail
-    //LCDbCryoJob::getUserID()
-    return "";
-}
-
 void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
     switch (job->getStatus()) {
@@ -375,3 +373,10 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
         throw Exception("Unknown status");
     }
 }
+
+void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
+    ostringstream oss; oss << __FUNC__;
+    oss << printColWidths(sgJobs); // so we can copy them into the source
+    debugLog(oss.str().c_str());
+}
+

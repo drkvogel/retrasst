@@ -105,7 +105,7 @@ public:
 //            return a.position < b.position;
 //        }
 //    } sort1;
-//    bool less_than(const SampleRow &a, const SampleRow &b) { return a.position < b.position; }
+    bool less_than(const SampleRow &a, const SampleRow &b) { return a.position < b.position; }
 //
 //    enum SortType {
 //        SORT1,

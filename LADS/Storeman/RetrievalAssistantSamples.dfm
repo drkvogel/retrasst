@@ -74,7 +74,6 @@ object frmSamples: TfrmSamples
         Caption = '+'
         TabOrder = 2
         OnClick = btnIncrClick
-        ExplicitTop = 100
       end
       object btnDecr: TButton
         Left = 0
@@ -85,7 +84,6 @@ object frmSamples: TfrmSamples
         Caption = '-'
         TabOrder = 3
         OnClick = btnDecrClick
-        ExplicitTop = 125
       end
       object btnAutoChunk: TButton
         Left = 0
@@ -230,7 +228,7 @@ object frmSamples: TfrmSamples
       Align = alBottom
       ScrollBars = ssVertical
       TabOrder = 1
-      ExplicitTop = 210
+      Visible = False
     end
   end
   object timerCustomRows: TTimer

@@ -372,5 +372,5 @@ void TfrmSamples::sortList(int sortType) {
     //std::sort(vials.begin(), vials.end(), SampleRow::less_than);
 
 
-    // std::sort( rackList.begin(), rackList.end(), Rack::less_than );
+    //std::sort( rackList.begin(), rackList.end(), Rack::less_than );
 }

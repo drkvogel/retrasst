@@ -41,32 +41,19 @@ void clearGridSelection(TStringGrid * sg) { // put this in storeutil?
 
 void clearSG(TStringGrid * sg) { // put this in storeutil?
     clearGridSelection(sg);
-    sg->FixedRows = 0;
-    sg->RowCount = 0;
-    sg->RowCount = 2;
-    sg->FixedRows = 1;
-    for (int i = 0; i < sg->ColCount; i++) {
-        sg->Cells[i][1] = "";
-        sg->Objects[i][1] = NULL;
-    }
+    sg->FixedRows = 0; sg->RowCount = 0; sg->RowCount = 2; sg->FixedRows = 1;
+    for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
     sg->Cells[0][1] = "No results.";
 }
 
 void setupStringGrid(TStringGrid * sg, const int cols, const char * colnames[], const int colwidths[]) {
     sg->ColCount = cols;
-    for (int i=0; i<cols; i++) {
-        sg->Cells[i][0]    = colnames[i];
-        sg->ColWidths[i]   = colwidths[i];
-    }
+    for (int i=0; i<cols; i++) { sg->Cells[i][0] = colnames[i]; sg->ColWidths[i] = colwidths[i]; }
 }
 
 std::string printColWidths(TStringGrid * sg) {
-    std::ostringstream oss; //oss << __FUNC__;
-    oss << sg->Name.c_str() << ": {";
-    for (int i=0; i<sg->ColCount; i++) {
-        oss << sg->ColWidths[i] << ", ";
-    }
-    oss << "}";
+    std::ostringstream oss;
+    oss << sg->Name.c_str() << ": {"; for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; } oss << "}";
     return oss.str();
 }
 
@@ -90,7 +77,8 @@ typedef std::vector< Chunk * >  vecpChunk;
 // jobs grid setup
 enum { SGJOBS_DESCRIP, SGJOBS_JOBTYPE, SGJOBS_STATUS, SGJOBS_PRIMARY, SGJOBS_PROJECT, SGJOBS_REASON, SGJOBS_TIMESTAMP, SGJOBS_NUMCOLS };
 static const char * sgJobsColName[SGJOBS_NUMCOLS]   = { "Description", "Job type", "Status", "Primary Aliquot", "Project", "Reason", "Timestamp" };
-static const int    sgJobsColWidth[SGJOBS_NUMCOLS]  = { 200, 120, 100, 200, 100, 200, 100 };
+//static const int    sgJobsColWidth[SGJOBS_NUMCOLS]  = { 200, 120, 100, 200, 100, 200, 100 };
+static const int    sgJobsColWidth[SGJOBS_NUMCOLS]  = {401, 113, 72, 109, 100, 229, 127 };
 
 static const char * jobStatusString(short status) {
     static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Deleted" };
@@ -136,6 +124,7 @@ __published:
     void __fastcall cbBoxDiscardClick(TObject *Sender);
     void __fastcall cbSampleDiscardClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
+    void __fastcall sgJobsClick(TObject *Sender);
 private:
     void debugLog(String s);
     tdvecpJob vecJobs;
