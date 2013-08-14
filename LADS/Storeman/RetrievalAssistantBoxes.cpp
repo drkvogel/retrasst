@@ -56,14 +56,16 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     memoDebug->Visible  = RETRASSTDEBUG;
     job                 = NULL;
     numrows             = DEFAULT_NUMROWS;
-    sgChunks->Cells[SGCHUNKS_COL_SECTION]   [0] = "Section";
-    sgChunks->Cells[SGCHUNKS_COL_START]     [0] = "Start";
-    sgChunks->Cells[SGCHUNKS_COL_END]       [0] = "End";
-    sgChunks->Cells[SGCHUNKS_COL_SIZE]      [0] = "Size";
-    sgChunks->ColWidths[SGCHUNKS_COL_SECTION]   = 100;
-    sgChunks->ColWidths[SGCHUNKS_COL_START]     = 100;
-    sgChunks->ColWidths[SGCHUNKS_COL_END]       = 100;
-    sgChunks->ColWidths[SGCHUNKS_COL_SIZE]      = 100;
+    setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
+
+//    sgChunks->Cells[SGCHUNKS_SECTION]   [0] = "Section";
+//    sgChunks->Cells[SGCHUNKS_START]     [0] = "Start";
+//    sgChunks->Cells[SGCHUNKS_END]       [0] = "End";
+//    sgChunks->Cells[SGCHUNKS_SIZE]      [0] = "Size";
+//    sgChunks->ColWidths[SGCHUNKS_COL_SECTION]   = 100;
+//    sgChunks->ColWidths[SGCHUNKS_COL_START]     = 100;
+//    sgChunks->ColWidths[SGCHUNKS_COL_END]       = 100;
+//    sgChunks->ColWidths[SGCHUNKS_COL_SIZE]      = 100;
     radbutDefault->Caption = DEFAULT_NUMROWS;
 }
 
@@ -150,13 +152,13 @@ void __fastcall TfrmBoxes::sgChunksSetEditText(TObject *Sender, int ACol, int AR
         return;
     }
     switch (ACol) {
-    case SGCHUNKS_COL_SECTION:
+    case SGCHUNKS_SECTION:
         break;
-    case SGCHUNKS_COL_START:
+    case SGCHUNKS_START:
         break;
-    case SGCHUNKS_COL_END:
+    case SGCHUNKS_END:
         break;
-    case SGCHUNKS_COL_SIZE:
+    case SGCHUNKS_SIZE:
         break;
     default:
         break;
@@ -240,10 +242,10 @@ void TfrmBoxes::showChunks() {
     int row = 1;
     for (it = chunks.begin(); it != chunks.end(); it++, row++) {
         Chunk * chunk = *it;
-        sgChunks->Cells[SGCHUNKS_COL_SECTION]   [row] = chunk->section;
-        sgChunks->Cells[SGCHUNKS_COL_START]     [row] = chunk->start;
-        sgChunks->Cells[SGCHUNKS_COL_END]       [row] = chunk->end;
-        sgChunks->Cells[SGCHUNKS_COL_SIZE]      [row] = chunk->end - chunk->start;
+        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
+        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start;
+        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end;
+        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = chunk->end - chunk->start;
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
 }
@@ -319,6 +321,32 @@ void TfrmBoxes::loadRows() {
 
     Screen->Cursor = crDefault;
 }
+
+/* sample showRows():
+
+    if (vials.size() <= 0) {
+        clearSG(sgVials);
+    } else {
+        //sgVials->RowCount = vials.size() + 1;
+        sgVials->RowCount = (-1 == numrows) ? vials.size() + 1 : numrows + 1;
+        sgVials->FixedRows = 1;
+    }
+    int row = 1;
+    vecpSampleRow::const_iterator it;
+    for (it = vials.begin(); it != vials.end(); it++, row++) {
+        pSampleRow sampleRow = *it;
+        LPDbCryovialStore * vial = sampleRow->store_record;
+        sgVials->Cells[SGVIALS_BARCODE][row] = sampleRow->cryovial_barcode.c_str();
+        sgVials->Cells[SGVIALS_DESTBOX][row] = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_DESTPOS][row] = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_CURRBOX][row] = sampleRow->box_name.c_str();
+        sgVials->Cells[SGVIALS_CURRPOS][row] = sampleRow->position;
+        sgVials->Cells[SGVIALS_STRUCTURE][row] = sampleRow->vessel_name.c_str(); //??
+        sgVials->Cells[SGVIALS_LOCATION][row] = sampleRow->site_name.c_str();
+        sgVials->Objects[0][row] = (TObject *)sampleRow;
+        if (-1 != numrows && row >= numrows) break;
+    }
+*/
 
 void TfrmBoxes::showRows() {
     int row = 1;

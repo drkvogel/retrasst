@@ -175,10 +175,10 @@ void TfrmSamples::showChunks() {
     int row = 1;
     for (it = chunks.begin(); it != chunks.end(); it++, row++) {
         Chunk * chunk = *it;
-        sgChunks->Cells[SGCHUNKS_COL_SECTION]   [row] = chunk->section;
-        sgChunks->Cells[SGCHUNKS_COL_START]     [row] = chunk->start;
-        sgChunks->Cells[SGCHUNKS_COL_END]       [row] = chunk->end;
-        sgChunks->Cells[SGCHUNKS_COL_SIZE]      [row] = chunk->end - chunk->start;
+        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
+        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start;
+        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end;
+        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = chunk->end - chunk->start;
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
 }
@@ -295,11 +295,14 @@ void TfrmSamples::loadRows() {
     Screen->Cursor = crDefault;
 }
 
+/* SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
+               string site, int pos, string vessel, int shelf, string rack, int slot) :  */
 void TfrmSamples::showRows() {
     if (vials.size() <= 0) {
         clearSG(sgVials);
     } else {
-        sgVials->RowCount = vials.size() + 1;
+        //sgVials->RowCount = vials.size() + 1;
+        sgVials->RowCount = (-1 == numrows) ? vials.size() + 1 : numrows + 1;
         sgVials->FixedRows = 1;
     }
     int row = 1;
@@ -307,8 +310,6 @@ void TfrmSamples::showRows() {
     for (it = vials.begin(); it != vials.end(); it++, row++) {
         pSampleRow sampleRow = *it;
         LPDbCryovialStore * vial = sampleRow->store_record;
-/* SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
-               string site, int pos, string vessel, int shelf, string rack, int slot) :  */
         sgVials->Cells[SGVIALS_BARCODE][row] = sampleRow->cryovial_barcode.c_str();
         sgVials->Cells[SGVIALS_DESTBOX][row] = "tba"; //sampleRow->;
         sgVials->Cells[SGVIALS_DESTPOS][row] = "tba"; //sampleRow->;
@@ -317,7 +318,7 @@ void TfrmSamples::showRows() {
         sgVials->Cells[SGVIALS_STRUCTURE][row] = sampleRow->vessel_name.c_str(); //??
         sgVials->Cells[SGVIALS_LOCATION][row] = sampleRow->site_name.c_str();
         sgVials->Objects[0][row] = (TObject *)sampleRow;
-        if (row >= numrows) break;
+        if (-1 != numrows && row >= numrows) break;
     }
 }
 
@@ -333,8 +334,7 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
     //
 }
 
-void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) {
-    // sort by column
+void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     switch (ACol) {
     case SGVIALS_BARCODE:
         sortList(SampleRow::SORT_BY_BARCODE);  break;
@@ -357,7 +357,6 @@ void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, in
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) { // print current column widths
     ostringstream oss; oss << __FUNC__;
-    oss << " ok";
     oss << printColWidths(sgVials); // so we can copy them into the source
     debugLog(oss.str().c_str());
 }
@@ -370,15 +369,11 @@ void TfrmSamples::sortList(int sortType) {
 
     switch (sortType) {
     case SampleRow::SORT_BY_LOCATION:
-        std::sort(vials.begin(), vials.end(), SampleRow::less_than_location);
-        break;
+        std::sort(vials.begin(), vials.end(), SampleRow::less_than_location); break;
     case SampleRow::SORT_BY_BARCODE:
-        std::sort(vials.begin(), vials.end(), SampleRow::less_than_barcode);
-        break;
+        std::sort(vials.begin(), vials.end(), SampleRow::less_than_barcode);  break;
     case SampleRow::SORT_BY_CURRBOX:
-        std::sort(vials.begin(), vials.end(), SampleRow::less_than_currbox);
-        //std::sort(vials.begin(), vials.end(), SampleRow::less_than);
-        break;
+        std::sort(vials.begin(), vials.end(), SampleRow::less_than_currbox);  break;
     default:
         throw Exception("Unknown sortType");
     }

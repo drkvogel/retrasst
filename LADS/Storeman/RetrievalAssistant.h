@@ -19,10 +19,6 @@ const bool RETRASSTDEBUG =
 #endif
 
 #define DEFAULT_NUMROWS 25
-#define SGCHUNKS_COL_SECTION    0
-#define SGCHUNKS_COL_START      1
-#define SGCHUNKS_COL_END        2
-#define SGCHUNKS_COL_SIZE       3
 
 #define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
 #define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
@@ -62,7 +58,7 @@ std::string printColWidths(TStringGrid * sg) {
 // chunk stringgrid setup
 enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
 static const char * sgChunksColName[SGCHUNKS_NUMCOLS]   = { "Section", "Start", "End", "Size" };
-static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 100, 100, 30, 100 };
+static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 100, 100, 100, 100 };
 
 class Chunk { // not recorded in database
 public:
