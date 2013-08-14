@@ -2,6 +2,7 @@
 #pragma hdrstop
 #include "RetrievalAssistantSamples.h"
 #include "StoreUtil.h"
+#include "LCDbRack.h"
 //#include "ReferredBoxes.h"
     // for MYDEBUG - should move somewhere else
 #pragma package(smart_init)
@@ -360,17 +361,9 @@ void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) { // print current co
 //void TfrmSamples::sortList(void *) {
 //void TfrmSamples::sortList(SampleRow::SortType sortType) {
 void TfrmSamples::sortList(int sortType) {
-    //struct Sort1 : public Sorter {
-//    struct Sort1 {
-//        //bool operator()(const SampleRow &a, const SampleRow &b) const {
-//        bool operator()(int a, int b) const {
-//            return a < b; //a.position < b.position;
-//        }
-//    } sort2;
+    std::sort(vials.begin(), vials.end(), SampleRow::less_than);
 
-    //std::sort(vials.begin(), vials.end(), sort2);
-    //std::sort(vials.begin(), vials.end(), SampleRow::less_than);
-
-
+    // compiles ok (from Inventory.cpp):
+    //std::vector< Rack* > rackList;
     //std::sort( rackList.begin(), rackList.end(), Rack::less_than );
 }

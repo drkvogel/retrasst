@@ -105,7 +105,8 @@ public:
 //            return a.position < b.position;
 //        }
 //    } sort1;
-    bool less_than(const SampleRow &a, const SampleRow &b) { return a.position < b.position; }
+    static bool less_than(const SampleRow *a, const SampleRow *b) { return a->position < b->position; }
+    // static bool less_than( const IPart* lhs, const IPart* rhs ){ return *lhs < *rhs; } // from Ipart (Inventory.h)
 //
 //    enum SortType {
 //        SORT1,
@@ -181,7 +182,8 @@ private:
     LCDbCryoJob * job;
     int                 numrows; // rows to show at a time
     vecpChunk           chunks;
-    vecpSampleRow       vials;
+    //vecpSampleRow       vials;
+    std::vector<SampleRow *> vials;
     void                autoChunk();
     void                showChunks();
     void                loadRows();
