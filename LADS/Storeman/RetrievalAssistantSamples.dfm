@@ -214,10 +214,9 @@ object frmSamples: TfrmSamples
       Height = 193
       Align = alClient
       FixedCols = 0
-      Options = [goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
+      Options = [goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect, goFixedRowClick]
       TabOrder = 0
       OnClick = sgVialsClick
-      OnColumnMoved = sgVialsColumnMoved
       OnFixedCellClick = sgVialsFixedCellClick
     end
     object memoDebug: TMemo

@@ -136,10 +136,14 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
     } else {
         Chunk * chunk = NULL;
         chunk = (Chunk *)sgChunks->Objects[0][ARow];
-        if (NULL == chunk)
-            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
-        else
-            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
+        if (NULL == chunk) {
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
+            //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        } else {
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
+            //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        }
         //else if (chunk->
     }
     TCanvas * cnv = sgChunks->Canvas;
@@ -210,16 +214,7 @@ void TfrmSamples::loadRows() {
     delete_referenced<vecpSampleRow>(vials);
     LQuery q(Util::projectQuery(job->getProjectID(), true));
     q.setSQL(
-    /*
-    LPDbCryovialStore(q) expects:
-     Cryovial_id, Note_Exists, retrieval_cid, box_cid, status, cryovial_position, cryovial_id
- */
-
-//        "SELECT"
-//        "   Cryovial_id, Note_Exists, retrieval_cid, box_cid, status, cryovial_position, cryovial_id,"
-//        "   cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
-//        "   cryovial_position, s.external_name AS site, m.position, v.external_full AS vessel,"
-//        "   shelf_number, r.external_name AS rack, bs.slot_position"
+    /* LPDbCryovialStore(q) expects: Cryovial_id, Note_Exists, retrieval_cid, box_cid, status, cryovial_position, cryovial_id */
         "SELECT"
         "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
         "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
@@ -312,12 +307,8 @@ void TfrmSamples::showRows() {
     for (it = vials.begin(); it != vials.end(); it++, row++) {
         pSampleRow sampleRow = *it;
         LPDbCryovialStore * vial = sampleRow->store_record;
-/*    SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
-                string site, int pos, string vessel, int shelf, string rack, int slot) :
-        "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
-        "   s.external_name AS site, m.position, v.external_full AS vessel,"
-        "   shelf_number, r.external_name AS rack, bs.slot_position"
-                */
+/* SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
+               string site, int pos, string vessel, int shelf, string rack, int slot) :  */
         sgVials->Cells[SGVIALS_BARCODE][row] = sampleRow->cryovial_barcode.c_str();
         sgVials->Cells[SGVIALS_DESTBOX][row] = "tba"; //sampleRow->;
         sgVials->Cells[SGVIALS_DESTPOS][row] = "tba"; //sampleRow->;
@@ -344,11 +335,24 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) {
     // sort by column
-}
-
-void __fastcall TfrmSamples::sgVialsColumnMoved(TObject *Sender, int FromIndex, int ToIndex) {
-    ostringstream oss; oss << __FUNC__ << " ok";
-    debugLog(oss.str().c_str());
+    switch (ACol) {
+    case SGVIALS_BARCODE:
+        sortList(SampleRow::SORT_BY_BARCODE);  break;
+    case SGVIALS_DESTBOX:
+        sortList(SampleRow::SORT_BY_LOCATION); break;
+    case SGVIALS_DESTPOS:
+        sortList(SampleRow::SORT_BY_LOCATION); break;
+    case SGVIALS_CURRBOX:
+        sortList(SampleRow::SORT_BY_CURRBOX); break;
+    case SGVIALS_CURRPOS:
+        sortList(SampleRow::SORT_BY_LOCATION); break;
+    case SGVIALS_STRUCTURE:
+        sortList(SampleRow::SORT_BY_LOCATION); break;
+    case SGVIALS_LOCATION:
+        sortList(SampleRow::SORT_BY_LOCATION); break;
+    default:
+        throw Exception("Unknown column clicked on");
+    }
 }
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) { // print current column widths
@@ -361,9 +365,22 @@ void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) { // print current co
 //void TfrmSamples::sortList(void *) {
 //void TfrmSamples::sortList(SampleRow::SortType sortType) {
 void TfrmSamples::sortList(int sortType) {
-    std::sort(vials.begin(), vials.end(), SampleRow::less_than);
 
-    // compiles ok (from Inventory.cpp):
-    //std::vector< Rack* > rackList;
-    //std::sort( rackList.begin(), rackList.end(), Rack::less_than );
+    //partial_sort
+
+    switch (sortType) {
+    case SampleRow::SORT_BY_LOCATION:
+        std::sort(vials.begin(), vials.end(), SampleRow::less_than_location);
+        break;
+    case SampleRow::SORT_BY_BARCODE:
+        std::sort(vials.begin(), vials.end(), SampleRow::less_than_barcode);
+        break;
+    case SampleRow::SORT_BY_CURRBOX:
+        std::sort(vials.begin(), vials.end(), SampleRow::less_than_currbox);
+        //std::sort(vials.begin(), vials.end(), SampleRow::less_than);
+        break;
+    default:
+        throw Exception("Unknown sortType");
+    }
+    showRows();
 }

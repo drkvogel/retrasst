@@ -67,7 +67,7 @@ void __fastcall TfrmStoremain::FormShow(TObject *Sender)
 {
 	updateStatus = STARTING;
 	resetCounts();
-	timer -> Enabled = true;
+	//timer -> Enabled = true;
 }
 
 //---------------------------------------------------------------------------

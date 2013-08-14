@@ -56,13 +56,8 @@ class SgData {
 
 // vials
 enum {
-    SGVIALS_BARCODE,
-    SGVIALS_DESTBOX,
-    SGVIALS_DESTPOS,
-    SGVIALS_CURRBOX,
-    SGVIALS_CURRPOS,
-    SGVIALS_STRUCTURE,
-    SGVIALS_LOCATION, // site/vessel/
+    SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_STRUCTURE, SGVIALS_LOCATION,
+    // site/vessel/
     // secondary aliquots if defined?
     SGVIALS_NUMCOLS
 };
@@ -105,15 +100,23 @@ public:
 //            return a.position < b.position;
 //        }
 //    } sort1;
-    static bool less_than(const SampleRow *a, const SampleRow *b) { return a->position < b->position; }
-    // static bool less_than( const IPart* lhs, const IPart* rhs ){ return *lhs < *rhs; } // from Ipart (Inventory.h)
-//
-//    enum SortType {
-//        SORT1,
-//        SORT2,
-//        SORT3
-//    } SortType;
+    static bool less_than_location(const SampleRow *a, const SampleRow *b) {
+        return a->position < b->position;
+    }
+    static bool less_than_barcode(const SampleRow *a, const SampleRow *b) {
+        return a->cryovial_barcode.compare(b->cryovial_barcode) > 0;
+    }
+    static bool less_than_currbox(const SampleRow *a, const SampleRow *b) {
+        return a->box_name.compare(b->box_name) > 0;
+    }
 
+
+    // static bool less_than( const IPart* lhs, const IPart* rhs ){ return *lhs < *rhs; } // from Ipart (Inventory.h)
+    enum SortType {
+        SORT_BY_LOCATION,
+        SORT_BY_BARCODE,
+        SORT_BY_CURRBOX
+    } SortType;
     SampleRow() {}
     SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
                 string site, int pos, string vessel, int shelf, string rack, int slot) :
@@ -176,7 +179,6 @@ __published:	// IDE-managed Components
     void __fastcall btnIncrClick(TObject *Sender);
     void __fastcall btnDecrClick(TObject *Sender);
     void __fastcall sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow);
-    void __fastcall sgVialsColumnMoved(TObject *Sender, int FromIndex, int ToIndex);
     void __fastcall sgVialsClick(TObject *Sender);
 private:
     LCDbCryoJob * job;
