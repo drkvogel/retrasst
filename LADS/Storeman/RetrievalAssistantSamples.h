@@ -101,6 +101,7 @@ __published:
     TPanel *panelLoading;
     TProgressBar *progressBottom;
     TTimer *timerLoadVials;
+    TButton *btnReject;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
@@ -120,6 +121,7 @@ __published:
     void __fastcall sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow);
     void __fastcall sgVialsClick(TObject *Sender);
     void __fastcall timerLoadVialsTimer(TObject *Sender);
+    void __fastcall btnRejectClick(TObject *Sender);
 private:
     LoadVialsWorkerThread * loadVialsWorkerThread;
     void __fastcall loadVialsWorkerThreadTerminated(TObject *Sender);

@@ -200,6 +200,15 @@ object frmSamples: TfrmSamples
       Text = '100'
       OnChange = editCustomRowsChange
     end
+    object btnReject: TButton
+      Left = 400
+      Top = 8
+      Width = 75
+      Height = 25
+      Caption = 'Reject List'
+      TabOrder = 8
+      OnClick = btnRejectClick
+    end
   end
   object groupVials: TGroupBox
     Left = 0

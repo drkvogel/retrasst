@@ -399,3 +399,12 @@ void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
     loadRows(); // so that gui can be updated
 }
 
+void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
+    if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
+        //autoChunk();
+        //rejectList();
+        Close();
+    }
+}
+
+
