@@ -56,7 +56,7 @@ class SgData {
 
 // vials
 enum {
-    SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_STRUCTURE, SGVIALS_LOCATION,
+    SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_LOCATION,
     // site/vessel/
     // secondary aliquots if defined?
     SGVIALS_NUMCOLS
@@ -66,12 +66,12 @@ static const char * sgVialColName[SGVIALS_NUMCOLS] = {
     "Dest box",
     "Pos",
     "Curr box",
-    "Pos",
-    "Structure",
+    //"Pos",
+    //"Structure",
     "Location"
 };
 //static int sgVialColWidth[SGVIALS_NUMCOLS] = { 100, 100, 30, 100, 30, 100, 100 };
-static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 156, 43, 195, 37, 461, 122, };
+static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 156, 43, 195, 461 };
 //typedef std::vector< LPDbCryovialStore *> vecpVial;
 
 /*
@@ -157,7 +157,7 @@ __published:	// IDE-managed Components
     TRadioButton *radbutDefault;
     TRadioButton *radbutCustom;
     TEdit *editCustomRows;
-    TGroupBox *GroupBox1;
+    TGroupBox *groupVials;
     TStringGrid *sgVials;
     TMemo *memoDebug;
     TTimer *timerCustomRows;
@@ -182,7 +182,7 @@ __published:	// IDE-managed Components
     void __fastcall sgVialsClick(TObject *Sender);
 private:
     LCDbCryoJob * job;
-    int                 numrows; // rows to show at a time
+    int                 maxRows; // rows to show at a time
     vecpChunk           chunks;
     //vecpSampleRow       vials;
     std::vector<SampleRow *> vials;

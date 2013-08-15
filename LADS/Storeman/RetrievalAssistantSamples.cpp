@@ -41,7 +41,7 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     memoDebug->Visible  = RETRASSTDEBUG;
     autochunk           = false;
-    numrows             = DEFAULT_NUMROWS;
+    maxRows             = DEFAULT_NUMROWS;
     job                 = NULL;
     setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
     setupStringGrid(sgVials, SGVIALS_NUMCOLS, sgVialColName, sgVialColWidth);
@@ -100,32 +100,27 @@ void __fastcall TfrmSamples::radbutAllClick(TObject *Sender) { radgrpRowsChange(
 void __fastcall TfrmSamples::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
 
 void TfrmSamples::radgrpRowsChange() {
-    numrows = 0;
+    maxRows = 0;
     if (radbutCustom->Checked) {
-        editCustomRows->Enabled = true;
+        editCustomRows->Enabled  = true;
+        timerCustomRows->Enabled = true;
         return; // allow user to edit value
     } else {
         editCustomRows->Enabled = false;
         if (radbutDefault->Checked) {
-            numrows = DEFAULT_NUMROWS;
+            maxRows = DEFAULT_NUMROWS;
         } else if (radbutAll->Checked) {
-            numrows = -1;
+            maxRows = -1;
         }
     }
-    std::ostringstream oss;
-    oss <<__FUNC__<<": numrows: "<<numrows;
-    debugLog(oss.str().c_str());
-    //loadRows();
+    std::ostringstream oss; oss <<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     showRows();
 }
 
 void __fastcall TfrmSamples::timerCustomRowsTimer(TObject *Sender) {
+    std::ostringstream oss; oss <<__FUNC__<<": load"<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     timerCustomRows->Enabled = false;
-    numrows = editCustomRows->Text.ToIntDef(0);
-    std::ostringstream oss;
-    oss <<__FUNC__<<": load"<<": numrows: "<<numrows;
-    debugLog(oss.str().c_str());
-    //loadRows();
+    maxRows = editCustomRows->Text.ToIntDef(0);
     showRows();
 }
 
@@ -174,7 +169,6 @@ void TfrmSamples::showChunks() {
     } else {
         sgChunks->RowCount = chunks.size() + 1;
         sgChunks->FixedRows = 1; // "Fixed row count must be LESS than row count"
-        // use clearSG/clearGridSelection
     }
     vecpChunk::const_iterator it;
     int row = 1;
@@ -215,7 +209,7 @@ Display the size of the job and ask user if they want to divide up the list.  If
 */
 
 void TfrmSamples::loadRows() {
-    std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<numrows; debugLog(oss.str().c_str());
+    std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     Screen->Cursor = crSQLWait;
     delete_referenced<vecpSampleRow>(vials);
     LQuery q(Util::projectQuery(job->getProjectID(), true));
@@ -306,8 +300,7 @@ void TfrmSamples::showRows() {
     if (vials.size() <= 0) {
         clearSG(sgVials);
     } else {
-        //sgVials->RowCount = vials.size() + 1;
-        sgVials->RowCount = (-1 == numrows) ? vials.size() + 1 : numrows + 1;
+        sgVials->RowCount = (-1 == maxRows) ? vials.size() + 1 : maxRows + 1;
         sgVials->FixedRows = 1;
     }
     int row = 1;
@@ -315,16 +308,20 @@ void TfrmSamples::showRows() {
     for (it = vials.begin(); it != vials.end(); it++, row++) {
         pSampleRow sampleRow = *it;
         LPDbCryovialStore * vial = sampleRow->store_record;
-        sgVials->Cells[SGVIALS_BARCODE][row] = sampleRow->cryovial_barcode.c_str();
-        sgVials->Cells[SGVIALS_DESTBOX][row] = "tba"; //sampleRow->;
-        sgVials->Cells[SGVIALS_DESTPOS][row] = "tba"; //sampleRow->;
-        sgVials->Cells[SGVIALS_CURRBOX][row] = sampleRow->box_name.c_str();
-        sgVials->Cells[SGVIALS_CURRPOS][row] = sampleRow->position;
-        sgVials->Cells[SGVIALS_STRUCTURE][row] = sampleRow->vessel_name.c_str(); //??
-        sgVials->Cells[SGVIALS_LOCATION][row] = sampleRow->site_name.c_str();
+        sgVials->Cells[SGVIALS_BARCODE][row]    = sampleRow->cryovial_barcode.c_str();
+        sgVials->Cells[SGVIALS_DESTBOX][row]    = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_DESTPOS][row]    = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_CURRBOX][row]    = sampleRow->box_name.c_str();
+        ostringstream loc;
+        loc << sampleRow->site_name << " " << sampleRow->position << " ["<< sampleRow->shelf_number<<"]:"
+        << sampleRow->vessel_name<<" [layout?], "<<sampleRow->rack_name<< " slot "<<sampleRow->slot_position;
+        sgVials->Cells[SGVIALS_LOCATION][row]   = loc.str().c_str();
+
         sgVials->Objects[0][row] = (TObject *)sampleRow;
-        if (-1 != numrows && row >= numrows) break;
+        if (-1 != maxRows && row >= maxRows) break;
     }
+    ostringstream oss; oss<<((-1 == maxRows) ? maxRows : vials.size())<<" of "<<vials.size()<<" vials";
+    groupVials->Caption = oss.str().c_str();
 }
 
 void __fastcall TfrmSamples::btnAutoChunkClick(TObject *Sender) {
@@ -349,10 +346,6 @@ void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, in
         sortList(SampleRow::SORT_BY_LOCATION); break;
     case SGVIALS_CURRBOX:
         sortList(SampleRow::SORT_BY_CURRBOX); break;
-    case SGVIALS_CURRPOS:
-        sortList(SampleRow::SORT_BY_LOCATION); break;
-    case SGVIALS_STRUCTURE:
-        sortList(SampleRow::SORT_BY_LOCATION); break;
     case SGVIALS_LOCATION:
         sortList(SampleRow::SORT_BY_LOCATION); break;
     default:

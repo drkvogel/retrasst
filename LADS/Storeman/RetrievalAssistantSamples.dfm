@@ -199,7 +199,7 @@ object frmSamples: TfrmSamples
       OnChange = editCustomRowsChange
     end
   end
-  object GroupBox1: TGroupBox
+  object groupVials: TGroupBox
     Left = 0
     Top = 275
     Width = 758
