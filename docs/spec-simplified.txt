@@ -1,4 +1,36 @@
-﻿# spec simplified
+﻿xe4 - can build storeman on? install on laptop
+
+### meeting 2013-08-15 (big meeting room)
+
+secondary aliquots - separate, backup list after primary chunks/list - if primaries not found, mark secondaries as required and form new list
+
+auto chunk - ask destinatin box size - may be different from retrieval box size.
+
+excel-style x/y/z sort of all fields
+
+assign destination boxes before creating chunks - may be done by create list - discuss with nick
+
+end meeting
+
+---
+
+
+ * sort by location,
+ * location should include site+position+name+layout, as it does in StoreMan’s storage browser.
+ 
+    Worminghall 1 [shelf]: Vanadium, 54_rack_MVE, A1, slot 1
+ 
+ * chunking -  Allow the user to divide up the list
+ 
+    ??? how to display
+    
+ * save changes with the option of going back to re-order if necessary.
+ 
+294, 285   
+
+c2 fabric mix
+
+# spec simplified
 
 Basically, the procedure has the same steps for both box retrieval/discard and for sample retrieval/discard. I have split these functions in to two forms, nonetheless.
 

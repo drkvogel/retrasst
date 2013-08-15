@@ -14,6 +14,10 @@ void TfrmSamples::debugLog(String s) {
     frmSamples->memoDebug->Lines->Add(s);
 }
 
+__fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
+    FreeOnTerminate = true;
+}
+
 /*
 // template
     ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
@@ -33,14 +37,11 @@ void TfrmSamples::debugLog(String s) {
     Screen->Cursor = crDefault;
 */
 
-//enum {SGVIALS_COL_1, SGVIALS_COL_2, SGVIALS_COL_3, SGVIALS_COL_4, SGVIALS_COL_5, SGVIALS_NUMCOLS} sg_vials_cols;
-
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
 
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
-    memoDebug->Visible  = RETRASSTDEBUG;
-    autochunk           = false;
+    //memoDebug->Visible  = RETRASSTDEBUG;
     maxRows             = DEFAULT_NUMROWS;
     job                 = NULL;
     setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
@@ -49,22 +50,30 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormShow(TObject *Sender) {
-    std::ostringstream oss;
-    oss << (autochunk ? "auto-chunk" : "manual chunk") << ", "
-    << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL");
-    debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
+    chunks.clear();
+    addChunk();
     showChunks();
-    loadRows();
-    showRows();
-    if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {
-        autoChunk();
-    }
+    clearSG(sgVials);
+    //loadRows();
+    timerLoadVials->Enabled = true;
+    //showRows();
+    //progressBottom->Visible = false;
+    //if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
 }
 
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
 
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
+    if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
+        // save stuff
+        // ie, create the retrieval plan by inserting into c_box_retrieval and l_sample_retrieval
+        Close();
+    } else {
+        // delete chunks, start again
+        chunks.clear();
+        addChunk();
+    }
     //btnSave->Enabled = false;
     // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
     // TODO update c_retrieval_job (in progress)
@@ -75,10 +84,13 @@ void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
 }
 
 void TfrmSamples::addChunk() {
+    if (chunks.size() == 0) {
+        // first chunk, make default chunk from entire list
+    }
     Chunk * chunk = new Chunk;
     chunk->section = chunks.size() + 1;
     chunks.push_back(chunk);
-    if (chunks.size() > 0) btnDelChunk->Enabled = true;
+    btnDelChunk->Enabled = true;
     showChunks();
 }
 
@@ -186,13 +198,9 @@ void TfrmSamples::autoChunk() {
     frmAutoChunk->ShowModal();
 /*
 box_content.box_type_cid
-
 18  EDTA_1(UK)  HPS2-THRIVE EDTA 1 UK samples
-
 c_box_size.box_type_cid
-
 Display the size of the job and ask user if they want to divide up the list.  If they do:
-
 1.	Ask them the maximum section size (default = 500 cryovials)
 2.	Calculate slot/box (where `c_box_size.box_size_cid = box_content.box_size_cid`)
 3.	Ask them to select the size of first section from a list – it must be a multiple of the box size (from 2) and no more than the maximum (from 1)
@@ -208,13 +216,11 @@ Display the size of the job and ask user if they want to divide up the list.  If
 //    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
 */
 
-void TfrmSamples::loadRows() {
-    std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-    Screen->Cursor = crSQLWait;
-    delete_referenced<vecpSampleRow>(vials);
-    LQuery q(Util::projectQuery(job->getProjectID(), true));
+void __fastcall  LoadVialsWorkerThread::Execute() {
+    // do stuff
+    delete_referenced<vecpSampleRow>(frmSamples->vials);
+    LQuery q(Util::projectQuery(frmSamples->job->getProjectID(), true));
     q.setSQL(
-    /* LPDbCryovialStore(q) expects: Cryovial_id, Note_Exists, retrieval_cid, box_cid, status, cryovial_position, cryovial_id */
         "SELECT"
         "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
         "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
@@ -236,7 +242,7 @@ void TfrmSamples::loadRows() {
         "   s.object_cid = location_cid AND"
         "   v.object_cid = storage_cid AND"
         "   cs.retrieval_cid = :jobID");
-    q.setParam("jobID", job->getID());
+    q.setParam("jobID", frmSamples->job->getID());
     /* -- may have destination box defined, could find with left join:
     from
          cryovial_store s1
@@ -254,28 +260,7 @@ void TfrmSamples::loadRows() {
 
     q.open();
     while (!q.eof()) {
-        /*
-        LPDbCryovialStore * store_record;
-        std::string     cryovial_barcode;
-        std::string     aliquote_type_name;
-        std::string     box_name;
-        std::string     site_name;
-        int             position;
-        std::string     vessel_name;
-        int             shelf_number;
-        std::string     rack_name;
-        int             slot_position;*/
-
-
         LPDbCryovialStore * vial = new LPDbCryovialStore(q);
-/*    SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
-                string site, int pos, string vessel, int shelf, string rack, int slot) :
-
-        "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
-        "   s.external_name AS site, m.position, v.external_full AS vessel,"
-        "   shelf_number, r.external_name AS rack, bs.slot_position"
-                */
-
         pSampleRow  row = new SampleRow(
             vial,
             q.readString("cryovial_barcode"),
@@ -288,10 +273,47 @@ void TfrmSamples::loadRows() {
             q.readString("rack"),
             q.readInt("slot_position")
             );
-        vials.push_back(row);
+        frmSamples->vials.push_back(row);
         q.next();
+        //Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
+        //panelLoading->Caption
     }
+}
+
+void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
+    // finish up
+    showRows(); // must do this outside thread, unless synchronised - does gui stuff
+    progressBottom->Style = pbstNormal; progressBottom->Visible = false;
+    panelLoading->Visible = false;
     Screen->Cursor = crDefault;
+}
+
+/* SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
+                string site, int pos, string vessel, int shelf, string rack, int slot) :
+        "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
+        "   s.external_name AS site, m.position, v.external_full AS vessel,"
+        "   shelf_number, r.external_name AS rack, bs.slot_position" */
+    /*  LPDbCryovialStore * store_record;
+        std::string     cryovial_barcode;
+        std::string     aliquote_type_name;
+        std::string     box_name;
+        std::string     site_name;
+        int             position;
+        std::string     vessel_name;
+        int             shelf_number;
+        std::string     rack_name;
+        int             slot_position;*/
+
+void TfrmSamples::loadRows() {
+    std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
+    panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
+    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+    Screen->Cursor = crSQLWait;
+    //Repaint();
+    loadVialsWorkerThread = new LoadVialsWorkerThread();
+    loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
 }
 
 /* SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
@@ -308,19 +330,21 @@ void TfrmSamples::showRows() {
     for (it = vials.begin(); it != vials.end(); it++, row++) {
         pSampleRow sampleRow = *it;
         LPDbCryovialStore * vial = sampleRow->store_record;
-        sgVials->Cells[SGVIALS_BARCODE][row]    = sampleRow->cryovial_barcode.c_str();
-        sgVials->Cells[SGVIALS_DESTBOX][row]    = "tba"; //sampleRow->;
-        sgVials->Cells[SGVIALS_DESTPOS][row]    = "tba"; //sampleRow->;
-        sgVials->Cells[SGVIALS_CURRBOX][row]    = sampleRow->box_name.c_str();
-        ostringstream loc;
-        loc << sampleRow->site_name << " " << sampleRow->position << " ["<< sampleRow->shelf_number<<"]:"
-        << sampleRow->vessel_name<<" [layout?], "<<sampleRow->rack_name<< " slot "<<sampleRow->slot_position;
-        sgVials->Cells[SGVIALS_LOCATION][row]   = loc.str().c_str();
-
+        sgVials->Cells[SGVIALS_BARCODE] [row]    = sampleRow->cryovial_barcode.c_str();
+        sgVials->Cells[SGVIALS_DESTBOX] [row]    = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_DESTPOS] [row]    = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_CURRBOX] [row]    = sampleRow->box_name.c_str();
+        sgVials->Cells[SGVIALS_CURRPOS] [row]    = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_SITE]    [row]    = sampleRow->site_name.c_str(); // Russian doll order
+        sgVials->Cells[SGVIALS_POSITION][row]    = sampleRow->position;
+        sgVials->Cells[SGVIALS_SHELF]   [row]    = sampleRow->shelf_number;
+        sgVials->Cells[SGVIALS_VESSEL]  [row]    = sampleRow->vessel_name.c_str();
+        sgVials->Cells[SGVIALS_STRUCTURE][row]   = sampleRow->rack_name.c_str();
+        sgVials->Cells[SGVIALS_SLOT]    [row]    = sampleRow->slot_position;
         sgVials->Objects[0][row] = (TObject *)sampleRow;
         if (-1 != maxRows && row >= maxRows) break;
     }
-    ostringstream oss; oss<<((-1 == maxRows) ? maxRows : vials.size())<<" of "<<vials.size()<<" vials";
+    ostringstream oss; oss<<((-1 == maxRows) ? vials.size() : maxRows)<<" of "<<vials.size()<<" vials";
     groupVials->Caption = oss.str().c_str();
 }
 
@@ -337,43 +361,41 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
-    switch (ACol) {
-    case SGVIALS_BARCODE:
-        sortList(SampleRow::SORT_BY_BARCODE);  break;
-    case SGVIALS_DESTBOX:
-        sortList(SampleRow::SORT_BY_LOCATION); break;
-    case SGVIALS_DESTPOS:
-        sortList(SampleRow::SORT_BY_LOCATION); break;
-    case SGVIALS_CURRBOX:
-        sortList(SampleRow::SORT_BY_CURRBOX); break;
-    case SGVIALS_LOCATION:
-        sortList(SampleRow::SORT_BY_LOCATION); break;
-    default:
-        throw Exception("Unknown column clicked on");
-    }
+    sortList(ACol);
 }
 
-void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) { // print current column widths
+void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) { // print column widths to
     ostringstream oss; oss << __FUNC__;
     oss << printColWidths(sgVials); // so we can copy them into the source
     debugLog(oss.str().c_str());
 }
 
-//void TfrmSamples::sortList(void *) {
-//void TfrmSamples::sortList(SampleRow::SortType sortType) {
-void TfrmSamples::sortList(int sortType) {
-
+void TfrmSamples::sortList(int col) {
     //partial_sort
-
-    switch (sortType) {
-    case SampleRow::SORT_BY_LOCATION:
-        std::sort(vials.begin(), vials.end(), SampleRow::less_than_location); break;
-    case SampleRow::SORT_BY_BARCODE:
-        std::sort(vials.begin(), vials.end(), SampleRow::less_than_barcode);  break;
-    case SampleRow::SORT_BY_CURRBOX:
-        std::sort(vials.begin(), vials.end(), SampleRow::less_than_currbox);  break;
+    bool (*sort_func)(const SampleRow *, const SampleRow *);
+    switch (col) {
+    // and do reverse sort toggle
+    case SGVIALS_BARCODE:   sort_func = SampleRow::less_than_barcode;   break;
+    //case SGVIALS_DESTBOX:   sort_func = SampleRow::less_than_; break;
+    //case SGVIALS_DESTPOS:   sort_func = SampleRow::less_than_; break;
+    case SGVIALS_CURRBOX:   sort_func = SampleRow::less_than_currbox;   break;
+    //case SGVIALS_CURRPOS:   sort_func = SampleRow::less_than_; break;
+    case SGVIALS_SITE:      sort_func = SampleRow::less_than_site;      break;
+    case SGVIALS_POSITION:  sort_func = SampleRow::less_than_position;  break;
+    case SGVIALS_SHELF:     sort_func = SampleRow::less_than_shelf;     break;
+    case SGVIALS_VESSEL:    sort_func = SampleRow::less_than_vessel;    break;
+    case SGVIALS_STRUCTURE: sort_func = SampleRow::less_than_structure; break;
+    case SGVIALS_SLOT:      sort_func = SampleRow::less_than_slot;      break;
     default:
-        throw Exception("Unknown sortType");
+        return;
+        //throw Exception("Unknown sortType");
     }
+    std::sort(vials.begin(), vials.end(), sort_func);
     showRows();
 }
+
+void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
+    timerLoadVials->Enabled = false;
+    loadRows(); // so that gui can be updated
+}
+

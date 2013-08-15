@@ -6,29 +6,13 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.Grids.hpp>
+#include <Vcl.ComCtrls.hpp>
 #include <sstream>
 #include "LCDbJob.h"
 #include "RetrievalAssistant.h"
 
 using namespace std;
 
-//class Chunk { // not recorded in database
-//public:
-//    //Chunk() : section(0), retrieval_cid(0), name(""), start(0), end(0) { }
-//    Chunk() : section(0), start(0), end(0) { }
-//    int         section;
-//    //int         retrieval_cid;
-//    //int         exercise_cid;
-//    //std::string name;
-//    int         start;
-//    int         end;
-//    //string      descrip;
-//    //int         job_type;
-//    //int         project_cid;
-//    //int         primary_aliquot;
-//};
-//
-//typedef std::vector< Chunk * >  vecpChunk;
 
 // spec: show
 // cryovial barcode, destination box, position, current box, position, structure and location of the primary and secondary
@@ -52,40 +36,46 @@ class SgData {
     int             colwidths[];
 };
 
+// secondary aliquots:
+// if defined, will go as separate rows after all primary aliquots - if any primaries fail, these will be
+// marked to make a new chunk of replacements
+
 // vials
 enum {
-    SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_LOCATION,
-    // site/vessel/
-    // secondary aliquots if defined?
+    SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_CURRPOS,
+    SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT,
     SGVIALS_NUMCOLS
 };
 static const char * sgVialColName[SGVIALS_NUMCOLS] = {
-    "Barcode",
-    "Dest box",
-    "Pos",
-    "Curr box",
-    //"Pos",
-    //"Structure",
-    "Location"
+    "Barcode", "Dest box", "Pos", "Curr box", "Pos",
+    "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"
 };
-//static int sgVialColWidth[SGVIALS_NUMCOLS] = { 100, 100, 30, 100, 30, 100, 100 };
-static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 156, 43, 195, 461 };
-//typedef std::vector< LPDbCryovialStore *> vecpVial;
+//static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 156, 43, 195, 461, 100, 100, 100, 100, 100, 100 };
+ static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 147, 43, 171, 37, 64, 50, 43, 100, 121, 40 };
 
 /*
-        "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
-        "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
-        "   s.external_name AS site, m.position, v.external_full AS vessel,"
-        "   shelf_number, r.external_name AS rack, bs.slot_position"
-        " FROM"
-        "   cryovial c, cryovial_store cs, box_name b, box_store bs, c_rack_number r,"
-        "   c_tank_map m, c_object_name s,"   // site
-        "   c_object_name v,"                 // vessel
-        "   c_object_name t"                  // aliquot? */
+"   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
+"   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
+"   s.external_name AS site, m.position, v.external_full AS vessel,"
+"   shelf_number, r.external_name AS rack, bs.slot_position"
+" FROM"
+"   cryovial c, cryovial_store cs, box_name b, box_store bs, c_rack_number r,"
+"   c_tank_map m, c_object_name s,"   // site
+"   c_object_name v,"                 // vessel
+"   c_object_name t"                  // aliquot? */
 
-class TfrmSamples : public TForm
-{
-__published:	// IDE-managed Components
+class LoadVialsWorkerThread : public TThread {
+private:
+    //int jobID;
+protected:
+    void __fastcall Execute();
+public:
+    __fastcall LoadVialsWorkerThread();
+};
+
+class TfrmSamples : public TForm {
+    friend class LoadVialsWorkerThread;
+__published:
     TSplitter *Splitter1;
     TGroupBox *groupList;
     TPanel *Panel2;
@@ -108,6 +98,9 @@ __published:	// IDE-managed Components
     TMemo *memoDebug;
     TTimer *timerCustomRows;
     TButton *btnAutoChunk;
+    TPanel *panelLoading;
+    TProgressBar *progressBottom;
+    TTimer *timerLoadVials;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
@@ -126,11 +119,14 @@ __published:	// IDE-managed Components
     void __fastcall btnDecrClick(TObject *Sender);
     void __fastcall sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow);
     void __fastcall sgVialsClick(TObject *Sender);
+    void __fastcall timerLoadVialsTimer(TObject *Sender);
 private:
+    LoadVialsWorkerThread * loadVialsWorkerThread;
+    void __fastcall loadVialsWorkerThreadTerminated(TObject *Sender);
+
     LCDbCryoJob * job;
     int                 maxRows; // rows to show at a time
     vecpChunk           chunks;
-    //vecpSampleRow       vials;
     std::vector<SampleRow *> vials;
     void                autoChunk();
     void                showChunks();
@@ -145,7 +141,6 @@ public:
     __fastcall          TfrmSamples(TComponent* Owner);
     void                debugLog(String s);
     void                setJob(LCDbCryoJob * ajob) { job = ajob; }
-    bool                autochunk;
     void                addChunk();
 };
 

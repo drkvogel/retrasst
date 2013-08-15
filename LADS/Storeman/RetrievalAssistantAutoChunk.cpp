@@ -8,16 +8,11 @@ TfrmAutoChunk *frmAutoChunk;
 
 __fastcall TfrmAutoChunk::TfrmAutoChunk(TComponent* Owner) : TForm(Owner) { }
 
-void __fastcall TfrmAutoChunk::btnCancelClick(TObject *Sender) {
-    Close();
-}
+void __fastcall TfrmAutoChunk::btnCancelClick(TObject *Sender) { Close(); }
 
-void __fastcall TfrmAutoChunk::btnOKClick(TObject *Sender) {
-    Close();
-}
+void __fastcall TfrmAutoChunk::btnOKClick(TObject *Sender) { Close(); }
 
 void __fastcall TfrmAutoChunk::editMaxSizeChange(TObject *Sender) {
-    // timer
     timerCalculate->Enabled = true;
 }
 
@@ -26,10 +21,9 @@ void __fastcall TfrmAutoChunk::timerCalculateTimer(TObject *Sender) {
     calcSizes();
 }
 
-void TfrmAutoChunk::calcSizes() {
-    // calculate section sizes
+void TfrmAutoChunk::calcSizes() { // calculate section sizes
     comboSectionSize->Clear();
-    int box_size = 100; // Calculate slot/box (where c_box_size.box_size_cid = box_content.box_size_cid
+    int box_size = editDestBoxSize->Text.ToIntDef(0); // Calculate slot/box (where c_box_size.box_size_cid = box_content.box_size_cid
         // where does box_content come from?
     int section_size = box_size * 2;
     while (section_size <= editMaxSize->Text.ToIntDef(0)) {
@@ -45,7 +39,6 @@ void __fastcall TfrmAutoChunk::FormShow(TObject *Sender) {
 }
 
 void __fastcall TfrmAutoChunk::btnAddChunkClick(TObject *Sender) {
-    //
     frmSamples->addChunk();
 }
 

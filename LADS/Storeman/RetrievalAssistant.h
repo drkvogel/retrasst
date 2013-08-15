@@ -62,26 +62,40 @@ std::string printColWidths(TStringGrid * sg) {
 //struct SampleLocation { // to include in SampleRow for each aliquot?
 //    int dummy;
 //};
-//
+
 //class Sorter {
 //    int dummy;
 //};
-
-class SampleRow {
-public:
 //    struct Sort1 : public Sorter {
 //        bool operator()(const SampleRow &a, const SampleRow &b) const {
 //            return a.position < b.position;
 //        }
 //    } sort1;
-    static bool less_than_location(const SampleRow *a, const SampleRow *b) { return a->position < b->position; }
-    static bool less_than_barcode(const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
-    static bool less_than_currbox(const SampleRow *a, const SampleRow *b) { return a->box_name.compare(b->box_name) > 0; }
-    enum SortType {
-        SORT_BY_LOCATION,
-        SORT_BY_BARCODE,
-        SORT_BY_CURRBOX
-    } SortType;
+
+class SampleRow {
+public:
+//     SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_CURRPOS,
+//    SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT,
+    //static bool less_than_(const SampleRow *a, const SampleRow *b) { return a-> < b->; }
+
+    static bool less_than_barcode   (const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
+    //static bool less_than_destbox   (const SampleRow *a, const SampleRow *b) { return a->store_record-> < b->; }
+    //static bool less_than_destpos   (const SampleRow *a, const SampleRow *b) { return a-> < b->; }
+    static bool less_than_currbox   (const SampleRow *a, const SampleRow *b) { return a->box_name.compare(b->box_name) > 0; }
+    //static bool less_than_currpos   (const SampleRow *a, const SampleRow *b) { return a-> < b->; }
+    // Russian Doll order
+    static bool less_than_site      (const SampleRow *a, const SampleRow *b) { return a->site_name.compare(b->site_name) > 0; }
+    static bool less_than_position  (const SampleRow *a, const SampleRow *b) { return a->position < b->position; }
+    static bool less_than_shelf     (const SampleRow *a, const SampleRow *b) { return a->shelf_number < b->shelf_number; }
+    static bool less_than_vessel    (const SampleRow *a, const SampleRow *b) { return a->vessel_name.compare(b->vessel_name); }
+    static bool less_than_structure (const SampleRow *a, const SampleRow *b) { return a->rack_name.compare(b->rack_name) > 0; }
+    static bool less_than_slot      (const SampleRow *a, const SampleRow *b) { return a->slot_position < b->slot_position; }
+
+//    enum SortType {
+//        SORT_BY_LOCATION,
+//        SORT_BY_BARCODE,
+//        SORT_BY_CURRBOX
+//    } SortType;
     SampleRow() {}
     SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
                 string site, int pos, string vessel, int shelf, string rack, int slot) :

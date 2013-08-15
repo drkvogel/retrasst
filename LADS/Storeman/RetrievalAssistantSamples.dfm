@@ -107,6 +107,8 @@ object frmSamples: TfrmSamples
       Options = [goFixedVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goAlwaysShowEditor, goThumbTracking]
       TabOrder = 1
       OnDrawCell = sgChunksDrawCell
+      ExplicitLeft = 86
+      ExplicitTop = 146
     end
   end
   object Panel1: TPanel
@@ -218,6 +220,8 @@ object frmSamples: TfrmSamples
       TabOrder = 0
       OnClick = sgVialsClick
       OnFixedCellClick = sgVialsFixedCellClick
+      ExplicitLeft = 3
+      ExplicitTop = 9
     end
     object memoDebug: TMemo
       Left = 2
@@ -228,13 +232,39 @@ object frmSamples: TfrmSamples
       ScrollBars = ssVertical
       TabOrder = 1
       Visible = False
+      ExplicitLeft = 1
+      ExplicitTop = 210
+    end
+    object panelLoading: TPanel
+      Left = 240
+      Top = 54
+      Width = 273
+      Height = 185
+      Caption = 'Loading samples, please wait...'
+      TabOrder = 2
+      Visible = False
+      object progressBottom: TProgressBar
+        Left = 1
+        Top = 167
+        Width = 271
+        Height = 17
+        Align = alBottom
+        TabOrder = 0
+      end
     end
   end
   object timerCustomRows: TTimer
     Enabled = False
     Interval = 500
     OnTimer = timerCustomRowsTimer
-    Left = 352
-    Top = 296
+    Left = 696
+    Top = 168
+  end
+  object timerLoadVials: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = timerLoadVialsTimer
+    Left = 376
+    Top = 312
   end
 end

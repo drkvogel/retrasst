@@ -16,6 +16,8 @@ __published:	// IDE-managed Components
     TLabel *Label2;
     TTimer *timerCalculate;
     TButton *btnAddChunk;
+    TEdit *editDestBoxSize;
+    TLabel *Label3;
     void __fastcall btnCancelClick(TObject *Sender);
     void __fastcall btnOKClick(TObject *Sender);
     void __fastcall editMaxSizeChange(TObject *Sender);
