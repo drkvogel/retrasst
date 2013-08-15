@@ -8,8 +8,6 @@
 #include <Vcl.Grids.hpp>
 #include <sstream>
 #include "LCDbJob.h"
-#include "LPDbCryovialStore.h"
-#include "LPDbCryovial.h"
 #include "RetrievalAssistant.h"
 
 using namespace std;
@@ -84,58 +82,6 @@ static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 156, 43, 195, 461 };
         "   c_tank_map m, c_object_name s,"   // site
         "   c_object_name v,"                 // vessel
         "   c_object_name t"                  // aliquot? */
-
-//struct SampleLocation { // to include in SampleRow for each aliquot?
-//    int dummy;
-//};
-//
-//class Sorter {
-//    int dummy;
-//};
-
-class SampleRow {
-public:
-//    struct Sort1 : public Sorter {
-//        bool operator()(const SampleRow &a, const SampleRow &b) const {
-//            return a.position < b.position;
-//        }
-//    } sort1;
-    static bool less_than_location(const SampleRow *a, const SampleRow *b) {
-        return a->position < b->position;
-    }
-    static bool less_than_barcode(const SampleRow *a, const SampleRow *b) {
-        return a->cryovial_barcode.compare(b->cryovial_barcode) > 0;
-    }
-    static bool less_than_currbox(const SampleRow *a, const SampleRow *b) {
-        return a->box_name.compare(b->box_name) > 0;
-    }
-
-
-    // static bool less_than( const IPart* lhs, const IPart* rhs ){ return *lhs < *rhs; } // from Ipart (Inventory.h)
-    enum SortType {
-        SORT_BY_LOCATION,
-        SORT_BY_BARCODE,
-        SORT_BY_CURRBOX
-    } SortType;
-    SampleRow() {}
-    SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
-                string site, int pos, string vessel, int shelf, string rack, int slot) :
-        store_record(store_rec), cryovial_barcode(barcode), aliquot_type_name(aliquot), box_name(box),
-        site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot)
-        {}
-    LPDbCryovialStore * store_record;
-    string              cryovial_barcode;
-    string              aliquot_type_name;
-    string              box_name;
-    string              site_name;
-    int                 position;
-    string              vessel_name;
-    int                 shelf_number;
-    string              rack_name;
-    int                 slot_position;
-};
-typedef SampleRow * pSampleRow;
-typedef std::vector<pSampleRow> vecpSampleRow;
 
 class TfrmSamples : public TForm
 {
