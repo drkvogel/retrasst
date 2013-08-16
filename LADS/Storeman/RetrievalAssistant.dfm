@@ -41,7 +41,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       OnClick = sgJobsClick
       OnDblClick = sgJobsDblClick
       OnDrawCell = sgJobsDrawCell
-      ExplicitLeft = 3
       ColWidths = (
         196
         64

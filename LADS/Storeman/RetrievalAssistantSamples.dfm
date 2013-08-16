@@ -3,8 +3,8 @@ object frmSamples: TfrmSamples
   Top = 0
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Sample Retrieval Plan'
-  ClientHeight = 618
-  ClientWidth = 758
+  ClientHeight = 626
+  ClientWidth = 884
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,7 +20,7 @@ object frmSamples: TfrmSamples
   object Splitter1: TSplitter
     Left = 0
     Top = 265
-    Width = 758
+    Width = 884
     Height = 10
     Cursor = crVSplit
     Align = alTop
@@ -31,13 +31,13 @@ object frmSamples: TfrmSamples
   object groupList: TGroupBox
     Left = 0
     Top = 0
-    Width = 758
+    Width = 884
     Height = 265
     Align = alTop
     Caption = 'Chunks'
     TabOrder = 0
     object Panel2: TPanel
-      Left = 674
+      Left = 800
       Top = 15
       Width = 82
       Height = 248
@@ -95,11 +95,51 @@ object frmSamples: TfrmSamples
         TabOrder = 4
         OnClick = btnAutoChunkClick
       end
+      object btnCancel: TButton
+        Left = 0
+        Top = 223
+        Width = 82
+        Height = 25
+        Align = alBottom
+        Caption = 'Exit'
+        TabOrder = 5
+        OnClick = btnCancelClick
+      end
+      object btnSave: TButton
+        Left = 0
+        Top = 198
+        Width = 82
+        Height = 25
+        Align = alBottom
+        Caption = 'Save'
+        TabOrder = 6
+        OnClick = btnSaveClick
+      end
+      object btnReject: TButton
+        Left = 0
+        Top = 173
+        Width = 82
+        Height = 25
+        Align = alBottom
+        Caption = 'Reject List'
+        TabOrder = 7
+        OnClick = btnRejectClick
+      end
+      object cbLog: TCheckBox
+        Left = 0
+        Top = 125
+        Width = 82
+        Height = 17
+        Align = alTop
+        Caption = 'Show Log'
+        TabOrder = 8
+        OnClick = cbLogClick
+      end
     end
     object sgChunks: TStringGrid
       Left = 2
       Top = 15
-      Width = 672
+      Width = 798
       Height = 248
       Align = alClient
       DefaultDrawing = False
@@ -107,154 +147,53 @@ object frmSamples: TfrmSamples
       Options = [goFixedVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goAlwaysShowEditor, goThumbTracking]
       TabOrder = 1
       OnDrawCell = sgChunksDrawCell
-      ExplicitLeft = 86
-      ExplicitTop = 146
-    end
-  end
-  object Panel1: TPanel
-    Left = 0
-    Top = 574
-    Width = 758
-    Height = 44
-    Align = alBottom
-    BevelEdges = []
-    BevelOuter = bvNone
-    TabOrder = 1
-    DesignSize = (
-      758
-      44)
-    object btnSave: TButton
-      Left = 597
-      Top = 6
-      Width = 75
-      Height = 25
-      Anchors = [akRight, akBottom]
-      Caption = 'Save'
-      TabOrder = 0
-      OnClick = btnSaveClick
-    end
-    object btnCancel: TButton
-      Left = 678
-      Top = 6
-      Width = 75
-      Height = 25
-      Anchors = [akRight, akBottom]
-      Caption = 'Exit'
-      TabOrder = 1
-      OnClick = btnCancelClick
-    end
-    object cbLog: TCheckBox
-      Left = 527
-      Top = 6
-      Width = 64
-      Height = 17
-      Anchors = [akRight, akBottom]
-      Caption = 'Show Log'
-      TabOrder = 2
-      OnClick = cbLogClick
-    end
-    object radgrpRows: TRadioGroup
-      Left = 2
-      Top = 0
-      Width = 183
-      Height = 43
-      Caption = 'Show rows'
-      TabOrder = 3
-    end
-    object radbutAll: TRadioButton
-      Left = 49
-      Top = 16
-      Width = 30
-      Height = 17
-      Caption = 'All'
-      TabOrder = 4
-      OnClick = radbutAllClick
-    end
-    object radbutDefault: TRadioButton
-      Left = 10
-      Top = 16
-      Width = 33
-      Height = 17
-      Caption = '25'
-      Checked = True
-      TabOrder = 5
-      TabStop = True
-      OnClick = radbutDefaultClick
-    end
-    object radbutCustom: TRadioButton
-      Left = 84
-      Top = 16
-      Width = 57
-      Height = 17
-      Caption = 'Custom'
-      TabOrder = 6
-      OnClick = radbutCustomClick
-    end
-    object editCustomRows: TEdit
-      Left = 141
-      Top = 15
-      Width = 38
-      Height = 21
-      Enabled = False
-      TabOrder = 7
-      Text = '100'
-      OnChange = editCustomRowsChange
-    end
-    object btnReject: TButton
-      Left = 400
-      Top = 8
-      Width = 75
-      Height = 25
-      Caption = 'Reject List'
-      TabOrder = 8
-      OnClick = btnRejectClick
     end
   end
   object groupVials: TGroupBox
     Left = 0
-    Top = 275
-    Width = 758
-    Height = 299
+    Top = 316
+    Width = 884
+    Height = 310
     Align = alClient
     Caption = 'Vials in chunk'
-    TabOrder = 2
+    TabOrder = 1
+    ExplicitTop = 385
+    ExplicitHeight = 241
     object sgVials: TStringGrid
       Left = 2
       Top = 15
-      Width = 754
-      Height = 193
+      Width = 880
+      Height = 204
       Align = alClient
       FixedCols = 0
       Options = [goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect, goFixedRowClick]
       TabOrder = 0
       OnClick = sgVialsClick
       OnFixedCellClick = sgVialsFixedCellClick
-      ExplicitLeft = 3
-      ExplicitTop = 9
+      ExplicitHeight = 135
     end
     object memoDebug: TMemo
       Left = 2
-      Top = 208
-      Width = 754
+      Top = 219
+      Width = 880
       Height = 89
       Align = alBottom
       ScrollBars = ssVertical
       TabOrder = 1
       Visible = False
-      ExplicitLeft = 1
-      ExplicitTop = 210
+      ExplicitTop = 150
     end
     object panelLoading: TPanel
-      Left = 240
-      Top = 54
+      Left = 280
+      Top = 112
       Width = 273
-      Height = 185
+      Height = 127
       Caption = 'Loading samples, please wait...'
       TabOrder = 2
       Visible = False
       object progressBottom: TProgressBar
         Left = 1
-        Top = 167
+        Top = 109
         Width = 271
         Height = 17
         Align = alBottom
@@ -262,18 +201,129 @@ object frmSamples: TfrmSamples
       end
     end
   end
+  object Panel3: TPanel
+    Left = 0
+    Top = 275
+    Width = 884
+    Height = 41
+    Align = alTop
+    BevelOuter = bvNone
+    TabOrder = 2
+    ExplicitTop = 281
+    object groupSort: TGroupBox
+      Left = 0
+      Top = 0
+      Width = 699
+      Height = 41
+      Align = alClient
+      Caption = 'Sort'
+      TabOrder = 0
+      ExplicitHeight = 110
+      object btnDelSort: TButton
+        Left = 615
+        Top = 15
+        Width = 25
+        Height = 24
+        Align = alRight
+        Caption = '-'
+        TabOrder = 0
+        OnClick = btnDelSortClick
+        ExplicitLeft = 672
+        ExplicitHeight = 21
+      end
+      object btnAddSort: TButton
+        Left = 591
+        Top = 15
+        Width = 24
+        Height = 24
+        Align = alRight
+        Caption = '+'
+        TabOrder = 1
+        OnClick = btnAddSortClick
+        ExplicitLeft = 640
+        ExplicitHeight = 21
+      end
+      object btnApplySort: TButton
+        Left = 640
+        Top = 15
+        Width = 57
+        Height = 24
+        Align = alRight
+        Caption = 'Apply'
+        TabOrder = 2
+        ExplicitHeight = 21
+      end
+    end
+    object GroupBox2: TGroupBox
+      Left = 699
+      Top = 0
+      Width = 185
+      Height = 41
+      Align = alRight
+      Caption = 'Show rows'
+      TabOrder = 1
+      ExplicitHeight = 110
+      object radbutDefault: TRadioButton
+        Left = 2
+        Top = 15
+        Width = 33
+        Height = 24
+        Align = alLeft
+        Caption = '25'
+        Checked = True
+        TabOrder = 0
+        TabStop = True
+        OnClick = radbutDefaultClick
+        ExplicitHeight = 93
+      end
+      object radbutAll: TRadioButton
+        Left = 35
+        Top = 15
+        Width = 30
+        Height = 24
+        Align = alLeft
+        Caption = 'All'
+        TabOrder = 1
+        OnClick = radbutAllClick
+        ExplicitHeight = 93
+      end
+      object radbutCustom: TRadioButton
+        Left = 65
+        Top = 15
+        Width = 57
+        Height = 24
+        Align = alLeft
+        Caption = 'Custom'
+        TabOrder = 2
+        OnClick = radbutCustomClick
+        ExplicitHeight = 93
+      end
+      object editCustomRows: TEdit
+        Left = 122
+        Top = 15
+        Width = 61
+        Height = 24
+        Align = alClient
+        Enabled = False
+        TabOrder = 3
+        Text = '100'
+        OnChange = editCustomRowsChange
+        ExplicitHeight = 21
+      end
+    end
+  end
   object timerCustomRows: TTimer
     Enabled = False
     Interval = 500
     OnTimer = timerCustomRowsTimer
-    Left = 696
-    Top = 168
+    Left = 752
+    Top = 48
   end
   object timerLoadVials: TTimer
     Enabled = False
     Interval = 500
     OnTimer = timerLoadVialsTimer
-    Left = 376
-    Top = 312
+    Left = 664
+    Top = 48
   end
 end

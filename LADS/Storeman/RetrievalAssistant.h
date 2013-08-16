@@ -72,46 +72,97 @@ std::string printColWidths(TStringGrid * sg) {
 //        }
 //    } sort1;
 
-class SampleRow {
-public:
 //     SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_CURRPOS,
 //    SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT,
     //static bool less_than_(const SampleRow *a, const SampleRow *b) { return a-> < b->; }
 
-    static bool less_than_barcode   (const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
-    //static bool less_than_destbox   (const SampleRow *a, const SampleRow *b) { return a->store_record-> < b->; }
-    //static bool less_than_destpos   (const SampleRow *a, const SampleRow *b) { return a-> < b->; }
-    static bool less_than_currbox   (const SampleRow *a, const SampleRow *b) { return a->box_name.compare(b->box_name) > 0; }
-    //static bool less_than_currpos   (const SampleRow *a, const SampleRow *b) { return a-> < b->; }
-    // Russian Doll order
-    static bool less_than_site      (const SampleRow *a, const SampleRow *b) { return a->site_name.compare(b->site_name) > 0; }
-    static bool less_than_position  (const SampleRow *a, const SampleRow *b) { return a->position < b->position; }
-    static bool less_than_shelf     (const SampleRow *a, const SampleRow *b) { return a->shelf_number < b->shelf_number; }
-    static bool less_than_vessel    (const SampleRow *a, const SampleRow *b) { return a->vessel_name.compare(b->vessel_name); }
-    static bool less_than_structure (const SampleRow *a, const SampleRow *b) { return a->rack_name.compare(b->rack_name) > 0; }
-    static bool less_than_slot      (const SampleRow *a, const SampleRow *b) { return a->slot_position < b->slot_position; }
-
-//    enum SortType {
-//        SORT_BY_LOCATION,
-//        SORT_BY_BARCODE,
-//        SORT_BY_CURRBOX
-//    } SortType;
-    SampleRow() {}
-    SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
-                string site, int pos, string vessel, int shelf, string rack, int slot) :
-        store_record(store_rec), cryovial_barcode(barcode), aliquot_type_name(aliquot), box_name(box),
-        site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot)
-        {}
+class SampleRow {
+public:
     LPDbCryovialStore * store_record;
     string              cryovial_barcode;
     string              aliquot_type_name;
     string              box_name;
+    string              dest_box;
+    string              dest_pos;
     string              site_name;
     int                 position;
     string              vessel_name;
     int                 shelf_number;
     string              rack_name;
     int                 slot_position;
+    SampleRow() {}
+    SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
+                string site, int pos, string vessel, int shelf, string rack, int slot) :
+        store_record(store_rec), cryovial_barcode(barcode), aliquot_type_name(aliquot), box_name(box),
+        site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot) {}
+    static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
+    static bool sort_desc_barcode(const SampleRow *a, const SampleRow *b)   { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
+    static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return numeric_compare(a->box_name, b->box_name); }
+    //static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return a->box_name.compare(b->box_name) > 0; }
+    static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return numeric_compare(a->box_name, b->box_name); }
+        // box_name vs store_record->getID()?
+    //static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record-> < b->; }
+    //static bool sort_desc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record-> < b->; }
+    //static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return a->store_record->getID() < b->; }
+    //static bool sort_desc_destpos(const SampleRow *a, const SampleRow *b)   { return a-> < b->; }
+    // "Russian Doll order"
+    static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
+    static bool sort_desc_site(const SampleRow *a, const SampleRow *b)      { return a->site_name.compare(b->site_name) > 0; }
+    static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->position < b->position; }
+    static bool sort_desc_position(const SampleRow *a, const SampleRow *b)  { return a->position > b->position; }
+    static bool sort_asc_shelf(const SampleRow *a, const SampleRow *b)      { return a->shelf_number < b->shelf_number; }
+    static bool sort_desc_shelf(const SampleRow *a, const SampleRow *b)     { return a->shelf_number > b->shelf_number; }
+    static bool sort_asc_vessel(const SampleRow *a, const SampleRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
+    static bool sort_desc_vessel(const SampleRow *a, const SampleRow *b)    { return a->vessel_name.compare(b->vessel_name) > 0; }
+    static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return numeric_compare(a->rack_name, b->rack_name); }//return a->rack_name.compare(b->rack_name) > 0; }
+    static bool sort_desc_structure(const SampleRow *a, const SampleRow *b) { return a->rack_name.compare(b->rack_name) < 0; }
+    static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->slot_position < b->slot_position; }
+    static bool sort_desc_slot(const SampleRow *a, const SampleRow *b)      { return a->slot_position > b->slot_position; }
+    static bool numeric_compare(const string a, const string b) {
+        // strip a and b of non-numerics
+        struct temp { // Local functions are not allowed in C++, but local classes are and functions are allowed in local classes
+            int alpha_to_int(string a) {
+                ostringstream numerics;
+                for (int i=0; i<a.length(); i++) {
+                    char ch = a.at(i); if (ch >= 0x30 && ch < 0x3A) { numerics << ch; } // pull out the numerics
+                }
+                return atoi(numerics.str().c_str());
+            }
+        } local;
+        return local.alpha_to_int(a) < local.alpha_to_int(b);
+        // what if there are no numerics?
+    }
+    string str() {
+        ostringstream oss; oss<<__FUNC__
+        //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position
+            <<". id: "<<(store_record->getID())<<", "
+            <<"status: "<<(store_record->getStatus())<<", "
+            //storeID       storeID
+            //retrievalID   retrievalID
+
+        // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position
+            // ?
+            //<<"barcode: "<<store_record->getBarcode()
+            //<<"boxID"<<store_record->getBoxID()
+            //<<"sampleID"<<store_record->getSampleID()
+            //<<"aliquot type ID"<<store_record->getAliquotType()
+            //<<"status"<<store_record->getStatus()<<", "
+            //<<"position"<<store_record->getPosition()<<", "
+
+        // SampleRow
+            <<"cryovial_barcode: "<<cryovial_barcode<<", "
+            <<"aliquot_type_name: "<<aliquot_type_name<<", "
+            <<"box_name: "<<box_name<<", "
+            <<"dest_box: "<<dest_box<<", "
+            <<"dest_pos: "<<dest_pos<<", "
+            <<"site_name: "<<site_name<<", "
+            <<"position: "<<position<<", "
+            <<"vessel_name: "<<vessel_name<<", "
+            <<"shelf_number: "<<shelf_number<<", "
+            <<"rack_name: "<<rack_name<<", "
+            <<"slot_position: "<<slot_position;
+        return oss.str();
+    }
 };
 typedef SampleRow * pSampleRow;
 typedef std::vector<pSampleRow> vecpSampleRow;

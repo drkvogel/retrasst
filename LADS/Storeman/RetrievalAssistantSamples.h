@@ -13,7 +13,6 @@
 
 using namespace std;
 
-
 // spec: show
 // cryovial barcode, destination box, position, current box, position, structure and location of the primary and secondary
 /*
@@ -66,11 +65,13 @@ static const char * sgVialColName[SGVIALS_NUMCOLS] = {
 
 class LoadVialsWorkerThread : public TThread {
 private:
-    //int jobID;
 protected:
     void __fastcall Execute();
 public:
     __fastcall LoadVialsWorkerThread();
+    //void __fastcall updateStatus(int numerator, int denominator);
+    int             rowCount;       // current rows loaded, for thread sync
+    void __fastcall updateStatus(); // syncronized method can't have args (?)
 };
 
 class TfrmSamples : public TForm {
@@ -84,15 +85,6 @@ __published:
     TButton *btnIncr;
     TButton *btnDecr;
     TStringGrid *sgChunks;
-    TPanel *Panel1;
-    TButton *btnSave;
-    TButton *btnCancel;
-    TCheckBox *cbLog;
-    TRadioGroup *radgrpRows;
-    TRadioButton *radbutAll;
-    TRadioButton *radbutDefault;
-    TRadioButton *radbutCustom;
-    TEdit *editCustomRows;
     TGroupBox *groupVials;
     TStringGrid *sgVials;
     TMemo *memoDebug;
@@ -101,7 +93,20 @@ __published:
     TPanel *panelLoading;
     TProgressBar *progressBottom;
     TTimer *timerLoadVials;
+    TPanel *Panel3;
+    TGroupBox *groupSort;
+    TButton *btnCancel;
+    TButton *btnSave;
     TButton *btnReject;
+    TCheckBox *cbLog;
+    TGroupBox *GroupBox2;
+    TRadioButton *radbutDefault;
+    TRadioButton *radbutAll;
+    TRadioButton *radbutCustom;
+    TEdit *editCustomRows;
+    TButton *btnDelSort;
+    TButton *btnAddSort;
+    TButton *btnApplySort;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
@@ -122,12 +127,15 @@ __published:
     void __fastcall sgVialsClick(TObject *Sender);
     void __fastcall timerLoadVialsTimer(TObject *Sender);
     void __fastcall btnRejectClick(TObject *Sender);
+    void __fastcall btnAddSortClick(TObject *Sender);
+    void __fastcall btnDelSortClick(TObject *Sender);
 private:
+    const char *        loadingMessage;
     LoadVialsWorkerThread * loadVialsWorkerThread;
     void __fastcall loadVialsWorkerThreadTerminated(TObject *Sender);
 
     LCDbCryoJob * job;
-    int                 maxRows; // rows to show at a time
+    int                 maxRows;  // rows to show at a time
     vecpChunk           chunks;
     std::vector<SampleRow *> vials;
     void                autoChunk();

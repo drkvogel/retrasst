@@ -18,6 +18,14 @@ __fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
     FreeOnTerminate = true;
 }
 
+//void __fastcall LoadVialsWorkerThread::updateStatus(int numerator, int denominator) {
+void __fastcall LoadVialsWorkerThread::updateStatus() {
+    //ostringstream oss; oss<<frmSamples->loadingMessage<<"\n"<<numerator<<" of "<<denominator;
+    ostringstream oss; oss<<frmSamples->loadingMessage<<"\n"<<rowCount<<" vials";//<<denominator;
+    frmSamples->panelLoading->Caption = oss.str().c_str();
+    frmSamples->panelLoading->Repaint();
+}
+
 /*
 // template
     ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
@@ -47,6 +55,7 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
     setupStringGrid(sgVials, SGVIALS_NUMCOLS, sgVialColName, sgVialColWidth);
     radbutDefault->Caption = DEFAULT_NUMROWS;
+    loadingMessage = "Loading samples, please wait...";
 }
 
 void __fastcall TfrmSamples::FormShow(TObject *Sender) {
@@ -258,7 +267,9 @@ void __fastcall  LoadVialsWorkerThread::Execute() {
     where
         s1.retrieval_cid = :jobID*/
 
-    q.open();
+    //int count = 0;
+    //return;
+    q.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
     while (!q.eof()) {
         LPDbCryovialStore * vial = new LPDbCryovialStore(q);
         pSampleRow  row = new SampleRow(
@@ -275,8 +286,9 @@ void __fastcall  LoadVialsWorkerThread::Execute() {
             );
         frmSamples->vials.push_back(row);
         q.next();
-        //Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
-        //panelLoading->Caption
+        rowCount++;
+        if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
+            // can't use args for synced method, don't know why
     }
 }
 
@@ -306,10 +318,12 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
 
 void TfrmSamples::loadRows() {
     std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
+    panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
     panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+    // Screen-> // disable mouse?
     Screen->Cursor = crSQLWait;
     //Repaint();
     loadVialsWorkerThread = new LoadVialsWorkerThread();
@@ -344,6 +358,7 @@ void TfrmSamples::showRows() {
         sgVials->Objects[0][row] = (TObject *)sampleRow;
         if (-1 != maxRows && row >= maxRows) break;
     }
+
     ostringstream oss; oss<<((-1 == maxRows) ? vials.size() : maxRows)<<" of "<<vials.size()<<" vials";
     groupVials->Caption = oss.str().c_str();
 }
@@ -361,35 +376,64 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
+    ostringstream oss; oss << __FUNC__; oss << printColWidths(sgVials); // print column widths so we can copy them into the source
+    debugLog(oss.str().c_str());
     sortList(ACol);
 }
 
-void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) { // print column widths to
-    ostringstream oss; oss << __FUNC__;
-    oss << printColWidths(sgVials); // so we can copy them into the source
-    debugLog(oss.str().c_str());
+void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
+    // ostringstream oss; oss << __FUNC__; oss << printColWidths(sgVials); debugLog(oss.str().c_str());
+    SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
+    if (NULL != sample) {
+        debugLog(sample->str().c_str());
+    }
 }
 
 void TfrmSamples::sortList(int col) {
+    static bool sort_desc[SGVIALS_NUMCOLS]; // reverse sort toggle
+    //using namespace SampleRow;
     //partial_sort
+
+/*
+sort box names properly:
+
+alpha sort:
+SEARCH Buffy 1
+SEARCH Buffy 103
+SEARCH Buffy 109
+SEARCH Buffy 11
+
+should be:
+
+SEARCH Buffy 1
+SEARCH Buffy 2
+SEARCH Buffy 3
+etc.
+
+search func: strip out numeric chars from name, concatenate, compare as ints
+
+
+*/
+    //
     bool (*sort_func)(const SampleRow *, const SampleRow *);
     switch (col) {
-    // and do reverse sort toggle
-    case SGVIALS_BARCODE:   sort_func = SampleRow::less_than_barcode;   break;
+
+    case SGVIALS_BARCODE:   sort_func = sort_desc[col] ? SampleRow::sort_asc_barcode : SampleRow::sort_desc_barcode;   break;
     //case SGVIALS_DESTBOX:   sort_func = SampleRow::less_than_; break;
     //case SGVIALS_DESTPOS:   sort_func = SampleRow::less_than_; break;
-    case SGVIALS_CURRBOX:   sort_func = SampleRow::less_than_currbox;   break;
+    case SGVIALS_CURRBOX:   sort_func = sort_desc[col] ? SampleRow::sort_asc_currbox : SampleRow::sort_desc_currbox;   break;
     //case SGVIALS_CURRPOS:   sort_func = SampleRow::less_than_; break;
-    case SGVIALS_SITE:      sort_func = SampleRow::less_than_site;      break;
-    case SGVIALS_POSITION:  sort_func = SampleRow::less_than_position;  break;
-    case SGVIALS_SHELF:     sort_func = SampleRow::less_than_shelf;     break;
-    case SGVIALS_VESSEL:    sort_func = SampleRow::less_than_vessel;    break;
-    case SGVIALS_STRUCTURE: sort_func = SampleRow::less_than_structure; break;
-    case SGVIALS_SLOT:      sort_func = SampleRow::less_than_slot;      break;
+    case SGVIALS_SITE:      sort_func = sort_desc[col] ? SampleRow::sort_asc_site : SampleRow::sort_desc_site;      break;
+    case SGVIALS_POSITION:  sort_func = sort_desc[col] ? SampleRow::sort_asc_position : SampleRow::sort_desc_position;  break;
+    case SGVIALS_SHELF:     sort_func = sort_desc[col] ? SampleRow::sort_asc_shelf : SampleRow::sort_desc_shelf;     break;
+    case SGVIALS_VESSEL:    sort_func = sort_desc[col] ? SampleRow::sort_asc_vessel : SampleRow::sort_desc_vessel;    break;
+    case SGVIALS_STRUCTURE: sort_func = sort_desc[col] ? SampleRow::sort_asc_structure : SampleRow::sort_desc_structure; break;
+    case SGVIALS_SLOT:      sort_func = sort_desc[col] ? SampleRow::sort_asc_slot : SampleRow::sort_desc_slot;      break;
     default:
         return;
         //throw Exception("Unknown sortType");
     }
+    sort_desc[col] = !sort_desc[col]; // toggle sort order
     std::sort(vials.begin(), vials.end(), sort_func);
     showRows();
 }
@@ -405,6 +449,45 @@ void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
         //rejectList();
         Close();
     }
+}
+
+void __fastcall TfrmSamples::btnAddSortClick(TObject *Sender) {
+    TComboBox * combo = new TComboBox(this);
+    combo->Parent = groupSort;
+    combo->Align = alLeft;
+    // new combo is last created,
+    //groupSort->InsertControl(combo);
+}
+
+
+void __fastcall TfrmSamples::btnDelSortClick(TObject *Sender) {
+    //groupSort->Controls[groupSort->ControlCount-1]
+    //if (dynamic_cast<TComboBox *>() != NULL) {
+    //    groupSort->RemoveComponent();
+    //}
+
+    //for (int i=groupSort->ControlCount-1; i>=0; i--) {
+        // work backwards through controls to find last combo box
+    for (int i=0; i<groupSort->ControlCount; i++) {
+        // controls are in creation order, ie. buttons first from design, and last added combo is last
+        TControl * control = groupSort->Controls[i];
+        TButton * button = dynamic_cast<TButton *>(control);
+        if (button != NULL) {
+            debugLog("found a button, caption: ");
+            debugLog(button->Caption);
+            continue; // skip
+        }
+        TComboBox * combo = dynamic_cast<TComboBox *>(control);
+        if (combo != NULL) {
+            debugLog("found a combo box, text:");
+            debugLog(combo->Text);
+        }
+        //groupSort->Controls[i]->RemoveComponent();
+        //groupSort->Controls
+    }
+
+    //TComboBox * combo = dynamic_cast<TComboBox *>(groupSort->Controls[groupSort->ControlCount-1]);
+    //if (NULL != combo) groupSort->RemoveComponent(combo);
 }
 
 
