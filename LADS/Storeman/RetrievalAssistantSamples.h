@@ -21,8 +21,7 @@ SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, strin
                 string site, int pos, string vessel, int shelf, string rack, int slot) :
         "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
         "   s.external_name AS site, m.position, v.external_full AS vessel,"
-        "   shelf_number, r.external_name AS rack, bs.slot_position"
-                */
+        "   shelf_number, r.external_name AS rack, bs.slot_position" */
 
 // encapsulate data about a stringgrid in a class?
 class SgData {
@@ -42,15 +41,15 @@ class SgData {
 // vials
 enum {
     SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_CURRPOS,
-    SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT,
+    SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
     SGVIALS_NUMCOLS
 };
+
 static const char * sgVialColName[SGVIALS_NUMCOLS] = {
-    "Barcode", "Dest box", "Pos", "Curr box", "Pos",
-    "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"
+    "Barcode", "Dest box", "Pos", "Curr box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"
 };
-//static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 156, 43, 195, 461, 100, 100, 100, 100, 100, 100 };
- static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 147, 43, 171, 37, 64, 50, 43, 100, 121, 40 };
+
+static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 147, 43, 171, 37, 64, 50, 43, 100, 121, 40 };
 
 /*
 "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"

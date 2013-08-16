@@ -49,7 +49,6 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
 
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
-    //memoDebug->Visible  = RETRASSTDEBUG;
     maxRows             = DEFAULT_NUMROWS;
     job                 = NULL;
     setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
@@ -64,10 +63,7 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     addChunk();
     showChunks();
     clearSG(sgVials);
-    //loadRows();
     timerLoadVials->Enabled = true;
-    //showRows();
-    //progressBottom->Visible = false;
     //if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
 }
 
@@ -417,21 +413,19 @@ search func: strip out numeric chars from name, concatenate, compare as ints
     //
     bool (*sort_func)(const SampleRow *, const SampleRow *);
     switch (col) {
-
-    case SGVIALS_BARCODE:   sort_func = sort_desc[col] ? SampleRow::sort_asc_barcode : SampleRow::sort_desc_barcode;   break;
-    //case SGVIALS_DESTBOX:   sort_func = SampleRow::less_than_; break;
-    //case SGVIALS_DESTPOS:   sort_func = SampleRow::less_than_; break;
-    case SGVIALS_CURRBOX:   sort_func = sort_desc[col] ? SampleRow::sort_asc_currbox : SampleRow::sort_desc_currbox;   break;
-    //case SGVIALS_CURRPOS:   sort_func = SampleRow::less_than_; break;
-    case SGVIALS_SITE:      sort_func = sort_desc[col] ? SampleRow::sort_asc_site : SampleRow::sort_desc_site;      break;
-    case SGVIALS_POSITION:  sort_func = sort_desc[col] ? SampleRow::sort_asc_position : SampleRow::sort_desc_position;  break;
-    case SGVIALS_SHELF:     sort_func = sort_desc[col] ? SampleRow::sort_asc_shelf : SampleRow::sort_desc_shelf;     break;
-    case SGVIALS_VESSEL:    sort_func = sort_desc[col] ? SampleRow::sort_asc_vessel : SampleRow::sort_desc_vessel;    break;
-    case SGVIALS_STRUCTURE: sort_func = sort_desc[col] ? SampleRow::sort_asc_structure : SampleRow::sort_desc_structure; break;
-    case SGVIALS_SLOT:      sort_func = sort_desc[col] ? SampleRow::sort_asc_slot : SampleRow::sort_desc_slot;      break;
+    case SGVIALS_BARCODE:   sort_func = sort_desc[col] ? SampleRow::sort_asc_barcode    : SampleRow::sort_desc_barcode;   break;
+    case SGVIALS_CURRBOX:   sort_func = sort_desc[col] ? SampleRow::sort_asc_currbox    : SampleRow::sort_desc_currbox;   break;
+    case SGVIALS_CURRPOS:   sort_func = sort_desc[col] ? SampleRow::sort_asc_currpos    : SampleRow::sort_desc_currpos;   break;
+    case SGVIALS_SITE:      sort_func = sort_desc[col] ? SampleRow::sort_asc_site       : SampleRow::sort_desc_site;      break;
+    case SGVIALS_POSITION:  sort_func = sort_desc[col] ? SampleRow::sort_asc_position   : SampleRow::sort_desc_position;  break;
+    case SGVIALS_SHELF:     sort_func = sort_desc[col] ? SampleRow::sort_asc_shelf      : SampleRow::sort_desc_shelf;     break;
+    case SGVIALS_VESSEL:    sort_func = sort_desc[col] ? SampleRow::sort_asc_vessel     : SampleRow::sort_desc_vessel;    break;
+    case SGVIALS_STRUCTURE: sort_func = sort_desc[col] ? SampleRow::sort_asc_structure  : SampleRow::sort_desc_structure; break;
+    case SGVIALS_SLOT:      sort_func = sort_desc[col] ? SampleRow::sort_asc_slot       : SampleRow::sort_desc_slot;      break;
+    case SGVIALS_DESTBOX:   sort_func = sort_desc[col] ? SampleRow::sort_asc_destbox    : SampleRow::sort_desc_destbox;   break; // these cols should be at the end? (right)
+    case SGVIALS_DESTPOS:   sort_func = sort_desc[col] ? SampleRow::sort_asc_destpos    : SampleRow::sort_desc_destpos;   break; //
     default:
-        return;
-        //throw Exception("Unknown sortType");
+        return; //throw Exception("Unknown sortType");
     }
     sort_desc[col] = !sort_desc[col]; // toggle sort order
     std::sort(vials.begin(), vials.end(), sort_func);

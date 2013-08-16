@@ -95,17 +95,18 @@ public:
                 string site, int pos, string vessel, int shelf, string rack, int slot) :
         store_record(store_rec), cryovial_barcode(barcode), aliquot_type_name(aliquot), box_name(box),
         site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot) {}
+
+    // box_name vs store_record->getID()?
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
     static bool sort_desc_barcode(const SampleRow *a, const SampleRow *b)   { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
     static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return numeric_compare(a->box_name, b->box_name); }
-    //static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return a->box_name.compare(b->box_name) > 0; }
-    static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return numeric_compare(a->box_name, b->box_name); }
-        // box_name vs store_record->getID()?
-    //static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record-> < b->; }
-    //static bool sort_desc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record-> < b->; }
-    //static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return a->store_record->getID() < b->; }
-    //static bool sort_desc_destpos(const SampleRow *a, const SampleRow *b)   { return a-> < b->; }
-    // "Russian Doll order"
+    static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return numeric_compare(b->box_name, a->box_name); }
+    static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
+    static bool sort_desc_currpos(const SampleRow *a, const SampleRow *b)   { return a->store_record->getPosition() > b->store_record->getPosition(); }
+    static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return numeric_compare(a->dest_box, b->dest_box); }
+    static bool sort_desc_destbox(const SampleRow *a, const SampleRow *b)   { return numeric_compare(b->dest_box, a->dest_box); }
+    static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_pos < b->dest_pos; }
+    static bool sort_desc_destpos(const SampleRow *a, const SampleRow *b)   { return a->dest_pos > b->dest_pos; }
     static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
     static bool sort_desc_site(const SampleRow *a, const SampleRow *b)      { return a->site_name.compare(b->site_name) > 0; }
     static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->position < b->position; }
@@ -121,7 +122,7 @@ public:
     static bool numeric_compare(const string a, const string b) {
         // strip a and b of non-numerics
         struct temp { // Local functions are not allowed in C++, but local classes are and functions are allowed in local classes
-            int alpha_to_int(string a) {
+            static int alpha_to_int(string a) {
                 ostringstream numerics;
                 for (int i=0; i<a.length(); i++) {
                     char ch = a.at(i); if (ch >= 0x30 && ch < 0x3A) { numerics << ch; } // pull out the numerics
@@ -187,7 +188,6 @@ typedef std::vector< Chunk * >  vecpChunk;
 // jobs grid setup
 enum { SGJOBS_DESCRIP, SGJOBS_JOBTYPE, SGJOBS_STATUS, SGJOBS_PRIMARY, SGJOBS_PROJECT, SGJOBS_REASON, SGJOBS_TIMESTAMP, SGJOBS_NUMCOLS };
 static const char * sgJobsColName[SGJOBS_NUMCOLS]   = { "Description", "Job type", "Status", "Primary Aliquot", "Project", "Reason", "Timestamp" };
-//static const int    sgJobsColWidth[SGJOBS_NUMCOLS]  = { 200, 120, 100, 200, 100, 200, 100 };
 static const int    sgJobsColWidth[SGJOBS_NUMCOLS]  = {401, 113, 72, 109, 100, 229, 127 };
 
 static const char * jobStatusString(short status) {
