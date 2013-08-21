@@ -336,6 +336,7 @@ std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { /
 
 void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
+    if (NULL == job) return;
     switch (job->getStatus()) {
     case LCDbCryoJob::Status::NEW_JOB: // manage
         switch (job->getJobType()) {

@@ -12,6 +12,7 @@
 #include "LCDbJob.h"
 #include "LPDbCryovialStore.h"
 #include "LPDbCryovial.h"
+#include "LDbBoxStore.h"
 
 using namespace std;
 
@@ -59,22 +60,96 @@ std::string printColWidths(TStringGrid * sg) {
 
 // end utilities
 
-//struct SampleLocation { // to include in SampleRow for each aliquot?
-//    int dummy;
-//};
+class BoxRow {
+public:
+    LCDbBoxStore * store_record; // public LPDbID
+    //LPDbBoxName ?? getStatus
+    //string              cryovial_barcode;
+    //string              aliquot_type_name;
+    string              box_name;
+    string              dest_box;
+    string              dest_pos;
+    string              site_name;
+    int                 position;
+    string              vessel_name;
+    int                 shelf_number;
+    string              rack_name;
+    int                 slot_position;
+    BoxRow() {}
+    BoxRow(  LCDbBoxStore * store_rec, //string barcode, string aliquot,
+                string box,
+                string site, int pos, string vessel, int shelf, string rack, int slot) :
+        store_record(store_rec), box_name(box),
+        site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot) {}
 
-//class Sorter {
-//    int dummy;
-//};
-//    struct Sort1 : public Sorter {
-//        bool operator()(const SampleRow &a, const SampleRow &b) const {
-//            return a.position < b.position;
-//        }
-//    } sort1;
+    // box_name vs store_record->getID()?
+    static bool sort_asc_currbox(const BoxRow *a, const BoxRow *b)    { return numeric_compare(a->box_name, b->box_name); }
+    static bool sort_desc_currbox(const BoxRow *a, const BoxRow *b)   { return numeric_compare(b->box_name, a->box_name); }
+ //   static bool sort_asc_currpos(const BoxRow *a, const BoxRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
+ //   static bool sort_desc_currpos(const BoxRow *a, const BoxRow *b)   { return a->store_record->getPosition() > b->store_record->getPosition(); }
+    static bool sort_asc_destbox(const BoxRow *a, const BoxRow *b)    { return numeric_compare(a->dest_box, b->dest_box); }
+    static bool sort_desc_destbox(const BoxRow *a, const BoxRow *b)   { return numeric_compare(b->dest_box, a->dest_box); }
+    static bool sort_asc_destpos(const BoxRow *a, const BoxRow *b)    { return a->dest_pos < b->dest_pos; }
+    static bool sort_desc_destpos(const BoxRow *a, const BoxRow *b)   { return a->dest_pos > b->dest_pos; }
+    static bool sort_asc_site(const BoxRow *a, const BoxRow *b)       { return a->site_name.compare(b->site_name) < 0; }
+    static bool sort_desc_site(const BoxRow *a, const BoxRow *b)      { return a->site_name.compare(b->site_name) > 0; }
+    static bool sort_asc_position(const BoxRow *a, const BoxRow *b)   { return a->position < b->position; }
+    static bool sort_desc_position(const BoxRow *a, const BoxRow *b)  { return a->position > b->position; }
+    static bool sort_asc_shelf(const BoxRow *a, const BoxRow *b)      { return a->shelf_number < b->shelf_number; }
+    static bool sort_desc_shelf(const BoxRow *a, const BoxRow *b)     { return a->shelf_number > b->shelf_number; }
+    static bool sort_asc_vessel(const BoxRow *a, const BoxRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
+    static bool sort_desc_vessel(const BoxRow *a, const BoxRow *b)    { return a->vessel_name.compare(b->vessel_name) > 0; }
+    static bool sort_asc_structure(const BoxRow *a, const BoxRow *b)  { return numeric_compare(a->rack_name, b->rack_name); }//return a->rack_name.compare(b->rack_name) > 0; }
+    static bool sort_desc_structure(const BoxRow *a, const BoxRow *b) { return a->rack_name.compare(b->rack_name) < 0; }
+    static bool sort_asc_slot(const BoxRow *a, const BoxRow *b)       { return a->slot_position < b->slot_position; }
+    static bool sort_desc_slot(const BoxRow *a, const BoxRow *b)      { return a->slot_position > b->slot_position; }
 
-//     SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_CURRPOS,
-//    SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT,
-    //static bool less_than_(const SampleRow *a, const SampleRow *b) { return a-> < b->; }
+    // search func: strip out numeric chars from name, concatenate, compare as ints
+    static bool numeric_compare(const string a, const string b) {
+        struct temp { // Local functions are not allowed in C++, but local classes are and functions are allowed in local classes
+            static int alpha_to_int(string a) {
+                ostringstream numerics;
+                for (int i=0; i<a.length(); i++) {
+                    char ch = a.at(i); if (ch >= 0x30 && ch < 0x3A) { numerics << ch; } // pull out the numerics
+                }
+                return atoi(numerics.str().c_str());
+            }
+        } local;
+        return local.alpha_to_int(a) < local.alpha_to_int(b);
+        // what if there are no numerics?
+    }
+    string str() {
+        ostringstream oss; oss<<__FUNC__
+        //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position
+            <<". id: "<<(store_record->getID())<<", "
+            //<<"status: "<<(store_record->getStatus())<<", "
+            //storeID       storeID
+            //retrievalID   retrievalID
+        // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position
+            // ?
+            //<<"barcode: "<<store_record->getBarcode()
+            //<<"boxID"<<store_record->getBoxID()
+            //<<"sampleID"<<store_record->getSampleID()
+            //<<"aliquot type ID"<<store_record->getAliquotType()
+            //<<"status"<<store_record->getStatus()<<", "
+            //<<"position"<<store_record->getPosition()<<", "
+        // BoxRow
+            //<<"cryovial_barcode: "<<cryovial_barcode<<", "
+            //<<"aliquot_type_name: "<<aliquot_type_name<<", "
+            <<"box_name: "<<box_name<<", "
+            <<"dest_box: "<<dest_box<<", "
+            <<"dest_pos: "<<dest_pos<<", "
+            <<"site_name: "<<site_name<<", "
+            <<"position: "<<position<<", "
+            <<"vessel_name: "<<vessel_name<<", "
+            <<"shelf_number: "<<shelf_number<<", "
+            <<"rack_name: "<<rack_name<<", "
+            <<"slot_position: "<<slot_position;
+        return oss.str();
+    }
+};
+typedef BoxRow * pBoxRow;
+typedef std::vector<pBoxRow> vecpBoxRow;
 
 class SampleRow {
 public:
@@ -197,7 +272,6 @@ private:
 enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
 static const char * sgChunksColName[SGCHUNKS_NUMCOLS]   = { "Section", "Start", "End", "Size" };
 static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 200, 200, 200, 200 };
-
 class Chunk { // not recorded in database
 public:
     Chunk() : section(0), start(0), end(0) { }
@@ -273,3 +347,48 @@ public:
 };
 extern PACKAGE TfrmRetrievalAssistant *frmRetrievalAssistant;
 #endif
+
+//struct SampleLocation { // to include in SampleRow for each aliquot?
+//    int dummy;
+//};
+
+//class Sorter {
+//    int dummy;
+//};
+//    struct Sort1 : public Sorter {
+//        bool operator()(const SampleRow &a, const SampleRow &b) const {
+//            return a.position < b.position;
+//        }
+//    } sort1;
+
+//     SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_CURRPOS,
+//    SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT,
+    //static bool less_than_(const SampleRow *a, const SampleRow *b) { return a-> < b->; }
+
+//class RetrievalPlan : public LCDbID { // c_retrieval_plan
+//    int                     retrieval_plan_cid;
+//    std::string             name;
+//    vecpChunk               chunks;
+//    int                     status;
+//    LCDbCryoJob::JobKind    jobType;
+//public:
+//    RetrievalPlan(std::string nm) : retrieval_plan_cid(0), name(nm) { }
+//    void readChunks();
+//    void deletePlan() { /* set 99 */ }
+//    void setCID(int id) { retrieval_plan_cid = id; }
+//    void setStatus(int st) { status = st; }
+//    int getStatus() { return status; }
+//    void setName(std::string nm) { name = nm; }
+//    std::string getName() { return name; }
+//    void addChunk(Chunk * ch) { chunks.push_back(ch); }
+//    void popChunk() { delete chunks.back(); chunks.pop_back(); }
+//};
+//
+//typedef std::vector<RetrievalPlan *> vecpRetrievalPlan;
+
+//class RetrievalPlans : public LCDbID {
+//class RetrievalPlans : public LDbCache< RetrievalPlan >, public LDbSingleton< RetrievalPlan > {
+//    vecpRetrievalPlan plans;
+//public:
+//    void read();
+//};

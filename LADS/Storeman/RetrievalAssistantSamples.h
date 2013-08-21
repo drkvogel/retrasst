@@ -39,16 +39,12 @@ class SgData {
 // marked to make a new chunk of replacements
 
 // vials
-enum {
-    SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_CURRPOS,
-    SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
-    SGVIALS_NUMCOLS
-};
-
+enum {  SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_CURRPOS,
+        SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
+        SGVIALS_NUMCOLS};
 static const char * sgVialColName[SGVIALS_NUMCOLS] = {
     "Barcode", "Dest box", "Pos", "Curr box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"
 };
-
 static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 147, 43, 171, 37, 64, 50, 43, 100, 121, 40 };
 
 /*

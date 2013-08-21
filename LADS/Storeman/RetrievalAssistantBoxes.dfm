@@ -216,7 +216,9 @@ object frmBoxes: TfrmBoxes
       Height = 163
       Align = alClient
       FixedCols = 0
+      Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect, goFixedRowClick]
       TabOrder = 0
+      OnFixedCellClick = sgBoxesFixedCellClick
     end
     object memoDebug: TMemo
       Left = 2
@@ -234,5 +236,12 @@ object frmBoxes: TfrmBoxes
     OnTimer = timerCustomRowsTimer
     Left = 352
     Top = 296
+  end
+  object timerLoadBoxes: TTimer
+    Enabled = False
+    Interval = 200
+    OnTimer = timerLoadBoxesTimer
+    Left = 464
+    Top = 40
   end
 end

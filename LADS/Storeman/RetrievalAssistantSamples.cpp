@@ -72,8 +72,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         // save stuff
         // ie, create the retrieval plan by inserting into c_box_retrieval and l_sample_retrieval
         Close();
-    } else {
-        // delete chunks, start again
+    } else { // start again
         chunks.clear();
         addChunk();
     }
@@ -384,17 +383,6 @@ void TfrmSamples::sortList(int col) {
     //partial_sort
 
     static Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
-//        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_barcode,   SampleRow::sort_desc_barcode,  sgVialColName[0] },
-//        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_destbox,   SampleRow::sort_desc_destbox,  sgVialColName[1] },
-//        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_destpos,   SampleRow::sort_desc_destpos,  sgVialColName[2] },
-//        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_currbox,   SampleRow::sort_desc_currbox,  sgVialColName[3] },
-//        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_currpos,   SampleRow::sort_desc_currpos,  sgVialColName[4] },
-//        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_site,      SampleRow::sort_desc_site,     sgVialColName[5] },
-//        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_position,  SampleRow::sort_desc_position, sgVialColName[6] },
-//        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_shelf,     SampleRow::sort_desc_shelf,    sgVialColName[7] },
-//        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_vessel,    SampleRow::sort_desc_vessel,   sgVialColName[8] },
-//        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_structure, SampleRow::sort_desc_structure,sgVialColName[9] },
-//        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_slot,      SampleRow::sort_desc_slot,     sgVialColName[10] },
         { SampleRow::sort_asc_barcode,   SampleRow::sort_desc_barcode,  sgVialColName[0] },
         { SampleRow::sort_asc_destbox,   SampleRow::sort_desc_destbox,  sgVialColName[1] },
         { SampleRow::sort_asc_destpos,   SampleRow::sort_desc_destpos,  sgVialColName[2] },

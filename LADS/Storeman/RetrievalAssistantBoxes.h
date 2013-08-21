@@ -53,38 +53,30 @@ public:
 
 //	enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
 //	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
-//class RetrievalPlan : public LCDbID { // c_retrieval_plan
-//    int                     retrieval_plan_cid;
-//    std::string             name;
-//    vecpChunk               chunks;
-//    int                     status;
-//    LCDbCryoJob::JobKind    jobType;
-//public:
-//    RetrievalPlan(std::string nm) : retrieval_plan_cid(0), name(nm) { }
-//    void readChunks();
-//    void deletePlan() { /* set 99 */ }
-//    void setCID(int id) { retrieval_plan_cid = id; }
-//    void setStatus(int st) { status = st; }
-//    int getStatus() { return status; }
-//    void setName(std::string nm) { name = nm; }
-//    std::string getName() { return name; }
-//    void addChunk(Chunk * ch) { chunks.push_back(ch); }
-//    void popChunk() { delete chunks.back(); chunks.pop_back(); }
-//};
-//
-//typedef std::vector<RetrievalPlan *> vecpRetrievalPlan;
 
-//class RetrievalPlans : public LCDbID {
-//class RetrievalPlans : public LDbCache< RetrievalPlan >, public LDbSingleton< RetrievalPlan > {
-//    vecpRetrievalPlan plans;
-//public:
-//    void read();
-//};
+
+// boxes
+enum {  SGBOXES_BOXNAME,
+        SGBOXES_SITE, SGBOXES_POSITION, SGBOXES_SHELF, SGBOXES_VESSEL, SGBOXES_STRUCTURE, SGBOXES_SLOT, // location in "Russian Doll order"
+        SGBOXES_NUMCOLS } sg_boxes_cols;
+static const char * sgBoxesColName[SGBOXES_NUMCOLS] = {"Box name", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
+static int sgBoxesColWidth[SGBOXES_NUMCOLS] = {147, 64, 50, 43, 100, 121, 40};
+
+class LoadBoxesWorkerThread : public TThread {
+private:
+protected:
+    void __fastcall Execute();
+public:
+    __fastcall LoadBoxesWorkerThread();
+    int             rowCount;       // current rows loaded, for thread sync
+    void __fastcall updateStatus(); // syncronized method can't have args (?)
+};
 
 typedef std::vector<LCDbBoxStore *> vecpBox;
 //typedef std::vector< LPDbCryovialStore *> vecpVial;
 
 class TfrmBoxes : public TForm {
+friend class LoadBoxesWorkerThread;
 __published:
     TGroupBox *groupList;
     TPanel *Panel1;
@@ -108,6 +100,7 @@ __published:
     TRadioButton *radbutCustom;
     TEdit *editCustomRows;
     TTimer *timerCustomRows;
+    TTimer *timerLoadBoxes;
     void __fastcall FormShow(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
@@ -125,11 +118,18 @@ __published:
     void __fastcall radbutCustomClick(TObject *Sender);
     void __fastcall btnDecrClick(TObject *Sender);
     void __fastcall btnIncrClick(TObject *Sender);
+    void __fastcall sgBoxesFixedCellClick(TObject *Sender, int ACol, int ARow);
+    void __fastcall timerLoadBoxesTimer(TObject *Sender);
 private:
-    int                 numrows; // rows to show at a time
+    const char *        loadingMessage;
+    LoadBoxesWorkerThread * loadBoxesWorkerThread;
+    void __fastcall loadBoxesWorkerThreadTerminated(TObject *Sender);
+    int                 maxRows; // rows to show at a time
     LCDbCryoJob *       job;
     vecpChunk           chunks;
     vecpBox             boxes;
+    void                sortList(int col);
+    void                addChunk();
     void                showChunks();
     void                loadRows();
     void                showRows();
