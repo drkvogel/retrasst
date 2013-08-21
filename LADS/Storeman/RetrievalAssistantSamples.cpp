@@ -155,11 +155,9 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
         chunk = (Chunk *)sgChunks->Objects[0][ARow];
         background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == chunk) {
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
-            //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
-            //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
         //else if (chunk->
     }
@@ -388,13 +386,7 @@ void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
 void TfrmSamples::sortList(int col) {
     //partial_sort
 
-    struct Sorter {
-        bool desc; // toggle: has this column been sorted desc
-        bool (*sort_func_asc)(const SampleRow *, const SampleRow *); // sort functions for std::sort
-        bool (*sort_func_dsc)(const SampleRow *, const SampleRow *);
-    };
-
-    static Sorter sorter[SGVIALS_NUMCOLS] = {
+    static Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
         { false, SampleRow::sort_asc_barcode,   SampleRow::sort_desc_barcode },
         { false, SampleRow::sort_asc_destbox,   SampleRow::sort_desc_destbox },
         { false, SampleRow::sort_asc_destpos,   SampleRow::sort_desc_destpos },
@@ -407,46 +399,7 @@ void TfrmSamples::sortList(int col) {
         { false, SampleRow::sort_asc_structure, SampleRow::sort_desc_structure },
         { false, SampleRow::sort_asc_slot,      SampleRow::sort_desc_slot },
     };
-
-// more verbose way of doing it:
-//    static bool sort_desc[SGVIALS_NUMCOLS]; // reverse sort toggle
-//    bool (*sort_funcs_asc[SGVIALS_NUMCOLS])(const SampleRow *, const SampleRow *) = {
-//        SampleRow::sort_asc_barcode,
-//        SampleRow::sort_asc_destbox, SampleRow::sort_asc_destpos,
-//        SampleRow::sort_asc_currbox, SampleRow::sort_asc_currpos,
-//        SampleRow::sort_asc_site, SampleRow::sort_asc_position, SampleRow::sort_asc_shelf,
-//        SampleRow::sort_asc_vessel, SampleRow::sort_asc_structure, SampleRow::sort_asc_slot
-//    };
-//
-//    bool (*sort_funcs_dsc[SGVIALS_NUMCOLS])(const SampleRow *, const SampleRow *) = {
-//        SampleRow::sort_desc_barcode,
-//        SampleRow::sort_desc_destbox, SampleRow::sort_desc_destpos,
-//        SampleRow::sort_desc_currbox, SampleRow::sort_desc_currpos,
-//        SampleRow::sort_desc_site, SampleRow::sort_desc_position, SampleRow::sort_desc_shelf,
-//        SampleRow::sort_desc_vessel, SampleRow::sort_desc_structure, SampleRow::sort_desc_slot
-//    };
-
-//    bool (*sort_func)(const SampleRow *, const SampleRow *);
-//    switch (col) {
-//    case SGVIALS_BARCODE:   sort_func = sort_desc[col] ? SampleRow::sort_asc_barcode    : SampleRow::sort_desc_barcode;   break;
-//    case SGVIALS_CURRBOX:   sort_func = sort_desc[col] ? SampleRow::sort_asc_currbox    : SampleRow::sort_desc_currbox;   break;
-//    case SGVIALS_CURRPOS:   sort_func = sort_desc[col] ? SampleRow::sort_asc_currpos    : SampleRow::sort_desc_currpos;   break;
-//    case SGVIALS_SITE:      sort_func = sort_desc[col] ? SampleRow::sort_asc_site       : SampleRow::sort_desc_site;      break;
-//    case SGVIALS_POSITION:  sort_func = sort_desc[col] ? SampleRow::sort_asc_position   : SampleRow::sort_desc_position;  break;
-//    case SGVIALS_SHELF:     sort_func = sort_desc[col] ? SampleRow::sort_asc_shelf      : SampleRow::sort_desc_shelf;     break;
-//    case SGVIALS_VESSEL:    sort_func = sort_desc[col] ? SampleRow::sort_asc_vessel     : SampleRow::sort_desc_vessel;    break;
-//    case SGVIALS_STRUCTURE: sort_func = sort_desc[col] ? SampleRow::sort_asc_structure  : SampleRow::sort_desc_structure; break;
-//    case SGVIALS_SLOT:      sort_func = sort_desc[col] ? SampleRow::sort_asc_slot       : SampleRow::sort_desc_slot;      break;
-//    case SGVIALS_DESTBOX:   sort_func = sort_desc[col] ? SampleRow::sort_asc_destbox    : SampleRow::sort_desc_destbox;   break; // these cols should be at the end? (right)
-//    case SGVIALS_DESTPOS:   sort_func = sort_desc[col] ? SampleRow::sort_asc_destpos    : SampleRow::sort_desc_destpos;   break; //
-//    default:
-//        return; //throw Exception("Unknown sortType");
-//    }
-//    std::sort(vials.begin(), vials.end(), sort_func);
-//    sort_desc[col] = !sort_desc[col]; // toggle sort order
-
-    std::sort(vials.begin(), vials.end(), sorter[col].desc ? sorter[col].sort_func_dsc : sorter[col].sort_func_asc);
-    sorter[col].desc = !sorter[col].desc; // toggle
+    sorter[col].sort(vials);
     showRows();
 }
 
@@ -457,7 +410,6 @@ void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
 
 void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
-        //autoChunk();
         //rejectList();
         Close();
     }

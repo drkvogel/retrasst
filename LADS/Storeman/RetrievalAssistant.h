@@ -141,7 +141,6 @@ public:
             <<"status: "<<(store_record->getStatus())<<", "
             //storeID       storeID
             //retrievalID   retrievalID
-
         // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position
             // ?
             //<<"barcode: "<<store_record->getBarcode()
@@ -150,7 +149,6 @@ public:
             //<<"aliquot type ID"<<store_record->getAliquotType()
             //<<"status"<<store_record->getStatus()<<", "
             //<<"position"<<store_record->getPosition()<<", "
-
         // SampleRow
             <<"cryovial_barcode: "<<cryovial_barcode<<", "
             <<"aliquot_type_name: "<<aliquot_type_name<<", "
@@ -169,7 +167,16 @@ public:
 typedef SampleRow * pSampleRow;
 typedef std::vector<pSampleRow> vecpSampleRow;
 
-
+template <class T>
+struct Sorter {
+    void sort(std::vector<T *> & vec) {
+        std::sort(vec.begin(), vec.end(), desc ? sort_func_dsc : sort_func_asc);
+        desc = !desc; // toggle
+    }
+    bool desc; // toggle: has this column been sorted desc
+    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
+    bool (*sort_func_dsc)(const T *, const T *); // descending sort function
+};
 
 // chunk stringgrid setup
 enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
