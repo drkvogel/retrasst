@@ -10,7 +10,22 @@ excel-style x/y/z sort of all fields
 
 assign destination boxes before creating chunks - may be done by create list - discuss with nick
 
-end meeting
+end meeting - here are notes:
+
+Create List
+-          Any aliquot type used by a project can be selected as the primary; the secondary cannot match the primary
+-          Creating a new sample retrieval list will always create new box name records and (provisionally) allocate cryovial positions
+-          A  source file may be pre-sorted and may include box numbers and positions as well as the barcode
+-          The retrieval list can be re-sorted on screen but this will only affect the destination positions if the source was not pre-sorted
+-          Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position
+-          Rejected tasks can be modified (re-using existing box name records) or deleted
+-          Finding where all the cryovials are can take a long time; users must wait for the information to be available
+
+Retrieval Assistant
+-          Cryogenics staff can reject a retrieval list if it does not have a retrieval plan
+-          As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box
+-          Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position
+-          If required, the secondary aliquots appear at the end of the retrieval plan for each chunk – they may never be needed
 
 ---
 
