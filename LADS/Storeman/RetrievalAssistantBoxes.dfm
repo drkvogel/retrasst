@@ -239,7 +239,7 @@ object frmBoxes: TfrmBoxes
   end
   object timerLoadBoxes: TTimer
     Enabled = False
-    Interval = 200
+    Interval = 500
     OnTimer = timerLoadBoxesTimer
     Left = 464
     Top = 40

@@ -82,8 +82,15 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     job                 = NULL;
     maxRows             = DEFAULT_NUMROWS;
-    setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
+    //setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
     radbutDefault->Caption = DEFAULT_NUMROWS;
+}
+
+VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime) {
+    cout << "CALLBACK " << dwTime << '\n';
+    cout.flush();
+    Application->MessageBoxW(L"Finished!", L"Finished!", MB_OK);
+    KillTimer(NULL, frmBoxes->TimerId);
 }
 
 void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
@@ -93,7 +100,8 @@ void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
     addChunk();
     showChunks();
     clearSG(sgBoxes);
-    timerLoadBoxes->Enabled = true;
+    //timerLoadBoxes->Enabled = true; // "not enough timers are available" - really? use WinAPI timer instead
+    TfrmBoxes::TimerId = SetTimer(NULL, 0, 2000, &TimerProc); //2000 milliseconds
 }
 
 void __fastcall TfrmBoxes::btnAddChunkClick(TObject *Sender) { addChunk(); }
@@ -357,5 +365,8 @@ void TfrmBoxes::sortList(int col) {
 //    sorter[col].sort_toggle(vials);
     showRows();
 }
-void __fastcall TfrmBoxes::timerLoadBoxesTimer(TObject *Sender) { loadRows(); }
+void __fastcall TfrmBoxes::timerLoadBoxesTimer(TObject *Sender) {
+    timerLoadBoxes->Enabled = false;
+    loadRows();
+}
 

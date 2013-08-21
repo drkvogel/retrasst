@@ -55,6 +55,8 @@ public:
 //	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
 
 
+
+
 // boxes
 enum {  SGBOXES_BOXNAME,
         SGBOXES_SITE, SGBOXES_POSITION, SGBOXES_SHELF, SGBOXES_VESSEL, SGBOXES_STRUCTURE, SGBOXES_SLOT, // location in "Russian Doll order"
@@ -134,6 +136,11 @@ private:
     void                loadRows();
     void                showRows();
     void                radgrpRowsChange();
+    //static UINT TimerId; // must be static as well to be used by callback
+    UINT TimerId;
+    static VOID CALLBACK TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime);
+        // Declaring the function static stops the __closure keyword being included
+        // http://vogelworks.wordpress.com/?s=closure
     //void loadChunks();
 public:
     __fastcall          TfrmBoxes(TComponent* Owner);
