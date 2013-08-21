@@ -167,15 +167,35 @@ public:
 typedef SampleRow * pSampleRow;
 typedef std::vector<pSampleRow> vecpSampleRow;
 
+/** helper class to sort rows of type T via sort functions defined in intializer
+    sort explicitly ascending or descending, or toggle last sort order */
 template <class T>
-struct Sorter {
-    void sort(std::vector<T *> & vec) {
-        std::sort(vec.begin(), vec.end(), desc ? sort_func_dsc : sort_func_asc);
-        desc = !desc; // toggle
+class Sorter {
+    enum SortOrder { ASCENDING, DESCENDING } sortOrder;
+    //static std::vector<T *> vec;
+    void sort(std::vector<T *> & vec, SortOrder order) {
+        switch (order) {
+            case ASCENDING:     std::sort(vec.begin(), vec.end(), sort_func_asc); break;
+            case DESCENDING:    std::sort(vec.begin(), vec.end(), sort_func_dsc); break;
+            default:            throw Exception("Invalid sort order");
+        }
     }
-    bool desc; // toggle: has this column been sorted desc
+public:
+    //Sorter() { sortOrder = ASCENDING; }
+    void sort_asc(std::vector<T *> & vec) { sort(vec, ASCENDING);  }
+    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING); }
+    void sort_toggle(std::vector<T *> & vec) {
+        sort(vec, sortOrder);
+        sortOrder = (sortOrder == ASCENDING) ? DESCENDING : ASCENDING; // toggle
+    }
+//    void sort(std::vector<T *> & vec) {
+//        std::sort(vec.begin(), vec.end(), descending ? sort_func_dsc : sort_func_asc);
+//        descending = !descending; // toggle
+//    }
+//    bool descending; // toggle: has this column been sorted desc
     bool (*sort_func_asc)(const T *, const T *); // ascending sort function
     bool (*sort_func_dsc)(const T *, const T *); // descending sort function
+    string description;
 };
 
 // chunk stringgrid setup

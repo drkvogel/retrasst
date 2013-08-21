@@ -18,10 +18,8 @@ __fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
     FreeOnTerminate = true;
 }
 
-//void __fastcall LoadVialsWorkerThread::updateStatus(int numerator, int denominator) {
 void __fastcall LoadVialsWorkerThread::updateStatus() {
-    //ostringstream oss; oss<<frmSamples->loadingMessage<<"\n"<<numerator<<" of "<<denominator;
-    ostringstream oss; oss<<frmSamples->loadingMessage<<"\n"<<rowCount<<" vials";//<<denominator;
+    ostringstream oss; oss<<frmSamples->loadingMessage<<"\n"<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
     frmSamples->panelLoading->Caption = oss.str().c_str();
     frmSamples->panelLoading->Repaint();
 }
@@ -319,7 +317,6 @@ void TfrmSamples::loadRows() {
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
     // Screen-> // disable mouse?
     Screen->Cursor = crSQLWait;
-    //Repaint();
     loadVialsWorkerThread = new LoadVialsWorkerThread();
     loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
 }
@@ -387,19 +384,19 @@ void TfrmSamples::sortList(int col) {
     //partial_sort
 
     static Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
-        { false, SampleRow::sort_asc_barcode,   SampleRow::sort_desc_barcode },
-        { false, SampleRow::sort_asc_destbox,   SampleRow::sort_desc_destbox },
-        { false, SampleRow::sort_asc_destpos,   SampleRow::sort_desc_destpos },
-        { false, SampleRow::sort_asc_currbox,   SampleRow::sort_desc_currbox },
-        { false, SampleRow::sort_asc_currpos,   SampleRow::sort_desc_currpos },
-        { false, SampleRow::sort_asc_site,      SampleRow::sort_desc_site },
-        { false, SampleRow::sort_asc_position,  SampleRow::sort_desc_position },
-        { false, SampleRow::sort_asc_shelf,     SampleRow::sort_desc_shelf },
-        { false, SampleRow::sort_asc_vessel,    SampleRow::sort_desc_vessel },
-        { false, SampleRow::sort_asc_structure, SampleRow::sort_desc_structure },
-        { false, SampleRow::sort_asc_slot,      SampleRow::sort_desc_slot },
+        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_barcode,   SampleRow::sort_desc_barcode,  sgVialColName[0] },
+        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_destbox,   SampleRow::sort_desc_destbox,  sgVialColName[1] },
+        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_destpos,   SampleRow::sort_desc_destpos,  sgVialColName[2] },
+        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_currbox,   SampleRow::sort_desc_currbox,  sgVialColName[3] },
+        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_currpos,   SampleRow::sort_desc_currpos,  sgVialColName[4] },
+        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_site,      SampleRow::sort_desc_site,     sgVialColName[5] },
+        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_position,  SampleRow::sort_desc_position, sgVialColName[6] },
+        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_shelf,     SampleRow::sort_desc_shelf,    sgVialColName[7] },
+        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_vessel,    SampleRow::sort_desc_vessel,   sgVialColName[8] },
+        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_structure, SampleRow::sort_desc_structure,sgVialColName[9] },
+        { Sorter<SampleRow>::SortOrder::ASCENDING, SampleRow::sort_asc_slot,      SampleRow::sort_desc_slot,     sgVialColName[10] },
     };
-    sorter[col].sort(vials);
+    sorter[col].sort_toggle(vials);
     showRows();
 }
 
