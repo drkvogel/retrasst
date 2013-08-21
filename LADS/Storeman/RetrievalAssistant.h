@@ -171,8 +171,19 @@ typedef std::vector<pSampleRow> vecpSampleRow;
     sort explicitly ascending or descending, or toggle last sort order */
 template <class T>
 class Sorter {
+public:
+    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
+    bool (*sort_func_dsc)(const T *, const T *); // descending sort function
+    string description;
+    void sort_asc(std::vector<T *> & vec) { sort(vec, ASCENDING);  }
+    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING); }
+    void sort_toggle(std::vector<T *> & vec) {
+        sort(vec, sortOrder);
+        sortOrder = (sortOrder == ASCENDING) ? DESCENDING : ASCENDING; // toggle
+    }
+    //Sorter() { sortOrder = ASCENDING; } // compiler expects this ctor to be initialized??
+private:
     enum SortOrder { ASCENDING, DESCENDING } sortOrder;
-    //static std::vector<T *> vec;
     void sort(std::vector<T *> & vec, SortOrder order) {
         switch (order) {
             case ASCENDING:     std::sort(vec.begin(), vec.end(), sort_func_asc); break;
@@ -180,28 +191,12 @@ class Sorter {
             default:            throw Exception("Invalid sort order");
         }
     }
-public:
-    //Sorter() { sortOrder = ASCENDING; }
-    void sort_asc(std::vector<T *> & vec) { sort(vec, ASCENDING);  }
-    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING); }
-    void sort_toggle(std::vector<T *> & vec) {
-        sort(vec, sortOrder);
-        sortOrder = (sortOrder == ASCENDING) ? DESCENDING : ASCENDING; // toggle
-    }
-//    void sort(std::vector<T *> & vec) {
-//        std::sort(vec.begin(), vec.end(), descending ? sort_func_dsc : sort_func_asc);
-//        descending = !descending; // toggle
-//    }
-//    bool descending; // toggle: has this column been sorted desc
-    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-    bool (*sort_func_dsc)(const T *, const T *); // descending sort function
-    string description;
 };
 
 // chunk stringgrid setup
 enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
 static const char * sgChunksColName[SGCHUNKS_NUMCOLS]   = { "Section", "Start", "End", "Size" };
-static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 100, 100, 100, 100 };
+static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 200, 200, 200, 200 };
 
 class Chunk { // not recorded in database
 public:
