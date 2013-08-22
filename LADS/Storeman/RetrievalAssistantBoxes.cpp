@@ -87,20 +87,11 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     radbutDefault->Caption = DEFAULT_NUMROWS;
 }
 
-VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime) {
-    //cout << "CALLBACK " << dwTime << '\n'; cout.flush();
+VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime) { //cout << "CALLBACK " << dwTime << '\n'; cout.flush();
     KillTimer(NULL, frmBoxes->TimerId);
     msgbox("Win Timer finished");
     frmBoxes->loadRows();
 }
-
-/*
-void TfrmSamples::setJob(LCDbCryoJob * ajob) {
-    msgbox("Setting job");
-    job = ajob;
-    msgbox("job set");
-}
-*/
 
 void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
     std::ostringstream oss; oss << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL"); debugLog(oss.str().c_str()); //;
@@ -235,7 +226,6 @@ void TfrmBoxes::radgrpRowsChange() {
 
 void TfrmBoxes::showChunks() {
     sgChunks->RowCount = chunks.size() + 1;
-    //sgChunks->FixedRows = 1;
     vecpChunk::const_iterator it;
     int row = 1;
     for (it = chunks.begin(); it != chunks.end(); it++, row++) {
@@ -248,14 +238,12 @@ void TfrmBoxes::showChunks() {
     }
 }
 
-/*
-    c_retrieval_job.status = new job (0); job type = box retrieval (2) or disposal (3)
+/*  c_retrieval_job.status = new job (0); job type = box retrieval (2) or disposal (3)
 
 Find where the boxes are supposed to be:
     Select … from box_name n, box_store bs, c_rack_number r, c_tank_map m
     where n.box_cid=bs.box_cid and bs.rack_cid=r.rack_cid and r.tank_cid=m.tank_cid
-    and bs.retrieval_cid = jobID;
-*/
+    and bs.retrieval_cid = jobID; */
 
 /*
 LPDbCryovialStore::Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, DELETED = 99 };
@@ -279,9 +267,7 @@ cryovial_store:
 the 4000-odd records saying where the cryovials are at the moment have retrieval_cid -1015, status = 2, removed = ''.
 Set status = 5, removed = 'now' when they're retrieved.
 Each cryovial has a second cryovial_store record giving the expected destination, status = 0.
-Set status = 1 when the position's confirmed
-
-*/
+Set status = 1 when the position's confirmed */
 
 void TfrmBoxes::loadRows() {
     ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
@@ -305,13 +291,6 @@ void TfrmBoxes::loadRows() {
     q.setParam("jobID", job->getID());
     q.open();
     while (!q.eof()) {
-/*
-class BoxRow
-    LCDbBoxStore * store_record; // public LPDbID
-    //LPDbBoxName ?? getStatus
-    BoxRow(  LCDbBoxStore * store_rec, string box, string site, int pos, string vessel, int shelf, string rack, int slot) :
-    store_record(store_rec), box_name(box), site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot)
-*/
         LCDbBoxStore * store = new LCDbBoxStore(q); // ???
         BoxRow * box = new BoxRow(
             store,
@@ -330,36 +309,9 @@ class BoxRow
 //    // no 'chunks' yet, we haven't created them!
 //    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
 //    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
-
     showRows();
     Screen->Cursor = crDefault;
 }
-
-/* sample showRows():
-
-    if (vials.size() <= 0) {
-        clearSG(sgVials);
-    } else {
-        //sgVials->RowCount = vials.size() + 1;
-        sgVials->RowCount = (-1 == numrows) ? vials.size() + 1 : numrows + 1;
-        sgVials->FixedRows = 1;
-    }
-    int row = 1;
-    vecpSampleRow::const_iterator it;
-    for (it = vials.begin(); it != vials.end(); it++, row++) {
-        pSampleRow sampleRow = *it;
-        LPDbCryovialStore * vial = sampleRow->store_record;
-        sgVials->Cells[SGVIALS_BARCODE][row] = sampleRow->cryovial_barcode.c_str();
-        sgVials->Cells[SGVIALS_DESTBOX][row] = "tba"; //sampleRow->;
-        sgVials->Cells[SGVIALS_DESTPOS][row] = "tba"; //sampleRow->;
-        sgVials->Cells[SGVIALS_CURRBOX][row] = sampleRow->box_name.c_str();
-        sgVials->Cells[SGVIALS_CURRPOS][row] = sampleRow->position;
-        sgVials->Cells[SGVIALS_STRUCTURE][row] = sampleRow->vessel_name.c_str(); //??
-        sgVials->Cells[SGVIALS_LOCATION][row] = sampleRow->site_name.c_str();
-        sgVials->Objects[0][row] = (TObject *)sampleRow;
-        if (-1 != numrows && row >= numrows) break;
-    }
-*/
 
 void TfrmBoxes::showRows() {
     if (boxes.size() <= 0) {
@@ -384,12 +336,12 @@ void TfrmBoxes::showRows() {
         if (row >= maxRows) break;
     }
 }
+
 void __fastcall TfrmBoxes::sgBoxesFixedCellClick(TObject *Sender, int ACol, int ARow) {
     sortList(ACol);
 }
 
 void TfrmBoxes::sortList(int col) {
-// SGBOXES_BOXNAME, SGBOXES_SITE, SGBOXES_POSITION, SGBOXES_SHELF, SGBOXES_VESSEL, SGBOXES_STRUCTURE, SGBOXES_SLOT, SGBOXES_NUMCOLS } sg_boxes_cols;
     Screen->Cursor = crSQLWait;
     static Sorter<BoxRow> sorter[SGBOXES_NUMCOLS] = {
         { BoxRow::sort_asc_currbox,   BoxRow::sort_desc_currbox,  sgBoxesColName[0] },
@@ -408,7 +360,6 @@ void TfrmBoxes::sortList(int col) {
 }
 void __fastcall TfrmBoxes::timerLoadBoxesTimer(TObject *Sender) {
     timerLoadBoxes->Enabled = false;
-    //msgbox("ttimer done", "ttimer done");
     loadRows();
 }
 

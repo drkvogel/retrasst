@@ -50,11 +50,6 @@ public:
 	TDateTime getFinishDate() const { return finish_date; }
 */
 
-
-//	enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
-//	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
-
-// boxes
 enum {  SGBOXES_BOXNAME, SGBOXES_SITE, SGBOXES_POSITION, SGBOXES_SHELF, SGBOXES_VESSEL, SGBOXES_STRUCTURE, SGBOXES_SLOT, // location in "Russian Doll order"
         SGBOXES_NUMCOLS } sg_boxes_cols;
 static const char * sgBoxesColName[SGBOXES_NUMCOLS] = {"Box name", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
