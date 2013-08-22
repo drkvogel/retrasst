@@ -13,6 +13,7 @@ object frmSamples: TfrmSamples
   Font.Style = []
   OldCreateOrder = False
   WindowState = wsMaximized
+  OnClose = FormClose
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
@@ -157,8 +158,6 @@ object frmSamples: TfrmSamples
     Align = alClient
     Caption = 'Vials in chunk'
     TabOrder = 1
-    ExplicitTop = 385
-    ExplicitHeight = 241
     object sgVials: TStringGrid
       Left = 2
       Top = 15
@@ -170,7 +169,6 @@ object frmSamples: TfrmSamples
       TabOrder = 0
       OnClick = sgVialsClick
       OnFixedCellClick = sgVialsFixedCellClick
-      ExplicitHeight = 135
     end
     object memoDebug: TMemo
       Left = 2
@@ -181,7 +179,6 @@ object frmSamples: TfrmSamples
       ScrollBars = ssVertical
       TabOrder = 1
       Visible = False
-      ExplicitTop = 150
     end
     object panelLoading: TPanel
       Left = 280
@@ -209,7 +206,6 @@ object frmSamples: TfrmSamples
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitTop = 281
     object groupSort: TGroupBox
       Left = 0
       Top = 0
@@ -218,7 +214,6 @@ object frmSamples: TfrmSamples
       Align = alClient
       Caption = 'Sort'
       TabOrder = 0
-      ExplicitHeight = 110
       object btnDelSort: TButton
         Left = 615
         Top = 15
@@ -228,8 +223,6 @@ object frmSamples: TfrmSamples
         Caption = '-'
         TabOrder = 0
         OnClick = btnDelSortClick
-        ExplicitLeft = 672
-        ExplicitHeight = 21
       end
       object btnAddSort: TButton
         Left = 591
@@ -240,8 +233,6 @@ object frmSamples: TfrmSamples
         Caption = '+'
         TabOrder = 1
         OnClick = btnAddSortClick
-        ExplicitLeft = 640
-        ExplicitHeight = 21
       end
       object btnApplySort: TButton
         Left = 640
@@ -251,7 +242,6 @@ object frmSamples: TfrmSamples
         Align = alRight
         Caption = 'Apply'
         TabOrder = 2
-        ExplicitHeight = 21
       end
     end
     object GroupBox2: TGroupBox
@@ -262,7 +252,6 @@ object frmSamples: TfrmSamples
       Align = alRight
       Caption = 'Show rows'
       TabOrder = 1
-      ExplicitHeight = 110
       object radbutDefault: TRadioButton
         Left = 2
         Top = 15
@@ -274,7 +263,6 @@ object frmSamples: TfrmSamples
         TabOrder = 0
         TabStop = True
         OnClick = radbutDefaultClick
-        ExplicitHeight = 93
       end
       object radbutAll: TRadioButton
         Left = 35
@@ -285,7 +273,6 @@ object frmSamples: TfrmSamples
         Caption = 'All'
         TabOrder = 1
         OnClick = radbutAllClick
-        ExplicitHeight = 93
       end
       object radbutCustom: TRadioButton
         Left = 65
@@ -296,7 +283,6 @@ object frmSamples: TfrmSamples
         Caption = 'Custom'
         TabOrder = 2
         OnClick = radbutCustomClick
-        ExplicitHeight = 93
       end
       object editCustomRows: TEdit
         Left = 122

@@ -54,15 +54,11 @@ public:
 //	enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
 //	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
 
-
-
-
 // boxes
-enum {  SGBOXES_BOXNAME,
-        SGBOXES_SITE, SGBOXES_POSITION, SGBOXES_SHELF, SGBOXES_VESSEL, SGBOXES_STRUCTURE, SGBOXES_SLOT, // location in "Russian Doll order"
+enum {  SGBOXES_BOXNAME, SGBOXES_SITE, SGBOXES_POSITION, SGBOXES_SHELF, SGBOXES_VESSEL, SGBOXES_STRUCTURE, SGBOXES_SLOT, // location in "Russian Doll order"
         SGBOXES_NUMCOLS } sg_boxes_cols;
 static const char * sgBoxesColName[SGBOXES_NUMCOLS] = {"Box name", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
-static int sgBoxesColWidth[SGBOXES_NUMCOLS] = {147, 64, 50, 43, 100, 121, 40};
+static int sgBoxesColWidth[SGBOXES_NUMCOLS] = {266, 156, 74, 74, 262, 200, 78 };
 
 class LoadBoxesWorkerThread : public TThread {
 private:
@@ -73,9 +69,6 @@ public:
     int             rowCount;       // current rows loaded, for thread sync
     void __fastcall updateStatus(); // syncronized method can't have args (?)
 };
-
-typedef std::vector<LCDbBoxStore *> vecpBox;
-//typedef std::vector< LPDbCryovialStore *> vecpVial;
 
 class TfrmBoxes : public TForm {
 friend class LoadBoxesWorkerThread;
@@ -122,6 +115,7 @@ __published:
     void __fastcall btnIncrClick(TObject *Sender);
     void __fastcall sgBoxesFixedCellClick(TObject *Sender, int ACol, int ARow);
     void __fastcall timerLoadBoxesTimer(TObject *Sender);
+    void __fastcall sgBoxesClick(TObject *Sender);
 private:
     const char *        loadingMessage;
     LoadBoxesWorkerThread * loadBoxesWorkerThread;
@@ -129,7 +123,7 @@ private:
     int                 maxRows; // rows to show at a time
     LCDbCryoJob *       job;
     vecpChunk           chunks;
-    vecpBox             boxes;
+    vecpBoxRow          boxes;
     void                sortList(int col);
     void                addChunk();
     void                showChunks();
@@ -141,11 +135,11 @@ private:
     static VOID CALLBACK TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime);
         // Declaring the function static stops the __closure keyword being included
         // http://vogelworks.wordpress.com/?s=closure
-    //void loadChunks();
 public:
+    void                setJob(LCDbCryoJob * ajob) { job = ajob; }; // this was not being called. why? it was declared in the defunct RetrievalManager.h
     __fastcall          TfrmBoxes(TComponent* Owner);
-    void                setJob(LCDbCryoJob * ajob) { job = ajob; }
     void                debugLog(String s);
 };
+
 extern PACKAGE TfrmBoxes *frmBoxes;
 #endif

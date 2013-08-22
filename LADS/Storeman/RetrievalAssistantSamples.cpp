@@ -65,6 +65,11 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     //if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
 }
 
+void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
+    for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) { delete (*it)->store_record; }
+    delete_referenced<vecpSampleRow>(frmSamples->vials);
+}
+
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
 
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
@@ -216,8 +221,7 @@ Display the size of the job and ask user if they want to divide up the list.  If
 //    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
 */
 
-void __fastcall  LoadVialsWorkerThread::Execute() {
-    // do stuff
+void __fastcall LoadVialsWorkerThread::Execute() {
     delete_referenced<vecpSampleRow>(frmSamples->vials);
     LQuery q(Util::projectQuery(frmSamples->job->getProjectID(), true));
     q.setSQL(
@@ -374,14 +378,13 @@ void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, in
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
     // ostringstream oss; oss << __FUNC__; oss << printColWidths(sgVials); debugLog(oss.str().c_str());
     SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
-    if (NULL != sample) {
-        debugLog(sample->str().c_str());
-    }
+    sample?debugLog(sample->str().c_str()):debugLog("NULL sample");
+    job?debugLog(job->getName().c_str()):debugLog("NULL job");
 }
 
 void TfrmSamples::sortList(int col) {
     //partial_sort
-
+    Screen->Cursor = crSQLWait;
     static Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
         { SampleRow::sort_asc_barcode,   SampleRow::sort_desc_barcode,  sgVialColName[0] },
         { SampleRow::sort_asc_destbox,   SampleRow::sort_desc_destbox,  sgVialColName[1] },
@@ -397,6 +400,7 @@ void TfrmSamples::sortList(int col) {
     };
     sorter[col].sort_toggle(vials);
     showRows();
+    Screen->Cursor = crDefault;
 }
 
 void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
@@ -449,5 +453,3 @@ void __fastcall TfrmSamples::btnDelSortClick(TObject *Sender) {
     //TComboBox * combo = dynamic_cast<TComboBox *>(groupSort->Controls[groupSort->ControlCount-1]);
     //if (NULL != combo) groupSort->RemoveComponent(combo);
 }
-
-

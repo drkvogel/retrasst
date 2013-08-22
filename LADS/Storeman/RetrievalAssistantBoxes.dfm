@@ -218,6 +218,7 @@ object frmBoxes: TfrmBoxes
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect, goFixedRowClick]
       TabOrder = 0
+      OnClick = sgBoxesClick
       OnFixedCellClick = sgBoxesFixedCellClick
     end
     object memoDebug: TMemo

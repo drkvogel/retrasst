@@ -6,10 +6,11 @@
 #include "LCDbObject.h"
 #include "StringUtil.h"
 #include "LCDbProject.h"
-#include "RetrievalManager.h"
+//#include "RetrievalManager.h" <-- doh!
 #include "ReferredBoxes.h"
 #include "RetrievalProcess.h"
 #include "RetrievalAssistantSamples.h"
+#include "RetrievalAssistantBoxes.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -70,7 +71,7 @@ Box retrieval
         b.box_cid = bs.box_cid and 
         bs.rack_cid = r.rack_cid and 
         r.tank_cid = m.tank_cid and 
-        s.object_cid = location_cid and 
+        s.object_cid = location_cid and
         v.object_cid = storage_cid and 
         bs.retrieval_cid = :jobID; // e.g. -636363
 
@@ -330,30 +331,31 @@ void TfrmRetrievalAssistant::showJobs() {
 std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { // c_object_name: 20: storage exercise
     std::ostringstream oss;
     const LCDbObject * exercise = LCDbObjects::records().findByID(exercise_cid);
-    oss << exercise->getName().c_str();
-    return oss.str();
+    oss << exercise->getName().c_str(); return oss.str();
 }
 
 void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
+    //selectedJob = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row])); // so it persists for debugging
+    //LCDbCryoJob * job = selectedJob;
     if (NULL == job) return;
     switch (job->getStatus()) {
     case LCDbCryoJob::Status::NEW_JOB: // manage
         switch (job->getJobType()) {
-        case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
-            frmSamples->setJob(job);
-            if (IDOK == frmSamples->ShowModal()) {
-                // then make INPROGRESS?
-            }
-            break;
-        case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
-            frmBoxes->setJob(job);
-            if (IDOK == frmBoxes->ShowModal()) {
-                // then make INPROGRESS?
-            }
-            break;
-        default:
-            throw Exception("Unknown job type");
+            case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
+                frmSamples->setJob(job);
+                if (IDOK == frmSamples->ShowModal()) {
+                    // then make INPROGRESS?
+                }
+                break;
+            case LCDbCryoJob::JobKind::BOX_RETRIEVAL: //cout.flush();
+                frmBoxes->setJob(job);
+                if (IDOK == frmBoxes->ShowModal()) {
+                    // then make INPROGRESS?
+                }
+                break;
+            default:
+                throw Exception("Unknown job type");
         }
         break;
     case LCDbCryoJob::INPROGRESS: // process
@@ -378,6 +380,14 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
 void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
     ostringstream oss; oss << __FUNC__;
     oss << printColWidths(sgJobs); // so we can copy them into the source
+    oss << endl << "row: " << sgJobs->Row << ", col: " << sgJobs->Col;
+    LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
+    if (NULL == job) return;
+    oss << endl << "job: projectid: "<<job->getProjectID()<<", status: "<<job->getStatus();
     debugLog(oss.str().c_str());
+}
+
+void __fastcall TfrmRetrievalAssistant::FormClose(TObject *Sender, TCloseAction &Action) {
+    delete_referenced<tdvecpJob>(vecJobs);
 }
 

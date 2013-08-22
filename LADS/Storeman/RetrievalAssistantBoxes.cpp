@@ -82,26 +82,39 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     job                 = NULL;
     maxRows             = DEFAULT_NUMROWS;
-    //setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
+    setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
+    setupStringGrid(sgBoxes,  SGBOXES_NUMCOLS,  sgBoxesColName,  sgBoxesColWidth);
     radbutDefault->Caption = DEFAULT_NUMROWS;
 }
 
 VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime) {
-    cout << "CALLBACK " << dwTime << '\n';
-    cout.flush();
-    Application->MessageBoxW(L"Finished!", L"Finished!", MB_OK);
+    //cout << "CALLBACK " << dwTime << '\n'; cout.flush();
     KillTimer(NULL, frmBoxes->TimerId);
+    msgbox("Win Timer finished");
+    frmBoxes->loadRows();
 }
 
+/*
+void TfrmSamples::setJob(LCDbCryoJob * ajob) {
+    msgbox("Setting job");
+    job = ajob;
+    msgbox("job set");
+}
+*/
+
 void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
-    //std::ostringstream oss; oss << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL"); debugLog(oss.str().c_str()); //;
+    std::ostringstream oss; oss << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL"); debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
     chunks.clear();
     addChunk();
     showChunks();
     clearSG(sgBoxes);
-    //timerLoadBoxes->Enabled = true; // "not enough timers are available" - really? use WinAPI timer instead
-    TfrmBoxes::TimerId = SetTimer(NULL, 0, 2000, &TimerProc); //2000 milliseconds
+    try {
+        timerLoadBoxes->Enabled = true; // "not enough timers are available" - really? use WinAPI timer instead
+    } catch (...) {
+        msgbox("oops!", "oops!");
+    }
+    //TfrmBoxes::TimerId = SetTimer(NULL, 0, 500, &TimerProc); //$3: milliseconds
 }
 
 void __fastcall TfrmBoxes::btnAddChunkClick(TObject *Sender) { addChunk(); }
@@ -109,7 +122,6 @@ void __fastcall TfrmBoxes::cbLogClick(TObject *Sender) { memoDebug->Visible = cb
 void __fastcall TfrmBoxes::btnCancelClick(TObject *Sender) { Close(); }
 
 void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-
     TColor background = clWindow;
     if (0 == ARow) {
         background = clBtnFace;
@@ -275,11 +287,12 @@ void TfrmBoxes::loadRows() {
     ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     Screen->Cursor = crSQLWait;
     LQuery q(Util::projectQuery(job->getProjectID(), true)); // get ddb
-    delete_referenced<vecpBox>(boxes);
+    delete_referenced<vecpBoxRow>(boxes);
     q.setSQL("SELECT"
+        " bs.box_cid, bs.rack_cid, b.status, bs.process_cid,"
         " b.external_name as box, s.external_name as site, m.position,"
         " v.external_full as vessel, m.shelf_number, r.external_name as rack,"
-        " bs.slot_position as slot"
+        " bs.slot_position"
         " FROM"
         " box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v"
         " WHERE"
@@ -292,11 +305,24 @@ void TfrmBoxes::loadRows() {
     q.setParam("jobID", job->getID());
     q.open();
     while (!q.eof()) {
-        LCDbBoxStore * box = new LCDbBoxStore(q); // ???
-        //box->
-        //q.readString("name")
-        //box-> = q.readInt("");
-        //ob-> = q.readString("");
+/*
+class BoxRow
+    LCDbBoxStore * store_record; // public LPDbID
+    //LPDbBoxName ?? getStatus
+    BoxRow(  LCDbBoxStore * store_rec, string box, string site, int pos, string vessel, int shelf, string rack, int slot) :
+    store_record(store_rec), box_name(box), site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot)
+*/
+        LCDbBoxStore * store = new LCDbBoxStore(q); // ???
+        BoxRow * box = new BoxRow(
+            store,
+            q.readString("box"),
+            q.readString("site"),
+            q.readInt("position"),
+            q.readString("vessel"),
+            q.readInt("shelf_number"),
+            q.readString("rack"),
+            q.readInt("slot_position")
+        );
         boxes.push_back(box);
         q.next();
     }
@@ -305,6 +331,7 @@ void TfrmBoxes::loadRows() {
 //    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
 //    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
 
+    showRows();
     Screen->Cursor = crDefault;
 }
 
@@ -335,11 +362,24 @@ void TfrmBoxes::loadRows() {
 */
 
 void TfrmBoxes::showRows() {
+    if (boxes.size() <= 0) {
+        clearSG(sgBoxes);
+    } else {
+        sgBoxes->RowCount = (-1 == maxRows) ? boxes.size() + 1 : maxRows + 1;
+        sgBoxes->FixedRows = 1;
+    }
     int row = 1;
-    vecpBox::const_iterator it;
+    vecpBoxRow::const_iterator it;
     for (it = boxes.begin(); it != boxes.end(); it++, row++) {
-        LCDbBoxStore * box = *it;
-        sgBoxes->Cells[SGBOXES_BOXNAME][row] = box->getBoxID();
+        BoxRow * box = *it;
+        sgBoxes->Cells[SGBOXES_BOXNAME]  [row] = box->box_name.c_str();
+        sgBoxes->Cells[SGBOXES_SITE]     [row] = box->site_name.c_str();
+        sgBoxes->Cells[SGBOXES_POSITION] [row] = box->position;
+        sgBoxes->Cells[SGBOXES_SHELF]    [row] = box->shelf_number;
+        sgBoxes->Cells[SGBOXES_VESSEL]   [row] = box->vessel_name.c_str();
+        sgBoxes->Cells[SGBOXES_STRUCTURE][row] = box->rack_name.c_str();
+        sgBoxes->Cells[SGBOXES_SLOT]     [row] = box->slot_position;
+        //LCDbBoxStore * box = *it;
         sgBoxes->Objects[0][row] = (TObject *)box;
         if (row >= maxRows) break;
     }
@@ -349,24 +389,33 @@ void __fastcall TfrmBoxes::sgBoxesFixedCellClick(TObject *Sender, int ACol, int 
 }
 
 void TfrmBoxes::sortList(int col) {
-//    static Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
-//        { SampleRow::sort_asc_barcode,   SampleRow::sort_desc_barcode,  sgVialColName[0] },
-//        { SampleRow::sort_asc_destbox,   SampleRow::sort_desc_destbox,  sgVialColName[1] },
-//        { SampleRow::sort_asc_destpos,   SampleRow::sort_desc_destpos,  sgVialColName[2] },
-//        { SampleRow::sort_asc_currbox,   SampleRow::sort_desc_currbox,  sgVialColName[3] },
-//        { SampleRow::sort_asc_currpos,   SampleRow::sort_desc_currpos,  sgVialColName[4] },
-//        { SampleRow::sort_asc_site,      SampleRow::sort_desc_site,     sgVialColName[5] },
-//        { SampleRow::sort_asc_position,  SampleRow::sort_desc_position, sgVialColName[6] },
-//        { SampleRow::sort_asc_shelf,     SampleRow::sort_desc_shelf,    sgVialColName[7] },
-//        { SampleRow::sort_asc_vessel,    SampleRow::sort_desc_vessel,   sgVialColName[8] },
-//        { SampleRow::sort_asc_structure, SampleRow::sort_desc_structure,sgVialColName[9] },
-//        { SampleRow::sort_asc_slot,      SampleRow::sort_desc_slot,     sgVialColName[10] },
-//    };
-//    sorter[col].sort_toggle(vials);
+// SGBOXES_BOXNAME, SGBOXES_SITE, SGBOXES_POSITION, SGBOXES_SHELF, SGBOXES_VESSEL, SGBOXES_STRUCTURE, SGBOXES_SLOT, SGBOXES_NUMCOLS } sg_boxes_cols;
+    Screen->Cursor = crSQLWait;
+    static Sorter<BoxRow> sorter[SGBOXES_NUMCOLS] = {
+        { BoxRow::sort_asc_currbox,   BoxRow::sort_desc_currbox,  sgBoxesColName[0] },
+//        { BoxRow::sort_asc_destbox,   BoxRow::sort_desc_destbox,  sgBoxesColName[1] },
+//        { BoxRow::sort_asc_destpos,   BoxRow::sort_desc_destpos,  sgBoxesColName[2] },
+        { BoxRow::sort_asc_site,      BoxRow::sort_desc_site,     sgBoxesColName[1] },
+        { BoxRow::sort_asc_position,  BoxRow::sort_desc_position, sgBoxesColName[2] },
+        { BoxRow::sort_asc_shelf,     BoxRow::sort_desc_shelf,    sgBoxesColName[3] },
+        { BoxRow::sort_asc_vessel,    BoxRow::sort_desc_vessel,   sgBoxesColName[4] },
+        { BoxRow::sort_asc_structure, BoxRow::sort_desc_structure,sgBoxesColName[5] },
+        { BoxRow::sort_asc_slot,      BoxRow::sort_desc_slot,     sgBoxesColName[6] },
+    };
+    sorter[col].sort_toggle(boxes);
     showRows();
+    Screen->Cursor = crDefault;
 }
 void __fastcall TfrmBoxes::timerLoadBoxesTimer(TObject *Sender) {
     timerLoadBoxes->Enabled = false;
+    //msgbox("ttimer done", "ttimer done");
     loadRows();
+}
+
+void __fastcall TfrmBoxes::sgBoxesClick(TObject *Sender) {
+    BoxRow*box=(BoxRow*)sgBoxes->Objects[0][sgBoxes->Row];
+    box?debugLog(box->str().c_str()):debugLog("NULL box");
+    job?debugLog(job->getName().c_str()):debugLog("NULL job");
+    debugLog(printColWidths(sgBoxes).c_str());
 }
 

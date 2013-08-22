@@ -45,7 +45,7 @@ enum {  SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVI
 static const char * sgVialColName[SGVIALS_NUMCOLS] = {
     "Barcode", "Dest box", "Pos", "Curr box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"
 };
-static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 147, 43, 171, 37, 64, 50, 43, 100, 121, 40 };
+static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 147, 43, 275, 37, 64, 50, 43, 100, 121, 40 };
 
 /*
 "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
@@ -124,6 +124,7 @@ __published:
     void __fastcall btnRejectClick(TObject *Sender);
     void __fastcall btnAddSortClick(TObject *Sender);
     void __fastcall btnDelSortClick(TObject *Sender);
+    void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 private:
     const char *        loadingMessage;
     LoadVialsWorkerThread * loadVialsWorkerThread;
@@ -145,7 +146,7 @@ private:
 public:
     __fastcall          TfrmSamples(TComponent* Owner);
     void                debugLog(String s);
-    void                setJob(LCDbCryoJob * ajob) { job = ajob; }
+    void                setJob(LCDbCryoJob * ajob) { job = ajob; };
     void                addChunk();
 };
 

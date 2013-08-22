@@ -14,6 +14,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
   OldCreateOrder = False
   Position = poScreenCenter
   WindowState = wsMaximized
+  OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 13
   object GroupBox1: TGroupBox
@@ -41,7 +42,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       OnClick = sgJobsClick
       OnDblClick = sgJobsDblClick
       OnDrawCell = sgJobsDrawCell
-      ExplicitLeft = 3
       ColWidths = (
         196
         64
@@ -210,5 +210,9 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       TabOrder = 2
       Visible = False
     end
+  end
+  object Timer1: TTimer
+    Left = 248
+    Top = 88
   end
 end

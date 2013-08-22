@@ -34,6 +34,10 @@ const bool RETRASSTDEBUG =
 
 // utilities
 
+void msgbox(string main, string title="Info") { // ridiculous contrivance to use stdstring in message box
+    Application->MessageBoxW(String(main.c_str()).c_str(), String(title.c_str()).c_str(), MB_OK);
+}
+
 void clearGridSelection(TStringGrid * sg) { // put this in storeutil?
     TGridRect myRect;
     myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
@@ -54,7 +58,7 @@ void setupStringGrid(TStringGrid * sg, const int cols, const char * colnames[], 
 
 std::string printColWidths(TStringGrid * sg) {
     std::ostringstream oss;
-    oss << sg->Name.c_str() << ": {"; for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; } oss << "}";
+    oss << sg->Name.c_str() << ": {"; for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; } oss << "};";
     return oss.str();
 }
 
@@ -318,6 +322,7 @@ __published:
     TButton *btnExit;
     TCheckBox *cbLog;
     TMemo *memoDebug;
+    TTimer *Timer1;
     void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall cbNewJobClick(TObject *Sender);
     void __fastcall cbInProgressClick(TObject *Sender);
@@ -332,7 +337,9 @@ __published:
     void __fastcall cbSampleDiscardClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
     void __fastcall sgJobsClick(TObject *Sender);
+    void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 private:
+    //LCDbCryoJob * selectedJob;
     void debugLog(String s);
     tdvecpJob vecJobs;
     void loadJobs();
