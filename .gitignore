@@ -41,3 +41,7 @@ LADS/Validation/
 #LADS/XSLT/
 LADS/paulst/Win32/
 LADS/paulst/paulst.cbproj.local
+LADS/Storeman/RetrievalManager.cpp
+LADS/Storeman/RetrievalManager.dfm
+LADS/Storeman/RetrievalManager.h
+
