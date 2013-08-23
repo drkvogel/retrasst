@@ -52,6 +52,9 @@ __published:
     void __fastcall Exit1Click(TObject *Sender);
 private:
     LCDbCryoJob * job;
+    void loadRows();
+    void showRows();
+    void process();
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);

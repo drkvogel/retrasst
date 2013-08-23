@@ -2,8 +2,8 @@ object frmProcess: TfrmProcess
   Left = 0
   Top = 0
   Caption = 'Process Retrieval Job'
-  ClientHeight = 477
-  ClientWidth = 628
+  ClientHeight = 482
+  ClientWidth = 956
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,28 +20,34 @@ object frmProcess: TfrmProcess
   object List: TGroupBox
     Left = 0
     Top = 0
-    Width = 628
-    Height = 400
+    Width = 956
+    Height = 405
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
+    ExplicitWidth = 628
+    ExplicitHeight = 400
     object sgRetrieval: TStringGrid
       Left = 2
       Top = 15
-      Width = 624
-      Height = 297
+      Width = 952
+      Height = 302
       Align = alClient
       FixedCols = 0
       TabOrder = 0
+      ExplicitWidth = 624
+      ExplicitHeight = 297
     end
     object GroupBox3: TGroupBox
       Left = 2
-      Top = 312
-      Width = 624
+      Top = 317
+      Width = 952
       Height = 86
       Align = alBottom
       Caption = 'Details'
       TabOrder = 1
+      ExplicitTop = 312
+      ExplicitWidth = 624
       object Label3: TLabel
         Left = 70
         Top = 52
@@ -72,12 +78,14 @@ object frmProcess: TfrmProcess
   end
   object GroupBox2: TGroupBox
     Left = 0
-    Top = 400
-    Width = 628
+    Top = 405
+    Width = 956
     Height = 77
     Align = alBottom
     Caption = 'Sign Off'
     TabOrder = 1
+    ExplicitTop = 400
+    ExplicitWidth = 628
     object Label1: TLabel
       Left = 14
       Top = 32
@@ -92,22 +100,24 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object btnAccept: TButton
-      Left = 476
+      Left = 804
       Top = 15
       Width = 75
       Height = 60
       Align = alRight
       Caption = 'Accept'
       TabOrder = 0
+      ExplicitLeft = 476
     end
     object btnSkip: TButton
-      Left = 551
+      Left = 879
       Top = 15
       Width = 75
       Height = 60
       Align = alRight
       Caption = 'Skip'
       TabOrder = 1
+      ExplicitLeft = 551
     end
     object editBarcode: TEdit
       Left = 192

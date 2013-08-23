@@ -14,12 +14,16 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
 //        sgRetrieval->ColWidths[i]   = sgRetrievalColWidth[i];
 //    }
 }
-
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     //
 }
-
-void loadRows() {
+void __fastcall TfrmProcess::Exit1Click(TObject *Sender) {
+    if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
+        // save stuff
+        Close();
+    }
+}
+void TfrmProcess::loadRows() {
 /*
 /* SELECT
    cs.Cryovial_id, cs.Note_Exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,
@@ -42,10 +46,8 @@ void loadRows() {
    s.object_cid = location_cid AND
    v.object_cid = storage_cid AND
    cs.retrieval_cid = -1015 */
-
 }
-
-void showRows() {
+void TfrmProcess::showRows() {
 //    if (vials.size() <= 0) {
 //        clearSG(sgVials);
 //    } else {
@@ -72,7 +74,7 @@ void showRows() {
 //    ostringstream oss; oss<<(-1 == maxRows) ? maxRows : vials.size()<<" of "<<vials.size()<<" vials";
 //    groupVials->Caption = oss.str().c_str();
 }
-
+void TfrmProcess::process() {
 /*
  * Work through list or sub-section by giving the storage location and sample ID of each sample on the list in the order saved above (REQ 8.3.8);
  * As each sample is retrieved its barcode should be scanned, if the scanned barcode matches that on the list
@@ -82,10 +84,6 @@ the destination location should be displayed and the next ID/location should be 
  * The option to exit the process saving progress should be offered, with an “are you sure?” message in case of accidental selection (REQ 8.3.12).
 */
 
-void __fastcall TfrmProcess::Exit1Click(TObject *Sender) {
-    if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
-        // save stuff
-        Close();
-    }
 }
+
 

@@ -6,7 +6,6 @@
 #include "LCDbObject.h"
 #include "StringUtil.h"
 #include "LCDbProject.h"
-//#include "RetrievalManager.h" <-- doh!
 #include "ReferredBoxes.h"
 #include "RetrievalProcess.h"
 #include "RetrievalAssistantSamples.h"
@@ -14,6 +13,161 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
+TfrmRetrievalAssistant *frmRetrievalAssistant;
+__fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
+void __fastcall TfrmRetrievalAssistant::cbLogClick(TObject *Sender) { memoDebug->Visible = cbLog->Checked; }
+void __fastcall TfrmRetrievalAssistant::btnExitClick(TObject *Sender) { Close(); }
+void __fastcall TfrmRetrievalAssistant::cbNewJobClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbInProgressClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbDoneClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbDeletedClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbBoxRetrievalClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbSampleRetrievalClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbBoxMoveClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbBoxDiscardClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::cbSampleDiscardClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+/* clSilver clMoneyGreen  clGray  clSkyBlue
+#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
+#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
+#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clGreen
+#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
+#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
+#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
+enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
+enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
+ */
+    LCDbCryoJob * job;
+    TColor background = clWindow;
+    if (0 == ARow)
+        job = NULL;
+    else
+        job = (LCDbCryoJob *)sgJobs->Objects[0][ARow];
+    if (NULL == job) {
+        if (0 == ARow) {
+            background = clBtnFace; // header row
+        } else {
+            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; // error
+        }
+    } else {
+        switch (job->getStatus()) {
+        case LCDbCryoJob::Status::NEW_JOB:
+            background = RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR;
+            break;
+        case LCDbCryoJob::Status::INPROGRESS:
+            background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR;
+            break;
+        case LCDbCryoJob::Status::DONE:
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
+            break;
+        case LCDbCryoJob::Status::DELETED:
+            background = RETRIEVAL_ASSISTANT_DELETED_COLOUR;
+            break;
+        default:
+            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        }
+    }
+    TCanvas * cnv = sgJobs->Canvas;
+	cnv->Brush->Color = background;
+	cnv->FillRect(Rect);
+    if (State.Contains(gdSelected)) {
+        TFontStyles oldFontStyle = cnv->Font->Style;
+        TPenStyle oldPenStyle = cnv->Pen->Style;
+        cnv->Pen->Style = psDot;
+        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
+        cnv->Font->Style = TFontStyles() << fsBold; // << fsItalic;
+    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgJobs->Cells[ACol][ARow]);
+        cnv->Pen->Style     = oldPenStyle;
+        cnv->Font->Style    = oldFontStyle;
+	} else {
+        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgJobs->Cells[ACol][ARow]);
+    }
+}
+void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
+    LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
+    //selectedJob = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row])); // so it persists for debugging
+    //LCDbCryoJob * job = selectedJob;
+    if (NULL == job) return;
+    switch (job->getStatus()) {
+    case LCDbCryoJob::Status::NEW_JOB: // manage
+        switch (job->getJobType()) {
+            case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
+                frmSamples->setJob(job);
+                if (IDOK == frmSamples->ShowModal()) {
+                    // then make INPROGRESS?
+                }
+                break;
+            case LCDbCryoJob::JobKind::BOX_RETRIEVAL: //cout.flush();
+                frmBoxes->setJob(job);
+                if (IDOK == frmBoxes->ShowModal()) {
+                    // then make INPROGRESS?
+                }
+                break;
+            default:
+                throw Exception("Unknown job type");
+        }
+        break;
+    case LCDbCryoJob::INPROGRESS: // process
+        switch (job->getJobType()) {
+        case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
+            frmProcess->setJob(job);
+            frmProcess->ShowModal();
+            break;
+        case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
+            frmProcess->setJob(job);
+            frmProcess->ShowModal();
+            break;
+        default:
+            throw Exception("Unknown job type");
+        }
+        break;
+    default:
+        throw Exception("Unknown status");
+    }
+}
+void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
+    ostringstream oss; oss << __FUNC__;
+    oss << printColWidths(sgJobs); // so we can copy them into the source
+    oss << endl << "row: " << sgJobs->Row << ", col: " << sgJobs->Col;
+    LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
+    if (NULL == job) return;
+    oss << endl << "job: projectid: "<<job->getProjectID()<<", status: "<<job->getStatus();
+    debugLog(oss.str().c_str());
+}
+void __fastcall TfrmRetrievalAssistant::FormClose(TObject *Sender, TCloseAction &Action) {
+    delete_referenced<tdvecpJob>(vecJobs);
+}
+std::string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
+    if (0 == project_cid) return "Project not specified";
+    try {
+        return LCDbProjects::records().get(project_cid).getName().c_str();
+    } catch (...) {
+        std::ostringstream oss; oss<<"Project ID "<<project_cid<<" not found"; return oss.str();
+    }
+}
+std::string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_cid) { // c_object_name 6: aliquot type?
+    std::ostringstream oss;
+    if (0 == primary_aliquot_cid) return "Aliquot not specified";
+    try {
+        const LCDbObject * primary_aliquot = LCDbObjects::records().findByID(primary_aliquot_cid);
+        oss << primary_aliquot->getName().c_str();
+    } catch (...) {
+        oss << "Aliquot ID "<<primary_aliquot_cid<<" not found";
+    }
+    return oss.str();
+}
+std::string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
+    // c_audit_trail
+    //LCDbCryoJob::getUserID()
+    return "";
+}
+std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { // c_object_name: 20: storage exercise
+    std::ostringstream oss;
+    const LCDbObject * exercise = LCDbObjects::records().findByID(exercise_cid);
+    oss << exercise->getName().c_str(); return oss.str();
+}
+void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
+void TfrmRetrievalAssistant::init() {
 /*
 // template
     ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
@@ -32,13 +186,11 @@
     }
     Screen->Cursor = crDefault;
 */
-
-TfrmRetrievalAssistant *frmRetrievalAssistant;
-
-void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
-
-__fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
-
+    cbLog->Visible = RETRASSTDEBUG;
+    setupStringGrid(sgJobs, SGJOBS_NUMCOLS, sgJobsColName, sgJobsColWidth);
+    loadJobs();
+}
+void TfrmRetrievalAssistant::loadJobs() {
 /*
 StoreMan allows the user to create lists of boxes or cryovials to be retrieved for analysis (8.2) or disposal (7.2).
 Sample retrieval for analysis may specify two aliquots: the secondary can be used if the primary is not available.
@@ -52,27 +204,27 @@ Box retrieval
 
     Find where the boxes are currently stored:
 
-    Select 
-        b.external_name as box, 
-        s.external_name as site, 
-        m.position, 
-        v.external_full as vessel, 
+    Select
+        b.external_name as box,
+        s.external_name as site,
+        m.position,
+        v.external_full as vessel,
         m.shelf_number,
-        r.external_name as rack, 
+        r.external_name as rack,
         bs.slot_position
-    from 
-        box_name b, 
-        box_store bs, 
-        c_rack_number r, 
-        c_tank_map m, 
-        c_object_name s, 
+    from
+        box_name b,
+        box_store bs,
+        c_rack_number r,
+        c_tank_map m,
+        c_object_name s,
         c_object_name v
-    where 
-        b.box_cid = bs.box_cid and 
-        bs.rack_cid = r.rack_cid and 
-        r.tank_cid = m.tank_cid and 
+    where
+        b.box_cid = bs.box_cid and
+        bs.rack_cid = r.rack_cid and
+        r.tank_cid = m.tank_cid and
         s.object_cid = location_cid and
-        v.object_cid = storage_cid and 
+        v.object_cid = storage_cid and
         bs.retrieval_cid = :jobID; // e.g. -636363
 
     *List the name, current structure and expected location of each box.
@@ -89,37 +241,37 @@ Sample retrieval
 
     Find the samples to be retrieved:
 
-    Select 
-        cryovial_barcode, 
-        t.external_name as aliquot, 
+    Select
+        cryovial_barcode,
+        t.external_name as aliquot,
         b.external_name as box,
-        cryovial_position, 
-        s.external_name as site, 
-        m.position, 
-        v.external_full as vessel, 
+        cryovial_position,
+        s.external_name as site,
+        m.position,
+        v.external_full as vessel,
         shelf_number,
-        r.external_name as rack, 
-        bs.slot_position 
-    from 
-        cryovial c, 
-        cryovial_store cs, 
-        box_name b, 
+        r.external_name as rack,
+        bs.slot_position
+    from
+        cryovial c,
+        cryovial_store cs,
+        box_name b,
         box_store bs,
-        c_rack_number r, 
-        c_tank_map m, 
+        c_rack_number r,
+        c_tank_map m,
         c_object_name s,    -- site
-        c_object_name v,    -- vessel 
+        c_object_name v,    -- vessel
         c_object_name t     -- aliquot?
-    where 
-        c.cryovial_id = cs.cryovial_id and 
-        b.box_cid = cs.box_cid and 
-        b.box_cid = bs.box_cid and 
+    where
+        c.cryovial_id = cs.cryovial_id and
+        b.box_cid = cs.box_cid and
+        b.box_cid = bs.box_cid and
         bs.status = 6 and   -- 6?
         t.object_cid = aliquot_type_cid and
-        bs.rack_cid = r.rack_cid and 
-        r.tank_cid = m.tank_cid and 
-        s.object_cid = location_cid and 
-        v.object_cid = storage_cid and 
+        bs.rack_cid = r.rack_cid and
+        r.tank_cid = m.tank_cid and
+        s.object_cid = location_cid and
+        v.object_cid = storage_cid and
         cs.retrieval_cid = :jobID;
 
     At least half of these will be for the primary aliquot
@@ -180,111 +332,6 @@ Sample retrieval
     c_retrieval_job.status not in (0,1) or job.type not in (2,3,4,5): complain
 
 */
-
-void __fastcall TfrmRetrievalAssistant::cbLogClick(TObject *Sender) { memoDebug->Visible = cbLog->Checked; }
-void __fastcall TfrmRetrievalAssistant::btnExitClick(TObject *Sender) { Close(); }
-void __fastcall TfrmRetrievalAssistant::cbNewJobClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbInProgressClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbDoneClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbDeletedClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbBoxRetrievalClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbSampleRetrievalClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbBoxMoveClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbBoxDiscardClick(TObject *Sender) { loadJobs(); }
-void __fastcall TfrmRetrievalAssistant::cbSampleDiscardClick(TObject *Sender) { loadJobs(); }
-
-void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-/* clSilver clMoneyGreen  clGray  clSkyBlue
-#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
-#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
-#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clGreen
-#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
-#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
-#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
-enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
-enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
- */
-    LCDbCryoJob * job;
-    TColor background = clWindow;
-    if (0 == ARow)
-        job = NULL;
-    else
-        job = (LCDbCryoJob *)sgJobs->Objects[0][ARow];
-    if (NULL == job) {
-        if (0 == ARow) {
-            background = clBtnFace; // header row
-        } else {
-            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; // error
-        }
-    } else {
-        switch (job->getStatus()) {
-        case LCDbCryoJob::Status::NEW_JOB:
-            background = RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR;
-            break;
-        case LCDbCryoJob::Status::INPROGRESS:
-            background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR;
-            break;
-        case LCDbCryoJob::Status::DONE:
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
-            break;
-        case LCDbCryoJob::Status::DELETED:
-            background = RETRIEVAL_ASSISTANT_DELETED_COLOUR;
-            break;
-        default:
-            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
-        }
-    }
-    TCanvas * cnv = sgJobs->Canvas;
-	cnv->Brush->Color = background;
-	cnv->FillRect(Rect);
-    if (State.Contains(gdSelected)) {
-        TFontStyles oldFontStyle = cnv->Font->Style;
-        TPenStyle oldPenStyle = cnv->Pen->Style;
-        cnv->Pen->Style = psDot;
-        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
-        cnv->Font->Style = TFontStyles() << fsBold; // << fsItalic;
-    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgJobs->Cells[ACol][ARow]);
-        cnv->Pen->Style     = oldPenStyle;
-        cnv->Font->Style    = oldFontStyle;
-	} else {
-        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgJobs->Cells[ACol][ARow]);
-    }
-}
-
-std::string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
-    if (0 == project_cid) return "Project not specified";
-    try {
-        return LCDbProjects::records().get(project_cid).getName().c_str();
-    } catch (...) {
-        std::ostringstream oss; oss<<"Project ID "<<project_cid<<" not found"; return oss.str();
-    }
-}
-
-std::string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_cid) { // c_object_name 6: aliquot type?
-    std::ostringstream oss;
-    if (0 == primary_aliquot_cid) return "Aliquot not specified";
-    try {
-        const LCDbObject * primary_aliquot = LCDbObjects::records().findByID(primary_aliquot_cid);
-        oss << primary_aliquot->getName().c_str();
-    } catch (...) {
-        oss << "Aliquot ID "<<primary_aliquot_cid<<" not found";
-    }
-    return oss.str();
-}
-
-std::string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
-    // c_audit_trail
-    //LCDbCryoJob::getUserID()
-    return "";
-}
-
-void TfrmRetrievalAssistant::init() {
-    cbLog->Visible = RETRASSTDEBUG;
-    setupStringGrid(sgJobs, SGJOBS_NUMCOLS, sgJobsColName, sgJobsColWidth);
-    loadJobs();
-}
-
-void TfrmRetrievalAssistant::loadJobs() {
     Screen->Cursor = crSQLWait;
     LQuery qc(LIMSDatabase::getCentralDb());
     LCDbCryoJobs &jobs = LCDbCryoJobs::records();
@@ -310,7 +357,6 @@ void TfrmRetrievalAssistant::loadJobs() {
     showJobs();
     Screen->Cursor = crDefault;
 }
-
 void TfrmRetrievalAssistant::showJobs() {
     sgJobs->RowCount = vecJobs.size() + 1;
     tdvecpJob::const_iterator it;
@@ -326,68 +372,5 @@ void TfrmRetrievalAssistant::showJobs() {
         sgJobs->Cells[SGJOBS_TIMESTAMP] [row] = job->getTimeStamp().DateTimeString();
         sgJobs->Objects[0][row] = (TObject *)job;
     }
-}
-
-std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { // c_object_name: 20: storage exercise
-    std::ostringstream oss;
-    const LCDbObject * exercise = LCDbObjects::records().findByID(exercise_cid);
-    oss << exercise->getName().c_str(); return oss.str();
-}
-
-void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
-    LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
-    //selectedJob = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row])); // so it persists for debugging
-    //LCDbCryoJob * job = selectedJob;
-    if (NULL == job) return;
-    switch (job->getStatus()) {
-    case LCDbCryoJob::Status::NEW_JOB: // manage
-        switch (job->getJobType()) {
-            case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
-                frmSamples->setJob(job);
-                if (IDOK == frmSamples->ShowModal()) {
-                    // then make INPROGRESS?
-                }
-                break;
-            case LCDbCryoJob::JobKind::BOX_RETRIEVAL: //cout.flush();
-                frmBoxes->setJob(job);
-                if (IDOK == frmBoxes->ShowModal()) {
-                    // then make INPROGRESS?
-                }
-                break;
-            default:
-                throw Exception("Unknown job type");
-        }
-        break;
-    case LCDbCryoJob::INPROGRESS: // process
-        switch (job->getJobType()) {
-        case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
-            frmProcess->setJob(job);
-            frmProcess->ShowModal();
-            break;
-        case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
-            frmProcess->setJob(job);
-            frmProcess->ShowModal();
-            break;
-        default:
-            throw Exception("Unknown job type");
-        }
-        break;
-    default:
-        throw Exception("Unknown status");
-    }
-}
-
-void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
-    ostringstream oss; oss << __FUNC__;
-    oss << printColWidths(sgJobs); // so we can copy them into the source
-    oss << endl << "row: " << sgJobs->Row << ", col: " << sgJobs->Col;
-    LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
-    if (NULL == job) return;
-    oss << endl << "job: projectid: "<<job->getProjectID()<<", status: "<<job->getStatus();
-    debugLog(oss.str().c_str());
-}
-
-void __fastcall TfrmRetrievalAssistant::FormClose(TObject *Sender, TCloseAction &Action) {
-    delete_referenced<tdvecpJob>(vecJobs);
 }
 
