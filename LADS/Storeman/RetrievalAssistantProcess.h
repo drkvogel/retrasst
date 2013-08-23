@@ -11,30 +11,14 @@
 #include <Vcl.ComCtrls.hpp>
 #include <Vcl.ExtCtrls.hpp>
 
-// sgRetrieval
-
-enum {
-    SGRETRIEVAL_BARCODE,
-    SGRETRIEVAL_LOCATION,
-//    SGRETRIEVAL_,
-//    SGRETRIEVAL_,
-//    SGRETRIEVAL_,
-//    SGRETRIEVAL_,
-    SGRETRIEVAL_NUMCOLS
-} sgRetrieval_cols;
-
+enum {  SGRETRIEVAL_BARCODE, SGRETRIEVAL_DESTBOX, SGRETRIEVAL_DESTPOS, SGRETRIEVAL_CURRBOX, SGRETRIEVAL_CURRPOS,
+        SGRETRIEVAL_SITE, SGRETRIEVAL_POSITION, SGRETRIEVAL_SHELF, SGRETRIEVAL_VESSEL, SGRETRIEVAL_STRUCTURE, SGRETRIEVAL_SLOT, // location in "Russian Doll order"
+        SGRETRIEVAL_NUMCOLS};
 static const char * sgRetrievalColName[SGRETRIEVAL_NUMCOLS] = {
-    "Barcode", "Location",
-//    "Pos",
-//    "Curr box",
-//    "Pos",
-//    "Structure",
-//    "Location",
+    "Barcode", "Dest box", "Pos", "Curr box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"
 };
+static int sgRetrievalColWidth[SGRETRIEVAL_NUMCOLS] = {102, 147, 43, 275, 37, 64, 50, 43, 100, 121, 40 };
 
-static int sgRetrievalColWidth[SGRETRIEVAL_NUMCOLS] = { 100, 100
-    //, 30, 100, 30, 100, 100
-};
 
 class TfrmProcess : public TForm {
 __published:

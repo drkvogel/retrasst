@@ -15,11 +15,6 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     setupStringGrid(sgRetrieval, SGRETRIEVAL_NUMCOLS, sgRetrievalColName, sgRetrievalColWidth);
     //radbutDefault->Caption = DEFAULT_NUMROWS;
     loadingMessage = "Loading retrieval list, please wait...";
-//    sgRetrieval->ColCount = SGRETRIEVAL_NUMCOLS;
-//    for (int i=0; i<SGRETRIEVAL_NUMCOLS; i++) {
-//        sgRetrieval->Cells[i][0]    = sgRetrievalColName[i];
-//        sgRetrieval->ColWidths[i]   = sgRetrievalColWidth[i];
-//    }
 }
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
 /*
