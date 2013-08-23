@@ -66,6 +66,8 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     //return;
     q.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
     while (!q.eof()) {
+        if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
+            // can't use args for synced method, don't know why
         LPDbCryovialStore * vial = new LPDbCryovialStore(q);
         pSampleRow  row = new SampleRow(
             vial,
@@ -82,8 +84,6 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         frmSamples->vials.push_back(row);
         q.next();
         rowCount++;
-        if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
-            // can't use args for synced method, don't know why
     }
 }
 
@@ -344,29 +344,13 @@ Display the size of the job and ask user if they want to divide up the list.  If
 */
 }
 void TfrmSamples::loadRows() {
-/* SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
-                string site, int pos, string vessel, int shelf, string rack, int slot) :
-        "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
-        "   s.external_name AS site, m.position, v.external_full AS vessel,"
-        "   shelf_number, r.external_name AS rack, bs.slot_position" */
-    /*  LPDbCryovialStore * store_record;
-        std::string     cryovial_barcode;
-        std::string     aliquote_type_name;
-        std::string     box_name;
-        std::string     site_name;
-        int             position;
-        std::string     vessel_name;
-        int             shelf_number;
-        std::string     rack_name;
-        int             slot_position;*/
     std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
     panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
-    // Screen-> // disable mouse?
-    Screen->Cursor = crSQLWait;
+    Screen->Cursor = crSQLWait; // Screen-> // disable mouse?
     loadVialsWorkerThread = new LoadVialsWorkerThread();
     loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
 }

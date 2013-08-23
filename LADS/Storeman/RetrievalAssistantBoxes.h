@@ -5,6 +5,7 @@
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.Grids.hpp>
 #include <Vcl.StdCtrls.hpp>
+#include <Vcl.ComCtrls.hpp>
 #include <sstream>
 #include "RetrievalAssistant.h"
 #include "LCDbJob.h"
@@ -91,6 +92,8 @@ __published:
     TEdit *editCustomRows;
     TTimer *timerCustomRows;
     TTimer *timerLoadBoxes;
+    TPanel *panelLoading;
+    TProgressBar *progressBottom;
     void __fastcall FormShow(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);

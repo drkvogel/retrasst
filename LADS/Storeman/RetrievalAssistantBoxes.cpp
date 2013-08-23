@@ -74,6 +74,60 @@ order by
 
 */
 
+__fastcall LoadBoxesWorkerThread::LoadBoxesWorkerThread() {
+    FreeOnTerminate = true;
+}
+void __fastcall LoadBoxesWorkerThread::updateStatus() {
+    ostringstream oss; oss<<frmBoxes->loadingMessage<<"\n"<<rowCount<<" boxes";//<<numerator<<" of "<<denominator;
+    frmBoxes->panelLoading->Caption = oss.str().c_str();
+    frmBoxes->panelLoading->Repaint();
+}
+void __fastcall LoadBoxesWorkerThread::Execute() {
+    //ostringstream oss; oss<<__FUNC__<<": numrows: "<<frmBoxes->maxRows; frmBoxes->debugLog(oss.str().c_str());
+    //Screen->Cursor = crSQLWait;
+    LQuery q(Util::projectQuery(frmBoxes->job->getProjectID(), true)); // get ddb
+    delete_referenced<vecpBoxRow>(frmBoxes->boxes);
+    q.setSQL("SELECT"
+        " bs.box_cid, bs.rack_cid, b.status, bs.process_cid,"
+        " b.external_name as box, s.external_name as site, m.position,"
+        " v.external_full as vessel, m.shelf_number, r.external_name as rack,"
+        " bs.slot_position"
+        " FROM"
+        " box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v"
+        " WHERE"
+        " b.box_cid = bs.box_cid AND"
+        " bs.rack_cid = r.rack_cid AND"
+        " r.tank_cid = m.tank_cid AND"
+        " s.object_cid = location_cid AND"
+        " v.object_cid = storage_cid AND"
+        " bs.retrieval_cid = :jobID"); // e.g. -636363
+    q.setParam("jobID", frmBoxes->job->getID());
+    q.open();
+    while (!q.eof()) {
+        //if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // seems to cause thread to terminate
+        LCDbBoxStore * store = new LCDbBoxStore(q); // ???
+        BoxRow * box = new BoxRow(
+            store,
+            q.readString("box"),
+            q.readString("site"),
+            q.readInt("position"),
+            q.readString("vessel"),
+            q.readInt("shelf_number"),
+            q.readString("rack"),
+            q.readInt("slot_position")
+        );
+        frmBoxes->boxes.push_back(box);
+        q.next();
+        rowCount++;
+    }
+//    //qp.setSQL("SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
+//    // no 'chunks' yet, we haven't created them!
+//    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
+//    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
+    //showRows();
+    //Screen->Cursor = crDefault;
+}
+
 __fastcall TfrmBoxes::TfrmBoxes(TComponent* Owner) : TForm(Owner) { }
 void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
@@ -193,6 +247,17 @@ void __fastcall TfrmBoxes::sgBoxesClick(TObject *Sender) {
     job?debugLog(job->getName().c_str()):debugLog("NULL job");
     debugLog(printColWidths(sgBoxes).c_str());
 }
+void __fastcall TfrmBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
+    showRows(); // must do this outside thread, unless synchronised - does gui stuff
+    progressBottom->Style = pbstNormal; progressBottom->Visible = false;
+    panelLoading->Visible = false;
+    // create a default chunk
+    chunks.clear();
+    clearSG(sgChunks);
+    addChunk(); // no - not before list loaded
+    showChunks();
+    Screen->Cursor = crDefault;
+}
 void TfrmBoxes::debugLog(String s) { frmBoxes->memoDebug->Lines->Add(s); }
 void TfrmBoxes::radgrpRowsChange() {
     ostringstream oss; oss <<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
@@ -265,47 +330,56 @@ Set status = 5, removed = 'now' when they're retrieved.
 Each cryovial has a second cryovial_store record giving the expected destination, status = 0.
 Set status = 1 when the position's confirmed */
 
-    ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-    Screen->Cursor = crSQLWait;
-    LQuery q(Util::projectQuery(job->getProjectID(), true)); // get ddb
-    delete_referenced<vecpBoxRow>(boxes);
-    q.setSQL("SELECT"
-        " bs.box_cid, bs.rack_cid, b.status, bs.process_cid,"
-        " b.external_name as box, s.external_name as site, m.position,"
-        " v.external_full as vessel, m.shelf_number, r.external_name as rack,"
-        " bs.slot_position"
-        " FROM"
-        " box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v"
-        " WHERE"
-        " b.box_cid = bs.box_cid AND"
-        " bs.rack_cid = r.rack_cid AND"
-        " r.tank_cid = m.tank_cid AND"
-        " s.object_cid = location_cid AND"
-        " v.object_cid = storage_cid AND"
-        " bs.retrieval_cid = :jobID"); // e.g. -636363
-    q.setParam("jobID", job->getID());
-    q.open();
-    while (!q.eof()) {
-        LCDbBoxStore * store = new LCDbBoxStore(q); // ???
-        BoxRow * box = new BoxRow(
-            store,
-            q.readString("box"),
-            q.readString("site"),
-            q.readInt("position"),
-            q.readString("vessel"),
-            q.readInt("shelf_number"),
-            q.readString("rack"),
-            q.readInt("slot_position")
-        );
-        boxes.push_back(box);
-        q.next();
-    }
-//    //qp.setSQL("SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
-//    // no 'chunks' yet, we haven't created them!
-//    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
-//    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
-    showRows();
-    Screen->Cursor = crDefault;
+//    ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
+//    Screen->Cursor = crSQLWait;
+//    LQuery q(Util::projectQuery(job->getProjectID(), true)); // get ddb
+//    delete_referenced<vecpBoxRow>(boxes);
+//    q.setSQL("SELECT"
+//        " bs.box_cid, bs.rack_cid, b.status, bs.process_cid,"
+//        " b.external_name as box, s.external_name as site, m.position,"
+//        " v.external_full as vessel, m.shelf_number, r.external_name as rack,"
+//        " bs.slot_position"
+//        " FROM"
+//        " box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v"
+//        " WHERE"
+//        " b.box_cid = bs.box_cid AND"
+//        " bs.rack_cid = r.rack_cid AND"
+//        " r.tank_cid = m.tank_cid AND"
+//        " s.object_cid = location_cid AND"
+//        " v.object_cid = storage_cid AND"
+//        " bs.retrieval_cid = :jobID"); // e.g. -636363
+//    q.setParam("jobID", job->getID());
+//    q.open();
+//    while (!q.eof()) {
+//        LCDbBoxStore * store = new LCDbBoxStore(q); // ???
+//        BoxRow * box = new BoxRow(
+//            store,
+//            q.readString("box"),
+//            q.readString("site"),
+//            q.readInt("position"),
+//            q.readString("vessel"),
+//            q.readInt("shelf_number"),
+//            q.readString("rack"),
+//            q.readInt("slot_position")
+//        );
+//        boxes.push_back(box);
+//        q.next();
+//    }
+////    //qp.setSQL("SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
+////    // no 'chunks' yet, we haven't created them!
+////    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
+////    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
+//    showRows();
+//    Screen->Cursor = crDefault;
+    std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
+    panelLoading->Caption = loadingMessage;
+    panelLoading->Visible = true;
+    panelLoading->Top = (sgBoxes->Height / 2) - (panelLoading->Height / 2);
+    panelLoading->Left = (sgBoxes->Width / 2) - (panelLoading->Width / 2);
+    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+    Screen->Cursor = crSQLWait; // Screen-> // disable mouse?
+    loadBoxesWorkerThread = new LoadBoxesWorkerThread();
+    loadBoxesWorkerThread->OnTerminate = &loadBoxesWorkerThreadTerminated;
 }
 void TfrmBoxes::showRows() {
     if (boxes.size() <= 0) {
@@ -325,7 +399,6 @@ void TfrmBoxes::showRows() {
         sgBoxes->Cells[SGBOXES_VESSEL]   [row] = box->vessel_name.c_str();
         sgBoxes->Cells[SGBOXES_STRUCTURE][row] = box->rack_name.c_str();
         sgBoxes->Cells[SGBOXES_SLOT]     [row] = box->slot_position;
-        //LCDbBoxStore * box = *it;
         sgBoxes->Objects[0][row] = (TObject *)box;
         if (row >= maxRows) break;
     }

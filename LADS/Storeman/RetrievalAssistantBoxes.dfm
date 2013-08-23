@@ -230,6 +230,23 @@ object frmBoxes: TfrmBoxes
       TabOrder = 1
       Visible = False
     end
+    object panelLoading: TPanel
+      Left = 232
+      Top = 80
+      Width = 273
+      Height = 127
+      Caption = 'Loading boxes, please wait...'
+      TabOrder = 2
+      Visible = False
+      object progressBottom: TProgressBar
+        Left = 1
+        Top = 109
+        Width = 271
+        Height = 17
+        Align = alBottom
+        TabOrder = 0
+      end
+    end
   end
   object timerCustomRows: TTimer
     Enabled = False
