@@ -10,6 +10,7 @@
 #include <Vcl.ExtCtrls.hpp>
 #include <sstream>
 #include "LCDbJob.h"
+#include "StoreUtil.h"
 #include "LPDbCryovialStore.h"
 #include "LPDbCryovial.h"
 #include "LDbBoxStore.h"
@@ -56,11 +57,13 @@ std::string printColWidths(TStringGrid * sg) {
     return oss.str();
 }
 
-class Row {
-
+class DataRow {
+    // common fields
 };
+typedef DataRow * pDataRow;
+typedef std::vector<pDataRow> vecpDataRow;
 
-class BoxRow {
+class BoxRow : public DataRow {
 public:
     LCDbBoxStore * store_record; // public LPDbID
     //LPDbBoxName ?? getStatus
@@ -151,7 +154,7 @@ public:
 typedef BoxRow * pBoxRow;
 typedef std::vector<pBoxRow> vecpBoxRow;
 
-class SampleRow {
+class SampleRow : public DataRow {
 public:
     LPDbCryovialStore * store_record;
     string              cryovial_barcode;
@@ -275,6 +278,8 @@ class Chunk { // not recorded in database
 public:
     Chunk() : section(0), start("start"), end("end") { }
     Chunk(string name, int section, string start, string end) : section(section), start(start), end(end) { }
+    ~Chunk() { delete_referenced<vecpDataRow>(rows); }
+    vecpDataRow rows;
     string      name;
     int         section;
     string      start;

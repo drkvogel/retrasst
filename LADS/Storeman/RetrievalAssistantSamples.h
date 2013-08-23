@@ -136,7 +136,7 @@ private:
     void                autoChunk();
     void                showChunks();
     void                loadRows();
-    void                showRows();
+    void                showRows(Chunk * chunk=NULL);
     void                radgrpRowsChange();
     //void                sortList(enum SampleRow::SortType);
     //void                sortList(void *); // function argument

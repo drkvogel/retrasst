@@ -4,7 +4,7 @@
 
 secondary aliquots - separate, backup list after primary chunks/list - if primaries not found, mark secondaries as required and form new list
 
-auto chunk - ask destinatin box size - may be different from retrieval box size.
+auto chunk - ask destination box size - may be different from retrieval box size.
 
 excel-style x/y/z sort of all fields
 
