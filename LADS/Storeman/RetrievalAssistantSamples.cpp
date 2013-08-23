@@ -13,17 +13,16 @@ TfrmSamples *frmSamples;
 void TfrmSamples::debugLog(String s) {
     frmSamples->memoDebug->Lines->Add(s);
 }
-
 __fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
     FreeOnTerminate = true;
 }
-
 void __fastcall LoadVialsWorkerThread::updateStatus() {
     ostringstream oss; oss<<frmSamples->loadingMessage<<"\n"<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
     frmSamples->panelLoading->Caption = oss.str().c_str();
     frmSamples->panelLoading->Repaint();
 }
-
+__fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
+void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
 /*
 // template
     ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
@@ -42,10 +41,6 @@ void __fastcall LoadVialsWorkerThread::updateStatus() {
     }
     Screen->Cursor = crDefault;
 */
-
-__fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
-
-void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     maxRows             = DEFAULT_NUMROWS;
     job                 = NULL;
@@ -54,24 +49,21 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     radbutDefault->Caption = DEFAULT_NUMROWS;
     loadingMessage = "Loading samples, please wait...";
 }
-
 void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     btnSave->Enabled = true;
     chunks.clear();
-    addChunk();
-    showChunks();
+    clearSG(sgChunks);
+    //addChunk(); // no - not before list loaded
+    //showChunks();
     clearSG(sgVials);
     timerLoadVials->Enabled = true;
     //if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
 }
-
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
     for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) { delete (*it)->store_record; }
     delete_referenced<vecpSampleRow>(frmSamples->vials);
 }
-
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
-
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
         // save stuff
@@ -85,11 +77,9 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
     // TODO update c_retrieval_job (in progress)
 }
-
 void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
     addChunk();
 }
-
 void TfrmSamples::addChunk() {
     if (chunks.size() == 0) {
         // first chunk, make default chunk from entire list
@@ -100,11 +90,9 @@ void TfrmSamples::addChunk() {
     btnDelChunk->Enabled = true;
     showChunks();
 }
-
 void __fastcall TfrmSamples::cbLogClick(TObject *Sender) {
     memoDebug->Visible = cbLog->Checked;
 }
-
 void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
     if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
         delete chunks.back();
@@ -113,11 +101,9 @@ void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
     }
     if (chunks.size() == 0) btnDelChunk->Enabled = false;
 }
-
 void __fastcall TfrmSamples::radbutDefaultClick(TObject *Sender) { radgrpRowsChange(); }
 void __fastcall TfrmSamples::radbutAllClick(TObject *Sender) { radgrpRowsChange(); }
 void __fastcall TfrmSamples::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
-
 void TfrmSamples::radgrpRowsChange() {
     maxRows = 0;
     if (radbutCustom->Checked) {
@@ -135,19 +121,16 @@ void TfrmSamples::radgrpRowsChange() {
     std::ostringstream oss; oss <<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     showRows();
 }
-
 void __fastcall TfrmSamples::timerCustomRowsTimer(TObject *Sender) {
     std::ostringstream oss; oss <<__FUNC__<<": load"<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     timerCustomRows->Enabled = false;
     maxRows = editCustomRows->Text.ToIntDef(0);
     showRows();
 }
-
 void __fastcall TfrmSamples::editCustomRowsChange(TObject *Sender) {
     timerCustomRows->Enabled = false; // reset
     timerCustomRows->Enabled = true;;
 }
-
 void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
     TColor background = clWindow;
     if (0 == ARow) {
@@ -179,7 +162,6 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
         cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
     }
 }
-
 void TfrmSamples::showChunks() {
     if (0 == chunks.size()) { // must always have one chunk anyway
         clearSG(sgChunks);
@@ -198,7 +180,6 @@ void TfrmSamples::showChunks() {
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
 }
-
 void TfrmSamples::autoChunk() {
     frmAutoChunk->ShowModal();
 /*
@@ -213,15 +194,12 @@ Display the size of the job and ask user if they want to divide up the list.  If
 5.	Repeat steps (2) and (3) until every entry has been allocated to a section
 */
 }
-
-/*
-    //"SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
+void __fastcall LoadVialsWorkerThread::Execute() {
+/*    //"SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
 //    // no 'chunks' yet, we haven't created them!
 //    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
 //    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
 */
-
-void __fastcall LoadVialsWorkerThread::Execute() {
     delete_referenced<vecpSampleRow>(frmSamples->vials);
     LQuery q(Util::projectQuery(frmSamples->job->getProjectID(), true));
     q.setSQL(
@@ -286,15 +264,21 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             // can't use args for synced method, don't know why
     }
 }
-
 void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     // finish up
     showRows(); // must do this outside thread, unless synchronised - does gui stuff
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
+
+    // create a default chunk
+    chunks.clear();
+    clearSG(sgChunks);
+    //addChunk(); // no - not before list loaded
+    //showChunks();
+
     Screen->Cursor = crDefault;
 }
-
+void TfrmSamples::loadRows() {
 /* SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
                 string site, int pos, string vessel, int shelf, string rack, int slot) :
         "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
@@ -310,8 +294,6 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
         int             shelf_number;
         std::string     rack_name;
         int             slot_position;*/
-
-void TfrmSamples::loadRows() {
     std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
@@ -323,10 +305,9 @@ void TfrmSamples::loadRows() {
     loadVialsWorkerThread = new LoadVialsWorkerThread();
     loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
 }
-
+void TfrmSamples::showRows() {
 /* SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
                string site, int pos, string vessel, int shelf, string rack, int slot) :  */
-void TfrmSamples::showRows() {
     if (vials.size() <= 0) {
         clearSG(sgVials);
     } else {
@@ -356,32 +337,26 @@ void TfrmSamples::showRows() {
     ostringstream oss; oss<<((-1 == maxRows) ? vials.size() : maxRows)<<" of "<<vials.size()<<" vials";
     groupVials->Caption = oss.str().c_str();
 }
-
 void __fastcall TfrmSamples::btnAutoChunkClick(TObject *Sender) {
     autoChunk();
 }
-
 void __fastcall TfrmSamples::btnIncrClick(TObject *Sender) {
     //
 }
-
 void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
     //
 }
-
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     ostringstream oss; oss << __FUNC__; oss << printColWidths(sgVials); // print column widths so we can copy them into the source
     debugLog(oss.str().c_str());
     sortList(ACol);
 }
-
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
     // ostringstream oss; oss << __FUNC__; oss << printColWidths(sgVials); debugLog(oss.str().c_str());
     SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     sample?debugLog(sample->str().c_str()):debugLog("NULL sample");
     job?debugLog(job->getName().c_str()):debugLog("NULL job");
 }
-
 void TfrmSamples::sortList(int col) {
     //partial_sort
     Screen->Cursor = crSQLWait;
@@ -402,19 +377,16 @@ void TfrmSamples::sortList(int col) {
     showRows();
     Screen->Cursor = crDefault;
 }
-
 void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
     timerLoadVials->Enabled = false;
     loadRows(); // so that gui can be updated
 }
-
 void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
         //rejectList();
         Close();
     }
 }
-
 void __fastcall TfrmSamples::btnAddSortClick(TObject *Sender) {
     TComboBox * combo = new TComboBox(this);
     combo->Parent = groupSort;
@@ -422,8 +394,6 @@ void __fastcall TfrmSamples::btnAddSortClick(TObject *Sender) {
     // new combo is last created,
     //groupSort->InsertControl(combo);
 }
-
-
 void __fastcall TfrmSamples::btnDelSortClick(TObject *Sender) {
     //groupSort->Controls[groupSort->ControlCount-1]
     //if (dynamic_cast<TComboBox *>() != NULL) {
