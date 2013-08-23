@@ -19,19 +19,20 @@ object frmProcess: TfrmProcess
   TextHeight = 13
   object List: TGroupBox
     Left = 0
-    Top = 0
+    Top = 105
     Width = 956
-    Height = 405
+    Height = 250
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
+    ExplicitTop = 0
     ExplicitWidth = 628
     ExplicitHeight = 400
     object sgRetrieval: TStringGrid
       Left = 2
       Top = 15
       Width = 952
-      Height = 302
+      Height = 147
       Align = alClient
       FixedCols = 0
       TabOrder = 0
@@ -40,7 +41,7 @@ object frmProcess: TfrmProcess
     end
     object GroupBox3: TGroupBox
       Left = 2
-      Top = 317
+      Top = 162
       Width = 952
       Height = 86
       Align = alBottom
@@ -75,10 +76,27 @@ object frmProcess: TfrmProcess
         ParentFont = False
       end
     end
+    object panelLoading: TPanel
+      Left = 328
+      Top = 64
+      Width = 273
+      Height = 127
+      Caption = 'Loading retrieval list, please wait...'
+      TabOrder = 2
+      Visible = False
+      object progressBottom: TProgressBar
+        Left = 1
+        Top = 109
+        Width = 271
+        Height = 17
+        Align = alBottom
+        TabOrder = 0
+      end
+    end
   end
   object GroupBox2: TGroupBox
     Left = 0
-    Top = 405
+    Top = 355
     Width = 956
     Height = 77
     Align = alBottom
@@ -86,6 +104,9 @@ object frmProcess: TfrmProcess
     TabOrder = 1
     ExplicitTop = 400
     ExplicitWidth = 628
+    DesignSize = (
+      956
+      77)
     object Label1: TLabel
       Left = 14
       Top = 32
@@ -132,6 +153,47 @@ object frmProcess: TfrmProcess
       ParentFont = False
       TabOrder = 2
     end
+    object cbLog: TCheckBox
+      Left = 722
+      Top = 46
+      Width = 64
+      Height = 17
+      Anchors = [akRight, akBottom]
+      Caption = 'Show Log'
+      TabOrder = 3
+      OnClick = cbLogClick
+    end
+  end
+  object Chunks: TGroupBox
+    Left = 0
+    Top = 0
+    Width = 956
+    Height = 105
+    Align = alTop
+    Caption = 'Chunks'
+    TabOrder = 2
+    ExplicitLeft = 392
+    ExplicitTop = 216
+    ExplicitWidth = 185
+    object sgChunks: TStringGrid
+      Left = 2
+      Top = 15
+      Width = 952
+      Height = 88
+      Align = alClient
+      FixedCols = 0
+      ScrollBars = ssVertical
+      TabOrder = 0
+    end
+  end
+  object memoDebug: TMemo
+    Left = 0
+    Top = 432
+    Width = 956
+    Height = 50
+    Align = alBottom
+    TabOrder = 3
+    Visible = False
   end
   object MainMenu1: TMainMenu
     Left = 512

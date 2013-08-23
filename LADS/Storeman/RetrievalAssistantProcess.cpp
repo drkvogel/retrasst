@@ -8,6 +8,13 @@ TfrmProcess *frmProcess;
 __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) { }
 
 void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
+    cbLog->Visible      = RETRASSTDEBUG;
+    maxRows             = DEFAULT_NUMROWS;
+    job                 = NULL;
+    setupStringGrid(sgChunks,    SGCHUNKS_NUMCOLS,    sgChunksColName,    sgChunksColWidth);
+    setupStringGrid(sgRetrieval, SGRETRIEVAL_NUMCOLS, sgRetrievalColName, sgRetrievalColWidth);
+    //radbutDefault->Caption = DEFAULT_NUMROWS;
+    loadingMessage = "Loading retrieval list, please wait...";
 //    sgRetrieval->ColCount = SGRETRIEVAL_NUMCOLS;
 //    for (int i=0; i<SGRETRIEVAL_NUMCOLS; i++) {
 //        sgRetrieval->Cells[i][0]    = sgRetrievalColName[i];
@@ -15,7 +22,26 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
 //    }
 }
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
-    //
+/*
+// template
+    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
+    LQuery q(LIMSDatabase::getCentralDb());
+    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
+    q.setSQL("SELECT * FROM  WHERE status != 99");
+    Screen->Cursor = crSQLWait;
+    q.open();
+    delete_referenced<vecp>(s);
+    while (!q.eof()) {
+        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
+        //ob-> = q.readInt("");
+        //ob-> = q.readString("");
+        s.push_back();
+        q.next();
+    }
+    Screen->Cursor = crDefault;
+*/
+
+    panelLoading->Caption = loadingMessage;
 }
 void __fastcall TfrmProcess::Exit1Click(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
@@ -82,8 +108,15 @@ the destination location should be displayed and the next ID/location should be 
  * if the ID’s do not match a warning should be displayed and re-entry of the barcode required (REQ 8.3.10).
  * When working through the list the previous five successfully entered ID’s should always be visible (REQ 8.3.11).
  * The option to exit the process saving progress should be offered, with an “are you sure?” message in case of accidental selection (REQ 8.3.12).
+
+ destination box+position, cryovial barcode and current box+position+structure+location of the primary and secondary aliquots.
 */
 
+}
+
+
+void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
+    memoDebug->Visible = cbLog->Checked;
 }
 
 

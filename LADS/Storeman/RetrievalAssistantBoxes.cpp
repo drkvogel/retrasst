@@ -292,9 +292,9 @@ void TfrmBoxes::showChunks() {
     for (it = chunks.begin(); it != chunks.end(); it++, row++) {
         Chunk * chunk = *it;
         sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
-        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start;
-        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end;
-        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = chunk->end - chunk->start;
+        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
+        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();
+        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = 0;//chunk->end - chunk->start;
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
 }

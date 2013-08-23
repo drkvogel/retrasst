@@ -7,6 +7,9 @@
 #include <Vcl.Grids.hpp>
 #include <Vcl.Menus.hpp>
 #include "LCDbJob.h"
+#include "RetrievalAssistant.h"
+#include <Vcl.ComCtrls.hpp>
+#include <Vcl.ExtCtrls.hpp>
 
 // sgRetrieval
 
@@ -47,14 +50,23 @@ __published:
     TLabel *Label2;
     TMainMenu *MainMenu1;
     TMenuItem *Exit1;
+    TGroupBox *Chunks;
+    TStringGrid *sgChunks;
+    TCheckBox *cbLog;
+    TMemo *memoDebug;
+    TPanel *panelLoading;
+    TProgressBar *progressBottom;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall Exit1Click(TObject *Sender);
+    void __fastcall cbLogClick(TObject *Sender);
 private:
     LCDbCryoJob * job;
     void loadRows();
     void showRows();
     void process();
+    int maxRows;
+    const char *        loadingMessage;
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);

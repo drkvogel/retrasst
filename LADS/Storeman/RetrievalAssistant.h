@@ -32,37 +32,33 @@ const bool RETRASSTDEBUG =
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
 #define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
 
-// utilities
-
 void msgbox(string main, string title="Info") { // ridiculous contrivance to use stdstring in message box
     Application->MessageBoxW(String(main.c_str()).c_str(), String(title.c_str()).c_str(), MB_OK);
 }
-
 void clearGridSelection(TStringGrid * sg) { // put this in storeutil?
     TGridRect myRect;
     myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
     sg->Selection = myRect;
 }
-
 void clearSG(TStringGrid * sg) { // put this in storeutil?
     clearGridSelection(sg);
     sg->FixedRows = 0; sg->RowCount = 0; sg->RowCount = 2; sg->FixedRows = 1;
     for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
     sg->Cells[0][1] = "No results.";
 }
-
 void setupStringGrid(TStringGrid * sg, const int cols, const char * colnames[], const int colwidths[]) {
     sg->ColCount = cols;
     for (int i=0; i<cols; i++) { sg->Cells[i][0] = colnames[i]; sg->ColWidths[i] = colwidths[i]; }
 }
-
 std::string printColWidths(TStringGrid * sg) {
     std::ostringstream oss;
     oss << sg->Name.c_str() << ": {"; for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; } oss << "};";
     return oss.str();
 }
 
-// end utilities
+class Row {
+
+};
 
 class BoxRow {
 public:
@@ -272,35 +268,31 @@ private:
     }
 };
 
-// chunk stringgrid setup
 enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
 static const char * sgChunksColName[SGCHUNKS_NUMCOLS]   = { "Section", "Start", "End", "Size" };
 static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 200, 200, 200, 200 };
 class Chunk { // not recorded in database
 public:
-    Chunk() : section(0), start(0), end(0) { }
+    Chunk() : section(0), start("start"), end("end") { }
+    Chunk(string name, int section, string start, string end) : section(section), start(start), end(end) { }
+    string      name;
     int         section;
-    //std::string name;
-    int         start;
-    int         end;
+    string      start;
+    string      end;
 };
 typedef std::vector< Chunk * >  vecpChunk;
 
-// jobs grid setup
 enum { SGJOBS_DESCRIP, SGJOBS_JOBTYPE, SGJOBS_STATUS, SGJOBS_PRIMARY, SGJOBS_PROJECT, SGJOBS_REASON, SGJOBS_TIMESTAMP, SGJOBS_NUMCOLS };
 static const char * sgJobsColName[SGJOBS_NUMCOLS]   = { "Description", "Job type", "Status", "Primary Aliquot", "Project", "Reason", "Timestamp" };
 static const int    sgJobsColWidth[SGJOBS_NUMCOLS]  = {401, 113, 72, 109, 100, 229, 127 };
-
 static const char * jobStatusString(short status) {
     static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Deleted" };
     return status < LCDbCryoJob::Status::DELETED ? jobStatusStrings[status] : "Invalid";
 };
-
 static const char * jobTypeString(short status) {
     static const char * jobTypeStrings[] = { "Unknown", "Box move", "Box retrieval", "Box discard", "Sample retrieval", "Sample discard", "NUM_TYPES" };
     return status < LCDbCryoJob::JobKind::NUM_TYPES ? jobTypeStrings[status] : "Invalid";
 };
-
 typedef std::vector<LCDbCryoJob *> tdvecpJob;
 
 class TfrmRetrievalAssistant : public TForm {
@@ -339,7 +331,6 @@ __published:
     void __fastcall sgJobsClick(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 private:
-    //LCDbCryoJob * selectedJob;
     void debugLog(String s);
     tdvecpJob vecJobs;
     void loadJobs();

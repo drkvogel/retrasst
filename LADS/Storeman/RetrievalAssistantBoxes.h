@@ -128,7 +128,6 @@ private:
     void                loadRows();
     void                showRows();
     void                radgrpRowsChange();
-    //static UINT TimerId; // must be static as well to be used by callback
     UINT TimerId;
     static VOID CALLBACK TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime);
         // Declaring the function static stops the __closure keyword being included

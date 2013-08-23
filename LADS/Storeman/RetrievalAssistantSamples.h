@@ -129,7 +129,6 @@ private:
     const char *        loadingMessage;
     LoadVialsWorkerThread * loadVialsWorkerThread;
     void __fastcall loadVialsWorkerThreadTerminated(TObject *Sender);
-
     LCDbCryoJob * job;
     int                 maxRows;  // rows to show at a time
     vecpChunk           chunks;
