@@ -125,18 +125,20 @@ __published:
     void __fastcall btnAddSortClick(TObject *Sender);
     void __fastcall btnDelSortClick(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
+    void __fastcall sgChunksClick(TObject *Sender);
 private:
     const char *        loadingMessage;
     LoadVialsWorkerThread * loadVialsWorkerThread;
     void __fastcall loadVialsWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob * job;
     int                 maxRows;  // rows to show at a time
-    vecpChunk           chunks;
+    vecpSampleChunk     chunks;
     std::vector<SampleRow *> vials;
     void                autoChunk();
+    SampleChunk *       currentChunk();
     void                showChunks();
     void                loadRows();
-    void                showRows(Chunk * chunk=NULL);
+    void                showChunk(SampleChunk * chunk=NULL);
     void                radgrpRowsChange();
     //void                sortList(enum SampleRow::SortType);
     //void                sortList(void *); // function argument

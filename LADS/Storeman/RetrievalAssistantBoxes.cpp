@@ -279,7 +279,7 @@ void TfrmBoxes::addChunk() {
     if (chunks.size() == 0) {
         // first chunk, make default chunk from entire list
     }
-    Chunk * chunk = new Chunk;
+    BoxChunk * chunk = new BoxChunk;
     chunk->section = chunks.size() + 1;
     chunks.push_back(chunk);
     btnDelChunk->Enabled = true;

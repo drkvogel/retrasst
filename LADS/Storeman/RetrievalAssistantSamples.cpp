@@ -127,6 +127,14 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
 }
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
     for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) { delete (*it)->store_record; }
+    for (vecpSampleChunk::const_iterator ch = chunks.begin(); ch != chunks.end(); ch++) {
+        delete_referenced<vecpSampleRow>((*ch)->rows);
+        //delete_referenced<vecpDataRow>((*ch)->rows);
+//        for (vecpDataRow::const_iterator it = (*ch)->rows.begin(); it != (*ch)->rows.end(); it++) {
+//            //delete (*it)->store_record;
+//            delete (*it);
+//        }
+    }
     delete_referenced<vecpSampleRow>(frmSamples->vials);
 }
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
@@ -155,7 +163,7 @@ void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
         chunks.pop_back();
         showChunks();
     }
-    if (chunks.size() == 0) btnDelChunk->Enabled = false;
+    if (chunks.size() == 1) btnDelChunk->Enabled = false;
 }
 void __fastcall TfrmSamples::radbutDefaultClick(TObject *Sender) { radgrpRowsChange(); }
 void __fastcall TfrmSamples::radbutAllClick(TObject *Sender) { radgrpRowsChange(); }
@@ -164,14 +172,7 @@ void __fastcall TfrmSamples::timerCustomRowsTimer(TObject *Sender) {
     std::ostringstream oss; oss <<__FUNC__<<": load"<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     timerCustomRows->Enabled = false;
     maxRows = editCustomRows->Text.ToIntDef(0);
-
-//    Chunk * chunk = (Chunk *)sgChunks->Objects[0][sgChunks->Row];
-//    if (NULL != chunk) {
-      //showRows(chunk);
-      showRows();
-//    } else {
-//        msgbox("null chunk");
-//    }
+    showChunk();
 }
 void __fastcall TfrmSamples::editCustomRowsChange(TObject *Sender) {
     timerCustomRows->Enabled = false; // reset
@@ -182,8 +183,8 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
     if (0 == ARow) {
         background = clBtnFace;
     } else {
-        Chunk * chunk = NULL;
-        chunk = (Chunk *)sgChunks->Objects[0][ARow];
+        SampleChunk * chunk = NULL;
+        chunk = (SampleChunk *)sgChunks->Objects[0][ARow];
         background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == chunk) {
             background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
@@ -209,16 +210,12 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
     }
 }
 void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
-    //showRows(); // must do this outside thread, unless synchronised - does gui stuff
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
-
-    // create a default chunk
     chunks.clear();
     clearSG(sgChunks);
-    addChunk(); // no - not before list loaded
-    //showChunks();
-
+    addChunk(); // create a default chunk // no - not before list loaded
+    showChunks(); //showChunk(); // must do this outside thread, unless synchronised - does gui stuff
     Screen->Cursor = crDefault;
 }
 void __fastcall TfrmSamples::btnAutoChunkClick(TObject *Sender) {
@@ -305,7 +302,7 @@ void TfrmSamples::radgrpRowsChange() {
         }
     }
     std::ostringstream oss; oss <<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-    showRows();
+    showChunk();
 }
 void TfrmSamples::showChunks() {
     if (0 == chunks.size()) { // must always have one chunk anyway
@@ -314,26 +311,25 @@ void TfrmSamples::showChunks() {
         sgChunks->RowCount = chunks.size() + 1;
         sgChunks->FixedRows = 1; // "Fixed row count must be LESS than row count"
     }
-    vecpChunk::const_iterator it;
     int row = 1;
-    for (it = chunks.begin(); it != chunks.end(); it++, row++) {
-        Chunk * chunk = *it;
+    for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
+        SampleChunk * chunk = *it;
         sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
         sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
         sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();
         sgChunks->Cells[SGCHUNKS_SIZE]      [row] = 0;//chunk->end - chunk->start;
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
+    showChunk();
 }
 void TfrmSamples::addChunk() {
-    Chunk * chunk = new Chunk;
+    SampleChunk * chunk = new SampleChunk;
     chunk->section = chunks.size() + 1;
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
         for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) {
-            chunk->rows.push_back((DataRow *)*(it));
+            //chunk->rows.push_back((DataRow *)*(it));
+            chunk->rows.push_back((SampleRow *)*(it));
         }
-        //chunk->rows.push_back(*(vials.begin()));
-        //chunk->rows = vials;
     } else {
         //chunk->rows.push_back(*(vials.begin()));
     }
@@ -366,26 +362,49 @@ void TfrmSamples::loadRows() {
     loadVialsWorkerThread = new LoadVialsWorkerThread();
     loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
 }
-void TfrmSamples::showRows(Chunk * chunk) {
-    if (NULL == chunk) { // default
-        Chunk * chunk = (Chunk *)sgChunks->Objects[0][sgChunks->Row];
-        if (NULL == chunk) // still null
-            msgbox("null chunk"); // throw
+SampleChunk * TfrmSamples::currentChunk() {
+    //if (NULL == chunk) { // default
+    int row = sgChunks->Row;
+    if (row < 1) {
+        sgChunks->Row = 1; // force selection of 1st row
     }
-/* SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
-               string site, int pos, string vessel, int shelf, string rack, int slot) :  */
-    //if (vials.size() <= 0) {
+    SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
+    if (NULL == chunk) {// still null
+        msgbox("null chunk"); // throw
+        return NULL;
+    }
+}
+void TfrmSamples::showChunk(SampleChunk * chunk) {
+//    int row = sgChunks->Row;
+//    if (row < 1) {
+//        sgChunks->Row = 1; // force selection of 1st row
+//    }
+//    SampleChunk * chunk = (Chunk *)sgChunks->Objects[0][sgChunks->Row];
+//    if (NULL == chunk) {
+//        ostringstream oss; oss<<__FUNC__<<": Null chunk"; debugLog(oss.str().c_str());
+//        return;
+//    } else {
+//        showChunk(chunk);
+//    }
+
+    if (NULL == chunk) { // default
+        chunk = currentChunk();
+//        chunk = (Chunk *)sgChunks->Objects[0][sgChunks->Row];
+//        if (NULL == chunk) {// still null
+//            msgbox("null chunk"); // throw
+//            return;
+//        }
+    }
     if (chunk->rows.size() <= 0) {
         clearSG(sgVials);
     } else {
-        //sgVials->RowCount = (-1 == maxRows) ? vials.size() + 1 : maxRows + 1;
         sgVials->RowCount = (-1 == maxRows) ? chunk->rows.size() + 1 : maxRows + 1;
         sgVials->FixedRows = 1;
     }
     int row = 1;
-    //for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++, row++) {
-    for (vecpDataRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++, row++) {
-        //pSampleRow sampleRow = *it;
+    //for (vecpDataRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++, row++) {
+    for (vecpSampleRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++, row++) {
+        /* SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box, string site, int pos, string vessel, int shelf, string rack, int slot) :  */
         pSampleRow sampleRow = (pSampleRow)*it;
         LPDbCryovialStore * vial = sampleRow->store_record;
         sgVials->Cells[SGVIALS_BARCODE] [row]    = sampleRow->cryovial_barcode.c_str();
@@ -393,7 +412,7 @@ void TfrmSamples::showRows(Chunk * chunk) {
         sgVials->Cells[SGVIALS_DESTPOS] [row]    = "tba"; //sampleRow->;
         sgVials->Cells[SGVIALS_CURRBOX] [row]    = sampleRow->box_name.c_str();
         sgVials->Cells[SGVIALS_CURRPOS] [row]    = "tba"; //sampleRow->;
-        sgVials->Cells[SGVIALS_SITE]    [row]    = sampleRow->site_name.c_str(); // Russian doll order
+        sgVials->Cells[SGVIALS_SITE]    [row]    = sampleRow->site_name.c_str();
         sgVials->Cells[SGVIALS_POSITION][row]    = sampleRow->position;
         sgVials->Cells[SGVIALS_SHELF]   [row]    = sampleRow->shelf_number;
         sgVials->Cells[SGVIALS_VESSEL]  [row]    = sampleRow->vessel_name.c_str();
@@ -402,7 +421,6 @@ void TfrmSamples::showRows(Chunk * chunk) {
         sgVials->Objects[0][row] = (TObject *)sampleRow;
         if (-1 != maxRows && row >= maxRows) break;
     }
-
     ostringstream oss; oss<<((-1 == maxRows) ? vials.size() : maxRows)<<" of "<<vials.size()<<" vials";
     groupVials->Caption = oss.str().c_str();
 }
@@ -422,8 +440,14 @@ void TfrmSamples::sortList(int col) {
         { SampleRow::sort_asc_structure, SampleRow::sort_desc_structure,sgVialColName[9] },
         { SampleRow::sort_asc_slot,      SampleRow::sort_desc_slot,     sgVialColName[10] },
     };
-    sorter[col].sort_toggle(vials);
-    showRows();
+    //sorter[col].sort_toggle(vials);
+    sorter[col].sort_toggle(currentChunk()->rows);
+    showChunk();
     Screen->Cursor = crDefault;
 }
+void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
+    // show current chunk
+    showChunk(); // default is 1st
+}
+
 

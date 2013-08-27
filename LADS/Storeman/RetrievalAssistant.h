@@ -79,6 +79,7 @@ public:
     string              rack_name;
     int                 slot_position;
     BoxRow() {}
+    ~BoxRow() { if (store_record) delete store_record; }
     BoxRow(  LCDbBoxStore * store_rec, //string barcode, string aliquot,
                 string box,
                 string site, int pos, string vessel, int shelf, string rack, int slot) :
@@ -169,6 +170,7 @@ public:
     string              rack_name;
     int                 slot_position;
     SampleRow() {}
+    ~SampleRow() { if (store_record) delete store_record; }
     SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
                 string site, int pos, string vessel, int shelf, string rack, int slot) :
         store_record(store_rec), cryovial_barcode(barcode), aliquot_type_name(aliquot), box_name(box),
@@ -278,14 +280,30 @@ class Chunk { // not recorded in database
 public:
     Chunk() : section(0), start("start"), end("end") { }
     Chunk(string name, int section, string start, string end) : section(section), start(start), end(end) { }
-    ~Chunk() { delete_referenced<vecpDataRow>(rows); }
-    vecpDataRow rows;
+    //virtual ~Chunk() { delete_referenced<vecpDataRow>(rows); }
+    //virtual ~Chunk() = 0;
+    //virtual vecpDataRow rows;
     string      name;
     int         section;
     string      start;
     string      end;
 };
 typedef std::vector< Chunk * >  vecpChunk;
+
+class SampleChunk : public Chunk {
+public:
+    ~SampleChunk() { delete_referenced<vecpSampleRow>(rows); }
+    vecpSampleRow   rows;
+};
+typedef std::vector< SampleChunk * >  vecpSampleChunk;
+
+class BoxChunk : public Chunk {
+public:
+    ~BoxChunk() { delete_referenced<vecpBoxRow>(rows); }
+    vecpBoxRow      rows;
+};
+typedef std::vector< BoxChunk * >  vecpBoxChunk;
+
 
 enum { SGJOBS_DESCRIP, SGJOBS_JOBTYPE, SGJOBS_STATUS, SGJOBS_PRIMARY, SGJOBS_PROJECT, SGJOBS_REASON, SGJOBS_TIMESTAMP, SGJOBS_NUMCOLS };
 static const char * sgJobsColName[SGJOBS_NUMCOLS]   = { "Description", "Job type", "Status", "Primary Aliquot", "Project", "Reason", "Timestamp" };

@@ -147,7 +147,10 @@ object frmSamples: TfrmSamples
       FixedCols = 0
       Options = [goFixedVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goAlwaysShowEditor, goThumbTracking]
       TabOrder = 1
+      OnClick = sgChunksClick
       OnDrawCell = sgChunksDrawCell
+      ExplicitLeft = 3
+      ExplicitTop = 21
     end
   end
   object groupVials: TGroupBox
