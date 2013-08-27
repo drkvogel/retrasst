@@ -44,3 +44,4 @@ void __fastcall TfrmAutoChunk::btnAddChunkClick(TObject *Sender) {
     frmSamples->addChunk();
 }
 
+

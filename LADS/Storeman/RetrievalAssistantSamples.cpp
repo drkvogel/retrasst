@@ -187,7 +187,7 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
         chunk = (SampleChunk *)sgChunks->Objects[0][ARow];
         background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == chunk) {
-            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = clBtnFace; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
             background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
@@ -244,7 +244,7 @@ void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
 }
 void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
-        //rejectList();
+        //xxxxrejectList();
         Close();
     }
 }
@@ -326,10 +326,10 @@ void TfrmSamples::addChunk() {
     SampleChunk * chunk = new SampleChunk;
     chunk->section = chunks.size() + 1;
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-        for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) {
-            //chunk->rows.push_back((DataRow *)*(it));
-            chunk->rows.push_back((SampleRow *)*(it));
-        }
+//        for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) {
+//            chunk->rows.push_back((SampleRow *)*(it));
+//        }
+        chunk->rows = vials;
     } else {
         //chunk->rows.push_back(*(vials.begin()));
     }
@@ -364,15 +364,14 @@ void TfrmSamples::loadRows() {
 }
 SampleChunk * TfrmSamples::currentChunk() {
     //if (NULL == chunk) { // default
-    int row = sgChunks->Row;
-    if (row < 1) {
-        sgChunks->Row = 1; // force selection of 1st row
-    }
-    SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
-    if (NULL == chunk) {// still null
-        msgbox("null chunk"); // throw
-        return NULL;
-    }
+    if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
+//    SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
+//    if (NULL == chunk) {// still null
+//        msgbox("null chunk"); // throw
+//        return NULL;
+//    }
+//    return chunk;
+    return (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
 }
 void TfrmSamples::showChunk(SampleChunk * chunk) {
 //    int row = sgChunks->Row;
