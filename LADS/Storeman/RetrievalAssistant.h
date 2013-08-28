@@ -292,7 +292,7 @@ typedef std::vector< Chunk * >  vecpChunk;
 
 class SampleChunk : public Chunk {
 public:
-    ~SampleChunk() { delete_referenced<vecpSampleRow>(rows); }
+    //~SampleChunk() { delete_referenced<vecpSampleRow>(rows); } // rows allocated in 'vials' ie. vector of all rows -
     vecpSampleRow   rows;
 };
 typedef std::vector< SampleChunk * >  vecpSampleChunk;

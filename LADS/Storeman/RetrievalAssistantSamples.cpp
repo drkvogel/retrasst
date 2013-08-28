@@ -126,16 +126,17 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     //if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
 }
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
-    for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) { delete (*it)->store_record; }
-    for (vecpSampleChunk::const_iterator ch = chunks.begin(); ch != chunks.end(); ch++) {
-        delete_referenced<vecpSampleRow>((*ch)->rows);
-        //delete_referenced<vecpDataRow>((*ch)->rows);
-//        for (vecpDataRow::const_iterator it = (*ch)->rows.begin(); it != (*ch)->rows.end(); it++) {
-//            //delete (*it)->store_record;
-//            delete (*it);
-//        }
-    }
+    // SampleRow's destructor now deletes store_record, so the following is not needed:
+    //for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) { delete (*it)->store_record; }
+// next not needed - objects pointed to by vials and by chunk->rows already deleted above
+//    for (vecpSampleChunk::const_iterator ch = chunks.begin(); ch != chunks.end(); ch++) {
+//        delete_referenced<vecpSampleRow>((*ch)->rows);
+//    }
+    // similarly, the vector of pointers should be deleted on destruct - or close of the form
+    // http://www.borlandtalk.com/whats-the-different-between-formclose-and-tform1--vt18757.html
     delete_referenced<vecpSampleRow>(frmSamples->vials);
+    // and the chunks:
+    delete_referenced<vecpSampleChunk>(chunks);
 }
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
