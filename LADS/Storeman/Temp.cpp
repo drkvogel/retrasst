@@ -8,6 +8,71 @@ TfrmTest *frmTest;
 __fastcall TfrmTest::TfrmTest(TComponent* Owner) : TForm(Owner) { }
 
 /*
+    // load
+    ostringstream oss; oss<<__FUNC__<<": var: "; debugLog(oss.str().c_str());
+    Screen->Cursor = crSQLWait;
+    LQuery q(LIMSDatabase::getCentralDb());
+    LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
+    q.setSQL("SELECT * FROM obs WHERE ");
+    q.open();
+    delete_referenced<vecpOb>(obs);
+    while (!q.eof()) {
+        Ob * ob = new Ob();
+        ob-> = q.readInt("");
+        ob-> = q.readString("");
+        obs.push_back(ob);
+        q.next();
+    }
+    Screen->Cursor = crDefault;
+
+    // show
+    int row = 1;
+    sgObs->RowCount = obs.size()+1;
+    vecpOb::const_iterator it;
+    for (it = obs.begin(); it != obs.end(); it++, row++) {
+        Ob * ob = *it;
+        sgObs->Cells[SGOBJS_COL_1][row] = ob->;
+        sgObs->Objects[0][row] = (TObject *)ob;
+    }
+*/
+
+/* some queries
+select * from c_retrieval_job rj, c_box_retrieval br where rj.retrieval_cid = br.retrieval_cid
+  only two:
+    -1180118
+    -116
+
+# query showing existing jobs, one a sample retrieval (4), one a box retrieval (2)
+# you can see that no cryovials are attached to the boxes in the second job, and not to all boxes in the first
+# ie these show existing *retrieval plans* - not the source boxes
+
+select
+  rj.retrieval_cid,
+  rj.external_name,
+  rj.description,
+  rj.primary_aliquot,
+  rj.secondary_aliquot,
+  br.section,
+  br.box_id,
+  br.rj_box_cid,
+  cr.position,
+  cr.cryovial_barcode,
+  rj.finish_date
+from
+  c_retrieval_job rj, c_box_retrieval br
+left join
+  l_cryovial_retrieval cr on cr.rj_box_cid = br.rj_box_cid
+  and cr.position < 10
+where
+  rj.retrieval_cid = br.retrieval_cid
+order by
+  rj_box_cid, position
+
+  (not allowed on ddb)
+
+*/
+
+/*
 jobs are LCDbCryoJob
 #define 	LEASEE_STOREMAN		   100		// Storage management; blocks itself and Storage Sync
 

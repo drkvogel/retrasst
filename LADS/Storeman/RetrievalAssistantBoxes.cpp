@@ -9,300 +9,21 @@
 
 TfrmBoxes *frmBoxes;
 
-/*
-    // load
-    ostringstream oss; oss<<__FUNC__<<": var: "; debugLog(oss.str().c_str());
-    Screen->Cursor = crSQLWait;
-    LQuery q(LIMSDatabase::getCentralDb());
-    LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
-    q.setSQL("SELECT * FROM obs WHERE ");
-    q.open();
-    delete_referenced<vecpOb>(obs);
-    while (!q.eof()) {
-        Ob * ob = new Ob();
-        ob-> = q.readInt("");
-        ob-> = q.readString("");
-        obs.push_back(ob);
-        q.next();
-    }
-    Screen->Cursor = crDefault;
-
-    // show
-    int row = 1;
-    sgObs->RowCount = obs.size()+1;
-    vecpOb::const_iterator it;
-    for (it = obs.begin(); it != obs.end(); it++, row++) {
-        Ob * ob = *it;
-        sgObs->Cells[SGOBJS_COL_1][row] = ob->;
-        sgObs->Objects[0][row] = (TObject *)ob;
-    }
-*/
-
-/* some queries
-select * from c_retrieval_job rj, c_box_retrieval br where rj.retrieval_cid = br.retrieval_cid
-  only two:
-    -1180118
-    -116
-
-# query showing existing jobs, one a sample retrieval (4), one a box retrieval (2)
-# you can see that no cryovials are attached to the boxes in the second job, and not to all boxes in the first
-# ie these show existing *retrieval plans* - not the source boxes
-
-select
-  rj.retrieval_cid,
-  rj.external_name,
-  rj.description,
-  rj.primary_aliquot,
-  rj.secondary_aliquot,
-  br.section,
-  br.box_id,
-  br.rj_box_cid,
-  cr.position,
-  cr.cryovial_barcode,
-  rj.finish_date
-from
-  c_retrieval_job rj, c_box_retrieval br
-left join
-  l_cryovial_retrieval cr on cr.rj_box_cid = br.rj_box_cid
-  and cr.position < 10
-where
-  rj.retrieval_cid = br.retrieval_cid
-order by
-  rj_box_cid, position
-
-  (not allowed on ddb)
-
-*/
-
 __fastcall LoadBoxesWorkerThread::LoadBoxesWorkerThread() {
     FreeOnTerminate = true;
 }
+
 void __fastcall LoadBoxesWorkerThread::updateStatus() {
     ostringstream oss; oss<<frmBoxes->loadingMessage<<"\n"<<rowCount<<" boxes";//<<numerator<<" of "<<denominator;
     frmBoxes->panelLoading->Caption = oss.str().c_str();
     frmBoxes->panelLoading->Repaint();
 }
-void __fastcall LoadBoxesWorkerThread::Execute() {
-    //ostringstream oss; oss<<__FUNC__<<": numrows: "<<frmBoxes->maxRows; frmBoxes->debugLog(oss.str().c_str());
-    //Screen->Cursor = crSQLWait;
-    LQuery q(Util::projectQuery(frmBoxes->job->getProjectID(), true)); // get ddb
-    delete_referenced<vecpBoxRow>(frmBoxes->boxes);
-    q.setSQL("SELECT"
-        " bs.box_cid, bs.rack_cid, b.status, bs.process_cid,"
-        " b.external_name as box, s.external_name as site, m.position,"
-        " v.external_full as vessel, m.shelf_number, r.external_name as rack,"
-        " bs.slot_position"
-        " FROM"
-        " box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v"
-        " WHERE"
-        " b.box_cid = bs.box_cid AND"
-        " bs.rack_cid = r.rack_cid AND"
-        " r.tank_cid = m.tank_cid AND"
-        " s.object_cid = location_cid AND"
-        " v.object_cid = storage_cid AND"
-        " bs.retrieval_cid = :jobID"); // e.g. -636363
-    q.setParam("jobID", frmBoxes->job->getID());
-    q.open();
-    while (!q.eof()) {
-        //if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // seems to cause thread to terminate
-        LCDbBoxStore * store = new LCDbBoxStore(q); // ???
-        BoxRow * box = new BoxRow(
-            store,
-            q.readString("box"),
-            q.readString("site"),
-            q.readInt("position"),
-            q.readString("vessel"),
-            q.readInt("shelf_number"),
-            q.readString("rack"),
-            q.readInt("slot_position")
-        );
-        frmBoxes->boxes.push_back(box);
-        q.next();
-        rowCount++;
-    }
-//    //qp.setSQL("SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
-//    // no 'chunks' yet, we haven't created them!
-//    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
-//    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
-    //showRows();
-    //Screen->Cursor = crDefault;
-}
 
-__fastcall TfrmBoxes::TfrmBoxes(TComponent* Owner) : TForm(Owner) { }
-void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
-    cbLog->Visible      = RETRASSTDEBUG;
-    job                 = NULL;
-    maxRows             = DEFAULT_NUMROWS;
-    setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
-    setupStringGrid(sgBoxes,  SGBOXES_NUMCOLS,  sgBoxesColName,  sgBoxesColWidth);
-    radbutDefault->Caption = DEFAULT_NUMROWS;
-}
-VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime) { //cout << "CALLBACK " << dwTime << '\n'; cout.flush();
-    KillTimer(NULL, frmBoxes->TimerId);
-    msgbox("Win Timer finished");
-    frmBoxes->loadRows();
-}
-void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
-    std::ostringstream oss; oss << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL"); debugLog(oss.str().c_str()); //;
-    btnSave->Enabled = true;
-    chunks.clear();
-    addChunk();
-    showChunks();
-    clearSG(sgBoxes);
-    try {
-        timerLoadBoxes->Enabled = true; // "not enough timers are available" - really? use WinAPI timer instead
-    } catch (...) {
-        msgbox("oops!", "oops!");
-    }
-    //TfrmBoxes::TimerId = SetTimer(NULL, 0, 500, &TimerProc); //$3: milliseconds
-}
-void __fastcall TfrmBoxes::btnAddChunkClick(TObject *Sender) { addChunk(); }
-void __fastcall TfrmBoxes::cbLogClick(TObject *Sender) { memoDebug->Visible = cbLog->Checked; }
-void __fastcall TfrmBoxes::btnCancelClick(TObject *Sender) { Close(); }
-void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-    TColor background = clWindow;
-    if (0 == ARow) {
-        background = clBtnFace;
-    } else {
-        Chunk * chunk = NULL;
-        chunk = (Chunk *)sgChunks->Objects[0][ARow];
-        if (NULL == chunk)
-            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
-        else
-            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
-        //else if (chunk->
-    }
-    TCanvas * cnv = sgChunks->Canvas;
-	cnv->Brush->Color = background;
-	cnv->FillRect(Rect);
-    if (State.Contains(gdSelected)) {
-        TFontStyles oldFontStyle = cnv->Font->Style;
-        TPenStyle oldPenStyle = cnv->Pen->Style;
-        cnv->Pen->Style = psDot;
-        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
-        cnv->Font->Style = TFontStyles() << fsBold;
-    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
-        cnv->Pen->Style     = oldPenStyle;
-        cnv->Font->Style    = oldFontStyle;
-	} else {
-        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
-    }
-}
-void __fastcall TfrmBoxes::btnSaveClick(TObject *Sender) {
-    //btnSave->Enabled = false;
-    // TODO insert rows into c_box_retrieval
-    // TODO update c_retrieval_job (in progress)
-}
-void __fastcall TfrmBoxes::btnDelChunkClick(TObject *Sender) {
-    if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
-        delete chunks.back();
-        chunks.pop_back();
-        showChunks();
-    }
-    if (chunks.size() == 0) btnDelChunk->Enabled = false;
-}
-void __fastcall TfrmBoxes::btnDecrClick(TObject *Sender) {
-    //
-}
-void __fastcall TfrmBoxes::btnIncrClick(TObject *Sender) {    //
-}
-void __fastcall TfrmBoxes::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
-    if (0 == ARow) { // header - prevent editing somehow
-        return;
-    }
-    switch (ACol) {
-    case SGCHUNKS_SECTION:  break;
-    case SGCHUNKS_START:    break;
-    case SGCHUNKS_END:      break;
-    case SGCHUNKS_SIZE:     break;
-    default:                break;
-    }
-}
-void __fastcall TfrmBoxes::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
-    // prevent editing
-}
-void __fastcall TfrmBoxes::radbutDefaultClick(TObject *Sender) { radgrpRowsChange(); }
-void __fastcall TfrmBoxes::radbutAllClick(TObject *Sender) { radgrpRowsChange(); }
-void __fastcall TfrmBoxes::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
-void __fastcall TfrmBoxes::editCustomRowsChange(TObject *Sender) {
-    timerCustomRows->Enabled = false; // reset
-    timerCustomRows->Enabled = true;;
-}
-void __fastcall TfrmBoxes::timerCustomRowsTimer(TObject *Sender) {
-    ostringstream oss; oss <<__FUNC__<<": load"<<": maxRows: "<<maxRows; debugLog(oss.str().c_str());
-    timerCustomRows->Enabled = false;
-    maxRows = editCustomRows->Text.ToIntDef(0);
-    loadRows();
-}
-void __fastcall TfrmBoxes::sgBoxesFixedCellClick(TObject *Sender, int ACol, int ARow) {
-    sortList(ACol);
-}
-void __fastcall TfrmBoxes::timerLoadBoxesTimer(TObject *Sender) {
-    timerLoadBoxes->Enabled = false;
-    loadRows();
-}
-void __fastcall TfrmBoxes::sgBoxesClick(TObject *Sender) {
-    BoxRow*box=(BoxRow*)sgBoxes->Objects[0][sgBoxes->Row];
-    box?debugLog(box->str().c_str()):debugLog("NULL box");
-    job?debugLog(job->getName().c_str()):debugLog("NULL job");
-    debugLog(printColWidths(sgBoxes).c_str());
-}
-void __fastcall TfrmBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
-    showRows(); // must do this outside thread, unless synchronised - does gui stuff
-    progressBottom->Style = pbstNormal; progressBottom->Visible = false;
-    panelLoading->Visible = false;
-    // create a default chunk
-    chunks.clear();
-    clearSG(sgChunks);
-    addChunk(); // no - not before list loaded
-    showChunks();
-    Screen->Cursor = crDefault;
-}
-void TfrmBoxes::debugLog(String s) { frmBoxes->memoDebug->Lines->Add(s); }
-void TfrmBoxes::radgrpRowsChange() {
-    ostringstream oss; oss <<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-    maxRows = 0;
-    if (radbutCustom->Checked) {
-        editCustomRows->Enabled = true;
-        return; // allow user to edit value
-    } else {
-        editCustomRows->Enabled = false;
-        if (radbutDefault->Checked) {
-            maxRows = DEFAULT_NUMROWS;
-        } else if (radbutAll->Checked) {
-            maxRows = -1;
-        }
-    }
-    loadRows();
-}
-void TfrmBoxes::addChunk() {
-    if (chunks.size() == 0) {
-        // first chunk, make default chunk from entire list
-    }
-    BoxChunk * chunk = new BoxChunk;
-    chunk->section = chunks.size() + 1;
-    chunks.push_back(chunk);
-    btnDelChunk->Enabled = true;
-    showChunks();
-}
-void TfrmBoxes::showChunks() {
-    sgChunks->RowCount = chunks.size() + 1;
-    vecpChunk::const_iterator it;
-    int row = 1;
-    for (it = chunks.begin(); it != chunks.end(); it++, row++) {
-        Chunk * chunk = *it;
-        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
-        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
-        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();
-        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = 0;//chunk->end - chunk->start;
-        sgChunks->Objects[0][row] = (TObject *)chunk;
-    }
-}
-void TfrmBoxes::loadRows() {
+void __fastcall LoadBoxesWorkerThread::Execute() {
 /*  c_retrieval_job.status = new job (0); job type = box retrieval (2) or disposal (3)
 
 Find where the boxes are supposed to be:
-    Select … from box_name n, box_store bs, c_rack_number r, c_tank_map m
+    Select ... from box_name n, box_store bs, c_rack_number r, c_tank_map m
     where n.box_cid=bs.box_cid and bs.rack_cid=r.rack_cid and r.tank_cid=m.tank_cid
     and bs.retrieval_cid = jobID; */
 
@@ -329,48 +50,241 @@ the 4000-odd records saying where the cryovials are at the moment have retrieval
 Set status = 5, removed = 'now' when they're retrieved.
 Each cryovial has a second cryovial_store record giving the expected destination, status = 0.
 Set status = 1 when the position's confirmed */
+    delete_referenced<vecpBoxRow>(frmBoxes->boxes);
+    LQuery q(Util::projectQuery(frmBoxes->job->getProjectID(), true)); // get ddb
+    q.setSQL("SELECT"
+        " bs.box_cid, bs.rack_cid, b.status, bs.process_cid,"
+        " b.external_name as box, s.external_name as site, m.position,"
+        " v.external_full as vessel, m.shelf_number, r.external_name as rack,"
+        " bs.slot_position"
+        " FROM"
+        " box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v"
+        " WHERE"
+        " b.box_cid = bs.box_cid AND"
+        " bs.rack_cid = r.rack_cid AND"
+        " r.tank_cid = m.tank_cid AND"
+        " s.object_cid = location_cid AND"
+        " v.object_cid = storage_cid AND"
+        " bs.retrieval_cid = :jobID"); // e.g. -636363
+    q.setParam("jobID", frmBoxes->job->getID());
+    q.open();
+    while (!q.eof()) {
+        if (rowCount > 0 && 0 == rowCount % 10) Synchronize((TThreadMethod)&(this->updateStatus)); // seems to cause thread to terminate
+        LCDbBoxStore * store = new LCDbBoxStore(q); // ???
+        BoxRow * box = new BoxRow(
+            store,
+            q.readString("box"),
+            q.readString("site"),
+            q.readInt("position"),
+            q.readString("vessel"),
+            q.readInt("shelf_number"),
+            q.readString("rack"),
+            q.readInt("slot_position")
+        );
+        frmBoxes->boxes.push_back(box);
+        q.next();
+        rowCount++;
+    }
+}
 
-//    ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-//    Screen->Cursor = crSQLWait;
-//    LQuery q(Util::projectQuery(job->getProjectID(), true)); // get ddb
-//    delete_referenced<vecpBoxRow>(boxes);
-//    q.setSQL("SELECT"
-//        " bs.box_cid, bs.rack_cid, b.status, bs.process_cid,"
-//        " b.external_name as box, s.external_name as site, m.position,"
-//        " v.external_full as vessel, m.shelf_number, r.external_name as rack,"
-//        " bs.slot_position"
-//        " FROM"
-//        " box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v"
-//        " WHERE"
-//        " b.box_cid = bs.box_cid AND"
-//        " bs.rack_cid = r.rack_cid AND"
-//        " r.tank_cid = m.tank_cid AND"
-//        " s.object_cid = location_cid AND"
-//        " v.object_cid = storage_cid AND"
-//        " bs.retrieval_cid = :jobID"); // e.g. -636363
-//    q.setParam("jobID", job->getID());
-//    q.open();
-//    while (!q.eof()) {
-//        LCDbBoxStore * store = new LCDbBoxStore(q); // ???
-//        BoxRow * box = new BoxRow(
-//            store,
-//            q.readString("box"),
-//            q.readString("site"),
-//            q.readInt("position"),
-//            q.readString("vessel"),
-//            q.readInt("shelf_number"),
-//            q.readString("rack"),
-//            q.readInt("slot_position")
-//        );
-//        boxes.push_back(box);
-//        q.next();
-//    }
-////    //qp.setSQL("SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
-////    // no 'chunks' yet, we haven't created them!
-////    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
-////    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
-//    showRows();
-//    Screen->Cursor = crDefault;
+__fastcall TfrmBoxes::TfrmBoxes(TComponent* Owner) : TForm(Owner) { }
+
+void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
+    cbLog->Visible      = RETRASSTDEBUG;
+    job                 = NULL;
+    maxRows             = DEFAULT_NUMROWS;
+    setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
+    setupStringGrid(sgBoxes,  SGBOXES_NUMCOLS,  sgBoxesColName,  sgBoxesColWidth);
+    radbutDefault->Caption = DEFAULT_NUMROWS;
+    loadingMessage = "Loading boxes, please wait...";
+}
+
+void __fastcall TfrmBoxes::FormClose(TObject *Sender, TCloseAction &Action) {
+    delete_referenced<vecpBoxRow>(boxes);
+    delete_referenced<vecpBoxChunk>(chunks);
+}
+
+VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime) { //cout << "CALLBACK " << dwTime << '\n'; cout.flush();
+    KillTimer(NULL, frmBoxes->TimerId);
+    msgbox("Win Timer finished");
+    frmBoxes->loadRows();
+}
+
+void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
+    std::ostringstream oss; oss << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL"); debugLog(oss.str().c_str()); //;
+    btnSave->Enabled = true;
+    chunks.clear();
+    //addChunk();
+    //showChunks();
+    clearSG(sgBoxes);
+    timerLoadBoxes->Enabled = true; // "not enough timers are available" - misleading error message cause by mem corruption
+        //TfrmBoxes::TimerId = SetTimer(NULL, 0, 50, &TimerProc); //$3: milliseconds // tried WinAPI timer instead
+}
+
+void __fastcall TfrmBoxes::btnAddChunkClick(TObject *Sender) { addChunk(); }
+
+void __fastcall TfrmBoxes::cbLogClick(TObject *Sender) { memoDebug->Visible = cbLog->Checked; }
+
+void __fastcall TfrmBoxes::btnCancelClick(TObject *Sender) { Close(); }
+
+void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+    TColor background = clWindow;
+    if (0 == ARow) {
+        background = clBtnFace;
+    } else {
+        Chunk * chunk = NULL;
+        chunk = (Chunk *)sgChunks->Objects[0][ARow];
+        if (NULL == chunk) {
+            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        } else {
+            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        }
+        //else if (chunk->
+    }
+    TCanvas * cnv = sgChunks->Canvas;
+	cnv->Brush->Color = background;
+	cnv->FillRect(Rect);
+    if (State.Contains(gdSelected)) {
+        TFontStyles oldFontStyle = cnv->Font->Style;
+        TPenStyle oldPenStyle = cnv->Pen->Style;
+        cnv->Pen->Style = psDot;
+        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
+        cnv->Font->Style = TFontStyles() << fsBold;
+    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
+        cnv->Pen->Style     = oldPenStyle;
+        cnv->Font->Style    = oldFontStyle;
+	} else {
+        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
+    }
+}
+
+void __fastcall TfrmBoxes::btnSaveClick(TObject *Sender) {
+    //btnSave->Enabled = false;
+    // TODO insert rows into c_box_retrieval
+    // TODO update c_retrieval_job (in progress)
+}
+
+void __fastcall TfrmBoxes::btnDelChunkClick(TObject *Sender) {
+    if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
+        delete chunks.back();
+        chunks.pop_back();
+        showChunks();
+    }
+    if (chunks.size() == 0) btnDelChunk->Enabled = false;
+}
+
+void __fastcall TfrmBoxes::btnDecrClick(TObject *Sender) {
+    //
+}
+void __fastcall TfrmBoxes::btnIncrClick(TObject *Sender) {    //
+}
+
+void __fastcall TfrmBoxes::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
+    if (0 == ARow) { // header - prevent editing somehow
+        return;
+    }
+    switch (ACol) {
+    case SGCHUNKS_SECTION:  break;
+    case SGCHUNKS_START:    break;
+    case SGCHUNKS_END:      break;
+    case SGCHUNKS_SIZE:     break;
+    default:                break;
+    }
+}
+
+void __fastcall TfrmBoxes::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
+    // prevent editing
+}
+
+void __fastcall TfrmBoxes::radbutDefaultClick(TObject *Sender) { radgrpRowsChange(); }
+
+void __fastcall TfrmBoxes::radbutAllClick(TObject *Sender) { radgrpRowsChange(); }
+
+void __fastcall TfrmBoxes::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
+
+void __fastcall TfrmBoxes::editCustomRowsChange(TObject *Sender) {
+    timerCustomRows->Enabled = false; // reset
+    timerCustomRows->Enabled = true;;
+}
+
+void __fastcall TfrmBoxes::timerCustomRowsTimer(TObject *Sender) {
+    ostringstream oss; oss <<__FUNC__<<": load"<<": maxRows: "<<maxRows; debugLog(oss.str().c_str());
+    timerCustomRows->Enabled = false;
+    maxRows = editCustomRows->Text.ToIntDef(0);
+    loadRows();
+}
+
+void __fastcall TfrmBoxes::sgBoxesFixedCellClick(TObject *Sender, int ACol, int ARow) {
+    sortList(ACol);
+}
+
+void __fastcall TfrmBoxes::timerLoadBoxesTimer(TObject *Sender) {
+    timerLoadBoxes->Enabled = false;
+    loadRows();
+}
+
+void __fastcall TfrmBoxes::sgBoxesClick(TObject *Sender) {
+    BoxRow*box=(BoxRow*)sgBoxes->Objects[0][sgBoxes->Row];
+    box?debugLog(box->str().c_str()):debugLog("NULL box");
+    job?debugLog(job->getName().c_str()):debugLog("NULL job");
+    debugLog(printColWidths(sgBoxes).c_str());
+}
+
+void __fastcall TfrmBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
+    showRows(); // must do this outside thread, unless synchronised - does gui stuff
+    progressBottom->Style = pbstNormal; progressBottom->Visible = false;
+    panelLoading->Visible = false;
+    chunks.clear();
+    clearSG(sgChunks);
+    addChunk(); // create a default chunk now list is loaded
+    showChunks();
+    Screen->Cursor = crDefault;
+}
+
+void TfrmBoxes::debugLog(String s) { frmBoxes->memoDebug->Lines->Add(s); }
+
+void TfrmBoxes::radgrpRowsChange() {
+    ostringstream oss; oss <<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
+    maxRows = 0;
+    if (radbutCustom->Checked) {
+        editCustomRows->Enabled = true;
+        return; // allow user to edit value
+    } else {
+        editCustomRows->Enabled = false;
+        if (radbutDefault->Checked) {
+            maxRows = DEFAULT_NUMROWS;
+        } else if (radbutAll->Checked) {
+            maxRows = -1;
+        }
+    }
+    loadRows();
+}
+
+void TfrmBoxes::addChunk() {
+    if (chunks.size() == 0) {
+        // first chunk, make default chunk from entire list
+    }
+    BoxChunk * chunk = new BoxChunk;
+    chunk->section = chunks.size() + 1;
+    chunks.push_back(chunk);
+    btnDelChunk->Enabled = true;
+    showChunks();
+}
+
+void TfrmBoxes::showChunks() {
+    sgChunks->RowCount = chunks.size() + 1;
+    int row = 1;
+    for (vecpBoxChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
+        Chunk * chunk = *it;
+        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
+        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
+        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();
+        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = 0;//chunk->end - chunk->start;
+        sgChunks->Objects[0][row] = (TObject *)chunk;
+    }
+}
+
+void TfrmBoxes::loadRows() {
     std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true;
@@ -381,6 +295,7 @@ Set status = 1 when the position's confirmed */
     loadBoxesWorkerThread = new LoadBoxesWorkerThread();
     loadBoxesWorkerThread->OnTerminate = &loadBoxesWorkerThreadTerminated;
 }
+
 void TfrmBoxes::showRows() {
     if (boxes.size() <= 0) {
         clearSG(sgBoxes);
@@ -403,6 +318,7 @@ void TfrmBoxes::showRows() {
         if (row >= maxRows) break;
     }
 }
+
 void TfrmBoxes::sortList(int col) {
     Screen->Cursor = crSQLWait;
     static Sorter<BoxRow> sorter[SGBOXES_NUMCOLS] = {

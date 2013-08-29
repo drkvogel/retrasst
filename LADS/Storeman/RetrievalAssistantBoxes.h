@@ -114,13 +114,14 @@ __published:
     void __fastcall sgBoxesFixedCellClick(TObject *Sender, int ACol, int ARow);
     void __fastcall timerLoadBoxesTimer(TObject *Sender);
     void __fastcall sgBoxesClick(TObject *Sender);
+    void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 private:
     const char *        loadingMessage;
     LoadBoxesWorkerThread * loadBoxesWorkerThread;
     void __fastcall loadBoxesWorkerThreadTerminated(TObject *Sender);
     int                 maxRows; // rows to show at a time
     LCDbCryoJob *       job;
-    vecpChunk           chunks;
+    vecpBoxChunk        chunks;
     vecpBoxRow          boxes;
     void                sortList(int col);
     void                addChunk();

@@ -132,6 +132,12 @@ where
    
 /* show some of a box retrieval plan */
 
+SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99
+
+-- no 'chunks' yet, we haven't created them!
+-- they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
+SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid
+
 select
   rj.retrieval_cid,
   rj.external_name,

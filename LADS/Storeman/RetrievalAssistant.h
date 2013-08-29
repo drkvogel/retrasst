@@ -111,9 +111,9 @@ public:
     // search func: strip out numeric chars from name, concatenate, compare as ints
     static bool numeric_compare(const string a, const string b) {
         struct temp { // Local functions are not allowed in C++, but local classes are and functions are allowed in local classes
-            static int alpha_to_int(string a) {
+            static unsigned int alpha_to_int(string a) {
                 ostringstream numerics;
-                for (int i=0; i<a.length(); i++) {
+                for (unsigned int i=0; i<a.length(); i++) {
                     char ch = a.at(i); if (ch >= 0x30 && ch < 0x3A) { numerics << ch; } // pull out the numerics
                 }
                 return atoi(numerics.str().c_str());
@@ -199,20 +199,17 @@ public:
     static bool sort_desc_structure(const SampleRow *a, const SampleRow *b) { return a->rack_name.compare(b->rack_name) < 0; }
     static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->slot_position < b->slot_position; }
     static bool sort_desc_slot(const SampleRow *a, const SampleRow *b)      { return a->slot_position > b->slot_position; }
-
-    // search func: strip out numeric chars from name, concatenate, compare as ints
-    static bool numeric_compare(const string a, const string b) {
+    static bool numeric_compare(const string a, const string b) { // strip out numeric chars from name, concatenate, compare as ints
         struct temp { // Local functions are not allowed in C++, but local classes are and functions are allowed in local classes
-            static int alpha_to_int(string a) {
+            static unsigned int alpha_to_int(string a) {
                 ostringstream numerics;
-                for (int i=0; i<a.length(); i++) {
+                for (unsigned int i=0; i<a.length(); i++) {
                     char ch = a.at(i); if (ch >= 0x30 && ch < 0x3A) { numerics << ch; } // pull out the numerics
                 }
-                return atoi(numerics.str().c_str());
+                return atoi(numerics.str().c_str()); // 0 if no numerics?
             }
         } local;
         return local.alpha_to_int(a) < local.alpha_to_int(b);
-        // what if there are no numerics?
     }
     string str() {
         ostringstream oss; oss<<__FUNC__
@@ -303,7 +300,6 @@ public:
     vecpBoxRow      rows;
 };
 typedef std::vector< BoxChunk * >  vecpBoxChunk;
-
 
 enum { SGJOBS_DESCRIP, SGJOBS_JOBTYPE, SGJOBS_STATUS, SGJOBS_PRIMARY, SGJOBS_PROJECT, SGJOBS_REASON, SGJOBS_TIMESTAMP, SGJOBS_NUMCOLS };
 static const char * sgJobsColName[SGJOBS_NUMCOLS]   = { "Description", "Job type", "Status", "Primary Aliquot", "Project", "Reason", "Timestamp" };
