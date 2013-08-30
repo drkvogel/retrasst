@@ -87,7 +87,7 @@ protected:
 public:
 	XCLOCK( void );
 	XCLOCK( const int hour, const int minute, const int second );
-	explicit XCLOCK( const XCLOCK &c );
+	XCLOCK( const XCLOCK &c );
 	explicit XCLOCK( const char *s );
 	virtual ~XCLOCK( void );
 	virtual	bool	isValid( void ) const;

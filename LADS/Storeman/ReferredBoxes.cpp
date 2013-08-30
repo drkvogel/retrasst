@@ -528,7 +528,7 @@ void TfrmReferred::signOffBoxes() {
             projects.insert(box->project_cid);
         }
     }
-    frmConfirm->initialise(TfrmLogin::REFERRED, "Ready to sign off boxes", projects);  //???
+    frmConfirm->initialise(TfrmSMLogin::REFERRED, "Ready to sign off boxes", projects);  //???
     if (mrOk == frmReferredBoxesSummary->ShowModal()) {
         loadBoxes();
         showBoxes();

@@ -37,7 +37,10 @@ void AllocateLocalResultsToWorklistEntries::execute()
 
         require( m_result );
 
-        require( ( m_result->getActionFlag() == '0' )  || ( m_result->getActionFlag() == 'X' ) );
+        if( m_result->getActionFlag() != '0'  )
+        {
+            continue;
+        }
 
         m_matchingWorklistEntries.resize(0);
 

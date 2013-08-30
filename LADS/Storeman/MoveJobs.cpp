@@ -3,7 +3,6 @@
 #include <vcl.h>
 #pragma hdrstop
 
-#include "StringUtil.h"
 #include "MoveJobs.h"
 #include "SampleMove.h"
 #include "LDbRange.h"
@@ -39,7 +38,7 @@ void __fastcall TfrmSelectJob::FormShow( TObject *Sender ) {
 
 void TfrmSelectJob::initRetrieval( int projectCID ) {
 	LCDbCryoJobs &jobs = LCDbCryoJobs::records( );
-	jobs.read( 0, false );
+	jobs.read( LCDbCryoJob::UNKNOWN, false );
 	int row = grdJobs->FixedRows;
 	for( Range< LCDbCryoJob > jr = jobs; jr.isValid( ); ++jr ) {
 		if( jr->isAvailable() && jr->getProjectID() == projectCID
@@ -105,9 +104,9 @@ void TfrmSelectJob::selectJob( int index )
 {
 	record = NULL;
 	if( index > 0 ) {
-		std::string name = bcsToStd( grdJobs->Cells[ 0 ][ grdJobs->Row ] );
-		if( !name.empty( ) ) {
-			record = LCDbCryoJobs::records( ).findByName( name );
+		AnsiString name =  grdJobs->Cells[ 0 ][ grdJobs->Row ] ;
+		if( !name.IsEmpty( ) ) {
+			record = LCDbCryoJobs::records( ).findByName( name.c_str() );
 			if( record != NULL ) {
 				ModalResult = mrOk;
 			}

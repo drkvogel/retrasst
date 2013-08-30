@@ -10,7 +10,6 @@
 #include "DiscardNote.h"
 #include "DiscardUtil.h"
 #include "DiscardSef.h"
-#include "StringUtil.h"
 #include "StoreUtil.h"
 #include "SMLogin.h"
 
@@ -597,7 +596,7 @@ void __fastcall TfrmDiscardSamples::grdResultsDrawCell(TObject *Sender,
 		g->Canvas->Font->Color = colours.first;
 		g->Canvas->FillRect(r);
 		InflateRect(&r, -2, -2);
-		std::string text = bcsToStd( g->Cells[colno][rowno] );
+		AnsiString text = g->Cells[colno][rowno];
 
         const int sampleno = m_cells.getSampleno(cell);
         const Sample * sample = m_samples.getSample(sampleno);
@@ -686,11 +685,11 @@ void __fastcall TfrmDiscardSamples::btnConfirmClick(TObject *Sender)
         }
 		summary += " ... ";
 
-		frmConfirm->initialise(TfrmLogin::DISCARD, summary.c_str());
+		frmConfirm->initialise(TfrmSMLogin::DISCARD, summary.c_str());
 
 		if (frmConfirm->ShowModal() != mrOk) break;
 
-		const std::string userid = bcsToStd( frmConfirm->cbUserNames->Text );
+		AnsiString userid =  frmConfirm->cbUserNames->Text ;
 
         std::string error = "";
 
@@ -1107,11 +1106,11 @@ void __fastcall TfrmDiscardSamples::btnAbortClick(TObject *Sender)
 
         std::string summary = "Abort job " + m_context->calcJobDescription();
 
-		frmConfirm->initialise(TfrmLogin::DISCARD, summary.c_str());
+		frmConfirm->initialise(TfrmSMLogin::DISCARD, summary.c_str());
 
 		if (frmConfirm->ShowModal() != mrOk) break;
 
-		const std::string userid = bcsToStd( frmConfirm->cbUserNames->Text );
+		AnsiString userid =  frmConfirm->cbUserNames->Text;
 
         std::string error = "";
 

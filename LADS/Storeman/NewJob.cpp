@@ -4,7 +4,6 @@
 #pragma hdrstop
 
 #include "NewJob.h"
-#include "StringUtil.h"
 #include "StoreUtil.h"
 #include "LIMSDatabase.h"
 #include "LDbBoxType.h"
@@ -28,9 +27,12 @@ void __fastcall TfrmNewJob::SaveClick(TObject *Sender)
 	 && Util::validateText( TxtFull, LblFull )
 	 && Util::validateText( TxtReason, LblWhy ) )
 	{
-		job.setName( bcsToStd(TxtName->Text.Trim()) );
-		job.setDescription( bcsToStd(TxtFull->Text.Trim()) );
-		job.setReason( bcsToStd(TxtReason->Text.Trim()) );
+		AnsiString name = TxtName->Text.Trim();
+		AnsiString desc = TxtFull->Text.Trim();
+		AnsiString why = TxtReason->Text.Trim();
+		job.setName( name.c_str() );
+		job.setDescription( desc.c_str() );
+		job.setReason( why.c_str() );
 		ModalResult = mrOk;
 	}
 }

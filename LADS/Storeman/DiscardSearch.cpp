@@ -2,7 +2,6 @@
 #pragma hdrstop
 
 #include <string>
-#include "StringUtil.h"
 #include "DiscardSearch.h"
 
 #pragma package(smart_init)
@@ -287,9 +286,9 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender)
 
             do
             {
-                std::string type = "";
-                std::string source = "";
-                std::string text = "";
+				AnsiString type;
+				AnsiString source;
+				AnsiString text;
 
                 if (m_context->isSelectJobStage())
                 {
@@ -304,7 +303,7 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender)
 						message += "\n";
 						message += m_context->calcJobStatus(jobno).c_str();
 						Application->MessageBox(message.c_str(),title.c_str(), MB_OK);
-                        text = Discard::Util::asString(jobno);
+						text = jobno;
                     }
                 }
                 else
@@ -314,17 +313,17 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender)
                     {
                         break;
 					}
-					type = bcsToStd( this->rgType->Items->Strings[index] );
+					type =  this->rgType->Items->Strings[index] ;
 
 					if (this->rgSource->ItemIndex == 0)
 					{
 						source = "Text";
-						text = bcsToStd( this->ediText->Text );
+						text =  this->ediText->Text;
                     }
                     else if (this->rgSource->ItemIndex == 1)
                     {
                         source = "File";
-						text = bcsToStd(this->ediFile->Text );
+						text = this->ediFile->Text ;
                     }
                 }
 
@@ -333,9 +332,9 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender)
                     break;
                 }
 
-                m_context->setSearchType(type);
-                m_context->setSearchSource(source);
-                m_context->configSearchTexts(text);
+				m_context->setSearchType(type.c_str());
+				m_context->setSearchSource(source.c_str());
+				m_context->configSearchTexts(text.c_str());
 
                 mr = mrOk;
 
@@ -360,7 +359,7 @@ void __fastcall TfrmSearch::btnBrowseClick(TObject *Sender)
     frmSearch->SendToBack();
     if (this->openFile->Execute())
     {
-        const std::string filename = bcsToStd(this->openFile->FileName);
+        AnsiString filename = this->openFile->FileName;
         this->ediFile->Text = filename.c_str();
         updateUI();
     }

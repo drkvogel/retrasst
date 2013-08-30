@@ -694,7 +694,7 @@ std::string XCLOCK::hms( const int format ) const
 		{return( XTIME::invalid_serialization );
 		}
 	char	buf[50];
-	sprintf( buf, "%2.2d:%2.2d", getHour(), getMinute(), getSecond() );
+	sprintf( buf, "%2.2d:%2.2d", getHour(), getMinute() );
 	if ( format > 0 )
 		{
 		char	sec[20];

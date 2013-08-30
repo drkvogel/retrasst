@@ -2,7 +2,6 @@
 
 #include <vcl.h>
 
-#include "StringUtil.h"
 #include "SelectSamples.h"
 #include "AddSpecimens.h"
 #include "SMLogin.h"
@@ -74,7 +73,7 @@ bool TfrmSelectBoxes::addBox() {
 	ROSETTA boxDetails;
 	StoreDAO & dao = StoreDAO::records();
 	int projID = LCDbProjects::getCurrentID();
-	std::string type = bcsToStd( cbType->Text );
+	AnsiString type =  cbType->Text;
 	int boxID = txtName->Text.ToIntDef( 0 );
 	if( boxID != 0 ) {
 		// user won't distinguish +ve and -ve IDs - try both
@@ -86,14 +85,15 @@ bool TfrmSelectBoxes::addBox() {
 	if( !boxDetails.isInt( "box_cid" ) ) {
 		std::vector<ROSETTA> results;
 		// name may not match ID - try looking in the name
-		dao.loadBoxes( bcsToStd( txtName->Text ), type, projID, results );
+		AnsiString name =  txtName->Text;
+		dao.loadBoxes( name.c_str(), type.c_str(), projID, results );
 		if( results.size() == 1 ) {
 			boxDetails = results.front();
 		}
 	}
 	int typeID = boxDetails.getIntDefault( "box_type_cid", 0 );
 	if( typeID != 0 ) {
-		const LPDbBoxType * boxType = LPDbBoxTypes::records().find( type );
+		const LPDbBoxType * boxType = LPDbBoxTypes::records().find( type.c_str() );
 		if( boxType != NULL && boxType->getID() == typeID ) {
 			LPDbBoxName box( boxDetails.getString( "external_name" ), typeID );
 			box.setID( boxDetails.getInt( "box_cid" ) );

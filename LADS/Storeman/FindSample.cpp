@@ -6,7 +6,6 @@
 #include "FindSample.h"
 #include "LCDbProject.h"
 #include "LDbBoxType.h"
-#include "StringUtil.h"
 #include "StoreUtil.h"
 #include "LPDbBoxes.h"
 #include "BrowseSample.h"
@@ -63,7 +62,7 @@ void __fastcall TfrmFind::cbProjectChange(TObject *Sender)
 	LCDbProjects & pl = LCDbProjects::records();
 	const LCDbProject * proj = NULL;
 	if( !cbProject->Text.IsEmpty() ) {
-		proj = pl.findByName( bcsToStd( cbProject->Text ) );
+		proj = pl.findByName( AnsiString( cbProject->Text ).c_str() );
 	}
 	txtName->Enabled = false;
 	if( proj == NULL ) {
@@ -89,9 +88,10 @@ void __fastcall TfrmFind::cbTypeDropDown(TObject *Sender)
 {
 	cbType->Clear();
 	if( rgTypes -> ItemIndex == 1 ) {
+		std::set< int > types = LPDbCryovials::getAliquotTypes( Util::projectQuery() );
 		for( Range< LCDbObject > at = LCDbObjects::records(); at.isValid(); ++ at ) {
-			if( at -> isActive() && at -> getObjectType() == LCDbObject::ALIQUOT_TYPE ) {
-				cbType->Items->Add( at -> getName().c_str() );
+			if( types.count( at->getID() ) != 0 ) {
+				cbType->Items->Add( at->getName().c_str() );
 			}
 		}
 	} else {
@@ -110,19 +110,20 @@ void __fastcall TfrmFind::cbTypeDropDown(TObject *Sender)
 void __fastcall TfrmFind::BitBtn1Click(TObject *Sender)
 {
 	boxDetails.clear();
-	String message;
+	const char * missing = NULL;
 	if( rgTypes -> ItemIndex == 1 ) {
 		if( !findCryovial() ) {
-			message = "Cannot find " + cbProject->Text + " " + cbType->Text + " cryovial " + txtName->Text;
+			missing = "cryovial";
 		}
 	} else {
 		if( !findBox() ) {
-			message = "Cannot find box " + cbProject->Text + " " + cbType->Text + " " + txtName->Text;
+			missing = "box";
 		}
 	}
-	if( message.IsEmpty() ) {
+	if( missing == NULL ) {
 		ModalResult = mrOk;
 	} else {
+		String message = "Cannot find " + cbProject->Text + ' ' + cbType->Text + ' ' + missing + ' ' + txtName->Text;
 		Application -> MessageBox( message.c_str(), NULL, MB_ICONWARNING );
 	}
 }
@@ -134,8 +135,8 @@ void __fastcall TfrmFind::BitBtn1Click(TObject *Sender)
 bool TfrmFind::findBox() {
 	StoreDAO & dao = StoreDAO::records();
 	int projID = LCDbProjects::getCurrentID();
-	std::string type = bcsToStd( cbType->Text );
-	int boxID = txtName->Text.ToIntDef( 0 );
+	AnsiString barcode = txtName->Text, type = cbType->Text;
+	int boxID = barcode.ToIntDef( 0 );
 	if( boxID != 0 ) {
 		// user won't distinguish +ve and -ve IDs - try both
 		dao.loadBoxDetails( boxID, projID, boxDetails );
@@ -144,9 +145,9 @@ bool TfrmFind::findBox() {
 		}
 	}
 	if( !boxDetails.isInt( "box_cid" ) ) {
+		// can't find ID; try the box name + type
 		std::vector<ROSETTA> results;
-		// name may not match ID - try looking in the name
-		dao.loadBoxes( bcsToStd( txtName->Text ), type, projID, results );
+		dao.loadBoxes( barcode.c_str(), type.c_str(), projID, results );
 		if( results.size() == 1 ) {
 			boxDetails = results.front();
 		}
@@ -154,7 +155,7 @@ bool TfrmFind::findBox() {
 
 	int typeID = boxDetails.getIntDefault( "box_type_cid", 0 );
 	if( typeID != 0 ) {
-		const LPDbBoxType * boxType = LPDbBoxTypes::records().find( type );
+		const LPDbBoxType * boxType = LPDbBoxTypes::records().find( type.c_str() );
 		if( boxType != NULL && boxType->getID() == typeID ) {
 			return true;
 		}
@@ -167,14 +168,13 @@ bool TfrmFind::findBox() {
 //---------------------------------------------------------------------------
 
 bool TfrmFind::findCryovial() {
-	std::string type = bcsToStd( cbType->Text );
-	const LCDbObject * aliquot = LCDbObjects::records().find( type, LCDbObject::ALIQUOT_TYPE );
+	AnsiString barcode = txtName->Text, type = cbType->Text;
+	const LCDbObject * aliquot = LCDbObjects::records().find( type.c_str(), LCDbObject::ALIQUOT_TYPE );
 	if( aliquot == NULL ) {
 		return false;
 	}
 	LPDbCryovials db;
-	std::string barcode = bcsToStd( txtName->Text );
-	const LPDbCryovial * cryovial = db.readRecord( Util::projectQuery(), barcode, aliquot->getID() );
+	const LPDbCryovial * cryovial = db.readRecord( Util::projectQuery(), barcode.c_str(), aliquot->getID() );
 	if( cryovial == NULL ) {
 		return false;
 	}

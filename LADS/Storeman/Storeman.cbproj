@@ -549,16 +549,11 @@
 			</CppCompile>
 			<CppCompile Include="StoreMan.cpp">
 				<BuildOrder>0</BuildOrder>
+				<OptionOverrides>true</OptionOverrides>
 			</CppCompile>
 			<CppCompile Include="StoreUtil.cpp">
 				<DependentOn>StoreUtil.h</DependentOn>
 				<BuildOrder>27</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Temp.cpp">
-				<Form>frmTest</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>Temp.h</DependentOn>
-				<BuildOrder>91</BuildOrder>
 			</CppCompile>
 			<LibFiles Condition="'$(Platform)'=='Win32'" Include="..\..\paulst\Win32\Release\paulst.lib">
 				<BuildOrder>88</BuildOrder>
@@ -583,7 +578,6 @@
 			<FormResources Include="SMLogin.dfm"/>
 			<FormResources Include="SampleEntry.dfm"/>
 			<FormResources Include="SampleMove.dfm"/>
-			<FormResources Include="Temp.dfm"/>
 			<FormResources Include="Storemain.dfm"/>
 			<FormResources Include="NewType.dfm"/>
 			<FormResources Include="ReferredBoxes.dfm"/>

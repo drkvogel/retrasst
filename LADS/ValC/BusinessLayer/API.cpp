@@ -96,13 +96,13 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
 	// Task for loading LOCAL analysis activity and LOCAL results
 	ThreadTask<LoadBuddyDatabase> loadBuddyDatabaseTask(
 		new LoadBuddyDatabase( localMachineID, con, log, resultIndex, projects, &buddyDatabase, dbUpdateSchedule, 
-            sampleRunIDResolutionService.get(), config.get("LoadBuddyDatabase") ),
+            sampleRunIDResolutionService.get(), config.get("LoadBuddyDatabase"), config.get("BuddyDatabaseInclusionRule") ),
 		&threadExceptionMsgs );
 
     // Task for loading LOCAL and CLUSTER worklist entries
 	ThreadTask<LoadWorklistEntries> loadWorklistEntriesTask(
 		new LoadWorklistEntries( worklistEntries, con, log, resultIndex, config.get( "LoadWorklistEntries" ), 
-            config.get( "LoadWorklistRelations" ) ),
+            config.get( "LoadWorklistRelations" ), config.get("WorklistInclusionRule") ),
 		&threadExceptionMsgs );
 
 	hArray[0] = loadBuddyDatabaseTask  .start();
@@ -115,7 +115,7 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
 		new AllocateLocalResultsToWorklistEntries( localMachineID, clusterIDs, log, worklistEntries, resultIndex, dbUpdateSchedule ),
 		&threadExceptionMsgs );
 
-	hArray[1] = allocateLocalResultsToWorklistEntries.start();
+	hArray[0] = allocateLocalResultsToWorklistEntries.start();
 
     wait( hArray, 1, &threadExceptionMsgs );
 

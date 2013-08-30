@@ -26,10 +26,11 @@ class MockConnectionFactory
 public:
     MockConnectionFactory();
     MockConnection* createConnection();
-    void setClusters( const std::string& serializedClusters );
-    void setBuddyDB ( const std::string& serializedBuddyDB );
-    void setProjects( const std::string& serializedProjects );
-    void setTestNames( const std::string& serializedTestNames );
+    void setClusters        ( const std::string& serializedClusters );
+    void setBuddyDB         ( const std::string& serializedBuddyDB );
+    void setNonLocalResults ( const std::string& nonLocalResults );
+    void setProjects        ( const std::string& serializedProjects );
+    void setTestNames       ( const std::string& serializedTestNames );
     /* Example sql:
     
      select first 2 wl.record_no, machine_cid, barcode, test_cid, group_id, category_id, sample_id, project_cid,profile_id, profile_name,
@@ -42,7 +43,8 @@ private:
                 m_projects,
                 m_worklist,
                 m_buddyDB,
-                m_testNames;
+                m_testNames,
+                m_nonLocalResults;
 
     MockConnectionFactory( const MockConnectionFactory& );
     MockConnectionFactory& operator=( const MockConnectionFactory& );

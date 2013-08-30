@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------
 
 #include <sstream>
-#include "StringUtil.h"
 #include "StoreUtil.h"
 #include "LCDbTankMap.h"
 #include "LCDbObject.h"
@@ -30,8 +29,9 @@ int Util::getImageIndex( const IPart* data )
 			return PART_FILLED;
 		case IPart::IS_FULL:
 			return ALL_FILLED;
+		default:
+			return UNKNOWN;
 	}
-	return UNKNOWN;
 }
 
 //---------------------------------------------------------------------------
@@ -295,9 +295,9 @@ LQuery Util::projectQuery( int projID, bool ddb ) {
 	}
 	const std::string & dbname = proj.getDbName();
 	if( ddb ) {
-		return LIMSDatabase::getDistributedDb( dbname );
+		return LQuery( LIMSDatabase::getDistributedDb( dbname ) );
 	} else {
-		return LIMSDatabase::getProjectDb( dbname );
+		return LQuery( LIMSDatabase::getProjectDb( dbname ) );
 	}
 }
 

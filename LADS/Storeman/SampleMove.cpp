@@ -410,6 +410,7 @@ int TfrmMove::getImageIndex( TTreeNode *node )
 			}
 		}
 	}
+
 	if( fill < 0 ) {
 		return getImageIndex( data );
 	} else if( fill < 0.01 ) {
@@ -700,8 +701,8 @@ void __fastcall TfrmMove::SignOffClick(TObject *Sender)
 	}
 
 	char summary[ 70 ];
-	std::sprintf( summary, "%d boxes have been marked \'Done\'", leftKids.size() );
-	frmConfirm -> initialise( TfrmLogin::MOVE, summary, projects );
+	std::sprintf( summary, "%d boxes have been marked \'Done\'", (int) leftKids.size() );
+	frmConfirm -> initialise( TfrmSMLogin::MOVE, summary, projects );
 	if( frmConfirm->ShowModal() != mrOk )
 		return;
 

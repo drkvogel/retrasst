@@ -29,7 +29,6 @@
 #include "LCDbProject.h"
 #include "LIMSParams.h"
 #include "LCDbOperator.h"
-#include "StringUtil.h"
 
 #pragma hdrstop
 #pragma package(smart_init)
@@ -322,7 +321,7 @@ void XMLFile::addHeader()
 {
 	start( "history" );
 	addLeaf( "project", LCDbProjects::records().get( LCDbProjects::getCurrentID() ).getName() );
-	addLeaf( "program", bcsToStd(Application -> Title) + " v" + LIMSParams::instance().getProgVersion() );
+	addLeaf( "program", Application -> Title + " v" + LIMSParams::instance().getProgVersion().c_str() );
 	addLeaf( "operator", LCDbOperators::records().get( LCDbOperators::getCurrentID() ).getDescription() );
 	addLeaf( "created", Now() );
 	endTag();
@@ -340,7 +339,8 @@ std::string XMLFile::createChunkFile()
 	String wsPath( csPath );
 	SetFileAttributes( wsPath.c_str(), FILE_ATTRIBUTE_HIDDEN );
 	if( fileName.empty() ) {
-		fileName = bcsToStd( ChangeFileExt( wsPath, ".xml" ) );
+		AnsiString xml = ChangeFileExt( wsPath, ".xml" );
+		fileName = xml.c_str();
 	}
 	return stdPath;
 }
@@ -351,9 +351,8 @@ std::string XMLFile::createChunkFile()
 
 std::string XMLFile::uniqueName( std::string ext )
 {
-	String source = ExtractFileName( Application -> ExeName );
-	String base = source.SubString( 1, source.LastDelimiter( "." ) - 1 );
-	std::string name = bcsToStd( base );
+	AnsiString source = ExtractFileName( Application -> ExeName );
+	AnsiString base = source.SubString( 1, source.LastDelimiter( "." ) - 1 );
 
 	unsigned short year, month, day, hour, min, sec, msec;
 	TDateTime start = Now();
@@ -372,7 +371,7 @@ std::string XMLFile::uniqueName( std::string ext )
 		ext = "txt";
 
 	char buffer[ SHORT_STRING ];
-	std::sprintf( buffer, "%s.%02d%02d%02d%02d%02d%c.%s.%s", name.c_str(),
+	std::sprintf( buffer, "%s.%02d%02d%02d%02d%02d%c.%s.%s", base.c_str(),
 					year % 100, month, day, hour, min, letter, type.c_str(), ext.c_str() );
 	return LIMSParams::instance().getLogFolder() + buffer;
 }

@@ -55,7 +55,7 @@ class StoreDAO : public LDbSingleton< StoreDAO >
 //		bool occupyBox( ROSETTA& data );
 
 		void loadBoxDetails( int box_id, int proj_id, ROSETTA & result );
-		void loadBoxes( const std::string & box_id, const std::string & box_type, int proj_id, std::vector<ROSETTA>& results);
+		void loadBoxes( const std::string & num, const std::string & type, int proj_id, std::vector<ROSETTA>& results);
 		void loadBoxes( int rack_id, int proj_id, std::vector<ROSETTA>& results);
 		void loadBoxesByJobID( int jobID, int proj_id, std::vector<ROSETTA>& results);
 		void loadBoxHistory( int box_id, int proj_id, std::vector<ROSETTA>& results);

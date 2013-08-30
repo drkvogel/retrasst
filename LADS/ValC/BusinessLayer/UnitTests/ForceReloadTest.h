@@ -7,6 +7,7 @@
 #include <boost/foreach.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/variant/get.hpp>
+#include <cstdio>
 #include <cwchar>
 #include "LoggingService.h"
 #include "MockConnection.h"
@@ -43,9 +44,23 @@ const valc::TestResult* testResultFor( const valc::WorklistEntry* wle )
 {
     using namespace valc;
     Range<TestResultIterator> resultRange = wle->getTestResults();
-    if ( std::distance( resultRange.first, resultRange.second ) != 1 )
+    unsigned int numResults = std::distance( resultRange.first, resultRange.second );
+    if (  numResults != 1 )
     {
-        throw Exception( "Worklist entry does not have a single test result." );
+        std::string testIDs;
+        if ( numResults )
+        {
+            testIDs = " .TestResult IDs: ";
+
+            for ( TestResultIterator i = resultRange.first; i != resultRange.second; ++i )
+            {
+                testIDs.append( AnsiString( (*i)->getID() ).c_str() );
+                testIDs.append(",");
+            }
+        }
+        char buffer[1024];
+        std::sprintf( buffer, "Worklist entry %d has %d test result(s)%s", wle->getID(), numResults, testIDs.c_str() );
+        throw Exception( buffer );
     }
     return *(resultRange.first);
 }
@@ -94,6 +109,11 @@ bool sortOnBuddySampleID( const valc::BuddyDatabaseEntry& e1, const valc::BuddyD
     return e1.buddy_sample_id < e2.buddy_sample_id;
 }
 
+bool sortOnWorklistEntryID( const valc::WorklistEntry* w1, const valc::WorklistEntry* w2 )
+{
+    return w1->getID() < w2->getID();
+}
+
 namespace tut
 {
 	class ForceReloadTestFixture
@@ -103,16 +123,22 @@ namespace tut
         static const int USER_ID          = 1234;
 
         valc::AnalysisActivitySnapshot* s;
-        paulst::LoggingService* log;
+        paulst::LoggingService*         log;
+        valc::MockConfig                config;
 
         ForceReloadTestFixture( valc::DBConnection* c = 0 )
             : log(0), s(0)
         {
             if ( c )
             {
-                log = new paulst::LoggingService( new NoLogging() );
-                s   = valc::SnapshotFactory::load( LOCAL_MACHINE_ID, USER_ID, c, log, valc::MockConfig::config );
+                init( c );
             }
+        }
+
+        void init( valc::DBConnection* c )
+        {
+            log = new paulst::LoggingService( new NoLogging() );
+            s   = valc::SnapshotFactory::load( LOCAL_MACHINE_ID, USER_ID, c, log, config.toString() );
         }
         
         ~ForceReloadTestFixture()
@@ -382,9 +408,9 @@ namespace tut
 "882291,118507091,27-06-2013 11:55:36,REVEAL,432560,-1019349,882432,-1031391,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36846,"
             };
 
-        //                                runID, isOpen, when created       , when closed, sequence position
-        std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,",
-                                         ",,,,," };
+        //                                runID, isOpen, when created       , when closed, sequence position,fao_level_one
+        std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,",
+                                         ",,,,,," };
 
         connectionFactory.setBuddyDB(
             tests[0] + sampleRunData[0] + "\n" +
@@ -456,9 +482,9 @@ namespace tut
 "882291,118507091,27-06-2013 11:55:36,REVEAL,432560,-1019349,882432,-1031391,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36846,"
             };
 
-        //                                runID, isOpen, when created       , when closed      ,sequence position
-        std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,",
-                                         ",,,,," };
+        //                                runID, isOpen, when created       , when closed      ,sequence position,fao_level_one
+        std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y,",
+                                         ",,,,,," };
 
         connectionFactory.setBuddyDB(
             tests[0] + sampleRunData[0] + "\n" +
@@ -528,9 +554,9 @@ namespace tut
 "882291,118507091,27-06-2013 11:55:36,REVEAL,432560,-1019349,882432,-1031391,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36846,"
             };
 
-        //                                runID, isOpen, when created       , when closed      ,sequence position
-        std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,",
-                                         "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290," };
+        //                                runID, isOpen, when created       , when closed      ,sequence position,fao_level_one
+        std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y,",
+                                         "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y," };
 
         connectionFactory.setBuddyDB(
             tests[0] + sampleRunData[0] + "\n" +
@@ -566,6 +592,119 @@ namespace tut
 			ensure( false );
 		}
 	}
+
+    template<>
+	template<>
+	void testForceReload::test<9>()
+	{
+		set_test_name("ForceReload - Excluding buddy_database entries.");
+
+		using namespace valc;
+
+        const std::string worklist(
+//rec  mac   barcode   test     group     c sample project p prof                  timestamp         seq s dil   result
+"-1,-1019430,11850701,-1031390,-12750394,0,432561,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,1,\n"
+"-2,-1019430,11850702,-1031390,-12750394,0,432562,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,12,C,0.000,2,\n"
+"-3,-1019430,11850703,-1031390,-12750394,0,432563,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,13,C,0.000,3,\n"
+"-4,-1019430,11850704,-1031390,-12750394,0,432564,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,10,C,0.000,4,\n");
+
+        const std::string buddyDB(
+//bsid ,barcode ,date analysed      ,dbname,sample,macine  ,res id,test,result,a,date analysed      ,restx,update when        ,
+"882291,11850701,27-06-2013 11:42:36,REVEAL,432561,-1019349,1,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882292,11850702,27-06-2013 11:42:36,REVEAL,432562,-1019349,2,-1031390,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882293,11850703,27-06-2013 11:42:36,REVEAL,432563,-1019349,3,-1031390,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882294,11850704,27-06-2013 11:42:36,REVEAL,432564,-1019349,4,-1031390,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n");
+
+        const std::string inclusionRule[2] = { 
+            "function accept ( b, d, a, f ) return true  end",
+            "function accept ( b, d, a, f ) return false end" };
+
+        const int expectedLocalEntries[2] = { 4, 0 }; 
+
+        try
+        {
+            for ( int iteration = 0; iteration <2; ++iteration )
+            {
+                MockConnectionFactory connectionFactory;
+
+                connectionFactory.setClusters( "-1019430,\n" );
+                connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
+                connectionFactory.setWorklist( worklist );
+                connectionFactory.setBuddyDB( buddyDB );
+
+                boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
+
+                ForceReloadTestFixture s;
+                s.config.edit( "BuddyDatabaseInclusionRule", inclusionRule[iteration] );
+
+                s.init( connection.get() );
+
+                ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
+                ensure_equals( std::distance( s->localBegin(), s->localEnd() ), expectedLocalEntries[iteration] );
+            }
+        }
+        catch( const Exception& e )
+        {
+            ensure( AnsiString( e.Message.c_str() ).c_str(), false );
+        }
+        catch( ... )
+        {
+            ensure( "Unknown exception.", false );
+        }
+	}
+
+    template<>
+	template<>
+	void testForceReload::test<10>()
+	{
+		set_test_name("ForceReload - Loading non-local results.");
+
+		using namespace valc;
+
+        MockConnectionFactory connectionFactory;
+
+		connectionFactory.setClusters( "-1019430,\n" );
+		connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
+		connectionFactory.setWorklist(
+//rec  machine  barcode   test     group     c sample project p prof                  timestamp           seq s dil   result
+"-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,882431,\n"
+"-36847,-1019430,118507091,-1031388,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,12,C,0.000,882429,\n"
+			);
+		connectionFactory.setBuddyDB(
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
+"992431,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
+			);
+        connectionFactory.setNonLocalResults(
+//barcode, machine ,sample,dbname,result_id,test_id , res_value, act_flg,date_analysed      , res_text, update_when        ,rec_no
+"118507091,-1019329,432560,REVEAL,882429   ,-1031388, 2.9      ,0       ,27-06-2013 11:57:47,2.9      , 27-06-2013 11:57:47,-36847,\n");  
+
+		boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
+
+        ForceReloadTestFixture s( connection.get() );
+
+        ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
+        ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+
+        LocalEntry localEntry = *(s->localBegin());
+        LocalRun   localRun   = boost::get<LocalRun>(localEntry);
+        Range<WorklistEntryIterator> worklistEntries = s->getWorklistEntries( localRun.getSampleDescriptor() );
+        ensure( 2 == std::distance( worklistEntries.first, worklistEntries.second ) );
+        try
+        {
+            const TestResult* localResult    = testResultFor( worklistEntry( worklistEntries, -36845 ) );
+            const TestResult* nonLocalResult = testResultFor( worklistEntry( worklistEntries, -36847 ) );
+            ensure( -1019349 == localResult   ->getMachineID() );
+            ensure( -1019329 == nonLocalResult->getMachineID() );
+            ensure    ( s->compareSampleRunIDs( localRun.getRunID(), localResult   ->getSampleRunID() ) );
+            ensure_not( s->compareSampleRunIDs( localRun.getRunID(), nonLocalResult->getSampleRunID() ) );
+        }
+        catch( const Exception& e )
+        {
+            AnsiString as( e.Message.c_str() );
+            ensure( as.c_str(), false );
+        }
+
+    }
 
 };
 

@@ -22,20 +22,30 @@
 LCDbCryoJob::LCDbCryoJob( const LQuery & query )
  : LCDbID( query.readInt( "retrieval_cid" ) ),
    exercise( query.fieldExists( "exercise_cid" ) ? query.readInt( "exercise_cid" ) : 0 ),
-   LDbNames( query.fieldExists( "external_name" ) ? query.readString( "external_name" ) : query.readString( "description" ),
-			 query.readString( "description" ) ),
+   LDbNames( query.readString( "external_name" ), query.readString( "description" ) ),
    reason( query.fieldExists( "reason" ) ? query.readString( "reason" ) : query.readString( "description" ) ),
    jobType( query.readInt( "job_type" ) ),
    projectID( query.readInt( "project_cid" ) ),
    primary( query.fieldExists( "primary_aliquot" ) ? query.readInt( "primary_aliquot" ) : 0 ),
    secondary( query.fieldExists( "secondary_aliquot" ) ? query.readInt( "secondary_aliquot" ) : 0 ),
    processID( query.readInt( "process_cid" ) ),
-   status( query.readInt( "status" ) ),
-   time_stamp( query.fieldExists( "time_stamp" ) ? query.readDateTime( "time_stamp" ) : Now() ),
-   start_date( query.fieldExists( "start_date" ) ? query.readDateTime( "start_date" ) : 0 ),
-   claimed_until( query.readDateTime( "claimed_until" ) ),
-   finish_date( query.fieldExists( "finish_date" ) ? query.readDateTime( "finish_date" ) : 0 )
-{}
+   status( query.readInt( "status" ) )
+{
+	if( query.fieldExists( "time_stamp" ) ) {
+		time_stamp = query.readDateTime( "time_stamp" );
+	} else {
+		time_stamp = Now();
+	}
+	if( query.fieldExists( "start_date" ) ) {
+		time_stamp = query.readDateTime( "start_date" );
+	}
+	if( query.fieldExists( "finish_date" ) ) {
+		time_stamp = query.readDateTime( "finish_date" );
+	}
+	if( query.fieldExists( "claimed_until" ) ) {
+		time_stamp = query.readDateTime( "claimed_until" );
+	}
+}
 
 //---------------------------------------------------------------------------
 //	Allocate new ID if necessary and create corresponding external name

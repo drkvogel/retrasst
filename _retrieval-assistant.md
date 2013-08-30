@@ -1,5 +1,7 @@
 # Retrieval Assistant
 
+LPDbCryovials::getAliquotTypes // useful?
+
 # StoreMan Retrieval Assistant
 
 ###  8. Sample retrieval screen

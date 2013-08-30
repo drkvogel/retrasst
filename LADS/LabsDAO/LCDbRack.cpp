@@ -52,15 +52,12 @@ bool LCDbRack::findRack( LQuery central ) {
 	central.setSQL( "select * from c_rack_number where external_name = :nam and tank_cid = :tid" );
 	central.setParam( "nam", fullName );
 	central.setParam( "tid", populationCID );
-	switch( central.open( ) ) {
-	case 1:
+	if( central.open( ) ) {
 		copyFields( central );
 		return true;
-	case 0:
+	} else {
 		return false;
 	}
-	std::string error = "Duplicate records for rack " + fullName;
-	throw Exception( error.c_str( ) );
 }
 
 //---------------------------------------------------------------------------
@@ -210,6 +207,25 @@ void LCDbRack::calculatePosition( LQuery & central )
 			posInSection = posInTank - offset;
 		}
 	}
+}
+
+//---------------------------------------------------------------------------
+//	Find part-populated structures in the section given by tankCID
+//	and rackTypeCID, or the whole population if rackTypeCID == 0
+//---------------------------------------------------------------------------
+
+bool LCDbRacks::read( LQuery qCentral, int tankCID, int rackTypeCID ) {
+	if( rackTypeCID == 0 ) {
+		qCentral.setSQL( "select * from c_rack_number where tank_cid = :pop"
+						" order by rack_cid" );
+	} else {
+		qCentral.setSQL( "select * from c_rack_number where tank_cid = :pop"
+						" and rack_type_cid = :sec"
+						" order by rack_cid" );
+		qCentral.setParam( "sec", rackTypeCID );
+	}
+	qCentral.setParam( "pop", tankCID );
+	return readData( qCentral );
 }
 
 //---------------------------------------------------------------------------

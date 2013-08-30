@@ -6,13 +6,11 @@
 #include <sstream>
 
 #include "Inventory.h"
-#include "StringUtil.h"
 #include "StoreDAO.h"
 #include "LCDbObject.h"
 #include "LCDbTankMap.h"
 #include "LDbBoxType.h"
 #include "LPDbBoxes.h"
-//#include "LCDbStoreDetail.h"
 #include "LCDbTankLayout.h"
 #include "LCDbJob.h"
 #include "LDbBoxSize.h"
@@ -82,7 +80,8 @@ std::auto_ptr< ROSETTA >IPart::getProperties( ) {
 	}
 	std::map< int, std::string >::const_iterator hi;
 	for( hi = history.begin( ); hi != history.end( ); ++ hi ) {
-		r->setString( bdToStd( hi->first ), hi->second );
+		AnsiString date = TDate(hi->first).FormatString( "d_mmmm_yyyy" );
+		r->setString( date.c_str(), hi->second );
 	}
 	return r;
 }
@@ -174,7 +173,7 @@ std::auto_ptr< ROSETTA >Site::getObjectData( ) {
 }
 
 bool Site::operator<( const IPart& rhs ) const {
-	return compareIC( getName(), rhs.getName() ) < 0;
+	return getName() < rhs.getName();
 }
 
 void Site::populate( ) {
@@ -354,7 +353,7 @@ std::string Tank::getFullName() const {
 
 bool Tank::operator<( const IPart& rhs ) const {
 	if( getPosition() == rhs.getPosition() ) {
-		return compareIC( getName(), rhs.getName() ) < 0;
+		return getName() < rhs.getName();
 	} else {
 		return getPosition() < rhs.getPosition();
 	}
@@ -585,14 +584,7 @@ std::auto_ptr< ROSETTA >Layout::getProperties( ) {
 		}
 	}
 	r->setString( "on_line", availability( ) == IS_AVAILABLE ? "Yes" : "No" );
-	TDate start = EPOCH_START;
-	if( valid_from >= start && valid_from < EPOCH_END ) {
-		r->setString( "valid_from", bdToStd( valid_from ) );
-		start = valid_from;
-	}
-	if( valid_to >= start && valid_to < EPOCH_END ) {
-		r->setString( "valid_until", bdToStd( valid_to ) );
-	}
+	r->setString( "valid", getDateRange() );
 	return r;
 }
 
@@ -609,24 +601,26 @@ std::auto_ptr< ROSETTA >Layout::getObjectData( ) {
 }
 
 std::string Layout::getDateRange() const {
+	AnsiString result;
 	if( valid_from >= EPOCH_START && valid_from < EPOCH_END ) {
-		std::string from = bdToStd( valid_from );
+		result = valid_from.DateString();
 		if( valid_to >= valid_from && valid_to < EPOCH_END ) {
-			return from + " - " + bdToStd( valid_to );
+			result = result + " - " + valid_to.DateString();
 		} else if( valid_from > Now() ) {
-			return "From " + from;
+			result = "From " + result;
 		} else {
-			return "Since " + from;
+			result = "Since " + result;
 		}
 	} else {
 		if( valid_to >= EPOCH_START && valid_to < EPOCH_END ) {
-			return "Until " + bdToStd( valid_to );
+			result = "Until " + valid_to.DateString();
 		} else if( status == LCDbTankMap::DELETED ) {
-			return "Former content";
+			result = "Former content";
 		} else {
-			return "Current content";
+			result = "Current content";
 		}
 	}
+	return result.c_str();
 }
 
 std::string Layout::getName() const {
@@ -1688,11 +1682,11 @@ Layout * Layouts::getLayout( int i ) const {
 bool Layouts::isNameDuplicate( bool full, std::string name ) {
 	for( unsigned i = 0; i < layouts.size( ); i++ ) {
 		if( full ) {
-			if( compareIC( layouts[ i ]->getLayoutDescription(), name ) == 0 ) {
+			if( layouts[ i ]->getLayoutDescription() == name ) {
 				return true;
 			}
 		} else {
-			if( compareIC( layouts[ i ]->getLayoutName(), name ) == 0 ) {
+			if( layouts[ i ]->getLayoutName() == name ) {
 				return true;
 			}
 		}

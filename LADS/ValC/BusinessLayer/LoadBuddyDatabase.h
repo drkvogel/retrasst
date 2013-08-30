@@ -31,7 +31,8 @@ class LoadBuddyDatabase
 public:
     LoadBuddyDatabase( int localMachineID, DBConnection* con, paulst::LoggingService* log, 
 		ResultIndex* resultIndex, Projects* projects, BuddyDatabase** out, DBUpdateSchedule* dbUpdateSchedule,
-        SampleRunIDResolutionService* sampleRunIDResolutionService, const std::string& sql );
+        SampleRunIDResolutionService* sampleRunIDResolutionService, const std::string& sql,
+        const std::string& inclusionRule );
 	void execute();
 private:
     BuddyDatabase**                 m_buddyDatabase;
@@ -43,6 +44,7 @@ private:
     DBUpdateSchedule*               m_dbUpdateSchedule;
     SampleRunIDResolutionService*   m_sampleRunIDResolutionService;
     const std::string               m_sql;
+    const std::string               m_inclusionRule;
 };
 
 };

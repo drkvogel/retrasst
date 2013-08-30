@@ -1,6 +1,7 @@
 #ifndef WORKLISTENTRYBUILDERH
 #define WORKLISTENTRYBUILDERH
 
+#include "InclusionRule.h"
 #include <string>
 #include <System.hpp>
 #include "WorklistRelation.h"
@@ -10,8 +11,7 @@ namespace valc
 
 class Cursor;
 class ResultIndex;
-class WorklistDirectory;
-class WorklistEntry;
+class WorklistEntries;
 
 /*  Builds new WorklistEntry instances from a Cursor.
 
@@ -23,8 +23,7 @@ class WorklistEntryBuilder
 {
 public:
     WorklistEntryBuilder( 
-        /*  The instances returned by 'newInstance' encapsulate a reference to this worklistDirectory.*/
-        const WorklistDirectory* worklistDirectory, 
+        WorklistEntries* worklistEntries, 
 
         /*  If newInstance is invoked with a Cursor value that describes a worklist that explicitly names its result, then
             this information is passed to resultIndex (using the method: allocateResultToWorklistEntry). */
@@ -32,13 +31,15 @@ public:
 
         /*  The WorklistEntry instances built by 'newInstance' encapsulate knowledge of their parent (if any) and of their chidren (if any).
             The 'newInstance' method obtains this knowledge from worklistRelationsDataSource.  */
-        WorklistRelationsDataSource* worklistRelationsDataSource 
+        WorklistRelationsDataSource* worklistRelationsDataSource ,
+        const std::string& inclusionRule
         );
-    const WorklistEntry* newInstance( Cursor* worklistCursor );
+    bool accept( Cursor* worklistCursor );
 private:
-    const WorklistDirectory*        m_worklistDirectory;
+    WorklistEntries*                m_worklistEntries;
     ResultIndex*                    m_resultIndex;
     WorklistRelationsDataSource*    m_worklistRelationsDataSource;
+    InclusionRule                   m_inclusionRule;
     int recordNo, machineID, testID, groupID, categoryID, sampleID, projectID, profileID, tsSequence, buddyResultID;
     std::string barcode, profileName, sampleDescriptor;
     TDateTime timeStamp;

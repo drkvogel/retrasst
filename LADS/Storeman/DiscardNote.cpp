@@ -2,7 +2,6 @@
 #pragma hdrstop
 
 #include "DiscardNote.h"
-#include "StringUtil.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -91,8 +90,8 @@ void __fastcall TfrmDiscardNote::btnOKClick(TObject *Sender)
 
     do
     {
-		const std::string note = bcsToStd( this->memNote->Lines->Text );
-        m_context->setNote(note);
+		AnsiString note = this->memNote->Lines->Text;
+		m_context->setNote(note.c_str());
 
 	    mr = mrOk;
 
@@ -123,10 +122,10 @@ void __fastcall TfrmDiscardNote::FormShow(TObject *Sender)
 
 void __fastcall TfrmDiscardNote::btnPasteClick(TObject *Sender)
 {
-	const std::string cannedText = bcsToStd( this->cmbCanned->Text );
+	AnsiString cannedText = this->cmbCanned->Text;
 	if (cannedText != "")
     {
-		std::string text = bcsToStd( this->memNote->Text );
+		AnsiString text =  this->memNote->Text;
         if (text != "") text += " ";
         text += cannedText;
         this->memNote->Text = text.c_str();

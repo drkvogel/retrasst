@@ -27,7 +27,6 @@
 #include "LCDbObject.h"
 #include "TfrmPassword.h"
 #include "TfrmAboutBox.h"
-#include "StringUtil.h"
 #include "LIMSDatabase.h"
 
 #pragma hdrstop
@@ -64,17 +63,17 @@ __fastcall TfrmLoginBase::TfrmLoginBase(TComponent* Owner) : TForm(Owner)
 
 void __fastcall TfrmLoginBase::AppException(TObject *, Exception *E)
 {
-	const String error = E -> Message;
+	AnsiString error = E -> Message;
 	try
 	{
-		auditTrail.addRecord( bcsToStd( error ), LCDbAuditTrail::MAJOR_ERROR );
+		auditTrail.addRecord( error.c_str(), LCDbAuditTrail::MAJOR_ERROR );
 	}
 	catch( ... )
 	{}
 
 	Screen -> Cursor = crDefault;
-	static const String title = Application -> Title + " Error";
-	Application -> MessageBox( error.c_str(), title.c_str(), MB_ICONWARNING );
+	String title = Application -> Title + " Error";
+	Application -> MessageBox( E -> Message.c_str(), title.c_str(), MB_ICONWARNING );
 	timer -> Enabled = true;
 }
 
@@ -88,7 +87,7 @@ void __fastcall TfrmLoginBase::initialise(TObject *)
 
 	// select live, test or mirror databases
 	LIMSDatabase::DbSystem system = LIMSDatabase::getCurrentSystem();
-	LIMSDatabase::DbSystem selected = rgDatabase -> ItemIndex;
+	LIMSDatabase::DbSystem selected = LIMSDatabase::DbSystem(rgDatabase -> ItemIndex);
 	if( system != selected ) {
 		if( system == LIMSDatabase::UNKNOWN || Application -> MessageBox(
 			 L"Are you sure you want to switch database?", L"Warning", MB_YESNO ) == ID_YES ) {
@@ -96,7 +95,7 @@ void __fastcall TfrmLoginBase::initialise(TObject *)
 		}
 		else rgDatabase -> ItemIndex = system;
 	}
-	// auditTrail.start();	// wait till user logs in??
+	auditTrail.start();
 
 	// get configuration information from central database
 	LQuery qCentral( LIMSDatabase::getCentralDb() );
@@ -142,7 +141,7 @@ void __fastcall TfrmLoginBase::okButtonClick(TObject *Sender)
 
 void TfrmLoginBase::startProgram( TObject * )
 {
-	String title = Application -> Title + ": ";
+	AnsiString title = Application -> Title + ": ";
 
 	int projID = LCDbProjects::getCurrentID();
 	if( projID != LCDbProject::NONE_SELECTED )
@@ -160,7 +159,7 @@ void TfrmLoginBase::startProgram( TObject * )
 	auditTrail.login();
 	WindowState = wsMinimized;
 	title = title + " (" + auditTrail.getProcessID() + ")";
-	runProgram( bcsToStd( title ) );
+	runProgram( title.c_str() );
 	WindowState = wsNormal;
 }
 
@@ -172,12 +171,14 @@ const LCDbOperator * TfrmLoginBase::logUserIn()
 {
 	bool locked, matched;
 	LCDbOperators & users = LCDbOperators::records();
-	const LCDbOperator * user = users.findByName( bcsToStd( userList -> Text ) );
+	AnsiString userName = userList -> Text ;
+	const LCDbOperator * user = users.findByName( userName.c_str( ) );
 	if( user == NULL )
 		matched = locked = false;
 	else
 	{	locked = user -> hasLockedAccount();
-		matched = user -> matchPassword(  bcsToStd( ebPassword -> Text ) );
+		AnsiString pwd = ebPassword -> Text ;
+		matched = user -> matchPassword( pwd.c_str() );
 	}
 	ebPassword -> Clear();
 
@@ -185,8 +186,9 @@ const LCDbOperator * TfrmLoginBase::logUserIn()
 	if( user != NULL && !matched && !locked && ++ failCount >= 3 )
 	{
 		LCDbOperator record = *user;
+		LQuery qCentral( LIMSDatabase::getCentralDb() );
 		record.lockAccount();
-//		record.saveRecord( qCentral );
+		record.saveRecord( qCentral );
 		locked = true;
 	}
 
@@ -199,7 +201,8 @@ const LCDbOperator * TfrmLoginBase::logUserIn()
 
 	if( !matched )
 	{
-		auditTrail.sendEMail( bcsToStd(userList -> Text + " failed to log in" ) );
+		AnsiString email = userName + " failed to log in";
+		auditTrail.sendEMail( email.c_str() );
 		Application -> MessageBox( L"Please check name and password.", NULL, MB_ICONWARNING );
 		return NULL;
 	}

@@ -40,7 +40,6 @@
 #include "LCDbProject.h"
 #include "LCDbAnalyser.h"
 #include "XMLFile.h"
-#include "StringUtil.h"
 #include "LIMSDatabase.h"
 
 #pragma hdrstop
@@ -64,13 +63,14 @@ LCDbAuditTrail::LCDbAuditTrail() : cQuery( LIMSDatabase::getCentralDb() )
 	wchar_t name[ 100 ];
 	DWORD size = sizeof( name );
 	if( GetUserName( name, & size ) )
-		userName = bcsToStd( name );
+		userName = AnsiString( name, size-1 ).c_str();
 
 	size = sizeof( name );
 	if( GetComputerName( name, & size ) )
-		computer = bcsToStd( name );
+		computer = AnsiString( name, size ).c_str();
 
-	progName = bcsToStd(Application -> Title) + " v" + LIMSParams::instance().getProgVersion();
+	std::string title = AnsiString( Application -> Title ).c_str();
+	progName = title + " v" + LIMSParams::instance().getProgVersion();
 	current = this;
 }
 
@@ -314,7 +314,7 @@ bool LCDbAuditTrail::sendEMail( const std::string & body, std::string address, s
 TDateTime LCDbAuditTrail::findRecent( MessageType status )
 {
 	TDateTime when;
-	std::string program = bcsToStd( Application -> Title + "%" );
+	std::string program = AnsiString( Application -> Title + "%" ).c_str();
 	cQuery.setSQL( "select max(message_date) as last_time from c_audit_trail"
 				  " where program_name like :pn and message_type = :mt" );
 	cQuery.setParam( "pn", program );
@@ -331,10 +331,10 @@ TDateTime LCDbAuditTrail::findRecent( MessageType status )
 
 std::vector< LCDbAuditTrail::Process > LCDbAuditTrail::read( const XTIME & first, const XTIME & last, int projID )
 {
-	const static std::string sqlWildcard = "%";
 	const LCDbProject * proj = LCDbProjects::records().findByID( projID );
-	const std::string & dbName = (proj == NULL ? sqlWildcard : proj -> getDbName());
-	const std::string program = bcsToStd( Application -> Title ) + sqlWildcard;
+	std::string dbName;
+	if( proj == NULL ) { dbName = "%"; } else { dbName = proj -> getDbName(); }
+	std::string program = AnsiString( Application -> Title + "%" ).c_str();
 	cQuery.setSQL( "select process_cid, operator_cid, machine_cid, program_name,"
 					" min(message_date) as start_time, max(message_date) as end_time"
 				  " from c_audit_trail where process_cid in"

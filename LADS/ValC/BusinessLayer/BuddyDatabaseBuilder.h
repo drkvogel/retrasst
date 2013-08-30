@@ -1,6 +1,7 @@
 #ifndef BUDDYDATABASEBUILDERH
 #define BUDDYDATABASEBUILDERH
 
+#include "InclusionRule.h"
 #include "SampleRuns.h"
 #include <string>
 #include <System.hpp>
@@ -45,11 +46,12 @@ public:
         const SampleRunIDResolutionService* s,                      // input parameter. Used but not changed. 
         DBUpdateSchedule*                   dbUpdateSchedule,
         BuddySampleIDKeyedOnSampleRunID*    buddySampleIDKeyedOnSampleRunID,
-        BuddyDatabaseEntryIndex*            buddyDatabaseEntryIndex
+        BuddyDatabaseEntryIndex*            buddyDatabaseEntryIndex,
+        const std::string&                  inclusionRule
         );
     bool accept( Cursor* c );
 private:
-    char resActionFlag;
+    char resActionFlag, srFAOLevelOne;
     TDateTime dateAnalysed, resDateAnalysed, resUpdateWhen, srCreatedWhen, srClosedWhen;
     int buddySampleID, machineID, resID, alphaSampleID, resTestID, resWorklistID, srSequencePosition, srID, srIsOpen;
     std::string barcode, databaseName, sampleDescriptor, resText, sampleRunID;
@@ -64,6 +66,7 @@ private:
     DBUpdateSchedule*                   m_dbUpdateSchedule;
     BuddySampleIDKeyedOnSampleRunID*    m_buddySampleIDKeyedOnSampleRunID;
     BuddyDatabaseEntryIndex*            m_buddyDatabaseEntryIndex;
+    InclusionRule                       m_inclusionRule;
 
     BuddyDatabaseBuilder( const BuddyDatabaseBuilder& );
     BuddyDatabaseBuilder& operator=( const BuddyDatabaseBuilder& );

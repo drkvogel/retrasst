@@ -22,7 +22,8 @@ LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, DBConnection* con,
 	paulst::LoggingService* log, ResultIndex* resultIndex, Projects* projects,
 	BuddyDatabase** bd, DBUpdateSchedule* dbUpdateSchedule,
     SampleRunIDResolutionService* sampleRunIDResolutionService,
-    const std::string& sql )
+    const std::string& sql,
+    const std::string& inclusionRule )
     :
     m_localMachineID( localMachineID ),
     m_projects( projects ),
@@ -32,7 +33,8 @@ LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, DBConnection* con,
 	m_buddyDatabase(bd),
     m_dbUpdateSchedule( dbUpdateSchedule ),
     m_sampleRunIDResolutionService( sampleRunIDResolutionService ),
-    m_sql( sql )
+    m_sql( sql ),
+    m_inclusionRule( inclusionRule )
 {
 }
 
@@ -93,7 +95,7 @@ void LoadBuddyDatabase::execute()
                                                                           ( new BuddySampleIDKeyedOnSampleRunID(m_sampleRunIDResolutionService));
 
     BuddyDatabaseBuilder builder(m_projects, m_resultIndex, sampleRuns.get(), candidateSampleRuns.get(), m_sampleRunIDResolutionService,
-        m_dbUpdateSchedule, buddySampleIDKeyedOnSampleRunID.get(), buddyDatabaseEntryIndex.get() );
+        m_dbUpdateSchedule, buddySampleIDKeyedOnSampleRunID.get(), buddyDatabaseEntryIndex.get(), m_inclusionRule );
 
     for ( std::auto_ptr<Cursor> cursor( m_con->executeQuery( m_sql ) ); 
             ( ! cursor->endOfRecordSet() ) && builder.accept( cursor.get() ); cursor->next() );

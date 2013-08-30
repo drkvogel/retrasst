@@ -5,11 +5,27 @@ object frmAddSpecimens: TfrmAddSpecimens
   ClientHeight = 742
   ClientWidth = 1071
   Color = 12316364
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = True
   OnHide = FormHide
   OnShow = FormShow
+  DesignSize = (
+    1071
+    742)
+  PixelsPerInch = 96
+  TextHeight = 13
   inline selector: TselectorFrame
     Left = 8
     Top = 14
+    Width = 430
+    Height = 120
+    TabOrder = 0
+    ExplicitLeft = 8
+    ExplicitTop = 14
   end
   object sgSpecimens: TStringGrid
     Left = 8

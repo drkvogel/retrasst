@@ -113,7 +113,7 @@ private:	// User declarations
 //	std::string getPopDescription();
 	const LCDbObject * findStorageType();
 	void clearLayoutPanel();
-	void changeVessel( String site, String position );
+	void changeVessel( AnsiString site, AnsiString position );
 	bool checkVessel( TEdit * textBox, TLabel * label, bool isName );
 	bool checkPosition( int locationCID, short pos, short shelf );
 

@@ -24,7 +24,7 @@
 
 const int LOCAL_MACHINE_ID = -1019349;
 
-const std::string configFile = "J:\\cvs\\LADS\\ValC\\BusinessLayer\\config.temp";
+const std::string configFile = "J:\\cvs\\LADS\\ValC\\BusinessLayer\\config.txt";
 
 static bool dbErrorCallback( const std::string object, const int instance,
     const int ecount, const int ecode, const std::string error_txt )

@@ -2,7 +2,6 @@
 
 #include "DiscardDb.h"
 #include "DiscardUtil.h"
-#include "StringUtil.h"
 #include "LCDbObject.h"
 #include "LCDbAuditTrail.h"
 #include "LPDbCryovial.h"
@@ -605,9 +604,9 @@ Db::setNotesForSamples( SampleVec * samples ) const
         for (m_pq->open(); ! m_pq->eof(); m_pq->next())
         {
             const std::string contents = m_pq->readString("contents").c_str();
-            const int userid = m_pq->readInt("operator_cid");
-			const std::string when =
-				bcsToStd( m_pq->readDateTime("time_stamp").DateString() );
+			const int userid = m_pq->readInt("operator_cid");
+			AnsiString date = m_pq->readDateTime("time_stamp").DateString();
+			const std::string when = date.c_str( );
             const LCDbOperator * creator = getUser(userid);
             const std::string who = (creator == 0)
                 ? ("user" + Util::asString(userid)).c_str()
@@ -871,7 +870,7 @@ Db::resetSamplesStatus( const std::map<int,IntSet> & jobCsids ) const
 
         if (error != "") break;
     }
-    return error;
+	return error;
 }
 
 std::string

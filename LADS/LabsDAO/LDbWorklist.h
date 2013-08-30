@@ -79,7 +79,7 @@ class LBDbWorkEntry : public LDbWorkEntry
 {
 	int duplicate;
 
-	static const TRIGGER_ID = -2, FIRST_RERUN_ID = -4;
+	static const int TRIGGER_ID = -2, FIRST_RERUN_ID = -4;
 	static int nextRerun;
 
 public:

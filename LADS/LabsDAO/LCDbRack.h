@@ -24,6 +24,7 @@ public:
 	enum Status { EXPECTED, CONFIRMED, REMOVED, DESTROYED, DELETED = 99 };
 
 	LCDbRack( const std::string & place, int tank, const std::string & rak );
+	LCDbRack( const LQuery & central ) { copyFields( central ); }
 
 	int getPopulationID() const { return populationCID; }
 	void setSectionType( int id ) { sectionCID = id; }
@@ -47,6 +48,16 @@ public:
 //	bool findRackByTankMap( LQuery central );
 	bool createRack( LQuery central );
 	bool updateRecord( LQuery central );
+};
+
+//---------------------------------------------------------------------------
+
+class LCDbRacks : public LDbCache< LCDbRack >
+{
+
+public:
+
+	bool read( LQuery qCentral, int tankCID, int rackTypeCID = 0 );
 };
 
 //---------------------------------------------------------------------------

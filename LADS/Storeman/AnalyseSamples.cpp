@@ -2,7 +2,6 @@
 
 #include <vcl.h>
 
-#include "StringUtil.h"
 #include "AnalyseSamples.h"
 #include "SelectSamples.h"
 #include "AddSpecimens.h"
@@ -46,8 +45,8 @@ void TfrmAnalyseSpecimens::init( ) {
 
 void __fastcall TfrmAnalyseSpecimens::cbProjectChange( TObject *Sender ) {
 	LCDbProjects &projList = LCDbProjects::records( );
-	std::string proj = bcsToStd( cbProject->Text );
-	const LCDbProject *selected = projList.findByName( proj );
+	AnsiString proj = cbProject->Text;
+	const LCDbProject *selected = projList.findByName( proj.c_str() );
 	if( selected != NULL ) {
 		projList.setCurrent( *selected );
 	}

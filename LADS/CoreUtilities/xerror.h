@@ -3,6 +3,9 @@
 //---------------------------------------------------------------------------
 #include <string>
 #include <vector>
+#ifdef __BORLANDC__
+#include <windows.h>
+#endif
 //---------------------------------------------------------------------------
 typedef	void (*XERROR_CALLBACK)
 	( const std::string object, const std::string error_txt );
@@ -37,6 +40,9 @@ public:
 	virtual	void 	setValid( void );
 	static	void	useExceptions( const bool ue );
 	static	bool 	usingExceptions( void );
+#ifdef __BORLANDC__
+	static	std::string 	translateMSError( const DWORD last_error );
+#endif
 };
 //---------------------------------------------------------------------------
 #endif

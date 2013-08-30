@@ -115,6 +115,27 @@ void XERROR::resetXError( void )
 	error_msgs.clear();
 	caveat_msgs.clear();
 }
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#ifdef __BORLANDC__
+#include <strsafe.h>
+std::string XERROR::translateMSError( const DWORD last_error )
+{
+	LPVOID lpMsgBuf;
+	FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		last_error,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR) &lpMsgBuf,
+		0, NULL );
+	std::string	msg = std::string( (const char *) lpMsgBuf );
+	LocalFree(lpMsgBuf);
+	return( msg );
+
+}
+#endif
 //===========================================================================
 
 

@@ -37,7 +37,6 @@
 #include "LIMSDatabase.h"
 #include "xquery.h"
 #include "xexec.h"
-#include "StringUtil.h"
 
 #pragma hdrstop
 #pragma package(smart_init)
@@ -226,7 +225,8 @@ bool LQuery::call( Operation function, LogLevel log ) {
 		return ( this->*function )( );
 	}
 	catch( Exception &ex ) {
-		logError( bcsToStd( ex.Message ) );
+		AnsiString msg = ex.Message;
+		logError( msg.c_str() );
 		throw;
 	}
 	catch( std::string &ex ) {

@@ -1,4 +1,4 @@
-inherited frmLogin: TfrmLogin
+inherited frmSMLogin: TfrmSMLogin
   Caption = 'StoreMan'
   ExplicitWidth = 331
   ExplicitHeight = 348

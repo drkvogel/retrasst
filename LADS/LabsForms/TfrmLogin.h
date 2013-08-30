@@ -36,6 +36,8 @@ __published:	// IDE-managed Components
 
 private:	// User declarations
 
+	TLeaseManager * lm;
+
 public:		// User declarations
 
 	__fastcall TfrmLogin(TComponent* Owner);

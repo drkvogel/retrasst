@@ -73,13 +73,13 @@ private:	// User declarations
 	void listBoxTypes();
 	void listBoxNames();
 	void addBox( const LPDbBoxName & box );
-	String getPercentage( const String & boxName );
-	TColor getColour( const String & boxName );
-	int checkProgress( const String & boxName );
+	String getPercentage( const std::string & boxName );
+	TColor getColour( const std::string & boxName );
+	int checkProgress( const std::string & boxName );
 
 	void setPrintParams();
 	void printHeader();
-	void printText( const String & text );
+	void printText( const std::string & text );
 	void printFooter();
 
 	// printer parameters

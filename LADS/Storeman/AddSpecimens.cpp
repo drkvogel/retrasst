@@ -5,7 +5,6 @@
 
 #include "AddSpecimens.h"
 #include "LPDbProfile.h"
-#include "StringUtil.h"
 #include "LIMSDatabase.h"
 #include "StoreUtil.h"
 
@@ -85,7 +84,8 @@ bool TfrmAddSpecimens::init( TStrings * barcodes )
 	samples.clear();
 	if( barcodes != NULL ) {
 		for( int n = 0; n < barcodes -> Count; ++ n ) {
-			samples.add( bcsToStd( barcodes -> Strings[ n ] ) );
+			AnsiString barcode = barcodes -> Strings[ n ];
+			samples.add( barcode.c_str() );
 		}
 	}
 	return true;
@@ -123,8 +123,8 @@ void TfrmAddSpecimens::updateGrid()
 			sgSpecimens -> Cells[ received_column ][ row ] = " ";
 		}
 		for( int column = value_columns; column < profile_column; ++ column ) {
-			std::string heading = bcsToStd( sgSpecimens -> Cells[ column ][ 0 ] );
-			const std::string & value = sr -> getFields().getDescriptorValue( heading );
+			AnsiString heading =  sgSpecimens -> Cells[ column ][ 0 ];
+			const std::string & value = sr -> getFields().getDescriptorValue( heading.c_str() );
 			sgSpecimens -> Cells[ column ][ row ] = value.c_str();
 		}
 		const std::string result = sr -> getProfile();

@@ -57,7 +57,6 @@ inherited frmLogin: TfrmLogin
     Height = 21
     DropDownCount = 20
     Enabled = False
-    ItemHeight = 13
     Sorted = True
     TabOrder = 3
     OnChange = textChange

@@ -27,15 +27,17 @@ Cursor* MockConnection::executeQuery( const std::string& sql )
     {
         str = m_clusters;
     }
-    else if ( paulst::ifind( "valc_worklist wl", sql ) && ! paulst::ifind( "c_worklist_relation", sql ) )
+    else if ( paulst::ifind( "LoadWorklistEntries", sql ) )// Assuming MockConfig
     {
-        // query for worklist entries
         str = m_worklist;
     }
-    else if ( paulst::ifind( "buddy_database bd left join buddy_result_float_valc", sql ) )
+    else if ( paulst::ifind( "LoadBuddyDatabase", sql ) )// Assuming MockConfig
     {
-        // query for buddy_database entries, results, sample-runs
         str = m_buddyDB;
+    }
+    else if ( paulst::ifind( "LoadNonLocalResults", sql ) )// Assuming MockConfig
+    {
+        str = m_nonLocalResults;
     }
     else if ( paulst::ifind( "c_test", sql ) )
     {
@@ -63,6 +65,11 @@ void MockConnection::setBuddyDB( const std::string& buddyDB )
 void MockConnection::setClusters( const std::string& clusters )
 {
     m_clusters = clusters;
+}
+
+void MockConnection::setNonLocalResults( const std::string& nonLocalResults )
+{
+    m_nonLocalResults = nonLocalResults;
 }
 
 void MockConnection::setProjects( const std::string& projects )

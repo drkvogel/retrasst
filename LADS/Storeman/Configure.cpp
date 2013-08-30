@@ -265,7 +265,7 @@ bool TfrmConfigure::confirmSave( const std::string & action )
 {
 	std::set< int > central;
 	central.insert( 0 );
-	frmConfirm -> initialise( TfrmLogin::CONFIGURE, "Ready to " + action, central );
+	frmConfirm -> initialise( TfrmSMLogin::CONFIGURE, "Ready to " + action, central );
 	return frmConfirm->ShowModal() == mrOk;
 }
 

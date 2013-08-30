@@ -1,13 +1,12 @@
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
-
 #include <sstream>
 #include "StoreDAO.h"
 #include "LCDbObject.h"
 #include "LDbBoxStore.h"
 #include "LCDbRack.h"
-//#include "LCDbStoreDetail.h"
+#include "LCDbStoreDetail.h"
 #include "LCDbTankMap.h"
 #include "LCDbTankLayout.h"
 #include "LCDbProject.h"
@@ -724,31 +723,32 @@ bool StoreDAO::loadCryovials( std::string sid, std::string cid, int aid, std::ve
 		return false;
 	}
 
-	std::string q = "SELECT c.cryovial_id, c.sample_id, cs.box_cid, cs.cryovial_position,"
+	std::stringstream q;
+	q << "SELECT c.cryovial_id, c.sample_id, cs.box_cid, cs.cryovial_position,"
 			" cs.time_stamp, c.cryovial_barcode, c.aliquot_type_cid, sp.barcode, b.external_name as box, "
 			" r.external_name as structure, shelf_number, v.external_full as vessel"
 			" FROM cryovial_store cs, cryovial c, specimen sp, box_name b, box_store bs,"
 			" c_rack_number r, c_tank_map m, c_object_name v "
-			" WHERE cs.status = 1 AND bs.status = 6"	// confirmed
+			" WHERE cs.status = 1 AND bs.status = 6" 	// cryovial and box confirmed
 			" AND cs.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id "
 			" AND b.box_cid = cs.box_cid AND bs.box_cid = cs.box_cid "
 			" AND bs.rack_cid = r.rack_cid AND r.tank_cid = m.tank_cid"
 			" AND m.storage_cid = v.object_cid";
 
-	if( sid.length( ) > 0 ) {
-		q += " AND sp.barcode = '" + sid + "' ";
+	if( !sid.empty() ) {
+		q << " AND sp.barcode = '" << sid << "' ";
 	}
 
-	if( cid.length( ) > 0 ) {
-		q += " AND c.cryovial_barcode = '" + sid + "' ";
+	if( !cid.empty() ) {
+		q << " AND c.cryovial_barcode = '" << cid << "' ";
 	}
 
 	if( aid != 0 ) {
-		q += " AND c.aliquot_type_cid = " + aid;
+		q << " AND c.aliquot_type_cid = " << aid;
 	}
 
 	LQuery pQuery = Util::projectQuery( LCDbProjects::getCurrentID(), true );
-	pQuery.setSQL( q.c_str() );
+	pQuery.setSQL( q.str() );
 	for( pQuery.open(); !pQuery.eof(); pQuery.next() ) {
 		results.push_back( pQuery.getRecord() );
 	}

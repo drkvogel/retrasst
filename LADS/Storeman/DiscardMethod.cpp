@@ -2,7 +2,6 @@
 #pragma hdrstop
 
 #include "DiscardMethod.h"
-#include "StringUtil.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -94,14 +93,14 @@ void __fastcall TfrmDiscardMethod::btnOKClick(TObject *Sender)
 
     do
     {
-        const std::string method = bcsToStd( this->cmbMethod->Text );
+		AnsiString method =  this->cmbMethod->Text;
 
         if (method == "")
         {
             break; // FIXME
         }
 
-        m_context->setMethod(method);
+        m_context->setMethod(method.c_str());
 
         mr = mrOk;
 
