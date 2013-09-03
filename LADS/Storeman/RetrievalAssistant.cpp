@@ -334,8 +334,8 @@ Sample retrieval
     Screen->Cursor = crSQLWait;
     LQuery qc(LIMSDatabase::getCentralDb());
     LCDbCryoJobs &jobs = LCDbCryoJobs::records();
-    jobs.read(LCDbCryoJob::JobKind::UNKNOWN, true); // $2 true: readall
-    delete_referenced<tdvecpJob>(vecJobs);
+	jobs.read( LIMSDatabase::getCentralDb(), LCDbCryoJob::UNKNOWN, true); // $2 true: readall
+	delete_referenced<tdvecpJob>(vecJobs);
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {
         if (!jr->isAvailable()) continue;
         std::ostringstream oss;

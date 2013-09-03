@@ -3,9 +3,9 @@
 #ifndef LQueryH
 #define LQueryH
 
-#include "rosetta.h"
 #include <string>
 #include "LIMSDatabase.h"
+#include "rosetta.h"
 
 class XQUERY;
 class XMLFile;

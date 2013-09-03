@@ -23,7 +23,6 @@ __fastcall TfrmSMLogin::TfrmSMLogin(TComponent* Owner) : TfrmLoginBase(Owner)
 
 void TfrmSMLogin::runProgram( const std::string & title )
 {
-	frmStoremain -> init();
 	frmStoremain -> Caption = title.c_str();
 	frmStoremain -> ShowModal();
 }

@@ -97,13 +97,6 @@ void __fastcall TfrmLoginBase::initialise(TObject *)
 	}
 	auditTrail.start();
 
-	// get configuration information from central database
-	LQuery qCentral( LIMSDatabase::getCentralDb() );
-	LCDbProjects::records().read( qCentral, true );
-	LCDbObjects::records().read( qCentral, true );
-	LCDbAnalysers::records().read( qCentral, true );
-	LCDbOperators::records().read( qCentral, true );
-
 	// stop if the machine is not configured correctly
 	LIMSParams & config = LIMSParams::instance();
 	if( !config.checkUnique() || !config.checkMachine() ) {

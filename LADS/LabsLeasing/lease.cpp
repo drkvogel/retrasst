@@ -413,14 +413,18 @@ int TLease::Activate( int period, std::string &error_msg, int lease_type )
 //	q->Close();
 //	q->SQL->Clear();
 	sprintf( tmp, "INSERT INTO c_lease"
-				" (proj_id,task_id,task_desc,lease_type,process_cid,start,expiry)"
-				" VALUES (:pi,:ti,:td,:lt,:pid,DATE('now'),DATE('now')+DATE('%d minutes'))",
+				" (proj_id,task_id,"
+//				" process_cid, "		/// fixme once database rebuilt
+				"task_desc,lease_type,start,expiry)"
+				" VALUES (:pi,:ti,"
+//				" :pid, "
+				":td,:lt,DATE('now'),DATE('now')+DATE('%d minutes'))",
 				length_minutes );
 	q->setSQL( tmp );
 	q->setParam( "pi" , proj_id );
 	q->setParam( "ti" , task_id );
 	q->setParam( "td" , task_descript );
-	q->setParam( "pid" , LCDbAuditTrail::getCurrent().getProcessID() );
+//	q->setParam( "pid" , LCDbAuditTrail::getCurrent().getProcessID() );
 	q->setParam( "lt" , lease_type );
 	TDateTime tnow = TDateTime::CurrentDateTime();
 	if( !landlord->query_exec() )

@@ -20,9 +20,9 @@ class TankEngine
 	public:
 		static TankEngine *Initialize();
 		static const bool isTankEngine( void ){return instance!= 0; }
-		const bool buildData( TQuery * dbase );
+		const bool buildData( LQuery  dbase );
 		const bool rebuildTankData( void );
-		const bool addBoxEntry(	const TankSectionRackSlot & tsrs,const String & boxName );
+		const bool addBoxEntry(	const TankSectionRackSlot & tsrs,const std::string & boxName );
 
 		const bool isDataBuilt(void) const;
 
@@ -39,9 +39,9 @@ class TankEngine
 		const bool storeTSRS (  const TankSectionRackSlot& pTsrs  );
 
 		const bool setLocation( const int pLocation );
-		const bool setTankExt ( const String & pTankCID  );
+		const bool setTankExt ( const std::string & pTankCID  );
 //		const bool setFillOrder( const int pFillOrder );
-		const bool setFillOrderAndSection ( const int pFillOrder,const String & pSection );
+		const bool setFillOrderAndSection ( const int pFillOrder,const std::string & pSection );
 //		const bool setSection ( const String & pSection );
 		const bool setRack    ( const int pRack );
 		const bool setSlot    ( const int pSlot );
@@ -54,7 +54,7 @@ class TankEngine
 //==============================================================
 //		int getTankSize( void ){return gCurrTankSize;}
 		const int getTankExt( const int pTankCID );
-		const int getFillOrder(  const int pRackLayoutCID, const String & pSection, int pRack );
+		const int getFillOrder(  const int pRackLayoutCID, const std::string & pSection, int pRack );
 //==============================================================
 //
 //==============================================================
@@ -63,10 +63,10 @@ class TankEngine
 
 		const int getMinTank(void);
 		const int getMaxTank(void);
-		const bool getSectionCount( const String& pTankName);
+		const bool getSectionCount( const std::string& pTankName);
 //		const bool getRackCount( const String& pTankName, const String& pSectionName );
-		const bool getRackCount(const String& pTankName,const int pFillOrder );
-		const bool getSlotContent( const String& pTankName, const String& pSectionName, const String& pRackName );
+		const bool getRackCount(const std::string& pTankName,const int pFillOrder );
+		const bool getSlotContent( const std::string& pTankName, const std::string& pSectionName, const std::string& pRackName );
 
 		CitrTankInfoMap getTankInfoBegin(void);
 		CitrTankInfoMap getTankInfoEnd(void);
@@ -79,8 +79,8 @@ class TankEngine
 		CitrSlotPositionsMap getSlotPositionsBegin(void);
 		CitrSlotPositionsMap getSlotPositionsEnd(void);
 
-		CitrTankInfoMap getTankInfoExt(const String& pTankName);
-		const int getRackLayoutID(const String &pTankName);
+		CitrTankInfoMap getTankInfoExt(const std::string& pTankName);
+		const int getRackLayoutID(const std::string &pTankName);
 		const bool isTankInfoEnd(const CitrTankInfoMap ti );
 
 		const bool isInUse(const TankSectionRackSlot & tsrs ) ;
@@ -89,6 +89,14 @@ class TankEngine
 		const bool findNextSlot(  TankSectionRackSlot & tsrs);
 		const bool checkConfirmSlot ( const TankSectionRackSlot&  pTsrs );
 		const bool CheckConfirmEndOfTank(const TankSectionRackSlot&  pTsrs);
+
+//==============================================================
+//		General functions which can be used by users of tank engine.
+//==============================================================
+		int toPosIntDef( const std::string & sVal,int def );
+		int toIntDef( const std::string & sVal,int def );
+		double toPosDoubleDef( const std::string & sVal,double def);
+
 	protected:
 		TankEngine();
 	private:
@@ -145,14 +153,15 @@ class TankEngine
 		const bool rawStoreTSRS(const TankSectionRackSlot& tsrs );
 
 		void countRack(const int rackLayout,int& sectionCount, int & rackCount,int& rackCapacity);
-		const int  getRackSize(const String & pTankName, const String & pSectionName
-								, const String & pRackName, int & pFillOrder);
+		const int  getRackSize(const std::string & pTankName, const std::string & pSectionName
+								, const std::string & pRackName, int & pFillOrder);
 
 //		const bool incSection(const String & pSection, String & pNextSection,const int pTankCID );
 		const bool incSection(	const int pFillOrder,const int pTankCID
-								, int & pNextFillOrder,String & pNextSection
+								, int & pNextFillOrder,std::string & pNextSection
 								,int & pFirstRack );
-
+	  	const char * TrimZeroC( const char * leadZeroStr );
+		int charToIntDef( const char * in , int def, bool sign) ;
 
 
 };

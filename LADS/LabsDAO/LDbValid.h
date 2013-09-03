@@ -10,7 +10,10 @@ class LDbValid
 {
 	TDateTime start, end;
 
+	static TDateTime checkDate( TDateTime ts );
+
 protected:
+
 	short status;
 
 	LDbValid();

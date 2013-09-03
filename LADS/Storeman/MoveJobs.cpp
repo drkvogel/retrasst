@@ -37,8 +37,8 @@ void __fastcall TfrmSelectJob::FormShow( TObject *Sender ) {
 //---------------------------------------------------------------------------
 
 void TfrmSelectJob::initRetrieval( int projectCID ) {
-	LCDbCryoJobs &jobs = LCDbCryoJobs::records( );
-	jobs.read( LCDbCryoJob::UNKNOWN, false );
+	LCDbCryoJobs &jobs = LCDbCryoJobs::records();
+	jobs.read( LIMSDatabase::getCentralDb(), LCDbCryoJob::UNKNOWN, false );
 	int row = grdJobs->FixedRows;
 	for( Range< LCDbCryoJob > jr = jobs; jr.isValid( ); ++jr ) {
 		if( jr->isAvailable() && jr->getProjectID() == projectCID
@@ -57,8 +57,8 @@ void TfrmSelectJob::initRetrieval( int projectCID ) {
 //---------------------------------------------------------------------------
 
 void TfrmSelectJob::initMoveJobs() {
-	LCDbCryoJobs &jobs = LCDbCryoJobs::records( );
-	jobs.read( LCDbCryoJob::BOX_MOVE, false );
+	LCDbCryoJobs &jobs = LCDbCryoJobs::records();
+	jobs.read( LIMSDatabase::getCentralDb(), LCDbCryoJob::BOX_MOVE, false );
 	int row = grdJobs->FixedRows;
 	for( Range< LCDbCryoJob > jr = jobs; jr.isValid( ); ++jr ) {
 		if( jr->isAvailable() && jr -> getStatus() < LCDbCryoJob::DONE ) {

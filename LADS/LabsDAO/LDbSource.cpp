@@ -605,9 +605,9 @@ int LPDbSources::setStatus( LQuery pQuery, const std::set< int > & samples, LPDb
 		return 0;
 
 	std::auto_ptr< TStrings > idList( new TStringList );
-	for( std::set< int >::const_iterator ci = samples.begin(); ci != samples.end(); ci ++ )
+	for( std::set< int >::const_iterator ci = samples.begin(); ci != samples.end(); ci ++ ) {
 		idList -> Add( *ci );
-
+    }
 	std::string ids = AnsiString( idList -> CommaText ).c_str();
 	pQuery.setSQL( "Update Specimen set status = :sts where sample_id in (" + ids + ")" );
 	pQuery.setParam( "sts", LPDbSource::makeStatus( stage ) );

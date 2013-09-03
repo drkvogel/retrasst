@@ -56,7 +56,7 @@ void SgController::blankRow( void )
         }
     }
 
-    sg->Refresh();
+	sg->Refresh();
 }
 void SgController::highlightRow( int highRow )
 {
@@ -66,7 +66,7 @@ void SgController::highlightRow( int highRow )
        }
        refresh();
 }
-void SgController::highlightRowByTitle(int highRow,const String & dataSetTitle )
+void SgController::highlightRowByTitle(int highRow,const std::string & dataSetTitle )
 {
 
 }
@@ -195,7 +195,7 @@ int SgController::calcAge(const TDateTime earliest, const TDateTime latest )
      int b;
      a= (int) earliest;
      b= (int) latest;
-     return  ( b - a );
+	 return  ( b - a );
 }
 void SgController::heading( void )
 {
@@ -203,20 +203,20 @@ void SgController::heading( void )
         {
 
                 sg->ColWidths[i]=columnDisplayOrder[i].fieldPixelWidth;
-                sg->Cells[i][0]=columnDisplayOrder[i].title;
+				sg->Cells[i][0]=columnDisplayOrder[i].title;
 
         }
 
 }
 
 
-void SgController::getCell(const int col,const int row,String & pValue)
+void SgController::getCell(const int col,const int row,std::string & pValue)
 {
         if( row != -1 )
         {
-                pValue=sg->Cells[col][row];
+				pValue=bcsToStd(sg->Cells[col][row]);
         }else
-        {
+		{
                 pValue="";
         }
 }
@@ -224,8 +224,8 @@ void SgController::getCell(const int col,const int row,String & pValue)
 bool SgController::getCellAsInt(const int col,const int row, int& pValue )
 {
         if( row >= 0 )
-        {
-                pValue=atoi(sg->Cells[col][row].c_str());
+		{
+                pValue=sg->Cells[col][row].ToIntDef(-1);
                 return false;
         }else if ( row == -2 )
         {
@@ -234,17 +234,17 @@ bool SgController::getCellAsInt(const int col,const int row, int& pValue )
                 return false;
         }else
         {
-                pValue=0;
+				pValue=0;
                 return true;
         }
 
 }
 
-void SgController::setCell(const int col,const int row, const String & pValue )
+void SgController::setCell(const int col,const int row, const std::string & pValue )
 {
         if( row != -1 )
         {
-                sg->Cells[col][row]=pValue;
+				sg->Cells[col][row]=String(pValue.c_str());
         }else
         {
                 sg->Cells[col][row]="";
@@ -252,9 +252,9 @@ void SgController::setCell(const int col,const int row, const String & pValue )
 
 }
 
-void SgController::getCurrentCell(const int col, String & pValue )
+void SgController::getCurrentCell(const int col, std::string & pValue )
 {
-        pValue=sg->Cells[col][sg->Row];
+		pValue=bcsToStd(sg->Cells[col][sg->Row]);
 }
 int  SgController::getHighLightedRow( void )
 {

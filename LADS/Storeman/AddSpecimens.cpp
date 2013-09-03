@@ -46,11 +46,6 @@ static const short barcode_column = 0, received_column = 1, value_columns = 2;
 
 bool TfrmAddSpecimens::init( TStrings * barcodes )
 {
-	LQuery pQuery( Util::projectQuery() );
-	LPDbDescriptors::records().read( pQuery, false );
-	LPDbProfiles::records().read( pQuery, false );
-	LPDbProfileMaps::records().read( pQuery, false );
-
 	sgSpecimens -> Cells[ barcode_column ][ 0 ] = "barcode";
 	sgSpecimens -> Cells[ received_column ][ 0 ] = "first received";
 	sgSpecimens -> ColWidths[ received_column ] = 120;

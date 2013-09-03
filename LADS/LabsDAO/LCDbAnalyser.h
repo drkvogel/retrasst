@@ -42,7 +42,7 @@ public:
 
 //---------------------------------------------------------------------------
 
-class LCDbAnalysers : public LDbCache< LCDbAnalyser >, public LDbSingleton< LCDbAnalysers >
+class LCDbAnalysers : public LDbCache< LCDbAnalyser >, public LCDbSingleton< LCDbAnalysers >
 {
 	int currentID;
 
@@ -57,7 +57,7 @@ public:
 	std::set< int > getMachineIDs( int buddyID = 0 ) const;
 	std::set< int > getAnalyserIDs( int machineID = 0 ) const;
 
-	bool read( LQuery central, bool readAll );
+	bool read( LQuery central, bool readAll = false );
 	const LCDbAnalyser * findByName( const std::string & name ) const
 	{
 		return findMatch( LDbNames::LCMatcher( name ) );

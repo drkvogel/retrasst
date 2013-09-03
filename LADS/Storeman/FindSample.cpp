@@ -133,7 +133,7 @@ void __fastcall TfrmFind::BitBtn1Click(TObject *Sender)
 //---------------------------------------------------------------------------
 
 bool TfrmFind::findBox() {
-	StoreDAO & dao = StoreDAO::records();
+	StoreDAO dao ;
 	int projID = LCDbProjects::getCurrentID();
 	AnsiString barcode = txtName->Text, type = cbType->Text;
 	int boxID = barcode.ToIntDef( 0 );
@@ -178,7 +178,7 @@ bool TfrmFind::findCryovial() {
 	if( cryovial == NULL ) {
 		return false;
 	}
-	StoreDAO & dao = StoreDAO::records();
+	StoreDAO dao ;
 	dao.loadBoxDetails( cryovial->getBoxID(), LCDbProjects::getCurrentID(), boxDetails );
 	return boxDetails.isInt( "box_cid" );
 }

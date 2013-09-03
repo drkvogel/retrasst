@@ -51,11 +51,11 @@ public:
 
 //---------------------------------------------------------------------------
 
-class LCDbObjects : public LDbCache< LCDbObject >, public LDbSingleton< LCDbObjects >
+class LCDbObjects : public LDbCache< LCDbObject >, public LCDbSingleton< LCDbObjects >
 {
-//	class Matcher;
+
 public:
-	bool read( LQuery central, bool readAll );
+	bool read( LQuery central, bool readAll = false );
 	const LCDbObject * findByName( const std::string & name ) const;
 	const LCDbObject * find( const std::string & name, LCDbObject::Category type ) const;
 };

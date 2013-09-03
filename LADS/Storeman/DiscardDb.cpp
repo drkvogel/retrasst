@@ -1196,8 +1196,7 @@ int
 Db::allocCids( const size_t count ) const
 {
     LCDbID myLCDbID;
-    myLCDbID.claimNextID(*m_cq, count);
-    return myLCDbID.getID();
+	return myLCDbID.claimNextID(*m_cq);
 }
 
 bool

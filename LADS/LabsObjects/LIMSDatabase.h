@@ -50,9 +50,9 @@ private:
 
 	static DbSystem current;
 
-	DbSystem dbs;
 	XDB * xdb;
 	std::string name;
+	DbSystem dbs;
 
 	static std::string getRootName( const std::string & dbName );
 	static std::string getPrefix( DbSystem system );

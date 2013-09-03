@@ -49,12 +49,10 @@ public:
 
 //---------------------------------------------------------------------------
 
-class LCDbSectionDefs : public LDbCache< LCDbSectionDef >, public LDbSingleton< LCDbSectionDefs >
+class LCDbSectionDefs : public LDbCache< LCDbSectionDef >, public LCDbSingleton< LCDbSectionDefs >
 {
-
 public:
-
-	bool read( LQuery central, bool readAll );
+	bool read( LQuery central, bool readAll = true );
 	const LCDbSectionDef * find( int tankLayout, const std::string & name ) const;
 };
 

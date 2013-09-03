@@ -18,6 +18,7 @@
 #include "xerror.h"
 #include "xexec.h"
 #include "LCDbProject.h"
+#include "LDbCacheBase.h"
 
 #pragma package(smart_init)
 
@@ -212,3 +213,4 @@ void LIMSDatabase::confirm( bool success ) {
 }
 
 //---------------------------------------------------------------------------
+

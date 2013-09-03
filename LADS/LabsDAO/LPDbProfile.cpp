@@ -51,7 +51,7 @@ LPDbProfile::LPDbProfile( const LQuery & pQuery )
 //---------------------------------------------------------------------------
 
 LPDbProfile::BoxType::BoxType( const LQuery & pQuery )
- : LDbIdBase( pQuery.readInt( "box_type_cid" ) ),
+ : LPDbID( pQuery.readInt( "box_type_cid" ) ),
    position( pQuery.readInt( "box_order" ) ),
    LDbValid( pQuery.readDateTime( "valid_from" ),
 			 pQuery.readDateTime( "valid_to" ),
@@ -127,7 +127,8 @@ bool LPDbProfiles::read( LQuery pQuery, bool readAll )
 //---------------------------------------------------------------------------
 
 LPDbProfile::TestLimits::TestLimits( const LQuery & pQuery )
- : LDbTestLimits( pQuery.readInt( "test_cid" ),
+ : LPDbID( pQuery.readInt( "record_id" ) ),
+   LDbTestLimits( pQuery.readInt( "test_cid" ),
 				  pQuery.readInt( "machine_cid" ) )
 {
 	if( pQuery.fieldExists( "valid_from" ) && pQuery.fieldExists( "valid_to" ) )

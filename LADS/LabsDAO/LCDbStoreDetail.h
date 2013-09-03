@@ -47,13 +47,13 @@ public:
 };
 //---------------------------------------------------------------------------
 
-class LCDbStorageDetails : public LDbCache< LCDbStorageDetail >, public LDbSingleton< LCDbStorageDetails >
+class LCDbStorageDetails : public LDbCache< LCDbStorageDetail >, public LCDbSingleton< LCDbStorageDetails >
 {
 	class Matcher;
 
 public:
 
-	bool read( LQuery central, bool readAll );
+	bool read( LQuery central, bool readAll = true );
 	const LCDbStorageDetail * find( const std::string & serial ) const;
 };
 

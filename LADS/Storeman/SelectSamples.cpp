@@ -71,7 +71,7 @@ void __fastcall TfrmSelectBoxes::btnAddBoxClick(TObject *Sender)
 
 bool TfrmSelectBoxes::addBox() {
 	ROSETTA boxDetails;
-	StoreDAO & dao = StoreDAO::records();
+	StoreDAO dao ;
 	int projID = LCDbProjects::getCurrentID();
 	AnsiString type =  cbType->Text;
 	int boxID = txtName->Text.ToIntDef( 0 );

@@ -70,7 +70,7 @@ void __fastcall TfrmRetrieveMain::AddClick(TObject *Sender)
 	int aid = 0;		/// FIXME - primary or secondary
 
 	std::vector< ROSETTA > results;
-	StoreDAO & dao = StoreDAO::records();
+	StoreDAO dao;
 	Screen->Cursor = crSQLWait;
 	progress -> Position = 0;
 	progress -> Max = idList->Count;

@@ -50,15 +50,13 @@ public:
 
 //---------------------------------------------------------------------------
 
-class LCDbTankMaps : public LDbCache< LCDbTankMap >, public LDbSingleton< LCDbTankMaps >
+class LCDbTankMaps : public LDbCache< LCDbTankMap >, public LCDbSingleton< LCDbTankMaps >
 {
 	class Matcher;
 
 public:
-
-//	bool readCurrent( LQuery query );
-	bool read( LQuery central, bool readAll );
-	const LCDbTankMap * find( int pTankCID, int pStorageCID = 0 ) const;
+	bool read( LQuery central, bool readAll = false );
+	const LCDbTankMap * findCurrent( int pTankCID ) const;
 };
 
 //---------------------------------------------------------------------------

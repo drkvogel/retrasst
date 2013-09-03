@@ -50,12 +50,11 @@ __published:	// IDE-managed Components
 	void __fastcall BtnAnalyseClick(TObject *Sender);
 	void __fastcall btnMoveClick(TObject *Sender);
 	void __fastcall BtnReferredClick(TObject *Sender);
-	void __fastcall FormHide(TObject *Sender);
     void __fastcall BtnRetrieveClick(TObject *Sender);
 
 private:	// User declarations
 
-	enum { STOPPED, STARTING, PAUSED, TRANSFERS, JOBCOUNTS, FINISHED } updateStatus;
+	enum { STOPPED, TRANSFERS, JOBCOUNTS, FINISHED } updateStatus;
 
 	unsigned boxesReady, moveJobs, retrievals, discards;
 
@@ -63,7 +62,6 @@ private:	// User declarations
 	bool switchProject();
 	void resetCounts();
 	void updateCounts();
-	void readProjectData();
 	void countBoxes();
 	void countJobs();
 	void showCounts();
@@ -71,7 +69,6 @@ private:	// User declarations
 public:		// User declarations
 
 	__fastcall TfrmStoremain(TComponent* Owner);
-	void init();
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TfrmStoremain *frmStoremain;

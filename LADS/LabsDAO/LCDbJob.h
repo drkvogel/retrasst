@@ -79,10 +79,9 @@ public:
 
 //---------------------------------------------------------------------------
 
-class LCDbCryoJobs : public LDbCache< LCDbCryoJob >, public LDbSingleton< LCDbCryoJobs >
+class LCDbCryoJobs : public LDbCache< LCDbCryoJob >, public LCDbSingleton< LCDbCryoJobs >
 {
 	int currentID;
-	LQuery cq;
 	TTimer *renew;
 
 	void __fastcall Renewal(TObject *);
@@ -97,7 +96,7 @@ public:
 	void setCurrent( const LCDbCryoJob & job ) { currentID = job.getID(); }
 
 	const LCDbCryoJob * readRecord( LQuery cQuery, int sid );
-	bool read( LCDbCryoJob::JobKind type, bool all );
+	bool read( LQuery cQuery, LCDbCryoJob::JobKind type = LCDbCryoJob::UNKNOWN, bool all = false );
 
 	const LCDbCryoJob * findByName( const std::string & name ) const {
 		return findMatch( LDbNames::LCMatcher( name ) );

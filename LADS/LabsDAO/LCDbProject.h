@@ -51,14 +51,11 @@ public:
 	void setVersionString( const std::string & sVer );
 	std::pair< short, short > getVersion() const { return version; }
 	std::string getVersionString() const;
-
-//	void claim( TDatabase* dbCentral, TDatabase* dbProj ) const;
-//	void release() const;
 };
 
 //---------------------------------------------------------------------------
 
-class LCDbProjects : public LDbCache< LCDbProject >, public LDbSingleton< LCDbProjects >
+class LCDbProjects : public LDbCache< LCDbProject >, public LCDbSingleton< LCDbProjects >
 {
 	TLeaseManager * leaseManager;
 	int currentID;
@@ -71,34 +68,12 @@ public:
 	 : leaseManager( NULL ), currentID( LCDbProject::NONE_SELECTED )
 	{}
 
-	bool read( LQuery central, bool readAll );
+	bool read( LQuery central, bool readAll = true );
 	const LCDbProject * findByName( const std::string & nameOrDB ) const;
 
 	static int getCurrentID() { return records().currentID; }
 	void setCurrent( const LCDbProject & proj );
 	void clearCurrentID() { currentID = LCDbProject::NONE_SELECTED; }
-
-//	std::string claimLease( TDatabase* dbCentral, int projID );
-//	void endLease( int projID );
-//	void releaseDatabases();
-};
-
-//---------------------------------------------------------------------------
-
-template< typename Values > struct LPDbCacheMap : LDbCacheMap< LCDbProjects, Values >
-{
-	static void initialise( bool readAll ) {
-		LCDbProjects & projects = LCDbProjects::records();
-		for( Range< LCDbProject > p = projects; p.isValid(); ++ p ) {
-			if( project.isValid() && !project.isCentral() ) {
-				if( readAll || p -> isActive() ) {
-					projects.setCurrent( *p );
-					LQuery pQuery = LIMSDatabase::getProjectDb( p->getDbName() );
-					LDbCacheMap::records( p->getID() ).read( pQuery, readAll );
-                }
-			}
-		}
-	}
 };
 
 //---------------------------------------------------------------------------

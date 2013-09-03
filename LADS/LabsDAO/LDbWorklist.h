@@ -113,7 +113,7 @@ public:
 
 //---------------------------------------------------------------------------
 
-class LBDbWorkList : public LDbCacheMap< LCDbAnalysers, LBDbWorkList >
+class LBDbWorkList : public LCDbSingleton< LBDbWorkList >
 {
 	std::multimap< String, LBDbWorkEntry > cache;
 

@@ -3,6 +3,7 @@
 #ifndef LDbIdClassesH
 #define LDbIdClassesH
 
+#include <string>
 #include "LQuery.h"
 
 //---------------------------------------------------------------------------
@@ -18,91 +19,41 @@ protected:
 	LDbIdBase( int key ) : id( key ), saved( key != 0 )
 	{}
 
-public:
+	int readID( LQuery & query, std::string sequence );
 
-	bool exists() const { return saved; }
+public:
 
 	int getID() const { return id; }
 	void setID( int key );
+	bool exists() const { return saved; }
 
 	bool operator<( int otherID ) const { return id < otherID; }
-	friend bool operator<( int id, const LDbIdBase & other ) { return id < other.id; }
+	friend bool operator<( int pID, const LDbIdBase & other ) { return pID < other.id; }
 	bool operator<( const LDbIdBase & other ) const { return id < other.id; }
 };
 
 //---------------------------------------------------------------------------
 
-class LDbNextID
+struct LCDbID : public LDbIdBase
 {
-	static int dbChanges;
-
-	int nextId, remaining, changeStamp;
-
-public:
-
-	static void clearAll();
-
-	LDbNextID();
-	void setBlock( int first, int available );
-	int getBlock( int size );
-
+	LCDbID( int id = 0 ) : LDbIdBase( id ) {}
+	int claimNextID( LQuery & query );
 };
 
 //---------------------------------------------------------------------------
 
-class LDbAlloc : public LDbIdBase
+struct LPDbID : public LDbIdBase
 {
-	virtual int readIDs( LQuery & query ) = 0;
-	virtual LDbNextID & getCache() const = 0;
-	void waitForIDs( LQuery & query, int required );
-
-protected:
-
-	LDbAlloc( int id ) : LDbIdBase( id )
-	{}
-
-public:
-
-	int claimNextID( LQuery & query, int block = 1 );
+	LPDbID( int id = 0 ) : LDbIdBase( id ) {}
+	int claimNextID( LQuery & query );
 };
 
 //---------------------------------------------------------------------------
 
-class LCDbID : public LDbAlloc
+struct LBDbID : public LDbIdBase
 {
-	LDbNextID & getCache() const;
-	int readIDs( LQuery & query );
-
-public:
-
-	LCDbID( int id = 0 ) : LDbAlloc( id )
-	{}
-};
-
-//---------------------------------------------------------------------------
-
-class LPDbID : public LDbAlloc
-{
-	LDbNextID & getCache() const;
-	int readIDs( LQuery & query );
-
-public:
-
-	LPDbID( int id = 0 ) : LDbAlloc( id )
-	{}
-};
-
-//---------------------------------------------------------------------------
-
-class LBDbID : public LDbAlloc
-{
-	LDbNextID & getCache() const;
-	int readIDs( LQuery & query );
-
-public:
-
-	LBDbID( int id = 0 ) : LDbAlloc( id )
-	{}
+	LBDbID( int id = 0 ) : LDbIdBase( id ) {}
+	int claimNextID( LQuery & query );
 };
 
 //---------------------------------------------------------------------------
