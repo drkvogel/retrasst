@@ -61,6 +61,7 @@ protected:
 public:
     __fastcall LoadVialsWorkerThread();
     int             rowCount;       // current rows loaded, for thread sync
+    string          loadingMessage;
     void __fastcall updateStatus(); // syncronized method can't have args (?) - was going to use (int numerator, int denominator)
 };
 

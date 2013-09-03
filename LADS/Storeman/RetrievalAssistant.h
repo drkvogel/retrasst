@@ -161,9 +161,9 @@ public:
     string              cryovial_barcode;
     string              aliquot_type_name;
     string              box_name;
-    string              dest_box_id;
+    int                 dest_box_id;
     string              dest_box_name;
-    string              dest_box_pos;
+    int                 dest_box_pos;
     string              site_name;
     int                 position;
     string              vessel_name;

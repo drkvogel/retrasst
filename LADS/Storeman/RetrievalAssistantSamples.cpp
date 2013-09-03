@@ -13,16 +13,19 @@ __fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
 }
 
 void __fastcall LoadVialsWorkerThread::updateStatus() {
-    ostringstream oss; oss<<frmSamples->loadingMessage<<"\n"<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
-    frmSamples->panelLoading->Caption = oss.str().c_str();
+    //ostringstream oss; oss<<frmSamples->loadingMessage<<"\n"<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
+    //frmSamples->panelLoading->Caption = oss.str().c_str();
+    frmSamples->panelLoading->Caption = loadingMessage.c_str(); //oss.str().c_str();
     frmSamples->panelLoading->Repaint();
 }
 
 void __fastcall LoadVialsWorkerThread::Execute() {
     delete_referenced<vecpSampleRow>(frmSamples->vials);
+    ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
+    loadingMessage = oss.str().c_str();
+    rowCount = 0;
     {
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true));
-    //LQuery qc(LIMSDatabase::getCentralDb());
     qd.setSQL(
         "SELECT"
         "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
@@ -61,9 +64,11 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         box_name n2 on n2.box_cid = s2.box_cid
     where
         s1.retrieval_cid = :jobID*/
-
+    loadingMessage = frmSamples->loadingMessage; // base
     qd.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
     while (!qd.eof()) {
+        ostringstream oss; oss<<"Found "<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
+        loadingMessage = oss.str().c_str();
         if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
             // can't use args for synced method, don't know why
         LPDbCryovialStore * vial = new LPDbCryovialStore(qd);
@@ -87,7 +92,13 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     // look for destination boxes, can't left join in ddb, so do project query per row
     // may be v time-consuming - could do outer join instead and check sequence for gaps
     //for (vecpSampleRow::const_iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
+
+    int rowCount2 = 0;
     for (vecpSampleRow::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
+        ostringstream oss; oss<<"Finding destinations: "<<rowCount2<<"/"<<rowCount;
+        loadingMessage = oss.str().c_str();
+        if (0 == rowCount2 % 10) Synchronize((TThreadMethod)&updateStatus);
+
         pSampleRow sampleRow = (pSampleRow)*it;
         //look in the right database!
         LQuery qp(Util::projectQuery(frmSamples->job->getProjectID(), false)); // project db
@@ -108,10 +119,18 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         qp.setParam("jobID", frmSamples->job->getID());
         qp.setParam("vial",  sampleRow->store_record->getID());
         //LPDbCryovialStore * vial = sampleRow->store_record;
+
         try {
-            sampleRow->dest_box_id      = qp.readInt("boxid");
-            sampleRow->dest_box_name    = qp.readString("boxname");
-            sampleRow->dest_box_pos     = qp.readInt("pos");
+            if (qp.open()) {
+                sampleRow->dest_box_id      = qp.readInt("boxid");
+                sampleRow->dest_box_name    = qp.readString("boxname");
+                sampleRow->dest_box_pos     = qp.readInt("pos");
+            } else {
+                sampleRow->dest_box_id      = 0;
+                sampleRow->dest_box_name    = "";
+                sampleRow->dest_box_pos     = 0;
+            }
+
         } catch(Exception & e) {
             //msgbox(String(e.Message.c_str()).c_str());
             String msg = e.Message;
@@ -119,38 +138,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             msgbox("error");
 
         }
-/*
-SELECT * FROM
-    cryovial_store s1, cryovial c, box_name n1, cryovial_store s2, box_name n2
-WHERE
-    c.cryovial_id = s1.cryovial_id
-AND
-    n1.box_cid = s1.box_cid
-AND
-    s1.cryovial_id = s2.cryovial_id
-AND
-    s2.status = 0 // ALLOCATED
-AND
-    n2.box_cid = s2.box_cid
-AND
-    s1.retrieval_cid = :jobID
-AND
-    s1.cryovial_id = :crid // e.g. 1137824
----
-    cryovial_store s1
-LEFT JOIN
-    cryovial c ON c.cryovial_id=s1.cryovial_id
-LEFT JOIN
-    box_name n1 ON  n1.box_cid=s1.box_cid
-LEFT JOIN
-    cryovial_store s2 ON s1.cryovial_id=s2.cryovial_id AND
-    s2.status=0 // ALLOCATED
-LEFT JOIN
-    box_name n2 ON n2.box_cid = s2.box_cid
-where
-        s1.retrieval_cid = :jobID
-        q.setParam("jobID", frmSamples->job->getID());
-*/
+        rowCount2++;
     }
 }
 
