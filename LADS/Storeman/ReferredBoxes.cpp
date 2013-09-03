@@ -557,7 +557,7 @@ void __fastcall FindMatchesWorkerThread::Execute() {
     } else {
         while (!qc.eof()) {
             std::stringstream ss;
-            ss << bcsToStd(qc.readDateTime("event_date").DateTimeString()) << ": " <<
+            ss << qc.readDateTime("event_date").DateTimeString().c_str() << ": " <<
             LCDbObjects::records().get(qc.readInt("event_cid")).getName().c_str();
             frmReferred->comboEventHistory->Items->Add(ss.str().c_str());
             qc.next();
@@ -749,7 +749,7 @@ void __fastcall FindStorageWorkerThread::Execute() {
     } else {
         while (!qp.eof()) {
             std::stringstream ss;
-            ss << bcsToStd(qp.readDateTime("event_date").DateTimeString()) << ": " <<
+			ss << qp.readDateTime("event_date").DateTimeString().c_str() << ": " <<
             LCDbObjects::records().get(qp.readInt("event_cid")).getName();
             frmReferred->comboEventHistory->Items->Add(ss.str().c_str());
             qp.next();
@@ -890,19 +890,20 @@ void TfrmReferred::okOrDiscard(int status) {
     debugLog(referredBox->str().c_str());
     debugLog("selectedMatch->str():");
     debugLog(selectedMatch->str().c_str());
-    editedBox.box_name      = bcsToStd(editBoxName->Text);
-    editedBox.status        = status;
-    editedBox.first_position= editFirstPos->Text.ToInt();;
-    editedBox.last_position = editLastPos->Text.ToInt();
-    editedBox.first_barcode = bcsToStd(editFirstID->Text);
-    editedBox.last_barcode  = bcsToStd(editLastID->Text);
+	editedBox.box_name      = AnsiString(editBoxName->Text).c_str();
+	editedBox.status        = status;
+	editedBox.first_position= editFirstPos->Text.ToInt();;
+	editedBox.last_position = editLastPos->Text.ToInt();
+	editedBox.first_barcode = AnsiString(editFirstID->Text).c_str();
+	editedBox.last_barcode  = AnsiString(editLastID->Text).c_str();
     if (0 <= comboTank->ItemIndex) {
         editedBox.tank_cid = (int)comboTank->Items->Objects[comboTank->ItemIndex];
     } else {
         errors.push_back("Vessel not selected");
     }
-    if (0 <= comboRack->ItemIndex) {
-        editedBox.rack_name = bcsToStd(comboRack->Items->Strings[comboRack->ItemIndex]); // comboRack shouldn't be relied to have correct name?
+	if (0 <= comboRack->ItemIndex) {
+		AnsiString rack = comboRack->Items->Strings[comboRack->ItemIndex];
+		editedBox.rack_name = rack.c_str(); // comboRack shouldn't be relied to have correct name?
         LCDbRack rackData("", editedBox.tank_cid, editedBox.rack_name);
         if (!rackData.findRack(qc)) {
             ostringstream oss;
@@ -992,7 +993,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
                     out <<"Position is in use.\n\nbox_cid '"<<qi.readInt("box_cid")<<"' is in "//<<endl
                         <<"structure '"<<box.rack_name<<"' ["<<box.rack_cid<<"], "//<<endl
                         <<"slot "<<box.slot_position//<<endl
-                        <<" since "<<bcsToStd(qi.readDateTime("time_stamp").DateTimeString());
+						<<" since "<<qi.readDateTime("time_stamp").DateTimeString().c_str();
                     frmReferred->errors.push_back(out.str());
                     return; // abort
                 case LCDbBoxStore::EXPECTED:
@@ -1010,7 +1011,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
                 out <<"Box "<<qi.readInt("box_cid")<<" is already marked as stored in "//<<endl
                     <<"structure '"<<box.rack_name<<"' ["<<box.rack_cid<<"], "//<<endl
                     <<"slot "<<box.slot_position//<<endl
-                    <<" since "<<bcsToStd(qi.readDateTime("time_stamp").DateTimeString())<<endl;
+                    <<" since "<<qi.readDateTime("time_stamp").DateTimeString().c_str()<<endl;
                 frmReferred->warnings.push_back(out.str());
                 break;
             }
@@ -1104,10 +1105,10 @@ void TfrmReferred::findMatches(bool byBoxName) {
     Screen->Cursor = crSQLWait;
     string dbName, boxname;
     if (byBoxName) { // box name edited, search for it
-        boxname.assign(bcsToStd(editBoxName->Text));
+		boxname.assign(AnsiString(editBoxName->Text).c_str());
     }
     findMatchesWorkerThread = new FindMatchesWorkerThread(
-        referredBox->project_cid, boxname, bcsToStd(editFirstID->Text), bcsToStd(editLastID->Text));
+        referredBox->project_cid, boxname, AnsiString(editFirstID->Text).c_str(), AnsiString(editLastID->Text).c_str());
     findMatchesWorkerThread->OnTerminate = &findMatchesWorkerThreadTerminated;
 
     sgMatches->RowCount = 1; sgStorage->RowCount = 1;

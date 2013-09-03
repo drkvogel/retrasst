@@ -27,26 +27,38 @@ namespace paulst
 class LogWritingTask : public paulst::WorkerThreadTask
 {
 public:
-    LogWritingTask( Writer* w, const std::string& msg )
-        : m_writer(w), m_msg(msg)
-    {
-    }
+	LogWritingTask( Writer* w, const std::string& msg )
+		: m_writer(w), m_msg(msg)
+	{
+	}
 
-    bool execute()
-    {
-        if ( m_msg == "stop" )
-        {
-            return false;
-        }
-
-        m_writer->write( m_msg );
-        return true;
-    }
+	bool execute()
+	{
+		try
+		{
+			m_writer->write( m_msg );
+		}
+		catch( ... )
+		{
+		}
+		return true;
+	}
 
 private:
-    Writer* m_writer;
-    std::string m_msg;
+	Writer* m_writer;
+	std::string m_msg;
 };
+
+class StopThreadTask : public paulst::WorkerThreadTask
+{
+public:
+
+	bool execute()
+	{
+		return false;
+	}
+};
+
 
 LoggingService::LoggingService( Writer* w )
     :
@@ -56,11 +68,8 @@ LoggingService::LoggingService( Writer* w )
 
 LoggingService::~LoggingService()
 {
-    while ( hasPending() )
-    {
-        Sleep(40);
-    }
-
+	m_workerThread->queueTask( new StopThreadTask() );
+	m_workerThread->waitFor();
     delete m_writer;
 }
 

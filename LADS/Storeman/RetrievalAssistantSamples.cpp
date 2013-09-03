@@ -19,14 +19,11 @@ void __fastcall LoadVialsWorkerThread::updateStatus() {
 }
 
 void __fastcall LoadVialsWorkerThread::Execute() {
-/*    //"SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
-//    // no 'chunks' yet, we haven't created them!
-//    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
-//    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
-*/
     delete_referenced<vecpSampleRow>(frmSamples->vials);
-    LQuery q(Util::projectQuery(frmSamples->job->getProjectID(), true));
-    q.setSQL(
+    {
+    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true));
+    //LQuery qc(LIMSDatabase::getCentralDb());
+    qd.setSQL(
         "SELECT"
         "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
         "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
@@ -48,8 +45,9 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         "   s.object_cid = location_cid AND"
         "   v.object_cid = storage_cid AND"
         "   cs.retrieval_cid = :jobID");
-    q.setParam("jobID", frmSamples->job->getID());
+    qd.setParam("jobID", frmSamples->job->getID());
     /* -- may have destination box defined, could find with left join:
+    but left join on ddb not allowed in ingres
     from
          cryovial_store s1
     left join
@@ -64,28 +62,95 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     where
         s1.retrieval_cid = :jobID*/
 
-    //int count = 0;
-    //return;
-    q.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
-    while (!q.eof()) {
+    qd.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
+    while (!qd.eof()) {
         if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
             // can't use args for synced method, don't know why
-        LPDbCryovialStore * vial = new LPDbCryovialStore(q);
+        LPDbCryovialStore * vial = new LPDbCryovialStore(qd);
         pSampleRow  row = new SampleRow(
             vial,
-            q.readString("cryovial_barcode"),
-            q.readString("aliquot"),
-            q.readString("box"),
-            q.readString("site"),
-            q.readInt("position"),
-            q.readString("vessel"),
-            q.readInt("shelf_number"),
-            q.readString("rack"),
-            q.readInt("slot_position")
+            qd.readString("cryovial_barcode"),
+            qd.readString("aliquot"),
+            qd.readString("box"),
+            qd.readString("site"),
+            qd.readInt("position"),
+            qd.readString("vessel"),
+            qd.readInt("shelf_number"),
+            qd.readString("rack"),
+            qd.readInt("slot_position")
             );
         frmSamples->vials.push_back(row);
-        q.next();
+        qd.next();
         rowCount++;
+    }
+    }
+    // look for destination boxes, can't left join in ddb, so do project query per row
+    // may be v time-consuming - could do outer join instead and check sequence for gaps
+    //for (vecpSampleRow::const_iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
+    for (vecpSampleRow::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
+        pSampleRow sampleRow = (pSampleRow)*it;
+        //look in the right database!
+        LQuery qp(Util::projectQuery(frmSamples->job->getProjectID(), false)); // project db
+        qp.setSQL(
+            "SELECT"
+            "   n1.box_cid AS boxid, n1.external_name AS boxname, s2.cryovial_position AS pos"
+            " FROM"
+            "   cryovial_store s1, cryovial c, box_name n1, cryovial_store s2, box_name n2"
+            " WHERE"
+            "   c.cryovial_id = s1.cryovial_id"
+            " AND n1.box_cid = s1.box_cid"
+            " AND s1.cryovial_id = s2.cryovial_id"
+            " AND s2.status = 0"
+            " AND n2.box_cid = s2.box_cid"
+            " AND s1.retrieval_cid = :jobID"
+            " AND s1.cryovial_id = :vial" // e.g. 1137824 (t_ldb1)
+            );
+        qp.setParam("jobID", frmSamples->job->getID());
+        qp.setParam("vial",  sampleRow->store_record->getID());
+        //LPDbCryovialStore * vial = sampleRow->store_record;
+        try {
+            sampleRow->dest_box_id      = qp.readInt("boxid");
+            sampleRow->dest_box_name    = qp.readString("boxname");
+            sampleRow->dest_box_pos     = qp.readInt("pos");
+        } catch(Exception & e) {
+            //msgbox(String(e.Message.c_str()).c_str());
+            String msg = e.Message;
+        } catch(...) {
+            msgbox("error");
+
+        }
+/*
+SELECT * FROM
+    cryovial_store s1, cryovial c, box_name n1, cryovial_store s2, box_name n2
+WHERE
+    c.cryovial_id = s1.cryovial_id
+AND
+    n1.box_cid = s1.box_cid
+AND
+    s1.cryovial_id = s2.cryovial_id
+AND
+    s2.status = 0 // ALLOCATED
+AND
+    n2.box_cid = s2.box_cid
+AND
+    s1.retrieval_cid = :jobID
+AND
+    s1.cryovial_id = :crid // e.g. 1137824
+---
+    cryovial_store s1
+LEFT JOIN
+    cryovial c ON c.cryovial_id=s1.cryovial_id
+LEFT JOIN
+    box_name n1 ON  n1.box_cid=s1.box_cid
+LEFT JOIN
+    cryovial_store s2 ON s1.cryovial_id=s2.cryovial_id AND
+    s2.status=0 // ALLOCATED
+LEFT JOIN
+    box_name n2 ON n2.box_cid = s2.box_cid
+where
+        s1.retrieval_cid = :jobID
+        q.setParam("jobID", frmSamples->job->getID());
+*/
     }
 }
 
@@ -131,14 +196,6 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
-    // SampleRow's destructor now deletes store_record, so the following is not needed:
-    //for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) { delete (*it)->store_record; }
-// next not needed - objects pointed to by vials and by chunk->rows already deleted above
-//    for (vecpSampleChunk::const_iterator ch = chunks.begin(); ch != chunks.end(); ch++) {
-//        delete_referenced<vecpSampleRow>((*ch)->rows);
-//    }
-    // similarly, the vector of pointers should be deleted on destruct - or close of the form
-    // http://www.borlandtalk.com/whats-the-different-between-formclose-and-tform1--vt18757.html
     delete_referenced<vecpSampleRow>(frmSamples->vials);
     delete_referenced<vecpSampleChunk>(chunks);
 }
@@ -249,13 +306,11 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
-    ostringstream oss; oss << __FUNC__; oss << printColWidths(sgVials); // print column widths so we can copy them into the source
-    debugLog(oss.str().c_str());
+    ostringstream oss; oss << __FUNC__; oss << printColWidths(sgVials); debugLog(oss.str().c_str()); // print column widths so we can copy them into the source
     sortList(ACol);
 }
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
-    // ostringstream oss; oss << __FUNC__; oss << printColWidths(sgVials); debugLog(oss.str().c_str());
     SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     sample?debugLog(sample->str().c_str()):debugLog("NULL sample");
     job?debugLog(job->getName().c_str()):debugLog("NULL job");
@@ -395,43 +450,25 @@ void TfrmSamples::loadRows() {
     panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
-    Screen->Cursor = crSQLWait; // Screen-> // disable mouse?
+    Screen->Cursor = crSQLWait; // disable mouse?
     loadVialsWorkerThread = new LoadVialsWorkerThread();
     loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
 }
 
 SampleChunk * TfrmSamples::currentChunk() {
-    //if (NULL == chunk) { // default
     if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
-//    SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
-//    if (NULL == chunk) {// still null
-//        msgbox("null chunk"); // throw
-//        return NULL;
-//    }
-//    return chunk;
-    return (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
+    SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
+    if (NULL == chunk) {// still null
+        ostringstream oss; oss<<__FUNC__<<": Null chunk"; debugLog(oss.str().c_str());
+        throw Exception("null chunk"); // msgbox("null chunk");
+    }
+    return chunk;
+    //return (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
 }
 
 void TfrmSamples::showChunk(SampleChunk * chunk) {
-//    int row = sgChunks->Row;
-//    if (row < 1) {
-//        sgChunks->Row = 1; // force selection of 1st row
-//    }
-//    SampleChunk * chunk = (Chunk *)sgChunks->Objects[0][sgChunks->Row];
-//    if (NULL == chunk) {
-//        ostringstream oss; oss<<__FUNC__<<": Null chunk"; debugLog(oss.str().c_str());
-//        return;
-//    } else {
-//        showChunk(chunk);
-//    }
-
     if (NULL == chunk) { // default
         chunk = currentChunk();
-//        chunk = (Chunk *)sgChunks->Objects[0][sgChunks->Row];
-//        if (NULL == chunk) {// still null
-//            msgbox("null chunk"); // throw
-//            return;
-//        }
     }
     if (chunk->rows.size() <= 0) {
         clearSG(sgVials);
@@ -440,9 +477,7 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         sgVials->FixedRows = 1;
     }
     int row = 1;
-    //for (vecpDataRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++, row++) {
-    for (vecpSampleRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++, row++) {
-        /* SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box, string site, int pos, string vessel, int shelf, string rack, int slot) :  */
+    for (vecpSampleRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++, row++) { // vecpDataRow?
         pSampleRow sampleRow = (pSampleRow)*it;
         LPDbCryovialStore * vial = sampleRow->store_record;
         sgVials->Cells[SGVIALS_BARCODE] [row]    = sampleRow->cryovial_barcode.c_str();
@@ -481,7 +516,7 @@ void TfrmSamples::sortList(int col) {
     };
     //sorter[col].sort_toggle(vials);
     sorter[col].sort_toggle(currentChunk()->rows);
-    showChunk();
+    showChunk(currentChunk());
     Screen->Cursor = crDefault;
 }
 

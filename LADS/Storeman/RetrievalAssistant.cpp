@@ -3,7 +3,6 @@
 #include "RetrievalAssistant.h"
 #include "LCDbAuditTrail.h"
 #include "LCDbObject.h"
-#include "StringUtil.h"
 #include "LCDbProject.h"
 #include "ReferredBoxes.h"
 #include "RetrievalProcess.h"

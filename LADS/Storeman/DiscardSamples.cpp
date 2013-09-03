@@ -690,7 +690,6 @@ void __fastcall TfrmDiscardSamples::btnConfirmClick(TObject *Sender)
 		if (frmConfirm->ShowModal() != mrOk) break;
 
 		AnsiString userid =  frmConfirm->cbUserNames->Text ;
-
         std::string error = "";
 
         {
@@ -959,12 +958,12 @@ void __fastcall TfrmDiscardSamples::miViewNoteClick(TObject *Sender)
 
     const int sampleno = m_cells.getSampleno(cell);
     const Sample * sample = m_samples.getSample(sampleno);
-    std::string note = "";
+	std::string note;
     if (sample != 0) note = sample->getNote();
 
-	String title = "";
-	String text = "";
-    if (note == "")
+	String title;
+	String text;
+	if (note.empty() )
     {
         title = "No Note";
         text = "";
@@ -1005,9 +1004,9 @@ void __fastcall TfrmDiscardSamples::miViewDnoteClick(TObject *Sender)
 
     const std::string dnote = getDraftNote(cell);
 
-	String title = "";
-	String text = "";
-    if (dnote == "")
+	String title;
+	String text;
+	if (dnote.empty())
     {
         title = "No Draft Note";
         text = "";
@@ -1085,7 +1084,7 @@ void __fastcall TfrmDiscardSamples::FormClose(TObject *Sender,
 	    if (! this->btnConfirm->Enabled) break;
 
 		String title = "Unsaved changes";
-        String message = "Return to main menu without saving ?";
+		String message = "Return to main menu without saving ?";
 		if (Application->MessageBox(message.c_str(), title.c_str(),
 			MB_OKCANCEL | MB_ICONWARNING) == IDOK) break;
 

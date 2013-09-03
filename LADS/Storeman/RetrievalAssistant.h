@@ -161,8 +161,9 @@ public:
     string              cryovial_barcode;
     string              aliquot_type_name;
     string              box_name;
-    string              dest_box;
-    string              dest_pos;
+    string              dest_box_id;
+    string              dest_box_name;
+    string              dest_box_pos;
     string              site_name;
     int                 position;
     string              vessel_name;
@@ -183,10 +184,10 @@ public:
     static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return numeric_compare(b->box_name, a->box_name); }
     static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
     static bool sort_desc_currpos(const SampleRow *a, const SampleRow *b)   { return a->store_record->getPosition() > b->store_record->getPosition(); }
-    static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return numeric_compare(a->dest_box, b->dest_box); }
-    static bool sort_desc_destbox(const SampleRow *a, const SampleRow *b)   { return numeric_compare(b->dest_box, a->dest_box); }
-    static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_pos < b->dest_pos; }
-    static bool sort_desc_destpos(const SampleRow *a, const SampleRow *b)   { return a->dest_pos > b->dest_pos; }
+    static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return numeric_compare(a->dest_box_name, b->dest_box_name); }
+    static bool sort_desc_destbox(const SampleRow *a, const SampleRow *b)   { return numeric_compare(b->dest_box_name, a->dest_box_name); }
+    static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_box_pos < b->dest_box_pos; }
+    static bool sort_desc_destpos(const SampleRow *a, const SampleRow *b)   { return a->dest_box_pos > b->dest_box_pos; }
     static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
     static bool sort_desc_site(const SampleRow *a, const SampleRow *b)      { return a->site_name.compare(b->site_name) > 0; }
     static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->position < b->position; }
@@ -230,8 +231,8 @@ public:
             <<"cryovial_barcode: "<<cryovial_barcode<<", "
             <<"aliquot_type_name: "<<aliquot_type_name<<", "
             <<"box_name: "<<box_name<<", "
-            <<"dest_box: "<<dest_box<<", "
-            <<"dest_pos: "<<dest_pos<<", "
+            <<"dest_box: "<<dest_box_name<<", "
+            <<"dest_pos: "<<dest_box_pos<<", "
             <<"site_name: "<<site_name<<", "
             <<"position: "<<position<<", "
             <<"vessel_name: "<<vessel_name<<", "

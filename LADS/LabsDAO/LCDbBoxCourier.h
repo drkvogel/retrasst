@@ -199,7 +199,7 @@ class LDbBoxArrivals : public LDbCache< LDbBoxArrival >, public LPDbCacheMap< LD
 	public:
 
 		static void readAll( LQuery project );
-		void read( LQuery central, bool all = false );
+		void read( LQuery project, bool all = false );
 
 		const LDbBoxArrival * find( const int pProjectCid, const std::string & pBoxName
 			,const std::string & pCryo1

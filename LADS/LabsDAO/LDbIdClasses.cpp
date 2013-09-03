@@ -51,8 +51,7 @@ int LDbIdBase::readID( LQuery & query, std::string sequence )
 		catch( Exception & nide ) {
 			message = nide.Message;
 		}
-		message += "\n\nTry again?\n";
-		if( Application -> MessageBox( message.c_str(),
+		if( Application -> MessageBox( (message + "\n\nTry again?\n").c_str(),
 					L"Next ID Error", MB_ICONQUESTION | MB_YESNO ) == IDNO ) {
 			throw Exception( "Cannot allocate unique ID" );
 		}

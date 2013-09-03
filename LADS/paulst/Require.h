@@ -44,5 +44,5 @@ while(0)
 
 #define throwUnless( condition )  throwIf( ! (condition) )                                                                  \
 
-
 #endif
+

@@ -6,7 +6,6 @@
 #include "LIMSDatabase.h"
 #include "TfrmConfirm.h"
 #include "LCDbJob.h"
-#include "StringUtil.h"
 #include "StoreUtil.h"
 #include "LCDbObject.h"
 #include "LCDbRack.h"
@@ -93,8 +92,9 @@ void __fastcall TfrmReferredBoxesSummary::btnConfirmClick(TObject *Sender) {
     if (!dummyRun) btnConfirm->Enabled = false;
     try {
         signOffBoxes();
-    } catch(Exception & e) {
-        errors.push_back(bcsToStd(e.Message));
+	} catch(Exception & e) {
+		AnsiString msg = e.Message;
+		errors.push_back(msg.c_str());
     } catch(char * e) {
         errors.push_back(e);
     } catch (...) {

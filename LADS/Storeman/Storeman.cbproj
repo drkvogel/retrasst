@@ -67,14 +67,14 @@
 			<VerInfo_Locale>2057</VerInfo_Locale>
 			<_TCHARMapping>wchar_t</_TCHARMapping>
 			<ProjectType>CppVCLApplication</ProjectType>
-			<ILINK_LibraryPath>..\..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+			<ILINK_LibraryPath>..\paulst\;..\..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
 			<PackageImports>rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;DBXInterBaseDriver;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;bindengine;CustomIPTransport;IndyCore;inet;inetdbxpress;dbexpress;IPIndyImpl;$(PackageImports)</PackageImports>
 			<Multithreaded>true</Multithreaded>
 			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
 			<AllPackageLibs>rtl.lib;vcl.lib;dbrtl.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib;vcldb.lib;vclimg.lib;bdertl.lib</AllPackageLibs>
 			<Icon_MainIcon>snowflake.ico</Icon_MainIcon>
 			<UsingDelphiRTL>true</UsingDelphiRTL>
-			<IncludePath>..\..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;$(II_SYSTEM)\ingres\files\;$(BDSINCLUDE);$(IncludePath)</IncludePath>
+			<IncludePath>..\paulst\;..\..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;$(II_SYSTEM)\ingres\files\;$(BDSINCLUDE);$(IncludePath)</IncludePath>
 			<DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
 			<DynamicRTL>true</DynamicRTL>
 			<UsePackages>true</UsePackages>
@@ -108,6 +108,7 @@
 			<ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<ILINK_LibraryPath>C:\Users\cbird\Projects\retrieval-assistant\LADS\paulst;$(ILINK_LibraryPath)</ILINK_LibraryPath>
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.8.8;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.2.8.7;Comments=</VerInfo_Keys>
 			<VerInfo_Build>8</VerInfo_Build>
 			<Defines>_DEBUG;$(Defines)</Defines>
@@ -550,62 +551,103 @@
 			<CppCompile Include="StoreMan.cpp">
 				<BuildOrder>60</BuildOrder>
 			</CppCompile>
+			<ResFiles Include="StoreMan.res">
+				<BuildOrder>96</BuildOrder>
+			</ResFiles>
 			<CppCompile Include="StoreUtil.cpp">
 				<DependentOn>StoreUtil.h</DependentOn>
 				<BuildOrder>58</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="..\..\paulst\AcquireCriticalSection.cpp">
 				<DependentOn>..\..\paulst\AcquireCriticalSection.h</DependentOn>
-				<BuildOrder>47</BuildOrder>
+				<BuildOrder>92</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\Config.cpp">
+				<BuildOrder>93</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\ConsoleWriter.cpp">
+				<DependentOn>..\..\paulst\ConsoleWriter.h</DependentOn>
+				<BuildOrder>94</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="..\..\paulst\CritSec.cpp">
 				<DependentOn>..\..\paulst\CritSec.h</DependentOn>
-				<BuildOrder>50</BuildOrder>
+				<BuildOrder>95</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\FileWriterC.cpp">
+				<BuildOrder>96</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\FixedCapacityBuffer.cpp">
+				<DependentOn>..\..\paulst\FixedCapacityBuffer.h</DependentOn>
+				<BuildOrder>97</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\LoggingService.cpp">
+				<DependentOn>..\..\paulst\LoggingService.h</DependentOn>
+				<BuildOrder>98</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\Properties.cpp">
+				<DependentOn>..\..\paulst\Properties.h</DependentOn>
+				<BuildOrder>99</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="..\..\paulst\StrBuilder.cpp">
 				<DependentOn>..\..\paulst\StrBuilder.h</DependentOn>
-				<BuildOrder>48</BuildOrder>
+				<BuildOrder>100</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\StringDB.cpp">
+				<DependentOn>..\..\paulst\StringDB.h</DependentOn>
+				<BuildOrder>101</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\StrUtil.cpp">
+				<DependentOn>..\..\paulst\StrUtil.h</DependentOn>
+				<BuildOrder>102</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="..\..\paulst\Thread.cpp">
 				<DependentOn>..\..\paulst\Thread.h</DependentOn>
-				<BuildOrder>51</BuildOrder>
+				<BuildOrder>103</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\TraceTime.cpp">
+				<DependentOn>..\..\paulst\TraceTime.h</DependentOn>
+				<BuildOrder>104</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\Util.cpp">
+				<DependentOn>..\..\paulst\Util.h</DependentOn>
+				<BuildOrder>105</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="..\..\paulst\WorkerThread.cpp">
 				<DependentOn>..\..\paulst\WorkerThread.h</DependentOn>
-				<BuildOrder>49</BuildOrder>
+				<BuildOrder>106</BuildOrder>
 			</CppCompile>
+			<FormResources Include="DiscardMethod.dfm"/>
+			<FormResources Include="DiscardNote.dfm"/>
+			<FormResources Include="Configure.dfm"/>
+			<FormResources Include="DiscardPrologue.dfm"/>
 			<FormResources Include="FindSample.dfm"/>
 			<FormResources Include="DiscardReason.dfm"/>
 			<FormResources Include="DiscardSamples.dfm"/>
 			<FormResources Include="DiscardSearch.dfm"/>
+			<FormResources Include="BoxTransfer.dfm"/>
+			<FormResources Include="BrowseSample.dfm"/>
+			<FormResources Include="AddSpecimens.dfm"/>
+			<FormResources Include="AnalyseSamples.dfm"/>
+			<FormResources Include="SampleMove.dfm"/>
+			<FormResources Include="SelectSamples.dfm"/>
+			<FormResources Include="RetrievalAssistantSamples.dfm"/>
+			<FormResources Include="RetrieveSamples.dfm"/>
+			<FormResources Include="SampleEntry.dfm"/>
+			<FormResources Include="ShowSamples.dfm"/>
+			<FormResources Include="SMLogin.dfm"/>
+			<FormResources Include="Storemain.dfm"/>
 			<FormResources Include="NewSection.dfm"/>
 			<FormResources Include="NewSite.dfm"/>
 			<FormResources Include="NewTank.dfm"/>
 			<FormResources Include="MoveJobs.dfm"/>
 			<FormResources Include="NewJob.dfm"/>
-			<FormResources Include="BoxTransfer.dfm"/>
-			<FormResources Include="BrowseSample.dfm"/>
-			<FormResources Include="Configure.dfm"/>
-			<FormResources Include="AddSpecimens.dfm"/>
-			<FormResources Include="AnalyseSamples.dfm"/>
-			<FormResources Include="DiscardMethod.dfm"/>
-			<FormResources Include="DiscardNote.dfm"/>
-			<FormResources Include="DiscardPrologue.dfm"/>
-			<FormResources Include="Storemain.dfm"/>
-			<FormResources Include="SelectSamples.dfm"/>
-			<FormResources Include="ShowSamples.dfm"/>
-			<FormResources Include="SMLogin.dfm"/>
-			<FormResources Include="RetrievalAssistant.dfm"/>
+			<FormResources Include="NewType.dfm"/>
 			<FormResources Include="RetrievalAssistantAutoChunk.dfm"/>
 			<FormResources Include="RetrievalAssistantBoxes.dfm"/>
-			<FormResources Include="NewType.dfm"/>
+			<FormResources Include="RetrievalAssistantProcess.dfm"/>
 			<FormResources Include="ReferredBoxes.dfm"/>
 			<FormResources Include="ReferredBoxesSummary.dfm"/>
-			<FormResources Include="SampleEntry.dfm"/>
-			<FormResources Include="SampleMove.dfm"/>
-			<FormResources Include="RetrievalAssistantProcess.dfm"/>
-			<FormResources Include="RetrievalAssistantSamples.dfm"/>
-			<FormResources Include="RetrieveSamples.dfm"/>
+			<FormResources Include="RetrievalAssistant.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
@@ -663,6 +705,16 @@
 						<ProjectProperties Name="ManagePaths">True</ProjectProperties>
 						<ProjectProperties Name="VerifyPackages">True</ProjectProperties>
 					</ProjectProperties>
+					<Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\FastReports\LibD16\dclfrxDB16.bpl">FastReport 4.0 DB Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclFMXtee9160.bpl">TeeChart Standard FMX Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx160.bpl">Embarcadero LiveBindings Components FireMonkey</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcboffice2k160.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcbofficexp160.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclfmxstd160.bpl">Embarcadero FMX Standard Components</Excluded_Packages>
+					</Excluded_Packages>
 				</CPlusPlusBuilder.Personality>
 				<Deployment/>
 				<Platforms>

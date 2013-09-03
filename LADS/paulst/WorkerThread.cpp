@@ -101,5 +101,10 @@ void WorkerThread::run( const Event* stopSignal )
 
 }
 
+void WorkerThread::waitFor()
+{
+	WaitForSingleObjectEx( m_thread.getHandle(), INFINITE, false );
+}
+
 }
 

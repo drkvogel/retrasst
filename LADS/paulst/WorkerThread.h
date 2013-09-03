@@ -35,7 +35,8 @@ public:
     void cancelCurrentlyExecuting();
     int  queueSize();
     void queueTask( WorkerThreadTask* );
-    void run( const Event* stopSignal );
+	void run( const Event* stopSignal );
+	void waitFor();
 private:
     std::deque<WorkerThreadTask*> m_queue; 
     CritSec m_cs;

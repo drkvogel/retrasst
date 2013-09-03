@@ -79,9 +79,6 @@ void StringDB::updateAttribute( const std::string& rowIDValue,
         CSVIterator<'\n'>( m_data ),
         CSVIterator<'\n'>(),
         PrimaryKeyEquals( m_primaryKey, rowIDValue ) );
-    trace( m_primaryKey );
-    trace( rowIDValue );
-    trace( m_data );
     require( i != CSVIterator<'\n'>() );
     std::string lineToEdit = *i;
 

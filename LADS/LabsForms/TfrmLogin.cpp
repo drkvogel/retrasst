@@ -62,14 +62,15 @@ void __fastcall TfrmLogin::okButtonClick(TObject *Sender)
 				throw new Exception( "Cannot claim lease on project database" );
 			} else {
 				std::string problem = "Waiting for " + result;
+				lm->Deactivate( proj->getID(), LCDbProjects::leaseID );
 				throw new Exception( problem.c_str() );
 			}
 		}
 		if( Application -> MessageBox( WARNING_MESSAGE.c_str(), L"Warning", MB_OKCANCEL ) == IDOK ) {
-            projList.setCurrent( *proj );
+			projList.setCurrent( *proj );
 			startProgram( Sender );
+			lm->Deactivate( proj->getID(), LCDbProjects::leaseID );
 		}
-		lm->Deactivate( proj->getID(), LCDbProjects::leaseID );
 	}
 }
 

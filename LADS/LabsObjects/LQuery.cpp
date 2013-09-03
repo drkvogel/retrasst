@@ -218,7 +218,7 @@ bool LQuery::eof( ) {
 
 bool LQuery::call( Operation function, LogLevel log ) {
 	if( logLevel >= log && !logging ) {
-		//logQuery( );
+		logQuery( );
 		logging = true;
 	}
 	try {
@@ -269,7 +269,7 @@ void LQuery::logError( const std::string &message ) {
 	if( !logging ) {
 		logQuery( );
 	}
-	//logResult( "error", message );
+	logResult( "error", message );
 }
 
 //---------------------------------------------------------------------------
@@ -277,7 +277,7 @@ void LQuery::logError( const std::string &message ) {
 void LQuery::logCount( int records ) {
 	std::stringstream out;
 	out << records;
-	//logResult( "records", out.str( ) );
+	logResult( "records", out.str( ) );
 }
 
 //---------------------------------------------------------------------------

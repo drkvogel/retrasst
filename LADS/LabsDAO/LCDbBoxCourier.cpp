@@ -92,12 +92,9 @@ void LDbBoxExpecteds::readAll( LQuery central )
 	}
 }
 
-void LDbBoxExpecteds::read( LQuery central, bool all )
+void LDbBoxExpecteds::read( LQuery project, bool all )
 {
-	central.setSQL( "select * from l_box_expected where project_cid = :pid"
-					" order by box_expected_id" );
-	central.setParam( "pid", LCDbProjects::getCurrentID() );
-	readData( central );
+	// l_box_expected is no longer used
 }
 
 
@@ -314,11 +311,20 @@ void LDbBoxArrivals::readAll( LQuery central )
 	}
 }
 
-void LDbBoxArrivals::read( LQuery central, bool all )
+void LDbBoxArrivals::read( LQuery project, bool all )
 {
-	central.setSQL( "select * from l_box_arrival where status <> :sta and project_cid = :pid"
-					" order by box_arrival_id" );
-	central.setParam( "sta" , LDbValid::DELETED );
+	// box arrivals are now stored centrally
+	LQuery central( LIMSDatabase::getCentralDb() );
+	if( all ) {
+		central.setSQL( "select * from l_box_arrival"
+						" where project_cid = :pid"
+						" order by box_arrival_id" );
+	} else {
+		central.setSQL( "select * from l_box_arrival"
+						" where status <> :sta and project_cid = :pid"
+						" order by box_arrival_id" );
+		central.setParam( "sta" , LDbValid::DELETED );
+	}
 	central.setParam( "pid", LCDbProjects::getCurrentID() );
 	readData( central );
 }

@@ -21,7 +21,7 @@ TraceTime::~TraceTime()
     std::ostringstream msg;
     msg << "Elapsed: " << elapsed << " (" << m_file << ", " << m_line << ")";
     std::string elapsedMsg = msg.str();
-    trace( elapsedMsg );
+    trace( elapsedMsg.c_str() );
 }
 
 }
