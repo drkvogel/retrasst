@@ -572,13 +572,16 @@ Layout::Layout( const ROSETTA &data ) {
 
 std::auto_ptr< ROSETTA >Layout::getProperties( ) {
 	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
-	r->setString( "layout", layout_description );
+	if( position != 0 ) {
+		r->setInt( "shelf_number", position );
+	}
 	if( store_type_cid != 0 ) {
 		const LCDbObject *st = LCDbObjects::records().findByID( store_type_cid );
 		if( st != NULL ) {
 			r->setString( "storage_type", st->getDescription( ) );
 		}
 	}
+	r->setString( "layout", layout_description );
 	r->setString( "on_line", availability( ) == IS_AVAILABLE ? "Yes" : "No" );
 	r->setString( "valid", getDateRange() );
 	return r;
@@ -807,9 +810,9 @@ Section::Section( const ROSETTA &data ) {
 
 std::auto_ptr< ROSETTA >Section::getProperties( ) {
 	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
-	//	r->setInt( "tank_cid", tank_cid );
-	//	r->setInt( "map_cid", map_cid );
-	r->setInt( "position", position );
+	// r->setInt( "tank_cid", tank_cid );
+	// r->setInt( "map_cid", map_cid );
+	// r->setInt( "position", position );
 	r->setInt( "first_structure", first );
 	r->setInt( "last_structure", last );
 	r->setInt( "structure_size", rackSize );
@@ -976,7 +979,7 @@ void Rack::populate( ) {
 	if( layout != NULL ) {
 		capacity = layout -> getRackCapacity();
 	} else if( capacity < 1 ) {
-		capacity = 99;
+		capacity = 99; 	// error ??
 	}
 	// read boxes from database - most racks are filled with boxes from one project
 	StoreDAO dao;
@@ -1037,8 +1040,6 @@ IPart::Availability Rack::availability() const {
 		return IS_EMPTY;
 	} else if( emptySlots == 0 ) {
 		return IS_FULL;
-	} else if( childCount == -1 ) {
-		return UNKNOWN;
 	} else {
 		return PART_FULL;
 	}

@@ -31,30 +31,30 @@ public:
 	LCDbCryoJob( int id = 0, JobKind type = UNKNOWN )
 	 : LCDbID( id ), jobType( type )
 	{
-		processID = projectID = 0;
+		exercise = primary = secondary = processID = projectID = 0;
 		status = NEW_JOB;
 	}
 
 	LCDbCryoJob( JobKind type, const std::string & name, const std::string & desc )
 	 : LCDbID( 0 ), jobType( type ), LDbNames( name, desc )
 	{
-		processID = projectID = 0;
+		exercise = primary = secondary = processID = projectID = 0;
 		status = NEW_JOB;
 	}
 
 	LCDbCryoJob( const LQuery & project );
 
 	void setProjectID( int id ) { projectID = id; }
-	void setStatus( Status p_st ) { status = p_st; };
-	void setJobType( JobKind type ) { jobType = type; };
+	void setJobType( JobKind type ) { jobType = type; }
+	void setStatus( Status p_st ) { status = p_st; }
 
 	bool isActive() const { return status != DELETED; }
 	bool isAvailable() const;
-	int getExerciseID() const { return exercise; }
 
 	int getPrimaryAliquot() const { return primary; }
 	void setPrimaryAliquot( int typeID ) { primary = typeID; }
 	int getSecondaryAliquot() const { return secondary; }
+	void setSecondaryAliquot( int typeID ) { secondary = typeID; }
 
 	int getProjectID() const { return projectID; }
 	JobKind getJobType() const { return JobKind( jobType ); }
@@ -68,7 +68,7 @@ public:
 	int getProcessCID() const { return processID; }
 	int getUserID() const;
 
-	void setReason( const std::string & nm ) { reason = nm; }
+	void setReason( const std::string & exName );
 	const std::string & getReason() const { return reason; }
 
 	void createName( LQuery central, const std::string & nameBase );

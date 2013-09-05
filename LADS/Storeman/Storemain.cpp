@@ -251,7 +251,6 @@ void __fastcall TfrmStoremain::btnMoveClick(TObject *Sender)
 }
 
 //---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
 
 void __fastcall TfrmStoremain::BtnReferredClick(TObject *Sender)
 {
@@ -259,7 +258,6 @@ void __fastcall TfrmStoremain::BtnReferredClick(TObject *Sender)
 	frmReferred -> ShowModal();
 }
 
-//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
 void __fastcall TfrmStoremain::BtnDiscardClick(TObject *Sender)
@@ -317,11 +315,13 @@ void __fastcall TfrmStoremain::BtnDiscardClick(TObject *Sender)
 	} while (false);
 }
 
+//---------------------------------------------------------------------------
+
 void __fastcall TfrmStoremain::BtnRetrieveClick(TObject *Sender)
 {
 	frmRetrievalAssistant->init();
 	frmRetrievalAssistant->ShowModal();
 }
 
-
+//---------------------------------------------------------------------------
 

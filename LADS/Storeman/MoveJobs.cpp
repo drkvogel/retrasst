@@ -22,13 +22,17 @@ __fastcall TfrmSelectJob::TfrmSelectJob( TComponent *Owner ) : TForm( Owner )
 //---------------------------------------------------------------------------
 
 void __fastcall TfrmSelectJob::FormShow( TObject *Sender ) {
-	grdJobs->Cells[ 0 ][ 0 ] = "Name";
-	grdJobs->Cells[ 1 ][ 0 ] = "Description";
-	grdJobs->Cells[ 2 ][ 0 ] = "Creation Date";
-	grdJobs->ColWidths[ 0 ] = grdJobs->Width * 0.25;
-	grdJobs->ColWidths[ 1 ] = grdJobs->Width * 0.5;
-	int allocated = grdJobs->ColWidths[ 0 ] + grdJobs->ColWidths[ 1 ] + 24;
-	grdJobs->ColWidths[ 2 ] = grdJobs->Width - allocated;
+	grdJobs->ColCount = NUM_COLS;
+	grdJobs->Cells[ JOB_NAME ][ 0 ] = "Task";
+	grdJobs->Cells[ EXERCISE ][ 0 ] = "Exercise";
+	grdJobs->Cells[ DESCRIPTION ][ 0 ] = "Description";
+	grdJobs->Cells[ START_DATE ][ 0 ] = "Started";
+	int colWidth = grdJobs->Width * 0.2;
+	grdJobs->ColWidths[ JOB_NAME ] = colWidth;
+	grdJobs->ColWidths[ EXERCISE ] = colWidth;
+	grdJobs->ColWidths[ DESCRIPTION ] = colWidth * 2;
+	int allocated = colWidth * 4 + 24;
+	grdJobs->ColWidths[ START_DATE ] = grdJobs->Width - allocated;
 	ActiveControl = grdJobs;
 }
 
@@ -73,9 +77,10 @@ void TfrmSelectJob::initMoveJobs() {
 //---------------------------------------------------------------------------
 
 void TfrmSelectJob::writeJob( const LCDbCryoJob &job, int row ) {
-	grdJobs->Cells[ 0 ][ row ] = job.getName( ).c_str( );
-	grdJobs->Cells[ 1 ][ row ] = job.getDescription( ).c_str( );
-	grdJobs->Cells[ 2 ][ row ] = job.getTimeStamp( );
+	grdJobs->Cells[ JOB_NAME ][ row ] = job.getName( ).c_str( );
+	grdJobs->Cells[ DESCRIPTION ][ row ] = job.getDescription( ).c_str( );
+	grdJobs->Cells[ START_DATE ][ row ] = job.getStartDate( );
+	grdJobs->Cells[ EXERCISE ][ row ] = job.getReason( ).c_str();
 }
 
 //---------------------------------------------------------------------------

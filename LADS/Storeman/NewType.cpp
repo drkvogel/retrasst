@@ -51,8 +51,7 @@ const LCDbObject * TfrmNewType::createRecord() {
 	std::set< int > central;
 	central.insert( 0 );
 	frmConfirm -> initialise( TfrmSMLogin::CONFIGURE, operation.c_str(), central );
-	if( frmConfirm->ShowModal() == mrOk
-	 && type.saveRecord( LIMSDatabase::getCentralDb() ) ) {
+	if( frmConfirm->ShowModal() == mrOk && type.saveRecord( LIMSDatabase::getCentralDb() ) ) {
 		return LCDbObjects::records().findByID( type.getID() );
 	}
 	return NULL;

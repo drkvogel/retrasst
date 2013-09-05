@@ -250,13 +250,11 @@ const bool TankEngine::buildData( LQuery  dbase )
 				const std::string name = o->getName();
 
 //				toPosIntDef( const std::string & sVal,int def )
-				int  s;s=std::isdigit( name[ 1 ] );
+				int s=std::isdigit( name[ 1 ] );
 
 				tankExt = (std::isdigit( name[ 0 ] )? toPosIntDef(name,0) : toPosIntDef(name.substr( 1, 9 ),0));
 
 // Look for details in c_tank_map
-				int xxxx;
-				xxxx=-1;
 				const LCDbTankMap* tm= LCDbTankMaps::records().findCurrent(tankCID);
 
 				if(  tm != NULL )
@@ -264,10 +262,10 @@ const bool TankEngine::buildData( LQuery  dbase )
 				int scid=	tm->getStorageCID() ;
 // Look for Store details
 
-				const LCDbStorageDetail* sd=LCDbStorageDetails::records().findByID( scid );
+//				const LCDbStorageDetail* sd=LCDbStorageDetails::records().findByID( scid );
 
 // Pull out the location, and filter on this current location.
-				int locationCID=sd->getLocationCID();
+				int locationCID=tm->getLocationCID();
 				if( locationCID== gCurrLocationCID )
 				{
 // retrieve the racklayout CID

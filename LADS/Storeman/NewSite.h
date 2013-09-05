@@ -35,6 +35,7 @@ public:		// User declarations
 	__fastcall TfrmNewSite(TComponent* Owner);
 	Site & getDetails() { return site; }
 };
+
 //---------------------------------------------------------------------------
 extern PACKAGE TfrmNewSite *frmNewSite;
 //---------------------------------------------------------------------------

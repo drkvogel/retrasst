@@ -16,14 +16,14 @@ object frmNewType: TfrmNewType
   PixelsPerInch = 96
   TextHeight = 13
   object LblFull: TLabel
-    Left = 14
+    Left = 16
     Top = 75
     Width = 57
     Height = 13
     Caption = 'Description:'
   end
   object LblName: TLabel
-    Left = 14
+    Left = 16
     Top = 32
     Width = 31
     Height = 13
@@ -40,16 +40,16 @@ object frmNewType: TfrmNewType
     OnClick = SaveClick
   end
   object TxtFull: TEdit
-    Left = 80
+    Left = 88
     Top = 72
-    Width = 342
+    Width = 334
     Height = 21
     TabOrder = 1
   end
   object TxtName: TEdit
-    Left = 80
+    Left = 88
     Top = 29
-    Width = 170
+    Width = 185
     Height = 21
     TabOrder = 0
   end
