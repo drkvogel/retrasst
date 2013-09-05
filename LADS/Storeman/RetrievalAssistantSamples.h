@@ -130,6 +130,7 @@ private:
     int                 maxRows;  // rows to show at a time
     vecpSampleChunk     chunks;
     std::vector<SampleRow *> vials;
+    void                addSorter();
     void                autoChunk();
     SampleChunk *       currentChunk();
     void                showChunks();

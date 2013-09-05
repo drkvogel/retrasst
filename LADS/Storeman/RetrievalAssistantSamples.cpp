@@ -91,8 +91,6 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     }
     // look for destination boxes, can't left join in ddb, so do project query per row
     // may be v time-consuming - could do outer join instead and check sequence for gaps
-    //for (vecpSampleRow::const_iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
-
     int rowCount2 = 0;
     for (vecpSampleRow::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
         ostringstream oss; oss<<"Finding destinations: "<<rowCount2<<"/"<<rowCount;
@@ -179,7 +177,7 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     //addChunk(); // no - not before list loaded
     //showChunks();
     clearSG(sgVials);
-    timerLoadVials->Enabled = true;
+    //timerLoadVials->Enabled = true;
     //if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
 }
 
@@ -317,11 +315,19 @@ void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::btnAddSortClick(TObject *Sender) {
+    addSorter();
+}
+
+void TfrmSamples::addSorter() {
+    ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
     TComboBox * combo = new TComboBox(this);
     combo->Parent = groupSort;
     combo->Align = alLeft;
+    combo->Items->AddObject(groupSort->ControlCount, NULL);
     // new combo is last created,
     //groupSort->InsertControl(combo);
+    //ostringstream oss;
+    //oss.str(""); oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
 }
 
 void __fastcall TfrmSamples::btnDelSortClick(TObject *Sender) {
@@ -502,7 +508,6 @@ void TfrmSamples::sortList(int col) {
         { SampleRow::sort_asc_structure, SampleRow::sort_desc_structure,sgVialColName[9] },
         { SampleRow::sort_asc_slot,      SampleRow::sort_desc_slot,     sgVialColName[10] },
     };
-    //sorter[col].sort_toggle(vials);
     sorter[col].sort_toggle(currentChunk()->rows);
     showChunk(currentChunk());
     Screen->Cursor = crDefault;
