@@ -12,6 +12,7 @@
 #include <ExtCtrls.hpp>
 #include <Grids.hpp>
 #include <deque>
+#include <sstream>
 #include "LQuery.h"
 
 //---------------------------------------------------------------------------
@@ -84,6 +85,7 @@ public:
 		static void ShowSelectedSubTree( TTreeView* tree, unsigned minBoxCount );
 
 		static LQuery projectQuery( int proj_id = 0, bool ddb = false );
+        static bool numericCompare(const std::string a, const std::string b);
 };
 
 //---------------------------------------------------------------------------

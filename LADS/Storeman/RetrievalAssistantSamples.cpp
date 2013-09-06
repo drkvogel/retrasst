@@ -8,6 +8,21 @@
 #pragma resource "*.dfm"
 TfrmSamples *frmSamples;
 
+Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
+//sorter = {
+    { SampleRow::sort_asc_barcode,   SampleRow::sort_desc_barcode,  sgVialColName[0] },
+    { SampleRow::sort_asc_destbox,   SampleRow::sort_desc_destbox,  sgVialColName[1] },
+    { SampleRow::sort_asc_destpos,   SampleRow::sort_desc_destpos,  sgVialColName[2] },
+    { SampleRow::sort_asc_currbox,   SampleRow::sort_desc_currbox,  sgVialColName[3] },
+    { SampleRow::sort_asc_currpos,   SampleRow::sort_desc_currpos,  sgVialColName[4] },
+    { SampleRow::sort_asc_site,      SampleRow::sort_desc_site,     sgVialColName[5] },
+    { SampleRow::sort_asc_position,  SampleRow::sort_desc_position, sgVialColName[6] },
+    { SampleRow::sort_asc_shelf,     SampleRow::sort_desc_shelf,    sgVialColName[7] },
+    { SampleRow::sort_asc_vessel,    SampleRow::sort_desc_vessel,   sgVialColName[8] },
+    { SampleRow::sort_asc_structure, SampleRow::sort_desc_structure,sgVialColName[9] },
+    { SampleRow::sort_asc_slot,      SampleRow::sort_desc_slot,     sgVialColName[10] }
+};
+
 __fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
     FreeOnTerminate = true;
 }
@@ -89,6 +104,8 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         rowCount++;
     }
     }
+
+    return;
     // look for destination boxes, can't left join in ddb, so do project query per row
     // may be v time-consuming - could do outer join instead and check sequence for gaps
     int rowCount2 = 0;
@@ -177,7 +194,7 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     //addChunk(); // no - not before list loaded
     //showChunks();
     clearSG(sgVials);
-    //timerLoadVials->Enabled = true;
+    timerLoadVials->Enabled = true;
     //if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
 }
 
@@ -293,7 +310,7 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     ostringstream oss; oss << __FUNC__; oss << printColWidths(sgVials); debugLog(oss.str().c_str()); // print column widths so we can copy them into the source
-    sortList(ACol);
+    sortChunk(currentChunk(), ACol);
 }
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
@@ -366,6 +383,7 @@ void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
 }
 
 void TfrmSamples::debugLog(String s) {
+    // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
     frmSamples->memoDebug->Lines->Add(s);
 }
 
@@ -492,24 +510,14 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
     groupVials->Caption = oss.str().c_str();
 }
 
-void TfrmSamples::sortList(int col) {
+//void TfrmSamples::sortList(int col) {
+void TfrmSamples::sortChunk(SampleChunk * chunk, int col) {
     //partial_sort
     Screen->Cursor = crSQLWait;
-    static Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
-        { SampleRow::sort_asc_barcode,   SampleRow::sort_desc_barcode,  sgVialColName[0] },
-        { SampleRow::sort_asc_destbox,   SampleRow::sort_desc_destbox,  sgVialColName[1] },
-        { SampleRow::sort_asc_destpos,   SampleRow::sort_desc_destpos,  sgVialColName[2] },
-        { SampleRow::sort_asc_currbox,   SampleRow::sort_desc_currbox,  sgVialColName[3] },
-        { SampleRow::sort_asc_currpos,   SampleRow::sort_desc_currpos,  sgVialColName[4] },
-        { SampleRow::sort_asc_site,      SampleRow::sort_desc_site,     sgVialColName[5] },
-        { SampleRow::sort_asc_position,  SampleRow::sort_desc_position, sgVialColName[6] },
-        { SampleRow::sort_asc_shelf,     SampleRow::sort_desc_shelf,    sgVialColName[7] },
-        { SampleRow::sort_asc_vessel,    SampleRow::sort_desc_vessel,   sgVialColName[8] },
-        { SampleRow::sort_asc_structure, SampleRow::sort_desc_structure,sgVialColName[9] },
-        { SampleRow::sort_asc_slot,      SampleRow::sort_desc_slot,     sgVialColName[10] },
-    };
-    sorter[col].sort_toggle(currentChunk()->rows);
-    showChunk(currentChunk());
+    //sorter[col].sort_toggle(currentChunk()->rows);
+    sorter[col].sort_toggle(chunk->rows);
+    //showChunk(currentChunk());
+    showChunk(chunk);
     Screen->Cursor = crDefault;
 }
 

@@ -65,6 +65,8 @@ public:
     void __fastcall updateStatus(); // syncronized method can't have args (?) - was going to use (int numerator, int denominator)
 };
 
+extern Sorter<SampleRow> sorter[SGVIALS_NUMCOLS];
+
 class TfrmSamples : public TForm {
     friend class LoadVialsWorkerThread;
 __published:
@@ -140,7 +142,8 @@ private:
     //void                sortList(enum SampleRow::SortType);
     //void                sortList(void *); // function argument
     //void                sortList(Sorter sorter); // struct argument - structs could be encapsulated in e.g. SampleRow
-    void                sortList(int sortType); //
+    //void                sortList(int sortType); //
+    void                sortChunk(SampleChunk * chunk, int col);
 public:
     __fastcall          TfrmSamples(TComponent* Owner);
     void                debugLog(String s);
