@@ -383,15 +383,12 @@ const LCDbProject * LCDbProjects::findByName( const std::string & nameOrDb ) con
 
 void LCDbProjects::setCurrent( const LCDbProject & proj )
 {
-	String name = proj.getDbName().c_str();
-	if( proj.isCentral() )
+	if( proj.isCentral() ) {
+		String name = proj.getDbName().c_str();
 		throw Exception( name + " is not a project database" );
-
-	LDbNextID::clearAll();
+	}
 	currentID = proj.getID();
 }
 
 //---------------------------------------------------------------------------
-
-
 

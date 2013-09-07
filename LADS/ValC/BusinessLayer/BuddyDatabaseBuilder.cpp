@@ -27,7 +27,8 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     const SampleRunIDResolutionService* s, 
     DBUpdateSchedule*                   dbUpdateSchedule,
     BuddySampleIDKeyedOnSampleRunID*    buddySampleIDKeyedOnSampleRunID,
-    BuddyDatabaseEntryIndex*            buddyDatabaseEntryIndex
+    BuddyDatabaseEntryIndex*            buddyDatabaseEntryIndex,
+    const std::string&                  inclusionRule
  )
     :
     m_projects                          ( p ),
@@ -37,7 +38,8 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     m_sampleRunIDResolutionService      ( s ),
     m_dbUpdateSchedule                  ( dbUpdateSchedule ),
     m_buddySampleIDKeyedOnSampleRunID   ( buddySampleIDKeyedOnSampleRunID ),
-    m_buddyDatabaseEntryIndex           ( buddyDatabaseEntryIndex )
+    m_buddyDatabaseEntryIndex           ( buddyDatabaseEntryIndex ),
+    m_inclusionRule                     ( inclusionRule )
 {
 }
 
@@ -56,7 +58,8 @@ bool BuddyDatabaseBuilder::accept( Cursor* c )
             COL_BUDDY_SAMPLE_ID, COL_BARCODE, COL_DATE_ANALYSED, COL_DATABASE_NAME, COL_ALPHA_SAMPLE_ID, COL_MACHINE_CID, // from buddy_database
             COL_BRF_BUDDY_RESULT_ID, COL_BRF_TEST_ID, COL_BRF_RES_VALUE, COL_BRF_ACTION_FLAG, COL_BRF_DATE_ANALYSED, // from buddy_result_float
             COL_BRF_RES_TEXT, COL_BRF_UPDATE_WHEN, COL_BRF_CBW_RECORD_NO,
-            COL_SR_RUN_ID, COL_SR_IS_OPEN, COL_SR_CREATED_WHEN, COL_SR_CLOSED_WHEN, COL_SR_SEQUENCE_POSITION  }; // from sample_run
+            COL_SR_RUN_ID, COL_SR_IS_OPEN, COL_SR_CREATED_WHEN, COL_SR_CLOSED_WHEN, COL_SR_SEQUENCE_POSITION,
+            COL_SR_FAO_LEVEL_ONE  }; // from sample_run
 
         c->read( COL_BUDDY_SAMPLE_ID    , buddySampleID );
         c->read( COL_BARCODE            , barcode       );
@@ -92,15 +95,27 @@ bool BuddyDatabaseBuilder::accept( Cursor* c )
                 c->read( COL_SR_CLOSED_WHEN, srClosedWhen );
             }
             c->read( COL_SR_SEQUENCE_POSITION   , srSequencePosition );
+            c->read( COL_SR_FAO_LEVEL_ONE       , srFAOLevelOne      );
         }
         else
         {
             srIsOpen = true;
             srSequencePosition = buddySampleID;
             srCreatedWhen = Now();
+            srFAOLevelOne = 'y';
         }
 
-        if ( hasResult && ! ( resActionFlag == '0' || resActionFlag == 'X' ) )
+        m_inclusionRule.init();
+        m_inclusionRule.addParam( barcode );
+        m_inclusionRule.addParam( databaseName );
+        m_inclusionRule.addParam( hasResult ? std::string(1, resActionFlag) : std::string("NO_RESULT") );
+        m_inclusionRule.addParam( std::string( 1, srFAOLevelOne ) );
+        
+        m_inclusionRule.run();
+
+        const bool acceptable = m_inclusionRule.getBooleanResult();
+
+        if ( ! acceptable )
         {
             break;
         }
@@ -148,7 +163,7 @@ bool BuddyDatabaseBuilder::accept( Cursor* c )
 
 void BuddyDatabaseBuilder::reset()
 {
-    resActionFlag = '\0';
+    resActionFlag = srFAOLevelOne = '\0';
     resDateAnalysed = resUpdateWhen = srClosedWhen = srCreatedWhen = 0.0;
     buddySampleID = machineID = resID = alphaSampleID = resTestID = resWorklistID = srSequencePosition = srID = srIsOpen = 0;
     barcode = databaseName = sampleDescriptor = resText = sampleRunID = "";

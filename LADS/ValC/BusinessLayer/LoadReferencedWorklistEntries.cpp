@@ -38,7 +38,7 @@ LoadReferencedWorklistEntries::LoadReferencedWorklistEntries(
 {
 }
 
-std::string* createTempTable( DBConnection* con, paulst::LoggingService* log, const std::string& tableName )
+void createTempTable( DBConnection* con, paulst::LoggingService* log, const std::string& tableName )
 {
     std::string stmt = 
         std::string("declare global temporary table ") + tableName + " as "
@@ -71,6 +71,7 @@ void insertIntoTable( const int& id, const std::string* tableName, DBConnection*
 void LoadReferencedWorklistEntries::execute()
 {
     const int maxIterations = 3;
+    const std::string allInclusive( " function accept () return true end " );
 
     for ( int iteration = 0; findReferencedButNotLoaded() && ( iteration < maxIterations ); ++iteration )
     {
@@ -82,7 +83,8 @@ void LoadReferencedWorklistEntries::execute()
 
         std::for_each( m_idList.begin(), m_idList.end(), boost::bind( insertIntoTable, _1, tempTable, m_con, m_log ) );
 
-        LoadWorklistEntries loadWorklistEntries( m_worklistEntries, m_con, m_log, m_resultIndex, m_worklistSQL, m_worklistRelationSQL );
+        LoadWorklistEntries loadWorklistEntries( m_worklistEntries, m_con, m_log, m_resultIndex, m_worklistSQL, m_worklistRelationSQL,
+            allInclusive );
 
         loadWorklistEntries.execute();
     }

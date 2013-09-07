@@ -12,18 +12,17 @@
 #pragma link "TfrmLoginBase"
 #pragma resource "*.dfm"
 
-TfrmLogin *frmLogin;
+TfrmSMLogin *frmSMLogin;
 
 //---------------------------------------------------------------------------
 
-__fastcall TfrmLogin::TfrmLogin(TComponent* Owner) : TfrmLoginBase(Owner)
+__fastcall TfrmSMLogin::TfrmSMLogin(TComponent* Owner) : TfrmLoginBase(Owner)
 {}
 
 //---------------------------------------------------------------------------
 
-void TfrmLogin::runProgram( const std::string & title )
+void TfrmSMLogin::runProgram( const std::string & title )
 {
-	frmStoremain -> init();
 	frmStoremain -> Caption = title.c_str();
 	frmStoremain -> ShowModal();
 }

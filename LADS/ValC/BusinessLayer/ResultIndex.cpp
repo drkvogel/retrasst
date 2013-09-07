@@ -28,12 +28,21 @@ void ResultIndex::addIndexEntryForResult( const TestResult* r )
     }
 }
 
+bool sameResult( const ResultIDsKeyedOnWorklistID::value_type& t, int resultID )
+{
+    return t.second == resultID;
+}
+
 void ResultIndex::allocateResultToWorklistEntry( int resultID, int toWorklistID )
 {
     paulst::AcquireCriticalSection a( m_criticalSection );
 
     {
-        m_mapWorklistIDToResultID.insert( std::make_pair(toWorklistID, resultID) );
+        if ( m_mapWorklistIDToResultID.end() ==
+                std::find_if( m_mapWorklistIDToResultID.begin(), m_mapWorklistIDToResultID.end(), boost::bind( sameResult, _1, resultID ) ) )
+        {
+            m_mapWorklistIDToResultID.insert( std::make_pair(toWorklistID, resultID) );
+        }
     }
 }
 

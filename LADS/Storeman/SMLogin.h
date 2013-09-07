@@ -17,7 +17,7 @@
 
 //---------------------------------------------------------------------------
 
-class TfrmLogin : public TfrmLoginBase
+class TfrmSMLogin : public TfrmLoginBase
 {
 __published:	// IDE-managed Components
 
@@ -29,10 +29,10 @@ public:		// User declarations
 
 	enum Pages { ANY, CONFIGURE, MOVE, DISCARD, REFERRED };		// permissions
 
-	__fastcall TfrmLogin(TComponent* Owner);
+	__fastcall TfrmSMLogin(TComponent* Owner);
 };
 
 //---------------------------------------------------------------------------
-extern PACKAGE TfrmLogin *frmLogin;
+extern PACKAGE TfrmSMLogin *frmSMLogin;
 //---------------------------------------------------------------------------
 #endif

@@ -16,7 +16,7 @@
 
 static const TDate EPOCH_START( 1980, 1, 1 ), EPOCH_END( 2037, 12, 31 );
 
-TDateTime checkDate( TDateTime ts ) {
+TDateTime LDbValid::checkDate( TDateTime ts ) {
 	if( ts < EPOCH_START ) {
 		return EPOCH_START;
 	} else if( ts > EPOCH_END ) {

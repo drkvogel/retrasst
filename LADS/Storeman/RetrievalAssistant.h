@@ -87,12 +87,12 @@ public:
         site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot) {}
 
     // box_name vs store_record->getID()?
-    static bool sort_asc_currbox(const BoxRow *a, const BoxRow *b)    { return numeric_compare(a->box_name, b->box_name); }
-    static bool sort_desc_currbox(const BoxRow *a, const BoxRow *b)   { return numeric_compare(b->box_name, a->box_name); }
+    static bool sort_asc_currbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->box_name, b->box_name); }
+    static bool sort_desc_currbox(const BoxRow *a, const BoxRow *b)   { return Util::numericCompare(b->box_name, a->box_name); }
  //   static bool sort_asc_currpos(const BoxRow *a, const BoxRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
  //   static bool sort_desc_currpos(const BoxRow *a, const BoxRow *b)   { return a->store_record->getPosition() > b->store_record->getPosition(); }
-    static bool sort_asc_destbox(const BoxRow *a, const BoxRow *b)    { return numeric_compare(a->dest_box, b->dest_box); }
-    static bool sort_desc_destbox(const BoxRow *a, const BoxRow *b)   { return numeric_compare(b->dest_box, a->dest_box); }
+    static bool sort_asc_destbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->dest_box, b->dest_box); }
+    static bool sort_desc_destbox(const BoxRow *a, const BoxRow *b)   { return Util::numericCompare(b->dest_box, a->dest_box); }
     static bool sort_asc_destpos(const BoxRow *a, const BoxRow *b)    { return a->dest_pos < b->dest_pos; }
     static bool sort_desc_destpos(const BoxRow *a, const BoxRow *b)   { return a->dest_pos > b->dest_pos; }
     static bool sort_asc_site(const BoxRow *a, const BoxRow *b)       { return a->site_name.compare(b->site_name) < 0; }
@@ -103,25 +103,25 @@ public:
     static bool sort_desc_shelf(const BoxRow *a, const BoxRow *b)     { return a->shelf_number > b->shelf_number; }
     static bool sort_asc_vessel(const BoxRow *a, const BoxRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
     static bool sort_desc_vessel(const BoxRow *a, const BoxRow *b)    { return a->vessel_name.compare(b->vessel_name) > 0; }
-    static bool sort_asc_structure(const BoxRow *a, const BoxRow *b)  { return numeric_compare(a->rack_name, b->rack_name); }//return a->rack_name.compare(b->rack_name) > 0; }
-    static bool sort_desc_structure(const BoxRow *a, const BoxRow *b) { return a->rack_name.compare(b->rack_name) < 0; }
+    static bool sort_asc_structure(const BoxRow *a, const BoxRow *b)  { return Util::numericCompare(a->rack_name, b->rack_name); }//return a->rack_name.compare(b->rack_name) > 0; }
+    static bool sort_desc_structure(const BoxRow *a, const BoxRow *b) { return Util::numericCompare(a->rack_name, b->rack_name); }
     static bool sort_asc_slot(const BoxRow *a, const BoxRow *b)       { return a->slot_position < b->slot_position; }
     static bool sort_desc_slot(const BoxRow *a, const BoxRow *b)      { return a->slot_position > b->slot_position; }
 
-    // search func: strip out numeric chars from name, concatenate, compare as ints
-    static bool numeric_compare(const string a, const string b) {
-        struct temp { // Local functions are not allowed in C++, but local classes are and functions are allowed in local classes
-            static unsigned int alpha_to_int(string a) {
-                ostringstream numerics;
-                for (unsigned int i=0; i<a.length(); i++) {
-                    char ch = a.at(i); if (ch >= 0x30 && ch < 0x3A) { numerics << ch; } // pull out the numerics
-                }
-                return atoi(numerics.str().c_str());
-            }
-        } local;
-        return local.alpha_to_int(a) < local.alpha_to_int(b);
-        // what if there are no numerics?
-    }
+    // sort func: strip out numeric chars from name, concatenate, compare as ints
+//    static bool numeric_compare(const string a, const string b) {
+//        struct temp { // Local functions are not allowed in C++, but local classes are and functions are allowed in local classes
+//            static unsigned int alpha_to_int(string a) {
+//                ostringstream numerics;
+//                for (unsigned int i=0; i<a.length(); i++) {
+//                    char ch = a.at(i); if (ch >= 0x30 && ch < 0x3A) { numerics << ch; } // pull out the numerics
+//                }
+//                return atoi(numerics.str().c_str());
+//            }
+//        } local;
+//        return local.alpha_to_int(a) < local.alpha_to_int(b);
+//        // what if there are no numerics?
+//    }
     string str() {
         ostringstream oss; oss<<__FUNC__
         //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position
@@ -161,8 +161,9 @@ public:
     string              cryovial_barcode;
     string              aliquot_type_name;
     string              box_name;
-    string              dest_box;
-    string              dest_pos;
+    int                 dest_box_id;
+    string              dest_box_name;
+    int                 dest_box_pos;
     string              site_name;
     int                 position;
     string              vessel_name;
@@ -183,10 +184,10 @@ public:
     static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return numeric_compare(b->box_name, a->box_name); }
     static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
     static bool sort_desc_currpos(const SampleRow *a, const SampleRow *b)   { return a->store_record->getPosition() > b->store_record->getPosition(); }
-    static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return numeric_compare(a->dest_box, b->dest_box); }
-    static bool sort_desc_destbox(const SampleRow *a, const SampleRow *b)   { return numeric_compare(b->dest_box, a->dest_box); }
-    static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_pos < b->dest_pos; }
-    static bool sort_desc_destpos(const SampleRow *a, const SampleRow *b)   { return a->dest_pos > b->dest_pos; }
+    static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return numeric_compare(a->dest_box_name, b->dest_box_name); }
+    static bool sort_desc_destbox(const SampleRow *a, const SampleRow *b)   { return numeric_compare(b->dest_box_name, a->dest_box_name); }
+    static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_box_pos < b->dest_box_pos; }
+    static bool sort_desc_destpos(const SampleRow *a, const SampleRow *b)   { return a->dest_box_pos > b->dest_box_pos; }
     static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
     static bool sort_desc_site(const SampleRow *a, const SampleRow *b)      { return a->site_name.compare(b->site_name) > 0; }
     static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->position < b->position; }
@@ -230,8 +231,8 @@ public:
             <<"cryovial_barcode: "<<cryovial_barcode<<", "
             <<"aliquot_type_name: "<<aliquot_type_name<<", "
             <<"box_name: "<<box_name<<", "
-            <<"dest_box: "<<dest_box<<", "
-            <<"dest_pos: "<<dest_pos<<", "
+            <<"dest_box: "<<dest_box_name<<", "
+            <<"dest_pos: "<<dest_box_pos<<", "
             <<"site_name: "<<site_name<<", "
             <<"position: "<<position<<", "
             <<"vessel_name: "<<vessel_name<<", "

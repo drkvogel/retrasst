@@ -132,11 +132,9 @@ void BoxSummary::Results::checkContents()
 	LQuery pq( Util::projectQuery() );
 	LPDbProfiles & profiles = LPDbProfiles::records();
 	std::set< int > testProfileIDs;
-	if( !profiles.empty() || profiles.read( pq, false ) ) {
-		for( Range< LPDbProfile > pr = profiles; pr.isValid(); ++ pr ) {
-			if( pr -> isTested() ) {
-				testProfileIDs.insert( pr -> getID() );
-			}
+	for( Range< LPDbProfile > pr = profiles; pr.isValid(); ++ pr ) {
+		if( pr -> isTested() ) {
+			testProfileIDs.insert( pr -> getID() );
 		}
 	}
 

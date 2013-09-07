@@ -13,7 +13,6 @@
 #include "LCDbProject.h"
 #include "SMLogin.h"
 #include "LDbBoxSize.h"
-#include "StringUtil.h"
 #include "StoreUtil.h"
 #include "LDbSource.h"
 #include "LPDbCryovial.h"
@@ -71,7 +70,8 @@ void __fastcall TfrmBoxList::FormHide( TObject *Sender ) {
 //---------------------------------------------------------------------------
 
 void __fastcall TfrmBoxList::cbProjectChange( TObject *Sender ) {
-	init( LCDbProjects::records( ).findByName( bcsToStd( cbProject->Text ) ) );
+	AnsiString proj = cbProject->Text;
+	init( LCDbProjects::records( ).findByName( proj.c_str() ) );
 }
 
 //---------------------------------------------------------------------------
@@ -199,7 +199,8 @@ void __fastcall TfrmBoxList::btnPrintClick( TObject *Sender ) {
 			if( line == 0 ) {
 				printHeader( );
 			}
-			printText( sgBoxNames->Cells[ 0 ][ row ] );
+			AnsiString name = sgBoxNames->Cells[ 0 ][ row ];
+			printText( name.c_str() );
 			if( line < lastLine ) {
 				line++;
 			} else {
@@ -259,8 +260,8 @@ void TfrmBoxList::printFooter( ) {
 //  Print the cryovial position or vacutainer barcode from the grid
 //---------------------------------------------------------------------------
 
-void TfrmBoxList::printText( const String &text ) {
-	printer->Canvas->TextOut( leftMargin, line *lineHeight, text );
+void TfrmBoxList::printText( const std::string &text ) {
+	printer->Canvas->TextOut( leftMargin, line *lineHeight, text.c_str() );
 }
 
 //---------------------------------------------------------------------------
@@ -269,9 +270,10 @@ void TfrmBoxList::printText( const String &text ) {
 
 void __fastcall TfrmBoxList::btnAddBoxClick( TObject *Sender ) {
 	LQuery pq = Util::projectQuery( );
-	const LPDbBoxName *found = boxes.readRecord( pq, bcsToStd( ebBoxNum->Text ) );
+	AnsiString box = ebBoxNum->Text;
+	const LPDbBoxName *found = boxes.readRecord( pq, box.c_str() );
 	if( found == NULL ) {
-		int num = ebBoxNum->Text.ToIntDef( 0 );
+		int num = box.ToIntDef( 0 );
 		if( num != 0 ) {
 			found = boxes.readRecord( pq, -num );
 			if( found == NULL ) {
@@ -280,8 +282,8 @@ void __fastcall TfrmBoxList::btnAddBoxClick( TObject *Sender ) {
 		}
 	}
 	if( found == NULL ) {
-		String message = "Cannot find box " + ebBoxNum->Text;
-		Application->MessageBox( message.c_str( ), NULL, MB_ICONWARNING );
+		String message = "Cannot find box " + box;
+		Application->MessageBox( message.c_str(), NULL, MB_ICONWARNING );
 	} else {
 		addBox( *found );
 	}
@@ -309,14 +311,15 @@ void TfrmBoxList::addBox( const LPDbBoxName &box ) {
 
 void __fastcall TfrmBoxList::timerTimer( TObject *Sender ) {
 	for( int row = 1; row < sgBoxNames->RowCount; row ++ ) {
-		sgBoxNames->Cells[ 1 ][ row ] = getPercentage( sgBoxNames->Cells[ 0 ][ row ] );
+		AnsiString name = sgBoxNames->Cells[ 0 ][ row ];
+		sgBoxNames->Cells[ 1 ][ row ] = getPercentage( name.c_str() );
 	}
 }
 
 //---------------------------------------------------------------------------
 
-String TfrmBoxList::getPercentage( const String &boxName ) {
-	if( boxName.IsEmpty( ) ) {
+String TfrmBoxList::getPercentage( const std::string &boxName ) {
+	if( boxName.empty( ) ) {
 		return "";
 	}
 	int status = checkProgress( boxName );
@@ -341,8 +344,8 @@ String TfrmBoxList::getPercentage( const String &boxName ) {
 
 //---------------------------------------------------------------------------
 
-int TfrmBoxList::checkProgress( const String &boxName ) {
-	const LPDbBoxName *box = boxes.find( bcsToStd( boxName ) );
+int TfrmBoxList::checkProgress( const std::string &boxName ) {
+	const LPDbBoxName *box = boxes.find( boxName );
 	if( box == NULL ) {
 		return BoxSummary::BOX_NOT_FOUND;
 	}
@@ -365,7 +368,8 @@ void __fastcall TfrmBoxList::sgBoxNamesDrawCell( TObject *Sender, int ACol, int 
 	} else if( ACol == 0 && State.Contains( gdSelected ) ) {
 		background = clHighlight;
 	} else if( ACol == 1 && ARow < sgBoxNames->RowCount ) {
-		background = getColour( sgBoxNames->Cells[ 0 ][ ARow ] );
+		AnsiString name = sgBoxNames->Cells[ 0 ][ ARow ];
+		background = getColour( name.c_str() );
 	}
 	TCanvas *out = sgBoxNames->Canvas;
 	out->Brush->Color = background;
@@ -375,9 +379,9 @@ void __fastcall TfrmBoxList::sgBoxNamesDrawCell( TObject *Sender, int ACol, int 
 
 //---------------------------------------------------------------------------
 
-TColor TfrmBoxList::getColour( const String &boxName ) {
+TColor TfrmBoxList::getColour( const std::string &boxName ) {
 	static const TColor green = TColor(0x00C000), amber = TColor(0x00C0FF), red = TColor(0x0000D0);
-	if( boxName.IsEmpty( ) ) {
+	if( boxName.empty( ) ) {
 		return clWindow;
 	}
 	int percentage = checkProgress( boxName );
@@ -510,18 +514,18 @@ void __fastcall TfrmBoxList::sgBoxTypesFixedCellClick( TObject *Sender, int ACol
 //---------------------------------------------------------------------------
 
 struct BoxName {
-	String name;
+	AnsiString name;
 	int status;
 };
 
 //---------------------------------------------------------------------------
 
 static bool nameAscending( const BoxName &i, const BoxName &j ) {
-	return i.name.CompareIC( j.name ) < 0;
+	return i.name < j.name;
 }
 
 static bool nameDescending( const BoxName &i, const BoxName &j ) {
-	return i.name.CompareIC( j.name ) > 0;
+	return j.name < i.name;
 }
 
 static bool stateAscending( const BoxName &i, const BoxName &j ) {
@@ -529,7 +533,7 @@ static bool stateAscending( const BoxName &i, const BoxName &j ) {
 }
 
 static bool stateDescending( const BoxName &i, const BoxName &j ) {
-	return i.status > j.status;
+	return j.status < i.status;
 }
 
 //---------------------------------------------------------------------------
@@ -539,7 +543,7 @@ void __fastcall TfrmBoxList::sgBoxNamesFixedCellClick( TObject *Sender, int ACol
 	BoxName record;
 	for( int row = 1; row < sgBoxNames->RowCount; row++ ) {
 		record.name = sgBoxNames->Cells[ 0 ][ row ];
-		record.status = checkProgress( record.name );
+		record.status = checkProgress( record.name.c_str() );
 		names.push_back( record );
 	}
 	if( ACol == 0 ) {

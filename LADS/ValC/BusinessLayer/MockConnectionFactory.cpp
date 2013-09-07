@@ -11,11 +11,12 @@ MockConnectionFactory::MockConnectionFactory()
 MockConnection* MockConnectionFactory::createConnection()
 {
     MockConnection* mc = new MockConnection();
-    mc->setBuddyDB  ( m_buddyDB   );
-    mc->setClusters ( m_clusters  );
-    mc->setProjects ( m_projects  );
-    mc->setTestNames( m_testNames );
-    mc->setWorklist ( m_worklist  );
+    mc->setBuddyDB          ( m_buddyDB   );
+    mc->setClusters         ( m_clusters  );
+    mc->setNonLocalResults  ( m_nonLocalResults );
+    mc->setProjects         ( m_projects  );
+    mc->setTestNames        ( m_testNames );
+    mc->setWorklist         ( m_worklist  );
     return mc;
 }
 
@@ -27,6 +28,11 @@ void MockConnectionFactory::setBuddyDB( const std::string& buddyDB )
 void MockConnectionFactory::setClusters( const std::string& clusters )
 {
     m_clusters = clusters;
+}
+
+void MockConnectionFactory::setNonLocalResults( const std::string& nonLocalResults )
+{
+    m_nonLocalResults = nonLocalResults;
 }
 
 void MockConnectionFactory::setProjects( const std::string& projects )

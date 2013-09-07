@@ -34,18 +34,18 @@ LCDbTest::LCDbTest( const LQuery & query )
 			 query.readString( "external_full" ) ),
    LDbValid( query.readDateTime( "valid_from" ),
 			 query.readDateTime( "valid_to" ),
-			 query.readShort( "status" ) ),
+			 query.readInt( "status" ) ),
    limits( query.readDouble( "default_lower_limit" ),
 		   query.readDouble( "default_upper_limit" ) )
 {
 	if( (query.fieldExists( "min_datapoints" ) && query.readInt( "min_datapoints" ) != REQUIRED_DATA_POINTS)
 	 || (query.fieldExists( "max_datapoints" ) && query.readInt( "max_datapoints" ) != REQUIRED_DATA_POINTS) )
 	{
-		throw Exception( "Invalid result definition for " + getName() );
+		throw Exception( strcat("Invalid result definition for " , getName().c_str()) );
 	}
 
 	if( query.fieldExists( "data_type" ) )
-		dataType = query.readShort( "data_type" );
+		dataType = query.readInt( "data_type" );
 	else
 		dataType = REAL_DATA;
 
@@ -53,7 +53,7 @@ LCDbTest::LCDbTest( const LQuery & query )
 	   sampleType = query.readString( "sample_type" );
 
 	if( query.fieldExists( "precision" ) )
-		precision = query.readShort( "precision" );
+		precision = query.readInt( "precision" );
 	else
 		precision = 2;
 }
@@ -132,8 +132,8 @@ LCDbTest::CalcDef::CalcDef( const LQuery & query )
  : LCDbID( query.readInt( "record_cid" ) ),
    LDbValid( query.readDateTime( "valid_from" ),
 			 query.readDateTime( "valid_to" ),
-			 query.readShort( "status" ) ),
-   calc( query.readShort( "calculation" ) ),
+			 query.readInt( "status" ) ),
+   calc( query.readInt( "calculation" ) ),
    sourceTest( query.readInt( "source_test_cid" ) ),
    multiple( query.readDouble( "source_multiple" ) )
 {}
@@ -153,11 +153,11 @@ LCDbTest::MachineDef::MachineDef( const LQuery & query )
  : LCDbID( query.readInt( "record_cid" ) ),
    LDbValid( query.readDateTime( "valid_from" ),
 			 query.readDateTime( "valid_to" ),
-			 query.readShort( "status" ) ),
+			 query.readInt( "status" ) ),
    analyser( query.readInt( "machine_cid" ) ),
    code( query.readString( "machine_test_name" ) ),
-   protocol( query.readShort( "protocol" ) ),
-   testOrder( query.readShort( "test_order" ) )
+   protocol( query.readInt( "protocol" ) ),
+   testOrder( query.readInt( "test_order" ) )
 {
 	if( query.fieldExists( "sample_type" ) )
 	   sampleType = query.readString( "sample_type" );
@@ -168,7 +168,7 @@ LCDbTest::MachineDef::MachineDef( const LQuery & query )
 void LCDbTest::addMachineDef( const LQuery & defs )
 {
 	MachineDef detail( defs );
-	if( detail.getSampleType().IsEmpty() || detail.getSampleType() == "." )
+	if( detail.getSampleType().empty() || detail.getSampleType() == "." )
 		detail.setSampleType( sampleType );
 	machineDefs.insert( detail );
 }

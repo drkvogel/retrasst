@@ -584,7 +584,7 @@ bool ROSETTA::appendMember( ROSE_BASE *b )
 std::string ROSETTA::serializeOut( void ) const
 {
 	char	buf[30];
-	sprintf( buf, "[%d", pairs.size() ); // WRITE NPAIRS AS FIRST FIELD
+	sprintf( buf, "[%d", (int) pairs.size() ); // WRITE NPAIRS AS FIRST FIELD
 	std::string	ser = buf;
 	std::vector<ROSE_BASE *>::const_iterator it = pairs.begin();
 	while ( it != pairs.end() )
@@ -600,7 +600,7 @@ std::string ROSETTA::serializeOut( void ) const
 std::string ROSETTA::exportXML( const std::string name ) const
 {
 	char	buf[100];
-	sprintf( buf, "\" t=\"R\" members=\"%d\">", pairs.size() );
+	sprintf( buf, "\" t=\"R\" members=\"%d\">", (int) pairs.size() );
 	std::string	ser = std::string("\n<v n=\"") + name + buf;
 	std::vector<ROSE_BASE *>::const_iterator it = pairs.begin();
 	while ( it != pairs.end() )

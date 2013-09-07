@@ -1,5 +1,6 @@
 #ifndef ThreadH
 #define ThreadH
+#include "StrUtil.h"
 
 //#include <winbase.h>
 #include <windows.h>
@@ -38,7 +39,17 @@ class Thread
     public:
         // Throws exception if construction fails
         Thread(Runnable* r);
-        ~Thread();
+		~Thread();
+        /*  Returns the thread handle.
+
+            The motivation for making the thread handle available was:
+
+                I had a couple of threads executing in parallel. I wanted to wait till both had finished. With
+                access to the HANDLE, I can use WaitForMultipleObjectsEx.
+
+            Note that there is no need to Close this HANDLE. The Thread destructor takes care of that.
+        */
+		HANDLE getHandle() const;
         unsigned long terminate( unsigned long howLongToWaitMillis );
 
     private:

@@ -6,6 +6,22 @@
 TfrmTest *frmTest;
 
 __fastcall TfrmTest::TfrmTest(TComponent* Owner) : TForm(Owner) { }
+/*    //"SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
+//    // no 'chunks' yet, we haven't created them!
+//    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from
+//    q.setSQL("SELECT * FROM c_retrieval_job rj, cryovial_store cs WHERE rj.retrieval_cid = cs.retrieval_cid ORDER BY cs.box_cid");
+*/
+
+    // SampleRow's destructor now deletes store_record, so the following is not needed:
+    //for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) { delete (*it)->store_record; }
+// next not needed - objects pointed to by vials and by chunk->rows already deleted above
+//    for (vecpSampleChunk::const_iterator ch = chunks.begin(); ch != chunks.end(); ch++) {
+//        delete_referenced<vecpSampleRow>((*ch)->rows);
+//    }
+    // similarly, the vector of pointers should be deleted on destruct - or close of the form
+    // http://www.borlandtalk.com/whats-the-different-between-formclose-and-tform1--vt18757.html
+
+/* SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box, string site, int pos, string vessel, int shelf, string rack, int slot) :  */
 
 /*
     // load

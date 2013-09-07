@@ -7,6 +7,14 @@ TfrmProcess *frmProcess;
 
 __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) { }
 
+/*
+For a box retrieval, the retrieval plan will be given by
+Select * from c_box_retrieval b order by b.section, b.rj_box_cid
+
+For a cryovial retrieval, the retrieval plan will be:
+Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position
+*/
+
 void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     maxRows             = DEFAULT_NUMROWS;

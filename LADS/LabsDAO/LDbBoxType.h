@@ -53,10 +53,8 @@ public:
 class LPDbBoxTypes : public LDbCache< LPDbBoxType >, public LPDbCacheMap< LPDbBoxTypes >
 {
 public:
-
-	bool read( LQuery pQuery, bool readAll );
-	const LPDbBoxType * find( const std::string & name ) const
-	{
+	bool read( LQuery pQuery, bool readAll = false );
+	const LPDbBoxType * find( const std::string & name ) const {
 		return findMatch( LDbNames::LCMatcher( name ) );
 	}
 };

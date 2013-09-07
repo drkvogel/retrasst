@@ -3,7 +3,6 @@
 #include "RetrievalAssistant.h"
 #include "LCDbAuditTrail.h"
 #include "LCDbObject.h"
-#include "StringUtil.h"
 #include "LCDbProject.h"
 #include "ReferredBoxes.h"
 #include "RetrievalProcess.h"
@@ -325,8 +324,8 @@ Sample retrieval
     Screen->Cursor = crSQLWait;
     LQuery qc(LIMSDatabase::getCentralDb());
     LCDbCryoJobs &jobs = LCDbCryoJobs::records();
-    jobs.read(LCDbCryoJob::JobKind::UNKNOWN, true); // $2 true: readall
-    delete_referenced<tdvecpJob>(vecJobs);
+	jobs.read( LIMSDatabase::getCentralDb(), LCDbCryoJob::UNKNOWN, true); // $2 true: readall
+	delete_referenced<tdvecpJob>(vecJobs);
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {
         if (!jr->isAvailable()) continue;
         std::ostringstream oss;

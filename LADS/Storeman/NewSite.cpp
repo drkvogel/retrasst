@@ -4,7 +4,6 @@
 #pragma hdrstop
 
 #include "NewSite.h"
-#include "StringUtil.h"
 #include "StoreUtil.h"
 
 #pragma package(smart_init)
@@ -24,8 +23,10 @@ void __fastcall TfrmNewSite::SaveClick(TObject *Sender)
 	if( Util::validateText( TxtName, LblName )
 	 && Util::validateText( TxtFull, LblFull ) )
 	{
-		site.setName( bcsToStd(TxtName->Text.Trim()) );
-		site.setFullName( bcsToStd(TxtFull->Text.Trim()) );
+		AnsiString name = TxtName->Text.Trim();
+		site.setName( name.c_str() );
+		AnsiString full = TxtFull->Text.Trim();
+		site.setFullName( full.c_str() );
 		ModalResult = mrOk;
 	}
 }

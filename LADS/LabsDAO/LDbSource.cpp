@@ -49,7 +49,6 @@
 #include "LPDbProfileMap.h"
 #include "LDbNotes.h"
 #include "LCDbOperator.h"
-#include "StringUtil.h"
 
 #pragma hdrstop
 #pragma package(smart_init)
@@ -606,10 +605,10 @@ int LPDbSources::setStatus( LQuery pQuery, const std::set< int > & samples, LPDb
 		return 0;
 
 	std::auto_ptr< TStrings > idList( new TStringList );
-	for( std::set< int >::const_iterator ci = samples.begin(); ci != samples.end(); ci ++ )
+	for( std::set< int >::const_iterator ci = samples.begin(); ci != samples.end(); ci ++ ) {
 		idList -> Add( *ci );
-
-	std::string ids = bcsToStd(idList -> CommaText);
+    }
+	std::string ids = AnsiString( idList -> CommaText ).c_str();
 	pQuery.setSQL( "Update Specimen set status = :sts where sample_id in (" + ids + ")" );
 	pQuery.setParam( "sts", LPDbSource::makeStatus( stage ) );
 	int count = 0;

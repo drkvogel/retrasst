@@ -7,7 +7,6 @@
 #include <vcl.h>
 #include "TfrmPassword.h"
 #include "LQuery.h"
-#include "StringUtil.h"
 #include "LIMSDatabase.h"
 
 #pragma hdrstop
@@ -45,13 +44,13 @@ void __fastcall TfrmPassword::FormShow(TObject *)
 
 void __fastcall TfrmPassword::ebNewPassChange(TObject *)
 {
-	std::string oldPass = bcsToStd(ebOldPass -> Text);
-	std::string newPass = bcsToStd(ebNewPass -> Text);
-	okButton -> Enabled = user.matchPassword( oldPass )
-					&& (oldPass.compare( newPass ) != 0)
+	AnsiString oldPass = ebOldPass -> Text;
+	AnsiString newPass = ebNewPass -> Text;
+	okButton -> Enabled = (oldPass.AnsiCompareIC( newPass ) != 0)
 					&& (ebConfirmed -> Text == ebNewPass -> Text)
-					&& (newPass.length() >= 6)
-					&& !user.hasUsedPassword( qCentral, newPass );
+					&& (newPass.Length() >= 6)
+					&& user.matchPassword( oldPass.c_str() )
+					&& !user.hasUsedPassword( qCentral, newPass.c_str() );
 }
 
 //---------------------------------------------------------------------------
@@ -65,7 +64,7 @@ void __fastcall TfrmPassword::okButtonClick(TObject *)
 		dates.first = Now();
 	dates.second = Now() + 190;
 	user.setValidDates( dates );  
-	user.setPassword( bcsToStd(ebNewPass -> Text) );
+	user.setPassword( AnsiString(ebNewPass -> Text).c_str() );
 	user.setActive( true );
 	user.saveRecord( qCentral );
 }

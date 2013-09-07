@@ -13,7 +13,6 @@
 #include "LCDbOperator.h"
 #include "LCDbProject.h"
 #include "LCDbAuditTrail.h"
-#include "StringUtil.h"
 
 #pragma hdrstop
 
@@ -97,10 +96,10 @@ void __fastcall TfrmConfirm::userDetailChange(TObject *)
 
 void __fastcall TfrmConfirm::BitBtn1Click(TObject *)
 {
-	std::string name = bcsToStd( cbUserNames -> Text );
-	std::string pwd = bcsToStd( edtPassword -> Text );
+	AnsiString name = cbUserNames -> Text.Trim();
+	AnsiString pwd = edtPassword -> Text.Trim();
 	LCDbOperators & users = LCDbOperators::records();
-	const LCDbOperator * user = users.check( name, pwd );
+	const LCDbOperator * user = users.check( name.c_str(), pwd.c_str() );
 	edtPassword -> Clear();
 	if( user != NULL ) {
 		if( user -> getID() != LCDbOperators::getCurrentID() ) {

@@ -26,10 +26,12 @@ __published:	// IDE-managed Components
 	TEdit *TxtName;
 	TLabel *LblName;
 	TLabel *LblWhy;
-	TEdit *TxtReason;
+	TComboBox *CbExercise;
+	TButton *BtnNewEx;
 
 	void __fastcall SaveClick(TObject *Sender);
 	void __fastcall FormShow(TObject *Sender);
+	void __fastcall BtnNewExClick(TObject *Sender);
 
 private:	// User declarations
 

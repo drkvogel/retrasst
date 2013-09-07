@@ -6,7 +6,6 @@
 #include "NewTank.h"
 #include "NewSection.h"
 #include "StoreUtil.h"
-#include "StringUtil.h"
 #include "LCDbObject.h"
 #include "NewType.h"
 #include "LCDbTankMap.h"
@@ -149,8 +148,8 @@ bool TfrmNewTank::TankValidate()
 	if( !checkVessel( TxtSrl, LblSrl, false ) || !checkVessel( TxtPhysical, LblPhys, true ) ) {
 		return false;
 	}
-	std::string place = bcsToStd( cbLocation->Text.Trim() );
-	const LCDbObject * loc = LCDbObjects::records().find( place, LCDbObject::STORAGE_SITE );
+	AnsiString place =  cbLocation->Text.Trim() ;
+	const LCDbObject * loc = LCDbObjects::records().find( place.c_str(), LCDbObject::STORAGE_SITE );
 	if( loc == NULL ) {
 		Application->MessageBox( L"Please select site", L"Invalid site", MB_ICONWARNING );
 		return false;
@@ -173,8 +172,10 @@ bool TfrmNewTank::TankValidate()
 			return false;
 		}
 	}
-	tank->setSrlno( bcsToStd( TxtSrl->Text.Trim() ) );
-	tank->setName( bcsToStd( TxtPhysical->Text.Trim() ) );
+	AnsiString serial = TxtSrl->Text.Trim();
+	tank->setSrlno( serial.c_str() );
+	AnsiString name = TxtPhysical->Text.Trim();
+	tank->setName(  name.c_str() );
 	tank->setPosition( pos );
 	tank->setLocationID( loc->getID() );
 	tank->setShelfNumber( shelf );
@@ -205,13 +206,13 @@ void TfrmNewTank::LayoutInit()
 
 bool TfrmNewTank::LayoutValidate()
 {
-	std::string layname, layfull;
+	AnsiString layname, layfull;
 	if( !Util::validateText( TxtLayName, LblLayName ) || !Util::validateText( TxtLayFull, LblLayFull ) ) {
 		return false;
 	}
-	layname = bcsToStd( TxtLayName->Text.Trim() );
-	layfull = bcsToStd( TxtLayFull->Text.Trim() );
-	if( layman.isNameDuplicate( false, layname ) || layman.isNameDuplicate( true, layfull ) )
+	layname =  TxtLayName->Text.Trim();
+	layfull =  TxtLayFull->Text.Trim();
+	if( layman.isNameDuplicate( false, layname.c_str() ) || layman.isNameDuplicate( true, layfull.c_str() ) )
 	{
 		Application->MessageBox( L"Another layout has the same name", NULL, MB_ICONWARNING );
 		return false;
@@ -225,7 +226,7 @@ bool TfrmNewTank::LayoutValidate()
 		Application->MessageBox( L"Number of sections doesn't match #Sections", NULL, MB_ICONWARNING );
 		return false;
 	}
-	newLayout->setLayoutType( layname, layfull );
+	newLayout->setLayoutType( layname.c_str(), layfull.c_str() );
 	TankConfirmInit();
 	return true;
 }
@@ -263,7 +264,7 @@ void TfrmNewTank::TankConfirmInit()
 	ShowGrid( grdProps1, lay->getList() );
 	if( mode == NEW_VESSEL || mode == ADD_LAYOUT || layout_cid != oldtank->getLayoutID() ) {
 		std::string population = getNextPopulation();
-		std::string layout = bcsToStd( TxtLayName1 -> Text );
+		std::string layout = AnsiString( TxtLayName1 -> Text ).c_str();
 		tank->setContent( population, layout + ' ' + population );
 	}
 	TxtName1->Text = tank->getContent().c_str();
@@ -319,8 +320,8 @@ void __fastcall TfrmNewTank::CancelClick(TObject *Sender)
 
 const LCDbObject * TfrmNewTank::findStorageType() {
 	LCDbObjects & cache = LCDbObjects::records();
-	std::string type = bcsToStd( cbStoreType->Text.Trim() );
-	const LCDbObject * st = cache.find( type, LCDbObject::STORAGE_TYPE );
+	AnsiString type =  cbStoreType->Text.Trim();
+	const LCDbObject * st = cache.find( type.c_str(), LCDbObject::STORAGE_TYPE );
 	if( st == NULL
 	 && Application->MessageBox( L"Add new storage type?", L"No storage type", MB_ICONQUESTION|MB_YESNO ) == IDYES
 	 && frmNewType -> ShowModal() == mrOk ) {
@@ -607,16 +608,16 @@ void __fastcall TfrmNewTank::chkPopClick(TObject *Sender)
 //---------------------------------------------------------------------------
 
 bool TfrmNewTank::checkVessel( TEdit * textBox, TLabel * label, bool isName ) {
-	std::string name = bcsToStd( textBox->Text.Trim() );
+	AnsiString name =  textBox->Text.Trim();
 	if( mode != NEW_VESSEL ) {
-		const std::string & oldValue = isName ? oldtank->getVessel() : oldtank->getSrlno();
-		if( compareIC( name, oldValue ) == 0 ) {
+		std::string oldValue = isName ? oldtank->getVessel() : oldtank->getSrlno();
+		if(  oldValue == name.c_str() ) {
 			return true;				// no change: no problem
 		}
 	}
 	if( mode == EDIT_VESSEL || mode == NEW_VESSEL ) {
-		return Util::validateText( textBox, label ) && !Util::isVesselInUse( name );
-	} else if( name.empty() ) {
+		return Util::validateText( textBox, label ) && !Util::isVesselInUse( name.c_str() );
+	} else if( name.IsEmpty() ) {
 		Application->MessageBox( L"No vessel at that location", NULL, MB_ICONWARNING );
 		return false;
 	} else {
@@ -660,10 +661,10 @@ void __fastcall TfrmNewTank::cbLocationChange(TObject *Sender)
 
 //---------------------------------------------------------------------------
 
-void TfrmNewTank::changeVessel( String site, String position ) {
+void TfrmNewTank::changeVessel( AnsiString site, AnsiString position ) {
 	const LCDbObjects & names = LCDbObjects::records();
 	std::string serial, friendly;
-	const LCDbObject * loc = names.find( bcsToStd( site ), LCDbObject::STORAGE_SITE );
+	const LCDbObject * loc = names.find( site.c_str(), LCDbObject::STORAGE_SITE );
 	short pos = position.ToIntDef( -1 );
 	if( loc != NULL && pos > 0 ) {
 		for( Range< LCDbTankMap >tmi = LCDbTankMaps::records(); tmi.isValid(); ++tmi ) {

@@ -111,9 +111,11 @@ class LPDbDescriptors : public LDbCache< LPDbDescriptor >, public LPDbCacheMap< 
 	class ValueNameMatch;
 	class FieldMatch;
 
+	int getFieldNumber( const std::string & field ) const;
+
 public:
 
-	bool read( LQuery pQuery, bool readAll );
+	bool read( LQuery pQuery, bool readAll = true );
 
 	const LPDbDescriptor * findByName( const std::string & name ) const;
 	const LPDbDescriptor * findByField( const std::string & field ) const;

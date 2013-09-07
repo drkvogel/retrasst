@@ -72,6 +72,21 @@ std::string LCDbObject::findDescription( Category type )
 		case STORAGE_VESSEL:
 			return "Storage vessel";
 
+		case RESULT_ATTRIBUTE:
+			return "Result attribute";
+
+		case ALIQUOT_CATEGORY:
+			return "Aliquot category";
+
+		case QC_MATERIAL:
+			return "QC material";
+
+		case CANNED_TEXT:
+			return "Canned text";
+
+		case STORAGE_EXERCISE:
+			return "Storage exercise";
+
 		default:
 			return "(unknown)";
 	}
@@ -111,7 +126,7 @@ bool LCDbObjects::read( LQuery cQuery, bool readAll )
 	else
 	{	cQuery.setSQL( "select * from c_object_name where status <> :sts"
 					  " order by object_cid" );
-		cQuery.setParam( 0, LDbValid::DELETED );
+		cQuery.setParam( "sts", LDbValid::DELETED );
 	}
 	return readData( cQuery );
 }

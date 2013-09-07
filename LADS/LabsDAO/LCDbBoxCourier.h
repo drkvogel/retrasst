@@ -39,11 +39,11 @@ class LSDbBoxCourier :  public LSDbBox
 				const std::string & getLastBarcode ( void )const  {return last_barcode ;}
 				void setLastBarcode( const std::string & x ){ last_barcode=x; }
 
-				const int   getProjectCid( void ) const {return project_cid; }
+				 int   getProjectCid( void ) const {return project_cid; }
 				void setProjectCid ( const int x){project_cid=x; }
 
 				void use( bool pUse ) { used=pUse;}
-				const bool isUsed( void ) const { return used; }
+				 bool isUsed( void ) const { return used; }
 
 				void setFirst( short x ) {first=x;}
 				void setLast(  short x ) {last=x; }
@@ -78,6 +78,7 @@ class LDbBoxExpecteds : public LDbCache< LDbBoxExpected >, public LPDbCacheMap< 
 	public:
 
 		static void readAll( LQuery central );
+		void read( LQuery central, bool all = false );
 
 		const LDbBoxExpected * find( const int projID
 			, const std::string & pBoxName
@@ -152,25 +153,25 @@ class LDbBoxArrival : public LSDbBoxCourier , public LCDbID
 				int getProcessCid( void ) {return process_cid;}
 
 				void setTankCid( const int x ) {tank_cid=x;}
-				const int  getTankCid(void )const { return tank_cid; }
+				 int  getTankCid(void )const { return tank_cid; }
 
 				void setRackNumber( const std::string &x ){ rack_number=x;}
 				const std::string & getRackNumber( void )const {return rack_number; }
 
 				void setSlotPosition( const int x ){slotPosition=x;}
-				const int getSlotPosition(void )const{return slotPosition; }
+				 int getSlotPosition(void )const{return slotPosition; }
 
 				void setSwipeTime( const XTIME & x ) { swipe_time=x; }
 				const XTIME getSwipeTime( void ) const{ return swipe_time; }
 
 				void setStatus( const int x ) { status =x; }
-				const int getStatus(void) const { return status;}
+				 int getStatus(void) const { return status;}
 
 				void setBev( const BoxEvents x ) { bev=x;}
-				const BoxEvents getBev( void )const  {return bev ;}
+				 BoxEvents getBev( void )const  {return bev ;}
 
 				void setMatchStatus( const ArrivalStatus x ) { boxEntryMatch =x; }
-				const ArrivalStatus getMatchStatus(void) const { return boxEntryMatch;}
+				 ArrivalStatus getMatchStatus(void) const { return boxEntryMatch;}
 
 				bool saveRecord( LQuery pQuery );
 				void createId( LQuery project );
@@ -191,13 +192,14 @@ class LDbBoxArrival : public LSDbBoxCourier , public LCDbID
 };
 
 // class to handle records in laptop central
-class LDbBoxArrivals : public LDbCache< LDbBoxArrival >, LPDbCacheMap< LDbBoxArrivals >
+class LDbBoxArrivals : public LDbCache< LDbBoxArrival >, public LPDbCacheMap< LDbBoxArrivals >
 {
 		class Matcher;
 
 	public:
 
 		static void readAll( LQuery project );
+		void read( LQuery project, bool all = false );
 
 		const LDbBoxArrival * find( const int pProjectCid, const std::string & pBoxName
 			,const std::string & pCryo1

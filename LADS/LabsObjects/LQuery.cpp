@@ -37,7 +37,6 @@
 #include "LIMSDatabase.h"
 #include "xquery.h"
 #include "xexec.h"
-#include "StringUtil.h"
 
 #pragma hdrstop
 #pragma package(smart_init)
@@ -219,14 +218,15 @@ bool LQuery::eof( ) {
 
 bool LQuery::call( Operation function, LogLevel log ) {
 	if( logLevel >= log && !logging ) {
-		//logQuery( );
+		logQuery( );
 		logging = true;
 	}
 	try {
 		return ( this->*function )( );
 	}
 	catch( Exception &ex ) {
-		logError( bcsToStd( ex.Message ) );
+		AnsiString msg = ex.Message;
+		logError( msg.c_str() );
 		throw;
 	}
 	catch( std::string &ex ) {
@@ -269,7 +269,7 @@ void LQuery::logError( const std::string &message ) {
 	if( !logging ) {
 		logQuery( );
 	}
-	//logResult( "error", message );
+	logResult( "error", message );
 }
 
 //---------------------------------------------------------------------------
@@ -277,7 +277,7 @@ void LQuery::logError( const std::string &message ) {
 void LQuery::logCount( int records ) {
 	std::stringstream out;
 	out << records;
-	//logResult( "records", out.str( ) );
+	logResult( "records", out.str( ) );
 }
 
 //---------------------------------------------------------------------------

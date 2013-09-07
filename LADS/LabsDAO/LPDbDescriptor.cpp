@@ -16,13 +16,13 @@
 
 #include <vcl.h>
 #include <sstream>
-#pragma hdrstop
 
 #include "LQuery.h"
 #include "LCDbProject.h"
 #include "LPDbDescriptor.h"
 #include "xb36Code.h"
 
+#pragma hdrstop
 #pragma package(smart_init)
 
 //---------------------------------------------------------------------------
@@ -388,7 +388,7 @@ const LPDbDescriptor * LPDbDescriptors::findByName( const std::string & name ) c
 //	Suggest the next unused field in the (version 2.2) profile map table
 //---------------------------------------------------------------------------
 
-int getFieldNumber( const std::string & field ) {
+int LPDbDescriptors::getFieldNumber( const std::string & field ) const {
 	int num = 0;
 	for( unsigned n = 4; n < field.length(); n ++ ) {
 		char ch = field[ n ];

@@ -40,13 +40,11 @@ public:
 
 //---------------------------------------------------------------------------
 
-class LCDbBoxSizes : public LDbCache< LCDbBoxSize >, public LDbSingleton< LCDbBoxSizes >
+class LCDbBoxSizes : public LDbCache< LCDbBoxSize >, public LCDbSingleton< LCDbBoxSizes >
 {
-//	class NameMatcher;
-
 public:
 
-	bool read( LQuery cQuery, bool readAll );
+	bool read( LQuery cQuery, bool readAll = true );
 	const LCDbBoxSize * find( const std::string & description ) const;
 };
 

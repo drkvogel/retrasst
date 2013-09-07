@@ -2,7 +2,7 @@ object frmSelectJob: TfrmSelectJob
   Left = 0
   Top = 0
   BorderIcons = [biMinimize]
-  Caption = 'Select Cryogenics Job'
+  Caption = 'Select Cryogenics Task'
   ClientHeight = 291
   ClientWidth = 583
   Color = 12316364

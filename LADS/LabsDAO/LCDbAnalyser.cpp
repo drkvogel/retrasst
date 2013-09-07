@@ -172,8 +172,7 @@ bool LCDbAnalyser::saveRecord( LQuery query )
 	if( !clusterIDs.empty() )
 	{
 		LCDbID myLCDbID;
-		myLCDbID.claimNextID( query, clusterIDs.size() );
-		int record = myLCDbID.getID();
+		int record = myLCDbID.claimNextID( query );
 		query.setSQL( "Insert into c_cluster_machine"
 					" (record_cid, machine_cid, cluster_cid, status)"
 					 " values ( :rid, :mid, :cid, 0 )" );

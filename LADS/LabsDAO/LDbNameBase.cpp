@@ -1,6 +1,6 @@
-#include <vcl.h>
+
+#include <string>
 #include "LDbNameBase.h"
-#include "StringUtil.h"
 
 //---------------------------------------------------------------------------
 
@@ -22,8 +22,8 @@ std::string LDbNames::LCMatcher::makeLower( const std::string & s )
 //---------------------------------------------------------------------------
 
 bool LDbNames::LCMatcher::operator() ( const LDbNames & other ) const {
-	return lcValue.compare( makeLower( other.getName() ) ) == 0
-		|| compareIC( value, other.getDescription() ) == 0;
+	return lcValue == makeLower( other.getName() )
+		|| makeLower( value ) == makeLower( other.getDescription() );
 }
 
 //---------------------------------------------------------------------------

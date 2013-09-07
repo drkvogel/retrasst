@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------
 
 #include <sstream>
-#include "StringUtil.h"
 #include "StoreUtil.h"
 #include "LCDbTankMap.h"
 #include "LCDbObject.h"
@@ -30,8 +29,9 @@ int Util::getImageIndex( const IPart* data )
 			return PART_FILLED;
 		case IPart::IS_FULL:
 			return ALL_FILLED;
+		default:
+			return UNKNOWN;
 	}
-	return UNKNOWN;
 }
 
 //---------------------------------------------------------------------------
@@ -295,11 +295,39 @@ LQuery Util::projectQuery( int projID, bool ddb ) {
 	}
 	const std::string & dbname = proj.getDbName();
 	if( ddb ) {
-		return LIMSDatabase::getDistributedDb( dbname );
+		return LQuery( LIMSDatabase::getDistributedDb( dbname ) );
 	} else {
-		return LIMSDatabase::getProjectDb( dbname );
+		return LQuery( LIMSDatabase::getProjectDb( dbname ) );
 	}
 }
 
 //---------------------------------------------------------------------------
+
+// sort function: strip out numeric chars from name, concatenate, compare as ints
+bool Util::numericCompare(const std::string a, const std::string b) {
+    struct { // Local functions are not allowed in C++, but functions are allowed in local classes
+        static unsigned int justNumerics(std::string a) {
+            std::ostringstream numerics;
+            for (unsigned int i=0; i<a.length(); i++) {
+                char ch = a.at(i);
+                if (ch >= 0x30 && ch < 0x3A) {
+                    numerics << ch; // pull out the numeric characters
+                }
+            }
+            return atoi(numerics.str().c_str());
+        }
+        static std::string nonNumerics(std::string a) {
+            std::ostringstream others;
+            for (unsigned int i=0; i<a.length(); i++) {
+                char ch = a.at(i);
+                if (ch < 0x30 || ch >= 0x3A) {
+                    others << ch; // pull out the non-numeric characters
+                }
+            }
+            return others.str();
+        }
+    } local;
+    int diff = local.nonNumerics(a).compare(local.nonNumerics(b));
+    return diff == 0 ? local.justNumerics(a) < local.justNumerics(b) : diff < 0;
+}
 

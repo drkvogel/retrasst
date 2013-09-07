@@ -2,7 +2,6 @@
 #pragma hdrstop
 
 #include "DiscardPrologue.h"
-#include "StringUtil.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -86,7 +85,7 @@ void __fastcall TfrmDiscardPrologue::btnOKClick(TObject *Sender)
 {
 	int mr = mrNone;
 
-	m_context->setProjectName(bcsToStd( this->cmbProject->Text ) );
+	m_context->setProjectName( AnsiString(this->cmbProject->Text).c_str() );
 	m_context->configCrstatus(this->rgCryovialStatus->ItemIndex);
 
 	mr = mrOk;

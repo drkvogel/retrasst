@@ -17,7 +17,6 @@ object frmStoremain: TfrmStoremain
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
-  OnHide = FormHide
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

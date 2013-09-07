@@ -49,7 +49,7 @@ class LPDbProfileMaps : public LDbCache< LPDbProfileMap >, public LPDbCacheMap< 
 {
 public:
 
-	bool read( LQuery pQuery, bool );
+	bool read( LQuery pQuery, bool readAll = true );
 	bool remove( LQuery projectQuery, int pmid );
 };
 

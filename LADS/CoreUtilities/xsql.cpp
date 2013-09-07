@@ -298,7 +298,7 @@ bool XSQL::ingConstructParameters( void )
 void XSQL::ingConstructDisplay( void )
 {
 	printf( "\nXSQL::ingConstructDisplay\n%s\n%d parameters",
-		query_text.c_str(), param_name.size() );
+		query_text.c_str(), (int) param_name.size() );
 	std::vector<std::string>::iterator vit = param_name.begin();
 	int	count = 0;
 	while( vit != param_name.end() )

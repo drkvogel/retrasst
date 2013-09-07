@@ -25,14 +25,17 @@ public:
         /*  If loaded worklist entries name-check results, then this information will be added to resultIndex. */
         ResultIndex* resultIndex,         
         const std::string& worklistSQL, 
-        const std::string& worklistRelationSQL );
+        const std::string& worklistRelationSQL,
+        const std::string& inclusionRule );
     void execute();
 private:
     WorklistEntries* m_worklistEntries;
     DBConnection* m_con;
     paulst::LoggingService* m_log;
     ResultIndex* m_resultIndex;
-    const std::string m_worklistSQL, m_worklistRelationSQL;
+    const std::string   m_worklistSQL, 
+                        m_worklistRelationSQL,
+                        m_inclusionRule;
 };
 
 };

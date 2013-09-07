@@ -66,7 +66,7 @@ private:
 
 //---------------------------------------------------------------------------
 
-class LCDbOperators : public LDbCache< LCDbOperator >, public LDbSingleton< LCDbOperators >
+class LCDbOperators : public LDbCache< LCDbOperator >, public LCDbSingleton< LCDbOperators >
 {
 //	class PasswordMatcher;
 
@@ -79,7 +79,7 @@ public:
 	void setCurrent( const LCDbOperator & user ) { currentID = user.getID(); }
 	static int getCurrentID() { return records().currentID; }
 
-	bool read( LQuery central, bool readAll );
+	bool read( LQuery central, bool readAll = false );
 	const LCDbOperator * findByName( const std::string & name ) const
 	{
 		return findMatch( LDbNames::LCMatcher( name ) );

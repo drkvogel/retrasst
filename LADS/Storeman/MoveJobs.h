@@ -30,6 +30,8 @@ __published:	// IDE-managed Components
 
 private:	// User declarations
 
+	enum { JOB_NAME, EXERCISE, DESCRIPTION, START_DATE, NUM_COLS };
+
 	const LCDbCryoJob *record;
 
 	void writeJob( const LCDbCryoJob &job, int row );

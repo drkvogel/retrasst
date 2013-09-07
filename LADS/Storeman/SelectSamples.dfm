@@ -19,21 +19,21 @@ object frmSelectBoxes: TfrmSelectBoxes
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
-    Left = 50
+    Left = 55
     Top = 100
-    Width = 56
+    Width = 43
     Height = 13
-    Caption = 'Number/ID:'
+    Caption = 'Barcode:'
   end
   object Label3: TLabel
-    Left = 50
+    Left = 55
     Top = 64
     Width = 49
     Height = 13
     Caption = 'Box Type:'
   end
   object Label2: TLabel
-    Left = 50
+    Left = 55
     Top = 29
     Width = 38
     Height = 13

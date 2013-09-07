@@ -80,18 +80,15 @@ public:
 
 //---------------------------------------------------------------------------
 
-class LBDbSources : public LDbCache< LBDbSource >, public LDbSingleton< LBDbSources >
+class LBDbSources : public LDbCache< LBDbSource >, public LCDbSingleton< LBDbSources >
 {
-//	class Matcher;
-
 public:
 
-	bool read( LQuery qCluster, bool readAll );
+	bool read( LQuery qCluster, bool readAll = false );
 	const LBDbSource * readRecord( LQuery qCluster, int bsid );
 	const LBDbSource * readRecord( LQuery qCluster, const std::string & barcode,
 						 const std::string & test, const std::string & sample );
 	const LBDbSource * readRecord( LQuery qCluster, std::pair< int, int > specimen );
-//	const LBDbSource * find( const LBDbSource & sample ) const;
 	bool deleteOld( LQuery cluster, TDateTime flagged, TDateTime oldest );
 };
 

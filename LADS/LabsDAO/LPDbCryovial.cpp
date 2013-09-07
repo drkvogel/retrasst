@@ -113,7 +113,7 @@ const LPDbCryovial * LPDbCryovials::readRecord( LQuery pQuery, int box, short po
 bool LPDbCryovials::readBySourceID( LQuery pQuery, int specimenID )
 {
 	pQuery.setSQL( selectFields() + " and c.sample_id = :sid"
-	// include cryovial_store time_stamp so that latest entries are stored
+	// include cryovial_store time_stamp so that latest entries are kept
 				 " order by c.cryovial_id, s.time_stamp" );
 	pQuery.setParam( "sid", specimenID );
 	return readData( pQuery );
@@ -166,8 +166,7 @@ public:
 
 	bool operator()( const LPDbCryovial & other ) const
 	{
-		return other.getAliquotType() == aliquot
-			&& other.getBarcode().compare( barcode ) == 0;
+		return other.getAliquotType() == aliquot && other.getBarcode() == barcode;
 	}
 };
 
@@ -176,6 +175,17 @@ public:
 const LPDbCryovial * LPDbCryovials::find( const std::string & barcode, int typeCID ) const
 {
 	return findMatch( Matcher( barcode, typeCID ) );
+}
+
+//---------------------------------------------------------------------------
+
+std::set<int> LPDbCryovials::getAliquotTypes( LQuery pQuery ) {
+	std::set<int> types;
+	pQuery.setSQL( "select distinct aliquot_type_cid from cryovial" );
+	for( pQuery.open(); !pQuery.eof(); pQuery.next() ) {
+		 types.insert( pQuery.readInt( 0 ) );
+	}
+	return types;
 }
 
 //---------------------------------------------------------------------------

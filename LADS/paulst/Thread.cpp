@@ -1,7 +1,9 @@
 #include "Require.h"
+//#include "StrUtil.h"
 #include "Thread.h"
 
 #include <process.h>
+
 
 namespace paulst
 {
@@ -54,6 +56,11 @@ Thread::~Thread()
     m_stopSignal.set();
     WaitForSingleObject( m_thread, INFINITE );
     CloseHandle( m_thread );
+}
+
+HANDLE Thread::getHandle() const
+{
+	return m_thread;
 }
 
 unsigned long Thread::terminate(unsigned long wait)

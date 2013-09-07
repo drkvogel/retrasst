@@ -65,20 +65,9 @@ __fastcall TfrmStoremain::TfrmStoremain(TComponent* Owner)
 
 void __fastcall TfrmStoremain::FormShow(TObject *Sender)
 {
-	updateStatus = STARTING;
-	resetCounts();
-    if (!RETRASSTDEBUG)
-	    timer -> Enabled = true;
-}
-
-//---------------------------------------------------------------------------
-//	stop updating status when form no longer visible; wait for FormShow()
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmStoremain::FormHide(TObject *Sender)
-{
-	timer -> Enabled = false;
 	updateStatus = STOPPED;
+    //if (!RETRASSTDEBUG)
+    timer -> Enabled = true;
 }
 
 //---------------------------------------------------------------------------
@@ -92,10 +81,10 @@ void __fastcall TfrmStoremain::timerTimer(TObject *Sender)
 	if( Active && Visible ) {
 		updateCounts();
 		showCounts();
-	} else if( updateStatus > PAUSED ) {
-		updateStatus = PAUSED;
+		timer -> Enabled = true;
+	} else {
+		updateStatus = STOPPED;
 	}
-	timer -> Enabled = true;
 }
 
 //---------------------------------------------------------------------------
@@ -115,16 +104,6 @@ void TfrmStoremain::updateCounts()
 	{
 		case STOPPED:
 			resetCounts();
-			updateStatus = STARTING;
-			break;
-
-		case STARTING:
-			readProjectData();
-			updateStatus = TRANSFERS;
-			break;
-
-		case PAUSED:
-			resetCounts();
 			updateStatus = TRANSFERS;
 			break;
 
@@ -141,27 +120,6 @@ void TfrmStoremain::updateCounts()
 			updateStatus = FINISHED;
 	}
 	Screen -> Cursor = crDefault;
-}
-
-//---------------------------------------------------------------------------
-
-void TfrmStoremain::init()
-{
-	LQuery cQuery( LIMSDatabase::getCentralDb() );
-	LCDbSectionDefs::records().read( cQuery, true );
-	LCDbBoxSizes::records().read( cQuery, true );
-	LCDbTankMaps::records().read( cQuery, true );
-}
-
-//---------------------------------------------------------------------------
-
-void TfrmStoremain::readProjectData()
-{
-	while( switchProject() ) {
-		LQuery pq( Util::projectQuery() );
-		LPDbDescriptors::records().read( pq, true );
-		LPDbBoxTypes::records().read( pq, true );
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -213,7 +171,7 @@ void TfrmStoremain::countBoxes() {
 
 void TfrmStoremain::countJobs() {
 	LCDbCryoJobs jobList( false );
-	if( jobList.read( LCDbCryoJob::JobKind( 0 ), false ) ) {
+	if( jobList.read( LIMSDatabase::getCentralDb(), LCDbCryoJob::UNKNOWN, false ) ) {
 		for( Range< LCDbCryoJob > jli = jobList; jli.isValid(); ++ jli ) {
 			if( jli -> getStatus() == LCDbCryoJob::NEW_JOB
 			 || jli -> getStatus() == LCDbCryoJob::INPROGRESS ) {
@@ -293,7 +251,6 @@ void __fastcall TfrmStoremain::btnMoveClick(TObject *Sender)
 }
 
 //---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
 
 void __fastcall TfrmStoremain::BtnReferredClick(TObject *Sender)
 {
@@ -301,7 +258,6 @@ void __fastcall TfrmStoremain::BtnReferredClick(TObject *Sender)
 	frmReferred -> ShowModal();
 }
 
-//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
 void __fastcall TfrmStoremain::BtnDiscardClick(TObject *Sender)
@@ -359,11 +315,13 @@ void __fastcall TfrmStoremain::BtnDiscardClick(TObject *Sender)
 	} while (false);
 }
 
+//---------------------------------------------------------------------------
+
 void __fastcall TfrmStoremain::BtnRetrieveClick(TObject *Sender)
 {
 	frmRetrievalAssistant->init();
 	frmRetrievalAssistant->ShowModal();
 }
 
-
+//---------------------------------------------------------------------------
 

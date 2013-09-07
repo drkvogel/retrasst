@@ -7,11 +7,13 @@
 #include <math.h>
 #include <winbase.h>
 #include "lease.h"
-#include "StringUtil.h"
+#include "LQuery.h"
+#include "LCDbAuditTrail.h"
+
 //---------------------------------------------------------------------------
 int TLeaseManager::instances = 0;
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-TLeaseManager::TLeaseManager( const std::string & database_alias, const std::string & descript, const std::string & parameters )
+TLeaseManager::TLeaseManager( const std::string & descript )
 	:
 	nlease( 0 ),
 	retry_max( 0 )
@@ -19,11 +21,11 @@ TLeaseManager::TLeaseManager( const std::string & database_alias, const std::str
 	if ( instances++ > 0 )
 		{Application->MessageBox( L"TLeaseManager, cannot create multiple instances",
 			L"BUG!", MB_OK );
-		db = NULL;   	// ENSURE EXCEPTION IF THIS OBJECT IS USED
+//		db = NULL;   	// ENSURE EXCEPTION IF THIS OBJECT IS USED
 		return;
 		}
 
-	db = new TDatabase( NULL );
+/*	db = new TDatabase( NULL );
 	db->AliasName = database_alias.c_str();
 	db->DatabaseName = "TLeaseManagerDB";
 	db->LoginPrompt = false;
@@ -33,6 +35,8 @@ TLeaseManager::TLeaseManager( const std::string & database_alias, const std::str
 	q = new TQuery( NULL );
 	q->DatabaseName = db->DatabaseName;
 	q->UniDirectional = true;
+*/
+	q = new LQuery( LIMSDatabase::getCentralDb() );
 	DWORD cname_length = MAX_COMPUTERNAME_LENGTH+1;
 	if ( ! GetComputerName( computer_name, &cname_length ) )
 		{wcscpy( computer_name, L"ANON" );
@@ -55,10 +59,10 @@ TLeaseManager::~TLeaseManager( void )
 	free( lease );
 	nlease = 0;
 	tidy_database();
-	q->Close();	// CLOSE AND DESTROY ANY RESIDUAL DATABASE THINGS
+//	q->Close();	// CLOSE AND DESTROY ANY RESIDUAL DATABASE THINGS
 	delete q;
-	db->Connected = false;
-	delete db;
+//	db->Connected = false;
+//	delete db;
     delete renew;
 
 	instances--;	// DECREMENT COUNTER TO ALLOW A NEW INSTANCE TO BE MADE
@@ -70,10 +74,10 @@ TLeaseManager::~TLeaseManager( void )
 
 std::string TLeaseManager::getDbName( void )
 {
-	q->SQL->Text = "SELECT dbmsinfo('database')";
+	q->setSQL( "SELECT dbmsinfo('database')" );
 	query_open();
-	std::string result = bcsToStd(q->Fields->Fields[0]->AsString);
-	q->Close();
+	std::string result = q->readString( 0 );
+//	q->Close();
 	return result;
 }
 //---------------------------------------------------------------------------
@@ -82,37 +86,38 @@ std::string TLeaseManager::getDbName( void )
 					/* TIDY UP ANY OBSELETE LEASES */
 void TLeaseManager::tidy_database( void )
 {
-	q->Close();
-	q->SQL->Clear();
-	q->SQL->Add( "DELETE FROM c_lease WHERE expiry < DATE('now')" );
+//	q->Close();
+//	q->SQL->Clear();
+	q->setSQL( "DELETE FROM c_lease WHERE expiry < DATE('now')" );
 	query_exec();
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		/* CHANGE TEXT DESCRIPTION OF TASK USING LEASE MANAGER */
 void TLeaseManager::SetDescript( const std::string & descript )
 {
-	task_descript = bcsToStd( computer_name ) + '/' + descript ;
+	std::string host = AnsiString( computer_name ).c_str();
+	task_descript = host + '/' + descript ;
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	/* COMPARE SYSTEM AND CENTRAL TIMES, RETURN FALSE IF TOO FAR ADRIFT */
 bool TLeaseManager::synch_time( TDateTime &time_system, TDateTime &time_central )
 {
 	double	tdif;
-	q->Close();
-	q->SQL->Clear();
-	q->SQL->Add( "SELECT DATE('now') AS time_central FROM c_block" );
+//	q->Close();
+//	q->SQL->Clear();
+	q->setSQL( "SELECT DATE('now') AS time_central FROM c_block" );
 	if ( ! query_open() )
 		{return( true );	// IGNORE ON ERROR
 		}
-	if ( q->RecordCount < 1 )	// CENTRAL TIME UNAVAILABLE, ASSUME OK
+/*	if ( q->RecordCount < 1 )	// CENTRAL TIME UNAVAILABLE, ASSUME OK
 		{
 		q->Close();
 		db->Connected = false;
 		return( true );	// time_central
 		}
-	time_central = q->Fields->Fields[0]->AsDateTime;
-	q->Close();
-	db->Connected = false;
+*/	time_central = q->readDateTime(0);
+//	q->Close();
+//	db->Connected = false;
 	time_system = TDateTime::CurrentDateTime();
 	tdif = 86400.0 * fabs( (double) time_central - (double) time_system );
 	if ( tdif > 180 )	// SIGNAL PROBLEM IF MORE THAN 3 MINS APART
@@ -177,10 +182,11 @@ void TLeaseManager::Deactivate( int project_id, int task_id )
 void TLeaseManager::DeactivateAll( void )
 {
 	int	i;
-	q->Close();
-	q->SQL->Clear();
-	q->SQL->Add( "DELETE FROM c_lease WHERE task_desc=:td" );
-	q->ParamByName( "td" )->AsString = task_descript.c_str();
+//	q->Close();
+//	q->SQL->Clear();
+	q->setSQL( "DELETE FROM c_lease WHERE task_desc=:td" );
+//	q->ParamByName( "td" )->AsString = task_descript.c_str();
+	q->setParam( "td", task_descript );
 	query_exec();    			// IGNORE FAILURE
 	for ( i = 0; i < nlease; i++ )
 		{lease[i]->active = false;
@@ -191,15 +197,17 @@ void TLeaseManager::DeactivateAll( void )
 bool TLeaseManager::query_open( void )
 {
 	bool	attempt = true;
+	bool	success = false;
 	int	retry = retry_max;
 	TCursor	initial_cursor = Screen->Cursor;
-	q->Close();
-	db->Connected = true;
+//	q->Close();
+//	db->Connected = true;
 	try
 		{do
 			{Screen->Cursor = crSQLWait;
 			try
-				{q->Open();
+				{q->open();
+				success = true;
 				}
 			catch ( Exception &e )
 				{
@@ -210,12 +218,12 @@ bool TLeaseManager::query_open( void )
 					L"Database Error", MB_YESNO ) );
 				}
 			}
-			while ( attempt && ! q->Active && retry-- > 0 );
+			while ( attempt && !success && retry-- > 0 );
 		}
 	__finally
 		{Screen->Cursor = initial_cursor;
 		}
-	return( q->Active );
+	return( success );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 					/* ATTEMPT TO EXECUTE A QUERY */
@@ -225,13 +233,13 @@ bool TLeaseManager::query_exec( void )
 	bool	success = false;
 	int	retry = retry_max;
 	TCursor	initial_cursor = Screen->Cursor;
-	q->Close();
-	db->Connected = true;
+//	q->Close();
+//	db->Connected = true;
 	try
 		{do
 			{Screen->Cursor = crSQLWait;
 			try
-				{q->ExecSQL();
+				{q->execSQL();
 				success = true;
 				}
 			catch ( Exception &e )
@@ -243,16 +251,16 @@ bool TLeaseManager::query_exec( void )
 					L"Database Error", MB_YESNO ) );
 				}
 			}
-			while ( attempt && ! success && retry-- > 0 );
+			while ( attempt && !success && retry-- > 0 );
 		}
 	__finally
 		{Screen->Cursor = initial_cursor;
-		db->Connected = false;
+//		db->Connected = false;
 		}
 	return( success );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-					/* RETURN LIST OF ACTIVE LEASES */
+					/* RETURN LIST OF ACTIVE LEASES
 void TLeaseManager::GetActive( int *nactive, TLeaseInfo **info, int project_id )
 {
 	int	i;
@@ -298,6 +306,7 @@ void TLeaseManager::GetActive( int *nactive, TLeaseInfo **info, int project_id )
 	q->Close();
 	db->Connected = false;
 }
+*/
 //---------------------------------------------------------------------------
 
 TLease::TLease( TLeaseManager *landlord, int project_ident, int task_ident )
@@ -310,7 +319,7 @@ TLease::TLease( TLeaseManager *landlord, int project_ident, int task_ident )
 	renewal_due( 0 )
 {
 	q = landlord->q;	// LOCAL COPY FOR CONVENIENCE
-	db = landlord->db;
+//	db = landlord->db;
 	task_descript = landlord->task_descript; // SAVE VALUE AT CREATE-TIME
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -332,7 +341,7 @@ int TLease::Renewal( void )
 				" SET expiry=DATE('now')+DATE('%d minutes')"
 				" WHERE proj_id=%d AND task_id=%d AND task_desc='%s'",
 				length_minutes, proj_id, task_id, task_descript.c_str() );
-	q->SQL->Text = tmp;
+	q->setSQL( tmp );
 	if( !landlord->query_exec() )
 		return( 5 );   // FAILED TO RENEW, SUGGEST RE-TRY INTERVAL
 
@@ -341,42 +350,38 @@ int TLease::Renewal( void )
 	return( 0 );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-				     /* LENGTH OF TIME TO AVAILABILITY */
+					 /* LENGTH OF TIME TO AVAILABILITY */
 int TLease::Availability( std::string &error_msg, int lease_type )
 {
-	q->Close();
-	q->SQL->Clear();
-	q->SQL->Add( "SELECT expiry, DATE('now') AS centime, task_desc FROM c_lease"
+	if ( lease_type == LEASE_TYPE_TOTAL ) {	// RESTRICT TO BLOCKING LEASES
+		q->setSQL( "SELECT expiry, DATE('now') AS centime, task_desc FROM c_lease"
 		" WHERE proj_id=:pi AND expiry > DATE('now')" );
-	if ( lease_type != LEASE_TYPE_TOTAL )	// RESTRICT TO BLOCKING LEASES
-		{q->SQL->Add( " AND"
-		"  ( task_id IN"
+	} else {
+		q->setSQL( "SELECT expiry, DATE('now') AS centime, task_desc FROM c_lease"
+		" WHERE proj_id=:pi AND expiry > DATE('now')"
+		" AND (task_id IN"
 		"  ( SELECT running FROM c_block WHERE blocked=:ti and block_type <> 99 )"
-		" OR"
-		"  lease_type = -1 )"	// -1 IS TOTAL BLOCK
+		" OR lease_type = -1)"	// -1 IS TOTAL BLOCK
 		" ORDER BY expiry DESC" );
-		q->ParamByName( "ti" )->AsInteger = task_id;
+		q->setParam( "ti", task_id );
 		}
-	q->ParamByName( "pi" )->AsInteger = proj_id;
+		q->setParam( "pi", proj_id );
 	if ( ! landlord->query_open() )
 		{
 		error_msg = "Database not accessible";
 		return( 5 );    	// DEFAULT TO 5 SECONDS
 		}
-	if ( q->RecordCount < 1 )
-		{q->Close();
-		db->Connected = false;
+	if ( q->eof() )	{
 		error_msg = "";
 		return( 0 );		// ALL LEASES EXPIRED
 		}
-	TDateTime exp = q->Fields->Fields[0]->AsDateTime;
-	TDateTime now = q->Fields->Fields[1]->AsDateTime;
-	error_msg = bcsToStd(q->Fields->Fields[2]->AsString);
-	q->Close();			// RETURN TIME TO LAST EXPIRY
-	db->Connected = false;
+	TDateTime exp = q->readDateTime( 0 );
+	TDateTime now = q->readDateTime( 1 );
+	error_msg = q->readString( 2 );
 	double	interval = 1440 * (double) ( exp - now );
-	return( 1 + (int) interval );
+	return( 1 + (int) interval ); 	// RETURN TIME TO LAST EXPIRY
 }
+
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 			 /* ACTIVATE, RETURN 0 IF OK, ELSE AVAILABLITY TIME */
 int TLease::Activate( int period, std::string &error_msg, int lease_type )
@@ -405,17 +410,22 @@ int TLease::Activate( int period, std::string &error_msg, int lease_type )
 	else
 		{length_minutes = period;
 		}
-	q->Close();
-	q->SQL->Clear();
+//	q->Close();
+//	q->SQL->Clear();
 	sprintf( tmp, "INSERT INTO c_lease"
-				" (proj_id,task_id,task_desc,lease_type,start,expiry)"
-				" VALUES (:pi,:ti,:td,:lt,DATE('now'),DATE('now')+DATE('%d minutes'))",
+				" (proj_id,task_id,"
+//				" process_cid, "		/// fixme once database rebuilt
+				"task_desc,lease_type,start,expiry)"
+				" VALUES (:pi,:ti,"
+//				" :pid, "
+				":td,:lt,DATE('now'),DATE('now')+DATE('%d minutes'))",
 				length_minutes );
-	q->SQL->Add( tmp );
-	q->ParamByName( "pi" )->AsInteger = proj_id;
-	q->ParamByName( "ti" )->AsInteger = task_id;
-	q->ParamByName( "td" )->AsString  = task_descript.c_str();
-	q->ParamByName( "lt" )->AsInteger = lease_type;
+	q->setSQL( tmp );
+	q->setParam( "pi" , proj_id );
+	q->setParam( "ti" , task_id );
+	q->setParam( "td" , task_descript );
+//	q->setParam( "pid" , LCDbAuditTrail::getCurrent().getProcessID() );
+	q->setParam( "lt" , lease_type );
 	TDateTime tnow = TDateTime::CurrentDateTime();
 	if( !landlord->query_exec() )
 	{
@@ -433,16 +443,16 @@ int TLease::Activate( int period, std::string &error_msg, int lease_type )
 	}
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-					    /* DE-ACTIVATE LEASE */
+						/* DE-ACTIVATE LEASE */
 void TLease::Deactivate( void )
 {
-	q->Close();
-	q->SQL->Clear();
-	q->SQL->Add( "DELETE FROM c_lease WHERE"
+//	q->Close();
+//	q->SQL->Clear();
+	q->setSQL( "DELETE FROM c_lease WHERE"
 		" proj_id=:pi AND task_id=:ti AND task_desc=:td" );
-	q->ParamByName( "pi" )->AsInteger = proj_id;
-	q->ParamByName( "ti" )->AsInteger = task_id;
-	q->ParamByName( "td" )->AsString = task_descript.c_str();
+	q->setParam( "pi" , proj_id );
+	q->setParam( "ti" , task_id );
+	q->setParam( "td" , task_descript );
 	landlord->query_exec();    		// IGNORE FAILURE
 	active = false;
 }

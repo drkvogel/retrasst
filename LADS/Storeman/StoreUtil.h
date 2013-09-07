@@ -12,6 +12,7 @@
 #include <ExtCtrls.hpp>
 #include <Grids.hpp>
 #include <deque>
+#include <sstream>
 #include "LQuery.h"
 
 //---------------------------------------------------------------------------
@@ -19,10 +20,6 @@
 template<typename Container>
 void delete_referenced(Container& c) {
     while (!c.empty()) delete c.back(), c.pop_back();
-//    while (!c.empty()) {
-//        if (c.back()) delete c.back();
-//        c.pop_back();
-//    }
 }
 
 class Util
@@ -88,6 +85,7 @@ public:
 		static void ShowSelectedSubTree( TTreeView* tree, unsigned minBoxCount );
 
 		static LQuery projectQuery( int proj_id = 0, bool ddb = false );
+        static bool numericCompare(const std::string a, const std::string b);
 };
 
 //---------------------------------------------------------------------------

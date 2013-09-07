@@ -7,7 +7,6 @@
 #include <memory>
 #include "SampleMove.h"
 #include "StoreUtil.h"
-#include "StringUtil.h"
 #include "FindSample.h"
 
 //---------------------------------------------------------------------------

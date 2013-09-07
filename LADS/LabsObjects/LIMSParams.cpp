@@ -26,7 +26,6 @@
 #include <memory>
 #include "LIMSParams.h"
 #include "LCDbAnalyser.h"
-#include "StringUtil.h"
 
 #pragma hdrstop
 
@@ -104,16 +103,16 @@ bool LIMSParams::checkMachine()
 	wchar_t buffer[ 100 ];
 	DWORD size = sizeof( buffer );
 	if( GetUserName( buffer, &size ) )
-		userName = bcsToStd( String( buffer, size-1 ) );
+		userName = AnsiString( buffer, size-1 ).c_str();
 
 	size = sizeof( buffer );
 	if( GetComputerName( buffer, &size ) )
 	{
 		wchar_t * dot = wcschr( buffer, '.' );
 		if( dot == NULL )
-			computer = bcsToStd( String( buffer, size ) );
+			computer = AnsiString( buffer, size ).c_str();
 		else
-			computer = bcsToStd( String( buffer, dot - buffer ) );
+			computer = AnsiString( buffer, dot - buffer ).c_str();
 	}
 
 	LCDbAnalysers & machines = LCDbAnalysers::records();
@@ -261,7 +260,7 @@ std::string LIMSParams::findValue( const std::string & name, std::string value )
 {
 	String bcn = name.c_str();
 	if( inRegistry && regKey -> ValueExists( bcn ) && regKey -> GetDataType( bcn ) == rdString )
-		value = bcsToStd( regKey -> ReadString( bcn ) );
+		value = AnsiString( regKey -> ReadString( bcn ) ).c_str();
 	return value;
 }
 
@@ -330,10 +329,10 @@ std::string LIMSParams::getLogFolder() const
 	String appsData = getenv( "APPDATA" );
 	String progName = ExtractFileName( Application -> ExeName );
 	progName.SetLength( progName.Pos( "." ) - 1 );
-	String path = appsData + "\\CTSU_CP\\" + progName + "\\";
+	AnsiString path = appsData + "\\CTSU_CP\\" + progName + "\\";
 	if( !ForceDirectories( path ) )
 		throw Exception( "Unable to create log file folder" );
-	return bcsToStd( path );
+	return path.c_str();
 }
 
 //==============================================================================

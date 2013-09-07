@@ -149,8 +149,6 @@ object frmSamples: TfrmSamples
       TabOrder = 1
       OnClick = sgChunksClick
       OnDrawCell = sgChunksDrawCell
-      ExplicitLeft = 3
-      ExplicitTop = 21
     end
   end
   object groupVials: TGroupBox

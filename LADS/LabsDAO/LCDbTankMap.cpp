@@ -87,33 +87,32 @@ bool LCDbTankMaps::read( LQuery central, bool readAll )
 
 class LCDbTankMaps::Matcher : public std::unary_function< LCDbTankMap, bool >
 {
-	const int tankCID,storageCID;
+	const int tankCID;
 
 public:
 
 	operator std::string() const
 	{
 		std::stringstream out;
-		out << "Tank " << tankCID << ", store " << storageCID;
+		out << "Population " << tankCID; //  << ", store " << storageCID;
 		return out.str();
 	}
 
-	Matcher( const int ptankCID, const int pStorageCID )
-	 : tankCID( ptankCID ), storageCID( pStorageCID )
+	Matcher( const int ptankCID )
+	 : tankCID( ptankCID )
 	{}
 
 	bool operator()( const LCDbTankMap & other ) const
 	{
-		return (tankCID == 0 || tankCID == other.getTankCID())
-		 && (storageCID == 0 || storageCID == other.getStorageCID());
+		return tankCID == other.getTankCID() && other.isActive();
 	}
 };
 
 //---------------------------------------------------------------------------
 
-const LCDbTankMap * LCDbTankMaps::find( int pTankCID, int pStorageCID ) const
+const LCDbTankMap * LCDbTankMaps::findCurrent( int pTankCID ) const
 {
-	return findMatch( Matcher( pTankCID, pStorageCID ) );
+	return findMatch( Matcher( pTankCID ) );
 }
 
 //---------------------------------------------------------------------------

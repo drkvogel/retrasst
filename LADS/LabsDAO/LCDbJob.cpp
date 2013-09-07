@@ -13,6 +13,7 @@
 #include "LCDbJob.h"
 #include "LCDbTankMap.h"
 #include "LCDbAuditTrail.h"
+#include "LCDbObject.h"
 
 #pragma hdrstop
 #pragma package(smart_init)
@@ -22,20 +23,37 @@
 LCDbCryoJob::LCDbCryoJob( const LQuery & query )
  : LCDbID( query.readInt( "retrieval_cid" ) ),
    exercise( query.fieldExists( "exercise_cid" ) ? query.readInt( "exercise_cid" ) : 0 ),
-   LDbNames( query.fieldExists( "external_name" ) ? query.readString( "external_name" ) : query.readString( "description" ),
-			 query.readString( "description" ) ),
-   reason( query.fieldExists( "reason" ) ? query.readString( "reason" ) : query.readString( "description" ) ),
+   LDbNames( query.readString( "external_name" ), query.readString( "description" ) ),
    jobType( query.readInt( "job_type" ) ),
    projectID( query.readInt( "project_cid" ) ),
    primary( query.fieldExists( "primary_aliquot" ) ? query.readInt( "primary_aliquot" ) : 0 ),
    secondary( query.fieldExists( "secondary_aliquot" ) ? query.readInt( "secondary_aliquot" ) : 0 ),
    processID( query.readInt( "process_cid" ) ),
-   status( query.readInt( "status" ) ),
-   time_stamp( query.fieldExists( "time_stamp" ) ? query.readDateTime( "time_stamp" ) : Now() ),
-   start_date( query.fieldExists( "start_date" ) ? query.readDateTime( "start_date" ) : 0 ),
-   claimed_until( query.readDateTime( "claimed_until" ) ),
-   finish_date( query.fieldExists( "finish_date" ) ? query.readDateTime( "finish_date" ) : 0 )
-{}
+   status( query.readInt( "status" ) )
+{
+	if( query.fieldExists( "time_stamp" ) ) {
+		time_stamp = query.readDateTime( "time_stamp" );
+	} else {
+		time_stamp = Now();
+	}
+	if( query.fieldExists( "start_date" ) ) {
+		time_stamp = query.readDateTime( "start_date" );
+	}
+	if( query.fieldExists( "finish_date" ) ) {
+		time_stamp = query.readDateTime( "finish_date" );
+	}
+	if( query.fieldExists( "claimed_until" ) ) {
+		time_stamp = query.readDateTime( "claimed_until" );
+	}
+	if( query.fieldExists( "reason" ) ) {
+		reason = query.readString( "reason" );
+	} else if( exercise != 0 ) {
+		const LCDbObject * obj = LCDbObjects::records().findByID( exercise );
+        if( obj != NULL ) {
+			reason = obj->getName();
+		}
+	}
+}
 
 //---------------------------------------------------------------------------
 //	Allocate new ID if necessary and create corresponding external name
@@ -56,19 +74,10 @@ void LCDbCryoJob::createName( LQuery central, const std::string & nameBase )
 
 bool LCDbCryoJob::saveRecord( LQuery central )
 {
-	bool addAliquot = false;
-	if( primary != 0 && primary != -1 && projectID != 0 && projectID != -1 ) {
-		const LCDbProject * pr = LCDbProjects::records().findByID( projectID );
-		const std::pair< short, short > upgrade( 2, 7 );
-		if( pr != NULL && pr -> getVersion() >= upgrade ) {
-			addAliquot = true;
-		}
-	}
-
 	if( saved ) {
-		central.setSQL( "update c_retrieval_job"
-					   " set status = :sts, process_cid = :pid"
-					   " where retrieval_cid = :myid" );
+		central.setSQL( "update c_retrieval_job set status = :sts, process_cid = :pid,"
+						" start_date = :sdt, claimed_until = :cdt, finish_date = :fdt"
+						" where retrieval_cid = :myid" );
 	} else {
 		if( getName().empty()) {
 			createName( central, "AUTOJOB" );
@@ -76,22 +85,35 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 		if( getID() == 0 ) {
 			claimNextID( central );
 		}
-		std::string fields = "retrieval_cid, external_name, description,"
-							" project_cid, status, job_type, process_cid";
-		std::string params = ":myid, :nme, :dsc, :rsn, :prid, :sts, :jt, :pid";
-		if( addAliquot ) {
-			fields += ", primary_aliquot";
-			params += ", :at";
-		}
-		central.setSQL( "insert into c_retrieval_job (" + fields + ", claimed_until )"
-					   " values (" + params + ", date('now') + date('1 minute') )" );
+		central.setSQL( "insert into c_retrieval_job (retrieval_cid, exercise_cid, external_name,"
+						" description, job_type, project_cid, primary_aliquot, secondary_aliquot,"
+						" process_cid, status, start_date, claimed_until, finish_date)"
+						" values (:myid, :exid, :nme, :dsc, :jt, :prj, :al1, :al2, :pid, :sts, :sdt, :cdt, :fdt)" );
 		central.setParam( "nme", getName() );
+		central.setParam( "exid", exercise );
 		central.setParam( "dsc", getDescription() );
-		central.setParam( "prid", projectID );
+		central.setParam( "prj", projectID );
 		central.setParam( "jt", jobType );
-		if( addAliquot ) {
-			central.setParam( "at", primary );
-		}
+		central.setParam( "al1", primary );
+		central.setParam( "al2", secondary );
+	}
+	switch( status ) {
+		case NEW_JOB:
+			central.setParam( "sdt", "" );
+			central.setParam( "cdt", "" );
+			central.setParam( "fdt", "" );
+			break;
+
+		case INPROGRESS:
+			central.setParam( "sdt", XDATE( start_date ) );
+			central.setParam( "cdt", "date('now') + date('1 minute')" );
+			central.setParam( "fdt", "" );
+			break;
+
+		default:
+			central.setParam( "sdt", XDATE( start_date ) );
+			central.setParam( "cdt", "" );
+			central.setParam( "fdt", XDATE( finish_date ) );
 	}
 	central.setParam( "myid", getID() );
 	central.setParam( "sts", status );
@@ -105,23 +127,22 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 
 bool LCDbCryoJob::claim( LQuery central, bool extend )
 {
-	std::string update = "update c_retrieval_job"
-						" set status = :use, claimed_until = date('now') + date('10 minutes')";
-	std::string filter = " where retrieval_cid = :myid";
+	int pid = LCDbAuditTrail::getCurrent().getProcessID();
+	std::stringstream q;
+	q << "update c_retrieval_job set status = " << int( INPROGRESS )
+	  << ", claimed_until = date('now') + date('10 minutes')";
+	if( status == NEW_JOB ) {
+		q << ", start_date = date('now')";
+	}
 	if( extend ) {
-		filter += " and process_cid = :pid";
-		central.setSQL( update + filter );
+		q << " where process_cid = " << pid;
+	} else {
+		q << ", process_cid = " << pid
+		  << " where (status = " << int( NEW_JOB )
+		  << " or claimed_until < date('now'))";
 	}
-	else {
-		update += ", process_cid = :pid";
-		filter += " and (status = :rdy or claimed_until < date('now'))";
-		central.setSQL( update + filter );
-		central.setParam( "rdy", NEW_JOB );
-	}
-
-	central.setParam( "use", INPROGRESS );
-	central.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
-	central.setParam( "myid", getID() );
+	q << " and retrieval_cid = " << getID();
+	central.setSQL( q.str() );
 	return central.execSQL() && reload( central );
 }
 
@@ -158,9 +179,16 @@ bool LCDbCryoJob::reload( LQuery & central )
 
 bool LCDbCryoJob::release( LQuery central, bool finished )
 {
-	central.setSQL( "update c_retrieval_job set status = :fre, claimed_until = 'now'"
+	central.setSQL( "update c_retrieval_job"
+				   " set status = :fre, claimed_until = '', finish_date = :fdt"
 				   " where retrieval_cid = :myid and process_cid = :pid" );
-	central.setParam( "fre", finished ? DONE : INPROGRESS );
+	if( finished ) {
+		central.setParam( "fre", DONE );
+		central.setParam( "fdt", XTIME() );
+	} else {
+		central.setParam( "fre", INPROGRESS );
+		central.setParam( "fdt", "" );
+	}
 	central.setParam( "myid", getID() );
 	central.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
 	if( central.execSQL() ) {
@@ -196,7 +224,6 @@ int LCDbCryoJob::getUserID() const
 //---------------------------------------------------------------------------
 
 LCDbCryoJobs::LCDbCryoJobs( bool keepAlive )
- : cq( LIMSDatabase::getCentralDb() )
 {
 	if( keepAlive ) {
 		renew = new TTimer( NULL );
@@ -227,7 +254,7 @@ void __fastcall LCDbCryoJobs::Renewal(TObject *)
 	for( iterator ci = begin(); ci != end(); ci ++ )
 		if( ci -> getStatus() == LCDbCryoJob::INPROGRESS
 		 && ci -> getProcessCID() == LCDbAuditTrail::getCurrent().getProcessID() )
-			ci -> claim( cq, true );
+			ci -> claim( LIMSDatabase::getCentralDb(), true );
 	renew -> Enabled = true;
 }
 
@@ -235,27 +262,36 @@ void __fastcall LCDbCryoJobs::Renewal(TObject *)
 //	Read jobs of the given type; include or exclude deleted records
 //---------------------------------------------------------------------------
 
-bool LCDbCryoJobs::read( LCDbCryoJob::JobKind type, bool all )
+bool LCDbCryoJobs::read( LQuery cQuery, LCDbCryoJob::JobKind type, bool all )
 {
-	std::string q = "select * from c_retrieval_job";
-	switch( type ) {
-		case LCDbCryoJob::BOX_MOVE:
-		case LCDbCryoJob::BOX_RETRIEVAL:
-		case LCDbCryoJob::BOX_DISCARD:
-		case LCDbCryoJob::SAMPLE_RETRIEVAL:
-		case LCDbCryoJob::SAMPLE_DISCARD:
-			q += " where job_type = :jt";
-			break;
-		default:
-			q += " where 1=1";
+	std::stringstream q;
+	q << "select * from c_retrieval_job";
+	if( type == LCDbCryoJob::UNKNOWN ) {
+		if( !all ) {
+			q << " where status <> " << LDbValid::DELETED;
+		}
+	} else {
+		q << " where job_type = " << int( type );
+		if( !all ) {
+			q << " and status <> " << LDbValid::DELETED;
+		}
 	}
-	if( !all ) {
-		q += " and status <> :del";
+	q << " order by retrieval_cid";
+	cQuery.setSQL( q.str() );
+	return readData( cQuery );
+}
+
+//---------------------------------------------------------------------------
+
+void LCDbCryoJob::setReason( const std::string & exName ) {
+	const LCDbObject * obj = LCDbObjects::records().find( exName, LCDbObject::STORAGE_EXERCISE );
+	if( obj == NULL ) {
+		exercise = 0;
+		reason = "";
+	} else {
+		exercise = obj->getID();
+		reason = exName;
 	}
-	cq.setSQL( q + " order by retrieval_cid" );
-	cq.setParam( "jt", short( type ) );
-	cq.setParam( "del", LDbValid::DELETED );
-	return readData( cq );
 }
 
 //---------------------------------------------------------------------------

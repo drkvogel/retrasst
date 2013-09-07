@@ -17,8 +17,8 @@
 #include "rosetta.h"
 #include "xerror.h"
 #include "xexec.h"
-#include "StringUtil.h"
 #include "LCDbProject.h"
+#include "LDbCacheBase.h"
 
 #pragma package(smart_init)
 
@@ -85,7 +85,7 @@ void LIMSDatabase::setCurrentSystem( DbSystem system ) {
 
 bool LIMSDatabase::includes( const std::string & dbName ) {
 	std::string expected = getPrefix( current ) + "ldb";
-	return compareIC( expected, dbName, expected.length() ) == 0;
+	return dbName.substr(0, expected.length()) == expected;
 }
 
 //---------------------------------------------------------------------------
@@ -93,9 +93,9 @@ bool LIMSDatabase::includes( const std::string & dbName ) {
 //---------------------------------------------------------------------------
 
 std::string LIMSDatabase::getRootName( const std::string &dbName ) {
-	if( compareIC( dbName, "test_", 5 ) == 0 ) {
+	if( dbName.substr(0,5) == "test_" ) {
 		return dbName.substr( 5, dbName.length( ) - 5 );
-	} else if( compareIC( dbName, "t_", 2 ) == 0 ) {
+	} else if( dbName.substr(0,2) == "t_" ) {
 		return dbName.substr( 2, dbName.length( ) - 2 );
 	} else {
 		return dbName; 	// assume it's the live database
@@ -112,8 +112,9 @@ std::string LIMSDatabase::getPrefix( DbSystem system ) {
 			return "test_";
 		case MIRROR_SYSTEM:
 			return "t_";
+		default:
+			throw Exception( "Database system not selected" );
 	}
-	throw Exception( "Database system not selected" );
 }
 
 //---------------------------------------------------------------------------
@@ -212,3 +213,4 @@ void LIMSDatabase::confirm( bool success ) {
 }
 
 //---------------------------------------------------------------------------
+

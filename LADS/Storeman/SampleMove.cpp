@@ -410,6 +410,7 @@ int TfrmMove::getImageIndex( TTreeNode *node )
 			}
 		}
 	}
+
 	if( fill < 0 ) {
 		return getImageIndex( data );
 	} else if( fill < 0.01 ) {
@@ -565,15 +566,10 @@ void __fastcall TfrmMove::FormClose(TObject *Sender, TCloseAction &Action)
 		}
 		unmapChildren( part );
 	}
-	else
-	{	if( job.getStatus() == LCDbCryoJob::INPROGRESS )
-			job.release( jobQuery, false );
-
-		if( part != NULL )
-		{
-			delete part;
-			part = NULL;
-		}
+	else if( part != NULL )
+	{
+		delete part;
+		part = NULL;
 	}
 
 	if( root != NULL )
@@ -606,6 +602,7 @@ void __fastcall TfrmMove::CreateClick(TObject *Sender)
 	} else {
 		error = "Error creating job record";
 	}
+	progress -> Position = 0;
 	progress -> Max = leftKids.size();
 	for( std::vector<Box*>::iterator bi = leftKids.begin(); error.IsEmpty() && bi != leftKids.end(); ++ bi ) {
 		Box *left = *bi, *right = dynamic_cast< Box* >( left->getMapped() );
@@ -615,9 +612,6 @@ void __fastcall TfrmMove::CreateClick(TObject *Sender)
 			error = "Error creating movement job";
 		}
 	}
-	if( error.IsEmpty() && !job.release( jobQuery, false ) ) {
-		error = "Error releasing job record";
-	}
 	Screen->Cursor = crDefault;
 	if( error.IsEmpty() ) {
 		this -> ModalResult = mrOk;
@@ -626,43 +620,6 @@ void __fastcall TfrmMove::CreateClick(TObject *Sender)
 		updateDisplay();
 	}
 }
-
-//---------------------------------------------------------------------------
-
-/*
-bool TfrmMove::markPart( IPart* left )
-{
-	if( left == NULL || !left -> addToLHSJobList( job.getID() ) )
-		return false;
-
-	IPart * right = left -> getMapped();
-	if( right != NULL && !right -> addToRHSJobList( job.getID() ) )
-		return false;
-
-	const std::vector<IPart*> & list = left -> getList();
-	for( std::vector<IPart*>::const_iterator li = list.begin(); li != list.end(); ++ li )
-		if( !markPart( *li ) )
-			return false;
-
-	return true;
-}
-//---------------------------------------------------------------------------
-
-std::string TfrmMove::getFullPartName( IPart* part )
-{
-	Box * box = dynamic_cast< Box * >( part );
-	Rack * rack = dynamic_cast< Rack * >( box->getParent() );
-	Section * section = dynamic_cast< Section * >( rack->getParent() );
-	Layout * layout = dynamic_cast< Layout * >( section->getParent() );
-	Tank * tank = dynamic_cast< Tank * >( layout->getParent() );
-
-	std::string sep = "::";
-	std::stringstream result;
-	result << tank->getName() << sep << layout->getName() << sep << section->getName()
-		   << sep << rack->getName() << sep << box->getName() << " (pos:" << box->getPosition() << ')';
-	return result.str();
-}
-*/
 
 //---------------------------------------------------------------------------
 
@@ -700,8 +657,8 @@ void __fastcall TfrmMove::SignOffClick(TObject *Sender)
 	}
 
 	char summary[ 70 ];
-	std::sprintf( summary, "%d boxes have been marked \'Done\'", leftKids.size() );
-	frmConfirm -> initialise( TfrmLogin::MOVE, summary, projects );
+	std::sprintf( summary, "%d boxes have been marked \'Done\'", (int) leftKids.size() );
+	frmConfirm -> initialise( TfrmSMLogin::MOVE, summary, projects );
 	if( frmConfirm->ShowModal() != mrOk )
 		return;
 
@@ -725,6 +682,7 @@ bool TfrmMove::SignOff()
 {
 	rightKids.clear();
 	makeBoxList( root, rightKids, isAnyBox );
+	progress -> Position = 0;
 	progress -> Max = rightKids.size();
 	for( std::vector<Box*>::const_iterator bi = rightKids.begin(); bi != rightKids.end(); ++ bi ) {
 		if( (**bi).getStatus() == LCDbBoxStore::SLOT_ALLOCATED && (**bi).signoff() ) {

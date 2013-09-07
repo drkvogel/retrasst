@@ -1,13 +1,12 @@
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
-
 #include <sstream>
 #include "StoreDAO.h"
 #include "LCDbObject.h"
 #include "LDbBoxStore.h"
 #include "LCDbRack.h"
-//#include "LCDbStoreDetail.h"
+#include "LCDbStoreDetail.h"
 #include "LCDbTankMap.h"
 #include "LCDbTankLayout.h"
 #include "LCDbProject.h"
@@ -25,10 +24,6 @@
 
 #pragma package(smart_init)
 
-StoreDAO::StoreDAO() : cQuery( LIMSDatabase::getCentralDb() )
-{}
-
-//---------------------------------------------------------------------------
 
 void StoreDAO::loadSites(std::vector<ROSETTA>& results)
 {
@@ -51,7 +46,7 @@ bool StoreDAO::saveSite( ROSETTA & data )
 	LCDbObject site( LCDbObject::STORAGE_SITE );
 	site.setName( data.getString("Name") );
 	site.setDescription( data.getString("fullname") );
-	bool ok = site.saveRecord( cQuery );
+	bool ok = site.saveRecord( getCentralQuery() );
 	if( ok )
 		data.setInt("ID", site.getID() );
 	return ok;
@@ -63,6 +58,7 @@ bool StoreDAO::saveSite( ROSETTA & data )
 
 void StoreDAO::loadTanks( int location_id, std::vector<ROSETTA>& results )
 {
+	LQuery cQuery = getCentralQuery();
 	if( location_id == 0 ) {
 		cQuery.setSQL( "SELECT object_cid as storage_cid, 0 as location_cid, 0 as position,"
 					  " external_name as serial_number, external_full as friendly_name"
@@ -90,6 +86,7 @@ void StoreDAO::loadTanks( int location_id, std::vector<ROSETTA>& results )
 
 void StoreDAO::loadTankDetails( int storage_cid, std::vector<ROSETTA>& results )
 {
+	LQuery cQuery = getCentralQuery();
 	cQuery.setSQL( "SELECT m.*, external_name as content_name, external_full as content_full"
 				  " FROM c_tank_map m, c_object_name h"
 				  " WHERE m.storage_cid = :sid AND m.tank_cid = h.object_cid" );
@@ -123,7 +120,7 @@ bool StoreDAO::saveTankObject( ROSETTA& data )
 	}
 	tank.setName( population );
 	tank.setDescription( description );
-	bool ok = tank.saveRecord( cQuery );
+	bool ok = tank.saveRecord( getCentralQuery() );
 	data.setInt( "tank_cid", tank.getID() );
 	return ok;
 }
@@ -151,7 +148,7 @@ bool StoreDAO::savePhysicalStore( ROSETTA& data )
 	}
 	sd.setName( vessel );
 	sd.setDescription( description );
-	bool ok = sd.saveRecord( cQuery );
+	bool ok = sd.saveRecord( getCentralQuery() );
 	data.setInt( "storage_cid", sd.getID() );
 	return ok;
 }
@@ -168,7 +165,7 @@ bool StoreDAO::saveTankMap( ROSETTA& data )
 	tmap.setLocationCID( data.getInt("location_cid") );
 	tmap.setPosition( data.getInt("position") );
 	tmap.setPopulation( data.getInt("shelf_number") );
-	if( tmap.saveRecord( cQuery ) ) {
+	if( tmap.saveRecord( getCentralQuery() ) ) {
 		data.setInt("map_cid", tmap.getID() );
 		return true;
 	} else {
@@ -188,11 +185,12 @@ bool StoreDAO::setLayoutAvailability( ROSETTA& data )
 	dateRange.first = data.getTime("valid_from").outputTDateTime();
 	dateRange.second = data.getTime("valid_to").outputTDateTime();
 	map.setValidDates( dateRange );
-	return map.saveRecord( cQuery );
+	return map.saveRecord( getCentralQuery() );
 }
 
 void StoreDAO::loadLayouts( int storage_cid, std::vector<ROSETTA>& results)
 {
+	LQuery cQuery = getCentralQuery();
 	results.clear();
 	cQuery.setSQL( "SELECT m.*, l.external_name as layout_name, l.external_full as layout_full,"
 					" n.external_name as label_name, n.external_full as label_full"
@@ -241,13 +239,14 @@ bool StoreDAO::saveLayout( ROSETTA& data )
 	LCDbObject sections( LCDbObject::TANK_LAYOUT );
 	sections.setName( data.getString("layout_name") );
 	sections.setDescription( data.getString("layout_full") );
-	bool ok = sections.saveRecord( cQuery );
+	bool ok = sections.saveRecord( getCentralQuery() );
 	data.setInt("rack_layout_cid", sections.getID() );
 	return ok;
 }
 
 void StoreDAO::loadSections( int layout_cid, std::vector<ROSETTA>& results)
 {
+	LQuery cQuery = getCentralQuery();
 	std::string q = "SELECT * FROM c_tank_layout "
 					" WHERE rack_layout_cid = :id "
 					" ORDER BY fill_order ";
@@ -301,7 +300,7 @@ void StoreDAO::loadSection( int map_id, std::string prefix, ROSETTA& result)
 
 bool StoreDAO::saveSection( ROSETTA& data )
 {
-//	LQuery cQuery(frmLogin->qCentral);
+	LQuery cQuery = getCentralQuery();
 	LCDbSectionDef section;
 	section.setTankLayoutCID( data.getInt("layout_cid") );
 	section.setSectionPrefix( data.getString("Name") );
@@ -319,6 +318,7 @@ bool StoreDAO::saveSection( ROSETTA& data )
 
 void StoreDAO::loadRacks( int tank_cid, std::vector<ROSETTA>& results, int type )
 {
+	LQuery cQuery = getCentralQuery();
 	if( type == 0 ) {
 		cQuery.setSQL( "SELECT * FROM c_rack_number WHERE tank_cid = :id"
 					  " ORDER BY position " );
@@ -337,6 +337,7 @@ void StoreDAO::loadRacks( int tank_cid, std::vector<ROSETTA>& results, int type 
 
 void StoreDAO::loadRacks( const std::set< int > & rackCids, std::vector<ROSETTA>& results )
 {
+	LQuery cQuery = getCentralQuery();
 	results.clear();
 	std::set< int >::const_iterator ri = rackCids.begin();
 	if( ri != rackCids.end() ) {
@@ -355,13 +356,12 @@ void StoreDAO::loadRacks( const std::set< int > & rackCids, std::vector<ROSETTA>
 
 bool StoreDAO::occupyRack( ROSETTA& data )
 {
+	LQuery cQuery = getCentralQuery();
 	std::string name = data.getString("Name");
 	std::string location = data.getStringDefault("location","");
 	int tank_cid = data.getIntDefault("tank_cid", -1);
 	LCDbRack st( location, tank_cid, name );
 	bool exists = st.findRack( cQuery );
-//	st.setTankMapID( map_cid );
-//	bool exists = st.findRackByTankMap( cQuery );
 	st.setSectionType(data.getInt("rack_type_cid"));
 	st.setPosInTank(data.getInt("pos_in_tank"));
 	st.setPosInSection(data.getInt("pos_in_section"));
@@ -724,31 +724,32 @@ bool StoreDAO::loadCryovials( std::string sid, std::string cid, int aid, std::ve
 		return false;
 	}
 
-	std::string q = "SELECT c.cryovial_id, c.sample_id, cs.box_cid, cs.cryovial_position,"
+	std::stringstream q;
+	q << "SELECT c.cryovial_id, c.sample_id, cs.box_cid, cs.cryovial_position,"
 			" cs.time_stamp, c.cryovial_barcode, c.aliquot_type_cid, sp.barcode, b.external_name as box, "
 			" r.external_name as structure, shelf_number, v.external_full as vessel"
 			" FROM cryovial_store cs, cryovial c, specimen sp, box_name b, box_store bs,"
 			" c_rack_number r, c_tank_map m, c_object_name v "
-			" WHERE cs.status = 1 AND bs.status = 6"	// confirmed
+			" WHERE cs.status = 1 AND bs.status = 6" 	// cryovial and box confirmed
 			" AND cs.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id "
 			" AND b.box_cid = cs.box_cid AND bs.box_cid = cs.box_cid "
 			" AND bs.rack_cid = r.rack_cid AND r.tank_cid = m.tank_cid"
 			" AND m.storage_cid = v.object_cid";
 
-	if( sid.length( ) > 0 ) {
-		q += " AND sp.barcode = '" + sid + "' ";
+	if( !sid.empty() ) {
+		q << " AND sp.barcode = '" << sid << "' ";
 	}
 
-	if( cid.length( ) > 0 ) {
-		q += " AND c.cryovial_barcode = '" + sid + "' ";
+	if( !cid.empty() ) {
+		q << " AND c.cryovial_barcode = '" << cid << "' ";
 	}
 
 	if( aid != 0 ) {
-		q += " AND c.aliquot_type_cid = " + aid;
+		q << " AND c.aliquot_type_cid = " << aid;
 	}
 
 	LQuery pQuery = Util::projectQuery( LCDbProjects::getCurrentID(), true );
-	pQuery.setSQL( q.c_str() );
+	pQuery.setSQL( q.str() );
 	for( pQuery.open(); !pQuery.eof(); pQuery.next() ) {
 		results.push_back( pQuery.getRecord() );
 	}

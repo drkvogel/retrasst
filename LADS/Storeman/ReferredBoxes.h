@@ -16,7 +16,6 @@
 #include "LDbBoxStore.h"
 #include "BoxSummary.h"
 #include "StoreUtil.h"
-#include "StringUtil.h"
 #include <Vcl.ComCtrls.hpp>
 #include <vector>
 #include <set>
@@ -93,7 +92,7 @@ public:
         <<", box_name: "<<box_name
         <<", project_cid: "<<project_cid<<", first_barcode: "<<first_barcode
 	    <<", first_position: "<<first_position<<", last_barcode: "<<last_barcode<<", last_position: "<<last_position
-        <<", swipe_time: "<<bcsToStd(swipe_time.DateTimeString())
+		<<", swipe_time: "<<swipe_time.DateTimeString().c_str()
         <<", tank_cid: "<<tank_cid<<", rack_cid: "<<rack_cid<<", rack_name: "<<rack_name<<", slot_position: "<<slot_position<<", tank_name: "<<tank_name
         //<<", time_stamp: "<<time_stamp.DateTimeString()
         <<", changed: "<<changed<<", typeFromName(): "<<typeFromName();

@@ -46,6 +46,7 @@ typedef	struct
 	TLeaseInfo;
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class TLease;
+class LQuery;
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class TLeaseManager
 {
@@ -56,8 +57,9 @@ private:
 	wchar_t	computer_name[MAX_COMPUTERNAME_LENGTH+5];
 	int	nlease;
 	int	retry_max;
-	TDatabase	*db;
-	TQuery	*q;
+	// TDatabase	*db;
+	// TQuery	*q;
+	LQuery * q;
 	TTimer	*renew;
 	TLease	*current;
 	TLease	**lease;
@@ -70,7 +72,7 @@ private:
 	void __fastcall Renewal(TObject *Sender);
 
 public:
-	TLeaseManager( const std::string & database_alias, const std::string & descript, const std::string & parameters );
+	TLeaseManager( const std::string & descript );
 	~TLeaseManager( void );
 	std::string 	getDbName( void );
 	bool 	synch_time( TDateTime &time_system, TDateTime &time_central );
@@ -95,8 +97,8 @@ private:
 	int	task_id;
 	bool	active;			// IS LEASE (BELIEVED TO BE) ACTIVE
 	std::string	task_descript;
-	TQuery	*q;
-	TDatabase	*db;
+	LQuery	*q;
+	// TDatabase	*db;
 	TDateTime	start;
 	TDateTime	renewal_due;
 	TDateTime	expiry;

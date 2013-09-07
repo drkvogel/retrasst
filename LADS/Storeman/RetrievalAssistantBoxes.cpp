@@ -113,9 +113,7 @@ VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dw
 void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
     std::ostringstream oss; oss << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL"); debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
-    chunks.clear();
-    //addChunk();
-    //showChunks();
+    clearSG(sgChunks);
     clearSG(sgBoxes);
     timerLoadBoxes->Enabled = true; // "not enough timers are available" - misleading error message cause by mem corruption
         //TfrmBoxes::TimerId = SetTimer(NULL, 0, 50, &TimerProc); //$3: milliseconds // tried WinAPI timer instead
@@ -135,11 +133,10 @@ void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow,
         Chunk * chunk = NULL;
         chunk = (Chunk *)sgChunks->Objects[0][ARow];
         if (NULL == chunk) {
-            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = clBtnFace; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
-            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
-        //else if (chunk->
     }
     TCanvas * cnv = sgChunks->Canvas;
 	cnv->Brush->Color = background;

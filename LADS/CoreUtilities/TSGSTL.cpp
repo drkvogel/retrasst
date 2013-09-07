@@ -4,6 +4,7 @@
 #pragma hdrstop
 
 #include "TSGSTL.h"
+#include "StringUtil.h"
 TColor  TSG_EXTRA2::defaultHighlight=clLime;
 TColor  TSG_EXTRA2::defaultNormal=clWhite;
 
@@ -599,10 +600,12 @@ void TSG_EXTRA2::DrawCell_event_handler( int icol, int irow, TRect &rect )
         }else
         {
                 int noOfLines;
-                String textToWrap;
-                char buff[256];
-                textToWrap=sg->Cells[icol][irow];
-                strcpy(buff,textToWrap.c_str());
+				String textToWrap;
+				std::string strWrap;
+				char buff[256];
+				textToWrap=sg->Cells[icol][irow];
+				strWrap=bcsToStd( textToWrap);
+				strcpy(buff,strWrap.c_str());
                 noOfLines=rect.Height()/canv->Font->Height;
                  textToWrap=String(strtok(buff," ,\r\n"));
                 for( int i=0; i<3; i++ )

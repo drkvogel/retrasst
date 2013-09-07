@@ -16,7 +16,7 @@
 class LCDbTest : public LCDbID, public LDbNames, public LDbValid
 {
 	ResultRange limits;
-	String sampleType;   		/// obsolete - moved to c_test_machine
+	std::string sampleType;   		/// obsolete - moved to c_test_machine
 	short precision, dataType;
 
 	static const REAL_DATA = 4, STRING_DATA = 8, REQUIRED_DATA_POINTS = 1;
@@ -79,7 +79,7 @@ public:
 	{
 		int analyser;
 		short protocol, testOrder;
-		String code, sampleType;
+		std::string code, sampleType;
 
 	public:
 
@@ -87,19 +87,19 @@ public:
 		 : LCDbID( id ), analyser( 0 ), protocol( 0 ), testOrder( 0 )
 		{}
 
-		MachineDef( int machine, const String & mName, short type, short order )
+		MachineDef( int machine, const std::string & mName, short type, short order )
 		 : analyser( machine ), code( mName ), protocol( type ), testOrder( order )
 		{}
 
 		MachineDef( const LQuery & query );
 
 		int getMachineID() const { return analyser; }
-		const String & getCode() const { return code; }
+		const std::string & getCode() const { return code; }
 		short getProtocol() const { return protocol; }
 		short getTestOrder() const { return testOrder; }
 
-		const String & getSampleType() const { return sampleType; }
-		void setSampleType( const String & type ) { sampleType = type; }
+		const std::string & getSampleType() const { return sampleType; }
+		void setSampleType( const std::string & type ) { sampleType = type; }
 	};
 
 	Range< MachineDef > getCodes() const { return machineDefs; }
@@ -127,7 +127,7 @@ public:
 
 	bool read( LQuery central, bool readAll );
 
-	const LCDbTest * findByName( const String & externalName ) const {
+	const LCDbTest * findByName( const std::string & externalName ) const {
 		return findMatch( LDbNames::LCMatcher( externalName ) );
 	}
 

@@ -63,7 +63,7 @@
         <Multithreaded>true</Multithreaded>
         <_TCHARMapping>wchar_t</_TCHARMapping>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <IncludePath>..\..\..\paulst\;..\BusinessLayer\;../BusinessLayer/;../../../paulst/;$(IncludePath)</IncludePath>
+        <IncludePath>..\..\..\paulst\;..\BusinessLayer\;../BusinessLayer/;../../../paulst/;..\..\LUA;$(IncludePath)</IncludePath>
         <ProjectType>CppConsoleApplication</ProjectType>
         <AllPackageLibs>rtl.lib;vcl.lib</AllPackageLibs>
         <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
@@ -86,7 +86,7 @@
         <ILINK_LibraryPath>J:\cvs\paulst\Win32\Release\;J:\cvs\LADS\ValC\db\Win32\Debug\;J:\cvs\LADS\ValC\ForceReloadTest\;J:\cvs\LADS\ValC\BusinessLayer\Win32\Debug\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <ILINK_LibraryPath>J:\cvs\paulst\Win64\Release\;J:\cvs\LADS\ValC\BusinessLayer\Win64\Debug\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>J:\cvs\LADS\ValC\ForceReloadTest\;J:\cvs\paulst\Win64\Release\;J:\cvs\LADS\ValC\BusinessLayer\Win64\Debug\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -202,6 +202,10 @@
             <DependentOn>..\BusinessLayer\DBUpdateTaskUpdateSampleRunID.h</DependentOn>
             <BuildOrder>56</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\BusinessLayer\InclusionRule.cpp">
+            <DependentOn>..\BusinessLayer\InclusionRule.h</DependentOn>
+            <BuildOrder>60</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\BusinessLayer\LoadBuddyDatabase.cpp">
             <DependentOn>..\BusinessLayer\LoadBuddyDatabase.h</DependentOn>
             <BuildOrder>13</BuildOrder>
@@ -305,6 +309,10 @@
             <DependentOn>..\BusinessLayer\WorklistRelation.h</DependentOn>
             <BuildOrder>38</BuildOrder>
         </CppCompile>
+        <LibFiles Include="Lua64.a" Condition="'$(Platform)'=='Win64'">
+            <BuildOrder>61</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
         <CppCompile Include="Main.cpp">
             <BuildOrder>0</BuildOrder>
         </CppCompile>

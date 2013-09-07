@@ -3,7 +3,7 @@ object frmNewJob: TfrmNewJob
   Top = 0
   BorderIcons = [biSystemMenu]
   Caption = 'Create New Job'
-  ClientHeight = 147
+  ClientHeight = 149
   ClientWidth = 428
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
@@ -15,7 +15,7 @@ object frmNewJob: TfrmNewJob
   OnShow = FormShow
   DesignSize = (
     428
-    147)
+    149)
   PixelsPerInch = 96
   TextHeight = 13
   object LblFull: TLabel
@@ -25,25 +25,26 @@ object frmNewJob: TfrmNewJob
     Height = 13
     Anchors = [akLeft]
     Caption = 'Description:'
+    ExplicitTop = 67
   end
   object LblName: TLabel
     Left = 16
-    Top = 33
+    Top = 29
     Width = 31
     Height = 13
     Caption = 'Name:'
   end
   object LblWhy: TLabel
     Left = 16
-    Top = 105
-    Width = 40
+    Top = 106
+    Width = 44
     Height = 13
     Anchors = [akLeft, akBottom]
-    Caption = 'Reason:'
+    Caption = 'Exercise:'
   end
   object BtnOK: TButton
     Left = 318
-    Top = 25
+    Top = 23
     Width = 90
     Height = 28
     Anchors = [akTop, akRight]
@@ -53,27 +54,38 @@ object frmNewJob: TfrmNewJob
     OnClick = SaveClick
   end
   object TxtFull: TEdit
-    Left = 90
+    Left = 86
     Top = 65
     Width = 322
     Height = 21
-    Anchors = [akLeft, akRight]
+    Anchors = [akTop, akRight]
     TabOrder = 1
   end
   object TxtName: TEdit
-    Left = 90
-    Top = 29
-    Width = 175
+    Left = 86
+    Top = 26
+    Width = 200
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
   end
-  object TxtReason: TEdit
-    Left = 90
-    Top = 102
-    Width = 322
+  object CbExercise: TComboBox
+    Left = 86
+    Top = 103
+    Width = 200
     Height = 21
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 2
+    Text = '(none)'
+  end
+  object BtnNewEx: TButton
+    Left = 318
+    Top = 100
+    Width = 90
+    Height = 28
+    Anchors = [akRight, akBottom]
+    Caption = 'New Exercise'
+    TabOrder = 4
+    OnClick = BtnNewExClick
   end
 end

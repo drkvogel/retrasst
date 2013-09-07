@@ -5,7 +5,6 @@
 
 #include "NewType.h"
 #include "StoreUtil.h"
-#include "StringUtil.h"
 #include "LCDbObject.h"
 #include "TfrmConfirm.h"
 #include "LCDbJob.h"
@@ -44,14 +43,15 @@ void __fastcall TfrmNewType::FormShow(TObject *Sender)
 
 const LCDbObject * TfrmNewType::createRecord() {
 	LCDbObject type( LCDbObject::STORAGE_TYPE );
-	type.setName( bcsToStd(TxtName->Text.Trim()) );
-	type.setDescription( bcsToStd(TxtFull->Text.Trim()) );
+	AnsiString name = TxtName->Text.Trim();
+	type.setName( name.c_str() );
+	AnsiString full = TxtFull->Text.Trim();
+	type.setDescription( full.c_str() );
 	std::string operation = "Create new type " + type.getName();
 	std::set< int > central;
 	central.insert( 0 );
-	frmConfirm -> initialise( TfrmLogin::CONFIGURE, operation.c_str(), central );
-	if( frmConfirm->ShowModal() == mrOk
-	 && type.saveRecord( LIMSDatabase::getCentralDb() ) ) {
+	frmConfirm -> initialise( TfrmSMLogin::CONFIGURE, operation.c_str(), central );
+	if( frmConfirm->ShowModal() == mrOk && type.saveRecord( LIMSDatabase::getCentralDb() ) ) {
 		return LCDbObjects::records().findByID( type.getID() );
 	}
 	return NULL;

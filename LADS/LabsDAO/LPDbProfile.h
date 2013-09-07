@@ -12,9 +12,9 @@
 
 //---------------------------------------------------------------------------
 
-class LDbTestLimits : public LDbIdBase
+class LDbTestLimits
 {
-	int analyser, trigger;
+	int test, analyser, trigger;
 
 protected:
 
@@ -24,7 +24,7 @@ protected:
 public:
 
 	LDbTestLimits( int testID, int buddyID = 0 )
-	 : LDbIdBase( testID ), analyser( buddyID ), local( false ), trigger( 0 )
+	 : test( testID ), analyser( buddyID ), local( false ), trigger( 0 )
 	{}
 
 	int getAnalyserID() const { return analyser; }
@@ -79,7 +79,7 @@ public:
 
 	static const int STORE_ALIQUOTS = 1, TEST_SAMPLE = 2, STORE_SAMPLE = 4;
 
-	class BoxType : public LDbIdBase, public LDbValid
+	class BoxType : public LPDbID, public LDbValid
 	{
 		short position;
 
@@ -87,7 +87,7 @@ public:
 
 	public:
 
-		BoxType( int id = 0 ) : LDbIdBase( id )
+		BoxType( int id = 0 ) : LPDbID( id )
 		{}
 
 		BoxType( const LQuery & query );
@@ -96,7 +96,7 @@ public:
 		bool isSample() const { return status == 1; }
 	};
 
-	class TestLimits : public LDbTestLimits, public LDbValid
+	class TestLimits : public LPDbID, public LDbTestLimits, public LDbValid
 	{
 		static const int DEFAULT_LOWER = 1;			// no lower_test_limit specified
 		static const int PRIVATE_RESULT = 2;		// result cannot be released to project
@@ -156,13 +156,9 @@ public:
 
 class LPDbProfiles : public LDbCache< LPDbProfile >, public LPDbCacheMap< LPDbProfiles >
 {
-
 public:
-
-	bool read( LQuery pQuery, bool readAll );
-
-	const LPDbProfile * findByName( const std::string & name ) const
-	{
+	bool read( LQuery pQuery, bool readAll = false );
+	const LPDbProfile * findByName( const std::string & name ) const {
 		return findMatch( LDbNames::LCMatcher( name ) );
 	}
 };

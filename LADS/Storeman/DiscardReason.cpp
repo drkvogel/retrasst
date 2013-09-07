@@ -2,7 +2,6 @@
 #pragma hdrstop
 
 #include "DiscardReason.h"
-#include "StringUtil.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -101,16 +100,16 @@ void __fastcall TfrmDiscardReason::btnOKClick(TObject *Sender)
 
     do
     {
-		const std::string description = bcsToStd( this->ediDesc->Text );
-        const std::string reason = bcsToStd( this->cmbReason->Text );
+		AnsiString description =  this->ediDesc->Text ;
+        AnsiString reason =  this->cmbReason->Text;
 
         if ((description == "") || (reason == ""))
         {
             break; // FIXME
         }
 
-        m_context->setReason(reason);
-        m_context->setDescription(description);
+		m_context->setReason(reason.c_str());
+        m_context->setDescription(description.c_str());
 
         mr = mrOk;
 

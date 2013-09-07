@@ -8,6 +8,8 @@
 #include "showsamples.h"
 #include "StoreDAO.h"
 #include "LCDbObject.h"
+#include "LPDbCryovial.h"
+#include "StoreUtil.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -68,7 +70,7 @@ void __fastcall TfrmRetrieveMain::AddClick(TObject *Sender)
 	int aid = 0;		/// FIXME - primary or secondary
 
 	std::vector< ROSETTA > results;
-	StoreDAO & dao = StoreDAO::records();
+	StoreDAO dao;
 	Screen->Cursor = crSQLWait;
 	progress -> Position = 0;
 	progress -> Max = idList->Count;
@@ -147,20 +149,6 @@ void __fastcall TfrmRetrieveMain::Retrieve(TObject *Sender)
 
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmRetrieveMain::cbaDropDown(TObject *Sender)
-{
-	TComboBox * cb = dynamic_cast< TComboBox * >( Sender );
-	if( cb ) {
-		cb->Clear();
-		for( Range< LCDbObject > at = LCDbObjects::records(); at.isValid(); ++ at ) {
-			if( at -> isActive() && at -> getObjectType() == LCDbObject::ALIQUOT_TYPE ) {
-				cb->Items->Add( at -> getName().c_str() );
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
 
 void __fastcall TfrmRetrieveMain::cbProjectChange(TObject *Sender)
 {
@@ -169,7 +157,12 @@ void __fastcall TfrmRetrieveMain::cbProjectChange(TObject *Sender)
 	const LCDbProject *selected = projList.findByName( proj.c_str() );
 	if( selected != NULL ) {
 		projList.setCurrent( *selected );
-	}
+		CmbAliquot1->Enabled = true;
+		CmbAliquot2->Enabled = true;
+	} else {
+		CmbAliquot1->Enabled = false;
+		CmbAliquot2->Enabled = false;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -258,6 +251,42 @@ void __fastcall TfrmRetrieveMain::BtnDestClick(TObject *Sender)
 		}
 	}
 	drawGrid();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::CmbAliquot1DropDown(TObject *Sender)
+{
+	populate( CmbAliquot1, CmbAliquot2 );
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::CmbAliquot2DropDown(TObject *Sender)
+{
+	populate( CmbAliquot2, CmbAliquot1 );
+}
+
+//---------------------------------------------------------------------------
+
+void TfrmRetrieveMain::populate( TComboBox * target, TComboBox * other )
+{
+	target->Clear();
+	std::set< int > types = LPDbCryovials::getAliquotTypes( Util::projectQuery() );
+	const LCDbObjects & names = LCDbObjects::records();
+	AnsiString selected = other->Text;
+	if( !selected.IsEmpty() ) {
+		const LCDbObject * otherType = names.findByName( selected.c_str() );
+		if( otherType != NULL ) {
+			types.erase( otherType->getID() );
+		}
+	}
+
+	for( Range< LCDbObject > at = names; at.isValid(); ++ at ) {
+		if( types.count( at->getID() ) != 0 ) {
+			target->Items->Add( at -> getName().c_str() );
+		}
+	}
 }
 
 //---------------------------------------------------------------------------

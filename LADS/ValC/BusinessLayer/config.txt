@@ -1,24 +1,78 @@
-LoadWorklistEntries:
-SELECT wl.record_no, machine_cid, barcode, test_cid, group_id,
-category_id, sample_id, project_cid,                         
-profile_id, profile_name, time_stamp, ts_sequence, status,  
-diluent, buddy_result_id                                   
-from valc_worklist wl                                     
-WHERE                                                    
-wl.machine_cid in (-1019349, -1019430)                  
-and wl.status in ('Q','P','C','S','W', 'X')            
-ORDER BY wl.record_no                                 
+LoadBuddyDatabase:
+    SELECT bd.buddy_sample_id, bd.barcode, bd.date_analysed,       
+    bd.database_name, bd.alpha_sample_id, bd.machine_cid,         
+    brf.buddy_result_id, brf.test_id, brf.res_value,             
+    brf.action_flag, brf.date_analysed, brf.res_text,           
+    brf.update_when, brf.cbw_record_no, sr.run_id, sr.is_open, 
+    sr.created_when, sr.closed_when, sr.sequence_position,     
+    NVL( sr.fao_level_one, 'y' ) as fao_level_one
+    FROM                                                     
+    (                                                       
+        ( buddy_database bd left join buddy_result_float brf  
+          on bd.buddy_sample_id = brf.buddy_sample_id )           
+        left join sample_run sr on bd.sample_run_id = sr.run_id  
+    )                                                           
+    WHERE                                                      
+    bd.machine_cid = -1019349                                 
+    AND                                                      
+    ( ( bd.barcode like 'QC%' ) OR ( bd.alpha_sample_id != 0 ) )   
+    order by NVL( sr.sequence_position, bd.buddy_sample_id )
 
+
+BuddyDatabaseInclusionRule:
+    --[[
+    function accept ( barcode, dbName, actionFlag, faoLevelOne )
+        local ok = false
+        if actionFlag == '0' then
+            ok = true
+        elseif actionFlag == 'X' then
+            ok = true
+        end
+        return ok
+    end
+    ]]
+    function accept ( barcode, dbName, actionFlag ) 
+        local ok = false
+        if ( actionFlag == '0' ) then ok = true end
+        return ok
+    end
+
+
+
+LoadWorklistEntries:
+    SELECT wl.record_no, machine_cid, barcode, test_cid, group_id,
+    category_id, sample_id, project_cid,                         
+    profile_id, profile_name, time_stamp, ts_sequence, status,  
+    diluent, buddy_result_id                                   
+    from valc_worklist wl                                     
+    WHERE                                                    
+    wl.machine_cid in (-1019349, -1019430)                  
+    ORDER BY wl.record_no                                 
+
+
+WorklistInclusionRule:
+    --[[
+    validStatusValues = { Q = true, P = true, C = true, S = true, W = true, X = true }
+    function accept ( barcode, categoryID, projectID, profileID, profileName, status )
+        local ok = false
+        if validStatusValues[status] then ok = true end
+        return ok
+    end
+    ]]
+    function accept ( barcode, categoryID, projectID, profileID, profileName, status ) 
+        local ok = true
+        if status == 'T' then ok = false end
+        return ok
+    end
 
 
 LoadWorklistRelations:
-SELECT wl.record_no, wr.rerun_id, wr.parent_id, wr.motivation 
-FROM valc_worklist wl, c_worklist_relation wr                
-WHERE wl.record_no in ( wr.rerun_id, wr.parent_id )         
-and                                                        
-wl.machine_cid in (-1019349, -1019430)                    
-and wl.status in ('Q','P','C','S','W', 'X')              
-ORDER BY wl.record_no                                   
+    SELECT wl.record_no, wr.rerun_id, wr.parent_id, wr.motivation 
+    FROM valc_worklist wl, c_worklist_relation wr                
+    WHERE wl.record_no in ( wr.rerun_id, wr.parent_id )         
+    and                                                        
+    wl.machine_cid in (-1019349, -1019430)                    
+    ORDER BY wl.record_no                                   
 
 
 
@@ -39,63 +93,45 @@ Q109Temp
 
 
 LoadReferencedWorklistEntries:
-SELECT wl.record_no, machine_cid, barcode, test_cid, group_id, 
-category_id, sample_id, project_cid,                          
-profile_id, profile_name, time_stamp, ts_sequence, status,   
-diluent, buddy_result_id                                    
-FROM valc_worklist wl, Q109Temp tt                         
-WHERE                                                     
-wl.record_no == tt.record_no                             
-ORDER BY wl.record_no                                   
+    SELECT wl.record_no, machine_cid, barcode, test_cid, group_id, 
+    category_id, sample_id, project_cid,                          
+    profile_id, profile_name, time_stamp, ts_sequence, status,   
+    diluent, buddy_result_id                                    
+    FROM valc_worklist wl, Q109Temp tt                         
+    WHERE                                                     
+    wl.record_no == tt.record_no                             
+    ORDER BY wl.record_no                                   
 
 
 
 LoadReferencedWorklistRelations:
-SELECT wl.record_no, wr.rerun_id, wr.parent_id, wr.motivation 
-FROM c_worklist_relation wr, Q109Temp wl                     
-WHERE wl.record_no in ( wr.rerun_id, wr.parent_id )         
-ORDER BY wl.record_no                                      
+    SELECT wl.record_no, wr.rerun_id, wr.parent_id, wr.motivation 
+    FROM c_worklist_relation wr, Q109Temp wl                     
+    WHERE wl.record_no in ( wr.rerun_id, wr.parent_id )         
+    ORDER BY wl.record_no                                      
 
 
+# Note that there's no point loading non-local results if 
+# their corresponding worklist entries aren't getting loaded.
+# Thus there is a correspondence between the following query and 
+# LoadWorklistEntries.
 
 LoadNonLocalResults:
-SELECT bd.barcode, bd.machine_cid, bd.alpha_sample_id,        
-bd.database_name, brf.buddy_result_id, brf.test_id,          
-brf.res_value, brf.action_flag, brf.date_analysed,          
-brf.res_text, brf.update_when, cbw.record_no               
-FROM valc_worklist cbw, buddy_database bd,                
-buddy_result_float_valc brf                              
-WHERE                                                   
-( (brf.cbw_record_no = cbw.record_no)                  
-  or                                                  
-  (brf.buddy_result_id = cbw.buddy_result_id)        
-)                                                   
-and brf.buddy_sample_id = bd.buddy_sample_id       
-and bd.machine_cid != -1019349                    
-and cbw.machine_cid in (-1019349, -1019430)      
-and cbw.status in ('Q','P','C','S','W', 'X')    
+    SELECT bd.barcode, bd.machine_cid, bd.alpha_sample_id,        
+    bd.database_name, brf.buddy_result_id, brf.test_id,          
+    brf.res_value, brf.action_flag, brf.date_analysed,          
+    brf.res_text, brf.update_when, cbw.record_no               
+    FROM valc_worklist cbw, buddy_database bd,                
+    buddy_result_float brf                              
+    WHERE                                                   
+    ( (brf.cbw_record_no = cbw.record_no)                  
+      or                                                  
+      (brf.buddy_result_id = cbw.buddy_result_id)        
+    )                                                   
+    and brf.buddy_sample_id = bd.buddy_sample_id       
+    and bd.machine_cid != -1019349                    
+    and cbw.machine_cid in (-1019349, -1019430)      
+    and cbw.status in ('Q','P','C','S','W', 'X')    
 
-
-
-LoadBuddyDatabase:
-SELECT bd.buddy_sample_id, bd.barcode, bd.date_analysed,       
-bd.database_name, bd.alpha_sample_id, bd.machine_cid,         
-brf.buddy_result_id, brf.test_id, brf.res_value,             
-brf.action_flag, brf.date_analysed, brf.res_text,           
-brf.update_when, brf.cbw_record_no, sr.run_id, sr.is_open, 
-sr.created_when, sr.closed_when, sr.sequence_position     
-FROM                                                     
-(                                                       
-    ( buddy_database bd left join buddy_result_float_valc brf  
-      on bd.buddy_sample_id = brf.buddy_sample_id )           
-    left join sample_run sr on bd.sample_run_id = sr.run_id  
-)                                                           
-WHERE                                                      
-bd.machine_cid = -1019349                                 
-AND                                                      
-( ( bd.barcode like 'QC%' ) OR ( bd.alpha_sample_id != 0 ) )   
-AND                                                           
-NVL( sr.fao_level_one, 'y' ) = 'y'                           
-order by NVL( sr.sequence_position, bd.buddy_sample_id )
 
 

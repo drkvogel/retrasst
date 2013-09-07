@@ -18,21 +18,21 @@ object frmFind: TfrmFind
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
-    Left = 162
+    Left = 170
     Top = 24
     Width = 38
     Height = 13
     Caption = 'Project:'
   end
   object Label2: TLabel
-    Left = 162
+    Left = 170
     Top = 101
-    Width = 56
+    Width = 43
     Height = 13
-    Caption = 'Number/ID:'
+    Caption = 'Barcode:'
   end
   object Label3: TLabel
-    Left = 162
+    Left = 170
     Top = 62
     Width = 28
     Height = 13
@@ -100,8 +100,6 @@ object frmFind: TfrmFind
     NumGlyphs = 2
     TabOrder = 3
     OnClick = BitBtn1Click
-    ExplicitLeft = 111
-    ExplicitTop = 148
   end
   object BitBtn2: TBitBtn
     Left = 230

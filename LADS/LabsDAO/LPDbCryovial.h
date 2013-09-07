@@ -64,6 +64,7 @@ public:
 	const LPDbCryovial * readRecord( LQuery pQuery, const std::string & barcode, int typeID );
 	const LPDbCryovial * readRecord( LQuery pQuery, int box, short pos );
 	int confirmAllocation( LQuery query, int boxID );
+	static std::set<int> getAliquotTypes( LQuery pQuery );
 };
 
 //---------------------------------------------------------------------------

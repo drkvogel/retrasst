@@ -2,7 +2,6 @@
 
 #include "vcl.h"
 #include "TestRange.h"
-#include "StringUtil.h"
 
 #pragma hdrstop
 
@@ -12,7 +11,7 @@
 
 void ResultValue::setValue( const std::string & val )
 {
-	String trimmed = String(val.c_str()).Trim();
+	AnsiString trimmed = AnsiString(val.c_str()).Trim();
 	if( trimmed.IsEmpty() )
 	{
 		number = 0.0;
@@ -21,7 +20,7 @@ void ResultValue::setValue( const std::string & val )
 	else try
 	{
 		number = trimmed.ToDouble();
-		text = bcsToStd( trimmed );
+		text = trimmed.c_str();
 	}
 	catch( ... )
 	{
@@ -34,10 +33,12 @@ void ResultValue::setValue( const std::string & val )
 void ResultValue::setValue( double val )
 {
 	number = val;
-	if( val < 0 )
+	if( val < 0 ) {
 		text = "###";
-	else
-		text = bcsToStd(FormatFloat( "###0.00", val ));
+	} else {
+		AnsiString rounded = FormatFloat( "###0.00", val );
+		text = rounded.c_str();
+    }
 }
 
 //---------------------------------------------------------------------------

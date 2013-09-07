@@ -59,7 +59,7 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <Icon_MainIcon>$(BDS)\bin\cbuilder_PROJECTICON.ico</Icon_MainIcon>
         <Multithreaded>true</Multithreaded>
-        <IncludePath>..\..\..\paulst\;UnitTests\;$(IncludePath)</IncludePath>
+        <IncludePath>..\..\..\paulst\;UnitTests\;..\..\LUA;$(IncludePath)</IncludePath>
         <_TCHARMapping>wchar_t</_TCHARMapping>
         <AllPackageLibs>rtl.lib;fmx.lib;vcl.lib</AllPackageLibs>
         <ILINK_LibraryPath>..\..\..\paulst\;UnitTests\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
@@ -221,6 +221,10 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <DependentOn>DBUpdateTaskUpdateSampleRunID.h</DependentOn>
             <BuildOrder>38</BuildOrder>
         </CppCompile>
+        <CppCompile Include="InclusionRule.cpp">
+            <DependentOn>InclusionRule.h</DependentOn>
+            <BuildOrder>69</BuildOrder>
+        </CppCompile>
         <None Include="IntList.h">
             <BuildOrder>11</BuildOrder>
         </None>
@@ -252,6 +256,10 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <DependentOn>LoadWorklistEntries.h</DependentOn>
             <BuildOrder>44</BuildOrder>
         </CppCompile>
+        <LibFiles Include="Lua64.a" Condition="'$(Platform)'=='Win64' Or '$(Platform)'=='OSX32'">
+            <BuildOrder>70</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
         <CppCompile Include="MainFrm.cpp">
             <Form>MainForm</Form>
             <FormType>fmx</FormType>

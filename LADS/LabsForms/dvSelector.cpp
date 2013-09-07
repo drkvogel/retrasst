@@ -12,7 +12,6 @@
 #include "LPDbDescriptor.h"
 #include "LPDbProfileMap.h"
 #include "dvSelector.h"
-#include "StringUtil.h"
 
 #pragma hdrstop
 
@@ -144,7 +143,7 @@ const LPDbDescriptor * TselectorFrame::getDescriptor() const
 {
 	if( cbDescrip -> Text.IsEmpty() )
 		return NULL;
-	return LPDbDescriptors::records().findByName( bcsToStd( cbDescrip -> Text ) );
+	return LPDbDescriptors::records().findByName( AnsiString( cbDescrip -> Text ).c_str() );
 }
 
 //---------------------------------------------------------------------------
@@ -165,10 +164,10 @@ bool TselectorFrame::setDescriptor( const std::string & name )
 
 std::string TselectorFrame::getValueName() const
 {
-	String result;
+	AnsiString result;
 	if( lbDValues -> ItemIndex >= 0 )
 		result = lbDValues -> Items -> Strings[ lbDValues -> ItemIndex ];
-	return bcsToStd( result );
+	return  result.c_str();
 }
 
 //---------------------------------------------------------------------------

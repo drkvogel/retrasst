@@ -203,12 +203,14 @@ bool XDATE::setNow( void )
 	return(	set( tnow ) );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XDATE::getYear( void ) const
+
+ int XDATE::getYear( void ) const
 {
 	return( dateValid ? yr : XTIME::invalid );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XDATE::getMonth( void ) const
+
+ int XDATE::getMonth( void ) const
 {
 	return( dateValid ? mon : XTIME::invalid );
 }
@@ -227,7 +229,8 @@ const std::string XDATE::getMonthAbbrev( void ) const
 		: std::string("INVALID_MONTH") );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XDATE::getDay( void ) const
+
+ int XDATE::getDay( void ) const
 {
 	return( dateValid ? dy : XTIME::invalid );
 }
@@ -572,22 +575,26 @@ bool XCLOCK::setNow( void )
 	return(	set( tnow ) );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XCLOCK::getHour( void ) const
+
+ int XCLOCK::getHour( void ) const
 {
 	return( clockValid ? hr : XTIME::invalid );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XCLOCK::getMinute( void ) const
+
+ int XCLOCK::getMinute( void ) const
 {
 	return( clockValid ? min : XTIME::invalid );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XCLOCK::getSecond( void ) const
+
+ int XCLOCK::getSecond( void ) const
 {
 	return( clockValid ? sec : XTIME::invalid );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XCLOCK::getMilliSecond( void ) const
+
+ int XCLOCK::getMilliSecond( void ) const
 {
 	return( clockValid ? ms : XTIME::invalid );
 }
@@ -694,7 +701,7 @@ std::string XCLOCK::hms( const int format ) const
 		{return( XTIME::invalid_serialization );
 		}
 	char	buf[50];
-	sprintf( buf, "%2.2d:%2.2d", getHour(), getMinute(), getSecond() );
+	sprintf( buf, "%2.2d:%2.2d", getHour(), getMinute() );
 	if ( format > 0 )
 		{
 		char	sec[20];

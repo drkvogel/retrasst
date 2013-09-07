@@ -18,7 +18,6 @@ class TfrmRetrieveMain : public TForm
 {
 __published:	// IDE-managed Components
 	TStringGrid *grdSamples;
-	TLabel *LblCaption;
 	TLabel *LblAliquot1;
 	TButton *BtnAdd;
 	TButton *BtnRetrieve;
@@ -26,25 +25,27 @@ __published:	// IDE-managed Components
 	TRadioGroup *RadIDType;
 	TComboBox *CmbAliquot2;
 	TLabel *LblAliquot2;
-	TRadioGroup *RadioGroup1;
 	TOpenDialog *OpenDialog1;
 	TLabel *Label1;
 	TComboBox *cbProject;
 	TProgressBar *progress;
 	TButton *BtnDest;
+	TButton *Button1;
 	void __fastcall AddClick(TObject *Sender);
 	void __fastcall Retrieve(TObject *Sender);
-	void __fastcall cbaDropDown(TObject *Sender);
 	void __fastcall cbProjectChange(TObject *Sender);
 	void __fastcall cbProjectDropDown(TObject *Sender);
 	void __fastcall grdSamplesFixedCellClick(TObject *Sender, int ACol, int ARow);
 	void __fastcall FormResize(TObject *Sender);
 	void __fastcall BtnDestClick(TObject *Sender);
+	void __fastcall CmbAliquot1DropDown(TObject *Sender);
+	void __fastcall CmbAliquot2DropDown(TObject *Sender);
 
 private:	// User declarations
 
 	enum Cols { SAMPLE, CRYOVIAL, ALIQUOT, OLD_BOX, OLD_POS, VESSEL, SHELF, STRUCTURE, NEW_BOX, NEW_POS, COL_COUNT };
 
+	void populate( TComboBox * target, TComboBox * other );
 	void drawGrid();
 	void clearGrid();
 

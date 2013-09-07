@@ -52,8 +52,8 @@ void ColourStatus::getColours( ArrivalStatus pMs,String & pTextStatus, TColor& p
 			pTextStatus="Unknown";
 			pC=clBlack;
 			pTc=clWhite;
-
 		}
+		break;
 		default:
 		{
 			pTextStatus="Unknown";
@@ -85,15 +85,16 @@ LDbBoxExpected::LDbBoxExpected( const LQuery & query )
 
 void LDbBoxExpecteds::readAll( LQuery central )
 {
-	for( Range< LCDbProject > p = LCDbProjects::records(); p.isValid(); ++ p )
-		LDbBoxExpecteds::records( p->getID() ).clear();
-
-	central.setSQL( "select * from l_box_expected order by project_cid, box_expected_id" );
-	for( central.open(); !central.eof(); central.next() )
-	{
-		LDbBoxExpected box( central );
-		LDbBoxExpecteds::records( box.getProjectCid() ).push_back( box );
+	LCDbProjects & pList = LCDbProjects::records();
+	for( Range< LCDbProject > p = pList; p.isValid(); ++ p ) {
+		pList.setCurrent( *p );
+		records( p->getID() );
 	}
+}
+
+void LDbBoxExpecteds::read( LQuery project, bool all )
+{
+	// l_box_expected is no longer used
 }
 
 
@@ -245,7 +246,7 @@ bool LDbBoxArrival::saveRecord( LQuery pQuery )
 	if( pQuery.execSQL() == 1 )
 	{
 		saved = true;
-		LDbBoxArrivals::records( getProjectCid() ).insert( *this );
+		LDbBoxArrivals::records().insert( *this );
 		return true;
 	}
 	else return false;
@@ -258,11 +259,11 @@ bool LDbBoxArrival::saveRecord( LQuery pQuery )
 
 class LDbBoxExpecteds::Matcher : public std::unary_function< LDbBoxExpected, bool >
 {
-	const String boxName,cryo1,cryo2;
+	const std::string boxName,cryo1,cryo2;
 	const int cryo1Pos,cryo2Pos,projCid;
 
 public:
-	operator String() const { return boxName; }
+	operator std::string() const { return boxName; }
 	Matcher( const int pProjectCid
 			,const std::string & pBoxName
 			,const std::string & pCryo1
@@ -278,10 +279,10 @@ public:
 	{
 				bool t0,t1,t2,t3,t4,t5;
 		t0=( other.getProjectCid() == projCid || projCid==-1 );
-		t1=( boxName.CompareIC( other.getBoxName() ) == 0 || boxName.IsEmpty() );
+		t1=( boxName.compare( other.getBoxName() ) == 0 || boxName.empty() );
 // if Cryovial barcodes in l_box_expected are null or '.' ignore this as a way of matching
-		t2=( cryo1.CompareIC(other.getFirstBarcode())==0  || cryo1.IsEmpty() || other.getFirstBarcode().length() < 2 );
-		t3=( cryo2.CompareIC(other.getLastBarcode())  == 0 || cryo2.IsEmpty() || other.getLastBarcode().length()  < 2 );
+		t2=( cryo1.compare(other.getFirstBarcode())==0  || cryo1.empty() || other.getFirstBarcode().length() < 2 );
+		t3=( cryo2.compare(other.getLastBarcode())  == 0 || cryo2.empty() || other.getLastBarcode().length()  < 2 );
 		t4=( other.getFirst() == cryo1Pos ||cryo1Pos ==-1 );
 		t5=( other.getLast() == cryo2Pos ||cryo2Pos ==-1 );
 		return (t0 && t1 && t2 && t3 && t4 && t5);
@@ -303,18 +304,29 @@ const LDbBoxExpected * LDbBoxExpecteds::find( const int pProjectCid, const std::
 
 void LDbBoxArrivals::readAll( LQuery central )
 {
-	for( Range< LCDbProject > p = LCDbProjects::records(); p.isValid(); ++ p )
-		LDbBoxArrivals::records( p->getID() ).clear();
-
-	central.setSQL( "select * from l_box_arrival where status <> :sta"
-				   " order by box_arrival_id, swipe_time" );
-	central.setParam( 0, LDbValid::DELETED );
-
-	for( central.open(); !central.eof(); central.next() )
-	{
-		LDbBoxArrival box( central );
-		LDbBoxArrivals::records( box.getProjectCid() ).push_back( box );
+	LCDbProjects & pList = LCDbProjects::records();
+	for( Range< LCDbProject > p = pList; p.isValid(); ++ p ) {
+		pList.setCurrent( *p );
+		records( p->getID() );
 	}
+}
+
+void LDbBoxArrivals::read( LQuery project, bool all )
+{
+	// box arrivals are now stored centrally
+	LQuery central( LIMSDatabase::getCentralDb() );
+	if( all ) {
+		central.setSQL( "select * from l_box_arrival"
+						" where project_cid = :pid"
+						" order by box_arrival_id" );
+	} else {
+		central.setSQL( "select * from l_box_arrival"
+						" where status <> :sta and project_cid = :pid"
+						" order by box_arrival_id" );
+		central.setParam( "sta" , LDbValid::DELETED );
+	}
+	central.setParam( "pid", LCDbProjects::getCurrentID() );
+	readData( central );
 }
 
 //---------------------------------------------------------------------------
@@ -323,15 +335,15 @@ void LDbBoxArrivals::readAll( LQuery central )
 
 class LDbBoxArrivals::Matcher : public std::unary_function< LDbBoxArrival, bool >
 {
-	const String boxName,cryo1,cryo2;
+	const std::string boxName,cryo1,cryo2;
 	const int cryo1Pos,cryo2Pos,projCid;
 
 public:
-	operator String() const { return boxName; }
+	operator std::string() const { return boxName; }
 	Matcher( const int pProjectCid
-			,const String & pBoxName
-			,const String & pCryo1
-			,const String & pCryo2
+			,const std::string & pBoxName
+			,const std::string & pCryo1
+			,const std::string & pCryo2
 			,const int pCryoPos1
 			,const int pCryoPos2 )
 	 : projCid( pProjectCid ), boxName( pBoxName ), cryo1( pCryo1 ), cryo2 ( pCryo2 )
@@ -343,10 +355,10 @@ public:
 	{
 				bool t0,t1,t2,t3,t4,t5;
 		t0=( other.getProjectCid() == projCid || projCid==-1 );
-		t1=( boxName.CompareIC(other.getBoxName()) == 0 || boxName.IsEmpty() );
+		t1=( boxName.compare(other.getBoxName()) == 0 || boxName.empty() );
 // if Cryovial barcodes in l_box_expected are null or '.' ignore this as a way of matching
-		t2=( cryo1.Compare(other.getFirstBarcode()) == 0 || cryo1.IsEmpty() || other.getFirstBarcode().length() < 2 );
-		t3=( cryo2.Compare(other.getLastBarcode())  == 0 || cryo2.IsEmpty() || other.getLastBarcode().length()  < 2 );
+		t2=( cryo1.compare(other.getFirstBarcode()) == 0 || cryo1.empty() || other.getFirstBarcode().length() < 2 );
+		t3=( cryo2.compare(other.getLastBarcode())  == 0 || cryo2.empty() || other.getLastBarcode().length()  < 2 );
 		t4=( other.getFirst() == cryo1Pos ||cryo1Pos ==-1 );
 		t5=( other.getLast() == cryo2Pos ||cryo2Pos ==-1 );
 		return (t0 && t1 && t2 && t3 && t4 && t5);
