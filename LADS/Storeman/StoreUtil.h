@@ -22,6 +22,50 @@ void delete_referenced(Container& c) {
     while (!c.empty()) delete c.back(), c.pop_back();
 }
 
+/** Helper class to sort a vector of type T via sort functions defined in intializer
+    Sorts explicitly ascending or descending, or toggle last sort order
+
+    Initialize like this:
+
+    Sorter<T> sorter[NUMCOLS] = {
+        { T::sort_asc_col1,   T::sort_desc_col1,  "column name" },
+        ...
+    }
+
+    Where the sort functions are defined like this (e.g.):
+
+    bool sort_asc_col1(const T *a, const T *b)    { return Util::numericCompare(a->member1, b->member1); }
+
+    Use like this:
+
+    sorter[col].sort_asc(std::vector<T *>);     // sort ascending
+    sorter[col].sort_dsc(std::vector<T *>);     // sort descending
+    sorter[col].sort_toggle(std::vector<T *>);  // sort the opposite way to the last call
+*/
+template <class T>
+class Sorter {
+public:
+    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
+    bool (*sort_func_dsc)(const T *, const T *); // descending sort function
+    std::string description;
+    void sort_asc(std::vector<T *> & vec) { sort(vec, ASCENDING);  }
+    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING); }
+    void sort_toggle(std::vector<T *> & vec) {
+        sort(vec, sortOrder);
+        sortOrder = (sortOrder == ASCENDING) ? DESCENDING : ASCENDING; // toggle
+    }
+private:
+    enum SortOrder { ASCENDING, DESCENDING } sortOrder;
+    void sort(std::vector<T *> & vec, SortOrder order) {
+        switch (order) {
+            case ASCENDING:     std::sort(vec.begin(), vec.end(), sort_func_asc); break;
+            case DESCENDING:    std::sort(vec.begin(), vec.end(), sort_func_dsc); break;
+            default:            throw Exception("Invalid sort order");
+        }
+    }
+};
+
+
 class Util
 {
 	static const char * split( const char * fieldName );

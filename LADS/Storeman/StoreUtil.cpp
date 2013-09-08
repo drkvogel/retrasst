@@ -303,13 +303,21 @@ LQuery Util::projectQuery( int projID, bool ddb ) {
 
 //---------------------------------------------------------------------------
 
-// sort function: strip out numeric chars from name, concatenate, compare as ints
+/** Sort function: compare non-numeric characters of two strings.
+    If identical, strip out numeric chars, concatenate, and compare as ints.
+    Will sort like this:
+        Box 1
+        Box 2
+        Box 10
+        Box 11
+        Box 20
+        etc.       */
 bool Util::numericCompare(const std::string a, const std::string b) {
-    struct { // Local functions are not allowed in C++, but functions are allowed in local classes
+    struct {
         static unsigned int justNumerics(std::string a) {
             std::ostringstream numerics;
             for (unsigned int i=0; i<a.length(); i++) {
-                char ch = a.at(i);
+                char ch = a.at(i); // at() throws exception if out of range
                 if (ch >= 0x30 && ch < 0x3A) {
                     numerics << ch; // pull out the numeric characters
                 }

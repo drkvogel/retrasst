@@ -107,21 +107,6 @@ public:
     static bool sort_desc_structure(const BoxRow *a, const BoxRow *b) { return Util::numericCompare(a->rack_name, b->rack_name); }
     static bool sort_asc_slot(const BoxRow *a, const BoxRow *b)       { return a->slot_position < b->slot_position; }
     static bool sort_desc_slot(const BoxRow *a, const BoxRow *b)      { return a->slot_position > b->slot_position; }
-
-    // sort func: strip out numeric chars from name, concatenate, compare as ints
-//    static bool numeric_compare(const string a, const string b) {
-//        struct temp { // Local functions are not allowed in C++, but local classes are and functions are allowed in local classes
-//            static unsigned int alpha_to_int(string a) {
-//                ostringstream numerics;
-//                for (unsigned int i=0; i<a.length(); i++) {
-//                    char ch = a.at(i); if (ch >= 0x30 && ch < 0x3A) { numerics << ch; } // pull out the numerics
-//                }
-//                return atoi(numerics.str().c_str());
-//            }
-//        } local;
-//        return local.alpha_to_int(a) < local.alpha_to_int(b);
-//        // what if there are no numerics?
-//    }
     string str() {
         ostringstream oss; oss<<__FUNC__
         //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position
@@ -180,12 +165,12 @@ public:
     // box_name vs store_record->getID()?
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
     static bool sort_desc_barcode(const SampleRow *a, const SampleRow *b)   { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
-    static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return numeric_compare(a->box_name, b->box_name); }
-    static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return numeric_compare(b->box_name, a->box_name); }
+    static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->box_name, b->box_name); }
+    static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return Util::numericCompare(b->box_name, a->box_name); }
     static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
     static bool sort_desc_currpos(const SampleRow *a, const SampleRow *b)   { return a->store_record->getPosition() > b->store_record->getPosition(); }
-    static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return numeric_compare(a->dest_box_name, b->dest_box_name); }
-    static bool sort_desc_destbox(const SampleRow *a, const SampleRow *b)   { return numeric_compare(b->dest_box_name, a->dest_box_name); }
+    static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
+    static bool sort_desc_destbox(const SampleRow *a, const SampleRow *b)   { return Util::numericCompare(b->dest_box_name, a->dest_box_name); }
     static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_box_pos < b->dest_box_pos; }
     static bool sort_desc_destpos(const SampleRow *a, const SampleRow *b)   { return a->dest_box_pos > b->dest_box_pos; }
     static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
@@ -196,22 +181,10 @@ public:
     static bool sort_desc_shelf(const SampleRow *a, const SampleRow *b)     { return a->shelf_number > b->shelf_number; }
     static bool sort_asc_vessel(const SampleRow *a, const SampleRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
     static bool sort_desc_vessel(const SampleRow *a, const SampleRow *b)    { return a->vessel_name.compare(b->vessel_name) > 0; }
-    static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return numeric_compare(a->rack_name, b->rack_name); }//return a->rack_name.compare(b->rack_name) > 0; }
+    static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->rack_name, b->rack_name); }//return a->rack_name.compare(b->rack_name) > 0; }
     static bool sort_desc_structure(const SampleRow *a, const SampleRow *b) { return a->rack_name.compare(b->rack_name) < 0; }
     static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->slot_position < b->slot_position; }
     static bool sort_desc_slot(const SampleRow *a, const SampleRow *b)      { return a->slot_position > b->slot_position; }
-    static bool numeric_compare(const string a, const string b) { // strip out numeric chars from name, concatenate, compare as ints
-        struct temp { // Local functions are not allowed in C++, but local classes are and functions are allowed in local classes
-            static unsigned int alpha_to_int(string a) {
-                ostringstream numerics;
-                for (unsigned int i=0; i<a.length(); i++) {
-                    char ch = a.at(i); if (ch >= 0x30 && ch < 0x3A) { numerics << ch; } // pull out the numerics
-                }
-                return atoi(numerics.str().c_str()); // 0 if no numerics?
-            }
-        } local;
-        return local.alpha_to_int(a) < local.alpha_to_int(b);
-    }
     string str() {
         ostringstream oss; oss<<__FUNC__
         //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position
@@ -245,31 +218,31 @@ public:
 typedef SampleRow * pSampleRow;
 typedef std::vector<pSampleRow> vecpSampleRow;
 
-/** helper class to sort rows of type T via sort functions defined in intializer
-    sort explicitly ascending or descending, or toggle last sort order */
-template <class T>
-class Sorter {
-public:
-    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-    bool (*sort_func_dsc)(const T *, const T *); // descending sort function
-    string description;
-    void sort_asc(std::vector<T *> & vec) { sort(vec, ASCENDING);  }
-    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING); }
-    void sort_toggle(std::vector<T *> & vec) {
-        sort(vec, sortOrder);
-        sortOrder = (sortOrder == ASCENDING) ? DESCENDING : ASCENDING; // toggle
-    }
-    //Sorter() { sortOrder = ASCENDING; } // compiler expects this ctor to be initialized??
-private:
-    enum SortOrder { ASCENDING, DESCENDING } sortOrder;
-    void sort(std::vector<T *> & vec, SortOrder order) {
-        switch (order) {
-            case ASCENDING:     std::sort(vec.begin(), vec.end(), sort_func_asc); break;
-            case DESCENDING:    std::sort(vec.begin(), vec.end(), sort_func_dsc); break;
-            default:            throw Exception("Invalid sort order");
-        }
-    }
-};
+///** helper class to sort rows of type T via sort functions defined in intializer
+//    sort explicitly ascending or descending, or toggle last sort order */
+//template <class T>
+//class Sorter {
+//public:
+//    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
+//    bool (*sort_func_dsc)(const T *, const T *); // descending sort function
+//    string description;
+//    void sort_asc(std::vector<T *> & vec) { sort(vec, ASCENDING);  }
+//    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING); }
+//    void sort_toggle(std::vector<T *> & vec) {
+//        sort(vec, sortOrder);
+//        sortOrder = (sortOrder == ASCENDING) ? DESCENDING : ASCENDING; // toggle
+//    }
+//    //Sorter() { sortOrder = ASCENDING; } // compiler expects this ctor to be initialized??
+//private:
+//    enum SortOrder { ASCENDING, DESCENDING } sortOrder;
+//    void sort(std::vector<T *> & vec, SortOrder order) {
+//        switch (order) {
+//            case ASCENDING:     std::sort(vec.begin(), vec.end(), sort_func_asc); break;
+//            case DESCENDING:    std::sort(vec.begin(), vec.end(), sort_func_dsc); break;
+//            default:            throw Exception("Invalid sort order");
+//        }
+//    }
+//};
 
 enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
 static const char * sgChunksColName[SGCHUNKS_NUMCOLS]   = { "Section", "Start", "End", "Size" };

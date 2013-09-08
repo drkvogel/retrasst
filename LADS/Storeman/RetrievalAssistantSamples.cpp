@@ -9,7 +9,6 @@
 TfrmSamples *frmSamples;
 
 Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
-//sorter = {
     { SampleRow::sort_asc_barcode,   SampleRow::sort_desc_barcode,  sgVialColName[0] },
     { SampleRow::sort_asc_destbox,   SampleRow::sort_desc_destbox,  sgVialColName[1] },
     { SampleRow::sort_asc_destpos,   SampleRow::sort_desc_destpos,  sgVialColName[2] },
