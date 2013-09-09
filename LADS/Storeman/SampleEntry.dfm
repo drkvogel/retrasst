@@ -2,8 +2,8 @@ object frmRetrieveMain: TfrmRetrieveMain
   Left = 0
   Top = 0
   Caption = 'Retrieve Sample'
-  ClientHeight = 689
-  ClientWidth = 1019
+  ClientHeight = 628
+  ClientWidth = 837
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,36 +13,43 @@ object frmRetrieveMain: TfrmRetrieveMain
   OldCreateOrder = False
   OnResize = FormResize
   DesignSize = (
-    1019
-    689)
+    837
+    628)
   PixelsPerInch = 96
   TextHeight = 13
   object LblAliquot1: TLabel
-    Left = 12
-    Top = 83
+    Left = 8
+    Top = 88
     Width = 75
     Height = 13
     Caption = 'Primary aliquot:'
   end
   object LblAliquot2: TLabel
-    Left = 330
-    Top = 83
+    Left = 306
+    Top = 88
     Width = 90
     Height = 13
     Caption = 'Secondary aliquot:'
   end
   object Label1: TLabel
-    Left = 12
-    Top = 26
+    Left = 8
+    Top = 33
     Width = 38
     Height = 13
     Caption = 'Project:'
   end
+  object Label2: TLabel
+    Left = 624
+    Top = 12
+    Width = 49
+    Height = 13
+    Caption = 'Sort order'
+  end
   object grdSamples: TStringGrid
     Left = 8
-    Top = 192
-    Width = 1003
-    Height = 474
+    Top = 176
+    Width = 821
+    Height = 429
     Anchors = [akLeft, akTop, akRight, akBottom]
     ColCount = 6
     DefaultColWidth = 90
@@ -51,27 +58,29 @@ object frmRetrieveMain: TfrmRetrieveMain
     TabOrder = 0
     OnFixedCellClick = grdSamplesFixedCellClick
   end
-  object BtnAdd: TButton
-    Left = 12
-    Top = 140
-    Width = 90
-    Height = 28
+  object btnAddFile: TButton
+    Left = 8
+    Top = 130
+    Width = 100
+    Height = 34
     Caption = 'Add from file'
+    Enabled = False
     TabOrder = 1
     OnClick = AddClick
   end
-  object BtnRetrieve: TButton
-    Left = 330
-    Top = 140
-    Width = 90
-    Height = 28
-    Caption = 'Retrieve'
+  object btnLocate: TButton
+    Left = 316
+    Top = 130
+    Width = 100
+    Height = 34
+    Caption = 'Add location'
+    Enabled = False
     TabOrder = 2
-    OnClick = Retrieve
+    OnClick = btnLocateClick
   end
   object CmbAliquot1: TComboBox
-    Left = 100
-    Top = 79
+    Left = 102
+    Top = 85
     Width = 160
     Height = 21
     Enabled = False
@@ -80,11 +89,11 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnDropDown = CmbAliquot1DropDown
   end
   object RadIDType: TRadioGroup
-    Left = 330
-    Top = 8
+    Left = 306
+    Top = 12
     Width = 264
-    Height = 49
-    Caption = 'Item Type'
+    Height = 50
+    Caption = 'Item type'
     Columns = 3
     ItemIndex = 0
     Items.Strings = (
@@ -94,8 +103,8 @@ object frmRetrieveMain: TfrmRetrieveMain
     TabOrder = 4
   end
   object CmbAliquot2: TComboBox
-    Left = 434
-    Top = 79
+    Left = 410
+    Top = 85
     Width = 160
     Height = 21
     Enabled = False
@@ -104,8 +113,8 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnDropDown = CmbAliquot2DropDown
   end
   object cbProject: TComboBox
-    Left = 100
-    Top = 23
+    Left = 102
+    Top = 30
     Width = 160
     Height = 21
     Sorted = True
@@ -115,33 +124,44 @@ object frmRetrieveMain: TfrmRetrieveMain
   end
   object progress: TProgressBar
     Left = 0
-    Top = 672
-    Width = 1019
+    Top = 611
+    Width = 837
     Height = 17
     Align = alBottom
     Step = 1
     TabOrder = 7
-    ExplicitWidth = 791
   end
-  object BtnDest: TButton
-    Left = 504
-    Top = 140
-    Width = 90
-    Height = 28
+  object btnDestination: TButton
+    Left = 470
+    Top = 130
+    Width = 100
+    Height = 34
     Caption = 'New Boxes'
+    Enabled = False
     TabOrder = 8
-    OnClick = BtnDestClick
+    OnClick = btnDestinationClick
   end
-  object Button1: TButton
-    Left = 170
-    Top = 140
-    Width = 90
-    Height = 28
+  object btnAddRecords: TButton
+    Left = 162
+    Top = 130
+    Width = 100
+    Height = 34
     Caption = 'Add specimens'
+    Enabled = False
     TabOrder = 9
   end
+  object lbSortCols: TListBox
+    Left = 624
+    Top = 29
+    Width = 185
+    Height = 124
+    Anchors = [akLeft, akTop, akRight]
+    Enabled = False
+    ItemHeight = 13
+    TabOrder = 10
+  end
   object OpenDialog1: TOpenDialog
-    Left = 650
-    Top = 27
+    Left = 122
+    Top = 251
   end
 end

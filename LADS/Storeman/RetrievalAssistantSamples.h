@@ -63,6 +63,8 @@ public:
     int             rowCount;       // current rows loaded, for thread sync
     string          loadingMessage;
     void __fastcall updateStatus(); // syncronized method can't have args (?) - was going to use (int numerator, int denominator)
+    void findDestination(pSampleRow sampleRow);
+    void findDestinationSlowly(pSampleRow sampleRow);
 };
 
 //extern Sorter<SampleRow> sorter[SGVIALS_NUMCOLS];
@@ -142,7 +144,7 @@ private:
     void                        loadRows();
     void                        showChunk(SampleChunk * chunk=NULL);
     void                        radgrpRowsChange();
-    void                        sortChunk(SampleChunk * chunk, int col);
+    void                        sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order);
     const char *                loadingMessage;
 public:
     __fastcall          TfrmSamples(TComponent* Owner);

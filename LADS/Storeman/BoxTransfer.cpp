@@ -499,7 +499,7 @@ void __fastcall TfrmBoxList::sgBoxTypesFixedCellClick( TObject *Sender, int ACol
 			typeOrder = usesDescending;
 		}
 	}
-	std::sort( types.begin( ), types.end( ), typeOrder );
+	std::stable_sort( types.begin( ), types.end( ), typeOrder );
 	for( int i = 0, row = 1; row < sgBoxTypes->RowCount; i++, row++ ) {
 		sgBoxTypes->Cells[ 0 ][ row ] = types[ i ].getName( ).c_str( );
 		sgBoxTypes->Cells[ 1 ][ row ] = types[ i ].getExpectedUses( );

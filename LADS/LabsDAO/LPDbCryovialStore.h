@@ -32,6 +32,7 @@ public:
 	void setStatus( Status update ) { status = update; }
 	Status getStatus() const { return Status( status ); }
     int getPosition() const { return position; }
+    int getBoxID() const { return boxID; }
 
 	bool saveRecord( LQuery query );
 	bool setJobRef( LQuery project, int jobRef );    

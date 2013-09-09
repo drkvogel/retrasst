@@ -331,6 +331,7 @@ void TfrmBoxes::showRows() {
 void TfrmBoxes::sortList(int col) {
     Screen->Cursor = crSQLWait;
     boxSorter[col].sort_toggle(boxes);
+    //boxSorter[col].sort(boxes, Sorter::SortOrder::TOGGLE);
     showRows();
     Screen->Cursor = crDefault;
 }

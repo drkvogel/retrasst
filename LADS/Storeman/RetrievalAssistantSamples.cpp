@@ -4,6 +4,7 @@
 #include "StoreUtil.h"
 #include "LCDbRack.h"
 #include "RetrievalAssistantAutoChunk.h"
+#include "StoreDAO.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 TfrmSamples *frmSamples;
@@ -38,7 +39,6 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
     loadingMessage = oss.str().c_str();
     rowCount = 0;
-    {
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true));
     qd.setSQL(
         "SELECT"
@@ -102,56 +102,76 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         qd.next();
         rowCount++;
     }
-    }
 
-    return;
-    // look for destination boxes, can't left join in ddb, so do project query per row
-    // may be v time-consuming - could do outer join instead and check sequence for gaps
-    // p.s. *is* v time-consuming...
     int rowCount2 = 0;
     for (vecpSampleRow::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
         ostringstream oss; oss<<"Finding destinations: "<<rowCount2<<"/"<<rowCount;
         loadingMessage = oss.str().c_str();
         if (0 == rowCount2 % 10) Synchronize((TThreadMethod)&updateStatus);
-
         pSampleRow sampleRow = (pSampleRow)*it;
-        //look in the right database!
-        LQuery qp(Util::projectQuery(frmSamples->job->getProjectID(), false)); // project db
-        qp.setSQL(
-            "SELECT"
-            "   n1.box_cid AS boxid, n1.external_name AS boxname, s2.cryovial_position AS pos"
-            " FROM"
-            "   cryovial_store s1, cryovial c, box_name n1, cryovial_store s2, box_name n2"
-            " WHERE"
-            "   c.cryovial_id = s1.cryovial_id"
-            " AND n1.box_cid = s1.box_cid"
-            " AND s1.cryovial_id = s2.cryovial_id"
-            " AND s2.status = 0"
-            " AND n2.box_cid = s2.box_cid"
-            " AND s1.retrieval_cid = :jobID"
-            " AND s1.cryovial_id = :vial" // e.g. 1137824 (t_ldb1)
-            );
-        qp.setParam("jobID", frmSamples->job->getID());
-        qp.setParam("vial",  sampleRow->store_record->getID());
-        //LPDbCryovialStore * vial = sampleRow->store_record;
-
         try {
-            if (qp.open()) {
-                sampleRow->dest_box_id      = qp.readInt("boxid");
-                sampleRow->dest_box_name    = qp.readString("boxname");
-                sampleRow->dest_box_pos     = qp.readInt("pos");
-            } else {
-                sampleRow->dest_box_id      = 0;
-                sampleRow->dest_box_name    = "";
-                sampleRow->dest_box_pos     = 0;
-            }
-
+            //findDestinationSlowly(sampleRow);
+            findDestination(sampleRow);
         } catch(Exception & e) {
             msgbox(e.Message);
         } catch(...) {
             msgbox("error");
         }
         rowCount2++;
+    }
+}
+
+void LoadVialsWorkerThread::findDestination(pSampleRow row) {
+	static std::map<int, SampleRow *> boxes;
+	ROSETTA result;
+	StoreDAO dao;
+	std::map<int, SampleRow *>::const_iterator found = boxes.find(row->store_record->getBoxID());
+    if (found != boxes.end()) {
+        row->dest_box_id      = (*(found->second)).dest_box_id;
+        row->dest_box_name    = (*(found->second)).box_name;
+        row->dest_box_pos     = (*(found->second)).dest_box_pos;
+    } else {
+        //if (dao.findBox(row->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) { finds t/r/s | v/s/s
+        dao.loadBoxDetails(row->store_record->getBoxID(), LCDbProjects::getCurrentID(), result);
+        row->dest_box_id      = result.getInt("box_cid");
+        row->dest_box_name    = result.getString("external_name");
+        row->dest_box_pos     = result.getInt("slot_position");
+        //} // isn't this just getting details of the current box, not the destination?
+        boxes[row->dest_box_id] = &(*row);
+    }
+}
+
+void LoadVialsWorkerThread::findDestinationSlowly(pSampleRow sampleRow) {
+    // look for destination boxes, can't left join in ddb, so do project query per row
+    // may be v time-consuming - could do outer join instead and check sequence for gaps
+    // p.s. *is* v time-consuming...
+    //look in the right database
+    LQuery qp(Util::projectQuery(frmSamples->job->getProjectID(), false)); // project db
+    qp.setSQL(
+        "SELECT"
+        "   n1.box_cid AS boxid, n1.external_name AS boxname, s2.cryovial_position AS pos"
+        " FROM"
+        "   cryovial_store s1, cryovial c, box_name n1, cryovial_store s2, box_name n2"
+        " WHERE"
+        "   c.cryovial_id = s1.cryovial_id"
+        " AND n1.box_cid = s1.box_cid"
+        " AND s1.cryovial_id = s2.cryovial_id"
+        " AND s2.status = 0"
+        " AND n2.box_cid = s2.box_cid"
+        " AND s1.retrieval_cid = :jobID"
+        " AND s1.cryovial_id = :vial" // e.g. 1137824 (t_ldb1)
+        );
+    qp.setParam("jobID", frmSamples->job->getID());
+    qp.setParam("vial",  sampleRow->store_record->getID());
+    //LPDbCryovialStore * vial = sampleRow->store_record;
+    if (qp.open()) {
+        sampleRow->dest_box_id      = qp.readInt("boxid");
+        sampleRow->dest_box_name    = qp.readString("boxname");
+        sampleRow->dest_box_pos     = qp.readInt("pos");
+    } else {
+        sampleRow->dest_box_id      = 0;
+        sampleRow->dest_box_name    = "";
+        sampleRow->dest_box_pos     = 0;
     }
 }
 
@@ -314,7 +334,7 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     ostringstream oss; oss << __FUNC__; oss << printColWidths(sgVials); debugLog(oss.str().c_str()); // print column widths so we can copy them into the source
-    sortChunk(currentChunk(), ACol);
+    sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
 }
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
@@ -434,10 +454,10 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         pSampleRow sampleRow = (pSampleRow)*it;
         LPDbCryovialStore * vial = sampleRow->store_record;
         sgVials->Cells[SGVIALS_BARCODE] [row]    = sampleRow->cryovial_barcode.c_str();
-        sgVials->Cells[SGVIALS_DESTBOX] [row]    = "tba"; //sampleRow->;
-        sgVials->Cells[SGVIALS_DESTPOS] [row]    = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_DESTBOX] [row]    = sampleRow->dest_box_name.c_str();
+        sgVials->Cells[SGVIALS_DESTPOS] [row]    = sampleRow->dest_box_pos;
         sgVials->Cells[SGVIALS_CURRBOX] [row]    = sampleRow->box_name.c_str();
-        sgVials->Cells[SGVIALS_CURRPOS] [row]    = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_CURRPOS] [row]    = sampleRow->slot_position;
         sgVials->Cells[SGVIALS_SITE]    [row]    = sampleRow->site_name.c_str();
         sgVials->Cells[SGVIALS_POSITION][row]    = sampleRow->position;
         sgVials->Cells[SGVIALS_SHELF]   [row]    = sampleRow->shelf_number;
@@ -456,7 +476,12 @@ void TfrmSamples::addSorter() {
     TComboBox * combo = new TComboBox(this);
     combo->Parent = groupSort;
     combo->Align = alLeft;
-    combo->Items->AddObject(groupSort->ControlCount, NULL);
+    combo->Style = csDropDown; // csDropDownList
+    //combo->Items->AddObject(groupSort->ControlCount, NULL);
+    //combo->AddItem(groupSort->ControlCount, NULL);
+    for (int i=0; i<SGVIALS_NUMCOLS; i++) {
+        combo->AddItem(sorter[i].description.c_str(), (TObject *)&sorter[i]);
+    }
     //combo->OnChange = &comboSortOnChange;
     // new combo is last created,
     //groupSort->InsertControl(combo);
@@ -493,28 +518,41 @@ void TfrmSamples::removeSorter() {
     }
 }
 
-void TfrmSamples::applySort() {
+void TfrmSamples::applySort() { // loop through sorters and apply each selected sort
+    ostringstream oss; oss<<__FUNC__<<groupSort->ControlCount<<" controls"<<endl; debugLog(oss.str().c_str());
     SampleChunk * chunk = currentChunk();
-    // loop through sorters and apply each selected sort
-    for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box
-//    for (int i=0; i<groupSort->ControlCount; i++) { // controls are in creation order, ie. buttons first from design, and last added combo is last
+    for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box // controls are in creation order, ie. buttons first from design, and last added combo is last
         TControl * control = groupSort->Controls[i];
         TComboBox * combo = dynamic_cast<TComboBox *>(control);
         if (combo != NULL) {
-            debugLog("sorting:");
-            debugLog(combo->Text);
-            //sortChunk(SampleChunk * chunk, int col)
-            //sortChunk(chunk, col);
+            if (-1 != combo->ItemIndex) {
+                //oss.str(); oss<<"sorting: "); debugLog(oss.str().c_str());
+                debugLog("sorting: ");
+                debugLog(combo->Items->Strings[combo->ItemIndex].c_str());
+                sortChunk(chunk, combo->ItemIndex, Sorter<SampleRow *>::ASCENDING);
+            }
         } else {
             debugLog("not a combo box, finish sorting.");
             break; // finished sorting
         }
     }
+    //debugLog(oss.str().c_str());
 }
 
-void TfrmSamples::sortChunk(SampleChunk * chunk, int col) {
+void TfrmSamples::sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order) {
     Screen->Cursor = crSQLWait;
-    sorter[col].sort_toggle(chunk->rows); //partial_sort
+    switch (order) {
+        case Sorter<SampleRow *>::ASCENDING:
+            sorter[col].sort_asc(chunk->rows);
+            break;
+        case Sorter<SampleRow *>::DESCENDING:
+            sorter[col].sort_dsc(chunk->rows);
+            break;
+        case Sorter<SampleRow *>::TOGGLE:
+            sorter[col].sort_toggle(chunk->rows);
+            break;
+    }
+    //sorter[col].sort_toggle(chunk->rows); //partial_sort
     showChunk(chunk);
     Screen->Cursor = crDefault;
 }

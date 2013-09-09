@@ -215,6 +215,7 @@ object frmStoremain: TfrmStoremain
       Height = 35
       Anchors = []
       Caption = 'View Lists'
+      Enabled = False
       TabOrder = 0
       WordWrap = True
     end

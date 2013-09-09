@@ -57,7 +57,7 @@ void TfrmRetrieved::Retrieve()
 		sid = frmRetrieveMain->rows[i].sid;
 		cid = frmRetrieveMain->rows[i].cid;
 		aid = frmRetrieveMain->rows[i].aid;
-		adesc = frmRetrieveMain->rows[i].adesc;
+		adesc = frmRetrieveMain->rows[i].aliquot;
 		grdSamples->Cells[0][i+1] = sid.c_str();
 		grdSamples->Cells[1][i+1] = cid.c_str();
 		grdSamples->Cells[2][i+1] = adesc.c_str();
