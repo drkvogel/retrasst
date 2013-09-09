@@ -243,6 +243,8 @@ object frmSamples: TfrmSamples
         Align = alRight
         Caption = 'Apply'
         TabOrder = 2
+        ExplicitLeft = 638
+        ExplicitTop = 11
       end
     end
     object GroupBox2: TGroupBox

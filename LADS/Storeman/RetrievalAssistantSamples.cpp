@@ -20,6 +20,17 @@ Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
     { SampleRow::sort_asc_vessel,    SampleRow::sort_desc_vessel,   sgVialColName[8] },
     { SampleRow::sort_asc_structure, SampleRow::sort_desc_structure,sgVialColName[9] },
     { SampleRow::sort_asc_slot,      SampleRow::sort_desc_slot,     sgVialColName[10] }
+//    { SampleRow::sort_asc_barcode,   sgVialColName[0] },
+//    { SampleRow::sort_asc_destbox,   sgVialColName[1] },
+//    { SampleRow::sort_asc_destpos,   sgVialColName[2] },
+//    { SampleRow::sort_asc_currbox,   sgVialColName[3] },
+//    { SampleRow::sort_asc_currpos,   sgVialColName[4] },
+//    { SampleRow::sort_asc_site,      sgVialColName[5] },
+//    { SampleRow::sort_asc_position,  sgVialColName[6] },
+//    { SampleRow::sort_asc_shelf,     sgVialColName[7] },
+//    { SampleRow::sort_asc_vessel,    sgVialColName[8] },
+//    { SampleRow::sort_asc_structure, sgVialColName[9] },
+//    { SampleRow::sort_asc_slot,      sgVialColName[10] }
 };
 
 __fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
@@ -107,6 +118,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     return;
     // look for destination boxes, can't left join in ddb, so do project query per row
     // may be v time-consuming - could do outer join instead and check sequence for gaps
+    // p.s. *is* v time-consuming...
     int rowCount2 = 0;
     for (vecpSampleRow::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
         ostringstream oss; oss<<"Finding destinations: "<<rowCount2<<"/"<<rowCount;
@@ -146,11 +158,9 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             }
 
         } catch(Exception & e) {
-            //msgbox(String(e.Message.c_str()).c_str());
-            String msg = e.Message;
+            msgbox(e.Message);
         } catch(...) {
             msgbox("error");
-
         }
         rowCount2++;
     }
@@ -158,25 +168,11 @@ void __fastcall LoadVialsWorkerThread::Execute() {
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
 
+void TfrmSamples::debugLog(String s) {
+    frmSamples->memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
+}
+
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
-/*
-// template
-    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
-    LQuery q(LIMSDatabase::getCentralDb());
-    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
-    q.setSQL("SELECT * FROM  WHERE status != 99");
-    Screen->Cursor = crSQLWait;
-    q.open();
-    delete_referenced<vecp>(s);
-    while (!q.eof()) {
-        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
-        //ob-> = q.readInt("");
-        //ob-> = q.readString("");
-        s.push_back();
-        q.next();
-    }
-    Screen->Cursor = crDefault;
-*/
     cbLog->Visible      = RETRASSTDEBUG;
     maxRows             = DEFAULT_NUMROWS;
     job                 = NULL;
@@ -193,7 +189,7 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     //addChunk(); // no - not before list loaded
     //showChunks();
     clearSG(sgVials);
-    timerLoadVials->Enabled = true;
+    //timerLoadVials->Enabled = true;
     //if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
 }
 
@@ -334,56 +330,66 @@ void __fastcall TfrmSamples::btnAddSortClick(TObject *Sender) {
     addSorter();
 }
 
+void __fastcall TfrmSamples::comboSortOnChange(TObject *Sender) {
+    // which one was it
+}
+
+void __fastcall TfrmSamples::btnDelSortClick(TObject *Sender) {
+    //for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box
+//    for (int i=0; i<groupSort->ControlCount; i++) { // controls are in creation order, ie. buttons first from design, and last added combo is last
+//        TControl * control = groupSort->Controls[i];
+//        TButton * button = dynamic_cast<TButton *>(control);
+//        if (button != NULL) {
+//            debugLog("found a button, caption: ");
+//            debugLog(button->Caption);
+//            continue; // skip
+//        }
+//        TComboBox * combo = dynamic_cast<TComboBox *>(control);
+//        if (combo != NULL) {
+//            debugLog("found a combo box, text:");
+//            debugLog(combo->Text);
+//        }
+//        //groupSort->Controls[i]->RemoveComponent(combo);
+//        groupSort->RemoveComponent(combo);
+//    }
+    TComponent * component = groupSort->Controls[groupSort->ControlCount-1];
+    TComboBox * combo = dynamic_cast<TComboBox *>(component);
+    if (combo != NULL) {
+        debugLog("found a combo box, text:");
+        debugLog(combo->Text);
+        delete component; // not RemoveComponent(component); and not groupSort->RemoveComponent(component); // remove TComponent, not TComboBox
+    } else {
+        debugLog("not a combo box");
+    }
+}
+
+void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
+    showChunk(); // default is 1st
+}
+
+void TfrmSamples::loadRows() {
+    std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
+    panelLoading->Caption = loadingMessage;
+    panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
+    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+    Screen->Cursor = crSQLWait; // disable mouse?
+    loadVialsWorkerThread = new LoadVialsWorkerThread();
+    loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
+}
+
 void TfrmSamples::addSorter() {
     ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
     TComboBox * combo = new TComboBox(this);
     combo->Parent = groupSort;
     combo->Align = alLeft;
     combo->Items->AddObject(groupSort->ControlCount, NULL);
+    combo->OnChange = &comboSortOnChange;
     // new combo is last created,
     //groupSort->InsertControl(combo);
     //ostringstream oss;
     //oss.str(""); oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
-}
-
-void __fastcall TfrmSamples::btnDelSortClick(TObject *Sender) {
-    //groupSort->Controls[groupSort->ControlCount-1]
-    //if (dynamic_cast<TComboBox *>() != NULL) {
-    //    groupSort->RemoveComponent();
-    //}
-
-    //for (int i=groupSort->ControlCount-1; i>=0; i--) {
-        // work backwards through controls to find last combo box
-    for (int i=0; i<groupSort->ControlCount; i++) {
-        // controls are in creation order, ie. buttons first from design, and last added combo is last
-        TControl * control = groupSort->Controls[i];
-        TButton * button = dynamic_cast<TButton *>(control);
-        if (button != NULL) {
-            debugLog("found a button, caption: ");
-            debugLog(button->Caption);
-            continue; // skip
-        }
-        TComboBox * combo = dynamic_cast<TComboBox *>(control);
-        if (combo != NULL) {
-            debugLog("found a combo box, text:");
-            debugLog(combo->Text);
-        }
-        //groupSort->Controls[i]->RemoveComponent();
-        //groupSort->Controls
-    }
-
-    //TComboBox * combo = dynamic_cast<TComboBox *>(groupSort->Controls[groupSort->ControlCount-1]);
-    //if (NULL != combo) groupSort->RemoveComponent(combo);
-}
-
-void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
-    // show current chunk
-    showChunk(); // default is 1st
-}
-
-void TfrmSamples::debugLog(String s) {
-    // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
-    frmSamples->memoDebug->Lines->Add(s);
 }
 
 void TfrmSamples::radgrpRowsChange() {
@@ -454,27 +460,14 @@ Display the size of the job and ask user if they want to divide up the list.  If
 */
 }
 
-void TfrmSamples::loadRows() {
-    std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-    panelLoading->Caption = loadingMessage;
-    panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
-    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
-    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
-    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
-    Screen->Cursor = crSQLWait; // disable mouse?
-    loadVialsWorkerThread = new LoadVialsWorkerThread();
-    loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
-}
-
 SampleChunk * TfrmSamples::currentChunk() {
     if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
     SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
     if (NULL == chunk) {// still null
         ostringstream oss; oss<<__FUNC__<<": Null chunk"; debugLog(oss.str().c_str());
-        throw Exception("null chunk"); // msgbox("null chunk");
+        throw Exception("null chunk");
     }
     return chunk;
-    //return (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
 }
 
 void TfrmSamples::showChunk(SampleChunk * chunk) {
@@ -509,13 +502,28 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
     groupVials->Caption = oss.str().c_str();
 }
 
-//void TfrmSamples::sortList(int col) {
+void TfrmSamples::applySort() {
+    SampleChunk * chunk = currentChunk();
+    // loop through sorters and apply each selected sort
+    for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box
+//    for (int i=0; i<groupSort->ControlCount; i++) { // controls are in creation order, ie. buttons first from design, and last added combo is last
+        TControl * control = groupSort->Controls[i];
+        TComboBox * combo = dynamic_cast<TComboBox *>(control);
+        if (combo != NULL) {
+            debugLog("sorting:");
+            debugLog(combo->Text);
+            //sortChunk(SampleChunk * chunk, int col)
+            //sortChunk(chunk, col);
+        } else {
+            debugLog("not a combo box, finish sorting.");
+            break; // finished sorting
+        }
+    }
+}
+
 void TfrmSamples::sortChunk(SampleChunk * chunk, int col) {
-    //partial_sort
     Screen->Cursor = crSQLWait;
-    //sorter[col].sort_toggle(currentChunk()->rows);
-    sorter[col].sort_toggle(chunk->rows);
-    //showChunk(currentChunk());
+    sorter[col].sort_toggle(chunk->rows); //partial_sort
     showChunk(chunk);
     Screen->Cursor = crDefault;
 }

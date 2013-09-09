@@ -37,11 +37,8 @@ struct BoxType : public LPDbBoxType {
 //---------------------------------------------------------------------------
 
 __fastcall TfrmBoxList::TfrmBoxList( TComponent *Owner ) : TForm( Owner ) {
-	sgBoxTypes->ColWidths[ TYPE ] = 120;
 	sgBoxNames->Cells[ 0 ][ 0 ] = "box name";
-	sgBoxNames->ColWidths[ 0 ] = 220;
 	sgBoxNames->Cells[ 1 ][ 0 ] = "% analysed";
-	sgBoxNames->ColWidths[ 1 ] = 70;
 }
 
 //---------------------------------------------------------------------------
@@ -58,6 +55,7 @@ void __fastcall TfrmBoxList::FormShow( TObject *Sender ) {
 			init( &( *pr ) );
 		}
 	}
+	FormResize( Sender );
 }
 
 //---------------------------------------------------------------------------
@@ -564,6 +562,16 @@ void __fastcall TfrmBoxList::sgBoxNamesFixedCellClick( TObject *Sender, int ACol
 	for( std::vector< BoxName >::const_iterator ni = names.begin( ); ni != names.end( ); ++ni ) {
 		sgBoxNames->Cells[ 0 ][ row++ ] = ni->name;
 	}
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmBoxList::FormResize(TObject *Sender)
+{
+	sgBoxTypes->DefaultColWidth = 19;
+	sgBoxTypes->ColWidths[ TYPE ] = 120;
+	sgBoxNames->ColWidths[ 1 ] = 70;
+	sgBoxNames->ColWidths[ 0 ] = sgBoxNames->Width - 92;
 }
 
 //---------------------------------------------------------------------------

@@ -335,12 +335,7 @@ void __fastcall TfrmConfigure::OnlineClick(TObject *Sender)
 	if( Application->MessageBox( L"Are you sure? ", L"Change Status",
 			MB_ICONWARNING|MB_YESNO|MB_DEFBUTTON2) == IDYES )
 	{
-		if( lay -> availability() == Layout::IS_AVAILABLE )
-			lay -> setAvailability( false );
-		else
-		{	tank -> takeOffline();
-			lay -> setAvailability( true );
-		}
+		lay -> setAvailability( lay->availability() != Layout::IS_AVAILABLE );
 		lay -> saveAvailability();
 		tank -> loadTankDetails();
 	}

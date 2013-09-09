@@ -56,6 +56,7 @@ __published:	// IDE-managed Components
 	void __fastcall sgBoxTypesSelectCell(TObject *Sender, int ACol, int ARow, bool &CanSelect);
 	void __fastcall sgBoxTypesFixedCellClick(TObject *Sender, int ACol, int ARow);
 	void __fastcall sgBoxNamesFixedCellClick(TObject *Sender, int ACol, int ARow);
+	void __fastcall FormResize(TObject *Sender);
 
 private:	// User declarations
 

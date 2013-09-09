@@ -123,7 +123,7 @@ object frmNewSection: TfrmNewSection
   object TxtPrefix: TEdit
     Left = 96
     Top = 26
-    Width = 121
+    Width = 106
     Height = 21
     CharCase = ecUpperCase
     MaxLength = 6

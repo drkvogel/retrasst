@@ -65,7 +65,6 @@ private:
     }
 };
 
-
 class Util
 {
 	static const char * split( const char * fieldName );

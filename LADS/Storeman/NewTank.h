@@ -62,8 +62,6 @@ __published:	// IDE-managed Components
 	TLabel *Label4;
 	TEdit *txtStoreType1;
 	TComboBox *cbStoreType;
-	TButton *btnNewType;
-	TButton *btnNewLayout;
 	TEdit *TxtPhysical;
 	TLabel *Label3;
 	TLabel *Label2;
@@ -86,8 +84,6 @@ __published:	// IDE-managed Components
 	void __fastcall EditClick(TObject *Sender);
 	void __fastcall CountChange(TObject *Sender);
 	void __fastcall DeleteClick(TObject *Sender);
-	void __fastcall btnNewTypeClick(TObject *Sender);
-	void __fastcall btnNewLayoutClick(TObject *Sender);
 	void __fastcall chkPopClick(TObject *Sender);
 	void __fastcall TxtPosChange(TObject *Sender);
 	void __fastcall cbLocationChange(TObject *Sender);

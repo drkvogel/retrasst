@@ -44,6 +44,7 @@ object frmNewExercise: TfrmNewExercise
     Top = 72
     Width = 334
     Height = 21
+    MaxLength = 64
     TabOrder = 1
   end
   object TxtName: TEdit
@@ -51,6 +52,7 @@ object frmNewExercise: TfrmNewExercise
     Top = 29
     Width = 185
     Height = 21
+    MaxLength = 16
     TabOrder = 0
   end
 end

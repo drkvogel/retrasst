@@ -44,13 +44,15 @@ object frmNewSite: TfrmNewSite
     Top = 72
     Width = 336
     Height = 21
+    MaxLength = 64
     TabOrder = 1
   end
   object TxtName: TEdit
     Left = 86
     Top = 29
-    Width = 187
+    Width = 195
     Height = 21
+    MaxLength = 16
     TabOrder = 0
   end
 end
