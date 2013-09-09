@@ -19,6 +19,7 @@ namespace valc
 {
 
 class DBConnection;
+class ExceptionalDataHandler;
 class Projects;
 class ResultIndex;
 
@@ -30,7 +31,8 @@ public:
         DBConnection*           con, 
         paulst::LoggingService* log,
         ResultIndex*            resultIndex,
-        const std::string&      sql );
+        const std::string&      sql,
+        ExceptionalDataHandler* exceptionalDataHandler );
     void execute();
 private:
     const ClusterIDs*       m_clusterIDs;
@@ -39,8 +41,9 @@ private:
     paulst::LoggingService* m_log;
     ResultIndex*            m_resultIndex;
     std::string             m_sql;
+    ExceptionalDataHandler* m_exceptionalDataHandler;
 
-    void loadResult( Cursor& c );
+    bool loadResult( Cursor& c );
 };
 
 };

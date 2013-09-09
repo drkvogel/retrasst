@@ -30,18 +30,17 @@ __published:	// IDE-managed Components
 	TButton *BtnNewEx;
 
 	void __fastcall SaveClick(TObject *Sender);
-	void __fastcall FormShow(TObject *Sender);
 	void __fastcall BtnNewExClick(TObject *Sender);
 
 private:	// User declarations
 
 	LCDbCryoJob job;
-	LQuery cQuery;
 
 public:		// User declarations
 
 	__fastcall TfrmNewJob( TComponent* Owner );
-	bool createJob( LCDbCryoJob::JobKind kind, const std::vector<Box*> & boxes );
+	void init( LCDbCryoJob::JobKind kind );
+	bool createJob( const std::vector<Box*> & boxes );
 	const LCDbCryoJob & getDetails() const { return job; }
 };
 //---------------------------------------------------------------------------

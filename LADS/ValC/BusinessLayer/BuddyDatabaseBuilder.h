@@ -15,6 +15,7 @@ class BuddyDatabaseEntryIndex;
 class BuddySampleIDKeyedOnSampleRunID;
 class Cursor;
 class DBUpdateSchedule;
+class ExceptionalDataHandler;
 class Projects;
 class ResultIndex;
 class SampleRunIDResolutionService;
@@ -47,7 +48,8 @@ public:
         DBUpdateSchedule*                   dbUpdateSchedule,
         BuddySampleIDKeyedOnSampleRunID*    buddySampleIDKeyedOnSampleRunID,
         BuddyDatabaseEntryIndex*            buddyDatabaseEntryIndex,
-        const std::string&                  inclusionRule
+        const std::string&                  inclusionRule,
+        ExceptionalDataHandler*             exceptionalDataHandler
         );
     bool accept( Cursor* c );
 private:
@@ -67,6 +69,7 @@ private:
     BuddySampleIDKeyedOnSampleRunID*    m_buddySampleIDKeyedOnSampleRunID;
     BuddyDatabaseEntryIndex*            m_buddyDatabaseEntryIndex;
     InclusionRule                       m_inclusionRule;
+    ExceptionalDataHandler*             m_exceptionalDataHandler;
 
     BuddyDatabaseBuilder( const BuddyDatabaseBuilder& );
     BuddyDatabaseBuilder& operator=( const BuddyDatabaseBuilder& );

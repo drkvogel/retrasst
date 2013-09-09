@@ -74,9 +74,7 @@ bool LCDbTankMaps::read( LQuery central, bool readAll )
 	if( readAll )
 		central.setSQL( "select * from c_tank_map order by record_cid" );
 	else
-	{	central.setSQL( "select * from c_tank_map"
-					   " where (status <> :sts and valid_from < 'now')"
-					   " and (valid_to < valid_from or valid_to > 'now')"
+	{	central.setSQL( "select * from c_tank_map where status <> :sts"
 					   " order by record_cid" );
 		central.setParam( "sts", LCDbTankMap::DELETED );
 	}
@@ -98,8 +96,7 @@ public:
 		return out.str();
 	}
 
-	Matcher( const int ptankCID )
-	 : tankCID( ptankCID )
+	Matcher( const int ptankCID ) : tankCID( ptankCID )
 	{}
 
 	bool operator()( const LCDbTankMap & other ) const

@@ -414,6 +414,29 @@ class Projects;
 class ResultIndex;
 
 /*
+    Implementations of UserAdvisor serve to advise 
+    the user of issues encountered by the BusinessLayer.
+
+    Note that implementations of 'advise' should be able 
+    to cope with being called concurrently on different 
+    threads and should be non-blocking.
+
+    One possibility is to implement UserAdvisor as a Queue.
+    Implementations of the 'advise' method would simply 
+    add the message to the end of the queue.
+*/
+class UserAdvisor
+{
+public:
+    UserAdvisor();
+    virtual ~UserAdvisor();
+    virtual void advise( const std::string& warning ) = 0;
+private:
+    UserAdvisor( const UserAdvisor& );
+    UserAdvisor& operator=( const UserAdvisor& );
+};
+
+/*
     Factory method for obtaining an instance of AnalysisActivitySnapshot.
 
     The caller must delete the returned instance when they no longer need it.
@@ -428,6 +451,7 @@ public:
         c               connection for querying the central database (for worklist entries, results, sample-runs...)
         log             a logging service
         configString    configuration. Load config.txt into a string. e.g. (in paulst/StrUtil.h) loadContentsOf("config.txt")
+        userAdvisor     an implementation of UserAdvisor, to receive warnings for display to the user. Can be NULL.
 
     Use DBConnectionFactory to create an instance of DBConnection. Deleting connection before obtaining an instance of
     AnalysisActivitySnapshot will result in unpredictable behaviour.
@@ -441,7 +465,7 @@ public:
 
     */
     static AnalysisActivitySnapshot* load( int localMachineID, int user, DBConnection* c, paulst::LoggingService* log,
-    const std::string& configString );
+    const std::string& configString, UserAdvisor* userAdvisor );
 private:
     SnapshotFactory();
 };

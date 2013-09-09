@@ -30,9 +30,10 @@ __published:	// IDE-managed Components
 	TComboBox *cbProject;
 	TProgressBar *progress;
 	TButton *btnDestination;
-	TButton *btnAddRecords;
 	TListBox *lbSortCols;
 	TLabel *Label2;
+	TButton *btnAddRecords;
+	TButton *btnSaveList;
 	void __fastcall AddClick(TObject *Sender);
 	void __fastcall cbProjectChange(TObject *Sender);
 	void __fastcall cbProjectDropDown(TObject *Sender);
@@ -42,10 +43,11 @@ __published:	// IDE-managed Components
 	void __fastcall CmbAliquot1DropDown(TObject *Sender);
 	void __fastcall CmbAliquot2DropDown(TObject *Sender);
 	void __fastcall btnLocateClick(TObject *Sender);
+	void __fastcall btnSaveListClick(TObject *Sender);
 
 private:	// User declarations
 
-	enum Cols { SAMPLE, CRYOVIAL, ALIQUOT, VESSEL, SHELF, STRUCTURE, OLD_BOX, OLD_POS, NEW_BOX, NEW_POS, COL_COUNT };
+	enum Cols { SAMPLE, CRYOVIAL, ALIQUOT, VESSEL, SHELF, STRUCTURE, SLOT_POS, OLD_BOX, OLD_POS, NEW_BOX, NEW_POS, COL_COUNT };
 
 	void populate( TComboBox * target, TComboBox * other );
 	static int getTypeID( TComboBox * cb );
@@ -63,7 +65,7 @@ public:		// User declarations
 		std::string old_box, new_box;
 		short old_pos, new_pos;
 		std::string vessel, structure;
-		short rack_pos, shelf;
+		short shelf, rack_pos, slot;
 
 		GridEntry( const ROSETTA & row );
 		void copyLocation( const GridEntry & other );

@@ -17,8 +17,7 @@ TfrmNewJob *frmNewJob;
 
 //---------------------------------------------------------------------------
 
-__fastcall TfrmNewJob::TfrmNewJob(TComponent* Owner)
- : TForm(Owner), cQuery( LIMSDatabase::getCentralDb() )
+__fastcall TfrmNewJob::TfrmNewJob(TComponent* Owner) : TForm(Owner)
 {}
 
 //---------------------------------------------------------------------------
@@ -41,7 +40,25 @@ void __fastcall TfrmNewJob::SaveClick(TObject *Sender)
 // create job record; include project and aliquot type(s) if possible
 //---------------------------------------------------------------------------
 
-bool TfrmNewJob::createJob( LCDbCryoJob::JobKind kind, const std::vector<Box*> & boxes )
+void TfrmNewJob::init( LCDbCryoJob::JobKind kind )
+{
+	job.setJobType( kind );
+	job.createName( LIMSDatabase::getCentralDb() );
+	TxtName->Text = job.getName().c_str();
+	TxtFull->Clear();
+	ActiveControl = TxtFull;
+	CbExercise->Clear();
+	for( Range< LCDbObject > oi = LCDbObjects::records(); oi.isValid(); ++oi ) {
+		if( oi->isActive() && oi->getObjectType() == LCDbObject::STORAGE_EXERCISE ) {
+			CbExercise->Items->Add( oi->getName().c_str() );
+		}
+	}
+	CbExercise->Text = "(none)";
+}
+
+//---------------------------------------------------------------------------
+
+bool TfrmNewJob::createJob( const std::vector<Box*> & boxes )
 {
 	int projID = 0, al1 = 0, al2 = 0;
 	std::set<int> projects, boxTypes, aliquots;
@@ -60,6 +77,7 @@ bool TfrmNewJob::createJob( LCDbCryoJob::JobKind kind, const std::vector<Box*> &
 			}
 		}
 	}
+	job.setProjectID( projID );
 	std::set<int>::const_iterator ai = aliquots.begin();
 	if( ai != aliquots.end() ) {
 		al1 = *ai;
@@ -67,28 +85,9 @@ bool TfrmNewJob::createJob( LCDbCryoJob::JobKind kind, const std::vector<Box*> &
 			al2 = *ai;
 		}
 	}
-	job.setProjectID( projID );
 	job.setPrimaryAliquot( al1 );
 	job.setSecondaryAliquot( al2 );
-	job.setJobType( kind );
-	return job.saveRecord( cQuery );
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmNewJob::FormShow(TObject *Sender)
-{
-	job.createName( cQuery, "MOVE" );
-	TxtName->Text = job.getName().c_str();
-	TxtFull->Clear();
-	ActiveControl = TxtFull;
-	CbExercise->Clear();
-	for( Range< LCDbObject > oi = LCDbObjects::records(); oi.isValid(); ++oi ) {
-		if( oi->isActive() && oi->getObjectType() == LCDbObject::STORAGE_EXERCISE ) {
-			CbExercise->Items->Add( oi->getName().c_str() );
-		}
-	}
-	CbExercise->Text = "(none)";
+	return job.saveRecord( LIMSDatabase::getCentralDb() );
 }
 
 //---------------------------------------------------------------------------

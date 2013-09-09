@@ -1,6 +1,7 @@
 #include "AllocateLocalResultsToWorklistEntries.h"
 #include "API.h"
 #include <boost/foreach.hpp>
+#include "ExceptionalDataHandler.h"
 #include "LoggingService.h"
 #include "Require.h"
 #include "ResultIndex.h"
@@ -9,8 +10,10 @@
 namespace valc
 {
 
-AllocateLocalResultsToWorklistEntries::AllocateLocalResultsToWorklistEntries( int localMachineID, const ClusterIDs* clusterIDs, paulst::LoggingService* log, 
-    WorklistEntries* worklistEntries, ResultIndex* resultIndex, DBUpdateSchedule* dbUpdateSchedule  )
+AllocateLocalResultsToWorklistEntries::AllocateLocalResultsToWorklistEntries( 
+    int localMachineID, const ClusterIDs* clusterIDs, paulst::LoggingService* log, 
+    WorklistEntries* worklistEntries, ResultIndex* resultIndex, 
+    DBUpdateSchedule* dbUpdateSchedule, ExceptionalDataHandler* exceptionalDataHandler  )
     :
     m_log( log ),
     m_worklistEntries( worklistEntries ),
@@ -18,7 +21,8 @@ AllocateLocalResultsToWorklistEntries::AllocateLocalResultsToWorklistEntries( in
     m_result(0),
     m_clusterIDs( clusterIDs ),
     m_localMachineID( localMachineID ),
-    m_dbUpdateSchedule( dbUpdateSchedule )
+    m_dbUpdateSchedule( dbUpdateSchedule ),
+    m_exceptionalDataHandler( exceptionalDataHandler )
 {
 }
 
@@ -55,20 +59,13 @@ void AllocateLocalResultsToWorklistEntries::execute()
         }
         else
         {
-            std::string logMsg = std::string("Failed to allocate result ") << id << " to a single worklist entry. Found " 
-                << m_matchingWorklistEntries.size() << " matching worklist entries. ";
+            const std::string problem = m_matchingWorklistEntries.size() == 0 ? "No matching worklist entries found." : 
+                "More than one matching worklist entry found.";
 
-            if ( m_matchingWorklistEntries.size() )
+            if ( m_exceptionalDataHandler )
             {
-                logMsg += "Obtained the following matches: ";
-
-                BOOST_FOREACH( int worklistEntryID, m_matchingWorklistEntries )
-                {
-                    logMsg += ( std::string(" ") << worklistEntryID );
-                }
+                m_exceptionalDataHandler->notifyCannotAllocateResultToWorklistEntry( id, problem );
             }
-
-            LOG( logMsg );
         }
     }
 }

@@ -120,7 +120,8 @@ LoadNonLocalResults:
     SELECT bd.barcode, bd.machine_cid, bd.alpha_sample_id,        
     bd.database_name, brf.buddy_result_id, brf.test_id,          
     brf.res_value, brf.action_flag, brf.date_analysed,          
-    brf.res_text, brf.update_when, cbw.record_no               
+    brf.res_text, brf.update_when, cbw.record_no,
+    cbw.project_cid               
     FROM valc_worklist cbw, buddy_database bd,                
     buddy_result_float brf                              
     WHERE                                                   
@@ -134,4 +135,38 @@ LoadNonLocalResults:
     and cbw.status in ('Q','P','C','S','W', 'X')    
 
 
+ExceptionalDataHandler:
+    function canProvideProjectIDFor( barcode ) 
+        local ok = false
+        if ( string.find( barcode, '118' ) == 1 ) then
+            ok = true
+        end
+        return ok
+    end
+    ---------------------------------------------------------
+    function getProjectIDFor( barcode ) 
+        if ( string.find( barcode, '118' ) ~= 1 ) then
+            error( "Cannot identify project ID for barcode " .. barcode )
+        end
+        return -832455
+    end
+    ---------------------------------------------------------
+    function notifyBuddyDatabaseEntryIgnored()
+        local continueProcessing = true
+        local adviseUser = true
+        return continueProcessing, adviseUser
+    end
+    ---------------------------------------------------------
+    function notifyCannotAllocateResultToWorklistEntry()
+        local continueProcessing = true
+        local adviseUser = true
+        return continueProcessing, adviseUser
+    end
+    ---------------------------------------------------------
+    function notifyWorklistEntryIgnored()
+        local continueProcessing = true
+        local adviseUser = true
+        return continueProcessing, adviseUser
+    end
+ 
 

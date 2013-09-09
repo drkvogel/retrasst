@@ -1,9 +1,9 @@
 object frmRetrieveMain: TfrmRetrieveMain
   Left = 0
   Top = 0
-  Caption = 'Retrieve Sample'
+  Caption = 'Modift Retrieval List'
   ClientHeight = 628
-  ClientWidth = 837
+  ClientWidth = 1022
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,7 +13,7 @@ object frmRetrieveMain: TfrmRetrieveMain
   OldCreateOrder = False
   OnResize = FormResize
   DesignSize = (
-    837
+    1022
     628)
   PixelsPerInch = 96
   TextHeight = 13
@@ -25,7 +25,7 @@ object frmRetrieveMain: TfrmRetrieveMain
     Caption = 'Primary aliquot:'
   end
   object LblAliquot2: TLabel
-    Left = 306
+    Left = 342
     Top = 88
     Width = 90
     Height = 13
@@ -39,8 +39,8 @@ object frmRetrieveMain: TfrmRetrieveMain
     Caption = 'Project:'
   end
   object Label2: TLabel
-    Left = 624
-    Top = 12
+    Left = 672
+    Top = 10
     Width = 49
     Height = 13
     Caption = 'Sort order'
@@ -48,51 +48,53 @@ object frmRetrieveMain: TfrmRetrieveMain
   object grdSamples: TStringGrid
     Left = 8
     Top = 176
-    Width = 821
+    Width = 1006
     Height = 429
     Anchors = [akLeft, akTop, akRight, akBottom]
     ColCount = 6
     DefaultColWidth = 90
     FixedCols = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goFixedRowClick]
-    TabOrder = 0
+    ScrollBars = ssVertical
+    TabOrder = 9
     OnFixedCellClick = grdSamplesFixedCellClick
+    ExplicitWidth = 821
   end
   object btnAddFile: TButton
     Left = 8
     Top = 130
-    Width = 100
+    Width = 96
     Height = 34
     Caption = 'Add from file'
     Enabled = False
-    TabOrder = 1
+    TabOrder = 4
     OnClick = AddClick
   end
   object btnLocate: TButton
-    Left = 316
+    Left = 265
     Top = 130
-    Width = 100
+    Width = 96
     Height = 34
-    Caption = 'Add location'
+    Caption = 'Set location'
     Enabled = False
-    TabOrder = 2
+    TabOrder = 6
     OnClick = btnLocateClick
   end
   object CmbAliquot1: TComboBox
-    Left = 102
+    Left = 96
     Top = 85
-    Width = 160
+    Width = 172
     Height = 21
     Enabled = False
     Sorted = True
-    TabOrder = 3
+    TabOrder = 2
     OnDropDown = CmbAliquot1DropDown
   end
   object RadIDType: TRadioGroup
-    Left = 306
-    Top = 12
-    Width = 264
-    Height = 50
+    Left = 342
+    Top = 10
+    Width = 276
+    Height = 52
     Caption = 'Item type'
     Columns = 3
     ItemIndex = 0
@@ -100,65 +102,76 @@ object frmRetrieveMain: TfrmRetrieveMain
       'Sample'
       'Cryovial'
       'Box')
-    TabOrder = 4
+    TabOrder = 1
   end
   object CmbAliquot2: TComboBox
-    Left = 410
+    Left = 446
     Top = 85
-    Width = 160
+    Width = 172
     Height = 21
     Enabled = False
     Sorted = True
-    TabOrder = 5
+    TabOrder = 3
     OnDropDown = CmbAliquot2DropDown
   end
   object cbProject: TComboBox
-    Left = 102
+    Left = 96
     Top = 30
-    Width = 160
+    Width = 172
     Height = 21
     Sorted = True
-    TabOrder = 6
+    TabOrder = 0
     OnChange = cbProjectChange
     OnDropDown = cbProjectDropDown
   end
   object progress: TProgressBar
     Left = 0
     Top = 611
-    Width = 837
+    Width = 1022
     Height = 17
     Align = alBottom
     Step = 1
-    TabOrder = 7
+    TabOrder = 10
+    ExplicitWidth = 837
   end
   object btnDestination: TButton
-    Left = 470
+    Left = 393
     Top = 130
-    Width = 100
+    Width = 96
     Height = 34
-    Caption = 'New Boxes'
+    Caption = 'Set destination'
     Enabled = False
-    TabOrder = 8
+    TabOrder = 7
     OnClick = btnDestinationClick
   end
-  object btnAddRecords: TButton
-    Left = 162
-    Top = 130
-    Width = 100
-    Height = 34
-    Caption = 'Add specimens'
-    Enabled = False
-    TabOrder = 9
-  end
   object lbSortCols: TListBox
-    Left = 624
+    Left = 672
     Top = 29
-    Width = 185
+    Width = 313
     Height = 124
     Anchors = [akLeft, akTop, akRight]
     Enabled = False
     ItemHeight = 13
-    TabOrder = 10
+    TabOrder = 11
+  end
+  object btnAddRecords: TButton
+    Left = 136
+    Top = 130
+    Width = 96
+    Height = 34
+    Caption = 'Add specimens'
+    Enabled = False
+    TabOrder = 5
+  end
+  object btnSaveList: TButton
+    Left = 522
+    Top = 130
+    Width = 96
+    Height = 34
+    Caption = 'Create list'
+    Enabled = False
+    TabOrder = 8
+    OnClick = btnSaveListClick
   end
   object OpenDialog1: TOpenDialog
     Left = 122

@@ -62,10 +62,28 @@ LCDbCryoJob::LCDbCryoJob( const LQuery & query )
 void LCDbCryoJob::createName( LQuery central, const std::string & nameBase )
 {
 	std::stringstream out;
-	setID( 0 );
-	claimNextID( central );
-	out << nameBase << getID();
+	if( nameBase.empty() ) {
+		out << getTypeName();
+	} else {
+		out << nameBase;
+	}
+	out << '_' << abs( claimNextID( central ) );
 	setName( out.str() );
+}
+
+const char * LCDbCryoJob::getTypeName() const {
+	switch( jobType ) {
+		case BOX_MOVE:
+			return "Movement";
+		case SAMPLE_RETRIEVAL:
+		case BOX_RETRIEVAL:
+			return "Retrieval";
+		case SAMPLE_DISCARD:
+		case BOX_DISCARD:
+			return "Discard";
+		default:
+			return "Task";
+	}
 }
 
 //---------------------------------------------------------------------------

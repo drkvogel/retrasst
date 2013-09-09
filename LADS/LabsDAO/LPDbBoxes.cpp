@@ -36,8 +36,8 @@
 #pragma hdrstop
 #pragma package(smart_init)
 
-static const char * CRYOVIALS_ADDED = "MoreCryovials";
-static const char * CONTENT_CONFIRMED = "BoxConfirmed";
+// static const char * CRYOVIALS_ADDED = "MoreCryovials";
+// static const char * CONTENT_CONFIRMED = "BoxConfirmed";
 
 //---------------------------------------------------------------------------
 //	read a box_name record and try to work out if there's any space left
@@ -48,9 +48,9 @@ LPDbBoxName::LPDbBoxName( const LQuery & query )
    boxTypeID( query.readInt( "box_type_cid" ) ),
    name( query.readString( "external_name" ) ),
    status( query.readInt( "status" ) ),
-   filledBy( 0 ), event( NULL )
+   filledBy( 0 )
 {
-	cryovials.resize( getSize() - query.readInt( "box_capacity" ), "" );
+	cryovials.resize( getSize() - query.readInt( "box_capacity" ), "?" );
 }
 
 //---------------------------------------------------------------------------
@@ -83,9 +83,6 @@ void LPDbBoxNames::addCryovials( LQuery pq )
 
 void LPDbBoxName::addCryovials( LQuery & pq )
 {
-	if( cryovials.empty() ) {
-		cryovials.resize( getSize(), "" );
-    }
 	LPDbCryovials content;
 	content.readByBoxID( pq, getID() );
 	for( Range< LPDbCryovial > cr = content; cr.isValid(); ++ cr )
@@ -97,12 +94,15 @@ void LPDbBoxName::addCryovials( LQuery & pq )
 
 void LPDbBoxName::checkFilledBy( LQuery & pq )
 {
+/*	FIXME - use audit trail rather than box event history
+
 	pq.setSQL( "select operator_cid, event_date from box_event_history"
 			  " where box_id = :bid and event_cid = :eid"
 			  " order by event_date" );
 	pq.setParam( "bid", getID() );
 	pq.setParam( "eid", findEvent( CRYOVIALS_ADDED ) -> getID() );
 	filledBy = pq.open() ? pq.readInt( "operator_cid" ) : 0;
+*/
 }
 
 //---------------------------------------------------------------------------
@@ -111,7 +111,7 @@ void LPDbBoxName::checkFilledBy( LQuery & pq )
 
 const LPDbBoxName * LPDbBoxNames::readRecord( LQuery pQuery, std::string name )
 {
-	pQuery.setSQL( "select * from box_name where lower(external_name) = :nam" );
+	pQuery.setSQL( "select * from box_name where lower(external_name) = lower(:nam)" );
 	pQuery.setParam( "nam", name );
 	return pQuery.open() ? insert( LPDbBoxName( pQuery ) ) : NULL;
 }
@@ -129,14 +129,14 @@ const LPDbBoxName * LPDbBoxNames::readRecord( LQuery pQuery, int id )
 //	Load boxes in the current project that may be awaiting transfer
 //---------------------------------------------------------------------------
 
-bool LPDbBoxNames::readFilled( LQuery ddq )
+bool LPDbBoxNames::readFilled( LQuery pq )
 {
-	ddq.setSQL( "select * from box_name b"
+	pq.setSQL( "select * from box_name b"
 			   " where b.status in ( :conf, :rdy )"
 			   " order by box_cid" );
-	ddq.setParam( "conf", LPDbBoxName::CONFIRMED );
-	ddq.setParam( "rdy", LPDbBoxName::ANALYSED );
-	return readData( ddq );
+	pq.setParam( "conf", LPDbBoxName::CONFIRMED );
+	pq.setParam( "rdy", LPDbBoxName::ANALYSED );
+	return readData( pq );
 /*
 	LPDbDescriptors & descriptors = LPDbDescriptors::records();
 	if( descriptors.empty() )
@@ -165,23 +165,51 @@ bool LPDbBoxNames::readFilled( LQuery ddq )
 //  Set up an empty box of the given type with a new name and ID
 //---------------------------------------------------------------------------
 
-void LPDbBoxName::create( const LPDbBoxType & type, LQuery query )
+bool LPDbBoxName::create( const LPDbBoxType & type, LQuery query )
 {
-	claimNextID( query );
 	std::stringstream out;
-	out << type.getName() << ' ' << abs( getID() );
-	std::string name = out.str();
+	out << type.getName() << ' ' << abs( claimNextID( query ) );
+	name = out.str();
 	std::string proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() ).getName();
 	if( proj.compare( name.substr( 0, proj.length() ) ) != 0 ) {
 		name = proj + " " + name;
 	}
-	status = EMPTY;
 	boxTypeID = type.getID();
-	event = NULL;
 	filledBy = 0;
 	cryovials.clear();
-	saveRecord( query );
+	status = EMPTY;
+	return saveRecord( query );
 }
+
+//---------------------------------------------------------------------------
+//	Find total space in this box (including hole, cryovials and free space)
+//---------------------------------------------------------------------------
+
+const LCDbBoxSize * LPDbBoxName::getLayout() const {
+	const LPDbBoxType * bt = LPDbBoxTypes::records().findByID( boxTypeID );
+	return bt == NULL ? NULL : LCDbBoxSizes::records().findByID( bt->getSizeID() );
+}
+
+short LPDbBoxName::getSize() const {
+	const LCDbBoxSize * bl = getLayout();
+	return bl == NULL ? -1 : bl->getLast();
+}
+
+//---------------------------------------------------------------------------
+//	Find available space in this box (excluding cryovials and hole)
+//---------------------------------------------------------------------------
+
+short LPDbBoxName::getSpace() const {
+	const LCDbBoxSize * bl = getLayout();
+	if( bl == NULL ) {
+		return -1;
+	}
+	short filled = cryovials.size();
+	short free = bl->getLast() - filled;
+	return filled < bl->getHole() ? free - 1 : free;
+}
+
+bool LPDbBoxName::hasSpace() const { return getSpace() > 0; }
 
 //---------------------------------------------------------------------------
 //	Add a cryovial to this box once it has been recorded in the database
@@ -189,40 +217,41 @@ void LPDbBoxName::create( const LPDbBoxType & type, LQuery query )
 
 void LPDbBoxName::addCryovial( short position, const std::string & barcode )
 {
-	if( position < 1 || position > cryovials.size() ) {
-		throw Exception( String(name.c_str()) + "[ " + position + " ] not reserved" );
+	const LCDbBoxSize * bl = getLayout();
+	if( bl == NULL || position < 1 || position == bl->getHole() || position > bl->getLast() ) {
+		throw Exception( String( name.c_str() ) + "[" + position + "] does not exist" );
 	}
-	status = IN_USE;
+	if( position < cryovials.size() ) {
+		std::string current = cryovials[ position - 1 ];
+		if( !current.empty() && current != "?" && current != barcode ) {
+			throw Exception( String( name.c_str() ) + "[" + position + "] is occupied" );
+		}
+	}
+	while( position > cryovials.size() ) {
+		cryovials.push_back( "" );
+	}
 	cryovials[ position - 1 ] = barcode;
-	event = CRYOVIALS_ADDED;
+	status = IN_USE;
 	filledBy = LCDbOperators::getCurrentID();
-}
-
-//---------------------------------------------------------------------------
-//	Find total spaces in this box (including hole, cryovial and free)
-//---------------------------------------------------------------------------
-
-short LPDbBoxName::getSize() const
-{
-	const LPDbBoxType & type = LPDbBoxTypes::records().get( boxTypeID );
-	return LCDbBoxSizes::records().get( type.getSizeID() ).getLast();
 }
 
 //---------------------------------------------------------------------------
 //	Allocate space for another cryovial (don't update the database yet)
 //---------------------------------------------------------------------------
 
-short LPDbBoxName::nextSpace()
+short LPDbBoxName::addCryovial( const std::string & barcode )
 {
-	const LPDbBoxType & type = LPDbBoxTypes::records().get( boxTypeID );
-	const LCDbBoxSize & content = LCDbBoxSizes::records().get( type.getSizeID() );
-	if( cryovials.size() >= content.getLast() ) {
-		throw Exception( "Box " + String( name.c_str() ) + " is already full" );
+	const LCDbBoxSize * layout = getLayout();
+	if( layout == NULL ) {
+		throw Exception( "Formation layout not defined" );
 	}
-	cryovials.push_back( "" );
-	if( cryovials.size() == content.getHole() ) {
+	if( cryovials.size() >= layout->getLast() ) {
+		throw Exception( "Formation " + String( name.c_str() ) + " is already full" );
+	}
+	if( layout->getHole() > 0 && cryovials.size() + 1 == layout->getHole() ) {
 		cryovials.push_back( "" );
 	}
+	cryovials.push_back( barcode );
 	return cryovials.size();
 }
 
@@ -233,7 +262,6 @@ short LPDbBoxName::nextSpace()
 void LPDbBoxName::confirmAllocation( LQuery pQuery )
 {
 	status = CONFIRMED;
-	event = CONTENT_CONFIRMED;
 	saveRecord( pQuery );
 
 	LPDbCryovialStores contents;
@@ -266,15 +294,12 @@ bool LPDbBoxName::saveRecord( LQuery query )
 	query.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
 	query.setParam( "sts", status );
 	query.setParam( "nex", 0 );
-	if( !query.execSQL() )
+	if( query.execSQL() ) {
+		saved = true;
+		return true;
+	} else {
 		return false;
-
-	if( event != NULL ) {
-		addEventRecord( query, findEvent( event ), "" );
-		event = NULL;
-	}
-	saved = true;
-	return true;
+    }
 }
 
 //---------------------------------------------------------------------------

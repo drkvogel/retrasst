@@ -601,10 +601,11 @@ void __fastcall TfrmMove::CreateClick(TObject *Sender)
 {
 	if( !allBoxes( part, Util::ASSIGNED )
 	 && Application->MessageBox( L"Some boxes are not assigned yet; save anyway?",
-							L"Warning", MB_ICONWARNING|MB_YESNO|MB_DEFBUTTON2) == IDNO ) {
+								L"Warning", MB_ICONWARNING|MB_YESNO|MB_DEFBUTTON2) != IDYES ) {
 		return;
 	}
 
+	frmNewJob -> init( LCDbCryoJob::BOX_MOVE );
 	if( frmNewJob -> ShowModal() != mrOk )
 		return;
 
@@ -614,7 +615,7 @@ void __fastcall TfrmMove::CreateClick(TObject *Sender)
 	leftKids.clear();
 	rightKids.clear();
 	listAssignedBoxes( part );
-	if( frmNewJob -> createJob( LCDbCryoJob::BOX_MOVE, leftKids ) ) {
+	if( frmNewJob -> createJob( leftKids ) ) {
 		job = frmNewJob -> getDetails();
 	} else {
 		error = "Error creating job record";

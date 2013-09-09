@@ -12,7 +12,6 @@ object frmNewJob: TfrmNewJob
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = True
-  OnShow = FormShow
   DesignSize = (
     428
     149)

@@ -10,6 +10,7 @@ namespace valc
 {
 
 class DBConnection;
+class ExceptionalDataHandler;
 class ResultIndex;
 class WorklistEntries;
 
@@ -26,7 +27,8 @@ public:
         ResultIndex* resultIndex,         
         const std::string& worklistSQL, 
         const std::string& worklistRelationSQL,
-        const std::string& inclusionRule );
+        const std::string& inclusionRule,
+        ExceptionalDataHandler* exceptionalDataHandler );
     void execute();
 private:
     WorklistEntries* m_worklistEntries;
@@ -36,6 +38,7 @@ private:
     const std::string   m_worklistSQL, 
                         m_worklistRelationSQL,
                         m_inclusionRule;
+    ExceptionalDataHandler* m_exceptionalDataHandler;
 };
 
 };

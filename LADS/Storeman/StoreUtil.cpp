@@ -337,5 +337,6 @@ bool Util::numericCompare(const std::string a, const std::string b) {
     } local;
     int diff = local.nonNumerics(a).compare(local.nonNumerics(b));
     return diff == 0 ? local.justNumerics(a) < local.justNumerics(b) : diff < 0;
+    //return local.justNumerics(a) < local.justNumerics(b);
 }
 

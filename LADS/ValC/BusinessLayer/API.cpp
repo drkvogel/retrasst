@@ -1,4 +1,5 @@
 #include <algorithm>
+#include "AllocateLocalResultsToWorklistEntries.h"
 #include "AnalysisActivitySnapshotImpl.h"
 #include "API.h"
 #include <boost/lexical_cast.hpp>
@@ -7,7 +8,7 @@
 #include "Config.h"
 #include "DBConnectionADO.h"
 #include "DBUpdateSchedule.h"
-#include "AllocateLocalResultsToWorklistEntries.h"
+#include "ExceptionalDataHandlerImpl.h"
 #include <iterator>
 #include "LoadBuddyDatabase.h"
 #include "LoadClusterIDs.h"
@@ -69,7 +70,7 @@ void wait( HANDLE* array, int howMany, ThreadExceptionMsgs* exceptionMsgs )
 }
 
 AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, DBConnection* con, paulst::LoggingService* log, 
-    const std::string& configString )
+    const std::string& configString, UserAdvisor* userAdvisor )
 {
 	ResultIndex*        resultIndex        = new ResultIndex();
 	WorklistEntries*    worklistEntries    = new WorklistEntries();
@@ -81,6 +82,7 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
     std::auto_ptr<SampleRunIDResolutionService> sampleRunIDResolutionService(new SampleRunIDResolutionService());
     paulst::Config      config(configString);
 	ThreadExceptionMsgs threadExceptionMsgs;
+    ExceptionalDataHandlerImpl exceptionalDataHandler(config.get("ExceptionalDataHandler"), userAdvisor, log);
 	HANDLE hArray[3];
 
 	ThreadTask<LoadProjects>   loadProjectsTask  ( new LoadProjects  ( projects,   log, con ), 					&threadExceptionMsgs );
@@ -96,13 +98,14 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
 	// Task for loading LOCAL analysis activity and LOCAL results
 	ThreadTask<LoadBuddyDatabase> loadBuddyDatabaseTask(
 		new LoadBuddyDatabase( localMachineID, con, log, resultIndex, projects, &buddyDatabase, dbUpdateSchedule, 
-            sampleRunIDResolutionService.get(), config.get("LoadBuddyDatabase"), config.get("BuddyDatabaseInclusionRule") ),
+            sampleRunIDResolutionService.get(), config.get("LoadBuddyDatabase"), config.get("BuddyDatabaseInclusionRule"),
+            &exceptionalDataHandler ),
 		&threadExceptionMsgs );
 
     // Task for loading LOCAL and CLUSTER worklist entries
 	ThreadTask<LoadWorklistEntries> loadWorklistEntriesTask(
 		new LoadWorklistEntries( worklistEntries, con, log, resultIndex, config.get( "LoadWorklistEntries" ), 
-            config.get( "LoadWorklistRelations" ), config.get("WorklistInclusionRule") ),
+            config.get( "LoadWorklistRelations" ), config.get("WorklistInclusionRule"), &exceptionalDataHandler ),
 		&threadExceptionMsgs );
 
 	hArray[0] = loadBuddyDatabaseTask  .start();
@@ -112,7 +115,8 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
 
     // Task for allocating LOCAL results to worklist entries
 	ThreadTask<AllocateLocalResultsToWorklistEntries> allocateLocalResultsToWorklistEntries(
-		new AllocateLocalResultsToWorklistEntries( localMachineID, clusterIDs, log, worklistEntries, resultIndex, dbUpdateSchedule ),
+		new AllocateLocalResultsToWorklistEntries( localMachineID, clusterIDs, log, worklistEntries, resultIndex, dbUpdateSchedule,
+            &exceptionalDataHandler ),
 		&threadExceptionMsgs );
 
 	hArray[0] = allocateLocalResultsToWorklistEntries.start();
@@ -129,12 +133,13 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
                                                 resultIndex,
                                                 config.get("RefTempTableName"),
                                                 config.get("LoadReferencedWorklistEntries"),
-                                                config.get("LoadReferencedWorklistRelations") ),
+                                                config.get("LoadReferencedWorklistRelations"),
+                                                &exceptionalDataHandler ),
 		&threadExceptionMsgs );
 
     // Task for loading non-local results for worklist entries loaded by LoadWorklistEntries (above).
     ThreadTask<LoadNonLocalResults> loadNonLocalResults( 
-        new LoadNonLocalResults( projects, con, log, resultIndex, config.get("LoadNonLocalResults") ),
+        new LoadNonLocalResults( projects, con, log, resultIndex, config.get("LoadNonLocalResults"), &exceptionalDataHandler ),
         &threadExceptionMsgs );
 
 	hArray[0] = loadReferencedWorklistEntries        .start();
@@ -359,6 +364,14 @@ bool TestResultIterator::equal( TestResultIterator const& other ) const
 const TestResult*&  TestResultIterator::dereference() const
 {
     return m_impl->dereference();
+}
+
+UserAdvisor::UserAdvisor()
+{
+}
+
+UserAdvisor::~UserAdvisor()
+{
 }
 
 }

@@ -14,6 +14,7 @@ namespace valc
 {
 
 class DBUpdateSchedule;
+class ExceptionalDataHandler;
 class ResultIndex;
 class TestResult;
 class WorklistEntries;
@@ -32,7 +33,7 @@ class WorklistEntries;
 class AllocateLocalResultsToWorklistEntries : public WorklistDirectory::Func
 {
 public:
-    AllocateLocalResultsToWorklistEntries( int localMachineID, const ClusterIDs* clusterIDs, paulst::LoggingService* log, WorklistEntries* worklistEntries, ResultIndex* resultIndex, DBUpdateSchedule* dbUpdateSchedule );
+    AllocateLocalResultsToWorklistEntries( int localMachineID, const ClusterIDs* clusterIDs, paulst::LoggingService* log, WorklistEntries* worklistEntries, ResultIndex* resultIndex, DBUpdateSchedule* dbUpdateSchedule, ExceptionalDataHandler* exceptionalDataHandler );
     void execute();
     void execute( const WorklistEntry* wle );
     int releaseReturnValue();
@@ -45,6 +46,7 @@ private:
     const ClusterIDs* m_clusterIDs;
     const int m_localMachineID;
     DBUpdateSchedule* m_dbUpdateSchedule;
+    ExceptionalDataHandler* m_exceptionalDataHandler;
 
     bool isWorklistEntryStatusEligibleForAllocatingToResult( char status )
     {

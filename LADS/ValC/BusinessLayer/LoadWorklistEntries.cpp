@@ -10,7 +10,8 @@ namespace valc
 
 LoadWorklistEntries::LoadWorklistEntries( WorklistEntries* worklistEntries, DBConnection* con, 
     paulst::LoggingService* log, ResultIndex* resultIndex,
-    const std::string& worklistSQL, const std::string& worklistRelationSQL, const std::string& inclusionRule )
+    const std::string& worklistSQL, const std::string& worklistRelationSQL, const std::string& inclusionRule, 
+    ExceptionalDataHandler* exceptionalDataHandler )
     :
     m_worklistEntries( worklistEntries ),
     m_con( con ),
@@ -18,7 +19,8 @@ LoadWorklistEntries::LoadWorklistEntries( WorklistEntries* worklistEntries, DBCo
     m_resultIndex( resultIndex ),
     m_worklistSQL( worklistSQL ),
     m_worklistRelationSQL( worklistRelationSQL ),
-    m_inclusionRule( inclusionRule )
+    m_inclusionRule( inclusionRule ),
+    m_exceptionalDataHandler( exceptionalDataHandler )
 {
 }
 
@@ -30,7 +32,8 @@ void LoadWorklistEntries::execute()
 
     CursorBackedWorklistRelationsDataSource worklistRelations( m_con->executeQuery( m_worklistRelationSQL ) );
 
-    WorklistEntryBuilder builder( m_worklistEntries, m_resultIndex, &worklistRelations, m_inclusionRule );
+    WorklistEntryBuilder builder( m_worklistEntries, m_resultIndex, &worklistRelations, m_inclusionRule,
+        m_exceptionalDataHandler );
 
     for ( std::auto_ptr<Cursor> cursorWorklist( m_con->executeQuery(m_worklistSQL) ); 
             ! cursorWorklist->endOfRecordSet() && builder.accept(cursorWorklist.get()); cursorWorklist->next() )

@@ -5,6 +5,7 @@
 #include "BuddyDatabaseEntryIndex.h"
 #include "BuddySampleIDKeyedOnSampleRunID.h"
 #include "DBUpdateSchedule.h"
+#include "ExceptionalDataHandler.h"
 #include "Projects.h"
 #include "Require.h"
 #include "ResultIndex.h"
@@ -28,7 +29,8 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     DBUpdateSchedule*                   dbUpdateSchedule,
     BuddySampleIDKeyedOnSampleRunID*    buddySampleIDKeyedOnSampleRunID,
     BuddyDatabaseEntryIndex*            buddyDatabaseEntryIndex,
-    const std::string&                  inclusionRule
+    const std::string&                  inclusionRule,
+    ExceptionalDataHandler*             exceptionalDataHandler
  )
     :
     m_projects                          ( p ),
@@ -39,7 +41,8 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     m_dbUpdateSchedule                  ( dbUpdateSchedule ),
     m_buddySampleIDKeyedOnSampleRunID   ( buddySampleIDKeyedOnSampleRunID ),
     m_buddyDatabaseEntryIndex           ( buddyDatabaseEntryIndex ),
-    m_inclusionRule                     ( inclusionRule )
+    m_inclusionRule                     ( inclusionRule ),
+    m_exceptionalDataHandler            ( exceptionalDataHandler )
 {
 }
 
@@ -50,6 +53,8 @@ bool BuddyDatabaseBuilder::isQC() const
 
 bool BuddyDatabaseBuilder::accept( Cursor* c )
 {
+    bool carryOn = true;
+
     do
     {
         reset();
@@ -126,7 +131,27 @@ bool BuddyDatabaseBuilder::accept( Cursor* c )
         }
         else
         {
-            sampleDescriptor = std::string() << alphaSampleID << "/" << ( m_projects->findProjectIDForDatabase( databaseName ) );
+            int projectID = 0;
+
+            if ( m_projects->canFindProjectIDForDatabase( databaseName ) )
+            {
+                projectID = m_projects->findProjectIDForDatabase( databaseName );
+            }
+            else if ( m_exceptionalDataHandler )
+            {
+                if ( m_exceptionalDataHandler->canProvideProjectIDFor( barcode ) )
+                {
+                    projectID = m_exceptionalDataHandler->getProjectIDFor( barcode );
+                }
+            }
+
+            if ( 0 == projectID )
+            {
+                carryOn = m_exceptionalDataHandler->notifyBuddyDatabaseEntryIgnored( buddySampleID, "No Project ID" );
+                break;
+            }
+
+            sampleDescriptor = std::string() << alphaSampleID << "/" << projectID;
         }
 
         std::string sampleRunID      = hasSampleRun ? paulst::toString(srID) : sampleDescriptor;
@@ -158,7 +183,7 @@ bool BuddyDatabaseBuilder::accept( Cursor* c )
     }
     while ( false );
 
-    return true;
+    return carryOn;
 }
 
 void BuddyDatabaseBuilder::reset()
