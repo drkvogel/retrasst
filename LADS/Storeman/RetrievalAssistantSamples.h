@@ -65,7 +65,7 @@ public:
     void __fastcall updateStatus(); // syncronized method can't have args (?) - was going to use (int numerator, int denominator)
 };
 
-extern Sorter<SampleRow> sorter[SGVIALS_NUMCOLS];
+//extern Sorter<SampleRow> sorter[SGVIALS_NUMCOLS];
 
 class TfrmSamples : public TForm {
     friend class LoadVialsWorkerThread;
@@ -124,8 +124,9 @@ __published:
     void __fastcall btnDelSortClick(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall sgChunksClick(TObject *Sender);
+    void __fastcall btnApplySortClick(TObject *Sender);
 private:
-    void __fastcall             comboSortOnChange(TObject *Sender);
+    //void __fastcall             comboSortOnChange(TObject *Sender);
     LoadVialsWorkerThread *     loadVialsWorkerThread;
     void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *               job;
@@ -133,6 +134,7 @@ private:
     std::vector<SampleRow *>    vials;      // all vials loaded
     int                         maxRows;    // rows to show at a time
     void                        addSorter();
+    void                        removeSorter();
     void                        applySort();
     void                        autoChunk();
     SampleChunk *               currentChunk();

@@ -224,6 +224,8 @@ object frmSamples: TfrmSamples
         Caption = '-'
         TabOrder = 0
         OnClick = btnDelSortClick
+        ExplicitLeft = 609
+        ExplicitTop = 14
       end
       object btnAddSort: TButton
         Left = 591
@@ -243,8 +245,7 @@ object frmSamples: TfrmSamples
         Align = alRight
         Caption = 'Apply'
         TabOrder = 2
-        ExplicitLeft = 638
-        ExplicitTop = 11
+        OnClick = btnApplySortClick
       end
     end
     object GroupBox2: TGroupBox

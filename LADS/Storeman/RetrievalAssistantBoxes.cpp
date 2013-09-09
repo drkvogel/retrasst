@@ -9,6 +9,18 @@
 
 TfrmBoxes *frmBoxes;
 
+Sorter<BoxRow> boxSorter[SGBOXES_NUMCOLS] = {
+    { BoxRow::sort_asc_currbox,   sgBoxesColName[0] },
+//        { BoxRow::sort_asc_destbox,   sgBoxesColName[1] },
+//        { BoxRow::sort_asc_destpos,   sgBoxesColName[2] },
+    { BoxRow::sort_asc_site,      sgBoxesColName[1] },
+    { BoxRow::sort_asc_position,  sgBoxesColName[2] },
+    { BoxRow::sort_asc_shelf,     sgBoxesColName[3] },
+    { BoxRow::sort_asc_vessel,    sgBoxesColName[4] },
+    { BoxRow::sort_asc_structure, sgBoxesColName[5] },
+    { BoxRow::sort_asc_slot,      sgBoxesColName[6] },
+};
+
 __fastcall LoadBoxesWorkerThread::LoadBoxesWorkerThread() {
     FreeOnTerminate = true;
 }
@@ -318,18 +330,7 @@ void TfrmBoxes::showRows() {
 
 void TfrmBoxes::sortList(int col) {
     Screen->Cursor = crSQLWait;
-    static Sorter<BoxRow> sorter[SGBOXES_NUMCOLS] = {
-        { BoxRow::sort_asc_currbox,   BoxRow::sort_desc_currbox,  sgBoxesColName[0] },
-//        { BoxRow::sort_asc_destbox,   BoxRow::sort_desc_destbox,  sgBoxesColName[1] },
-//        { BoxRow::sort_asc_destpos,   BoxRow::sort_desc_destpos,  sgBoxesColName[2] },
-        { BoxRow::sort_asc_site,      BoxRow::sort_desc_site,     sgBoxesColName[1] },
-        { BoxRow::sort_asc_position,  BoxRow::sort_desc_position, sgBoxesColName[2] },
-        { BoxRow::sort_asc_shelf,     BoxRow::sort_desc_shelf,    sgBoxesColName[3] },
-        { BoxRow::sort_asc_vessel,    BoxRow::sort_desc_vessel,   sgBoxesColName[4] },
-        { BoxRow::sort_asc_structure, BoxRow::sort_desc_structure,sgBoxesColName[5] },
-        { BoxRow::sort_asc_slot,      BoxRow::sort_desc_slot,     sgBoxesColName[6] },
-    };
-    sorter[col].sort_toggle(boxes);
+    boxSorter[col].sort_toggle(boxes);
     showRows();
     Screen->Cursor = crDefault;
 }

@@ -9,28 +9,17 @@
 TfrmSamples *frmSamples;
 
 Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
-    { SampleRow::sort_asc_barcode,   SampleRow::sort_desc_barcode,  sgVialColName[0] },
-    { SampleRow::sort_asc_destbox,   SampleRow::sort_desc_destbox,  sgVialColName[1] },
-    { SampleRow::sort_asc_destpos,   SampleRow::sort_desc_destpos,  sgVialColName[2] },
-    { SampleRow::sort_asc_currbox,   SampleRow::sort_desc_currbox,  sgVialColName[3] },
-    { SampleRow::sort_asc_currpos,   SampleRow::sort_desc_currpos,  sgVialColName[4] },
-    { SampleRow::sort_asc_site,      SampleRow::sort_desc_site,     sgVialColName[5] },
-    { SampleRow::sort_asc_position,  SampleRow::sort_desc_position, sgVialColName[6] },
-    { SampleRow::sort_asc_shelf,     SampleRow::sort_desc_shelf,    sgVialColName[7] },
-    { SampleRow::sort_asc_vessel,    SampleRow::sort_desc_vessel,   sgVialColName[8] },
-    { SampleRow::sort_asc_structure, SampleRow::sort_desc_structure,sgVialColName[9] },
-    { SampleRow::sort_asc_slot,      SampleRow::sort_desc_slot,     sgVialColName[10] }
-//    { SampleRow::sort_asc_barcode,   sgVialColName[0] },
-//    { SampleRow::sort_asc_destbox,   sgVialColName[1] },
-//    { SampleRow::sort_asc_destpos,   sgVialColName[2] },
-//    { SampleRow::sort_asc_currbox,   sgVialColName[3] },
-//    { SampleRow::sort_asc_currpos,   sgVialColName[4] },
-//    { SampleRow::sort_asc_site,      sgVialColName[5] },
-//    { SampleRow::sort_asc_position,  sgVialColName[6] },
-//    { SampleRow::sort_asc_shelf,     sgVialColName[7] },
-//    { SampleRow::sort_asc_vessel,    sgVialColName[8] },
-//    { SampleRow::sort_asc_structure, sgVialColName[9] },
-//    { SampleRow::sort_asc_slot,      sgVialColName[10] }
+    { SampleRow::sort_asc_barcode,   sgVialColName[0] },
+    { SampleRow::sort_asc_destbox,   sgVialColName[1] },
+    { SampleRow::sort_asc_destpos,   sgVialColName[2] },
+    { SampleRow::sort_asc_currbox,   sgVialColName[3] },
+    { SampleRow::sort_asc_currpos,   sgVialColName[4] },
+    { SampleRow::sort_asc_site,      sgVialColName[5] },
+    { SampleRow::sort_asc_position,  sgVialColName[6] },
+    { SampleRow::sort_asc_shelf,     sgVialColName[7] },
+    { SampleRow::sort_asc_vessel,    sgVialColName[8] },
+    { SampleRow::sort_asc_structure, sgVialColName[9] },
+    { SampleRow::sort_asc_slot,      sgVialColName[10] }
 };
 
 __fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
@@ -186,10 +175,8 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     btnSave->Enabled = true;
     chunks.clear();
     clearSG(sgChunks);
-    //addChunk(); // no - not before list loaded
-    //showChunks();
     clearSG(sgVials);
-    //timerLoadVials->Enabled = true;
+    timerLoadVials->Enabled = true;
     //if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
 }
 
@@ -231,11 +218,10 @@ void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
     if (chunks.size() == 1) btnDelChunk->Enabled = false;
 }
 
-void __fastcall TfrmSamples::radbutDefaultClick(TObject *Sender) { radgrpRowsChange(); }
-
-void __fastcall TfrmSamples::radbutAllClick(TObject *Sender) { radgrpRowsChange(); }
-
-void __fastcall TfrmSamples::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
+void __fastcall TfrmSamples::editCustomRowsChange(TObject *Sender) {
+    timerCustomRows->Enabled = false; // reset
+    timerCustomRows->Enabled = true;;
+}
 
 void __fastcall TfrmSamples::timerCustomRowsTimer(TObject *Sender) {
     std::ostringstream oss; oss <<__FUNC__<<": load"<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
@@ -244,9 +230,28 @@ void __fastcall TfrmSamples::timerCustomRowsTimer(TObject *Sender) {
     showChunk();
 }
 
-void __fastcall TfrmSamples::editCustomRowsChange(TObject *Sender) {
-    timerCustomRows->Enabled = false; // reset
-    timerCustomRows->Enabled = true;;
+void __fastcall TfrmSamples::radbutDefaultClick(TObject *Sender) { radgrpRowsChange(); }
+
+void __fastcall TfrmSamples::radbutAllClick(TObject *Sender) { radgrpRowsChange(); }
+
+void __fastcall TfrmSamples::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
+
+void TfrmSamples::radgrpRowsChange() {
+    maxRows = 0;
+    if (radbutCustom->Checked) {
+        editCustomRows->Enabled  = true;
+        timerCustomRows->Enabled = true;
+        return; // allow user to edit value
+    } else {
+        editCustomRows->Enabled = false;
+        if (radbutDefault->Checked) {
+            maxRows = DEFAULT_NUMROWS;
+        } else if (radbutAll->Checked) {
+            maxRows = -1;
+        }
+    }
+    std::ostringstream oss; oss <<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
+    showChunk();
 }
 
 void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
@@ -291,6 +296,10 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     Screen->Cursor = crDefault;
 }
 
+void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
+    showChunk(); // default is 1st
+}
+
 void __fastcall TfrmSamples::btnAutoChunkClick(TObject *Sender) {
     autoChunk();
 }
@@ -330,41 +339,12 @@ void __fastcall TfrmSamples::btnAddSortClick(TObject *Sender) {
     addSorter();
 }
 
-void __fastcall TfrmSamples::comboSortOnChange(TObject *Sender) {
-    // which one was it
-}
-
 void __fastcall TfrmSamples::btnDelSortClick(TObject *Sender) {
-    //for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box
-//    for (int i=0; i<groupSort->ControlCount; i++) { // controls are in creation order, ie. buttons first from design, and last added combo is last
-//        TControl * control = groupSort->Controls[i];
-//        TButton * button = dynamic_cast<TButton *>(control);
-//        if (button != NULL) {
-//            debugLog("found a button, caption: ");
-//            debugLog(button->Caption);
-//            continue; // skip
-//        }
-//        TComboBox * combo = dynamic_cast<TComboBox *>(control);
-//        if (combo != NULL) {
-//            debugLog("found a combo box, text:");
-//            debugLog(combo->Text);
-//        }
-//        //groupSort->Controls[i]->RemoveComponent(combo);
-//        groupSort->RemoveComponent(combo);
-//    }
-    TComponent * component = groupSort->Controls[groupSort->ControlCount-1];
-    TComboBox * combo = dynamic_cast<TComboBox *>(component);
-    if (combo != NULL) {
-        debugLog("found a combo box, text:");
-        debugLog(combo->Text);
-        delete component; // not RemoveComponent(component); and not groupSort->RemoveComponent(component); // remove TComponent, not TComboBox
-    } else {
-        debugLog("not a combo box");
-    }
+    removeSorter();
 }
 
-void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
-    showChunk(); // default is 1st
+void __fastcall TfrmSamples::btnApplySortClick(TObject *Sender) {
+    applySort();
 }
 
 void TfrmSamples::loadRows() {
@@ -377,37 +357,6 @@ void TfrmSamples::loadRows() {
     Screen->Cursor = crSQLWait; // disable mouse?
     loadVialsWorkerThread = new LoadVialsWorkerThread();
     loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
-}
-
-void TfrmSamples::addSorter() {
-    ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
-    TComboBox * combo = new TComboBox(this);
-    combo->Parent = groupSort;
-    combo->Align = alLeft;
-    combo->Items->AddObject(groupSort->ControlCount, NULL);
-    combo->OnChange = &comboSortOnChange;
-    // new combo is last created,
-    //groupSort->InsertControl(combo);
-    //ostringstream oss;
-    //oss.str(""); oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
-}
-
-void TfrmSamples::radgrpRowsChange() {
-    maxRows = 0;
-    if (radbutCustom->Checked) {
-        editCustomRows->Enabled  = true;
-        timerCustomRows->Enabled = true;
-        return; // allow user to edit value
-    } else {
-        editCustomRows->Enabled = false;
-        if (radbutDefault->Checked) {
-            maxRows = DEFAULT_NUMROWS;
-        } else if (radbutAll->Checked) {
-            maxRows = -1;
-        }
-    }
-    std::ostringstream oss; oss <<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-    showChunk();
 }
 
 void TfrmSamples::showChunks() {
@@ -502,6 +451,48 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
     groupVials->Caption = oss.str().c_str();
 }
 
+void TfrmSamples::addSorter() {
+    ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
+    TComboBox * combo = new TComboBox(this);
+    combo->Parent = groupSort;
+    combo->Align = alLeft;
+    combo->Items->AddObject(groupSort->ControlCount, NULL);
+    //combo->OnChange = &comboSortOnChange;
+    // new combo is last created,
+    //groupSort->InsertControl(combo);
+    //ostringstream oss;
+    //oss.str(""); oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
+}
+
+void TfrmSamples::removeSorter() {
+    //for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box
+//    for (int i=0; i<groupSort->ControlCount; i++) { // controls are in creation order, ie. buttons first from design, and last added combo is last
+//        TControl * control = groupSort->Controls[i];
+//        TButton * button = dynamic_cast<TButton *>(control);
+//        if (button != NULL) {
+//            debugLog("found a button, caption: ");
+//            debugLog(button->Caption);
+//            continue; // skip
+//        }
+//        TComboBox * combo = dynamic_cast<TComboBox *>(control);
+//        if (combo != NULL) {
+//            debugLog("found a combo box, text:");
+//            debugLog(combo->Text);
+//        }
+//        //groupSort->Controls[i]->RemoveComponent(combo);
+//        groupSort->RemoveComponent(combo);
+//    }
+    TComponent * component = groupSort->Controls[groupSort->ControlCount-1];
+    TComboBox * combo = dynamic_cast<TComboBox *>(component);
+    if (combo != NULL) {
+        debugLog("found a combo box, text:");
+        debugLog(combo->Text);
+        delete component; // not RemoveComponent(component); and not groupSort->RemoveComponent(component); // remove TComponent, not TComboBox
+    } else {
+        debugLog("not a combo box");
+    }
+}
+
 void TfrmSamples::applySort() {
     SampleChunk * chunk = currentChunk();
     // loop through sorters and apply each selected sort
@@ -527,6 +518,4 @@ void TfrmSamples::sortChunk(SampleChunk * chunk, int col) {
     showChunk(chunk);
     Screen->Cursor = crDefault;
 }
-
-
 
