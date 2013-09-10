@@ -209,16 +209,40 @@ void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
 
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
+        // sign off?
         // save stuff
         // ie, create the retrieval plan by inserting into c_box_retrieval and l_sample_retrieval
+        for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
+            // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
+            SampleChunk * chunk = *it;
+            //      for boxes/samples
+            //          insert sample into C_BOX_RETRIEVAL with current section (chunk) number
+            for (vecpSampleRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
+                pSampleRow sampleRow = (pSampleRow)*it;
+                LPDbCryovialStore * vial = sampleRow->store_record;
+            }
+
+            /*
+            retrieval_cid	 i4		c_retrieval_job	 The retrieval task this entry is part of
+            retrieval_type	 i2			obsolete - see c_retrieval_job
+            box_id	 i4		box_name	 The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+            section	 i2			 Which chunk of the retrieval plan this entry belongs to (0 = retrieve all boxes in parallel)
+            position	 i2			obsolete
+            box_name	 v32			obsolete
+            rj_box_cid	 i4	 1		 Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
+            status	 i2			 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
+            time_stamp	 d/t			 When this record was inserted or updated*/
+        }
+        return;
+        // update c_retrieval_job (in progress)
+        job->setStatus(LCDbCryoJob::INPROGRESS);
+        job->saveRecord(LIMSDatabase::getCentralDb());
+        btnSave->Enabled = false;
         Close();
     } else { // start again
-        chunks.clear();
+        chunks.clear(); // delete memory
         addChunk();
     }
-    //btnSave->Enabled = false;
-    // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
-    // TODO update c_retrieval_job (in progress)
 }
 
 void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {

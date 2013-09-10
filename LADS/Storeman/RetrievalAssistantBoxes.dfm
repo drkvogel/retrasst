@@ -37,7 +37,6 @@ object frmBoxes: TfrmBoxes
     Align = alTop
     Caption = 'Chunks'
     TabOrder = 0
-    ExplicitWidth = 713
     object Panel2: TPanel
       Left = 769
       Top = 15
@@ -46,7 +45,6 @@ object frmBoxes: TfrmBoxes
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 629
       object btnAddChunk: TButton
         Left = 0
         Top = 0
@@ -112,7 +110,6 @@ object frmBoxes: TfrmBoxes
       OnDrawCell = sgChunksDrawCell
       OnFixedCellClick = sgChunksFixedCellClick
       OnSetEditText = sgChunksSetEditText
-      ExplicitWidth = 627
     end
   end
   object Panel1: TPanel
@@ -124,7 +121,6 @@ object frmBoxes: TfrmBoxes
     BevelEdges = []
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 713
     DesignSize = (
       853
       44)
@@ -137,7 +133,6 @@ object frmBoxes: TfrmBoxes
       Caption = 'Save'
       TabOrder = 0
       OnClick = btnSaveClick
-      ExplicitLeft = 552
     end
     object btnCancel: TButton
       Left = 773
@@ -148,7 +143,6 @@ object frmBoxes: TfrmBoxes
       Caption = 'Exit'
       TabOrder = 1
       OnClick = btnCancelClick
-      ExplicitLeft = 633
     end
     object cbLog: TCheckBox
       Left = 622
@@ -159,7 +153,6 @@ object frmBoxes: TfrmBoxes
       Caption = 'Show Log'
       TabOrder = 2
       OnClick = cbLogClick
-      ExplicitLeft = 482
     end
     object radgrpRows: TRadioGroup
       Left = 2
@@ -217,7 +210,6 @@ object frmBoxes: TfrmBoxes
     Align = alClient
     Caption = 'Boxes in chunk'
     TabOrder = 2
-    ExplicitWidth = 713
     object sgBoxes: TStringGrid
       Left = 2
       Top = 15
@@ -229,7 +221,6 @@ object frmBoxes: TfrmBoxes
       TabOrder = 0
       OnClick = sgBoxesClick
       OnFixedCellClick = sgBoxesFixedCellClick
-      ExplicitWidth = 709
     end
     object memoDebug: TMemo
       Left = 2
@@ -239,7 +230,6 @@ object frmBoxes: TfrmBoxes
       Align = alBottom
       TabOrder = 1
       Visible = False
-      ExplicitWidth = 709
     end
     object panelLoading: TPanel
       Left = 232

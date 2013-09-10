@@ -168,12 +168,41 @@ void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow,
 }
 
 void __fastcall TfrmBoxes::btnSaveClick(TObject *Sender) {
-    //btnSave->Enabled = false;
-    // TODO insert rows into c_box_retrieval
-    // TODO update c_retrieval_job (in progress)
+    if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
+        // sign off?
+        for (vecpBoxChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
+            BoxChunk * chunk = *it;
+            //      for boxes
+            //          insert box into C_BOX_RETRIEVAL with current section (chunk) number
+            for (vecpBoxRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
+                pBoxRow boxRow = (pBoxRow)*it;
+                //LPDbCryovialStore * vial = sampleRow->store_record;
+            }
+            /*
+            retrieval_cid	 i4		c_retrieval_job	 The retrieval task this entry is part of
+            retrieval_type	 i2			obsolete - see c_retrieval_job
+            box_id	 i4		box_name	 The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+            section	 i2			 Which chunk of the retrieval plan this entry belongs to (0 = retrieve all boxes in parallel)
+            position	 i2			obsolete
+            box_name	 v32			obsolete
+            rj_box_cid	 i4	 1		 Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
+            status	 i2			 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
+            time_stamp	 d/t			 When this record was inserted or updated*/
+        }
+        return;
+        // update c_retrieval_job (in progress)
+        job->setStatus(LCDbCryoJob::INPROGRESS);
+        job->saveRecord(LIMSDatabase::getCentralDb());
+        btnSave->Enabled = false;
+        Close();
+    } else { // start again
+        chunks.clear(); // delete memory
+        addChunk();
+    }
 }
 
 void __fastcall TfrmBoxes::btnDelChunkClick(TObject *Sender) {
+    // move last chunk's samples into preceding chunk
     if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
         delete chunks.back();
         chunks.pop_back();
