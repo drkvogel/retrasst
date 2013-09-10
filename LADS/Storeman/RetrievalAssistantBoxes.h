@@ -117,6 +117,8 @@ __published:
     void __fastcall timerLoadBoxesTimer(TObject *Sender);
     void __fastcall sgBoxesClick(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
+    void __fastcall sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
+          TGridDrawState State);
 private:
     const char *        loadingMessage;
     LoadBoxesWorkerThread * loadBoxesWorkerThread;

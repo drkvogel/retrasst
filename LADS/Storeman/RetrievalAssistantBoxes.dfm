@@ -216,10 +216,12 @@ object frmBoxes: TfrmBoxes
       Width = 849
       Height = 163
       Align = alClient
+      DefaultDrawing = False
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect, goFixedRowClick]
       TabOrder = 0
       OnClick = sgBoxesClick
+      OnDrawCell = sgBoxesDrawCell
       OnFixedCellClick = sgBoxesFixedCellClick
     end
     object memoDebug: TMemo

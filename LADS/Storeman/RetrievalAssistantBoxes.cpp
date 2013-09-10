@@ -145,7 +145,7 @@ void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow,
         Chunk * chunk = NULL;
         chunk = (Chunk *)sgChunks->Objects[0][ARow];
         if (NULL == chunk) {
-            background = clBtnFace; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
             background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
@@ -165,6 +165,38 @@ void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow,
 	} else {
         cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
     }
+}
+
+void __fastcall TfrmBoxes::sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+    //          clWindow
+    TColor background = clWindow;
+    if (0 == ARow) {
+        background = clBtnFace;
+    } else {
+        Chunk * chunk = NULL;
+        chunk = (Chunk *)sgBoxes->Objects[0][ARow];
+        if (NULL == chunk) {
+            background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        } else {
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        }
+    }
+    TCanvas * cnv = sgBoxes->Canvas;
+	cnv->Brush->Color = background;
+	cnv->FillRect(Rect);
+    if (State.Contains(gdSelected)) {
+        TFontStyles oldFontStyle = cnv->Font->Style;
+        TPenStyle oldPenStyle = cnv->Pen->Style;
+        cnv->Pen->Style = psDot;
+        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
+        cnv->Font->Style = TFontStyles() << fsBold;
+    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgBoxes->Cells[ACol][ARow]);
+        cnv->Pen->Style     = oldPenStyle;
+        cnv->Font->Style    = oldFontStyle;
+	} else {
+        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgBoxes->Cells[ACol][ARow]);
+    }
+
 }
 
 void __fastcall TfrmBoxes::btnSaveClick(TObject *Sender) {
@@ -364,4 +396,7 @@ void TfrmBoxes::sortList(int col) {
     showRows();
     Screen->Cursor = crDefault;
 }
+
+
+
 

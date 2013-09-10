@@ -307,7 +307,7 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
         chunk = (SampleChunk *)sgChunks->Objects[0][ARow];
         background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == chunk) {
-            background = clBtnFace; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
             background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
@@ -339,7 +339,7 @@ void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
         row = (SampleRow *)sgVials->Objects[0][ARow];
         background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == row) {
-            background = clBtnFace; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = clWindow; // clBtnFace; //
         } else {
             background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
@@ -551,22 +551,7 @@ void TfrmSamples::addSorter() {
 
 void TfrmSamples::removeSorter() {
     //for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box
-//    for (int i=0; i<groupSort->ControlCount; i++) { // controls are in creation order, ie. buttons first from design, and last added combo is last
-//        TControl * control = groupSort->Controls[i];
-//        TButton * button = dynamic_cast<TButton *>(control);
-//        if (button != NULL) {
-//            debugLog("found a button, caption: ");
-//            debugLog(button->Caption);
-//            continue; // skip
-//        }
-//        TComboBox * combo = dynamic_cast<TComboBox *>(control);
-//        if (combo != NULL) {
-//            debugLog("found a combo box, text:");
-//            debugLog(combo->Text);
-//        }
-//        //groupSort->Controls[i]->RemoveComponent(combo);
-//        groupSort->RemoveComponent(combo);
-//    }
+    //for (int i=0; i<groupSort->ControlCount; i++) { // controls are in creation order, ie. buttons first from design, and last added combo is last
     TComponent * component = groupSort->Controls[groupSort->ControlCount-1];
     TComboBox * combo = dynamic_cast<TComboBox *>(component);
     if (combo != NULL) {
@@ -586,7 +571,6 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
         TComboBox * combo = dynamic_cast<TComboBox *>(control);
         if (combo != NULL) {
             if (-1 != combo->ItemIndex) {
-                //oss.str(); oss<<"sorting: "); debugLog(oss.str().c_str());
                 debugLog("sorting: ");
                 debugLog(combo->Items->Strings[combo->ItemIndex].c_str());
                 sortChunk(chunk, combo->ItemIndex, Sorter<SampleRow *>::ASCENDING);
@@ -596,7 +580,6 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
             break; // finished sorting
         }
     }
-    //debugLog(oss.str().c_str());
 }
 
 void TfrmSamples::sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order) {
