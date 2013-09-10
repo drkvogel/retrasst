@@ -165,10 +165,12 @@ object frmSamples: TfrmSamples
       Width = 880
       Height = 204
       Align = alClient
+      DefaultDrawing = False
       FixedCols = 0
       Options = [goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect, goFixedRowClick]
       TabOrder = 0
       OnClick = sgVialsClick
+      OnDrawCell = sgVialsDrawCell
       OnFixedCellClick = sgVialsFixedCellClick
     end
     object memoDebug: TMemo
@@ -224,8 +226,6 @@ object frmSamples: TfrmSamples
         Caption = '-'
         TabOrder = 0
         OnClick = btnDelSortClick
-        ExplicitLeft = 609
-        ExplicitTop = 14
       end
       object btnAddSort: TButton
         Left = 591

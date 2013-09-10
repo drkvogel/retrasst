@@ -306,6 +306,38 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
     }
 }
 
+void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+    TColor background = clWindow;
+    if (0 == ARow) {
+        background = clBtnFace;
+    } else {
+        SampleRow * row = NULL;
+        row = (SampleRow *)sgVials->Objects[0][ARow];
+        background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
+        if (NULL == row) {
+            background = clBtnFace; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        } else {
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        }
+        //else if (chunk->
+    }
+    TCanvas * cnv = sgVials->Canvas;
+	cnv->Brush->Color = background;
+	cnv->FillRect(Rect);
+    if (State.Contains(gdSelected)) {
+        TFontStyles oldFontStyle = cnv->Font->Style;
+        TPenStyle oldPenStyle = cnv->Pen->Style;
+        cnv->Pen->Style = psDot;
+        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
+        cnv->Font->Style = TFontStyles() << fsBold;
+    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgVials->Cells[ACol][ARow]);
+        cnv->Pen->Style     = oldPenStyle;
+        cnv->Font->Style    = oldFontStyle;
+	} else {
+        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgVials->Cells[ACol][ARow]);
+    }
+}
+
 void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
@@ -314,6 +346,8 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     addChunk(); // create a default chunk // no - not before list loaded
     showChunks(); //showChunk(); // must do this outside thread, unless synchronised - does gui stuff
     Screen->Cursor = crDefault;
+    ShowCursor(true);
+    Enabled = true;
 }
 
 void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
@@ -375,6 +409,8 @@ void TfrmSamples::loadRows() {
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
     Screen->Cursor = crSQLWait; // disable mouse?
+    ShowCursor(false);
+    Enabled = false;
     loadVialsWorkerThread = new LoadVialsWorkerThread();
     loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
 }
@@ -556,4 +592,6 @@ void TfrmSamples::sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::S
     showChunk(chunk);
     Screen->Cursor = crDefault;
 }
+
+
 

@@ -127,6 +127,8 @@ __published:
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall sgChunksClick(TObject *Sender);
     void __fastcall btnApplySortClick(TObject *Sender);
+    void __fastcall sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
+          TGridDrawState State);
 private:
     //void __fastcall             comboSortOnChange(TObject *Sender);
     LoadVialsWorkerThread *     loadVialsWorkerThread;

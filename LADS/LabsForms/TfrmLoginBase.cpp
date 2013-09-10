@@ -53,7 +53,7 @@ __fastcall TfrmLoginBase::TfrmLoginBase(TComponent* Owner) : TForm(Owner)
 	version -> Font -> Color = clBlack;
 	version -> Caption = app + " **FINAL**";
 #endif
-	// rgDatabase -> ItemIndex = LIMSDatabase::TEST_DATA;
+	//rgDatabase -> ItemIndex = LIMSDatabase::TEST_DATA;
 	Application -> OnException = AppException;
 }
 
