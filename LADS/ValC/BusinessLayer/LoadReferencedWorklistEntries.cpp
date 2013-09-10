@@ -26,7 +26,8 @@ LoadReferencedWorklistEntries::LoadReferencedWorklistEntries(
         ResultIndex*            resultIndex,
         const std::string&      tempTableName,
         const std::string&      worklistSQL,
-        const std::string&      worklistRelationSQL )
+        const std::string&      worklistRelationSQL,
+        ExceptionalDataHandler* exceptionalDataHandler )
     :
     m_con( con ),
     m_log( log ),
@@ -34,7 +35,8 @@ LoadReferencedWorklistEntries::LoadReferencedWorklistEntries(
     m_resultIndex( resultIndex ),
     m_tempTableName( tempTableName ),
     m_worklistSQL( worklistSQL ),
-    m_worklistRelationSQL( worklistRelationSQL )
+    m_worklistRelationSQL( worklistRelationSQL ),
+    m_exceptionalDataHandler( exceptionalDataHandler )
 {
 }
 
@@ -84,7 +86,7 @@ void LoadReferencedWorklistEntries::execute()
         std::for_each( m_idList.begin(), m_idList.end(), boost::bind( insertIntoTable, _1, tempTable, m_con, m_log ) );
 
         LoadWorklistEntries loadWorklistEntries( m_worklistEntries, m_con, m_log, m_resultIndex, m_worklistSQL, m_worklistRelationSQL,
-            allInclusive );
+            allInclusive, m_exceptionalDataHandler );
 
         loadWorklistEntries.execute();
     }

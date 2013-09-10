@@ -6,6 +6,26 @@
 TfrmTest *frmTest;
 
 __fastcall TfrmTest::TfrmTest(TComponent* Owner) : TForm(Owner) { }
+
+/*
+// template
+    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
+    LQuery q(LIMSDatabase::getCentralDb());
+    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
+    q.setSQL("SELECT * FROM  WHERE status != 99");
+    Screen->Cursor = crSQLWait;
+    q.open();
+    delete_referenced<vecp>(s);
+    while (!q.eof()) {
+        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
+        //ob-> = q.readInt("");
+        //ob-> = q.readString("");
+        s.push_back();
+        q.next();
+    }
+    Screen->Cursor = crDefault;
+*/
+
 /*    //"SELECT br.box_id FROM c_box_retrieval br WHERE br.retrieval_cid = :rtid AND br.section = :sect AND status != 99");
 //    // no 'chunks' yet, we haven't created them!
 //    // they will exist in c_box_retrieval, but don't already exist in cryovial_store where the job comes from

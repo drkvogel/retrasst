@@ -1,3 +1,4 @@
+#include "ExceptionalDataHandler.h"
 #include "Require.h"
 #include "ResultIndex.h"
 #include "StringBuilder.h"
@@ -10,12 +11,14 @@ namespace valc
 {
 
 WorklistEntryBuilder::WorklistEntryBuilder( WorklistEntries* worklistEntries, 
-    ResultIndex* resultIndex, WorklistRelationsDataSource* worklistRelationsDataSource, const std::string& inclusionRule )
+    ResultIndex* resultIndex, WorklistRelationsDataSource* worklistRelationsDataSource, const std::string& inclusionRule,
+    ExceptionalDataHandler* exceptionalDataHandler )
     : 
     m_worklistEntries( worklistEntries ),
     m_resultIndex( resultIndex ),
     m_worklistRelationsDataSource( worklistRelationsDataSource ),
-    m_inclusionRule( inclusionRule )
+    m_inclusionRule( inclusionRule ),
+    m_exceptionalDataHandler( exceptionalDataHandler )
 {
 }
 
@@ -26,6 +29,8 @@ bool WorklistEntryBuilder::isQC() const
 
 bool WorklistEntryBuilder::accept( Cursor* worklistCursor )
 {
+    bool carryOn = true;
+
     reset();
 
     do
@@ -62,12 +67,28 @@ bool WorklistEntryBuilder::accept( Cursor* worklistCursor )
             break;
         }
 
+        if ( isQC() )
+        {
+            sampleDescriptor = barcode << "/" << machineID;
+        }
+        else
+        {
+            // zero values for sampleID or projectID are unacceptable
+            if ( ( sampleID == 0 ) || ( projectID == 0 ) )
+            {
+                carryOn = m_exceptionalDataHandler->notifyWorklistEntryIgnored( recordNo,
+                    "If the barcode doesn't start with 'QC', then neither sample_id nor project_cid can be zero." ); 
+                break;
+            }
+
+            sampleDescriptor = std::string() << sampleID << "/" << projectID;
+        }
+
+
         if ( buddyResultID )
         {
             m_resultIndex->allocateResultToWorklistEntry( buddyResultID, recordNo );
         }
-
-        sampleDescriptor = isQC() ?  barcode << "/" << machineID : std::string() << sampleID << "/" << projectID;
 
         m_worklistEntries->add( new WorklistEntryImpl(
             recordNo,
@@ -92,7 +113,7 @@ bool WorklistEntryBuilder::accept( Cursor* worklistCursor )
     }
     while( false );
 
-    return true;
+    return carryOn;
 }
 
 void WorklistEntryBuilder::reset()

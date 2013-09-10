@@ -1,0 +1,19 @@
+﻿make maxrows maximum
+
+chunks
+    section - Cannot Be Changed 
+    start
+        1st chunk: CBC
+        Others:
+    end:
+        1st chunk: 
+    size:
+        calculate end (max if not valid)
+
+    specify in samples or boxes?
+        
+highlight current sample/box
+double-click sample/box
+    current chunks upper boundary is here (check valid)
+    next chunk (if present) lower boundary is here
+  

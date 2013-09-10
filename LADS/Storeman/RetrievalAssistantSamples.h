@@ -63,9 +63,11 @@ public:
     int             rowCount;       // current rows loaded, for thread sync
     string          loadingMessage;
     void __fastcall updateStatus(); // syncronized method can't have args (?) - was going to use (int numerator, int denominator)
+    void findDestination(pSampleRow sampleRow);
+    void findDestinationSlowly(pSampleRow sampleRow);
 };
 
-extern Sorter<SampleRow> sorter[SGVIALS_NUMCOLS];
+//extern Sorter<SampleRow> sorter[SGVIALS_NUMCOLS];
 
 class TfrmSamples : public TForm {
     friend class LoadVialsWorkerThread;
@@ -81,7 +83,6 @@ __published:
     TGroupBox *groupVials;
     TStringGrid *sgVials;
     TMemo *memoDebug;
-    TTimer *timerCustomRows;
     TButton *btnAutoChunk;
     TPanel *panelLoading;
     TProgressBar *progressBottom;
@@ -92,11 +93,6 @@ __published:
     TButton *btnSave;
     TButton *btnReject;
     TCheckBox *cbLog;
-    TGroupBox *GroupBox2;
-    TRadioButton *radbutDefault;
-    TRadioButton *radbutAll;
-    TRadioButton *radbutCustom;
-    TEdit *editCustomRows;
     TButton *btnDelSort;
     TButton *btnAddSort;
     TButton *btnApplySort;
@@ -107,11 +103,6 @@ __published:
     void __fastcall btnAddChunkClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
     void __fastcall btnDelChunkClick(TObject *Sender);
-    void __fastcall radbutDefaultClick(TObject *Sender);
-    void __fastcall radbutAllClick(TObject *Sender);
-    void __fastcall radbutCustomClick(TObject *Sender);
-    void __fastcall timerCustomRowsTimer(TObject *Sender);
-    void __fastcall editCustomRowsChange(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
     void __fastcall btnAutoChunkClick(TObject *Sender);
     void __fastcall btnIncrClick(TObject *Sender);
@@ -124,32 +115,37 @@ __published:
     void __fastcall btnDelSortClick(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall sgChunksClick(TObject *Sender);
+    void __fastcall btnApplySortClick(TObject *Sender);
+    void __fastcall sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
+          TGridDrawState State);
 private:
-    const char *        loadingMessage;
-    LoadVialsWorkerThread * loadVialsWorkerThread;
-    void __fastcall loadVialsWorkerThreadTerminated(TObject *Sender);
-    LCDbCryoJob * job;
-    int                 maxRows;  // rows to show at a time
-    vecpSampleChunk     chunks;
-    std::vector<SampleRow *> vials;
-    void                addSorter();
-    void                autoChunk();
-    SampleChunk *       currentChunk();
-    void                showChunks();
-    void                loadRows();
-    void                showChunk(SampleChunk * chunk=NULL);
-    void                radgrpRowsChange();
-    //void                sortList(enum SampleRow::SortType);
-    //void                sortList(void *); // function argument
-    //void                sortList(Sorter sorter); // struct argument - structs could be encapsulated in e.g. SampleRow
-    //void                sortList(int sortType); //
-    void                sortChunk(SampleChunk * chunk, int col);
+    //void __fastcall             comboSortOnChange(TObject *Sender);
+    LoadVialsWorkerThread *     loadVialsWorkerThread;
+    void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
+    LCDbCryoJob *               job;
+    std::vector<SampleChunk *>  chunks;
+    std::vector<SampleRow *>    vials;      // all vials loaded
+    void                        addSorter();
+    void                        removeSorter();
+    void                        applySort();
+    void                        autoChunk();
+    SampleChunk *               currentChunk();
+    void                        showChunks();
+    void                        loadRows();
+    void                        showChunk(SampleChunk * chunk=NULL);
+    void                        radgrpRowsChange();
+    void                        sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order);
+    const char *                loadingMessage;
 public:
     __fastcall          TfrmSamples(TComponent* Owner);
     void                debugLog(String s);
     void                setJob(LCDbCryoJob * ajob) { job = ajob; };
     void                addChunk();
 };
+    //void                sortList(enum SampleRow::SortType);
+    //void                sortList(void *); // function argument
+    //void                sortList(Sorter sorter); // struct argument - structs could be encapsulated in e.g. SampleRow
+    //void                sortList(int sortType); //
 
 extern PACKAGE TfrmSamples *frmSamples;
 #endif

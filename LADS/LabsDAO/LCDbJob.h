@@ -58,6 +58,7 @@ public:
 
 	int getProjectID() const { return projectID; }
 	JobKind getJobType() const { return JobKind( jobType ); }
+	const char * getTypeName() const;
 	Status getStatus() const { return Status( status ); }
 
 	TDateTime getTimeStamp() const { return time_stamp; }
@@ -71,7 +72,7 @@ public:
 	void setReason( const std::string & exName );
 	const std::string & getReason() const { return reason; }
 
-	void createName( LQuery central, const std::string & nameBase );
+	void createName( LQuery central, const std::string & nameBase = "" );
 	bool saveRecord( LQuery central );
 	bool claim( LQuery central, bool extend );
 	bool release( LQuery central, bool finished );

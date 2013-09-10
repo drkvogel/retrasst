@@ -717,43 +717,71 @@ void StoreDAO::loadAliquotTypes( std::vector<ROSETTA>& results )
 
 //---------------------------------------------------------------------------
 
-bool StoreDAO::loadCryovials( std::string sid, std::string cid, int aid, std::vector<ROSETTA>& results )
+bool StoreDAO::loadCryovials( const std::string & specimen, const std::string & cryovial, int primary, int secondary, int proj_id, std::vector<ROSETTA>& results )
 {
-	results.clear();
-	if( sid.length( ) == 0 && cid.length( ) == 0 && aid == 0 ) {
+	if( specimen.empty() && cryovial.empty() ) {
 		return false;
 	}
 
 	std::stringstream q;
-	q << "SELECT c.cryovial_id, c.sample_id, cs.box_cid, cs.cryovial_position,"
-			" cs.time_stamp, c.cryovial_barcode, c.aliquot_type_cid, sp.barcode, b.external_name as box, "
-			" r.external_name as structure, shelf_number, v.external_full as vessel"
-			" FROM cryovial_store cs, cryovial c, specimen sp, box_name b, box_store bs,"
-			" c_rack_number r, c_tank_map m, c_object_name v "
-			" WHERE cs.status = 1 AND bs.status = 6" 	// cryovial and box confirmed
+	q << "SELECT c.cryovial_id, c.sample_id, cs.cryovial_position, cs.time_stamp, c.cryovial_barcode,"
+			" c.aliquot_type_cid, sp.barcode, cs.box_cid, b.external_name as box_name, t.external_name as aliquot"
+			" FROM cryovial_store cs, cryovial c, specimen sp, box_name b, c_object_name t"
+			" WHERE cs.status = 1 " 	// position confirmed
 			" AND cs.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id "
-			" AND b.box_cid = cs.box_cid AND bs.box_cid = cs.box_cid "
-			" AND bs.rack_cid = r.rack_cid AND r.tank_cid = m.tank_cid"
-			" AND m.storage_cid = v.object_cid";
+			" AND b.box_cid = cs.box_cid AND c.aliquot_type_cid = t.object_cid";
 
-	if( !sid.empty() ) {
-		q << " AND sp.barcode = '" << sid << "' ";
+	if( !specimen.empty() ) {
+		q << " AND sp.barcode = '" << specimen << '\'';
 	}
 
-	if( !cid.empty() ) {
-		q << " AND c.cryovial_barcode = '" << cid << "' ";
+	if( !cryovial.empty() ) {
+		q << " AND c.cryovial_barcode = '" << cryovial << '\'';
 	}
 
-	if( aid != 0 ) {
-		q << " AND c.aliquot_type_cid = " << aid;
+	if( primary != 0 ) {
+		if( secondary == 0 ) {
+			q << " AND c.aliquot_type_cid = " << primary;
+		} else {
+			q << " AND c.aliquot_type_cid in (" << primary << ',' << secondary << ')';
+		}
+	} else {
+		if( secondary != 0 ) {
+			q << " AND c.aliquot_type_cid = " << secondary;
+		}
 	}
 
-	LQuery pQuery = Util::projectQuery( LCDbProjects::getCurrentID(), true );
+	LQuery pQuery = Util::projectQuery( proj_id, true );
 	pQuery.setSQL( q.str() );
-	for( pQuery.open(); !pQuery.eof(); pQuery.next() ) {
-		results.push_back( pQuery.getRecord() );
+	if( !pQuery.open() ) {
+		return false;
 	}
-	return !results.empty();
+	do
+	{  	results.push_back( pQuery.getRecord() );
+		pQuery.next();
+	} while( !pQuery.eof() );
+	return true;
+}
+
+//---------------------------------------------------------------------------
+
+bool StoreDAO::findBox( int box_id, int proj_id, ROSETTA & result )
+{
+	std::string sql = "SELECT v.external_full as vessel, shelf_number, r.external_name as structure,"
+			" slot_position, r.position as rack_pos"
+			" FROM box_store bs, c_rack_number r, c_tank_map m, c_object_name v "
+			" WHERE bs.status = 6" 		// box position confirmed
+			" AND bs.rack_cid = r.rack_cid AND r.tank_cid = m.tank_cid AND m.storage_cid = v.object_cid"
+			" AND box_cid = :bid";
+	LQuery pQuery = Util::projectQuery( proj_id, true );
+	pQuery.setSQL( sql );
+	pQuery.setParam( "bid", box_id );
+	if( pQuery.open() ) {
+		result = pQuery.getRecord();
+		return true;
+	} else {
+		return false;
+	}
 }
 
 //---------------------------------------------------------------------------

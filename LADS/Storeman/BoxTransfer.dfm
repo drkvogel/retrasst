@@ -13,6 +13,7 @@ object frmBoxList: TfrmBoxList
   Font.Style = []
   OldCreateOrder = False
   OnHide = FormHide
+  OnResize = FormResize
   OnShow = FormShow
   DesignSize = (
     672
@@ -29,7 +30,7 @@ object frmBoxList: TfrmBoxList
   end
   object Label1: TLabel
     Left = 8
-    Top = 11
+    Top = 12
     Width = 38
     Height = 13
     Caption = 'Project:'
@@ -38,14 +39,15 @@ object frmBoxList: TfrmBoxList
     Left = 550
     Top = 15
     Width = 106
-    Height = 39
+    Height = 52
+    Anchors = [akTop, akRight]
     Caption = 
-      'Click headings to sort, box names to select what to print/export' +
-      '.'
+      'Click headings to sort, types to show/hide, names to select what' +
+      ' to print or export.'
     WordWrap = True
   end
   object cbProject: TComboBox
-    Left = 52
+    Left = 54
     Top = 9
     Width = 156
     Height = 21
@@ -159,7 +161,7 @@ object frmBoxList: TfrmBoxList
   object sgBoxTypes: TStringGrid
     Left = 8
     Top = 41
-    Width = 200
+    Width = 202
     Height = 353
     Hint = 'Click to sort or select'
     Anchors = [akLeft, akTop, akBottom]

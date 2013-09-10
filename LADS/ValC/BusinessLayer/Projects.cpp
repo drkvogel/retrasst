@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cctype>
 #include "Projects.h"
+#include "Require.h"
 #include "Trace.h"
 
 namespace valc
@@ -31,11 +32,6 @@ std::string Project::getDbName() const
     return m_dbName;
 }
 
-__fastcall ProjectNotFoundException::ProjectNotFoundException( const std::string& dbName )
-    : Exception( UnicodeString( "Failed to find project for database " ) + UnicodeString( dbName.c_str() ) )
-{
-}
-
 Projects::Projects()
 {
 }
@@ -45,6 +41,8 @@ void Projects::add( int id, const std::string& externalName, const std::string& 
     ProjectPtr p( new Project( id, externalName, dbName ) );
     m_projects.push_back( p );
 }
+
+
 
 char toLower( const char& c )
 {
@@ -68,12 +66,18 @@ public:
     }
 };
 
+bool Projects::canFindProjectIDForDatabase( const std::string& databaseName ) const
+{
+    ProjectList::const_iterator i = std::find_if( m_projects.begin(), m_projects.end(), MatchOnDatabaseName( databaseName ) );
+
+    return ( i != m_projects.end() );
+}
+
 int Projects::findProjectIDForDatabase( const std::string& databaseName ) const
 {
     ProjectList::const_iterator i = std::find_if( m_projects.begin(), m_projects.end(), MatchOnDatabaseName( databaseName ) );
 
-    if ( i == m_projects.end() )
-        throw ProjectNotFoundException( databaseName );
+    require ( i != m_projects.end() );
 
     return (*i)->getID();
 }

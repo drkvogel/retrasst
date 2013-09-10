@@ -46,25 +46,28 @@ template <class T>
 class Sorter {
 public:
     bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-    bool (*sort_func_dsc)(const T *, const T *); // descending sort function
     std::string description;
+    enum SortOrder { ASCENDING, DESCENDING, TOGGLE };
     void sort_asc(std::vector<T *> & vec) { sort(vec, ASCENDING);  }
-    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING); }
-    void sort_toggle(std::vector<T *> & vec) {
-        sort(vec, sortOrder);
-        sortOrder = (sortOrder == ASCENDING) ? DESCENDING : ASCENDING; // toggle
-    }
+    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING);  }
+    void sort_toggle(std::vector<T *> & vec) { sort(vec, TOGGLE);  }
 private:
-    enum SortOrder { ASCENDING, DESCENDING } sortOrder;
+    SortOrder sortOrder; // last used sort order for toggle
     void sort(std::vector<T *> & vec, SortOrder order) {
         switch (order) {
-            case ASCENDING:     std::sort(vec.begin(), vec.end(), sort_func_asc); break;
-            case DESCENDING:    std::sort(vec.begin(), vec.end(), sort_func_dsc); break;
-            default:            throw Exception("Invalid sort order");
+            case ASCENDING:
+                std::sort(vec.begin(), vec.end(), sort_func_asc);   break;
+            case DESCENDING:
+                std::sort(vec.rbegin(), vec.rend(), sort_func_asc); break; // reverse iterators
+            case TOGGLE:
+                sort(vec, sortOrder);
+                sortOrder = (sortOrder == ASCENDING) ? DESCENDING : ASCENDING; // toggle
+                break;
+            default:
+                throw Exception("Invalid sort order");
         }
     }
 };
-
 
 class Util
 {

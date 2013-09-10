@@ -32,7 +32,7 @@ void TfrmNewTank::initNewTank( TTreeNode* p_parent, TTreeView *p_tree )
 	Site* parent = (Site*)(SiteNode->Data);
 	tank->setParent( parent );
 	tank->setAvailability( true );
-	TankInit("Configure New Vessel");
+	TankInit( "Configure New Vessel" );
 
 	// initialize tank attributes; all fields can be modified
 	fillSiteList( parent->getID() );
@@ -44,7 +44,6 @@ void TfrmNewTank::initNewTank( TTreeNode* p_parent, TTreeView *p_tree )
 	TxtPhysical->Text = "";
 	TxtPhysical->ReadOnly = false;
 	cbStoreType -> Enabled = true;
-	btnNewType -> Enabled = true;
 	fillStorageTypes( getDefaultStoreTypeID() );
 	fillUpLayouts();
 	cbLayout->ItemIndex = getDefaultLayoutIndex();
@@ -76,7 +75,6 @@ void TfrmNewTank::initModLayout( Tank * p_tank, TTreeNode* p_parent, TTreeView *
 	TxtPhysical->ReadOnly = !ev;
 	TxtSrl->ReadOnly = !ev;
 	cbStoreType->Enabled = ev;
-	btnNewType->Enabled = ev;
 
 	// use existing layout if known, otherwise copy from previous vessel
 	fillUpLayouts();
@@ -266,6 +264,10 @@ void TfrmNewTank::TankConfirmInit()
 		std::string population = getNextPopulation();
 		std::string layout = AnsiString( TxtLayName1 -> Text ).c_str();
 		tank->setContent( population, layout + ' ' + population );
+		TxtFull1->ReadOnly = false;
+		ActiveControl = TxtFull1;
+	} else {
+		TxtFull1->ReadOnly = true;
 	}
 	TxtName1->Text = tank->getContent().c_str();
 	TxtFull1->Text = tank->getDescription().c_str();
@@ -278,6 +280,9 @@ Tank * TfrmNewTank::saveDetails()
 	Layout * lay = layman.getLayout( layman.find( layout_cid ) );
 	lay->setAvailability( tank->availability() == Tank::IS_AVAILABLE );
 	tank->addToList( lay );
+	AnsiString pop = TxtName1->Text.Trim().UpperCase();
+	AnsiString desc = TxtFull1->Text.Trim();
+	tank->setContent( pop.c_str(), desc.c_str() );
 	bool success = tank->save();
 	const std::vector<IPart*> & list = lay->getList();
 	for( int i = 0; i < (int)list.size() && success; i++)
@@ -354,7 +359,7 @@ int TfrmNewTank::getDefaultPosition()
 int TfrmNewTank::getDefaultLayoutIndex()
 {
 	TTreeNode* child = SiteNode->getFirstChild();
-	int ind = 0;
+	int ind = -1;
 	if( child != NULL && child->Data != NULL ) {
 		Tank* a_tank = (Tank*) child->Data;
 		ind = layman.getDefaultLayoutId(a_tank->getID());
@@ -514,31 +519,19 @@ std::string TfrmNewTank::getNextPopulation() {
 }
 
 //---------------------------------------------------------------------------
-//	suggest new description for this population, based on location
-//---------------------------------------------------------------------------
-/*
-std::string TfrmNewTank::getPopDescription() {
-	std::string layout = bcsToStd( TxtLayName1 -> Text );
-	int pos = TxtPos1->Text.ToIntDef( 1 );
-	char ch = 'a';
-	const LCDbObjects & existing = LCDbObjects::records();
-	char buff[ 120 ];
-	do {
-		std::sprintf( buff, "%s %d%c", layout.c_str(), pos, ch ++ );
-	} while( existing.findByName( buff ) != NULL );
-	return buff;
-}
-*/
-//---------------------------------------------------------------------------
 
 void TfrmNewTank::fillUpLayouts()
 {
 	layman.loadAll();
 	const std::vector<Layout*> & layouts = layman.getList();
 	cbLayout->Clear();
-	for( int i = 0; i < (int)layouts.size(); i++ ) {
+	unsigned i = 0;
+	while( i < layouts.size() ) {
 		cbLayout->Items->Add( layouts[i]->getLayoutDescription().c_str() );
+		i ++;
 	}
+	cbLayout->Items->Add( "(Add new tank layout)" );
+	cbLayout->ItemIndex = i;
 }
 
 //---------------------------------------------------------------------------
@@ -570,6 +563,7 @@ void TfrmNewTank::fillStorageTypes( int selectedID ) {
 			cbStoreType->Items->Add( oi->getDescription().c_str() );
 		}
 	}
+	cbStoreType->Items->Add( "(Add new storage type)" );
 	cbStoreType->ItemIndex = index;
 }
 
@@ -586,19 +580,7 @@ void TfrmNewTank::clearLayoutPanel()
 
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmNewTank::btnNewTypeClick(TObject *Sender)
-{
-	cbStoreType -> Text = "(new storage type)";
-}
 
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmNewTank::btnNewLayoutClick(TObject *Sender)
-{
-	cbLayout -> Text = "(new tank layout)";
-}
-
-//---------------------------------------------------------------------------
 
 void __fastcall TfrmNewTank::chkPopClick(TObject *Sender)
 {

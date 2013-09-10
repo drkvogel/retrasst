@@ -13,7 +13,7 @@ namespace tut
     {
     };
 
-    typedef test_group<BuddySampleIDKeyedOnSampleRunIDTestFixture, 10> BuddySampleIDKeyedOnSampleRunIDTestGroup;
+    typedef test_group<BuddySampleIDKeyedOnSampleRunIDTestFixture, 4> BuddySampleIDKeyedOnSampleRunIDTestGroup;
 	BuddySampleIDKeyedOnSampleRunIDTestGroup testGroupBuddySampleIDKeyedOnSampleRunID( "BuddySampleIDKeyedOnSampleRunID tests");
 	typedef BuddySampleIDKeyedOnSampleRunIDTestGroup::object testBuddySampleIDKeyedOnSampleRunID;
 

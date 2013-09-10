@@ -221,6 +221,14 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <DependentOn>DBUpdateTaskUpdateSampleRunID.h</DependentOn>
             <BuildOrder>38</BuildOrder>
         </CppCompile>
+        <CppCompile Include="ExceptionalDataHandler.cpp">
+            <DependentOn>ExceptionalDataHandler.h</DependentOn>
+            <BuildOrder>70</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="ExceptionalDataHandlerImpl.cpp">
+            <DependentOn>ExceptionalDataHandlerImpl.h</DependentOn>
+            <BuildOrder>71</BuildOrder>
+        </CppCompile>
         <CppCompile Include="InclusionRule.cpp">
             <DependentOn>InclusionRule.h</DependentOn>
             <BuildOrder>69</BuildOrder>

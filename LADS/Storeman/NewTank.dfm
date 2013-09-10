@@ -58,18 +58,18 @@ object frmNewTank: TfrmNewTank
       Caption = 'Layout:'
     end
     object LblCount1: TLabel
-      Left = 340
-      Top = 184
-      Width = 41
+      Left = 309
+      Top = 183
+      Width = 28
       Height = 13
-      Caption = 'Number:'
+      Caption = 'Shelf:'
     end
     object LblSrl1: TLabel
-      Left = 340
+      Left = 309
       Top = 65
-      Width = 30
+      Width = 45
       Height = 13
-      Caption = 'Serial:'
+      Caption = 'Serial no:'
     end
     object LblFull1: TLabel
       Left = 15
@@ -88,9 +88,9 @@ object frmNewTank: TfrmNewTank
     object Label4: TLabel
       Left = 15
       Top = 105
-      Width = 69
+      Width = 67
       Height = 13
-      Caption = 'Storage Type:'
+      Caption = 'Storage type:'
     end
     object Label2: TLabel
       Left = 15
@@ -100,8 +100,8 @@ object frmNewTank: TfrmNewTank
       Caption = 'Site:'
     end
     object Label1: TLabel
-      Left = 340
-      Top = 27
+      Left = 309
+      Top = 26
       Width = 41
       Height = 13
       Caption = 'Position:'
@@ -109,15 +109,16 @@ object frmNewTank: TfrmNewTank
     object Label5: TLabel
       Left = 15
       Top = 66
-      Width = 31
+      Width = 63
       Height = 13
-      Caption = 'Name:'
+      Caption = 'Vessel name:'
     end
     object grdProps1: TStringGrid
       Left = 13
       Top = 265
       Width = 518
       Height = 260
+      TabStop = False
       DefaultColWidth = 100
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
@@ -126,26 +127,29 @@ object frmNewTank: TfrmNewTank
     object TxtLayName1: TEdit
       Left = 97
       Top = 142
-      Width = 265
+      Width = 274
       Height = 21
+      TabStop = False
       MaxLength = 16
       ReadOnly = True
       TabOrder = 4
     end
     object TxtPop1: TEdit
-      Left = 400
+      Left = 366
       Top = 180
       Width = 62
       Height = 21
+      TabStop = False
       MaxLength = 3
       ReadOnly = True
       TabOrder = 5
     end
     object TxtSrl1: TEdit
-      Left = 386
+      Left = 366
       Top = 62
-      Width = 145
+      Width = 139
       Height = 21
+      TabStop = False
       MaxLength = 30
       ReadOnly = True
       TabOrder = 3
@@ -153,8 +157,9 @@ object frmNewTank: TfrmNewTank
     object TxtName1: TEdit
       Left = 97
       Top = 180
-      Width = 170
+      Width = 99
       Height = 21
+      TabStop = False
       MaxLength = 60
       ReadOnly = True
       TabOrder = 1
@@ -162,17 +167,17 @@ object frmNewTank: TfrmNewTank
     object TxtFull1: TEdit
       Left = 97
       Top = 221
-      Width = 346
+      Width = 408
       Height = 21
-      MaxLength = 16
-      ReadOnly = True
+      MaxLength = 64
       TabOrder = 0
     end
     object txtStoreType1: TEdit
       Left = 97
       Top = 102
-      Width = 265
+      Width = 274
       Height = 21
+      TabStop = False
       MaxLength = 3
       ReadOnly = True
       TabOrder = 2
@@ -180,17 +185,19 @@ object frmNewTank: TfrmNewTank
     object TxtLocation1: TEdit
       Left = 97
       Top = 23
-      Width = 170
+      Width = 177
       Height = 21
+      TabStop = False
       MaxLength = 60
       ReadOnly = True
       TabOrder = 7
     end
     object TxtPos1: TEdit
-      Left = 400
+      Left = 366
       Top = 23
       Width = 62
       Height = 21
+      TabStop = False
       MaxLength = 60
       ReadOnly = True
       TabOrder = 8
@@ -198,15 +205,16 @@ object frmNewTank: TfrmNewTank
     object TxtPhysical1: TEdit
       Left = 97
       Top = 62
-      Width = 170
+      Width = 177
       Height = 21
+      TabStop = False
       MaxLength = 60
       ReadOnly = True
       TabOrder = 9
     end
   end
   object pnlLayout: TPanel
-    Left = 8
+    Left = 7
     Top = 8
     Width = 545
     Height = 540
@@ -291,9 +299,9 @@ object frmNewTank: TfrmNewTank
     object TxtLayFull: TEdit
       Left = 92
       Top = 66
-      Width = 260
+      Width = 280
       Height = 21
-      MaxLength = 60
+      MaxLength = 64
       TabOrder = 1
     end
     object TxtLayName: TEdit
@@ -315,71 +323,71 @@ object frmNewTank: TfrmNewTank
     end
   end
   object pnlTank: TPanel
-    Left = 8
+    Left = 7
     Top = 8
     Width = 545
     Height = 540
     TabOrder = 2
     VerticalAlignment = taAlignTop
     object LblPhys: TLabel
-      Left = 24
+      Left = 28
       Top = 87
       Width = 31
       Height = 13
       Caption = 'Name:'
     end
     object LblPos: TLabel
-      Left = 378
-      Top = 44
+      Left = 350
+      Top = 43
       Width = 41
       Height = 13
       Caption = 'Position:'
     end
     object LblSect: TLabel
-      Left = 24
+      Left = 28
       Top = 266
       Width = 37
       Height = 13
       Caption = 'Layout:'
     end
     object LblSrl: TLabel
-      Left = 24
+      Left = 28
       Top = 131
       Width = 70
       Height = 13
       Caption = 'Serial Number:'
     end
     object lblStoreType: TLabel
-      Left = 24
+      Left = 28
       Top = 175
       Width = 67
       Height = 13
       Caption = 'Storage type:'
     end
     object Label3: TLabel
-      Left = 24
+      Left = 28
       Top = 44
       Width = 22
       Height = 13
       Caption = 'Site:'
     end
     object lblPop: TLabel
-      Left = 365
+      Left = 350
       Top = 220
-      Width = 54
+      Width = 28
       Height = 13
-      Caption = 'Population:'
+      Caption = 'Shelf:'
     end
     object cbLayout: TComboBox
-      Left = 110
+      Left = 114
       Top = 262
       Width = 250
       Height = 21
       DropDownCount = 12
-      TabOrder = 9
+      TabOrder = 8
     end
     object TxtPos: TEdit
-      Left = 435
+      Left = 400
       Top = 40
       Width = 45
       Height = 21
@@ -390,16 +398,16 @@ object frmNewTank: TfrmNewTank
       OnChange = TxtPosChange
     end
     object TxtSrl: TEdit
-      Left = 110
+      Left = 114
       Top = 127
       Width = 200
       Height = 21
       CharCase = ecUpperCase
-      MaxLength = 30
+      MaxLength = 16
       TabOrder = 3
     end
     object UpDownPos: TUpDown
-      Left = 480
+      Left = 445
       Top = 40
       Width = 17
       Height = 21
@@ -410,50 +418,32 @@ object frmNewTank: TfrmNewTank
       TabOrder = 1
     end
     object cbStoreType: TComboBox
-      Left = 110
+      Left = 114
       Top = 171
       Width = 250
       Height = 21
       TabOrder = 4
     end
-    object btnNewType: TButton
-      Left = 380
-      Top = 168
-      Width = 80
-      Height = 26
-      Caption = 'New type'
-      TabOrder = 5
-      OnClick = btnNewTypeClick
-    end
-    object btnNewLayout: TButton
-      Left = 380
-      Top = 259
-      Width = 80
-      Height = 26
-      Caption = 'New layout'
-      TabOrder = 10
-      OnClick = btnNewLayoutClick
-    end
     object TxtPhysical: TEdit
-      Left = 110
+      Left = 114
       Top = 83
       Width = 200
       Height = 21
-      MaxLength = 70
+      MaxLength = 64
       TabOrder = 2
     end
     object TxtPop: TEdit
-      Left = 435
+      Left = 400
       Top = 217
       Width = 45
       Height = 21
       MaxLength = 3
       NumbersOnly = True
-      TabOrder = 7
+      TabOrder = 6
       Text = '1'
     end
     object UpDownPop: TUpDown
-      Left = 480
+      Left = 445
       Top = 217
       Width = 16
       Height = 21
@@ -461,24 +451,24 @@ object frmNewTank: TfrmNewTank
       Min = 1
       Max = 999
       Position = 1
-      TabOrder = 8
+      TabOrder = 7
     end
     object chkPop: TCheckBox
-      Left = 24
+      Left = 28
       Top = 219
       Width = 120
       Height = 17
       Alignment = taLeftJustify
       Caption = 'Multiple populations:'
-      TabOrder = 6
+      TabOrder = 5
       OnClick = chkPopClick
     end
     object cbLocation: TComboBox
-      Left = 110
+      Left = 114
       Top = 40
       Width = 200
       Height = 21
-      TabOrder = 11
+      TabOrder = 9
       OnChange = cbLocationChange
     end
   end

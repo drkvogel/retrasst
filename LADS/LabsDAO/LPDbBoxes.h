@@ -12,15 +12,18 @@
 
 class LCDbObject;
 class LPDbBoxType;
+class LCDbBoxSize;
 
 class LPDbBoxName : public LPDbID
 {
 	std::string name;
 	short status;
 	int boxTypeID;
-	const char * event;
+//	const char * event;
 	int filledBy;
 	std::vector< std::string > cryovials;
+
+	const LCDbBoxSize * getLayout() const;
 
 public:
 
@@ -30,11 +33,11 @@ public:
 	LPDbBoxName( const LQuery & query );
 
 	LPDbBoxName( int id = 0 )
-	 : LPDbID( id ), status( EMPTY ), boxTypeID( 0 ), filledBy( 0 ), event( NULL )
+	 : LPDbID( id ), status( EMPTY ), boxTypeID( 0 ), filledBy( 0 )
 	{}
 
 	LPDbBoxName( const std::string & label, int typeID = 0 )
-	 : status( IN_USE ), name( label ), boxTypeID( typeID ), filledBy( 0 ), event( NULL )
+	 : status( IN_USE ), name( label ), boxTypeID( typeID ), filledBy( 0 )
 	{}
 
 	const std::string & getName() const { return name; }
@@ -46,14 +49,14 @@ public:
 	Status getStatus() const { return Status( status ); }
 
 	short getSize() const;
-	short getSpace() const { return getSize() - cryovials.size(); }
-	bool hasSpace() const { return short(cryovials.size()) < getSize(); }
-	short nextSpace();
+	short getSpace() const;
+	bool hasSpace() const;
 
 	void addCryovial( short position, const std::string & barcode );
+	short addCryovial( const std::string & barcode );
 	const std::vector< std::string > & getCryovials() const { return cryovials; }
 
-	void create( const LPDbBoxType & type, LQuery query );
+	bool create( const LPDbBoxType & type, LQuery query );
 	void findSpace( const LPDbBoxType & type, LQuery query );
 	bool saveRecord( LQuery query );
 	bool addEventRecord( LQuery query, const LCDbObject * event, const std::string & text );

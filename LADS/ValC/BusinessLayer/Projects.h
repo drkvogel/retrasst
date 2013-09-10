@@ -28,17 +28,13 @@ private:
 
 typedef boost::shared_ptr<Project> ProjectPtr;
 
-class ProjectNotFoundException : public Exception
-{
-public:
-    __fastcall ProjectNotFoundException( const std::string& dbName );
-};
 
 class Projects
 {
 public:
     Projects();
     void add( int id, const std::string& externalName, const std::string& dbName );
+    bool canFindProjectIDForDatabase( const std::string& databaseName ) const;
     int findProjectIDForDatabase( const std::string& databaseName ) const;
     int size() const;
 private:

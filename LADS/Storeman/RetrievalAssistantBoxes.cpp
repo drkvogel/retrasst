@@ -9,6 +9,18 @@
 
 TfrmBoxes *frmBoxes;
 
+Sorter<BoxRow> boxSorter[SGBOXES_NUMCOLS] = {
+    { BoxRow::sort_asc_currbox,   sgBoxesColName[0] },
+//        { BoxRow::sort_asc_destbox,   sgBoxesColName[1] },
+//        { BoxRow::sort_asc_destpos,   sgBoxesColName[2] },
+    { BoxRow::sort_asc_site,      sgBoxesColName[1] },
+    { BoxRow::sort_asc_position,  sgBoxesColName[2] },
+    { BoxRow::sort_asc_shelf,     sgBoxesColName[3] },
+    { BoxRow::sort_asc_vessel,    sgBoxesColName[4] },
+    { BoxRow::sort_asc_structure, sgBoxesColName[5] },
+    { BoxRow::sort_asc_slot,      sgBoxesColName[6] },
+};
+
 __fastcall LoadBoxesWorkerThread::LoadBoxesWorkerThread() {
     FreeOnTerminate = true;
 }
@@ -133,7 +145,7 @@ void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow,
         Chunk * chunk = NULL;
         chunk = (Chunk *)sgChunks->Objects[0][ARow];
         if (NULL == chunk) {
-            background = clBtnFace; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
             background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
@@ -155,13 +167,74 @@ void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow,
     }
 }
 
+void __fastcall TfrmBoxes::sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+    //          clWindow
+    TColor background = clWindow;
+    if (0 == ARow) {
+        background = clBtnFace;
+    } else {
+        Chunk * chunk = NULL;
+        chunk = (Chunk *)sgBoxes->Objects[0][ARow];
+        if (NULL == chunk) {
+            background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        } else {
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        }
+    }
+    TCanvas * cnv = sgBoxes->Canvas;
+	cnv->Brush->Color = background;
+	cnv->FillRect(Rect);
+    if (State.Contains(gdSelected)) {
+        TFontStyles oldFontStyle = cnv->Font->Style;
+        TPenStyle oldPenStyle = cnv->Pen->Style;
+        cnv->Pen->Style = psDot;
+        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
+        cnv->Font->Style = TFontStyles() << fsBold;
+    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgBoxes->Cells[ACol][ARow]);
+        cnv->Pen->Style     = oldPenStyle;
+        cnv->Font->Style    = oldFontStyle;
+	} else {
+        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgBoxes->Cells[ACol][ARow]);
+    }
+
+}
+
 void __fastcall TfrmBoxes::btnSaveClick(TObject *Sender) {
-    //btnSave->Enabled = false;
-    // TODO insert rows into c_box_retrieval
-    // TODO update c_retrieval_job (in progress)
+    if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
+        // sign off?
+        for (vecpBoxChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
+            BoxChunk * chunk = *it;
+            //      for boxes
+            //          insert box into C_BOX_RETRIEVAL with current section (chunk) number
+            for (vecpBoxRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
+                pBoxRow boxRow = (pBoxRow)*it;
+                //LPDbCryovialStore * vial = sampleRow->store_record;
+            }
+            /*
+            retrieval_cid	 i4		c_retrieval_job	 The retrieval task this entry is part of
+            retrieval_type	 i2			obsolete - see c_retrieval_job
+            box_id	 i4		box_name	 The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+            section	 i2			 Which chunk of the retrieval plan this entry belongs to (0 = retrieve all boxes in parallel)
+            position	 i2			obsolete
+            box_name	 v32			obsolete
+            rj_box_cid	 i4	 1		 Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
+            status	 i2			 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
+            time_stamp	 d/t			 When this record was inserted or updated*/
+        }
+        return;
+        // update c_retrieval_job (in progress)
+        job->setStatus(LCDbCryoJob::INPROGRESS);
+        job->saveRecord(LIMSDatabase::getCentralDb());
+        btnSave->Enabled = false;
+        Close();
+    } else { // start again
+        chunks.clear(); // delete memory
+        addChunk();
+    }
 }
 
 void __fastcall TfrmBoxes::btnDelChunkClick(TObject *Sender) {
+    // move last chunk's samples into preceding chunk
     if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
         delete chunks.back();
         chunks.pop_back();
@@ -318,19 +391,12 @@ void TfrmBoxes::showRows() {
 
 void TfrmBoxes::sortList(int col) {
     Screen->Cursor = crSQLWait;
-    static Sorter<BoxRow> sorter[SGBOXES_NUMCOLS] = {
-        { BoxRow::sort_asc_currbox,   BoxRow::sort_desc_currbox,  sgBoxesColName[0] },
-//        { BoxRow::sort_asc_destbox,   BoxRow::sort_desc_destbox,  sgBoxesColName[1] },
-//        { BoxRow::sort_asc_destpos,   BoxRow::sort_desc_destpos,  sgBoxesColName[2] },
-        { BoxRow::sort_asc_site,      BoxRow::sort_desc_site,     sgBoxesColName[1] },
-        { BoxRow::sort_asc_position,  BoxRow::sort_desc_position, sgBoxesColName[2] },
-        { BoxRow::sort_asc_shelf,     BoxRow::sort_desc_shelf,    sgBoxesColName[3] },
-        { BoxRow::sort_asc_vessel,    BoxRow::sort_desc_vessel,   sgBoxesColName[4] },
-        { BoxRow::sort_asc_structure, BoxRow::sort_desc_structure,sgBoxesColName[5] },
-        { BoxRow::sort_asc_slot,      BoxRow::sort_desc_slot,     sgBoxesColName[6] },
-    };
-    sorter[col].sort_toggle(boxes);
+    boxSorter[col].sort_toggle(boxes);
+    //boxSorter[col].sort(boxes, Sorter::SortOrder::TOGGLE);
     showRows();
     Screen->Cursor = crDefault;
 }
+
+
+
 

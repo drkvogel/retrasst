@@ -104,6 +104,17 @@ private:
     std::vector< std::string > m_msgs;
 };
 
+class UserWarnings : public valc::UserAdvisor
+{
+public:
+    std::vector< std::string > messages;
+
+    UserWarnings() {}
+
+    // NB: might want some concurrency protection here!
+    void advise( const std::string& msg ) { messages.push_back( msg ); }
+};
+
 bool sortOnBuddySampleID( const valc::BuddyDatabaseEntry& e1, const valc::BuddyDatabaseEntry& e2 )
 {
     return e1.buddy_sample_id < e2.buddy_sample_id;
@@ -125,6 +136,7 @@ namespace tut
         valc::AnalysisActivitySnapshot* s;
         paulst::LoggingService*         log;
         valc::MockConfig                config;
+        UserWarnings                    userWarnings;
 
         ForceReloadTestFixture( valc::DBConnection* c = 0 )
             : log(0), s(0)
@@ -138,7 +150,7 @@ namespace tut
         void init( valc::DBConnection* c )
         {
             log = new paulst::LoggingService( new NoLogging() );
-            s   = valc::SnapshotFactory::load( LOCAL_MACHINE_ID, USER_ID, c, log, config.toString() );
+            s   = valc::SnapshotFactory::load( LOCAL_MACHINE_ID, USER_ID, c, log, config.toString(), &userWarnings );
         }
         
         ~ForceReloadTestFixture()
@@ -153,7 +165,7 @@ namespace tut
         }
     };
 
-    typedef test_group<ForceReloadTestFixture, 10> ForceReloadTestGroup;
+    typedef test_group<ForceReloadTestFixture, 13> ForceReloadTestGroup;
 	ForceReloadTestGroup testGroupForceReload( "ForceReload tests");
 	typedef ForceReloadTestGroup::object testForceReload;
 
@@ -675,8 +687,8 @@ namespace tut
 "992431,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
 			);
         connectionFactory.setNonLocalResults(
-//barcode, machine ,sample,dbname,result_id,test_id , res_value, act_flg,date_analysed      , res_text, update_when        ,rec_no
-"118507091,-1019329,432560,REVEAL,882429   ,-1031388, 2.9      ,0       ,27-06-2013 11:57:47,2.9      , 27-06-2013 11:57:47,-36847,\n");  
+//barcode, machine ,sample,dbname,result_id,test_id , res_value, act_flg,date_analysed      , res_text, update_when        ,rec_no,project
+"118507091,-1019329,432560,REVEAL,882429   ,-1031388, 2.9      ,0       ,27-06-2013 11:57:47,2.9      , 27-06-2013 11:57:47,-36847,-832455,\n");  
 
 		boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
 
@@ -704,6 +716,158 @@ namespace tut
             ensure( as.c_str(), false );
         }
 
+    }
+
+    template<>
+	template<>
+	void testForceReload::test<11>()
+	{
+    	set_test_name("ForceReload - Worklist entries are missing a project ID.");
+
+		using namespace valc;
+
+		MockConnectionFactory connectionFactory;
+
+		connectionFactory.setClusters( "-1019430,\n" );
+		connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
+        // Data same as for test 2, but project ID is zero
+		connectionFactory.setWorklist(
+//rec  machine  barcode   test     group     c sample project p prof           timestamp           seq s dil   result
+"24110,-1019430,118502164,-1031390,-12744865,0,417128,0,0,EDTA_1 analysis other,21-06-2013 11:07:57,39,Q,0.000,0,\n"
+"24111,-1019430,118502164,-1031389,-12744865,0,417128,0,0,EDTA_1 analysis other,21-06-2013 11:07:57,34,Q,0.000,0,\n"
+"24112,-1019430,118502164,-1031388,-12744865,0,417128,0,0,EDTA_1 analysis other,21-06-2013 11:07:57,35,Q,0.000,0,\n"
+			);
+
+		boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+
+        ForceReloadTestFixture s;
+
+        s.config.edit( "ExceptionalDataHandler", 
+" function canProvideProjectIDFor         () return false end\n"
+" function getProjectIDFor                () error( \"Cannot provide project ID\" ) return 0 end\n"
+" function notifyBuddyDatabaseEntryIgnored() return true, true end\n"
+" function notifyWorklistEntryIgnored     () return true, true end\n"
+            );
+        s.init( connection.get() );
+		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
+		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 0 );
+        ensure_equals( s.userWarnings.messages.size(), 3 );
+    }
+
+    template<>
+	template<>
+	void testForceReload::test<12>()
+	{
+    	set_test_name("ForceReload - buddy_database entries are missing a project ID.");
+
+		using namespace valc;
+
+        const std::string CLUSTERS = "-1019430,\n";
+        const std::string PROJECTS = "-832455,reveal,ldb25,\n";
+        const std::string WORKLIST = 
+//rec  machine  barcode   test     group     c sample project p prof                  timestamp           seq s dil   result
+"-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,882431,\n"
+"-36847,-1019430,118507091,-1031388,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,12,C,0.000,882429,\n"
+"-36846,-1019430,118507091,-1031389,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,13,C,0.000,882430,\n"
+"-36848,-1019430,118507091,-1031386,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,10,C,0.000,882427,\n";
+        const std::string BUDDYDB = // Data same as for test 3, but dbname is 'Unknown'
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
+"882290,118507091,27-06-2013 11:42:36,Unknown,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882290,118507091,27-06-2013 11:42:36,Unknown,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882290,118507091,27-06-2013 11:42:36,Unknown,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882290,118507091,27-06-2013 11:42:36,Unknown,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n";
+
+        const std::string exceptionalDataHandlers[3] = {
+" function canProvideProjectIDFor         () return false end\n"
+" function getProjectIDFor                () error( \"Cannot provide project ID\" ) return 0 end\n"
+" function notifyBuddyDatabaseEntryIgnored() return true, true end\n"
+" function notifyWorklistEntryIgnored     () return true, true end\n"
+,
+" function canProvideProjectIDFor         () return false end\n"
+" function getProjectIDFor                () error( \"Cannot provide project ID\" ) return 0 end\n"
+" function notifyBuddyDatabaseEntryIgnored() return true, false end\n" // Don't advise user
+" function notifyWorklistEntryIgnored     () return true, true end\n"
+,
+" function canProvideProjectIDFor         () return true end\n"
+" function getProjectIDFor                () return -832455 end\n" // provide a project ID
+" function notifyBuddyDatabaseEntryIgnored() return true, true end\n"
+" function notifyWorklistEntryIgnored     () return true, true end\n"
+
+            };
+
+        for ( int i = 0; i < 3; ++i )
+        {
+            MockConnectionFactory connectionFactory;
+
+            connectionFactory.setClusters( CLUSTERS );
+            connectionFactory.setProjects( PROJECTS );
+            connectionFactory.setWorklist( WORKLIST );
+            connectionFactory.setBuddyDB( BUDDYDB );
+
+            boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+
+            ForceReloadTestFixture s;
+
+            s.config.edit( "ExceptionalDataHandler", exceptionalDataHandlers[i] );
+
+            s.init( connection.get() );
+
+            ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
+            ensure_equals( std::distance( s->localBegin(), s->localEnd() ), i == 2 ? 1 : 0 );
+
+            ensure_equals( s.userWarnings.messages.size(), i == 0 ? 4 : 0 );  
+        }
+    }
+
+    template<>
+	template<>
+	void testForceReload::test<13>()
+	{
+    	set_test_name("ForceReload - results without worklist entries.");
+
+		using namespace valc;
+
+        const std::string CLUSTERS = "-1019430,\n";
+        const std::string PROJECTS = "-832455,reveal,ldb25,\n";
+        const std::string WORKLIST = "";
+        const std::string BUDDYDB = // Data same as for test 3
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n";
+
+        const char* exceptionalDataHandler = 
+" function canProvideProjectIDFor         () return false end\n"
+" function getProjectIDFor                () error( \"Cannot provide project ID\" ) return 0 end\n"
+" function notifyBuddyDatabaseEntryIgnored() return true, true end\n"
+" function notifyWorklistEntryIgnored     () return true, true end\n"
+" function notifyCannotAllocateResultToWorklistEntry() return true, %s end\n";
+
+        for ( int i = 0; i < 2; ++i )
+        {
+            MockConnectionFactory connectionFactory;
+
+            connectionFactory.setClusters( CLUSTERS );
+            connectionFactory.setProjects( PROJECTS );
+            connectionFactory.setWorklist( WORKLIST );
+            connectionFactory.setBuddyDB ( BUDDYDB  );
+
+            boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+
+            ForceReloadTestFixture s;
+
+            char buffer[2048];
+            std::sprintf( buffer, exceptionalDataHandler, i ? "true" : "false" );
+            s.config.edit( "ExceptionalDataHandler", buffer );
+
+            s.init( connection.get() );
+
+            ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
+            ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+
+            ensure_equals( s.userWarnings.messages.size(), i ? 4 : 0 );  
+        }
     }
 
 };

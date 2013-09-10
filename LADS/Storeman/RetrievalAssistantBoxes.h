@@ -56,6 +56,8 @@ enum {  SGBOXES_BOXNAME, SGBOXES_SITE, SGBOXES_POSITION, SGBOXES_SHELF, SGBOXES_
 static const char * sgBoxesColName[SGBOXES_NUMCOLS] = {"Box name", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
 static int sgBoxesColWidth[SGBOXES_NUMCOLS] = {266, 156, 74, 74, 262, 200, 78 };
 
+//extern Sorter<BoxRow> boxSorter[SGBOXES_NUMCOLS];
+
 class LoadBoxesWorkerThread : public TThread {
 private:
 protected:
@@ -115,6 +117,8 @@ __published:
     void __fastcall timerLoadBoxesTimer(TObject *Sender);
     void __fastcall sgBoxesClick(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
+    void __fastcall sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
+          TGridDrawState State);
 private:
     const char *        loadingMessage;
     LoadBoxesWorkerThread * loadBoxesWorkerThread;

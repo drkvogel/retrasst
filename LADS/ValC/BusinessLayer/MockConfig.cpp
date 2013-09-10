@@ -14,6 +14,39 @@ MockConfig::MockConfig()
     addProperty( "LoadBuddyDatabase"                , "LoadBuddyDatabase" );
     addProperty( "BuddyDatabaseInclusionRule"       , "function accept () return true end" );
     addProperty( "WorklistInclusionRule"            , "function accept () return true end" );
+    addProperty( "ExceptionalDataHandler"           , 
+"    function canProvideProjectIDFor( barcode )                         \n"
+"        local ok = false                                               \n"
+"        if ( string.find( barcode, '118' ) == 1 ) then                 \n"
+"            ok = true                                                  \n"
+"        end                                                            \n"
+"        return ok                                                      \n"
+"    end                                                                \n"
+"    ---------------------------------------------------------          \n"
+"    function getProjectIDFor( barcode )                                \n"
+"        if ( string.find( barcode, '118' ) ~= 1 ) then                 \n"
+"            error( \"Cannot identify project ID for barcode \" .. barcode )  \n"
+"        end                                                            \n"
+"        return -832455                                                 \n"
+"    end                                                                \n"
+"    ---------------------------------------------------------          \n"
+"    function notifyBuddyDatabaseEntryIgnored()                         \n"
+"        local continueProcessing = true                                \n"
+"        local adviseUser = true                                        \n"
+"        return continueProcessing, adviseUser                          \n"
+"    end  \n"
+"    ---------------------------------------------------------          \n"
+"    function notifyWorklistEntryIgnored()                              \n"
+"        local continueProcessing = true                                \n"
+"        local adviseUser = true                                        \n"
+"        return continueProcessing, adviseUser                          \n"
+"    end  \n"
+"    function notifyCannotAllocateResultToWorklistEntry()               \n"
+"        local continueProcessing = true                                \n"
+"        local adviseUser = true                                        \n"
+"        return continueProcessing, adviseUser                          \n"
+"    end  \n"
+ );
 }
 
 void MockConfig::addProperty( const std::string& name, const std::string& value )

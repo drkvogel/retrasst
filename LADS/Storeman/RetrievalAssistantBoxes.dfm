@@ -4,7 +4,7 @@ object frmBoxes: TfrmBoxes
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Box Retrieval Plan'
   ClientHeight = 588
-  ClientWidth = 713
+  ClientWidth = 853
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,7 +22,7 @@ object frmBoxes: TfrmBoxes
   object Splitter1: TSplitter
     Left = 0
     Top = 265
-    Width = 713
+    Width = 853
     Height = 10
     Cursor = crVSplit
     Align = alTop
@@ -32,13 +32,13 @@ object frmBoxes: TfrmBoxes
   object groupList: TGroupBox
     Left = 0
     Top = 0
-    Width = 713
+    Width = 853
     Height = 265
     Align = alTop
     Caption = 'Chunks'
     TabOrder = 0
     object Panel2: TPanel
-      Left = 629
+      Left = 769
       Top = 15
       Width = 82
       Height = 248
@@ -100,7 +100,7 @@ object frmBoxes: TfrmBoxes
     object sgChunks: TStringGrid
       Left = 2
       Top = 15
-      Width = 627
+      Width = 767
       Height = 248
       Align = alClient
       DefaultDrawing = False
@@ -115,17 +115,17 @@ object frmBoxes: TfrmBoxes
   object Panel1: TPanel
     Left = 0
     Top = 544
-    Width = 713
+    Width = 853
     Height = 44
     Align = alBottom
     BevelEdges = []
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      713
+      853
       44)
     object btnSave: TButton
-      Left = 552
+      Left = 692
       Top = 6
       Width = 75
       Height = 25
@@ -135,7 +135,7 @@ object frmBoxes: TfrmBoxes
       OnClick = btnSaveClick
     end
     object btnCancel: TButton
-      Left = 633
+      Left = 773
       Top = 6
       Width = 75
       Height = 25
@@ -145,7 +145,7 @@ object frmBoxes: TfrmBoxes
       OnClick = btnCancelClick
     end
     object cbLog: TCheckBox
-      Left = 482
+      Left = 622
       Top = 6
       Width = 64
       Height = 17
@@ -205,7 +205,7 @@ object frmBoxes: TfrmBoxes
   object GroupBox1: TGroupBox
     Left = 0
     Top = 275
-    Width = 713
+    Width = 853
     Height = 269
     Align = alClient
     Caption = 'Boxes in chunk'
@@ -213,19 +213,21 @@ object frmBoxes: TfrmBoxes
     object sgBoxes: TStringGrid
       Left = 2
       Top = 15
-      Width = 709
+      Width = 849
       Height = 163
       Align = alClient
+      DefaultDrawing = False
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect, goFixedRowClick]
       TabOrder = 0
       OnClick = sgBoxesClick
+      OnDrawCell = sgBoxesDrawCell
       OnFixedCellClick = sgBoxesFixedCellClick
     end
     object memoDebug: TMemo
       Left = 2
       Top = 178
-      Width = 709
+      Width = 849
       Height = 89
       Align = alBottom
       TabOrder = 1

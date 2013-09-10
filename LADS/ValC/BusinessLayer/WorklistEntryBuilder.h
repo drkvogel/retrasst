@@ -10,6 +10,7 @@ namespace valc
 {
 
 class Cursor;
+class ExceptionalDataHandler;
 class ResultIndex;
 class WorklistEntries;
 
@@ -32,7 +33,8 @@ public:
         /*  The WorklistEntry instances built by 'newInstance' encapsulate knowledge of their parent (if any) and of their chidren (if any).
             The 'newInstance' method obtains this knowledge from worklistRelationsDataSource.  */
         WorklistRelationsDataSource* worklistRelationsDataSource ,
-        const std::string& inclusionRule
+        const std::string& inclusionRule,
+        ExceptionalDataHandler* exceptionalDataHandler
         );
     bool accept( Cursor* worklistCursor );
 private:
@@ -40,6 +42,7 @@ private:
     ResultIndex*                    m_resultIndex;
     WorklistRelationsDataSource*    m_worklistRelationsDataSource;
     InclusionRule                   m_inclusionRule;
+    ExceptionalDataHandler*         m_exceptionalDataHandler;
     int recordNo, machineID, testID, groupID, categoryID, sampleID, projectID, profileID, tsSequence, buddyResultID;
     std::string barcode, profileName, sampleDescriptor;
     TDateTime timeStamp;

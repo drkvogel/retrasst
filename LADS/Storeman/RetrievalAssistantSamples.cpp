@@ -4,22 +4,23 @@
 #include "StoreUtil.h"
 #include "LCDbRack.h"
 #include "RetrievalAssistantAutoChunk.h"
+#include "StoreDAO.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 TfrmSamples *frmSamples;
 
 Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
-    { SampleRow::sort_asc_barcode,   SampleRow::sort_desc_barcode,  sgVialColName[0] },
-    { SampleRow::sort_asc_destbox,   SampleRow::sort_desc_destbox,  sgVialColName[1] },
-    { SampleRow::sort_asc_destpos,   SampleRow::sort_desc_destpos,  sgVialColName[2] },
-    { SampleRow::sort_asc_currbox,   SampleRow::sort_desc_currbox,  sgVialColName[3] },
-    { SampleRow::sort_asc_currpos,   SampleRow::sort_desc_currpos,  sgVialColName[4] },
-    { SampleRow::sort_asc_site,      SampleRow::sort_desc_site,     sgVialColName[5] },
-    { SampleRow::sort_asc_position,  SampleRow::sort_desc_position, sgVialColName[6] },
-    { SampleRow::sort_asc_shelf,     SampleRow::sort_desc_shelf,    sgVialColName[7] },
-    { SampleRow::sort_asc_vessel,    SampleRow::sort_desc_vessel,   sgVialColName[8] },
-    { SampleRow::sort_asc_structure, SampleRow::sort_desc_structure,sgVialColName[9] },
-    { SampleRow::sort_asc_slot,      SampleRow::sort_desc_slot,     sgVialColName[10] }
+    { SampleRow::sort_asc_barcode,   sgVialColName[0] },
+    { SampleRow::sort_asc_destbox,   sgVialColName[1] },
+    { SampleRow::sort_asc_destpos,   sgVialColName[2] },
+    { SampleRow::sort_asc_currbox,   sgVialColName[3] },
+    { SampleRow::sort_asc_currpos,   sgVialColName[4] },
+    { SampleRow::sort_asc_site,      sgVialColName[5] },
+    { SampleRow::sort_asc_position,  sgVialColName[6] },
+    { SampleRow::sort_asc_shelf,     sgVialColName[7] },
+    { SampleRow::sort_asc_vessel,    sgVialColName[8] },
+    { SampleRow::sort_asc_structure, sgVialColName[9] },
+    { SampleRow::sort_asc_slot,      sgVialColName[10] }
 };
 
 __fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
@@ -38,7 +39,6 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
     loadingMessage = oss.str().c_str();
     rowCount = 0;
-    {
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true));
     qd.setSQL(
         "SELECT"
@@ -102,87 +102,91 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         qd.next();
         rowCount++;
     }
-    }
 
-    return;
-    // look for destination boxes, can't left join in ddb, so do project query per row
-    // may be v time-consuming - could do outer join instead and check sequence for gaps
     int rowCount2 = 0;
     for (vecpSampleRow::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
         ostringstream oss; oss<<"Finding destinations: "<<rowCount2<<"/"<<rowCount;
         loadingMessage = oss.str().c_str();
         if (0 == rowCount2 % 10) Synchronize((TThreadMethod)&updateStatus);
-
         pSampleRow sampleRow = (pSampleRow)*it;
-        //look in the right database!
-        LQuery qp(Util::projectQuery(frmSamples->job->getProjectID(), false)); // project db
-        qp.setSQL(
-            "SELECT"
-            "   n1.box_cid AS boxid, n1.external_name AS boxname, s2.cryovial_position AS pos"
-            " FROM"
-            "   cryovial_store s1, cryovial c, box_name n1, cryovial_store s2, box_name n2"
-            " WHERE"
-            "   c.cryovial_id = s1.cryovial_id"
-            " AND n1.box_cid = s1.box_cid"
-            " AND s1.cryovial_id = s2.cryovial_id"
-            " AND s2.status = 0"
-            " AND n2.box_cid = s2.box_cid"
-            " AND s1.retrieval_cid = :jobID"
-            " AND s1.cryovial_id = :vial" // e.g. 1137824 (t_ldb1)
-            );
-        qp.setParam("jobID", frmSamples->job->getID());
-        qp.setParam("vial",  sampleRow->store_record->getID());
-        //LPDbCryovialStore * vial = sampleRow->store_record;
-
         try {
-            if (qp.open()) {
-                sampleRow->dest_box_id      = qp.readInt("boxid");
-                sampleRow->dest_box_name    = qp.readString("boxname");
-                sampleRow->dest_box_pos     = qp.readInt("pos");
-            } else {
-                sampleRow->dest_box_id      = 0;
-                sampleRow->dest_box_name    = "";
-                sampleRow->dest_box_pos     = 0;
-            }
-
+            //findDestinationSlowly(sampleRow);
+            findDestination(sampleRow);
         } catch(Exception & e) {
-            //msgbox(String(e.Message.c_str()).c_str());
-            String msg = e.Message;
+            msgbox(e.Message);
         } catch(...) {
             msgbox("error");
-
         }
         rowCount2++;
     }
 }
 
+void LoadVialsWorkerThread::findDestination(pSampleRow row) {
+	static std::map<int, SampleRow *> boxes;
+	ROSETTA result;
+	StoreDAO dao;
+	std::map<int, SampleRow *>::const_iterator found = boxes.find(row->store_record->getBoxID());
+    if (found != boxes.end()) {
+        row->dest_box_id      = (*(found->second)).dest_box_id;
+        row->dest_box_name    = (*(found->second)).box_name;
+        row->dest_box_pos     = (*(found->second)).dest_box_pos;
+    } else {
+        //if (dao.findBox(row->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) { finds t/r/s | v/s/s
+        dao.loadBoxDetails(row->store_record->getBoxID(), LCDbProjects::getCurrentID(), result);
+        row->dest_box_id      = result.getInt("box_cid");
+        row->dest_box_name    = result.getString("external_name");
+        row->dest_box_pos     = result.getInt("slot_position");
+        //} // isn't this just getting details of the current box, not the destination?
+        boxes[row->dest_box_id] = &(*row);
+    }
+}
+
+void LoadVialsWorkerThread::findDestinationSlowly(pSampleRow sampleRow) {
+    // look for destination boxes, can't left join in ddb, so do project query per row
+    // may be v time-consuming - could do outer join instead and check sequence for gaps
+    // p.s. *is* v time-consuming...
+    //look in the right database
+    LQuery qp(Util::projectQuery(frmSamples->job->getProjectID(), false)); // project db
+    qp.setSQL(
+        "SELECT"
+        "   n1.box_cid AS boxid, n1.external_name AS boxname, s2.cryovial_position AS pos"
+        " FROM"
+        "   cryovial_store s1, cryovial c, box_name n1, cryovial_store s2, box_name n2"
+        " WHERE"
+        "   c.cryovial_id = s1.cryovial_id"
+        " AND n1.box_cid = s1.box_cid"
+        " AND s1.cryovial_id = s2.cryovial_id"
+        " AND s2.status = 0"
+        " AND n2.box_cid = s2.box_cid"
+        " AND s1.retrieval_cid = :jobID"
+        " AND s1.cryovial_id = :vial" // e.g. 1137824 (t_ldb1)
+        );
+    qp.setParam("jobID", frmSamples->job->getID());
+    qp.setParam("vial",  sampleRow->store_record->getID());
+    //LPDbCryovialStore * vial = sampleRow->store_record;
+    if (qp.open()) {
+        sampleRow->dest_box_id      = qp.readInt("boxid");
+        sampleRow->dest_box_name    = qp.readString("boxname");
+        sampleRow->dest_box_pos     = qp.readInt("pos");
+    } else {
+        sampleRow->dest_box_id      = 0;
+        sampleRow->dest_box_name    = "";
+        sampleRow->dest_box_pos     = 0;
+    }
+}
+
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
 
+void TfrmSamples::debugLog(String s) {
+    frmSamples->memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
+}
+
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
-/*
-// template
-    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
-    LQuery q(LIMSDatabase::getCentralDb());
-    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
-    q.setSQL("SELECT * FROM  WHERE status != 99");
-    Screen->Cursor = crSQLWait;
-    q.open();
-    delete_referenced<vecp>(s);
-    while (!q.eof()) {
-        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
-        //ob-> = q.readInt("");
-        //ob-> = q.readString("");
-        s.push_back();
-        q.next();
-    }
-    Screen->Cursor = crDefault;
-*/
     cbLog->Visible      = RETRASSTDEBUG;
-    maxRows             = DEFAULT_NUMROWS;
+    //maxRows             = DEFAULT_NUMROWS;
     job                 = NULL;
     setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
     setupStringGrid(sgVials, SGVIALS_NUMCOLS, sgVialColName, sgVialColWidth);
-    radbutDefault->Caption = DEFAULT_NUMROWS;
     loadingMessage = "Loading samples, please wait...";
 }
 
@@ -190,8 +194,6 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     btnSave->Enabled = true;
     chunks.clear();
     clearSG(sgChunks);
-    //addChunk(); // no - not before list loaded
-    //showChunks();
     clearSG(sgVials);
     timerLoadVials->Enabled = true;
     //if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
@@ -206,16 +208,40 @@ void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
 
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
+        // sign off?
         // save stuff
         // ie, create the retrieval plan by inserting into c_box_retrieval and l_sample_retrieval
+        for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
+            // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
+            SampleChunk * chunk = *it;
+            //      for boxes/samples
+            //          insert sample into C_BOX_RETRIEVAL with current section (chunk) number
+            for (vecpSampleRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
+                pSampleRow sampleRow = (pSampleRow)*it;
+                LPDbCryovialStore * vial = sampleRow->store_record;
+            }
+
+            /*
+            retrieval_cid	 i4		c_retrieval_job	 The retrieval task this entry is part of
+            retrieval_type	 i2			obsolete - see c_retrieval_job
+            box_id	 i4		box_name	 The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+            section	 i2			 Which chunk of the retrieval plan this entry belongs to (0 = retrieve all boxes in parallel)
+            position	 i2			obsolete
+            box_name	 v32			obsolete
+            rj_box_cid	 i4	 1		 Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
+            status	 i2			 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
+            time_stamp	 d/t			 When this record was inserted or updated*/
+        }
+        return;
+        // update c_retrieval_job (in progress)
+        job->setStatus(LCDbCryoJob::INPROGRESS);
+        job->saveRecord(LIMSDatabase::getCentralDb());
+        btnSave->Enabled = false;
         Close();
     } else { // start again
-        chunks.clear();
+        chunks.clear(); // delete memory
         addChunk();
     }
-    //btnSave->Enabled = false;
-    // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
-    // TODO update c_retrieval_job (in progress)
 }
 
 void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
@@ -235,24 +261,6 @@ void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
     if (chunks.size() == 1) btnDelChunk->Enabled = false;
 }
 
-void __fastcall TfrmSamples::radbutDefaultClick(TObject *Sender) { radgrpRowsChange(); }
-
-void __fastcall TfrmSamples::radbutAllClick(TObject *Sender) { radgrpRowsChange(); }
-
-void __fastcall TfrmSamples::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
-
-void __fastcall TfrmSamples::timerCustomRowsTimer(TObject *Sender) {
-    std::ostringstream oss; oss <<__FUNC__<<": load"<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-    timerCustomRows->Enabled = false;
-    maxRows = editCustomRows->Text.ToIntDef(0);
-    showChunk();
-}
-
-void __fastcall TfrmSamples::editCustomRowsChange(TObject *Sender) {
-    timerCustomRows->Enabled = false; // reset
-    timerCustomRows->Enabled = true;;
-}
-
 void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
     TColor background = clWindow;
     if (0 == ARow) {
@@ -262,7 +270,7 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
         chunk = (SampleChunk *)sgChunks->Objects[0][ARow];
         background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == chunk) {
-            background = clBtnFace; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
             background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
@@ -285,6 +293,38 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
     }
 }
 
+void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+    TColor background = clWindow;
+    if (0 == ARow) {
+        background = clBtnFace;
+    } else {
+        SampleRow * row = NULL;
+        row = (SampleRow *)sgVials->Objects[0][ARow];
+        background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
+        if (NULL == row) {
+            background = clWindow; // clBtnFace; //
+        } else {
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        }
+        //else if (chunk->
+    }
+    TCanvas * cnv = sgVials->Canvas;
+	cnv->Brush->Color = background;
+	cnv->FillRect(Rect);
+    if (State.Contains(gdSelected)) {
+        TFontStyles oldFontStyle = cnv->Font->Style;
+        TPenStyle oldPenStyle = cnv->Pen->Style;
+        cnv->Pen->Style = psDot;
+        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
+        cnv->Font->Style = TFontStyles() << fsBold;
+    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgVials->Cells[ACol][ARow]);
+        cnv->Pen->Style     = oldPenStyle;
+        cnv->Font->Style    = oldFontStyle;
+	} else {
+        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgVials->Cells[ACol][ARow]);
+    }
+}
+
 void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
@@ -293,6 +333,12 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     addChunk(); // create a default chunk // no - not before list loaded
     showChunks(); //showChunk(); // must do this outside thread, unless synchronised - does gui stuff
     Screen->Cursor = crDefault;
+    ShowCursor(true);
+    Enabled = true;
+}
+
+void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
+    showChunk(); // default is 1st
 }
 
 void __fastcall TfrmSamples::btnAutoChunkClick(TObject *Sender) {
@@ -309,7 +355,7 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     ostringstream oss; oss << __FUNC__; oss << printColWidths(sgVials); debugLog(oss.str().c_str()); // print column widths so we can copy them into the source
-    sortChunk(currentChunk(), ACol);
+    sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
 }
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
@@ -334,74 +380,25 @@ void __fastcall TfrmSamples::btnAddSortClick(TObject *Sender) {
     addSorter();
 }
 
-void TfrmSamples::addSorter() {
-    ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
-    TComboBox * combo = new TComboBox(this);
-    combo->Parent = groupSort;
-    combo->Align = alLeft;
-    combo->Items->AddObject(groupSort->ControlCount, NULL);
-    // new combo is last created,
-    //groupSort->InsertControl(combo);
-    //ostringstream oss;
-    //oss.str(""); oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
-}
-
 void __fastcall TfrmSamples::btnDelSortClick(TObject *Sender) {
-    //groupSort->Controls[groupSort->ControlCount-1]
-    //if (dynamic_cast<TComboBox *>() != NULL) {
-    //    groupSort->RemoveComponent();
-    //}
-
-    //for (int i=groupSort->ControlCount-1; i>=0; i--) {
-        // work backwards through controls to find last combo box
-    for (int i=0; i<groupSort->ControlCount; i++) {
-        // controls are in creation order, ie. buttons first from design, and last added combo is last
-        TControl * control = groupSort->Controls[i];
-        TButton * button = dynamic_cast<TButton *>(control);
-        if (button != NULL) {
-            debugLog("found a button, caption: ");
-            debugLog(button->Caption);
-            continue; // skip
-        }
-        TComboBox * combo = dynamic_cast<TComboBox *>(control);
-        if (combo != NULL) {
-            debugLog("found a combo box, text:");
-            debugLog(combo->Text);
-        }
-        //groupSort->Controls[i]->RemoveComponent();
-        //groupSort->Controls
-    }
-
-    //TComboBox * combo = dynamic_cast<TComboBox *>(groupSort->Controls[groupSort->ControlCount-1]);
-    //if (NULL != combo) groupSort->RemoveComponent(combo);
+    removeSorter();
 }
 
-void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
-    // show current chunk
-    showChunk(); // default is 1st
+void __fastcall TfrmSamples::btnApplySortClick(TObject *Sender) {
+    applySort();
 }
 
-void TfrmSamples::debugLog(String s) {
-    // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
-    frmSamples->memoDebug->Lines->Add(s);
-}
-
-void TfrmSamples::radgrpRowsChange() {
-    maxRows = 0;
-    if (radbutCustom->Checked) {
-        editCustomRows->Enabled  = true;
-        timerCustomRows->Enabled = true;
-        return; // allow user to edit value
-    } else {
-        editCustomRows->Enabled = false;
-        if (radbutDefault->Checked) {
-            maxRows = DEFAULT_NUMROWS;
-        } else if (radbutAll->Checked) {
-            maxRows = -1;
-        }
-    }
-    std::ostringstream oss; oss <<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-    showChunk();
+void TfrmSamples::loadRows() {
+    panelLoading->Caption = loadingMessage;
+    panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
+    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+    Screen->Cursor = crSQLWait; // disable mouse?
+    ShowCursor(false);
+    Enabled = false;
+    loadVialsWorkerThread = new LoadVialsWorkerThread();
+    loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
 }
 
 void TfrmSamples::showChunks() {
@@ -454,27 +451,14 @@ Display the size of the job and ask user if they want to divide up the list.  If
 */
 }
 
-void TfrmSamples::loadRows() {
-    std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-    panelLoading->Caption = loadingMessage;
-    panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
-    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
-    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
-    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
-    Screen->Cursor = crSQLWait; // disable mouse?
-    loadVialsWorkerThread = new LoadVialsWorkerThread();
-    loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
-}
-
 SampleChunk * TfrmSamples::currentChunk() {
     if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
     SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
     if (NULL == chunk) {// still null
         ostringstream oss; oss<<__FUNC__<<": Null chunk"; debugLog(oss.str().c_str());
-        throw Exception("null chunk"); // msgbox("null chunk");
+        throw Exception("null chunk");
     }
     return chunk;
-    //return (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
 }
 
 void TfrmSamples::showChunk(SampleChunk * chunk) {
@@ -484,7 +468,7 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
     if (chunk->rows.size() <= 0) {
         clearSG(sgVials);
     } else {
-        sgVials->RowCount = (-1 == maxRows) ? chunk->rows.size() + 1 : maxRows + 1;
+        sgVials->RowCount = chunk->rows.size();
         sgVials->FixedRows = 1;
     }
     int row = 1;
@@ -492,10 +476,10 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         pSampleRow sampleRow = (pSampleRow)*it;
         LPDbCryovialStore * vial = sampleRow->store_record;
         sgVials->Cells[SGVIALS_BARCODE] [row]    = sampleRow->cryovial_barcode.c_str();
-        sgVials->Cells[SGVIALS_DESTBOX] [row]    = "tba"; //sampleRow->;
-        sgVials->Cells[SGVIALS_DESTPOS] [row]    = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_DESTBOX] [row]    = sampleRow->dest_box_name.c_str();
+        sgVials->Cells[SGVIALS_DESTPOS] [row]    = sampleRow->dest_box_pos;
         sgVials->Cells[SGVIALS_CURRBOX] [row]    = sampleRow->box_name.c_str();
-        sgVials->Cells[SGVIALS_CURRPOS] [row]    = "tba"; //sampleRow->;
+        sgVials->Cells[SGVIALS_CURRPOS] [row]    = sampleRow->slot_position;
         sgVials->Cells[SGVIALS_SITE]    [row]    = sampleRow->site_name.c_str();
         sgVials->Cells[SGVIALS_POSITION][row]    = sampleRow->position;
         sgVials->Cells[SGVIALS_SHELF]   [row]    = sampleRow->shelf_number;
@@ -503,19 +487,75 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         sgVials->Cells[SGVIALS_STRUCTURE][row]   = sampleRow->rack_name.c_str();
         sgVials->Cells[SGVIALS_SLOT]    [row]    = sampleRow->slot_position;
         sgVials->Objects[0][row] = (TObject *)sampleRow;
-        if (-1 != maxRows && row >= maxRows) break;
     }
-    ostringstream oss; oss<<((-1 == maxRows) ? vials.size() : maxRows)<<" of "<<vials.size()<<" vials";
-    groupVials->Caption = oss.str().c_str();
+    //groupVials->Caption = oss.str().c_str();
 }
 
-//void TfrmSamples::sortList(int col) {
-void TfrmSamples::sortChunk(SampleChunk * chunk, int col) {
-    //partial_sort
+void TfrmSamples::addSorter() {
+    ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
+    TComboBox * combo = new TComboBox(this);
+    combo->Parent = groupSort;
+    combo->Align = alLeft;
+    combo->Style = csDropDown; // csDropDownList
+    //combo->Items->AddObject(groupSort->ControlCount, NULL);
+    //combo->AddItem(groupSort->ControlCount, NULL);
+    for (int i=0; i<SGVIALS_NUMCOLS; i++) {
+        combo->AddItem(sorter[i].description.c_str(), (TObject *)&sorter[i]);
+    }
+    //combo->OnChange = &comboSortOnChange;
+    // new combo is last created,
+    //groupSort->InsertControl(combo);
+    //ostringstream oss;
+    //oss.str(""); oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
+}
+
+void TfrmSamples::removeSorter() {
+    //for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box
+    //for (int i=0; i<groupSort->ControlCount; i++) { // controls are in creation order, ie. buttons first from design, and last added combo is last
+    TComponent * component = groupSort->Controls[groupSort->ControlCount-1];
+    TComboBox * combo = dynamic_cast<TComboBox *>(component);
+    if (combo != NULL) {
+        debugLog("found a combo box, text:");
+        debugLog(combo->Text);
+        delete component; // not RemoveComponent(component); and not groupSort->RemoveComponent(component); // remove TComponent, not TComboBox
+    } else {
+        debugLog("not a combo box");
+    }
+}
+
+void TfrmSamples::applySort() { // loop through sorters and apply each selected sort
+    ostringstream oss; oss<<__FUNC__<<groupSort->ControlCount<<" controls"<<endl; debugLog(oss.str().c_str());
+    SampleChunk * chunk = currentChunk();
+    for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box // controls are in creation order, ie. buttons first from design, and last added combo is last
+        TControl * control = groupSort->Controls[i];
+        TComboBox * combo = dynamic_cast<TComboBox *>(control);
+        if (combo != NULL) {
+            if (-1 != combo->ItemIndex) {
+                debugLog("sorting: ");
+                debugLog(combo->Items->Strings[combo->ItemIndex].c_str());
+                sortChunk(chunk, combo->ItemIndex, Sorter<SampleRow *>::ASCENDING);
+            }
+        } else {
+            debugLog("not a combo box, finish sorting.");
+            break; // finished sorting
+        }
+    }
+}
+
+void TfrmSamples::sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order) {
     Screen->Cursor = crSQLWait;
-    //sorter[col].sort_toggle(currentChunk()->rows);
-    sorter[col].sort_toggle(chunk->rows);
-    //showChunk(currentChunk());
+    switch (order) {
+        case Sorter<SampleRow *>::ASCENDING:
+            sorter[col].sort_asc(chunk->rows);
+            break;
+        case Sorter<SampleRow *>::DESCENDING:
+            sorter[col].sort_dsc(chunk->rows);
+            break;
+        case Sorter<SampleRow *>::TOGGLE:
+            sorter[col].sort_toggle(chunk->rows);
+            break;
+    }
+    //sorter[col].sort_toggle(chunk->rows); //partial_sort
     showChunk(chunk);
     Screen->Cursor = crDefault;
 }

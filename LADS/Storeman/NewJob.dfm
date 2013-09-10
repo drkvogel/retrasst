@@ -12,7 +12,6 @@ object frmNewJob: TfrmNewJob
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = True
-  OnShow = FormShow
   DesignSize = (
     428
     149)
@@ -59,6 +58,7 @@ object frmNewJob: TfrmNewJob
     Width = 322
     Height = 21
     Anchors = [akTop, akRight]
+    MaxLength = 120
     TabOrder = 1
   end
   object TxtName: TEdit
@@ -67,6 +67,7 @@ object frmNewJob: TfrmNewJob
     Width = 200
     Height = 21
     Anchors = [akLeft, akTop, akRight]
+    MaxLength = 30
     TabOrder = 0
   end
   object CbExercise: TComboBox

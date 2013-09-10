@@ -14,6 +14,7 @@ namespace valc
 class BuddyDatabase;
 class DBConnection;
 class DBUpdateSchedule;
+class ExceptionalDataHandler;
 class Projects;
 class ResultIndex;
 class SampleRunIDResolutionService;
@@ -32,7 +33,7 @@ public:
     LoadBuddyDatabase( int localMachineID, DBConnection* con, paulst::LoggingService* log, 
 		ResultIndex* resultIndex, Projects* projects, BuddyDatabase** out, DBUpdateSchedule* dbUpdateSchedule,
         SampleRunIDResolutionService* sampleRunIDResolutionService, const std::string& sql,
-        const std::string& inclusionRule );
+        const std::string& inclusionRule, ExceptionalDataHandler* exceptionalDataHandler );
 	void execute();
 private:
     BuddyDatabase**                 m_buddyDatabase;
@@ -45,6 +46,7 @@ private:
     SampleRunIDResolutionService*   m_sampleRunIDResolutionService;
     const std::string               m_sql;
     const std::string               m_inclusionRule;
+    ExceptionalDataHandler*         m_exceptionalDataHandler;
 };
 
 };

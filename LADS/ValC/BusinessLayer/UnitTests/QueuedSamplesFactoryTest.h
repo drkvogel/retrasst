@@ -95,7 +95,7 @@ namespace tut
     {
     };
 
-    typedef test_group<QueuedSamplesBuilderFunctionTestFixture, 10> QueuedSamplesBuilderFunctionTestGroup;
+    typedef test_group<QueuedSamplesBuilderFunctionTestFixture, 8> QueuedSamplesBuilderFunctionTestGroup;
 	QueuedSamplesBuilderFunctionTestGroup testGroupQueuedSamplesBuilderFunction( "QueuedSamplesBuilderFunction tests");
 	typedef QueuedSamplesBuilderFunctionTestGroup::object testQueuedSamplesBuilderFunction;
 

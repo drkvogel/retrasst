@@ -103,6 +103,7 @@ private:	// User declarations
 	bool anyBoxes( TTreeNode* parent, Util::IconType type );
 	bool allBoxes( IPart* parent, Util::IconType type );
 	bool allBoxes( TTreeNode* parent, Util::IconType type );
+	void listAssignedBoxes( IPart* item );
 	void listCurrentBoxes( bool (*boxfn)(Box* b) );
 	void makeBoxList( IPart* item, std::vector<Box*>& boxes, bool (*Boxfn)(Box* b) );
 	std::string getFullPartName( IPart* part );
@@ -113,7 +114,6 @@ private:	// User declarations
 
 	static bool isUnmappedBox( Box* b );
 	static bool isAnyBox( Box* b ){ return true; }
-	static bool isAssignedBox( Box* b );
 	static bool isDoneBox( Box* b );
 
 public:		// User declarations

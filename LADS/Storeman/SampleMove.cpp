@@ -217,6 +217,32 @@ void TfrmMove::listCurrentBoxes( bool (*boxfn)(Box* b) )
 }
 
 //---------------------------------------------------------------------------
+//	Find all the assigned boxes in the current job (only)
+//---------------------------------------------------------------------------
+
+void TfrmMove::listAssignedBoxes( IPart* item )
+{
+	Box * b = dynamic_cast<Box*>( item );
+	if( b )	{
+		int jobID = createNewJob ? 0 : job.getID();
+		if( b->getRetrievalCID() == jobID ) {
+			if( b->isLHSAssigned() ) {
+				leftKids.push_back( b );
+				rightKids.push_back( (Box*)(b->getMapped()) );
+			} else if( b->isRHSAssigned() ) {
+				rightKids.push_back( b );
+				leftKids.push_back( (Box*)(b->getMapped()) );
+			}
+		}
+	} else if( item != NULL ) {
+		const std::vector<IPart*> & list = item->getList();
+		for( int i = 0; i < (int)list.size(); i++ ) {
+			listAssignedBoxes( list[i] );
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
 
 void TfrmMove::makeBoxList( IPart* item, std::vector<Box*>& boxes, bool (*boxfn)(Box* b) )
 {
@@ -238,11 +264,6 @@ void TfrmMove::makeBoxList( IPart* item, std::vector<Box*>& boxes, bool (*boxfn)
 bool TfrmMove::isUnmappedBox( Box* b )
 {
 	return b->getMapped() == NULL;
-}
-
-bool TfrmMove::isAssignedBox( Box* b )
-{
-	return b->isLHSAssigned() || b->isRHSAssigned();
 }
 
 bool TfrmMove::isDoneBox( Box* b )
@@ -434,24 +455,19 @@ int TfrmMove::getImageIndex( IPart *data )
 
 	Box * b = dynamic_cast<Box*>( data );
 	if( b )	{
-		if( b->isLHSAssigned() || b->isRHSAssigned() ) {
-			return Util::ASSIGNED;
-		}
 		if( b->isLHSDone() || b->isRHSDone() ) {
 			return Util::AVAILABLE;
 		}
-/*		if( createNewJob ) {
-			if( b->availability() == Box::UNAVAILABLE ) {
-				return I_UNAVAILABLE;
-			}
+		if( b->isLHSAssigned() || b->isRHSAssigned() ) {
+			int jobID = createNewJob ? 0 : job.getID();
+			return b->getRetrievalCID() == jobID ? Util::ASSIGNED : Util::OFF_LINE;
 		}
-*/	}
+	}
 
 	int children = data->getChildCount();
 	if( children == 0 ) {
 		return Util::NO_CHILDREN;
-	}
-	if( children < 0 ) {
+	} else if( children < 0 ) {
 		return Util::UNASSIGNED;
 	}
 
@@ -585,10 +601,11 @@ void __fastcall TfrmMove::CreateClick(TObject *Sender)
 {
 	if( !allBoxes( part, Util::ASSIGNED )
 	 && Application->MessageBox( L"Some boxes are not assigned yet; save anyway?",
-							L"Warning", MB_ICONWARNING|MB_YESNO|MB_DEFBUTTON2) == IDNO ) {
+								L"Warning", MB_ICONWARNING|MB_YESNO|MB_DEFBUTTON2) != IDYES ) {
 		return;
 	}
 
+	frmNewJob -> init( LCDbCryoJob::BOX_MOVE );
 	if( frmNewJob -> ShowModal() != mrOk )
 		return;
 
@@ -596,8 +613,9 @@ void __fastcall TfrmMove::CreateClick(TObject *Sender)
 	BtnCreate -> Visible = false;
 	Screen->Cursor = crSQLWait;
 	leftKids.clear();
-	makeBoxList( part, leftKids, isAssignedBox );
-	if( frmNewJob -> createJob( LCDbCryoJob::BOX_MOVE, leftKids ) ) {
+	rightKids.clear();
+	listAssignedBoxes( part );
+	if( frmNewJob -> createJob( leftKids ) ) {
 		job = frmNewJob -> getDetails();
 	} else {
 		error = "Error creating job record";
@@ -605,8 +623,8 @@ void __fastcall TfrmMove::CreateClick(TObject *Sender)
 	progress -> Position = 0;
 	progress -> Max = leftKids.size();
 	for( std::vector<Box*>::iterator bi = leftKids.begin(); error.IsEmpty() && bi != leftKids.end(); ++ bi ) {
-		Box *left = *bi, *right = dynamic_cast< Box* >( left->getMapped() );
-		if( left->addToLHSJobList( job.getID() ) && right != NULL && right->addToRHSJobList( job.getID() ) ) {
+		Box *left = *bi, *right = (Box*)(left->getMapped());
+		if( left->addToLHSJobList( job.getID() ) && right->addToRHSJobList( job.getID() ) ) {
 			progress -> StepIt();
 		} else {
 			error = "Error creating movement job";
@@ -630,7 +648,10 @@ void __fastcall TfrmMove::DoneClick(TObject *Sender)
 		Application->MessageBox( L"No items selected to mark as done", NULL, MB_OK );
 	else
 	{ 	Screen->Cursor = crSQLWait;
-		listCurrentBoxes( isAssignedBox );
+		leftKids.clear();
+		rightKids.clear();
+		listAssignedBoxes( (IPart*)(current->Data) );
+		progress -> Position = 0;
 		progress -> Max = rightKids.size() + leftKids.size();
 		SetStatus( rightKids, LCDbBoxStore::SLOT_ALLOCATED );
 		SetStatus( leftKids, LCDbBoxStore::REMOVED );
