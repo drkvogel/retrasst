@@ -212,13 +212,14 @@ object frmSamples: TfrmSamples
     object groupSort: TGroupBox
       Left = 0
       Top = 0
-      Width = 699
+      Width = 884
       Height = 41
       Align = alClient
       Caption = 'Sort'
       TabOrder = 0
+      ExplicitWidth = 699
       object btnDelSort: TButton
-        Left = 615
+        Left = 800
         Top = 15
         Width = 25
         Height = 24
@@ -226,9 +227,10 @@ object frmSamples: TfrmSamples
         Caption = '-'
         TabOrder = 0
         OnClick = btnDelSortClick
+        ExplicitLeft = 615
       end
       object btnAddSort: TButton
-        Left = 591
+        Left = 776
         Top = 15
         Width = 24
         Height = 24
@@ -236,9 +238,10 @@ object frmSamples: TfrmSamples
         Caption = '+'
         TabOrder = 1
         OnClick = btnAddSortClick
+        ExplicitLeft = 591
       end
       object btnApplySort: TButton
-        Left = 640
+        Left = 825
         Top = 15
         Width = 57
         Height = 24
@@ -246,68 +249,9 @@ object frmSamples: TfrmSamples
         Caption = 'Apply'
         TabOrder = 2
         OnClick = btnApplySortClick
+        ExplicitLeft = 640
       end
     end
-    object GroupBox2: TGroupBox
-      Left = 699
-      Top = 0
-      Width = 185
-      Height = 41
-      Align = alRight
-      Caption = 'Show rows'
-      TabOrder = 1
-      object radbutDefault: TRadioButton
-        Left = 2
-        Top = 15
-        Width = 33
-        Height = 24
-        Align = alLeft
-        Caption = '25'
-        Checked = True
-        TabOrder = 0
-        TabStop = True
-        OnClick = radbutDefaultClick
-      end
-      object radbutAll: TRadioButton
-        Left = 35
-        Top = 15
-        Width = 30
-        Height = 24
-        Align = alLeft
-        Caption = 'All'
-        TabOrder = 1
-        OnClick = radbutAllClick
-      end
-      object radbutCustom: TRadioButton
-        Left = 65
-        Top = 15
-        Width = 57
-        Height = 24
-        Align = alLeft
-        Caption = 'Custom'
-        TabOrder = 2
-        OnClick = radbutCustomClick
-      end
-      object editCustomRows: TEdit
-        Left = 122
-        Top = 15
-        Width = 61
-        Height = 24
-        Align = alClient
-        Enabled = False
-        TabOrder = 3
-        Text = '100'
-        OnChange = editCustomRowsChange
-        ExplicitHeight = 21
-      end
-    end
-  end
-  object timerCustomRows: TTimer
-    Enabled = False
-    Interval = 500
-    OnTimer = timerCustomRowsTimer
-    Left = 752
-    Top = 48
   end
   object timerLoadVials: TTimer
     Enabled = False

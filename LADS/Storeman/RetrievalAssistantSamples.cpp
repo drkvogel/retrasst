@@ -183,11 +183,10 @@ void TfrmSamples::debugLog(String s) {
 
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
-    maxRows             = DEFAULT_NUMROWS;
+    //maxRows             = DEFAULT_NUMROWS;
     job                 = NULL;
     setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
     setupStringGrid(sgVials, SGVIALS_NUMCOLS, sgVialColName, sgVialColWidth);
-    radbutDefault->Caption = DEFAULT_NUMROWS;
     loadingMessage = "Loading samples, please wait...";
 }
 
@@ -260,42 +259,6 @@ void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
         showChunks();
     }
     if (chunks.size() == 1) btnDelChunk->Enabled = false;
-}
-
-void __fastcall TfrmSamples::editCustomRowsChange(TObject *Sender) {
-    timerCustomRows->Enabled = false; // reset
-    timerCustomRows->Enabled = true;;
-}
-
-void __fastcall TfrmSamples::timerCustomRowsTimer(TObject *Sender) {
-    std::ostringstream oss; oss <<__FUNC__<<": load"<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-    timerCustomRows->Enabled = false;
-    maxRows = editCustomRows->Text.ToIntDef(0);
-    showChunk();
-}
-
-void __fastcall TfrmSamples::radbutDefaultClick(TObject *Sender) { radgrpRowsChange(); }
-
-void __fastcall TfrmSamples::radbutAllClick(TObject *Sender) { radgrpRowsChange(); }
-
-void __fastcall TfrmSamples::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
-
-void TfrmSamples::radgrpRowsChange() {
-    maxRows = 0;
-    if (radbutCustom->Checked) {
-        editCustomRows->Enabled  = true;
-        timerCustomRows->Enabled = true;
-        return; // allow user to edit value
-    } else {
-        editCustomRows->Enabled = false;
-        if (radbutDefault->Checked) {
-            maxRows = DEFAULT_NUMROWS;
-        } else if (radbutAll->Checked) {
-            maxRows = -1;
-        }
-    }
-    std::ostringstream oss; oss <<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-    showChunk();
 }
 
 void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
@@ -426,7 +389,6 @@ void __fastcall TfrmSamples::btnApplySortClick(TObject *Sender) {
 }
 
 void TfrmSamples::loadRows() {
-    std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
     panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
@@ -506,7 +468,7 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
     if (chunk->rows.size() <= 0) {
         clearSG(sgVials);
     } else {
-        sgVials->RowCount = (-1 == maxRows) ? chunk->rows.size() + 1 : maxRows + 1;
+        sgVials->RowCount = chunk->rows.size();
         sgVials->FixedRows = 1;
     }
     int row = 1;
@@ -525,10 +487,8 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         sgVials->Cells[SGVIALS_STRUCTURE][row]   = sampleRow->rack_name.c_str();
         sgVials->Cells[SGVIALS_SLOT]    [row]    = sampleRow->slot_position;
         sgVials->Objects[0][row] = (TObject *)sampleRow;
-        if (-1 != maxRows && row >= maxRows) break;
     }
-    ostringstream oss; oss<<((-1 == maxRows) ? vials.size() : maxRows)<<" of "<<vials.size()<<" vials";
-    groupVials->Caption = oss.str().c_str();
+    //groupVials->Caption = oss.str().c_str();
 }
 
 void TfrmSamples::addSorter() {

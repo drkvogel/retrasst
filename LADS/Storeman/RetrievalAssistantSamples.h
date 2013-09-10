@@ -83,7 +83,6 @@ __published:
     TGroupBox *groupVials;
     TStringGrid *sgVials;
     TMemo *memoDebug;
-    TTimer *timerCustomRows;
     TButton *btnAutoChunk;
     TPanel *panelLoading;
     TProgressBar *progressBottom;
@@ -94,11 +93,6 @@ __published:
     TButton *btnSave;
     TButton *btnReject;
     TCheckBox *cbLog;
-    TGroupBox *GroupBox2;
-    TRadioButton *radbutDefault;
-    TRadioButton *radbutAll;
-    TRadioButton *radbutCustom;
-    TEdit *editCustomRows;
     TButton *btnDelSort;
     TButton *btnAddSort;
     TButton *btnApplySort;
@@ -109,11 +103,6 @@ __published:
     void __fastcall btnAddChunkClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
     void __fastcall btnDelChunkClick(TObject *Sender);
-    void __fastcall radbutDefaultClick(TObject *Sender);
-    void __fastcall radbutAllClick(TObject *Sender);
-    void __fastcall radbutCustomClick(TObject *Sender);
-    void __fastcall timerCustomRowsTimer(TObject *Sender);
-    void __fastcall editCustomRowsChange(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
     void __fastcall btnAutoChunkClick(TObject *Sender);
     void __fastcall btnIncrClick(TObject *Sender);
@@ -136,7 +125,6 @@ private:
     LCDbCryoJob *               job;
     std::vector<SampleChunk *>  chunks;
     std::vector<SampleRow *>    vials;      // all vials loaded
-    int                         maxRows;    // rows to show at a time
     void                        addSorter();
     void                        removeSorter();
     void                        applySort();
