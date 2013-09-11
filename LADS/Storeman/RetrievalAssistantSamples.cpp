@@ -62,7 +62,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         "   s.object_cid = location_cid AND"
         "   v.object_cid = storage_cid AND"
         "   cs.retrieval_cid = :jobID");
-    qd.setParam("jobID", frmSamples->job->getID());
+
     /* -- may have destination box defined, could find with left join:
     but left join on ddb not allowed in ingres
     from
@@ -78,6 +78,19 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         box_name n2 on n2.box_cid = s2.box_cid
     where
         s1.retrieval_cid = :jobID*/
+
+    qd.setSQL( // from spec 2013-09-11
+        "SELECT"
+        "  cryovial_barcode, b1.external_name as source_box, s1.cryovial_position as source_pos,"
+        "  b2.external_name as destination_box,"
+        "  s2.cryovial_position as dest_pos"
+        " FROM"
+        "  cryovial_store s1, cryovial c, box_name b1, cryovial_store s2, box_name b2"
+        " WHERE"
+        "  c.cryovial_id = s1.cryovial_id AND b1.box_cid = s1.box_cid AND"
+        "  s1.cryovial_id = s2.cryovial_id AND s2.status = 0 AND"
+        "  b2.box_cid = s2.box_cid AND s1.retrieval_cid = :jobID;");
+    qd.setParam("jobID", frmSamples->job->getID());
     loadingMessage = frmSamples->loadingMessage; // base
     qd.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
     while (!qd.eof()) {
@@ -266,8 +279,7 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
     if (0 == ARow) {
         background = clBtnFace;
     } else {
-        SampleChunk * chunk = NULL;
-        chunk = (SampleChunk *)sgChunks->Objects[0][ARow];
+        SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][ARow];
         background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == chunk) {
             background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
@@ -298,11 +310,10 @@ void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
     if (0 == ARow) {
         background = clBtnFace;
     } else {
-        SampleRow * row = NULL;
-        row = (SampleRow *)sgVials->Objects[0][ARow];
+        SampleRow * row = (SampleRow *)sgVials->Objects[0][ARow];
         background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == row) {
-            background = clWindow; // clBtnFace; //
+            background = clWindow;
         } else {
             background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
