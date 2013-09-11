@@ -1,4 +1,13 @@
-﻿make maxrows maximum
+﻿make maxrows maximum-
+
+
+find destination boxes 1st
+
+find number of boxes
+  current box
+  destination box?
+what do we mean by 'size' of a chunk - number of boxes
+
 
 chunks
     section - Cannot Be Changed 
