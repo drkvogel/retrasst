@@ -12,7 +12,21 @@ C_retrieval_job.status = new job (0); job type = box retrieval (2) or disposal (
 
 Find where the boxes are currently stored:
 
-Select b.external_name as box, s.external_name as site, m.position, v.external_full as vessel, m.shelf_number, r.external_name as rack, bs.slot_position from box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v where b.box_cid=bs.box_cid and bs.rack_cid = r.rack_cid and r.tank_cid = m.tank_cid and s.object_cid = location_cid and v.object_cid = storage_cid and bs.retrieval_cid = :jobID;
+Select 
+b.external_name as box, 
+s.external_name as site, 
+m.position, 
+v.external_full as vessel, 
+m.shelf_number, 
+r.external_name as rack, 
+bs.slot_position 
+from box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v 
+where b.box_cid=bs.box_cid and 
+bs.rack_cid = r.rack_cid and 
+r.tank_cid = m.tank_cid and 
+s.object_cid = location_cid and 
+v.object_cid = storage_cid and 
+bs.retrieval_cid = :jobID;
 
 List the name, current structure and expected location of each box.  The location should include site+position+name+layout, as it does in StoreMan’s storage browser.
 
@@ -28,16 +42,16 @@ C_retrieval_job.status = new job (0); job type = sample retrieval (4) or disposa
 Find the samples to be retrieved:
 
 Select cryovial_barcode, t.external_name as aliquot, b.external_name as box, cryovial_position, s.external_name as site, m.position, v.external_full as vessel, shelf_number, r.external_name as rack, bs.slot_position
- 
+
 from cryovial c, cryovial_store cs, box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v, c_object_name t 
 
 where c.cryovial_id=cs.cryovial_id and b.box_cid = cs.box_cid and b.box_cid = bs.box_cid and bs.status = 6 and t.object_cid = aliquot_type_cid and bs.rack_cid=r.rack_cid and r.tank_cid = m.tank_cid and s.object_cid = location_cid and v.object_cid = storage_cid and cs.retrieval_cid = :jobID;
 
 At least half of these will be for the primary aliquot (i.e. cryovial.aliquot_type_cid = c_retrieval_job.primary_aliquot).
 
-The others may be for the secondary aliquot.  Primary and secondary tubes may have the same barcode but should always come from specimen entries with the same source name.
+The others may be for the secondary aliquot.  Primary and secondary tubes may have the same barcode but should always come from specimen entries with the same source name. Entries for the primary aliquot may have a destination box defined.
 
-Entries for the primary aliquot may have a destination box defined.  You could find these using a left join:
+You could find these using a left join:
 
 Select … from cryovial_store s1
 left join cryovial c on c.cryovial_id = s1.cryovial_id

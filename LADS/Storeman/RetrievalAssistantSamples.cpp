@@ -560,5 +560,18 @@ void TfrmSamples::sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::S
     Screen->Cursor = crDefault;
 }
 
+void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
+    //
+    ostringstream oss;
+    //oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str())<endl;
+    //debugLog(oss.str().c_str());
+    debugLog(sgChunks->Cells[ACol][ARow]);
+}
 
+void __fastcall TfrmSamples::sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value) {
+    ostringstream oss;
+    oss<<__FUNC__; debugLog(oss.str().c_str()); //String(sgChunks->Cells[ACol][ARow].c_str())<endl;
+    //debugLog(oss.str().c_str());
+    debugLog(sgChunks->Cells[ACol][ARow]);
+}
 
