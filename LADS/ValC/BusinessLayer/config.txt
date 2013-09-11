@@ -19,6 +19,7 @@ LoadBuddyDatabase:
     order by NVL( sr.sequence_position, bd.buddy_sample_id )
 
 
+
 BuddyDatabaseInclusionRule:
     --[[
     function accept ( barcode, dbName, actionFlag, faoLevelOne )
@@ -32,6 +33,7 @@ BuddyDatabaseInclusionRule:
     end
     ]]
     function accept ( barcode, dbName, actionFlag ) 
+        -- Note that, if there is no result, actionFlag is '?'
         local ok = false
         if ( actionFlag == '0' ) then ok = true end
         return ok

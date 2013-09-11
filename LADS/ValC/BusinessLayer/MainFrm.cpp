@@ -3,7 +3,6 @@
 #include <fmx.h>
 #pragma hdrstop
 
-#include "API.h"
 #include <boost/scoped_ptr.hpp>
 #include "LoggingService.h"
 #include "MainFrm.h"
@@ -41,7 +40,7 @@ private:
 
 //---------------------------------------------------------------------------
 __fastcall TMainForm::TMainForm(TComponent* Owner)
-	: TForm(Owner)
+	: TForm(Owner), m_warningsListener( this )
 {
 }
 //---------------------------------------------------------------------------
@@ -71,8 +70,8 @@ void __fastcall TMainForm::onShow(TObject *Sender)
 			 };
 
 		//                                runID, isOpen, when created       , when closed, sequence position
-		std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,",
-								  ",,,,," };
+		std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,",
+								  ",,,,,," };
 
 		connectionFactory.setBuddyDB(
 			tests[0] + sampleRunData[0] + "\n" +
@@ -85,10 +84,13 @@ void __fastcall TMainForm::onShow(TObject *Sender)
 		boost::scoped_ptr<paulst::LoggingService> log(
 			new paulst::LoggingService( new TMemoLogger(output) ) );
 
+		MockConfig config;
+
 		boost::scoped_ptr<AnalysisActivitySnapshot> s(
 			SnapshotFactory::load(
 				LOCAL_MACHINE_ID, USER_ID, connection.get(), log.get(),
-				MockConfig::config ) );
+				config.toString(),
+				&m_warningsListener ) );
 
 		const bool blockTillNoPendingUpdates = true;
 		ExceptionHandlingPolicy exceptionListener;
@@ -101,4 +103,8 @@ void __fastcall TMainForm::onShow(TObject *Sender)
 	}
 }
 //---------------------------------------------------------------------------
+void TMainForm::addWarning( const std::string& warning )
+{
+	warnings->Lines->Add( warning.c_str() );
+}
 

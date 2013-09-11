@@ -2,6 +2,7 @@
 #include <boost/foreach.hpp>
 #include "DBUpdateSchedule.h"
 #include "DBUpdateTaskInsertSampleRun.h"
+#include "DBUpdateTaskLinkResultToWorklistEntry.h"
 #include "DBUpdateTaskUpdateSampleRunID.h"
 #include <set>
 
@@ -62,6 +63,15 @@ void DBUpdateSchedule::scheduleUpdate( int forBuddySampleID, const std::string& 
             m_updates.push_back ( new DBUpdateTaskUpdateSampleRunID( candidateNewSampleRunID, forBuddySampleID ) );
             m_buddyDatabaseEntriesScheduledForUpdate.insert( forBuddySampleID );
         }
+    }
+}
+
+void DBUpdateSchedule::scheduleUpdateLinkingResultToWorklistEntry( int resultID, int worklistEntry )
+{
+    paulst::AcquireCriticalSection a(m_cs);
+
+    {
+        m_updates.push_back ( new DBUpdateTaskLinkResultToWorklistEntry( resultID, worklistEntry ) );
     }
 }
 

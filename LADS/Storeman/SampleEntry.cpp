@@ -34,12 +34,14 @@ void TfrmRetrieveMain::init()
 	grdSamples->Cells[SAMPLE][0] = "Sample";
 	grdSamples->Cells[CRYOVIAL][0] = "Cryovial";
 	grdSamples->Cells[ALIQUOT][0] = "Aliquot";
-	grdSamples->Cells[OLD_POS][0] = "Old pos";
-	grdSamples->Cells[OLD_BOX][0] = "Old box";
+	grdSamples->Cells[SITE][0] = "Site";
+	grdSamples->Cells[LOCATION][0] = "Location";
+	grdSamples->Cells[VESSEL][0] = "Vessel";
+	grdSamples->Cells[SHELF][0] = "Shelf";
 	grdSamples->Cells[STRUCTURE][0] = "Structure";
 	grdSamples->Cells[SLOT_POS][0] = "Slot";
-	grdSamples->Cells[SHELF][0] = "Shelf";
-	grdSamples->Cells[VESSEL][0] = "Vessel";
+	grdSamples->Cells[OLD_POS][0] = "Old pos";
+	grdSamples->Cells[OLD_BOX][0] = "Old box";
 	grdSamples->Cells[NEW_BOX][0] = "New box";
 	grdSamples->Cells[NEW_POS][0] = "New pos";
 	grdSamples->Rows[1]->Clear();
@@ -51,7 +53,7 @@ void TfrmRetrieveMain::init()
 void TfrmRetrieveMain::resizeGrid()
 {
 	grdSamples->ColCount = COL_COUNT;
-	int minColWidth = grdSamples->Width / (COL_COUNT + 3);
+	int minColWidth = grdSamples->Width / (COL_COUNT + 4);
 	grdSamples->DefaultColWidth = minColWidth;
 	int boxCols = (grdSamples->ClientWidth - 10) - (minColWidth * (COL_COUNT - 2));
 	grdSamples->ColWidths[OLD_BOX] = boxCols / 2;
@@ -173,109 +175,18 @@ void TfrmRetrieveMain::drawGrid()
 			setValue( SAMPLE, row, rows[i].sample );
 			setValue( CRYOVIAL, row, rows[i].cryovial );
 			setValue( ALIQUOT, row, rows[i].aliquot );
-			setValue( OLD_BOX, row, rows[i].old_box );
-			setValue( OLD_POS, row, rows[i].old_pos );
-			setValue( SLOT_POS, row, rows[i].slot );
-			setValue( NEW_BOX, row, rows[i].new_box );
-			setValue( NEW_POS, row, rows[i].new_pos );
+			setValue( SITE, row, rows[i].site );
+			setValue( LOCATION, row, rows[i].location );
 			setValue( VESSEL, row, rows[i].vessel );
 			setValue( SHELF, row, rows[i].shelf );
 			setValue( STRUCTURE, row, rows[i].structure );
+			setValue( SLOT_POS, row, rows[i].slot );
+			setValue( OLD_BOX, row, rows[i].old_box );
+			setValue( OLD_POS, row, rows[i].old_pos );
+			setValue( NEW_BOX, row, rows[i].new_box );
+			setValue( NEW_POS, row, rows[i].new_pos );
 		}
 	}
-}
-
-//---------------------------------------------------------------------------
-
-TfrmRetrieveMain::GridEntry::GridEntry( const ROSETTA & row )
-: sid(row.getInt("sample_id")),sample(row.getString("barcode")),
-  cid(row.getInt("cryovial_id")),cryovial(row.getString("cryovial_barcode")),
-  aid(row.getInt("aliquot_type_cid")),aliquot(row.getString("aliquot")),
-  bid(row.getInt("box_cid")), old_box(row.getString("box_name")),
-  old_pos(row.getInt("cryovial_position")),
-  shelf( 0 ), rack_pos( 0 ), slot( 0 ), new_pos( 0 )
-{}
-
-//---------------------------------------------------------------------------
-
-void TfrmRetrieveMain::GridEntry::copyLocation( const ROSETTA & row ) {
-	vessel = row.getString("vessel");
-	shelf = row.getInt("shelf_number");
-	rack_pos = row.getInt("rack_pos");
-	structure = row.getString("structure");
-	slot = row.getInt("slot_position");
-}
-
-//---------------------------------------------------------------------------
-
-void TfrmRetrieveMain::GridEntry::copyLocation( const GridEntry & other ) {
-	vessel = other.vessel;
-	shelf = other.shelf;
-	rack_pos = other.rack_pos;
-	structure = other.structure;
-	slot = other.slot;
-}
-
-//---------------------------------------------------------------------------
-
-typedef const TfrmRetrieveMain::GridEntry & GER;
-static bool compareSample( GER i, GER j ) { return i.sample < j.sample; }
-static bool compareCryovial( GER i, GER j ) { return i.cryovial < j.cryovial; }
-static bool compareAliquot( GER i, GER j ) { return i.aliquot < j.aliquot; }
-static bool compareOldBox( GER i, GER j ) { return i.old_box < j.old_box; }
-static bool compareOldPos( GER i, GER j ) { return i.old_pos < j.old_pos; }
-static bool compareNewBox( GER i, GER j ) { return i.new_box < j.new_box; }
-static bool compareNewPos( GER i, GER j ) { return i.new_pos < j.new_pos; }
-static bool compareShelf( GER i, GER j ) { return i.shelf < j.shelf; }
-static bool compareSlot( GER i, GER j ) { return i.slot < j.slot; }
-static bool compareVessel( GER i, GER j ) { return i.vessel < j.vessel; }
-static bool compareStructure( GER i, GER j ) { return i.rack_pos < j.rack_pos; }
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmRetrieveMain::grdSamplesFixedCellClick(TObject *Sender, int ACol, int ARow)
-{
-	bool (*compare)( GER, GER );
-	switch( ACol ) {
-		case SAMPLE:
-			compare = compareSample;
-			break;
-		case CRYOVIAL:
-			compare = compareCryovial;
-			break;
-		case ALIQUOT:
-			compare = compareAliquot;
-			break;
-		case VESSEL:
-			compare = compareVessel;
-			break;
-		case SHELF:
-			compare = compareShelf;
-			break;
-		case SLOT_POS:
-			compare = compareSlot;
-			break;
-		case STRUCTURE:
-			compare = compareStructure;
-			break;
-		case OLD_BOX:
-			compare = compareOldBox;
-			break;
-		case OLD_POS:
-			compare = compareOldPos;
-			break;
-		case NEW_BOX:
-			compare = compareNewBox;
-			break;
-		case NEW_POS:
-			compare = compareNewPos;
-			break;
-		default:
-			return;
-	}
-	std::stable_sort( rows.begin(), rows.end(), compare );
-	lbSortCols->Items->Add( grdSamples->Cells[ACol][ARow] );
-	drawGrid();
 }
 
 //---------------------------------------------------------------------------
@@ -398,6 +309,165 @@ void __fastcall TfrmRetrieveMain::btnSaveListClick(TObject *Sender)
 
 	if( frmNewJob -> ShowModal() != mrOk )
 		return;
+}
+
+//---------------------------------------------------------------------------
+
+TfrmRetrieveMain::GridEntry::GridEntry( const ROSETTA & row )
+: sid(row.getInt("sample_id")),sample(row.getString("barcode")),
+  cid(row.getInt("cryovial_id")),cryovial(row.getString("cryovial_barcode")),
+  aid(row.getInt("aliquot_type_cid")),aliquot(row.getString("aliquot")),
+  bid(row.getInt("box_cid")), old_box(row.getString("box_name")),
+  old_pos(row.getInt("cryovial_position")),
+  shelf( 0 ), rack_pos( 0 ), slot( 0 ), new_pos( 0 ), location( 0 ) {
+	static unsigned nextRecord = 1;
+	record_number = nextRecord ++;
+}
+
+//---------------------------------------------------------------------------
+
+void TfrmRetrieveMain::GridEntry::copyLocation( const ROSETTA & row ) {
+	vessel = row.getString("vessel_name");
+	shelf = row.getInt("shelf_number");
+	rack_pos = row.getInt("rack_pos");
+	structure = row.getString("structure");
+	slot = row.getInt("slot_position");
+	location = row.getInt("tank_pos");
+	site = row.getString("site_name");
+}
+
+//---------------------------------------------------------------------------
+
+void TfrmRetrieveMain::GridEntry::copyLocation( const GridEntry & other ) {
+	vessel = other.vessel;
+	shelf = other.shelf;
+	rack_pos = other.rack_pos;
+	structure = other.structure;
+	slot = other.slot;
+	location = other.location;
+	site = other.site;
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::btnClrSortClick(TObject *Sender)
+{
+	sortList.clear();
+	lbSortCols->Clear();
+	std::sort( rows.begin(), rows.end(), sortList );
+	drawGrid();
+}
+
+//---------------------------------------------------------------------------
+
+typedef const TfrmRetrieveMain::GridEntry & GER;
+static int compareSample( GER i, GER j ) { return i.sample.compare( j.sample ); }
+static int compareCryovial( GER i, GER j ) { return i.cryovial.compare( j.cryovial ); }
+static int compareAliquot( GER i, GER j ) { return i.aliquot.compare( j.aliquot ); }
+static int compareOldBox( GER i, GER j ) { return i.old_box.compare( j.old_box ); }
+static int compareOldPos( GER i, GER j ) { return i.old_pos - j.old_pos; }
+static int compareNewBox( GER i, GER j ) { return i.new_box.compare( j.new_box ); }
+static int compareNewPos( GER i, GER j ) { return i.new_pos - j.new_pos; }
+static int compareSite( GER i, GER j ) { return i.site.compare( j.site ); }
+static int compareLocation( GER i, GER j ) { return i.location - j.location; }
+static int compareVessel( GER i, GER j ) { return i.vessel.compare( j.vessel ); }
+static int compareShelf( GER i, GER j ) { return i.shelf - j.shelf; }
+static int compareSlot( GER i, GER j ) { return i.slot - j.slot; }
+static int compareStructure( GER i, GER j ) { return i.rack_pos - j.rack_pos; }
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::grdSamplesFixedCellClick(TObject *Sender, int ACol, int ARow)
+{
+	AnsiString heading = grdSamples->Cells[ACol][ARow];
+	int (*compare)( GER, GER );
+	switch( ACol ) {
+		case SAMPLE:
+			compare = compareSample;
+			break;
+		case CRYOVIAL:
+			compare = compareCryovial;
+			break;
+		case ALIQUOT:
+			compare = compareAliquot;
+			break;
+		case VESSEL:
+			compare = compareVessel;
+			break;
+		case LOCATION:
+			compare = compareLocation;
+			break;
+		case SITE:
+			compare = compareSite;
+			break;
+		case SHELF:
+			compare = compareShelf;
+			break;
+		case SLOT_POS:
+			compare = compareSlot;
+			break;
+		case STRUCTURE:
+			compare = compareStructure;
+			break;
+		case OLD_BOX:
+			compare = compareOldBox;
+			break;
+		case OLD_POS:
+			compare = compareOldPos;
+			break;
+		case NEW_BOX:
+			compare = compareNewBox;
+			break;
+		case NEW_POS:
+			compare = compareNewPos;
+			break;
+		default:
+			return;
+	}
+
+	sortList.addColumn( compare, heading.c_str() );
+	lbSortCols->Clear();
+	for( std::vector< Column >::const_iterator ci = sortList.columns.begin(); ci != sortList.columns.end(); ++ ci ) {
+		AnsiString order = ci->ascending ? " ascending" : " descending";
+		lbSortCols->Items->Add( ci->label.c_str() + order );
+	}
+	std::sort( rows.begin(), rows.end(), sortList );
+	drawGrid();
+}
+
+//---------------------------------------------------------------------------
+//	Add selected column to the sort.  Click on the same column twice to
+//	reverse the sort order.  Click again later to move it to the end
+//---------------------------------------------------------------------------
+
+void TfrmRetrieveMain::Sorter::addColumn( int (*cf)( GER, GER ), const std::string & lbl ) {
+	Column selected( cf, true, lbl );
+	std::vector< Column >::iterator ci = columns.begin();
+	while( ci != columns.end() && ci->fn != cf ) {
+		ci ++;
+	}
+	if( &(*ci) == &(columns.back()) ) {
+		selected.ascending = !ci->ascending;
+	}
+	if( ci != columns.end() ) {
+		columns.erase( ci );
+	}
+	columns.push_back( selected );
+}
+
+//---------------------------------------------------------------------------
+//	Compare given entries using columns in the sorter.  Return true if a < b.
+//	Use record_number as tie breaker if sorter is empty or values are equal.
+//---------------------------------------------------------------------------
+
+bool TfrmRetrieveMain::Sorter::operator() ( GER a, GER b ) const {
+	for( std::vector< Column >::const_iterator ci = columns.begin(); ci != columns.end(); ++ ci ) {
+		int diff = ci->fn( a, b );
+		if( diff != 0 ) {
+			return ci->ascending ? diff < 0 : diff > 0;
+		}
+	}
+	return a.record_number < b.record_number;
 }
 
 //---------------------------------------------------------------------------

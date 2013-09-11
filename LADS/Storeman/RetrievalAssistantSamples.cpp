@@ -333,7 +333,7 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     addChunk(); // create a default chunk // no - not before list loaded
     showChunks(); //showChunk(); // must do this outside thread, unless synchronised - does gui stuff
     Screen->Cursor = crDefault;
-    ShowCursor(true);
+    //ShowCursor(true);
     Enabled = true;
 }
 
@@ -395,7 +395,7 @@ void TfrmSamples::loadRows() {
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
     Screen->Cursor = crSQLWait; // disable mouse?
-    ShowCursor(false);
+    //ShowCursor(false);
     Enabled = false;
     loadVialsWorkerThread = new LoadVialsWorkerThread();
     loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;

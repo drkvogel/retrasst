@@ -45,11 +45,11 @@ __fastcall TfrmLoginBase::TfrmLoginBase(TComponent* Owner) : TForm(Owner)
 	std::string ver = LIMSParams::instance().getProgVersion();
 	String app = Application -> Title + " " + ver.c_str();
 #ifdef _DEBUG
-	rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM;
+	rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM; 	// db v2.7.3 - OK
 	version -> Font -> Color = clRed;
 	version -> Caption = app + " **DEBUG**";
 #else
-	rgDatabase -> ItemIndex = LIMSDatabase::LIVE_DATA;
+	rgDatabase -> ItemIndex = LIMSDatabase::LIVE_DATA;		// db v2.7.1 - fail
 	version -> Font -> Color = clBlack;
 	version -> Caption = app + " **FINAL**";
 #endif
@@ -63,14 +63,12 @@ __fastcall TfrmLoginBase::TfrmLoginBase(TComponent* Owner) : TForm(Owner)
 
 void __fastcall TfrmLoginBase::AppException(TObject *, Exception *E)
 {
-	AnsiString error = E -> Message;
-	try
-	{
+	try {
+		AnsiString error = E -> Message;
 		auditTrail.addRecord( error.c_str(), LCDbAuditTrail::MAJOR_ERROR );
 	}
-	catch( ... )
-	{}
-
+	catch( ... ) {
+	}
 	Screen -> Cursor = crDefault;
 	String title = Application -> Title + " Error";
 	Application -> MessageBox( E -> Message.c_str(), title.c_str(), MB_ICONWARNING );
@@ -95,7 +93,6 @@ void __fastcall TfrmLoginBase::initialise(TObject *)
 		}
 		else rgDatabase -> ItemIndex = system;
 	}
-	auditTrail.start();
 
 	// stop if the machine is not configured correctly
 	LIMSParams & config = LIMSParams::instance();

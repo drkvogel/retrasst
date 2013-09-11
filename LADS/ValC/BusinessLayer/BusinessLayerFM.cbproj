@@ -59,7 +59,7 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <Icon_MainIcon>$(BDS)\bin\cbuilder_PROJECTICON.ico</Icon_MainIcon>
         <Multithreaded>true</Multithreaded>
-        <IncludePath>..\..\..\paulst\;UnitTests\;..\..\LUA;$(IncludePath)</IncludePath>
+        <IncludePath>..\..\..\paulst\;UnitTests\;..\..\LUA\lua-5.2.2\src;$(IncludePath)</IncludePath>
         <_TCHARMapping>wchar_t</_TCHARMapping>
         <AllPackageLibs>rtl.lib;fmx.lib;vcl.lib</AllPackageLibs>
         <ILINK_LibraryPath>..\..\..\paulst\;UnitTests\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
@@ -129,7 +129,6 @@ $(PreBuildEvent)]]></PreBuildEvent>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <BCC_AllWarnings>true</BCC_AllWarnings>
         <BCC_SelectedWarnings>false</BCC_SelectedWarnings>
-        <BCC_PCHUsage>None</BCC_PCHUsage>
         <LinkPackageImports>rtl.bpi;fmx.bpi;vcl.bpi</LinkPackageImports>
         <_TCHARMapping>char</_TCHARMapping>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -217,6 +216,10 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <DependentOn>DBUpdateTaskInsertSampleRun.h</DependentOn>
             <BuildOrder>37</BuildOrder>
         </CppCompile>
+        <CppCompile Include="DBUpdateTaskLinkResultToWorklistEntry.cpp">
+            <DependentOn>DBUpdateTaskLinkResultToWorklistEntry.h</DependentOn>
+            <BuildOrder>72</BuildOrder>
+        </CppCompile>
         <CppCompile Include="DBUpdateTaskUpdateSampleRunID.cpp">
             <DependentOn>DBUpdateTaskUpdateSampleRunID.h</DependentOn>
             <BuildOrder>38</BuildOrder>
@@ -264,8 +267,11 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <DependentOn>LoadWorklistEntries.h</DependentOn>
             <BuildOrder>44</BuildOrder>
         </CppCompile>
-        <LibFiles Include="Lua64.a" Condition="'$(Platform)'=='Win64' Or '$(Platform)'=='OSX32'">
-            <BuildOrder>70</BuildOrder>
+        <None Include="LuaInclude.h">
+            <BuildOrder>73</BuildOrder>
+        </None>
+        <LibFiles Include="Lua_5_2_2_64.a" Condition="'$(Platform)'=='Win64' Or '$(Platform)'=='OSX32'">
+            <BuildOrder>73</BuildOrder>
             <IgnorePath>true</IgnorePath>
         </LibFiles>
         <CppCompile Include="MainFrm.cpp">

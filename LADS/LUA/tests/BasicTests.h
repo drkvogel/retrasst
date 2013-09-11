@@ -11,13 +11,17 @@ extern "C" {
 #include "lualib.h"
 }
 
+#ifndef lua_open
+#define lua_open luaL_newstate
+#endif
+
 namespace tut
 {
     class BasicTestFixture
     {
     };
 
-    typedef test_group<BasicTestFixture, 10> BasicTestGroup;
+    typedef test_group<BasicTestFixture, 4> BasicTestGroup;
     BasicTestGroup testGroupBasic( "Basic tests");
     typedef BasicTestGroup::object testBasic;
 

@@ -46,7 +46,7 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <Multithreaded>true</Multithreaded>
-        <IncludePath>../;../../TUT/;$(IncludePath)</IncludePath>
+        <IncludePath>../../TUT/;../Lua-5.2.2/src;$(IncludePath)</IncludePath>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <_TCHARMapping>wchar_t</_TCHARMapping>
         <AllPackageLibs>rtl.lib;vcl.lib</AllPackageLibs>
@@ -115,14 +115,14 @@
         <None Include="BasicTests.h">
             <BuildOrder>3</BuildOrder>
         </None>
-        <LibFiles Include="Lua64.a" Condition="'$(Platform)'=='Win64'">
-            <BuildOrder>2</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
         <PCHCompile Include="LUATestsPCH1.h">
             <BuildOrder>0</BuildOrder>
             <PCH>true</PCH>
         </PCHCompile>
+        <LibFiles Include="Lua_5_2_2_64.a" Condition="'$(Platform)'=='Win64'">
+            <BuildOrder>3</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
         <CppCompile Include="main.cpp">
             <BuildOrder>1</BuildOrder>
         </CppCompile>

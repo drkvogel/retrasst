@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = 'ValC: using the BusinessLayer API classes...'
-  ClientHeight = 661
+  ClientHeight = 662
   ClientWidth = 729
   FormFactor.Width = 320
   FormFactor.Height = 480
@@ -15,7 +15,7 @@ object MainForm: TMainForm
   DesignerOrientation = 0
   object output: TMemo
     Align = alTop
-    Height = 588.000000000000000000
+    Height = 447.000000000000000000
     Margins.Left = 10.000000000000000000
     Margins.Top = 50.000000000000000000
     Margins.Right = 10.000000000000000000
@@ -33,5 +33,12 @@ object MainForm: TMainForm
     Position.Y = 24.000000000000000000
     Text = 'Log output'
     Width = 120.000000000000000000
+  end
+  object warnings: TMemo
+    Height = 113.000000000000000000
+    Position.X = 16.000000000000000000
+    Position.Y = 528.000000000000000000
+    TabOrder = 2
+    Width = 697.000000000000000000
   end
 end

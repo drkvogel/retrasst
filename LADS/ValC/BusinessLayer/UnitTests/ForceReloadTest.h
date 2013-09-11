@@ -165,7 +165,7 @@ namespace tut
         }
     };
 
-    typedef test_group<ForceReloadTestFixture, 13> ForceReloadTestGroup;
+    typedef test_group<ForceReloadTestFixture, 14> ForceReloadTestGroup;
 	ForceReloadTestGroup testGroupForceReload( "ForceReload tests");
 	typedef ForceReloadTestGroup::object testForceReload;
 
@@ -868,6 +868,57 @@ namespace tut
 
             ensure_equals( s.userWarnings.messages.size(), i ? 4 : 0 );  
         }
+    }
+
+
+    template<>
+	template<>
+	void testForceReload::test<14>()
+	{
+    	set_test_name("ForceReload - persisting newly-created result-worklist links.");
+
+		using namespace valc;
+
+        const std::string CLUSTERS = "-1019430,\n";
+        const std::string PROJECTS = "-832455,reveal,ldb25,\n";
+        // Using a subset of the data from test #3 (above)
+        const std::string WORKLIST = 
+//rec  machine  barcode   test     group     c sample project p prof                  timestamp           seq s dil   result
+"-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
+"-36847,-1019430,118507091,-1031388,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,12,C,0.000,0,\n"
+"-36846,-1019430,118507091,-1031389,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,13,C,0.000,0,\n"
+"-36848,-1019430,118507091,-1031386,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,10,C,0.000,0,\n";
+
+        const std::string BUDDYDB = // Data same as for test 3
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n";
+
+        MockConnectionFactory connectionFactory;
+
+        connectionFactory.setClusters( CLUSTERS );
+        connectionFactory.setProjects( PROJECTS );
+        connectionFactory.setWorklist( WORKLIST );
+        connectionFactory.setBuddyDB ( BUDDYDB  );
+
+        boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
+
+        ForceReloadTestFixture s( connection.get() );
+
+        ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
+        ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+
+        const bool blockTillNoPendingUpdates = true;
+        ExceptionListener exceptionListener;
+
+        s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
+
+        ensure( exceptionListener.noExceptions() );
+        ensure_equals( "There should be no warnings.", s.userWarnings.messages.size(), 0 );
+        ensure_equals( "4 rows in buddy_result_float should have been updated.", connection->totalNewResult2WorklistLinks(), 4 );
+
     }
 
 };

@@ -65,7 +65,7 @@
         <ILINK_LibraryPath>..\..\..\..\paulst\;..\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <ProjectType>CppConsoleApplication</ProjectType>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <IncludePath>..\..\..\..\paulst\;..\;..\..\..\TUT;..\..\..\..\paulst;..\..\..\LUA;$(IncludePath)</IncludePath>
+        <IncludePath>..\..\..\..\paulst\;..\;..\..\..\TUT;..\..\..\..\paulst;..\..\..\LUA\lua-5.2.2\src;$(IncludePath)</IncludePath>
         <UsingDelphiRTL>true</UsingDelphiRTL>
         <AllPackageLibs>rtl.lib;vcl.lib</AllPackageLibs>
         <_TCHARMapping>char</_TCHARMapping>
@@ -88,7 +88,7 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <ILINK_LibraryPath>J:\cvs\LADS\LUA\64bit\;J:\cvs\paulst\Win64\Release\;J:\cvs\paulst\;J:\cvs\LADS\ValC\BusinessLayer\Win64\Debug\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>J:\cvs\LADS\ValC\BusinessLayer\UnitTests\;J:\cvs\LADS\LUA\64bit\;J:\cvs\paulst\Win64\Release\;J:\cvs\paulst\;J:\cvs\LADS\ValC\BusinessLayer\Win64\Debug\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <PackageImports>vcldbx;frx16;TeeDB;vclib;inetdbbde;Tee;Rave100VCL;ibxpress;vclimg;intrawebdb_120_160;frxDB16;fs16;FMXTee;vcldb;vclactnband;vcldsnap;bindcompvcl;TeeUI;vclie;vcltouch;Intraweb_120_160;bcbsmp;websnap;vclribbon;VclSmp;frxe16;fsDB16;vcl;CloudService;CodeSiteExpressPkg;FmxTeeUI;dsnapcon;vclx;webdsnap;bdertl;adortl;bcbie;$(PackageImports)</PackageImports>
@@ -132,10 +132,6 @@
         <Defines>NDEBUG;$(Defines)</Defines>
     </PropertyGroup>
     <ItemGroup>
-        <LibFiles Include="..\..\..\LUA\64bit\Lua64.a" Condition="'$(Platform)'=='Win64'">
-            <BuildOrder>66</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
         <CppCompile Include="..\ADODB_TLB.cpp">
             <DependentOn>..\ADODB_TLB.h</DependentOn>
             <BuildOrder>19</BuildOrder>
@@ -200,6 +196,10 @@
             <DependentOn>..\DBUpdateTaskInsertSampleRun.h</DependentOn>
             <BuildOrder>56</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\DBUpdateTaskLinkResultToWorklistEntry.cpp">
+            <DependentOn>..\DBUpdateTaskLinkResultToWorklistEntry.h</DependentOn>
+            <BuildOrder>68</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\DBUpdateTaskUpdateSampleRunID.cpp">
             <DependentOn>..\DBUpdateTaskUpdateSampleRunID.h</DependentOn>
             <BuildOrder>57</BuildOrder>
@@ -243,6 +243,10 @@
         <CppCompile Include="..\LoadWorklistEntries.cpp">
             <DependentOn>..\LoadWorklistEntries.h</DependentOn>
             <BuildOrder>35</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LuaDB.cpp">
+            <DependentOn>..\LuaDB.h</DependentOn>
+            <BuildOrder>69</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\MockConfig.cpp">
             <DependentOn>..\MockConfig.h</DependentOn>
@@ -305,6 +309,10 @@
         <None Include="ForceReloadTest.h">
             <BuildOrder>32</BuildOrder>
         </None>
+        <LibFiles Include="Lua_5_2_2_64.a" Condition="'$(Platform)'=='Win64'">
+            <BuildOrder>69</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
         <CppCompile Include="main.cpp">
             <BuildOrder>0</BuildOrder>
         </CppCompile>
