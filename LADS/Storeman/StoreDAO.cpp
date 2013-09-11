@@ -767,12 +767,12 @@ bool StoreDAO::loadCryovials( const std::string & specimen, const std::string & 
 
 bool StoreDAO::findBox( int box_id, int proj_id, ROSETTA & result )
 {
-	std::string sql = "SELECT v.external_full as vessel, shelf_number, r.external_name as structure,"
-			" slot_position, r.position as rack_pos"
-			" FROM box_store bs, c_rack_number r, c_tank_map m, c_object_name v "
+	std::string sql = "SELECT v.external_full as vessel_name, shelf_number, r.position as rack_pos,"
+			" r.external_name as structure, slot_position, m.position as tank_pos, l.external_name as site_name"
+			" FROM box_store bs, c_rack_number r, c_tank_map m, c_object_name v, c_object_name l "
 			" WHERE bs.status = 6" 		// box position confirmed
 			" AND bs.rack_cid = r.rack_cid AND r.tank_cid = m.tank_cid AND m.storage_cid = v.object_cid"
-			" AND box_cid = :bid";
+			" AND m.location_cid = l.object_cid AND box_cid = :bid";
 	LQuery pQuery = Util::projectQuery( proj_id, true );
 	pQuery.setSQL( sql );
 	pQuery.setParam( "bid", box_id );

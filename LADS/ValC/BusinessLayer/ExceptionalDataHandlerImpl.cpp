@@ -2,14 +2,8 @@
 #include <cstdio>
 #include "ExceptionalDataHandlerImpl.h"
 #include "LoggingService.h"
+#include "LuaInclude.h"
 #include "Require.h"
-
-extern "C" {
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
-
-}
 
 namespace valc
 {

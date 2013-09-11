@@ -188,7 +188,7 @@ bool BuddyDatabaseBuilder::accept( Cursor* c )
 
 void BuddyDatabaseBuilder::reset()
 {
-    resActionFlag = srFAOLevelOne = '\0';
+    resActionFlag = srFAOLevelOne = '?';
     resDateAnalysed = resUpdateWhen = srClosedWhen = srCreatedWhen = 0.0;
     buddySampleID = machineID = resID = alphaSampleID = resTestID = resWorklistID = srSequencePosition = srID = srIsOpen = 0;
     barcode = databaseName = sampleDescriptor = resText = sampleRunID = "";

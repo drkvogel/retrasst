@@ -20,6 +20,7 @@ public:
     DBUpdateTask* front() const;
     void pop_front();
     void scheduleUpdate( int forBuddySampleID, const std::string& candidateNewSampleRunID );
+    void scheduleUpdateLinkingResultToWorklistEntry( int resultID, int worklistEntry );
 private:
     std::deque< DBUpdateTask* >         m_updates;
     paulst::CritSec m_cs;

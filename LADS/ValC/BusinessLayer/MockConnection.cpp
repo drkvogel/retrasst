@@ -87,6 +87,11 @@ void MockConnection::setWorklist( const std::string& worklist )
     m_worklist = worklist;
 }
 
+int MockConnection::totalNewResult2WorklistLinks() const
+{
+    return std::count_if( m_updateStmts.begin(), m_updateStmts.end(), boost::bind( paulst::ifind, "set cbw_record_no", _1 ) );
+}
+
 int MockConnection::totalNewSampleRuns() const
 {
     return std::count_if( m_updateStmts.begin(), m_updateStmts.end(), boost::bind( paulst::ifind, "into sample_run", _1 ) );

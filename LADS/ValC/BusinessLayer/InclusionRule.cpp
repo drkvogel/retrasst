@@ -1,13 +1,8 @@
 #include <boost/shared_ptr.hpp>
 #include "InclusionRule.h"
+#include "LuaInclude.h"
 #include "Require.h"
 #include <SysUtils.hpp>
-
-extern "C" {
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
-}
 
 namespace valc
 {

@@ -1,0 +1,88 @@
+﻿StoreMan Retrieval Assistant
+
+Creating a retrieval work list (requirements 8.3.1 – 8.3.7) – updated 11 September 2013
+
+See K:/webcore/LIMS/database/v2.7/CentralDb.htm for database documentation
+
+StoreMan allows the user to create lists of boxes or cryovials to be retrieved for analysis (8.2) or disposal (7.2).  Sample retrieval for analysis may specify two aliquots: the secondary can be used if the primary is not available.  The retrieval assistant (8.3) guides a user through the retrieval process.  The first stage, when the retrieval assistant is given a new list to work on, is to create a retrieval plan divided up into manageable chunks.
+
+Box retrieval
+
+C_retrieval_job.status = new job (0); job type = box retrieval (2) or disposal (3)
+
+Note: the design currently assumes a box retrieval task will only include boxes that have their current locations recorded in the database.
+
+Find where the boxes are currently stored:
+
+Select 
+b.external_name as box, 
+s.external_name as site, 
+m.position, 
+v.external_full as vessel, 
+m.shelf_number, 
+r.external_name as rack, 
+bs.slot_position 
+from box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v 
+where b.box_cid=bs.box_cid and 
+bs.rack_cid = r.rack_cid and 
+r.tank_cid = m.tank_cid and 
+s.object_cid = location_cid and 
+v.object_cid = storage_cid and 
+bs.retrieval_cid = :jobID;
+
+List the name and expected location of each box.  The location includes the site, position, vessel, self, structure and slot, as it does in StoreMan’s storage browser.
+
+Allow the user to divide the list into chunks if necessary (see below for more details).  Show each chunk in turn and allow the user to sort by location, otherwise show the whole list and allow them to sort that.
+
+Ask the user to save changes with the option of going back to re-order if necessary or rejecting the whole task.
+
+Insert a record into c_box_retrieval for each box in turn and update c_retrieval_job: set status=in progress (1)
+
+Sample retrieval
+
+C_retrieval_job.status = new job (0); job type = sample retrieval (4) or disposal (5)
+
+Find the samples to be retrieved:
+
+Select cryovial_barcode, b1.external_name as source_box, s1.cryovial_position as source_pos, b2.external_name as destination_box, s2.cryovial_position as dest_pos
+
+from cryovial_store s1, cryovial c, box_name b1, cryovial_store s2, box_name b2 
+
+where c.cryovial_id = s1.cryovial_id and b1.box_cid = s1.box_cid and s1.cryovial_id = s2.cryovial_id and s2.status = 0 and b2.box_cid = s2.box_cid and s1.retrieval_cid = :jobID;
+
+At least half of these will be for the primary aliquot (i.e. cryovial.aliquot_type_cid = c_retrieval_job.primary_aliquot).
+
+The others may be for a secondary aliquot.  Primary and secondary tubes may come from the same specimen or from specimens from the same visit (i.e. with the same source name); they may have the same barcode but often have different aliquot types.  Both entries will have a destination box defined but the secondary may have the same destination as the primary
+
+Find where each box is currently stored:
+
+Select s.external_name as site, m.position, v.external_full as vessel, shelf_number, r.external_name as rack, bs.slot_position from box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v 
+
+where bs.status = 6 and m.status =0 and bs.rack_cid = r.rack_cid and r.tank_cid = m.tank_cid and s.object_cid = location_cid and v.object_cid = storage_cid and box_cid = :boxID;
+
+Note: a sample retrieval can include boxes that do not have their current locations recorded in the database.
+
+Piece this information together to create a list giving the destination box and position, cryovial barcode and current box, position, structure and location of the primary and secondary aliquots.
+
+The user may want to export, edit and import this list to specify the retrieval plan.  This needs further thought.
+
+Display the size of the job and ask the user if they want to divide the list into chunks.  If they do:
+
+1.	Ask them the maximum chunk size (default = 500 cryovials)
+
+2.	Calculate slots/box (box_name.box_type_cid = box_content.box_type_cid and c_box_size.box_size_cid = box_content.box_size_cid)
+
+3.	Ask them to select the size of first chunk from a list – it must be a multiple of the box size (from 2) and no more than the maximum (from 1)
+
+4.	Allocate the appropriate number of destination boxes to the first chunk
+
+5.	Repeat steps (2) and (3) until every box has been allocated to a chunk
+
+After division, show each chunk in turn and allow the user to sort by location, otherwise show the whole list and allow them to sort that.
+
+Ask the user to save changes with the option of going back to re-order if necessary or rejecting the whole task.
+
+Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in, and a record into l_cryovial_retrieval for each cryovial, recording its position in the list.  Update c_retrieval_job: set status=in progress (1)
+Other jobs
+C_retrieval_job.status = in progress (1) and job.type in (2,3,4,5): act on list [tbd]
+C_retrieval_job.status not in (0,1) or job.type not in (2,3,4,5): complain

@@ -149,6 +149,8 @@ object frmSamples: TfrmSamples
       TabOrder = 1
       OnClick = sgChunksClick
       OnDrawCell = sgChunksDrawCell
+      OnGetEditText = sgChunksGetEditText
+      OnSetEditText = sgChunksSetEditText
     end
   end
   object groupVials: TGroupBox

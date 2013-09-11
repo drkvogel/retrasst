@@ -64,20 +64,21 @@ Each cryovial has a second cryovial_store record giving the expected destination
 Set status = 1 when the position's confirmed */
     delete_referenced<vecpBoxRow>(frmBoxes->boxes);
     LQuery q(Util::projectQuery(frmBoxes->job->getProjectID(), true)); // get ddb
-    q.setSQL("SELECT"
-        " bs.box_cid, bs.rack_cid, b.status, bs.process_cid,"
-        " b.external_name as box, s.external_name as site, m.position,"
-        " v.external_full as vessel, m.shelf_number, r.external_name as rack,"
-        " bs.slot_position"
+    q.setSQL(
+        "SELECT"
+        "   bs.box_cid, bs.rack_cid, b.status, bs.process_cid,"
+        "   b.external_name as box, s.external_name as site, m.position,"
+        "   v.external_full as vessel, m.shelf_number, r.external_name as rack,"
+        "   bs.slot_position "
         " FROM"
-        " box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v"
+        "   box_name b, box_store bs, c_rack_number r, c_tank_map m, c_object_name s, c_object_name v"
         " WHERE"
-        " b.box_cid = bs.box_cid AND"
-        " bs.rack_cid = r.rack_cid AND"
-        " r.tank_cid = m.tank_cid AND"
-        " s.object_cid = location_cid AND"
-        " v.object_cid = storage_cid AND"
-        " bs.retrieval_cid = :jobID"); // e.g. -636363
+        "   b.box_cid = bs.box_cid AND"
+        "   bs.rack_cid = r.rack_cid AND"
+        "   r.tank_cid = m.tank_cid AND"
+        "   s.object_cid = location_cid AND"
+        "   v.object_cid = storage_cid AND"
+        "   bs.retrieval_cid = :jobID"); // e.g. -636363
     q.setParam("jobID", frmBoxes->job->getID());
     q.open();
     while (!q.eof()) {

@@ -20,8 +20,9 @@ public:
     void    setProjects         ( const std::string& projects  );
     void    setTestNames        ( const std::string& testNames );
     void    setWorklist         ( const std::string& worklist  );
-    int     totalNewSampleRuns  () const;
-    int     totalUpdatesForSampleRunIDOnBuddyDatabase() const;
+    int     totalNewResult2WorklistLinks                () const;
+    int     totalNewSampleRuns                          () const;
+    int     totalUpdatesForSampleRunIDOnBuddyDatabase   () const;
 private:
     std::string m_clusters,
                 m_projects,

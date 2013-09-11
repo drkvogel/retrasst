@@ -1,6 +1,7 @@
 #include "AllocateLocalResultsToWorklistEntries.h"
 #include "API.h"
 #include <boost/foreach.hpp>
+#include "DBUpdateSchedule.h"
 #include "ExceptionalDataHandler.h"
 #include "LoggingService.h"
 #include "Require.h"
@@ -54,8 +55,10 @@ void AllocateLocalResultsToWorklistEntries::execute()
 
         if ( m_matchingWorklistEntries.size() == 1 )
         {
-            m_resultIndex->allocateResultToWorklistEntry( id, m_matchingWorklistEntries.at(0) );
-            LOG( std::string("Allocated result ") << id << " to worklist entry " << m_matchingWorklistEntries.at(0) << "." );
+            const int worklistEntryID = m_matchingWorklistEntries.at(0);
+            m_resultIndex->allocateResultToWorklistEntry( id, worklistEntryID );
+            LOG( std::string("Allocated result ") << id << " to worklist entry " << worklistEntryID << "." );
+            m_dbUpdateSchedule->scheduleUpdateLinkingResultToWorklistEntry( id, worklistEntryID );
         }
         else
         {
