@@ -24,7 +24,7 @@ class LCDbCryoJob : public LCDbID, public LDbNames
 
 public:
 
-	enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
+	enum Status { NEW_JOB, INPROGRESS, DONE, REJECTED, DELETED = 99 };
 	enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD,
 				SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
 

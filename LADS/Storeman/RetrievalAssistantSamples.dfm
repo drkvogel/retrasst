@@ -125,6 +125,7 @@ object frmSamples: TfrmSamples
         Caption = 'Reject List'
         TabOrder = 7
         OnClick = btnRejectClick
+        ExplicitTop = 167
       end
       object cbLog: TCheckBox
         Left = 0

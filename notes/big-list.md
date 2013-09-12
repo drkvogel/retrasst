@@ -10,6 +10,7 @@ NewTank methods
 SampleEntry
 StoreDAO
         ::findBox
+          addToRetrieval
 
 find destination boxes 1st
 
@@ -18,6 +19,9 @@ stuff in updated spec (2013-09-11) about finding destination boxes?
     sample query-
         gets src and dest boxes in one projectdb-only query - but not storage details, these can be looked up after
             and cached in a map for efficiency
+    a sample retrieval can include boxes that do not have their current locations recorded
+    export/edit/import? maybe
+    option of rejecting whole task
 
 restructure DataRow etc to be more like/same as nick's GridEntry
 

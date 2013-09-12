@@ -40,6 +40,13 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     loadingMessage = oss.str().c_str();
     rowCount = 0;
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true));
+
+/*
+destination box and position,
+cryovial barcode and current box,
+position, structure and location
+of the primary and secondary aliquots.
+*/
     qd.setSQL(
         "SELECT"
         "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
@@ -427,6 +434,8 @@ void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
 void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
         //xxxxrejectList();
+        job->setStatus(LCDbCryoJob::Status::REJECTED);
+        job->saveRecord(LIMSDatabase::getCentralDb());
         Close();
     }
 }

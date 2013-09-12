@@ -86,16 +86,14 @@ __published:
     TButton *btnIncr;
     TButton *btnDecr;
     TMemo *memoDebug;
-    TCheckBox *cbLog;
-    TRadioGroup *radgrpRows;
-    TRadioButton *radbutAll;
-    TRadioButton *radbutDefault;
-    TRadioButton *radbutCustom;
-    TEdit *editCustomRows;
-    TTimer *timerCustomRows;
     TTimer *timerLoadBoxes;
     TPanel *panelLoading;
     TProgressBar *progressBottom;
+    TButton *btnReject;
+    TButton *Button1;
+    TButton *Button2;
+    TCheckBox *cbLog;
+    TButton *btnAutoChunk;
     void __fastcall FormShow(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
@@ -106,19 +104,15 @@ __published:
     void __fastcall cbLogClick(TObject *Sender);
     void __fastcall btnSaveClick(TObject *Sender);
     void __fastcall sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow);
-    void __fastcall editCustomRowsChange(TObject *Sender);
-    void __fastcall timerCustomRowsTimer(TObject *Sender);
-    void __fastcall radbutDefaultClick(TObject *Sender);
-    void __fastcall radbutAllClick(TObject *Sender);
-    void __fastcall radbutCustomClick(TObject *Sender);
     void __fastcall btnDecrClick(TObject *Sender);
     void __fastcall btnIncrClick(TObject *Sender);
     void __fastcall sgBoxesFixedCellClick(TObject *Sender, int ACol, int ARow);
     void __fastcall timerLoadBoxesTimer(TObject *Sender);
     void __fastcall sgBoxesClick(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
-    void __fastcall sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
-          TGridDrawState State);
+    void __fastcall sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
+    void __fastcall btnRejectClick(TObject *Sender);
+    void __fastcall btnAutoChunkClick(TObject *Sender);
 private:
     const char *        loadingMessage;
     LoadBoxesWorkerThread * loadBoxesWorkerThread;
@@ -130,6 +124,7 @@ private:
     void                sortList(int col);
     void                addChunk();
     void                showChunks();
+    void                autoChunk();
     void                loadRows();
     void                showRows();
     void                radgrpRowsChange();
