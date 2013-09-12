@@ -38,8 +38,6 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     delete_referenced<vecpSampleRow>(frmSamples->vials);
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
     loadingMessage = oss.str().c_str();
-    rowCount = 0;
-    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true));
 
 /*
 destination box and position,
@@ -47,6 +45,10 @@ cryovial barcode and current box,
 position, structure and location
 of the primary and secondary aliquots.
 */
+
+/*    rowCount = 0;
+    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
+
     qd.setSQL(
         "SELECT"
         "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
@@ -70,7 +72,7 @@ of the primary and secondary aliquots.
         "   v.object_cid = storage_cid AND"
         "   cs.retrieval_cid = :jobID");
 
-    /* -- may have destination box defined, could find with left join, e.g.:
+     -- may have destination box defined, could find with left join, e.g.:
             from
                  cryovial_store s1
             left join
@@ -85,19 +87,8 @@ of the primary and secondary aliquots.
             where
                 s1.retrieval_cid = :jobID
 
-        - but left join on ddb not allowed in ingres */
+        - but left join on ddb not allowed in ingres
 
-    qd.setSQL( // from spec 2013-09-11
-        "SELECT"
-        "  cryovial_barcode, b1.external_name as source_box, s1.cryovial_position as source_pos,"
-        "  b2.external_name as destination_box,"
-        "  s2.cryovial_position as dest_pos"
-        " FROM"
-        "  cryovial_store s1, cryovial c, box_name b1, cryovial_store s2, box_name b2"
-        " WHERE"
-        "  c.cryovial_id = s1.cryovial_id AND b1.box_cid = s1.box_cid AND"
-        "  s1.cryovial_id = s2.cryovial_id AND s2.status = 0 AND"
-        "  b2.box_cid = s2.box_cid AND s1.retrieval_cid = :jobID;");
     qd.setParam("jobID", frmSamples->job->getID());
     loadingMessage = frmSamples->loadingMessage; // base
     qd.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
@@ -121,7 +112,54 @@ of the primary and secondary aliquots.
         frmSamples->vials.push_back(row);
         qd.next();
         rowCount++;
+    }*/
+
+    rowCount = 0;
+    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
+    qd.setSQL( // from spec 2013-09-11
+        "SELECT"
+        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position,"
+        "  cryovial_barcode,"
+        "  b1.external_name as source_box,"
+        "  s1.cryovial_position as source_pos,"
+        "  b2.external_name as destination_box,"
+        "  s2.cryovial_position as dest_pos"
+        " FROM"
+        "  cryovial_store s1, cryovial c, box_name b1, cryovial_store s2, box_name b2"
+        " WHERE"
+        "  c.cryovial_id = s1.cryovial_id AND"
+        "  b1.box_cid = s1.box_cid AND"
+        "  s1.cryovial_id = s2.cryovial_id AND"
+        "  s2.status = 0 AND"
+        "  b2.box_cid = s2.box_cid AND"
+        "  s1.retrieval_cid = :jobID");
+    qd.setParam("jobID", frmSamples->job->getID());
+    loadingMessage = frmSamples->loadingMessage; // base
+    qd.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
+    while (!qd.eof()) {
+        ostringstream oss; oss<<"Found "<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
+        loadingMessage = oss.str().c_str();
+        if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
+
+        LPDbCryovialStore * vial = new LPDbCryovialStore(qd); // not query per row - not inefficient?
+            // expects Cryovial_id, Note_Exists, retrieval_cid, box_cid, status, cryovial_position, cryovial_id
+        pSampleRow  row = new SampleRow(
+            vial,
+            qd.readString("cryovial_barcode"),
+            "", //qd.readString("aliquot"),
+            qd.readString("source_box"),
+            "", //qd.readString("site"),
+            0, //qd.readInt("position"),
+            "", //qd.readString("vessel"),
+            0, //qd.readInt("shelf_number"),
+            "", //qd.readString("rack"),
+            0 //qd.readInt("slot_position")
+            );
+        frmSamples->vials.push_back(row);
+        qd.next();
+        rowCount++;
     }
+
 /* suggested per-box query for finding where each box is stored:
 (over ddb but not using left join) - could be cached
 
