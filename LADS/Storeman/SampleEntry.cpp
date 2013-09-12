@@ -13,6 +13,7 @@
 #include "LDbBoxType.h"
 #include "LPDbBoxes.h"
 #include "NewJob.h"
+#include "NewBoxType.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -45,7 +46,7 @@ void TfrmRetrieveMain::init()
 	grdSamples->Cells[NEW_BOX][0] = "New box";
 	grdSamples->Cells[NEW_POS][0] = "New pos";
 	grdSamples->Rows[1]->Clear();
-	ActiveControl = RadIDType;
+	enableButtons();
 }
 
 //---------------------------------------------------------------------------
@@ -79,8 +80,7 @@ void __fastcall TfrmRetrieveMain::AddClick(TObject *Sender)
 	for( int i = 0; i < idList->Count; i++ ) {
 		AnsiString id = idList->Strings[ i ];
 		std::string specimen, cryovial, box;
-		switch (RadIDType->ItemIndex)
-		{
+		switch( rgItemType->ItemIndex ) {
 			case 0: //sample
 				specimen = id.c_str();
 				break;
@@ -105,8 +105,6 @@ void __fastcall TfrmRetrieveMain::AddClick(TObject *Sender)
 		drawGrid();
 		Application -> ProcessMessages();
 	}
-	btnLocate->Enabled = true;
-	btnDestination->Enabled = true;
 	Screen->Cursor = crDefault;
 }
 
@@ -117,15 +115,12 @@ void __fastcall TfrmRetrieveMain::cbProjectChange(TObject *Sender)
 	LCDbProjects &projList = LCDbProjects::records( );
 	AnsiString proj = cbProject->Text;
 	const LCDbProject *selected = projList.findByName( proj.c_str() );
-	bool ready = false;
-	if( selected != NULL ) {
+	if( selected == NULL ) {
+		rows.clear();
+	} else {
 		projList.setCurrent( *selected );
-		ready = true;
 	}
-	CmbAliquot1->Enabled = ready;
-	CmbAliquot2->Enabled = ready;
-	btnAddFile->Enabled = ready;
-	btnAddRecords->Enabled = ready;
+	enableButtons();
 }
 
 //---------------------------------------------------------------------------
@@ -135,7 +130,7 @@ void __fastcall TfrmRetrieveMain::cbProjectDropDown(TObject *Sender)
 	cbProject->Clear();
 	int selected = -1;
 	for( Range< LCDbProject >pr = LCDbProjects::records( ); pr.isValid( ); ++pr ) {
-		if( pr->isValid( ) && pr->isActive( ) && !pr->isCentral( ) ) {
+		if( pr->isInCurrentSystem( ) && pr->isActive( ) && !pr->isCentral( ) ) {
 			if( pr->getID( ) == LCDbProjects::getCurrentID( ) ) {
 				selected = cbProject->Items->Count;
 			}
@@ -229,9 +224,10 @@ void __fastcall TfrmRetrieveMain::btnDestinationClick(TObject *Sender)
 		}
 		ge -> new_box = box.getName();
 		ge -> new_pos = box.addCryovial( ge->cryovial );
+		ge -> nid = box.getID();
 	}
 	drawGrid();
-	btnSaveList->Enabled = true;
+	btnSaveList->Enabled = true;	///	fixme: needs to be calculated
 }
 
 //---------------------------------------------------------------------------
@@ -252,7 +248,7 @@ void __fastcall TfrmRetrieveMain::CmbAliquot2DropDown(TObject *Sender)
 
 void TfrmRetrieveMain::populate( TComboBox * target, TComboBox * other )
 {
-	std::set< int > types = LPDbCryovials::getAliquotTypes( Util::projectQuery() );
+	std::set< int > types = LPDbCryovials::getAliquotTypes( LIMSDatabase::getProjectDb() );
 	types.erase( getTypeID( other ) );
 	target->Clear();
 	for( Range< LCDbObject > at = LCDbObjects::records(); at.isValid(); ++ at ) {
@@ -284,14 +280,15 @@ void __fastcall TfrmRetrieveMain::btnLocateClick(TObject *Sender)
 	progress -> Max = rows.size();
 	progress -> Position = 0;
 	for( std::vector<GridEntry>::iterator ge = rows.begin(); ge != rows.end(); ++ ge ) {
-		std::map<int, const GridEntry *>::const_iterator found = boxes.find( ge->bid );
+		int boxID = ge->oid;
+		std::map<int, const GridEntry *>::const_iterator found = boxes.find( boxID );
 		if( found != boxes.end() ) {
 			ge->copyLocation( *(found->second) );
 		} else {
-			if( dao.findBox( ge->bid, LCDbProjects::getCurrentID(), result ) ) {
+			if( dao.findBox( boxID, LCDbProjects::getCurrentID(), result ) ) {
 				ge->copyLocation( result );
 			}
-			boxes[ ge->bid ] = &(*ge);
+			boxes[ boxID ] = &(*ge);
 		}
 		progress -> StepIt();
 		drawGrid();
@@ -301,14 +298,40 @@ void __fastcall TfrmRetrieveMain::btnLocateClick(TObject *Sender)
 
 //---------------------------------------------------------------------------
 
-
 void __fastcall TfrmRetrieveMain::btnSaveListClick(TObject *Sender)
 {
-//// fixme - could be box retrieval
+	//// fixme - check radIDType: could be box retrieval
 	frmNewJob -> init( LCDbCryoJob::SAMPLE_RETRIEVAL );
 
-	if( frmNewJob -> ShowModal() != mrOk )
-		return;
+	int projID = LCDbProjects::getCurrentID();
+	int primary = getTypeID( CmbAliquot1 );
+	int secondary = getTypeID( CmbAliquot2 );
+	String error;
+	StoreDAO dao;
+	if( frmNewJob -> ShowModal() == mrOk ) {
+		Screen->Cursor = crSQLWait;
+		if( !frmNewJob -> createJob( projID, primary, secondary ) ) {
+			error = "Cannot create job record";
+		} else {
+			const LCDbCryoJob & job = frmNewJob -> getDetails();
+			for( std::vector<GridEntry>::const_iterator ge = rows.begin(); ge != rows.end(); ++ ge ) {
+				if( !dao.addToRetrieval( job.getID(), ge->cid, projID, ge->nid, ge->new_pos ) ) {
+					if( error.IsEmpty() ) {
+						error = "Cannot add cryovial(s) ";
+					} else {
+						error += ", ";
+					}
+					error += ge->cryovial.c_str();
+				}
+			}
+		}
+		Screen->Cursor = crDefault;
+	}
+	if( error.IsEmpty() ) {
+		this -> ModalResult = mrOk;
+	} else {
+		Application->MessageBox( error.c_str(), NULL, MB_OK );
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -317,9 +340,10 @@ TfrmRetrieveMain::GridEntry::GridEntry( const ROSETTA & row )
 : sid(row.getInt("sample_id")),sample(row.getString("barcode")),
   cid(row.getInt("cryovial_id")),cryovial(row.getString("cryovial_barcode")),
   aid(row.getInt("aliquot_type_cid")),aliquot(row.getString("aliquot")),
-  bid(row.getInt("box_cid")), old_box(row.getString("box_name")),
+  oid(row.getInt("box_cid")), old_box(row.getString("box_name")),
   old_pos(row.getInt("cryovial_position")),
-  shelf( 0 ), rack_pos( 0 ), slot( 0 ), new_pos( 0 ), location( 0 ) {
+  shelf( 0 ), location( 0 ), rack_pos( 0 ), slot( 0 ), nid( 0 ), new_pos( 0 )
+{
 	static unsigned nextRecord = 1;
 	record_number = nextRecord ++;
 }
@@ -471,4 +495,31 @@ bool TfrmRetrieveMain::Sorter::operator() ( GER a, GER b ) const {
 }
 
 //---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::btnNewContentClick(TObject *Sender)
+{
+	frmNewBoxType -> ShowModal();
+}
+
+//---------------------------------------------------------------------------
+
+void TfrmRetrieveMain::enableButtons() {
+	const LCDbProjects &projList = LCDbProjects::records( );
+	const LCDbProject * proj = projList.findByID( LCDbProjects::getCurrentID() );
+	bool ready = (proj != NULL);
+	btnAddFile->Enabled = ready;
+	btnAddRecords->Enabled = ready;
+	ready = ready && !rows.empty();
+	btnLocate->Enabled = ready;
+	btnDestination->Enabled = ready;
+	btnNewContent->Enabled = ready;
+	ready = ready && !sortList.columns.empty();
+	btnClrSort->Enabled = ready;
+
+///	fixme: needs to be calculated				btnSaveList->Enabled = false;
+
+}
+
+//---------------------------------------------------------------------------
+
 

@@ -99,19 +99,19 @@ private:	// User declarations
 	int layout_cid;
 
 	void setPopulation( short shelf );
-	int getDefaultPosition();
-	int getDefaultStoreTypeID();
-	int getDefaultLayoutIndex();
+	int getDefaultPosition() const;
+	int getDefaultStoreTypeID() const;
+	int getDefaultLayoutIndex() const;
 	void fillSiteList( int selectedID );
 	void fillUpLayouts();
 	void fillStorageTypes( int selectedID );
 	std::string getNextPopulation();
 //	std::string getPopDescription();
-	const LCDbObject * findStorageType();
+	const LCDbObject * findStorageType() const;
 	void clearLayoutPanel();
 	void changeVessel( AnsiString site, AnsiString position );
-	bool checkVessel( TEdit * textBox, TLabel * label, bool isName );
-	bool checkPosition( int locationCID, short pos, short shelf );
+	bool checkVessel( TEdit * textBox, TLabel * label, bool isName ) const;
+	bool checkPosition( int locationCID, short pos, short shelf ) const;
 
 	enum TankAvailability { ONLINE, OFFLINE };
 
@@ -136,7 +136,7 @@ public:		// User declarations
 	void initNewTank( TTreeNode* p_parent, TTreeView *p_tree );
 	void initModLayout( Tank * p_tank, TTreeNode* p_parent, TTreeView *p_tree, Mode reason );
 
-	Tank * getPart(){ return tank; };
+	Tank * getPart() const { return tank; };
 	Tank * createTank() { return saveDetails(); }
 	Tank * saveChanges() { return saveDetails(); }
 };

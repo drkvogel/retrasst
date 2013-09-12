@@ -40,8 +40,8 @@ class LSDbBox
 		const std::string & getBoxName( void ) const {return boxName;}
 
 	protected:
-			short first, last;
 			std::string boxName;
+			short first, last;
 };
 
 class LSDbBoxEvent

@@ -930,7 +930,7 @@ std::auto_ptr< ROSETTA >Rack::getProperties( ) {
 	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
 	r->setInt( "position", position );
 	if( capacity > 0 ) {
-		r->setInt( "capacity", capacity );
+		r->setInt( "total_slots", capacity );
 	}
 	if( childCount > 0 ) {
 		r->setInt( "slots_used", childCount );
@@ -948,7 +948,7 @@ std::auto_ptr< ROSETTA >Rack::getObjectData( ) {
 	// r->setInt( "map_cid", map_cid );
 	r->setInt( "project_cid", project_cid );
 	r->setInt( "box_type_cid", box_type_cid );
-	r->setInt( "capacity", emptySlots );
+	r->setInt( "empty_slots", emptySlots );
 	r->setInt( "pos_in_tank", posInTank );
 	r->setInt( "pos_in_section", position );
 	Section * p = dynamic_cast< Section * >( parent );
@@ -992,7 +992,7 @@ void Rack::populate( ) {
 	}
 	if( results.empty() ) {
 		for( Range< LCDbProject > pr = LCDbProjects::records(); pr.isValid(); ++ pr ) {
-			if( pr->isValid() && !pr -> isCentral() ) {
+			if( pr->isInCurrentSystem() && !pr -> isCentral() ) {
 				dao.loadBoxes( id, pr -> getID(), results );
 			}
 		}
@@ -1658,7 +1658,7 @@ int Layouts::getLayoutId( int tank_cid ) {
 	return 0;
 }
 
-int Layouts::find( int p_id ) {
+int Layouts::find( int p_id ) const {
 	for( int i = 0; i < ( int ) layouts.size( ); i++ ) {
 		if( p_id == layouts[ i ]->getLayout_cid( ) ) {
 			return i;
@@ -1676,7 +1676,7 @@ Layout * Layouts::getLayout( int i ) const {
 	}
 }
 
-bool Layouts::isNameDuplicate( bool full, std::string name ) {
+bool Layouts::isNameDuplicate( bool full, std::string name ) const {
 	for( unsigned i = 0; i < layouts.size( ); i++ ) {
 		if( full ) {
 			if( layouts[ i ]->getLayoutDescription() == name ) {
@@ -1691,7 +1691,7 @@ bool Layouts::isNameDuplicate( bool full, std::string name ) {
 	return false;
 }
 
-int Layouts::getDefaultLayoutId( int store_cid ) {
+int Layouts::getDefaultLayoutId( int store_cid ) const {
 	int layout_cid = -1;
 	for( Range< LCDbTankMap >tmr = LCDbTankMaps::records( ); tmr.isValid( ); ++tmr ) {
 		// use any layout but keep the first active one
@@ -1896,7 +1896,7 @@ void AvlRack::populate( ) {
 			dao.loadRackOccupancy( id, project_cid, occupied );
 		} else {
 			for( Range< LCDbProject > pr = LCDbProjects::records(); pr.isValid(); ++ pr ) {
-				if( pr -> isValid() && !pr -> isCentral() ) {
+				if( pr -> isInCurrentSystem() && !pr -> isCentral() ) {
 					dao.loadRackOccupancy( id, pr -> getID(), occupied );
 				}
 			}
@@ -1958,7 +1958,7 @@ void PartFactory::loadBoxes( const LCDbCryoJob &job ) {
 		dao.loadBoxesByJobID( job.getID(), projID, results );
 	} else {
 		for( Range< LCDbProject > pr = LCDbProjects::records(); pr.isValid(); ++ pr ) {
-			if( pr -> isValid() && !pr -> isCentral() ) {
+			if( pr -> isInCurrentSystem() && !pr -> isCentral() ) {
 				dao.loadBoxesByJobID( job.getID(), pr->getID(), results );
 			}
 		}

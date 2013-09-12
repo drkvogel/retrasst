@@ -41,14 +41,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<ShowGeneralMessages>true</ShowGeneralMessages>
-			<BCC_StringsInReadOnlyDataSeg>true</BCC_StringsInReadOnlyDataSeg>
-			<BCC_ShortEnum>true</BCC_ShortEnum>
-			<BCC_PCHCache>true</BCC_PCHCache>
-			<BCC_IntegerSizedEnums>false</BCC_IntegerSizedEnums>
 			<VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-			<BCC_MergeDuplicateStrings>true</BCC_MergeDuplicateStrings>
-			<BCC_DataAlignment>DWord</BCC_DataAlignment>
 			<BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
 			<VerInfo_Debug>true</VerInfo_Debug>
 			<BCC_CPPCompileAlways>true</BCC_CPPCompileAlways>
@@ -67,10 +60,10 @@
 			<TASM_wicg>true</TASM_wicg>
 			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-			<VerInfo_Build>1</VerInfo_Build>
-			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.9.1;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
+			<VerInfo_Build>7</VerInfo_Build>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.8.7;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.2.8.7;Comments=</VerInfo_Keys>
 			<VerInfo_MinorVer>2</VerInfo_MinorVer>
-			<VerInfo_Release>9</VerInfo_Release>
+			<VerInfo_Release>8</VerInfo_Release>
 			<VerInfo_Locale>2057</VerInfo_Locale>
 			<_TCHARMapping>wchar_t</_TCHARMapping>
 			<ProjectType>CppVCLApplication</ProjectType>
@@ -115,8 +108,8 @@
 			<ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.9.2;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
-			<VerInfo_Build>2</VerInfo_Build>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.8.9;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.2.8.7;Comments=</VerInfo_Keys>
+			<VerInfo_Build>9</VerInfo_Build>
 			<Defines>_DEBUG;$(Defines)</Defines>
 			<LinkPackageImports>rtl.bpi;vcl.bpi;dbrtl.bpi;IndyCore.bpi;IndySystem.bpi;IndyProtocols.bpi;vclx.bpi;vcldb.bpi;vclimg.bpi;bdertl.bpi</LinkPackageImports>
 			<BCC_AllCodeguardOptions>false</BCC_AllCodeguardOptions>
@@ -438,6 +431,11 @@
 				<DependentOn>MoveJobs.h</DependentOn>
 				<BuildOrder>78</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="NewBoxType.cpp">
+				<Form>frmNewBoxType</Form>
+				<DependentOn>NewBoxType.h</DependentOn>
+				<BuildOrder>96</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="NewExercise.cpp">
 				<Form>frmNewExercise</Form>
 				<DependentOn>NewExercise.h</DependentOn>
@@ -558,9 +556,6 @@
 			<CppCompile Include="StoreMan.cpp">
 				<BuildOrder>60</BuildOrder>
 			</CppCompile>
-			<ResFiles Include="StoreMan.res">
-				<BuildOrder>96</BuildOrder>
-			</ResFiles>
 			<CppCompile Include="StoreUtil.cpp">
 				<DependentOn>StoreUtil.h</DependentOn>
 				<BuildOrder>58</BuildOrder>
@@ -586,43 +581,44 @@
 				<BuildOrder>49</BuildOrder>
 			</CppCompile>
 			<FormResources Include="FindSample.dfm"/>
-			<FormResources Include="MoveJobs.dfm"/>
+			<FormResources Include="DiscardSamples.dfm"/>
 			<FormResources Include="DiscardSearch.dfm"/>
+			<FormResources Include="NewSection.dfm"/>
 			<FormResources Include="NewSite.dfm"/>
 			<FormResources Include="NewTank.dfm"/>
-			<FormResources Include="NewType.dfm"/>
+			<FormResources Include="MoveJobs.dfm"/>
 			<FormResources Include="NewExercise.dfm"/>
 			<FormResources Include="NewJob.dfm"/>
-			<FormResources Include="NewSection.dfm"/>
-			<FormResources Include="Configure.dfm"/>
-			<FormResources Include="BoxTransfer.dfm"/>
 			<FormResources Include="BrowseSample.dfm"/>
+			<FormResources Include="Configure.dfm"/>
+			<FormResources Include="AnalyseSamples.dfm"/>
+			<FormResources Include="BoxTransfer.dfm"/>
+			<FormResources Include="DiscardNote.dfm"/>
 			<FormResources Include="DiscardPrologue.dfm"/>
 			<FormResources Include="DiscardReason.dfm"/>
-			<FormResources Include="DiscardSamples.dfm"/>
 			<FormResources Include="DiscardMethod.dfm"/>
-			<FormResources Include="DiscardNote.dfm"/>
 			<FormResources Include="Storemain.dfm"/>
+			<FormResources Include="SelectSamples.dfm"/>
 			<FormResources Include="ShowSamples.dfm"/>
 			<FormResources Include="SMLogin.dfm"/>
+			<FormResources Include="RetrievalAssistant.dfm"/>
 			<FormResources Include="RetrievalAssistantAutoChunk.dfm"/>
 			<FormResources Include="RetrievalAssistantBoxes.dfm"/>
-			<FormResources Include="RetrievalAssistantProcess.dfm"/>
+			<FormResources Include="NewType.dfm"/>
 			<FormResources Include="ReferredBoxes.dfm"/>
 			<FormResources Include="ReferredBoxesSummary.dfm"/>
-			<FormResources Include="RetrievalAssistant.dfm"/>
+			<FormResources Include="SampleEntry.dfm"/>
 			<FormResources Include="SampleMove.dfm"/>
-			<FormResources Include="SelectSamples.dfm"/>
+			<FormResources Include="RetrievalAssistantProcess.dfm"/>
 			<FormResources Include="RetrievalAssistantSamples.dfm"/>
 			<FormResources Include="RetrieveSamples.dfm"/>
-			<FormResources Include="SampleEntry.dfm"/>
-			<FormResources Include="AnalyseSamples.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
 			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
 			<FormResources Include="AddSpecimens.dfm"/>
+			<FormResources Include="NewBoxType.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -649,7 +645,7 @@
 						<VersionInfo Name="MajorVer">1</VersionInfo>
 						<VersionInfo Name="MinorVer">2</VersionInfo>
 						<VersionInfo Name="Release">8</VersionInfo>
-						<VersionInfo Name="Build">15</VersionInfo>
+						<VersionInfo Name="Build">16</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -661,7 +657,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName"/>
 						<VersionInfoKeys Name="FileDescription"/>
-						<VersionInfoKeys Name="FileVersion">1.2.8.15</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">1.2.8.16</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName"/>
 						<VersionInfoKeys Name="LegalCopyright"/>
 						<VersionInfoKeys Name="LegalTrademarks"/>

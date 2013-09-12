@@ -33,7 +33,7 @@ class LDbNote
 protected:
 
 	LDbNote( const std::string & text, int procID, int opID, TDateTime timeStamp = 0 )
-	 : content( text ), process( procID ), user( opID ), created( timeStamp )
+	 : content( text ), created( timeStamp ), user( opID ), process( procID )
 	{}
 
 public:

@@ -13,8 +13,6 @@
 #include <ExtCtrls.hpp>
 #include <Buttons.hpp>
 #include <Dialogs.hpp>
-#include "LPDbBoxes.h"
-#include "LCDbJob.h"
 
 //---------------------------------------------------------------------------
 

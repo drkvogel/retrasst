@@ -4,7 +4,8 @@
 #define LDbIdClassesH
 
 #include <string>
-#include "LQuery.h"
+
+class LQuery;
 
 //---------------------------------------------------------------------------
 

@@ -32,7 +32,7 @@ void __fastcall TfrmFind::FormShow(TObject *Sender)
 	cbProject->Clear();
 	std::string current;
 	for( Range< LCDbProject > pr = LCDbProjects::records(); pr.isValid(); ++ pr ) {
-		if( pr -> isValid() && !pr -> isCentral() ) {
+		if( pr -> isInCurrentSystem() && !pr -> isCentral() ) {
 			if( pr->getID() == LCDbProjects::getCurrentID() ) {
 				current = pr->getName();
 			}
@@ -88,7 +88,7 @@ void __fastcall TfrmFind::cbTypeDropDown(TObject *Sender)
 {
 	cbType->Clear();
 	if( rgTypes -> ItemIndex == 1 ) {
-		std::set< int > types = LPDbCryovials::getAliquotTypes( Util::projectQuery() );
+		std::set< int > types = LPDbCryovials::getAliquotTypes( LIMSDatabase::getProjectDb() );
 		for( Range< LCDbObject > at = LCDbObjects::records(); at.isValid(); ++ at ) {
 			if( types.count( at->getID() ) != 0 ) {
 				cbType->Items->Add( at->getName().c_str() );
@@ -174,7 +174,8 @@ bool TfrmFind::findCryovial() {
 		return false;
 	}
 	LPDbCryovials db;
-	const LPDbCryovial * cryovial = db.readRecord( Util::projectQuery(), barcode.c_str(), aliquot->getID() );
+	LQuery pq( LIMSDatabase::getProjectDb() );
+	const LPDbCryovial * cryovial = db.readRecord( pq, barcode.c_str(), aliquot->getID() );
 	if( cryovial == NULL ) {
 		return false;
 	}

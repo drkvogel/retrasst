@@ -1185,7 +1185,7 @@ Db::getProjectNames( ) const
 {
     StringVec names;
 	for (Range<LCDbProject> pl = LCDbProjects::records(); pl.isValid(); ++pl) {
-		if( pl->isValid() && pl->isActive() && !pl->isCentral() ) {
+		if( pl->isInCurrentSystem() && pl->isActive() && !pl->isCentral() ) {
 			names.push_back(pl->getName().c_str());
         }
 	}

@@ -2,16 +2,17 @@
 
 #ifndef NewSectionH
 #define NewSectionH
-//---------------------------------------------------------------------------
+
 #include <Classes.hpp>
 #include <Controls.hpp>
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
 #include <ComCtrls.hpp>
-
 #include "Inventory.h"
 #include <string>
+
 //---------------------------------------------------------------------------
+
 class TfrmNewSection : public TForm
 {
 __published:	// IDE-managed Components
@@ -31,21 +32,23 @@ __published:	// IDE-managed Components
 	TUpDown *UpDownCap;
 	TEdit *TxtCap;
 	TLabel *LblCap;
+
 	void __fastcall OKClick(TObject *Sender);
 	void __fastcall CancelClick(TObject *Sender);
-private:	// User declarations
 
+private:	// User declarations
 	std::vector<IPart*> newSectionList;
 	Section* section;
 
 public:		// User declarations
 	__fastcall TfrmNewSection(TComponent* Owner);
 	void init( IPart* lay, Section* p_section );
-	int getDefaultFillOrder();
-	bool isFillOrderDuplicate( int order );
-	bool isPrefixDuplicate( std::string prefix );
-	Section* getSection(){ return section; }
+	int getDefaultFillOrder() const;
+	bool isFillOrderDuplicate( int order ) const;
+	bool isPrefixDuplicate( std::string prefix ) const;
+	Section* getSection() const { return section; }
 };
+
 //---------------------------------------------------------------------------
 extern PACKAGE TfrmNewSection *frmNewSection;
 //---------------------------------------------------------------------------

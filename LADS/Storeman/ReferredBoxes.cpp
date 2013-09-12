@@ -141,7 +141,7 @@ void TfrmReferred::init() {
 
     // XXX boxes in l_box_arrival are for real projects not dev_<project>
     for (Range<LCDbProject> pr = LCDbProjects::records(); pr.isValid(); ++pr) {
-		if (pr->isValid() && !pr->isCentral()) {
+		if (pr->isInCurrentSystem() && !pr->isCentral()) {
 			listboxProjects->Items->AddObject(pr->getName().c_str(), (TObject *)pr->getID());
         }
     }

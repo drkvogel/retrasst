@@ -29,9 +29,11 @@ void __fastcall TfrmLogin::initialise(TObject *Sender)
 
 	//	list active projects in the current system, if available
 	projName -> Clear();
-	for( Range< LCDbProject > pl = LCDbProjects::records(); pl.isValid(); ++ pl )
-		if( pl -> isActive() && !pl -> isCentral() )
+	for( Range< LCDbProject > pl = LCDbProjects::records(); pl.isValid(); ++ pl ) {
+		if( pl->isInCurrentSystem() && pl -> isActive() && !pl -> isCentral() ) {
 			projName -> Items -> Add( pl -> getName().c_str() );
+		}
+	}
 	projName -> Enabled = (projName -> Items -> Count != 0);
 }
 
@@ -75,4 +77,5 @@ void __fastcall TfrmLogin::okButtonClick(TObject *Sender)
 }
 
 //---------------------------------------------------------------------------
+
 

@@ -5,9 +5,7 @@
 
 #include "LDbIdClasses.h"
 #include "LDbNameBase.h"
-#include "LCDbObject.h"
 #include "LDbCacheBase.h"
-#include "LCDbProject.h"
 
 //---------------------------------------------------------------------------
 
@@ -60,10 +58,7 @@ public:
 	void setPosition( short pos ) { srPosition = pos; }
 
 	const std::pair< short, short > & getLengthRange() const { return lengths; }
-	void setLengthRange( const std::pair< short, short > & range )
-	{
-		lengths = range;
-	}
+	void setLengthRange( const std::pair< short, short > & range ) { lengths = range; }
 
 //	short getParseOrder() const { return parseOrder; }
 	short getGrouping() const { return nsGrouping; }
@@ -87,7 +82,7 @@ public:
 		void setRange( const std::pair< std::string, std::string > & p ) { range = p; }
 	};
 
-	Range< Value > getValues() const { return valueList; }
+	const LDbCache< Value > & getValues() const { return valueList; }
 	void addValue( const Value & val ) { valueList.insert( val ); }
 	void addValue( LQuery query, Value definition );
 	void removeValue( LQuery query, int valueID );
@@ -122,8 +117,8 @@ public:
 	const LPDbDescriptor * findByValueID( int valueID ) const;
 	const LPDbDescriptor * findByValueName( const std::string & name ) const;
 
-	std::string getNextMapField();
-	std::string getNextSpecimenField();
+	std::string getNextMapField() const;
+	std::string getNextSpecimenField() const;
 };
 
 //---------------------------------------------------------------------------

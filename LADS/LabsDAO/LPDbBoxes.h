@@ -37,7 +37,7 @@ public:
 	{}
 
 	LPDbBoxName( const std::string & label, int typeID = 0 )
-	 : status( IN_USE ), name( label ), boxTypeID( typeID ), filledBy( 0 )
+	 : name( label ), status( IN_USE ), boxTypeID( typeID ), filledBy( 0 )
 	{}
 
 	const std::string & getName() const { return name; }
@@ -59,12 +59,12 @@ public:
 	bool create( const LPDbBoxType & type, LQuery query );
 	void findSpace( const LPDbBoxType & type, LQuery query );
 	bool saveRecord( LQuery query );
-	bool addEventRecord( LQuery query, const LCDbObject * event, const std::string & text );
+//	bool addEventRecord( LQuery query, const LCDbObject * event, const std::string & text );
 	void addCryovials( LQuery & pq );
 	void checkFilledBy( LQuery & pq );
 
 	void confirmAllocation( LQuery pQuery );
-	bool matchesGroup( LQuery projectQuery );
+	bool matchesGroup( LQuery pQuery );
 
 	static const LCDbObject * findEvent( const char * eventName );
 };

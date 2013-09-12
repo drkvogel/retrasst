@@ -1,5 +1,15 @@
-﻿
+﻿new stuff from CVS:
 
+LIMSDatabase::getProjectDb()
+LCDbProject::isInCurrentSystem()
+
+not new, but...
+Tank::getVessel()? // Inventory.h
+TfrmNewJob::createJob
+NewTank methods
+SampleEntry
+StoreDAO
+        ::findBox
 
 find destination boxes 1st
 

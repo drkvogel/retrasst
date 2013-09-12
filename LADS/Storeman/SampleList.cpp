@@ -140,9 +140,9 @@ const LPDbSource * SampleList::findSpecimen( LQuery & pQuery, int sampleID )
 //	create specimen records for each entry, with the given status
 //---------------------------------------------------------------------------
 
-void SampleList::save( LQuery pQuery, LDbSource::Stage stage )
+void SampleList::save( LQuery pQuery, LDbSource::Stage stage ) const
 {
-	for( std::vector< Entry >::iterator si = entries.begin(); si != entries.end(); ++ si ) {
+	for( std::vector< Entry >::const_iterator si = entries.begin(); si != entries.end(); ++ si ) {
 		LPDbSource specimen( si -> getBarcode(), si -> whenFirstSeen(), 0 );
 		specimen.merge( si -> getFields() );
 		specimen.setStage( stage );

@@ -42,12 +42,12 @@ LCDbAnalyser::LCDbAnalyser( const LQuery & query  )
    LDbValid( query.readDateTime( "valid_from" ),
 			 query.readDateTime( "valid_to" ),
 			 query.readInt( "status" ) ),
-   location( query.readString( "location" ) )
+   location( query.readString( "location" ) ),
+   use( UNKNOWN )
 {
 	int cluster = query.readInt( "cluster_cid" );
 	if( cluster != 0 )
 	   clusterIDs.insert( cluster );
-	use = UNKNOWN;
 }
 
 //---------------------------------------------------------------------------
@@ -219,7 +219,7 @@ std::set< int > LCDbAnalysers::getAnalyserIDs( int machineID ) const
 		machineID = getCurrentID();
 
 	std::set< int > buddyIDs;
-	for( Range< LCDbAnalyser > ar = records(); ar.isValid(); ++ ar )
+	for( const_iterator ar = begin(); ar != end(); ++ ar )
 		if( ar -> getID() == machineID || ar -> getClusterIDs().count( machineID ) != 0 )
 			buddyIDs.insert( ar -> getID() );
 	return buddyIDs;

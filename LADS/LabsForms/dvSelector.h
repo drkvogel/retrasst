@@ -3,12 +3,11 @@
 #ifndef dvSelectorH
 #define dvSelectorH
 
-//---------------------------------------------------------------------------
-
 #include <Classes.hpp>
 #include <Controls.hpp>
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
+#include <set>
 #include "ValueFields.h"
 
 //---------------------------------------------------------------------------

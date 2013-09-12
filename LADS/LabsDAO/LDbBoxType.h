@@ -25,7 +25,7 @@ public:
 	enum Expectation { SHORT_TERM, LONG_TERM, SEND_AWAY, DISPOSAL, DELETED = 99 };
 
 	LPDbBoxType( int id )
-	 : LPDbID( id ), sizeID( 0 ), group( 0 ), position( 0 ), status( LONG_TERM ), uses( 0 )
+	 : LPDbID( id ), group( 0 ), position( 0 ), status( LONG_TERM ), uses( 0 ), sizeID( 0 )
 	{}
 
 	LPDbBoxType( const LQuery & query );

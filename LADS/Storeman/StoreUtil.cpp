@@ -293,12 +293,7 @@ LQuery Util::projectQuery( int projID, bool ddb ) {
 	if( projID != current ) {
 		projList.setCurrent( proj );
 	}
-	const std::string & dbname = proj.getDbName();
-	if( ddb ) {
-		return LQuery( LIMSDatabase::getDistributedDb( dbname ) );
-	} else {
-		return LQuery( LIMSDatabase::getProjectDb( dbname ) );
-	}
+	return LQuery( LIMSDatabase::getProjectDb( proj.getDbName(), ddb ) );
 }
 
 //---------------------------------------------------------------------------

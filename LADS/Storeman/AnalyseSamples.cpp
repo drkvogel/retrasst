@@ -2,13 +2,14 @@
 
 #include <vcl.h>
 
+#include "LCDbProject.h"
+#include "LDbBoxStore.h"
 #include "AnalyseSamples.h"
 #include "SelectSamples.h"
 #include "AddSpecimens.h"
 #include "SMLogin.h"
 #include "StoreUtil.h"
 #include "MoveJobs.h"
-#include "LDbBoxStore.h"
 
 #pragma hdrstop
 
@@ -31,7 +32,7 @@ void TfrmAnalyseSpecimens::init( ) {
 	cbProject->Clear( );
 	int selected = -1;
 	for( Range< LCDbProject >pr = LCDbProjects::records( ); pr.isValid( ); ++pr ) {
-		if( pr->isValid( ) && pr->isActive( ) && !pr->isCentral( ) ) {
+		if( pr->isInCurrentSystem( ) && pr->isActive( ) && !pr->isCentral( ) ) {
 			if( pr->getID( ) == LCDbProjects::getCurrentID( ) ) {
 				selected = cbProject->Items->Count;
 			}
@@ -125,7 +126,7 @@ bool TfrmAnalyseSpecimens::addFromJob( ) {
 		const LCDbCryoJob * job = frmSelectJob->getSelected( );
 		if( job->getJobType() == LCDbCryoJob::BOX_RETRIEVAL ) {
 			LCDbBoxStores locations;
-			if( locations.readJob( Util::projectQuery( ), job->getID( ) ) ) {
+			if( locations.readJob( LIMSDatabase::getProjectDb(), job->getID( ) ) ) {
 				for( Range< LCDbBoxStore > li = locations; li.isValid( ); ++li ) {
 					if( frmAddSpecimens->addFromBox( li->getBoxID( ) ) > 0 ) {
 						ready = true;

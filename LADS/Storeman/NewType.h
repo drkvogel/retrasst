@@ -17,7 +17,7 @@ class LCDbObject;
 
 //---------------------------------------------------------------------------
 
-class TfrmNewType : public TForm
+class TfrmNewStoreType : public TForm
 {
 __published:	// IDE-managed Components
 
@@ -34,11 +34,11 @@ private:	// User declarations
 
 public:		// User declarations
 
-	__fastcall TfrmNewType(TComponent* Owner);
+	__fastcall TfrmNewStoreType(TComponent* Owner);
 	const LCDbObject * createRecord();
 };
 
 //---------------------------------------------------------------------------
-extern PACKAGE TfrmNewType *frmNewType;
+extern PACKAGE TfrmNewStoreType *frmNewStoreType;
 //---------------------------------------------------------------------------
 #endif

@@ -87,8 +87,9 @@ void LDbBoxExpecteds::readAll( LQuery central )
 {
 	LCDbProjects & pList = LCDbProjects::records();
 	for( Range< LCDbProject > p = pList; p.isValid(); ++ p ) {
-		pList.setCurrent( *p );
-		records( p->getID() );
+		if( p->isInCurrentSystem() ) {
+			records( p->getID() );
+		}
 	}
 }
 
@@ -306,12 +307,13 @@ void LDbBoxArrivals::readAll( LQuery central )
 {
 	LCDbProjects & pList = LCDbProjects::records();
 	for( Range< LCDbProject > p = pList; p.isValid(); ++ p ) {
-		pList.setCurrent( *p );
-		records( p->getID() );
+		if( p->isInCurrentSystem() ) {
+			records( p->getID() );
+		}
 	}
 }
 
-void LDbBoxArrivals::read( LQuery project, bool all )
+void LDbBoxArrivals::read( LQuery pQuery, bool all )
 {
 	// box arrivals are now stored centrally
 	LQuery central( LIMSDatabase::getCentralDb() );
@@ -325,7 +327,14 @@ void LDbBoxArrivals::read( LQuery project, bool all )
 						" order by box_arrival_id" );
 		central.setParam( "sta" , LDbValid::DELETED );
 	}
-	central.setParam( "pid", LCDbProjects::getCurrentID() );
+
+	const std::string & projDb = pQuery.getDatabase().getDbName();
+	const LCDbProject * proj = LCDbProjects::records().findByName( projDb );
+	if( proj == NULL ) {
+		central.setParam( "pid", LCDbProjects::getCurrentID() );
+	} else {
+		central.setParam( "pid", proj->getID() );
+	}
 	readData( central );
 }
 

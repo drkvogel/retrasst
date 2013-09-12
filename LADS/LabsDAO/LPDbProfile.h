@@ -24,7 +24,7 @@ protected:
 public:
 
 	LDbTestLimits( int testID, int buddyID = 0 )
-	 : test( testID ), analyser( buddyID ), local( false ), trigger( 0 )
+	 : test( testID ), analyser( buddyID ), trigger( 0 ), local( false )
 	{}
 
 	int getAnalyserID() const { return analyser; }

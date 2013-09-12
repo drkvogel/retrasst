@@ -7,7 +7,7 @@
  *      18 June 2009, NG:		Added LPDbCacheMap extending LDbCacheMap
  *      29 Sept 2010, NG:		Adapted to work with Filter template
  *      27 April 2012, NG:		Allow out-of-order insertion by readData
- *		2 September 2013, NG:	File cache from database on first use
+ *		2 September 2013, NG:	Fill cache from database on first use
  *
  *--------------------------------------------------------------------------*/
 
@@ -15,14 +15,10 @@
 #define LDbCacheBaseH
 
 #include <vector>
-#include <map>
 #include <algorithm>
 #include <typeinfo>
-
-#include "LDbRange.h"
 #include "XMLFile.h"
 #include "LQuery.h"
-#include "rosetta.h"
 
 //---------------------------------------------------------------------------
 //	A sorted container used to cache LIMS database/XML records
@@ -139,39 +135,6 @@ public:
 			throw Exception( type + " " + id + " not found" );
 		}
 		return *found;
-	}
-};
-
-//---------------------------------------------------------------------------
-//	Storage policy classes – records() returns the (current) LDbCache
-//---------------------------------------------------------------------------
-
-template< typename Values > struct LCDbSingleton
-{
-	static Values & records() {
-		static Values cache;
-		if( cache.empty() ) {
-			cache.read( LIMSDatabase::getCentralDb() );
-		}
-		return cache;
-	}
-};
-
-//---------------------------------------------------------------------------
-
-template< typename Values > struct LPDbCacheMap
-{
-	static Values & records( int key ) {
-		static std::map< int, Values > shared;
-		Values & cache = shared[ key ];
-		if( cache.empty() ) {
-			cache.read( LIMSDatabase::getProjectDb() );
-		}
-		return cache;
-	}
-
-	static Values & records() {
-		return records( LCDbProjects::getCurrentID() );
 	}
 };
 

@@ -3,14 +3,12 @@
  *	An openAPI connection to one of the LIMS databases on vlab
  *
  *		8 June 2012		Initial version, based on Guru's Lab API code
+ *      11 Sept 2013	Find database name from LCDbProjects if needed
  *
  --------------------------------------------------------------------------- */
 
 #include <System.hpp>
 #include <SysUtils.hpp>
-#include <sstream>
-
-#pragma hdrstop
 
 #include "LIMSDatabase.h"
 #include "xdb.h"
@@ -20,6 +18,7 @@
 #include "LCDbProject.h"
 #include "LDbCacheBase.h"
 
+#pragma hdrstop
 #pragma package(smart_init)
 
 //---------------------------------------------------------------------------
@@ -37,18 +36,19 @@ LIMSDatabase LIMSDatabase::getCentralDb( ) {
 
 //---------------------------------------------------------------------------
 
-LIMSDatabase LIMSDatabase::getProjectDb( std::string dbName ) {
-	if( dbName.empty( ) ) {
-		int id = LCDbProjects::getCurrentID( );
-		dbName = LCDbProjects::records( ).get( id ).getDbName( );
+LIMSDatabase LIMSDatabase::getProjectDb( int projID ) {
+	if( projID == 0 ) {
+		projID = LCDbProjects::getCurrentID( );
 	}
-	return LIMSDatabase( getRootName( dbName ) );
+	const LCDbProject & proj = LCDbProjects::records( ).get( projID );
+	return LIMSDatabase( getRootName( proj.getDbName( ) ) );
 }
 
 //---------------------------------------------------------------------------
 
-LIMSDatabase LIMSDatabase::getDistributedDb( const std::string &dbName ) {
-	return LIMSDatabase( getRootName( dbName ) + "_ddb/star" );
+LIMSDatabase LIMSDatabase::getProjectDb( const std::string & dbName, bool distributed ) {
+	std::string root = getRootName( dbName );
+	return LIMSDatabase( distributed ? root + "_ddb/star" : root );
 }
 
 //---------------------------------------------------------------------------

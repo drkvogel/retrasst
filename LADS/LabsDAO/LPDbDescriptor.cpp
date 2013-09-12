@@ -16,9 +16,9 @@
 
 #include <vcl.h>
 #include <sstream>
-
-#include "LQuery.h"
+#include <set>
 #include "LCDbProject.h"
+#include "LQuery.h"
 #include "LPDbDescriptor.h"
 #include "xb36Code.h"
 
@@ -401,15 +401,16 @@ int LPDbDescriptors::getFieldNumber( const std::string & field ) const {
 
 //---------------------------------------------------------------------------
 
-std::string LPDbDescriptors::getNextMapField()
+std::string LPDbDescriptors::getNextMapField() const
 {
-	int next = 1;
-	for( Range< LPDbDescriptor > dr = *this; dr.isValid(); ++ dr ) {
-		int num = getFieldNumber( dr -> getMapField() );
-		if( num >= next )
-			next = num + 1;
+	std::set< int > used;
+	for( const_iterator dr = begin(); dr != end(); ++ dr ) {
+		used.insert( getFieldNumber( dr -> getMapField() ) );
 	}
-
+	int next = 1;
+	while( used.count( next ) > 0 ) {
+		next ++;
+	}
 	std::stringstream out;
 	out << "value_id" << next;
 	return out.str();
@@ -419,15 +420,16 @@ std::string LPDbDescriptors::getNextMapField()
 //	Suggest the next unused value field in the specimen table
 //---------------------------------------------------------------------------
 
-std::string LPDbDescriptors::getNextSpecimenField()
+std::string LPDbDescriptors::getNextSpecimenField() const
 {
-	int next = 1;
-	for( Range< LPDbDescriptor > dr = *this; dr.isValid(); ++ dr ) {
-		int num = getFieldNumber( dr -> getSpecimenField() );
-		if( num >= next )
-			next = num + 1;
+	std::set< int > used;
+	for( const_iterator dr = begin(); dr != end(); ++ dr ) {
+		used.insert( getFieldNumber( dr -> getSpecimenField() ) );
 	}
-
+	int next = 1;
+	while( used.count( next ) > 0 ) {
+		next ++;
+	}
 	std::stringstream out;
 	out << "value" << next;
 	return out.str();

@@ -9,8 +9,8 @@
 #include <set>
 #include <sstream>
 
-#include "BoxTransfer.h"
 #include "LCDbProject.h"
+#include "BoxTransfer.h"
 #include "SMLogin.h"
 #include "LDbBoxSize.h"
 #include "StoreUtil.h"
@@ -48,7 +48,7 @@ __fastcall TfrmBoxList::TfrmBoxList( TComponent *Owner ) : TForm( Owner ) {
 void __fastcall TfrmBoxList::FormShow( TObject *Sender ) {
 	cbProject->Clear( );
 	for( Range< LCDbProject > pr = LCDbProjects::records( ); pr.isValid( ); ++pr ) {
-		if( pr->isValid() && pr->isActive() && !pr->isCentral() ) {
+		if( pr->isInCurrentSystem() && pr->isActive() && !pr->isCentral() ) {
 			cbProject->Items->Add( pr->getName( ).c_str( ) );
 		}
 		if( pr->getID( ) == LCDbProjects::getCurrentID( ) ) {
@@ -134,7 +134,7 @@ void TfrmBoxList::listBoxNames( ) {
 		}
 	}
 	int row = 1;
-	if( boxes.readFilled( Util::projectQuery( ) ) ) {
+	if( boxes.readFilled( LIMSDatabase::getProjectDb() ) ) {
 		for( Range< LPDbBoxName >br = boxes; br.isValid( ); ++br ) {
 			if( typeIDs.count( br->getTypeID( ) ) != 0 ) {
 				sgBoxNames->Cells[ 0 ][ row ++ ] = br->getName( ).c_str( );
@@ -267,7 +267,7 @@ void TfrmBoxList::printText( const std::string &text ) {
 //---------------------------------------------------------------------------
 
 void __fastcall TfrmBoxList::btnAddBoxClick( TObject *Sender ) {
-	LQuery pq = Util::projectQuery( );
+	LQuery pq( LIMSDatabase::getProjectDb() );
 	AnsiString box = ebBoxNum->Text;
 	const LPDbBoxName *found = boxes.readRecord( pq, box.c_str() );
 	if( found == NULL ) {
@@ -434,7 +434,7 @@ void TfrmBoxList::setExpected( int row, int expected )
 {
 	BoxType &clicked = types[ row - 1 ];
 	clicked.setExpectedUses( expected );
-	clicked.saveRecord( Util::projectQuery( ) );
+	clicked.saveRecord( LIMSDatabase::getProjectDb() );
 	sgBoxTypes->Cells[ COUNT ][ row ] = expected;
 }
 

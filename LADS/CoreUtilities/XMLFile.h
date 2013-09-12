@@ -39,7 +39,7 @@ class XMLFile
 public:
 
 	XMLFile( const char * root, bool split = true, bool encodeAll = false, const std::string & out = "" )
-	 : type( root ), chunks( split ), fileName( out ), inTag( false ), encodeSpace( encodeAll )
+	 : type( root ), fileName( out ), inTag( false ), chunks( split ), encodeSpace( encodeAll )
 	{}
 
 	~XMLFile();

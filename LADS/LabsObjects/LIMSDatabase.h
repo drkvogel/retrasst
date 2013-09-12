@@ -4,9 +4,11 @@
 #define LIMSDatabaseH
 
 #include <string>
-#include <xdb.h>
+#include <map>
+#include <vector>
 
 class ROSETTA;
+class XDB;
 
 //---------------------------------------------------------------------------
 
@@ -38,8 +40,8 @@ public:
 	static bool includes( const std::string & dbName );
 
 	static LIMSDatabase getCentralDb();
-	static LIMSDatabase getDistributedDb( const std::string & dbName );
-	static LIMSDatabase getProjectDb( std::string dbName = "" );
+	static LIMSDatabase getProjectDb( const std::string & dbName, bool distributed = false );
+	static LIMSDatabase getProjectDb( int projID = 0 );
 
 	std::string getDbName() const;
 	XDB * connect( bool readLocks = true );
@@ -56,6 +58,22 @@ private:
 
 	static std::string getRootName( const std::string & dbName );
 	static std::string getPrefix( DbSystem system );
+};
+
+//---------------------------------------------------------------------------
+//	Storage policy classes – records() returns the current LDbCache
+//---------------------------------------------------------------------------
+
+template< typename Values > struct LCDbSingleton
+{
+	static Values & records() {
+		static std::map< LIMSDatabase::DbSystem, Values > cdb;
+		Values & cache = cdb[ LIMSDatabase::getCurrentSystem() ];
+		if( cache.empty() ) {
+			cache.read( LIMSDatabase::getCentralDb() );
+		}
+		return cache;
+	}
 };
 
 //---------------------------------------------------------------------------

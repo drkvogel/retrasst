@@ -29,18 +29,14 @@ public:
 				SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
 
 	LCDbCryoJob( int id = 0, JobKind type = UNKNOWN )
-	 : LCDbID( id ), jobType( type )
-	{
-		exercise = primary = secondary = processID = projectID = 0;
-		status = NEW_JOB;
-	}
+	 : LCDbID( id ), jobType( type ),
+	  exercise( 0 ), primary( 0 ), secondary( 0 ), processID( 0 ), projectID( 0 ), status( NEW_JOB )
+	{}
 
 	LCDbCryoJob( JobKind type, const std::string & name, const std::string & desc )
-	 : LCDbID( 0 ), jobType( type ), LDbNames( name, desc )
-	{
-		exercise = primary = secondary = processID = projectID = 0;
-		status = NEW_JOB;
-	}
+	 : LCDbID( 0 ), jobType( type ), LDbNames( name, desc ),
+	  exercise( 0 ), primary( 0 ), secondary( 0 ), processID( 0 ), projectID( 0 ), status( NEW_JOB )
+	{}
 
 	LCDbCryoJob( const LQuery & project );
 

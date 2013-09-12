@@ -51,7 +51,7 @@ struct IPart
 		IPart* getParent() const { return parent; }
 		void setParent( IPart* p_parent ){ parent = p_parent; }
 
-		bool isNew() { return state == NewState; }
+		bool isNew() const { return state == NewState; }
 		void setState( ItemState p_state ) { state = p_state; }
 
 		short getCapacity() const { return capacity; }
@@ -157,8 +157,8 @@ class Tank : public IPart 		// Vessel: id = storage_cid, name = c_object_name.ex
 		virtual std::string getName() const;
 		virtual std::string getFullName() const;
 
-		const std::string& getVessel() { return name; }
-		const std::string& getSrlno() { return srlno; }
+		const std::string& getVessel() const { return name; }
+		const std::string& getSrlno() const { return srlno; }
 		void setSrlno( const std::string& p_srlno ){ srlno = p_srlno; }
 		int getLocationID() const { return location_cid; }
 		void setLocationID( int p_location_cid ){ location_cid = p_location_cid; }
@@ -407,13 +407,13 @@ class Sample : public IPart		// id from cryovial/cryovial_store; name = barcode
 		virtual const char * getTypeStr() const { return "Sample"; }
 		virtual std::string getFullName() const;
 
-		int getBoxID() { return box_id; }
+		int getBoxID() const { return box_id; }
 		void setBoxID( int p_box_cid ){ box_id = p_box_cid; }
 
-		int getAliquot_type() { return aliquot_type; }
+		int getAliquot_type() const { return aliquot_type; }
 		void setAliquot_type( int p_aliquot_type ){ aliquot_type = p_aliquot_type; }
 
-		XTIME getStamp() { return stamp; }
+		XTIME getStamp() const { return stamp; }
 		void setStamp( XTIME p_stamp ) { stamp = p_stamp; }
 
 		virtual Availability availability() const;
@@ -437,10 +437,10 @@ class Layouts
 		void addToList( Layout * lay ) { layouts.push_back( lay ); }
 		void discardList() { layouts.clear(); }
 
-		int find( int p_id );
-		bool isNameDuplicate( bool full, std::string name );
+		int find( int p_id ) const;
+		bool isNameDuplicate( bool full, std::string name ) const;
 		void loadAll();
-		int getDefaultLayoutId( int store_cid );
+		int getDefaultLayoutId( int store_cid ) const;
 		static int getLayoutId( int tank_cid );
 };
 

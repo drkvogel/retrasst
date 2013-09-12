@@ -3,6 +3,7 @@
 #include <vcl.h>
 #pragma hdrstop
 
+#include "LCDbProject.h"
 #include "AddSpecimens.h"
 #include "LPDbProfile.h"
 #include "LIMSDatabase.h"
@@ -34,7 +35,7 @@ void __fastcall TfrmAddSpecimens::FormShow(TObject *Sender)
 void __fastcall TfrmAddSpecimens::BitBtn2Click(TObject *Sender)
 {
 	Screen->Cursor = crSQLWait;
-	samples.save( Util::projectQuery(), LDbSource::NEW_ENTRY );
+	samples.save( LIMSDatabase::getProjectDb(), LDbSource::NEW_ENTRY );
 	Screen->Cursor = crDefault;
 }
 
@@ -93,7 +94,7 @@ bool TfrmAddSpecimens::init( TStrings * barcodes )
 unsigned TfrmAddSpecimens::addFromBox( int boxID )
 {
 	LPDbCryovials cryovials;
-	if( cryovials.readByBoxID( Util::projectQuery(), boxID ) ) {
+	if( cryovials.readByBoxID( LIMSDatabase::getProjectDb(), boxID ) ) {
 		for( Range< LPDbCryovial > ci = cryovials; ci.isValid(); ++ ci ) {
 			samples.add( *ci );
 		}
@@ -142,7 +143,7 @@ void __fastcall TfrmAddSpecimens::Timer1Timer(TObject *Sender)
 {
 	if( selector -> isUpdated() ) {
 		Screen->Cursor = crSQLWait;
-		samples.merge( Util::projectQuery(), selector -> getSelected() );
+		samples.merge( LIMSDatabase::getProjectDb(), selector -> getSelected() );
 		updateGrid();
 		Screen->Cursor = crDefault;
 	}

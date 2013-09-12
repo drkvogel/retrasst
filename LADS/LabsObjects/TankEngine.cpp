@@ -352,6 +352,8 @@ const bool TankEngine::buildData( LQuery  dbase )
 
 	for( Range< LCDbProject > p = LCDbProjects::records(); p.isValid(); ++ p )
 	{
+		if( p->isInCurrentSystem() && !p->isCentral() ) {
+
 		for( Range< LDbBoxArrival > r= LDbBoxArrivals::records(p->getID()); r.isValid(); ++ r )
 		{
 
@@ -404,6 +406,7 @@ const bool TankEngine::buildData( LQuery  dbase )
 			tsrs.rack=rackNo;
 			tsrs.slot=r->getSlotPosition();
 			slotsMap.insert(TankSectionRackSlotMap::value_type(tsrs,r->getBoxName()));
+		}
 		}
 		}
 	}

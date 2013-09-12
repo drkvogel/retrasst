@@ -15,8 +15,6 @@
 
 class StoreDAO
 {
-		LQuery getCentralQuery() { return LIMSDatabase::getCentralDb(); }
-
 	public:
 
 		void loadSites(std::vector<ROSETTA>& results);
@@ -60,6 +58,7 @@ class StoreDAO
 
 		bool loadCryovials( const std::string & specimen, const std::string & cryovial, int primary, int secondary, int proj_id, std::vector<ROSETTA>& results );
 		bool findBox( int box_id, int proj_id, ROSETTA & result );
+		bool addToRetrieval( int jobID, int cryovial_id, int proj_id, int box_cid, short pos );
 };
 
 //---------------------------------------------------------------------------
