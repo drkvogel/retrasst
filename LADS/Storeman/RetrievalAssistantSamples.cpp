@@ -27,7 +27,7 @@ __fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
     FreeOnTerminate = true;
 }
 
-void __fastcall LoadVialsWorkerThread::updateStatus() {
+void __fastcall LoadVialsWorkerThread::updateStatus() { // can't use args for synced method, don't know why
     //ostringstream oss; oss<<frmSamples->loadingMessage<<"\n"<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
     //frmSamples->panelLoading->Caption = oss.str().c_str();
     frmSamples->panelLoading->Caption = loadingMessage.c_str(); //oss.str().c_str();
@@ -63,21 +63,22 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         "   v.object_cid = storage_cid AND"
         "   cs.retrieval_cid = :jobID");
 
-    /* -- may have destination box defined, could find with left join:
-    but left join on ddb not allowed in ingres
-    from
-         cryovial_store s1
-    left join
-        cryovial c on c.cryovial_cid = s1.cryovial_id
-    left join
-        box_name n1 on n1.box_cid = s1.box_cid
-    left join
-        cryovial_store s2 on s1.cryovial_id = s2.cryovial_id and
-        s2.status = 0
-    left join
-        box_name n2 on n2.box_cid = s2.box_cid
-    where
-        s1.retrieval_cid = :jobID*/
+    /* -- may have destination box defined, could find with left join, e.g.:
+            from
+                 cryovial_store s1
+            left join
+                cryovial c on c.cryovial_cid = s1.cryovial_id
+            left join
+                box_name n1 on n1.box_cid = s1.box_cid
+            left join
+                cryovial_store s2 on s1.cryovial_id = s2.cryovial_id and
+                s2.status = 0
+            left join
+                box_name n2 on n2.box_cid = s2.box_cid
+            where
+                s1.retrieval_cid = :jobID
+
+        - but left join on ddb not allowed in ingres */
 
     qd.setSQL( // from spec 2013-09-11
         "SELECT"
@@ -97,8 +98,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         ostringstream oss; oss<<"Found "<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
         loadingMessage = oss.str().c_str();
         if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
-            // can't use args for synced method, don't know why
-        LPDbCryovialStore * vial = new LPDbCryovialStore(qd);
+        LPDbCryovialStore * vial = new LPDbCryovialStore(qd); // not query per row - not inefficient?
         pSampleRow  row = new SampleRow(
             vial,
             qd.readString("cryovial_barcode"),
@@ -115,7 +115,30 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         qd.next();
         rowCount++;
     }
+/* suggested per-box query for finding where each box is stored:
+(over ddb but not using left join) - could be cached
 
+Select
+s.external_name as site,
+m.position,
+v.external_full as vessel,
+shelf_number,
+r.external_name as rack,
+bs.slot_position from box_store bs,
+c_rack_number r,
+c_tank_map m,
+c_object_name s,
+c_object_name v
+where
+bs.status = 6 and
+m.status =0 and
+bs.rack_cid = r.rack_cid and
+r.tank_cid = m.tank_cid and
+s.object_cid = location_cid and
+v.object_cid = storage_cid and
+box_cid = :boxID;
+
+*/
     int rowCount2 = 0;
     for (vecpSampleRow::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
         ostringstream oss; oss<<"Finding destinations: "<<rowCount2<<"/"<<rowCount;
@@ -135,6 +158,27 @@ void __fastcall LoadVialsWorkerThread::Execute() {
 }
 
 void LoadVialsWorkerThread::findDestination(pSampleRow row) {
+/*
+	std::map<int, const GridEntry *> boxes;
+	ROSETTA result;
+	StoreDAO dao;
+	progress -> Max = rows.size();
+	progress -> Position = 0;
+	for( std::vector<GridEntry>::iterator ge = rows.begin(); ge != rows.end(); ++ ge ) {
+		std::map<int, const GridEntry *>::const_iterator found = boxes.find( ge->bid );
+		if( found != boxes.end() ) {
+			ge->copyLocation( *(found->second) );
+		} else {
+			if( dao.findBox( ge->bid, LCDbProjects::getCurrentID(), result ) ) {
+				ge->copyLocation( result );
+			}
+			boxes[ ge->bid ] = &(*ge);
+		}
+		progress -> StepIt();
+		drawGrid();
+		Application -> ProcessMessages();
+	}*/
+
 	static std::map<int, SampleRow *> boxes;
 	ROSETTA result;
 	StoreDAO dao;
