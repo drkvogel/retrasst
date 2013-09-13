@@ -8,6 +8,11 @@ namespace paulst
     class LoggingService;
 };
 
+namespace paulstdb
+{
+    class DBConnection;
+}
+
 namespace valc
 {
 
@@ -16,13 +21,13 @@ class DBConnection;
 class LoadTestNames
 {
 public:
-    LoadTestNames( TestNames* testNames, paulst::LoggingService* log, DBConnection* con );
+    LoadTestNames( TestNames* testNames, paulst::LoggingService* log, paulstdb::DBConnection* con );
     ~LoadTestNames();
     void execute();
     int releaseReturnValue();
 private:
     paulst::LoggingService* m_log;
-    DBConnection* m_con;
+    paulstdb::DBConnection* m_con;
     TestNames* m_testNames;
 
     LoadTestNames( const LoadTestNames& );

@@ -12,18 +12,31 @@
 #pragma resource "*.dfm"
 
 TfrmRetrievalAssistant *frmRetrievalAssistant;
+
 __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
+
 void __fastcall TfrmRetrievalAssistant::cbLogClick(TObject *Sender) { memoDebug->Visible = cbLog->Checked; }
+
 void __fastcall TfrmRetrievalAssistant::btnExitClick(TObject *Sender) { Close(); }
+
 void __fastcall TfrmRetrievalAssistant::cbNewJobClick(TObject *Sender) { loadJobs(); }
+
 void __fastcall TfrmRetrievalAssistant::cbInProgressClick(TObject *Sender) { loadJobs(); }
+
 void __fastcall TfrmRetrievalAssistant::cbDoneClick(TObject *Sender) { loadJobs(); }
+
 void __fastcall TfrmRetrievalAssistant::cbDeletedClick(TObject *Sender) { loadJobs(); }
+
 void __fastcall TfrmRetrievalAssistant::cbBoxRetrievalClick(TObject *Sender) { loadJobs(); }
+
 void __fastcall TfrmRetrievalAssistant::cbSampleRetrievalClick(TObject *Sender) { loadJobs(); }
+
 void __fastcall TfrmRetrievalAssistant::cbBoxMoveClick(TObject *Sender) { loadJobs(); }
+
 void __fastcall TfrmRetrievalAssistant::cbBoxDiscardClick(TObject *Sender) { loadJobs(); }
+
 void __fastcall TfrmRetrievalAssistant::cbSampleDiscardClick(TObject *Sender) { loadJobs(); }
+
 void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
 /* clSilver clMoneyGreen  clGray  clSkyBlue
 #define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
@@ -81,6 +94,7 @@ enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, 
         cnv->TextOut(Rect.Left+5, Rect.Top+5, sgJobs->Cells[ACol][ARow]);
     }
 }
+
 void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
     //selectedJob = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row])); // so it persists for debugging
@@ -123,6 +137,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
         throw Exception("Unknown status");
     }
 }
+
 void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
     ostringstream oss; oss << __FUNC__;
     oss << printColWidths(sgJobs); // so we can copy them into the source
@@ -132,9 +147,11 @@ void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
     oss << endl << "job: projectid: "<<job->getProjectID()<<", status: "<<job->getStatus();
     debugLog(oss.str().c_str());
 }
+
 void __fastcall TfrmRetrievalAssistant::FormClose(TObject *Sender, TCloseAction &Action) {
     delete_referenced<tdvecpJob>(vecJobs);
 }
+
 std::string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
     if (0 == project_cid) return "Project not specified";
     try {
@@ -143,6 +160,7 @@ std::string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
         std::ostringstream oss; oss<<"Project ID "<<project_cid<<" not found"; return oss.str();
     }
 }
+
 std::string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_cid) { // c_object_name 6: aliquot type?
     std::ostringstream oss;
     if (0 == primary_aliquot_cid) return "Aliquot not specified";
@@ -154,17 +172,21 @@ std::string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_ci
     }
     return oss.str();
 }
+
 std::string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
     // c_audit_trail
     //LCDbCryoJob::getUserID()
     return "";
 }
+
 std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { // c_object_name: 20: storage exercise
     std::ostringstream oss;
     const LCDbObject * exercise = LCDbObjects::records().findByID(exercise_cid);
     oss << exercise->getName().c_str(); return oss.str();
 }
+
 void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
+
 void TfrmRetrievalAssistant::init() {
 /*
 // template
@@ -188,6 +210,7 @@ void TfrmRetrievalAssistant::init() {
     setupStringGrid(sgJobs, SGJOBS_NUMCOLS, sgJobsColName, sgJobsColWidth);
     loadJobs();
 }
+
 void TfrmRetrievalAssistant::loadJobs() {
 /*
 StoreMan allows the user to create lists of boxes or cryovials to be retrieved for analysis (8.2) or disposal (7.2).
@@ -355,6 +378,7 @@ Sample retrieval
     showJobs();
     Screen->Cursor = crDefault;
 }
+
 void TfrmRetrievalAssistant::showJobs() {
     sgJobs->RowCount = vecJobs.size() + 1;
     tdvecpJob::const_iterator it;

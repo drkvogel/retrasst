@@ -8,6 +8,11 @@
 #include <memory>
 #include "TestNames.h"
 
+namespace paulstdb
+{
+    class DBConnection;
+}
+
 namespace valc
 {
 
@@ -32,7 +37,7 @@ public:
         const WorklistDirectory* wd, const TestNames* tns, DBUpdateSchedule* dbUpdateSchedule,
         SampleRunIDResolutionService* sampleRunIDResolutionService );
     bool                            compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID )    const;
-    void                            runPendingDatabaseUpdates( DBConnection* c, DBUpdateExceptionHandlingPolicy* p, bool block );
+    void                            runPendingDatabaseUpdates( paulstdb::DBConnection* c, DBUpdateExceptionHandlingPolicy* p, bool block );
     LocalEntryIterator              localBegin() const;
     LocalEntryIterator              localEnd()   const;
     QueuedSampleIterator            queueBegin() const;

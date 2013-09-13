@@ -6,10 +6,14 @@
 #include <System.hpp>
 #include "WorklistRelation.h"
 
+namespace paulstdb
+{
+    class Cursor;
+}
+
 namespace valc
 {
 
-class Cursor;
 class ExceptionalDataHandler;
 class ResultIndex;
 class WorklistEntries;
@@ -36,7 +40,7 @@ public:
         const std::string& inclusionRule,
         ExceptionalDataHandler* exceptionalDataHandler
         );
-    bool accept( Cursor* worklistCursor );
+    bool accept( paulstdb::Cursor* worklistCursor );
 private:
     WorklistEntries*                m_worklistEntries;
     ResultIndex*                    m_resultIndex;

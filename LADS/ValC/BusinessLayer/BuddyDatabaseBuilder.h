@@ -6,6 +6,11 @@
 #include <string>
 #include <System.hpp>
 
+namespace paulstdb
+{
+    class Cursor;
+}
+
 namespace valc
 {
 
@@ -13,7 +18,6 @@ class AnalysisActivity;
 class BuddyDatabase;
 class BuddyDatabaseEntryIndex;
 class BuddySampleIDKeyedOnSampleRunID;
-class Cursor;
 class DBUpdateSchedule;
 class ExceptionalDataHandler;
 class Projects;
@@ -51,7 +55,7 @@ public:
         const std::string&                  inclusionRule,
         ExceptionalDataHandler*             exceptionalDataHandler
         );
-    bool accept( Cursor* c );
+    bool accept( paulstdb::Cursor* c );
 private:
     char resActionFlag, srFAOLevelOne;
     TDateTime dateAnalysed, resDateAnalysed, resUpdateWhen, srCreatedWhen, srClosedWhen;

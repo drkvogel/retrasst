@@ -14,6 +14,12 @@
 namespace paulst
 {
     class LoggingService;
+    class Properties;
+};
+
+namespace paulstdb
+{
+    class DBConnection;
 };
 
 namespace valc
@@ -52,100 +58,6 @@ struct Range : public std::pair<Iter, Iter>
     }
 };
 
-/*
-    Abstract representation of a set of records.
-
-    Note that the set of records may be empty.
-
-    Unless the set of records is empty, a Cursor is initially
-    positioned at the first record in the set. 
-
-    Use the 'read' methods to obtain values for this record. 
-    Use 'isNull' before using 'read' to check that there is a 
-    genuine value available for reading.
-
-    Use 'next' to advance to the next record.
-
-    Call 'close' to release resources.  However, note that, 
-    internally, 'close' is called by the destructor.
-*/
-class Cursor
-{
-public:
-    Cursor();
-    virtual                 ~Cursor();
-    virtual operator bool() const { return ! endOfRecordSet(); }
-    virtual void            close()              = 0;
-    virtual bool            isNull   ( int col ) = 0;
-    virtual bool            endOfRecordSet() const = 0;
-    virtual void            next()               = 0;
-    virtual void            read( int col, bool&        outVal ) = 0;
-    virtual void            read( int col, char&        outVal ) = 0;
-    virtual void            read( int col, float&       outVal ) = 0;
-    virtual void            read( int col, int&         outVal ) = 0;
-    virtual void            read( int col, std::string& outVal ) = 0;
-    virtual void            read( int col, TDateTime&   outVal ) = 0;
-private:
-    Cursor( const Cursor& );
-    Cursor& operator=( const Cursor& );
-};
-
-template<typename T>
-T read( Cursor& c, int col, bool tolerateNull = false )
-{
-    if ( (!tolerateNull) && c.isNull( col ) )
-    {
-        std::string msg = std::string("Null value obtained for column ") << col << ".";
-        throw Exception( UnicodeString( msg.c_str() ) );
-    }
-
-    T t;
-    c.read( col, t );
-    return t;
-}
-
-/*
-    Abstract representation of a connection to a database that 
-    can be queried and updated.
-*/
-class DBConnection
-{ 
-public:
-    DBConnection();
-    virtual ~DBConnection();
-    virtual void close() = 0;
-    /*
-        Executes the specified SQL query and returns a Cursor 
-        for reading the results of the query.
-
-        Be sure to delete the Cursor when it is no longer needed.
-    */
-    virtual Cursor* executeQuery( const std::string& sql ) = 0;
-    /*
-        Executes the specified SQL.
-    */
-    virtual void    executeStmt ( const std::string& sql ) = 0;
-private:
-    DBConnection( const DBConnection& );
-    DBConnection& operator=( const DBConnection& );
-};
-
-/*
-    A set of key-value pairs.
-*/
-class Properties
-{
-public:
-    Properties();
-    void setProperty( const std::string& name, const std::string& value );
-    std::string getProperty( const std::string& name ) const;
-private:
-    typedef std::map< std::string, std::string > Map;
-    Map m_propertyValues;
-
-    Properties( const Properties& );
-    Properties& operator=( const Properties& );
-};
 
 /*
     Factory method for obtaining a new DBConnection instance.
@@ -165,7 +77,7 @@ private:
 class DBConnectionFactory
 {
 public:
-    static DBConnection* createConnection( const Properties& p );
+    static paulstdb::DBConnection* createConnection( const paulst::Properties& p );
 private:
     DBConnectionFactory();
 };
@@ -371,7 +283,7 @@ public:
             - whether the method should block until all updates have been performed, or allow 
                 updates to continue in the background
     */
-    virtual void runPendingDatabaseUpdates( DBConnection* c, DBUpdateExceptionHandlingPolicy* p, bool block ) = 0;
+    virtual void runPendingDatabaseUpdates( paulstdb::DBConnection* c, DBUpdateExceptionHandlingPolicy* p, bool block ) = 0;
     /*
         How to test that a TestResult is associated with a particular LocalRun? 
         The only way to find out is to use this method, supplying the runID of the LocalRun
@@ -464,7 +376,7 @@ public:
         paulst::LoggingService* log = new paulst::LoggingService( new paulst::ConsoleWriter() );
 
     */
-    static AnalysisActivitySnapshot* load( int localMachineID, int user, DBConnection* c, paulst::LoggingService* log,
+    static AnalysisActivitySnapshot* load( int localMachineID, int user, paulstdb::DBConnection* c, paulst::LoggingService* log,
     const std::string& configString, UserAdvisor* userAdvisor );
 private:
     SnapshotFactory();

@@ -8,11 +8,15 @@ namespace paulst
     class LoggingService;
 };
 
+namespace paulstdb
+{
+    class DBConnection;
+}
+
 namespace valc
 {
 
 class BuddyDatabase;
-class DBConnection;
 class DBUpdateSchedule;
 class ExceptionalDataHandler;
 class Projects;
@@ -30,7 +34,7 @@ class SampleRunIDResolutionService;
 class LoadBuddyDatabase
 {
 public:
-    LoadBuddyDatabase( int localMachineID, DBConnection* con, paulst::LoggingService* log, 
+    LoadBuddyDatabase( int localMachineID, paulstdb::DBConnection* con, paulst::LoggingService* log, 
 		ResultIndex* resultIndex, Projects* projects, BuddyDatabase** out, DBUpdateSchedule* dbUpdateSchedule,
         SampleRunIDResolutionService* sampleRunIDResolutionService, const std::string& sql,
         const std::string& inclusionRule, ExceptionalDataHandler* exceptionalDataHandler );
@@ -39,7 +43,7 @@ private:
     BuddyDatabase**                 m_buddyDatabase;
     const int                       m_localMachineID;
     const Projects*                 m_projects;
-    DBConnection*                   m_con;
+    paulstdb::DBConnection*         m_con;
     ResultIndex*                    m_resultIndex;
     paulst::LoggingService*         m_log;
     DBUpdateSchedule*               m_dbUpdateSchedule;

@@ -48,7 +48,7 @@ BuddyDatabaseEntries AnalysisActivitySnapshotImpl::listBuddyDatabaseEntriesFor( 
     return m_buddyDatabase->listBuddyDatabaseEntriesFor( sampleRunID );
 }
 
-void AnalysisActivitySnapshotImpl::runPendingDatabaseUpdates( DBConnection* c, DBUpdateExceptionHandlingPolicy* exceptionCallback, 
+void AnalysisActivitySnapshotImpl::runPendingDatabaseUpdates( paulstdb::DBConnection* c, DBUpdateExceptionHandlingPolicy* exceptionCallback, 
     bool block )
 {
     m_dbUpdateConsumer.reset( 

@@ -112,7 +112,25 @@ of the primary and secondary aliquots.
         frmSamples->vials.push_back(row);
         qd.next();
         rowCount++;
-    }*/
+    }
+    // then find destinations
+    int rowCount2 = 0;
+    for (vecpSampleRow::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
+        ostringstream oss; oss<<"Finding destinations: "<<rowCount2<<"/"<<rowCount;
+        loadingMessage = oss.str().c_str();
+        if (0 == rowCount2 % 10) Synchronize((TThreadMethod)&updateStatus);
+        pSampleRow sampleRow = (pSampleRow)*it;
+        try {
+            //findDestinationSlowly(sampleRow);
+            findDestination(sampleRow);
+        } catch(Exception & e) {
+            msgbox(e.Message);
+        } catch(...) {
+            msgbox("error");
+        }
+        rowCount2++;
+    }
+    */
 
     rowCount = 0;
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
@@ -184,22 +202,7 @@ v.object_cid = storage_cid and
 box_cid = :boxID;
 
 */
-    int rowCount2 = 0;
-    for (vecpSampleRow::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
-        ostringstream oss; oss<<"Finding destinations: "<<rowCount2<<"/"<<rowCount;
-        loadingMessage = oss.str().c_str();
-        if (0 == rowCount2 % 10) Synchronize((TThreadMethod)&updateStatus);
-        pSampleRow sampleRow = (pSampleRow)*it;
-        try {
-            //findDestinationSlowly(sampleRow);
-            findDestination(sampleRow);
-        } catch(Exception & e) {
-            msgbox(e.Message);
-        } catch(...) {
-            msgbox("error");
-        }
-        rowCount2++;
-    }
+
 }
 
 void LoadVialsWorkerThread::findDestination(pSampleRow row) {
@@ -311,16 +314,16 @@ void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
         // sign off?
-        // save stuff
-        // ie, create the retrieval plan by inserting into c_box_retrieval and l_sample_retrieval
+        // create the retrieval plan by inserting into c_box_retrieval and l_sample_retrieval
         for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
             // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
             SampleChunk * chunk = *it;
-            //      for boxes/samples
-            //          insert sample into C_BOX_RETRIEVAL with current section (chunk) number
+            //      for samples
+            //          insert destination box into C_BOX_RETRIEVAL with current section (chunk) number
             for (vecpSampleRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
                 pSampleRow sampleRow = (pSampleRow)*it;
                 LPDbCryovialStore * vial = sampleRow->store_record;
+                // insert into l_sample_retrieval
             }
 
             /*
@@ -471,7 +474,6 @@ void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
 
 void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
-        //xxxxrejectList();
         job->setStatus(LCDbCryoJob::Status::REJECTED);
         job->saveRecord(LIMSDatabase::getCentralDb());
         Close();
@@ -505,6 +507,7 @@ void TfrmSamples::loadRows() {
 
 void TfrmSamples::showChunks() {
     if (0 == chunks.size()) { // must always have one chunk anyway
+        throw Exception("No chunks");
         clearSG(sgChunks);
     } else {
         sgChunks->RowCount = chunks.size() + 1;
@@ -540,17 +543,6 @@ void TfrmSamples::addChunk() {
 
 void TfrmSamples::autoChunk() {
     frmAutoChunk->ShowModal();
-/*
-box_content.box_type_cid
-18  EDTA_1(UK)  HPS2-THRIVE EDTA 1 UK samples
-c_box_size.box_type_cid
-Display the size of the job and ask user if they want to divide up the list.  If they do:
-1.	Ask them the maximum section size (default = 500 cryovials)
-2.	Calculate slot/box (where `c_box_size.box_size_cid = box_content.box_size_cid`)
-3.	Ask them to select the size of first section from a list – it must be a multiple of the box size (from 2) and no more than the maximum (from 1)
-4.	Allocate the appropriate number of destination boxes to the first section
-5.	Repeat steps (2) and (3) until every entry has been allocated to a section
-*/
 }
 
 SampleChunk * TfrmSamples::currentChunk() {
@@ -596,19 +588,15 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
 void TfrmSamples::addSorter() {
     ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
     TComboBox * combo = new TComboBox(this);
-    combo->Parent = groupSort;
+    //groupSort->InsertControl(combo); // don't call this directly, set the parent as above
+    combo->Parent = groupSort; // new combo is last created, aligned to left
+        // to put in right order: take them all out, sort and put back in in reverse order?
     combo->Align = alLeft;
     combo->Style = csDropDown; // csDropDownList
-    //combo->Items->AddObject(groupSort->ControlCount, NULL);
-    //combo->AddItem(groupSort->ControlCount, NULL);
     for (int i=0; i<SGVIALS_NUMCOLS; i++) {
         combo->AddItem(sorter[i].description.c_str(), (TObject *)&sorter[i]);
     }
     //combo->OnChange = &comboSortOnChange;
-    // new combo is last created,
-    //groupSort->InsertControl(combo);
-    //ostringstream oss;
-    //oss.str(""); oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
 }
 
 void TfrmSamples::removeSorter() {
@@ -663,7 +651,6 @@ void TfrmSamples::sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::S
 }
 
 void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
-    //
     ostringstream oss;
     //oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str())<endl;
     //debugLog(oss.str().c_str());

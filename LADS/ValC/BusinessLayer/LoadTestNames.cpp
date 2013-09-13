@@ -1,4 +1,5 @@
-#include "API.h"
+#include "Cursor.h"
+#include "DBConnection.h"
 #include "LoadTestNames.h"
 #include "LoggingService.h"
 #include "Trace.h"
@@ -7,7 +8,7 @@
 namespace valc
 {
 
-LoadTestNames::LoadTestNames( TestNames* testNames, paulst::LoggingService* log, DBConnection* con )
+LoadTestNames::LoadTestNames( TestNames* testNames, paulst::LoggingService* log, paulstdb::DBConnection* con )
     :
     m_log(log),
     m_con(con),
@@ -30,7 +31,7 @@ void LoadTestNames::execute()
 {
     std::string sql("SELECT test_cid, external_name FROM c_test");
 
-    for ( std::auto_ptr<Cursor> cursor( m_con->executeQuery( sql ) ); ! cursor->endOfRecordSet(); cursor->next() )
+    for ( std::auto_ptr<paulstdb::Cursor> cursor( m_con->executeQuery( sql ) ); ! cursor->endOfRecordSet(); cursor->next() )
     {
         int         testID = 0;
         std::string externalName;

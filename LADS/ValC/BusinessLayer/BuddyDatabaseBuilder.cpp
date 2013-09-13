@@ -4,6 +4,7 @@
 #include "BuddyDatabase.h"
 #include "BuddyDatabaseEntryIndex.h"
 #include "BuddySampleIDKeyedOnSampleRunID.h"
+#include "Cursor.h"
 #include "DBUpdateSchedule.h"
 #include "ExceptionalDataHandler.h"
 #include "Projects.h"
@@ -51,7 +52,7 @@ bool BuddyDatabaseBuilder::isQC() const
     return barcode.find( "QC" ) == 0;
 }
 
-bool BuddyDatabaseBuilder::accept( Cursor* c )
+bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
 {
     bool carryOn = true;
 

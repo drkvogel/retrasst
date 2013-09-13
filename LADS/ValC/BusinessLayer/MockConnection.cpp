@@ -15,7 +15,7 @@ void MockConnection::close()
 {
 }
 
-Cursor* MockConnection::executeQuery( const std::string& sql )
+paulstdb::Cursor* MockConnection::executeQuery( const std::string& sql )
 {
     std::string str;
 
@@ -49,7 +49,7 @@ Cursor* MockConnection::executeQuery( const std::string& sql )
         str = "1,\n";
     }
 
-    return new StringBackedCursor( str );
+    return new paulstdb::StringBackedCursor( str );
 }
 
 void MockConnection::executeStmt ( const std::string& sql )

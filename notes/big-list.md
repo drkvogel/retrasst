@@ -1,4 +1,6 @@
-﻿new stuff from CVS:
+﻿invalid pointer operation on click retrieval assistant open 1st time only
+
+new stuff from CVS:
 
 LIMSDatabase::getProjectDb()
 LCDbProject::isInCurrentSystem()
@@ -31,6 +33,8 @@ populating LCDbBoxStore * store_record by LQuery contructor is inefficient?:
             ROSETTA &LQuery::getRecord( )
             
             // actually seems to just pull the correct fields out of the current cursor, without running a new query, so ok
+
+check sorting works properly
             
 find number of boxes
   current box

@@ -1,5 +1,5 @@
 #include <algorithm>
-#include "API.h"
+#include "DBConnection.h"
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/functional.hpp>
@@ -20,7 +20,7 @@ namespace valc
 {
 
 LoadReferencedWorklistEntries::LoadReferencedWorklistEntries( 
-        DBConnection*           con, 
+        paulstdb::DBConnection* con, 
         paulst::LoggingService* log, 
         WorklistEntries*        worklistEntries, 
         ResultIndex*            resultIndex,
@@ -40,7 +40,7 @@ LoadReferencedWorklistEntries::LoadReferencedWorklistEntries(
 {
 }
 
-void createTempTable( DBConnection* con, paulst::LoggingService* log, const std::string& tableName )
+void createTempTable( paulstdb::DBConnection* con, paulst::LoggingService* log, const std::string& tableName )
 {
     std::string stmt = 
         std::string("declare global temporary table ") + tableName + " as "
@@ -52,7 +52,7 @@ void createTempTable( DBConnection* con, paulst::LoggingService* log, const std:
     log->log( std::string("Created temporary table '") + tableName + "'." );
 }
 
-void dropTable( std::string* tableName, DBConnection* con, paulst::LoggingService* log )
+void dropTable( std::string* tableName, paulstdb::DBConnection* con, paulst::LoggingService* log )
 {
     std::auto_ptr<std::string> tName(tableName);
 
@@ -63,7 +63,7 @@ void dropTable( std::string* tableName, DBConnection* con, paulst::LoggingServic
     log->log( std::string("Dropped table '") << (*tName) << "'." );
 }
 
-void insertIntoTable( const int& id, const std::string* tableName, DBConnection* con, paulst::LoggingService* log )
+void insertIntoTable( const int& id, const std::string* tableName, paulstdb::DBConnection* con, paulst::LoggingService* log )
 {
     std::string stmt = std::string("insert into ") << (*tableName) << " values( " << id << " )";
     

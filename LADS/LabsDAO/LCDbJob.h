@@ -29,13 +29,13 @@ public:
 				SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
 
 	LCDbCryoJob( int id = 0, JobKind type = UNKNOWN )
-	 : LCDbID( id ), jobType( type ),
-	  exercise( 0 ), primary( 0 ), secondary( 0 ), processID( 0 ), projectID( 0 ), status( NEW_JOB )
+	 : LCDbID( id ), jobType( type ), status( NEW_JOB ),
+	  exercise( 0 ), primary( 0 ), secondary( 0 ), projectID( 0 ), processID( 0 )
 	{}
 
 	LCDbCryoJob( JobKind type, const std::string & name, const std::string & desc )
-	 : LCDbID( 0 ), jobType( type ), LDbNames( name, desc ),
-	  exercise( 0 ), primary( 0 ), secondary( 0 ), processID( 0 ), projectID( 0 ), status( NEW_JOB )
+	 : LCDbID( 0 ), jobType( type ), LDbNames( name, desc ), status( NEW_JOB ),
+	  exercise( 0 ), primary( 0 ), secondary( 0 ), projectID( 0 ), processID( 0 )
 	{}
 
 	LCDbCryoJob( const LQuery & project );
@@ -86,7 +86,6 @@ class LCDbCryoJobs : public LDbCache< LCDbCryoJob >, public LCDbSingleton< LCDbC
 public:
 
 	LCDbCryoJobs( bool keepAlive = true );
-	~LCDbCryoJobs();
 
 	static int getCurrentID() { return records().currentID; }
 	void clearCurrentID() { currentID = 0; }

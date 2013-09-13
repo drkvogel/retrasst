@@ -6,6 +6,11 @@ namespace paulst
     class LoggingService;
 };
 
+namespace paulstdb
+{
+    class DBConnection;
+}
+
 namespace valc
 {
 
@@ -15,12 +20,12 @@ class Projects;
 class LoadProjects
 {
 public:
-    LoadProjects( Projects* projects, paulst::LoggingService* log, DBConnection* con );
+    LoadProjects( Projects* projects, paulst::LoggingService* log, paulstdb::DBConnection* con );
     ~LoadProjects();
     void execute();
 private:
     paulst::LoggingService* m_log;
-    DBConnection* m_con;
+    paulstdb::DBConnection* m_con;
     Projects* m_projects;
 
     LoadProjects( const LoadProjects& );

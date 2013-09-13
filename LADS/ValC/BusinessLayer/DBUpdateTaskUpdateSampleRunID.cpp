@@ -1,4 +1,4 @@
-#include "API.h"
+#include "DBConnection.h"
 #include "DBUpdateTaskUpdateSampleRunID.h"
 #include "SampleRunIDResolutionService.h"
 #include "StrUtil.h"

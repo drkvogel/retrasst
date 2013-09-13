@@ -138,7 +138,7 @@ namespace tut
         valc::MockConfig                config;
         UserWarnings                    userWarnings;
 
-        ForceReloadTestFixture( valc::DBConnection* c = 0 )
+        ForceReloadTestFixture( paulstdb::DBConnection* c = 0 )
             : log(0), s(0)
         {
             if ( c )
@@ -147,7 +147,7 @@ namespace tut
             }
         }
 
-        void init( valc::DBConnection* c )
+        void init( paulstdb::DBConnection* c )
         {
             log = new paulst::LoggingService( new NoLogging() );
             s   = valc::SnapshotFactory::load( LOCAL_MACHINE_ID, USER_ID, c, log, config.toString(), &userWarnings );
@@ -186,7 +186,7 @@ namespace tut
 
 		MockConnectionFactory connectionFactory;
 
-		boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+		boost::scoped_ptr<paulstdb::DBConnection> connection( connectionFactory.createConnection() );
 
         ForceReloadTestFixture s( connection.get() );
 
@@ -214,7 +214,7 @@ namespace tut
 "24112,-1019430,118502164,-1031388,-12744865,0,417128,-832455,0,EDTA_1 analysis other,21-06-2013 11:07:57,35,Q,0.000,0,\n"
 			);
 
-		boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+		boost::scoped_ptr<paulstdb::DBConnection> connection( connectionFactory.createConnection() );
 
         ForceReloadTestFixture s( connection.get() );
 
@@ -387,7 +387,7 @@ namespace tut
 			"-12703113,BNPcm,\n");
 
 
-		boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+		boost::scoped_ptr<paulstdb::DBConnection> connection( connectionFactory.createConnection() );
 
         ForceReloadTestFixture s( connection.get() );
 
@@ -738,7 +738,7 @@ namespace tut
 "24112,-1019430,118502164,-1031388,-12744865,0,417128,0,0,EDTA_1 analysis other,21-06-2013 11:07:57,35,Q,0.000,0,\n"
 			);
 
-		boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+		boost::scoped_ptr<paulstdb::DBConnection> connection( connectionFactory.createConnection() );
 
         ForceReloadTestFixture s;
 
@@ -804,7 +804,7 @@ namespace tut
             connectionFactory.setWorklist( WORKLIST );
             connectionFactory.setBuddyDB( BUDDYDB );
 
-            boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+            boost::scoped_ptr<paulstdb::DBConnection> connection( connectionFactory.createConnection() );
 
             ForceReloadTestFixture s;
 
@@ -853,7 +853,7 @@ namespace tut
             connectionFactory.setWorklist( WORKLIST );
             connectionFactory.setBuddyDB ( BUDDYDB  );
 
-            boost::scoped_ptr<valc::DBConnection> connection( connectionFactory.createConnection() );
+            boost::scoped_ptr<paulstdb::DBConnection> connection( connectionFactory.createConnection() );
 
             ForceReloadTestFixture s;
 

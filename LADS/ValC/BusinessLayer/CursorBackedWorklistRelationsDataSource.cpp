@@ -1,10 +1,10 @@
-#include "API.h"
+#include "Cursor.h"
 #include "CursorBackedWorklistRelationsDataSource.h"
 
 namespace valc
 {
 
-CursorBackedWorklistRelationsDataSource::CursorBackedWorklistRelationsDataSource( Cursor* c )
+CursorBackedWorklistRelationsDataSource::CursorBackedWorklistRelationsDataSource( paulstdb::Cursor* c )
     : m_cursor( c )
 {
 }

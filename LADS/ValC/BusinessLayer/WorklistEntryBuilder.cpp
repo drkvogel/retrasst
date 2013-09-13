@@ -1,3 +1,4 @@
+#include "Cursor.h"
 #include "ExceptionalDataHandler.h"
 #include "Require.h"
 #include "ResultIndex.h"
@@ -27,7 +28,7 @@ bool WorklistEntryBuilder::isQC() const
     return barcode.find( "QC" ) == 0;
 }
 
-bool WorklistEntryBuilder::accept( Cursor* worklistCursor )
+bool WorklistEntryBuilder::accept( paulstdb::Cursor* worklistCursor )
 {
     bool carryOn = true;
 
