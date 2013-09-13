@@ -181,13 +181,18 @@ of the primary and secondary aliquots.
 /* suggested per-box query for finding where each box is stored:
 (over ddb but not using left join) - could be cached
 
+findBox( int box_id, int proj_id, ROSETTA & result )
+    does this
+
 Select
 s.external_name as site,
 m.position,
 v.external_full as vessel,
 shelf_number,
 r.external_name as rack,
-bs.slot_position from box_store bs,
+bs.slot_position
+from
+box_store bs,
 c_rack_number r,
 c_tank_map m,
 c_object_name s,
