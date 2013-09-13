@@ -186,7 +186,7 @@ of the primary and secondary aliquots.
         SampleRow * sample = *it;
 		//std::map<int, const GridEntry *>::const_iterator found = boxes.find( ge->bid );
         //std::map<int, const SampleRow *>::const_iterator found = samples.find(sample->dest_box_id);
-        std::map<int, const SampleRow *>::const_iterator found = samples.find(sample->dest_box_id);
+        std::map<int, const SampleRow *>::iterator found = samples.find(sample->dest_box_id);
 		if (found != samples.end()) {
 			//ge->copyLocation( *(found->second) );
             // copy fields
