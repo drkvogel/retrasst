@@ -1,14 +1,4 @@
 ﻿
----new stuff from CVS:---
-LIMSDatabase::getProjectDb()
-LCDbProject::isInCurrentSystem()
-not new, but...
-Tank::getVessel()? // Inventory.h
-TfrmNewJob::createJob
-NewTank methods
-SampleEntry
-StoreDAO::findBox, addToRetrieval
----
 a sample retrieval can include boxes that do not have their current locations recorded
 misc
     find destination boxes 1st

@@ -1,4 +1,15 @@
-﻿findBox( int box_id, int proj_id, ROSETTA & result )
+﻿---new stuff from CVS:---
+LIMSDatabase::getProjectDb()
+LCDbProject::isInCurrentSystem()
+not new, but...
+Tank::getVessel()? // Inventory.h
+TfrmNewJob::createJob
+NewTank methods
+SampleEntry
+StoreDAO::findBox, addToRetrieval
+---
+
+findBox( int box_id, int proj_id, ROSETTA & result )
 
     v.external_full as vessel_name, 
     shelf_number, 
