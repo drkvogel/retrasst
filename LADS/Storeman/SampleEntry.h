@@ -22,7 +22,7 @@ __published:	// IDE-managed Components
 	TButton *btnAddFile;
 	TButton *btnLocate;
 	TComboBox *CmbAliquot1;
-	TRadioGroup *RadIDType;
+	TRadioGroup *rgItemType;
 	TComboBox *CmbAliquot2;
 	TLabel *LblAliquot2;
 	TOpenDialog *OpenDialog1;
@@ -35,6 +35,9 @@ __published:	// IDE-managed Components
 	TButton *btnAddRecords;
 	TButton *btnSaveList;
 	TButton *btnClrSort;
+	TButton *btnNewContent;
+	TLabel *Label3;
+	TComboBox *cbBoxType;
 	void __fastcall AddClick(TObject *Sender);
 	void __fastcall cbProjectChange(TObject *Sender);
 	void __fastcall cbProjectDropDown(TObject *Sender);
@@ -46,6 +49,7 @@ __published:	// IDE-managed Components
 	void __fastcall btnLocateClick(TObject *Sender);
 	void __fastcall btnSaveListClick(TObject *Sender);
 	void __fastcall btnClrSortClick(TObject *Sender);
+	void __fastcall btnNewContentClick(TObject *Sender);
 
 private:	// User declarations
 
@@ -58,12 +62,13 @@ private:	// User declarations
 	void resizeGrid();
 	void setValue( int col, int row, short value );
 	void setValue( int col, int row, const std::string & value );
+	void enableButtons();
 
 public:		// User declarations
 
 	struct GridEntry {
 		unsigned record_number;
-		int sid, cid, aid, bid;
+		int sid, cid, aid, oid, nid;
 		std::string sample, cryovial, aliquot;
 		std::string site, vessel, structure;
 		short location, shelf, rack_pos, slot;

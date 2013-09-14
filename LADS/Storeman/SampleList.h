@@ -19,8 +19,8 @@ class SampleList
 	LPDbCryovials cryovials;
 	LPDbSources specimens;
 
-	const LPDbCryovial * findCryovial( LQuery & pQuery, const std::string & barcode, const LCDbObject & aliquot );
-	const LPDbSource * findSpecimen( LQuery & pQuery, int sampleID );
+	const LPDbCryovial * findCryovial( LQuery & pQuery, const std::string & barcode, const LCDbObject & aliquot ) ;
+	const LPDbSource * findSpecimen( LQuery & pQuery, int sampleID ) ;
 
 public:
 
@@ -47,7 +47,7 @@ public:
 	void add( const std::string & barcode );
 	void add( const LPDbCryovial & cryovial );
 	void merge( LQuery pQuery, const ValueFields & shared );
-	void save( LQuery pQuery, LDbSource::Stage stage );
+	void save( LQuery pQuery, LDbSource::Stage stage ) const;
 
 	Range< Entry > getEntries() const { return entries; }
 

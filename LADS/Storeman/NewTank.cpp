@@ -323,14 +323,14 @@ void __fastcall TfrmNewTank::CancelClick(TObject *Sender)
 
 //---------------------------------------------------------------------------
 
-const LCDbObject * TfrmNewTank::findStorageType() {
+const LCDbObject * TfrmNewTank::findStorageType() const {
 	LCDbObjects & cache = LCDbObjects::records();
 	AnsiString type =  cbStoreType->Text.Trim();
 	const LCDbObject * st = cache.find( type.c_str(), LCDbObject::STORAGE_TYPE );
 	if( st == NULL
 	 && Application->MessageBox( L"Add new storage type?", L"No storage type", MB_ICONQUESTION|MB_YESNO ) == IDYES
-	 && frmNewType -> ShowModal() == mrOk ) {
-		st = frmNewType -> createRecord();
+	 && frmNewStoreType -> ShowModal() == mrOk ) {
+		st = frmNewStoreType -> createRecord();
 	}
 	if( st != NULL ) {
 		cbStoreType -> Text = st -> getDescription().c_str();
@@ -340,7 +340,7 @@ const LCDbObject * TfrmNewTank::findStorageType() {
 
 //---------------------------------------------------------------------------
 
-int TfrmNewTank::getDefaultPosition()
+int TfrmNewTank::getDefaultPosition() const
 {
 	TTreeNode* child = SiteNode->getFirstChild();
 	int pos = 0;
@@ -356,7 +356,7 @@ int TfrmNewTank::getDefaultPosition()
 
 //---------------------------------------------------------------------------
 
-int TfrmNewTank::getDefaultLayoutIndex()
+int TfrmNewTank::getDefaultLayoutIndex() const
 {
 	TTreeNode* child = SiteNode->getFirstChild();
 	int ind = -1;
@@ -369,7 +369,7 @@ int TfrmNewTank::getDefaultLayoutIndex()
 
 //---------------------------------------------------------------------------
 
-int TfrmNewTank::getDefaultStoreTypeID()
+int TfrmNewTank::getDefaultStoreTypeID() const
 {
 	TTreeNode* child = SiteNode->getFirstChild();
 	if( child == NULL || child->Data == NULL ) {
@@ -589,7 +589,7 @@ void __fastcall TfrmNewTank::chkPopClick(TObject *Sender)
 
 //---------------------------------------------------------------------------
 
-bool TfrmNewTank::checkVessel( TEdit * textBox, TLabel * label, bool isName ) {
+bool TfrmNewTank::checkVessel( TEdit * textBox, TLabel * label, bool isName ) const {
 	AnsiString name =  textBox->Text.Trim();
 	if( mode != NEW_VESSEL ) {
 		std::string oldValue = isName ? oldtank->getVessel() : oldtank->getSrlno();
@@ -609,7 +609,7 @@ bool TfrmNewTank::checkVessel( TEdit * textBox, TLabel * label, bool isName ) {
 
 //---------------------------------------------------------------------------
 
-bool TfrmNewTank::checkPosition( int locationCID, short pos, short shelf ) {
+bool TfrmNewTank::checkPosition( int locationCID, short pos, short shelf ) const {
 	if( mode != NEW_VESSEL && locationCID == oldtank->getLocationID()
 	 && pos == oldtank->getPosition() && shelf == oldtank->getShelfNumber() ) {
 		return true;

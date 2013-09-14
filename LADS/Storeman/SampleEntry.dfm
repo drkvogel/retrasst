@@ -1,7 +1,7 @@
 object frmRetrieveMain: TfrmRetrieveMain
   Left = 0
   Top = 0
-  Caption = 'Modift Retrieval List'
+  Caption = 'Modify Retrieval List'
   ClientHeight = 660
   ClientWidth = 1091
   Color = 12316364
@@ -18,32 +18,39 @@ object frmRetrieveMain: TfrmRetrieveMain
   PixelsPerInch = 96
   TextHeight = 13
   object LblAliquot1: TLabel
-    Left = 88
+    Left = 8
     Top = 83
     Width = 75
     Height = 13
     Caption = 'Primary aliquot:'
   end
   object LblAliquot2: TLabel
-    Left = 430
+    Left = 294
     Top = 83
     Width = 90
     Height = 13
     Caption = 'Secondary aliquot:'
   end
   object Label1: TLabel
-    Left = 88
+    Left = 8
     Top = 33
     Width = 38
     Height = 13
     Caption = 'Project:'
   end
   object Label2: TLabel
-    Left = 782
-    Top = 30
+    Left = 862
+    Top = 33
     Width = 53
     Height = 13
     Caption = 'Sort order:'
+  end
+  object Label3: TLabel
+    Left = 592
+    Top = 33
+    Width = 47
+    Height = 13
+    Caption = 'Box type:'
   end
   object grdSamples: TStringGrid
     Left = 8
@@ -60,7 +67,7 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnFixedCellClick = grdSamplesFixedCellClick
   end
   object btnAddFile: TButton
-    Left = 88
+    Left = 8
     Top = 128
     Width = 96
     Height = 34
@@ -70,7 +77,7 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnClick = AddClick
   end
   object btnLocate: TButton
-    Left = 355
+    Left = 313
     Top = 128
     Width = 96
     Height = 34
@@ -80,7 +87,7 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnClick = btnLocateClick
   end
   object CmbAliquot1: TComboBox
-    Left = 180
+    Left = 89
     Top = 80
     Width = 172
     Height = 21
@@ -89,10 +96,10 @@ object frmRetrieveMain: TfrmRetrieveMain
     TabOrder = 2
     OnDropDown = CmbAliquot1DropDown
   end
-  object RadIDType: TRadioGroup
-    Left = 430
+  object rgItemType: TRadioGroup
+    Left = 294
     Top = 8
-    Width = 276
+    Width = 268
     Height = 52
     Caption = 'Item type'
     Columns = 3
@@ -104,7 +111,7 @@ object frmRetrieveMain: TfrmRetrieveMain
     TabOrder = 1
   end
   object CmbAliquot2: TComboBox
-    Left = 534
+    Left = 390
     Top = 80
     Width = 172
     Height = 21
@@ -114,7 +121,7 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnDropDown = CmbAliquot2DropDown
   end
   object cbProject: TComboBox
-    Left = 180
+    Left = 89
     Top = 30
     Width = 172
     Height = 21
@@ -131,11 +138,9 @@ object frmRetrieveMain: TfrmRetrieveMain
     Align = alBottom
     Step = 1
     TabOrder = 10
-    ExplicitTop = 611
-    ExplicitWidth = 1022
   end
   object btnDestination: TButton
-    Left = 489
+    Left = 466
     Top = 128
     Width = 96
     Height = 34
@@ -145,16 +150,16 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnClick = btnDestinationClick
   end
   object lbSortCols: TListBox
-    Left = 849
+    Left = 928
     Top = 16
-    Width = 145
-    Height = 106
+    Width = 154
+    Height = 104
     Enabled = False
     ItemHeight = 13
     TabOrder = 11
   end
   object btnAddRecords: TButton
-    Left = 221
+    Left = 160
     Top = 128
     Width = 96
     Height = 34
@@ -163,7 +168,7 @@ object frmRetrieveMain: TfrmRetrieveMain
     TabOrder = 5
   end
   object btnSaveList: TButton
-    Left = 650
+    Left = 655
     Top = 128
     Width = 96
     Height = 34
@@ -173,16 +178,33 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnClick = btnSaveListClick
   end
   object btnClrSort: TButton
-    Left = 884
+    Left = 964
     Top = 128
-    Width = 75
-    Height = 25
-    Caption = 'Clear'
+    Width = 96
+    Height = 34
+    Caption = 'Unsort'
     TabOrder = 12
     OnClick = btnClrSortClick
   end
+  object btnNewContent: TButton
+    Left = 655
+    Top = 74
+    Width = 96
+    Height = 34
+    Caption = 'Add Box Type'
+    Enabled = False
+    TabOrder = 13
+    OnClick = btnNewContentClick
+  end
+  object cbBoxType: TComboBox
+    Left = 655
+    Top = 30
+    Width = 172
+    Height = 21
+    TabOrder = 14
+  end
   object OpenDialog1: TOpenDialog
-    Left = 26
-    Top = 123
+    Left = 114
+    Top = 219
   end
 end

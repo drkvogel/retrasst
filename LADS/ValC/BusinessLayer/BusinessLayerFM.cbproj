@@ -90,8 +90,6 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <PreBuildEvent><![CDATA["C:\Program Files (x86)\Embarcadero\RAD Studio\11.0\bin64\tlibimp" -C -D"$(PROJECTDIR)" "C:\Program Files (x86)\Common Files\System\ado\msado15.dll"
-$(PreBuildEvent)]]></PreBuildEvent>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <IncludePath>$(BDSINCLUDE)\windows\fmx;$(IncludePath)</IncludePath>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
@@ -142,10 +140,6 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <BCC_PCHName_Clang>BusinessLayerFMPCH1.h</BCC_PCHName_Clang>
     </PropertyGroup>
     <ItemGroup>
-        <CppCompile Include="ADODB_TLB.cpp">
-            <DependentOn>ADODB_TLB.h</DependentOn>
-            <BuildOrder>65</BuildOrder>
-        </CppCompile>
         <CppCompile Include="AllocateLocalResultsToWorklistEntries.cpp">
             <DependentOn>AllocateLocalResultsToWorklistEntries.h</DependentOn>
             <BuildOrder>3</BuildOrder>
@@ -184,21 +178,9 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <None Include="ClusterIDs.h">
             <BuildOrder>10</BuildOrder>
         </None>
-        <CppCompile Include="ComUtil.cpp">
-            <DependentOn>ComUtil.h</DependentOn>
-            <BuildOrder>30</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="CursorADO.cpp">
-            <DependentOn>CursorADO.h</DependentOn>
-            <BuildOrder>31</BuildOrder>
-        </CppCompile>
         <CppCompile Include="CursorBackedWorklistRelationsDataSource.cpp">
             <DependentOn>CursorBackedWorklistRelationsDataSource.h</DependentOn>
             <BuildOrder>32</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DBConnectionADO.cpp">
-            <DependentOn>DBConnectionADO.h</DependentOn>
-            <BuildOrder>33</BuildOrder>
         </CppCompile>
         <CppCompile Include="DBUpdateConsumer.cpp">
             <DependentOn>DBUpdateConsumer.h</DependentOn>
@@ -322,10 +304,6 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <None Include="SampleRuns.h">
             <BuildOrder>12</BuildOrder>
         </None>
-        <CppCompile Include="StringBackedCursor.cpp">
-            <DependentOn>StringBackedCursor.h</DependentOn>
-            <BuildOrder>55</BuildOrder>
-        </CppCompile>
         <None Include="Task.h">
             <BuildOrder>13</BuildOrder>
         </None>
@@ -514,20 +492,4 @@ $(PreBuildEvent)]]></PreBuildEvent>
     </ProjectExtensions>
     <Import Project="$(BDS)\Bin\CodeGear.Cpp.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Cpp.Targets')"/>
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
-    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
-        <PreBuildEvent>&quot;C:\Program Files (x86)\Embarcadero\RAD Studio\11.0\bin64\tlibimp&quot; -C -D&quot;$(PROJECTDIR)&quot; &quot;C:\Program Files (x86)\Common Files\System\ado\msado15.dll&quot;</PreBuildEvent>
-        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
-        <PreLinkEvent/>
-        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent/>
-        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
-        <PreBuildEvent>&quot;C:\Program Files (x86)\Embarcadero\RAD Studio\11.0\bin64\tlibimp&quot; -C -D&quot;$(PROJECTDIR)&quot; &quot;C:\Program Files (x86)\Common Files\System\ado\msado15.dll&quot;</PreBuildEvent>
-        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
-        <PreLinkEvent/>
-        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent/>
-        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
-    </PropertyGroup>
 </Project>

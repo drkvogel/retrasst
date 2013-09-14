@@ -1,18 +1,18 @@
 #ifndef MOCKCONNECTIONH
 #define MOCKCONNECTIONH
 
-#include "API.h"
+#include "DBConnection.h"
 #include <vector>
 
 namespace valc
 {
 
-class MockConnection : public DBConnection
+class MockConnection : public paulstdb::DBConnection
 {
 public:
     MockConnection();
     void close();
-    Cursor* executeQuery        ( const std::string& sql );
+    paulstdb::Cursor* executeQuery        ( const std::string& sql );
     void    executeStmt         ( const std::string& sql );
     void    setBuddyDB          ( const std::string& buddyDB   );
     void    setClusters         ( const std::string& clusters  );

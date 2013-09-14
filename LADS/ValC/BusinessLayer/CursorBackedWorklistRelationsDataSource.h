@@ -4,18 +4,21 @@
 #include <boost/scoped_ptr.hpp>
 #include "WorklistRelation.h"
 
+namespace paulstdb
+{
+    class Cursor;
+}
+
 namespace valc
 {
-
-class Cursor;
 
 class CursorBackedWorklistRelationsDataSource : public WorklistRelationsDataSource
 {
 public:
-    CursorBackedWorklistRelationsDataSource( Cursor* c ); 
+    CursorBackedWorklistRelationsDataSource( paulstdb::Cursor* c ); 
     WorklistRelations getRelations( int worklistEntry );
 private:
-    boost::scoped_ptr<Cursor> m_cursor;
+    boost::scoped_ptr<paulstdb::Cursor> m_cursor;
 
     int  getChildID();
     int  getIntValue( int forColumn );

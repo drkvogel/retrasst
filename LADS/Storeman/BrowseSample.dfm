@@ -83,7 +83,7 @@ object frmBrowse: TfrmBrowse
     TabOrder = 3
     object LblLegend: TLabel
       Left = 10
-      Top = 10
+      Top = 9
       Width = 51
       Height = 19
       Alignment = taCenter
@@ -151,7 +151,7 @@ object frmBrowse: TfrmBrowse
     end
     object ImgOnline: TImage
       Left = 10
-      Top = 61
+      Top = 60
       Width = 16
       Height = 16
       AutoSize = True
@@ -210,14 +210,14 @@ object frmBrowse: TfrmBrowse
     end
     object Label3: TLabel
       Left = 34
-      Top = 112
+      Top = 136
       Width = 16
       Height = 13
       Caption = 'Full'
     end
     object Image3: TImage
       Left = 10
-      Top = 111
+      Top = 135
       Width = 16
       Height = 16
       AutoSize = True
@@ -270,7 +270,7 @@ object frmBrowse: TfrmBrowse
     end
     object Image1: TImage
       Left = 10
-      Top = 86
+      Top = 85
       Width = 16
       Height = 16
       AutoSize = True
@@ -289,14 +289,14 @@ object frmBrowse: TfrmBrowse
     end
     object Label2: TLabel
       Left = 34
-      Top = 137
+      Top = 111
       Width = 37
       Height = 13
       Caption = 'Part full'
     end
     object Image2: TImage
       Left = 10
-      Top = 136
+      Top = 110
       Width = 16
       Height = 16
       AutoSize = True
@@ -362,7 +362,7 @@ object frmBrowse: TfrmBrowse
     Left = 408
     Top = 160
     Bitmap = {
-      494C010109008001B40110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010109008001BC0110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

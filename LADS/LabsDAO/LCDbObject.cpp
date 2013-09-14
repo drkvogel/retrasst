@@ -75,8 +75,8 @@ std::string LCDbObject::findDescription( Category type )
 		case RESULT_ATTRIBUTE:
 			return "Result attribute";
 
-		case ALIQUOT_CATEGORY:
-			return "Aliquot category";
+		case QC_RULE:
+			return "Westgard rule";
 
 		case QC_MATERIAL:
 			return "QC material";

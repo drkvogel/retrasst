@@ -41,6 +41,7 @@ public:		// User declarations
 	__fastcall TfrmNewJob( TComponent* Owner );
 	void init( LCDbCryoJob::JobKind kind );
 	bool createJob( const std::vector<Box*> & boxes );
+	bool createJob( int projID, int al1, int al2 );
 	const LCDbCryoJob & getDetails() const { return job; }
 };
 //---------------------------------------------------------------------------

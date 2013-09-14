@@ -1,4 +1,5 @@
-#include "API.h"
+#include "Cursor.h"
+#include "DBConnection.h"
 #include "DBUpdateTaskInsertSampleRun.h"
 #include <memory>
 #include "SampleRunIDResolutionService.h"
@@ -42,7 +43,7 @@ void DBUpdateTaskInsertSampleRun::updateDatabase()
 
     if ( insertRequired  )
     {
-        std::auto_ptr<Cursor> c( getConnection()->executeQuery( "select sample_run_id.nextval" ) );
+        std::auto_ptr<paulstdb::Cursor> c( getConnection()->executeQuery( "select sample_run_id.nextval" ) );
         if ( c->endOfRecordSet() )
         {
             throw Exception( L"No rows obtained for: select sample_run_id.nextval" );

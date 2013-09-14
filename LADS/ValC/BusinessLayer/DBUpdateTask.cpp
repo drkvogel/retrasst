@@ -38,7 +38,7 @@ bool DBUpdateTask::execute()
     return continuePerformingOtherUpdates;
 }
 
-DBConnection* DBUpdateTask::getConnection() const
+paulstdb::DBConnection* DBUpdateTask::getConnection() const
 {
     return m_connection;
 }
@@ -62,7 +62,7 @@ void DBUpdateTask::handleException( const std::string& msg, bool& continuePerfor
     continuePerformingOtherUpdates = false;
 }
 
-void DBUpdateTask::setConnection( DBConnection* c )
+void DBUpdateTask::setConnection( paulstdb::DBConnection* c )
 {
     m_connection = c;
 }

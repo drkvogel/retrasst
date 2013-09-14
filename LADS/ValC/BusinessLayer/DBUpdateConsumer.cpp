@@ -7,7 +7,7 @@ namespace valc
 {
 
 DBUpdateConsumer::DBUpdateConsumer( 
-    DBConnection* connection, 
+    paulstdb::DBConnection* connection, 
     paulst::LoggingService* log,
     SampleRunIDResolutionService* s,
     DBUpdateSchedule* updateSchedule,

@@ -21,19 +21,20 @@ object frmBoxes: TfrmBoxes
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
-    Top = 265
+    Top = 284
     Width = 853
     Height = 10
     Cursor = crVSplit
     Align = alTop
     Beveled = True
+    ExplicitTop = 265
     ExplicitWidth = 841
   end
   object groupList: TGroupBox
     Left = 0
     Top = 0
     Width = 853
-    Height = 265
+    Height = 284
     Align = alTop
     Caption = 'Chunks'
     TabOrder = 0
@@ -41,23 +42,27 @@ object frmBoxes: TfrmBoxes
       Left = 769
       Top = 15
       Width = 82
-      Height = 248
+      Height = 267
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
+      ExplicitLeft = 775
+      ExplicitTop = 21
+      ExplicitHeight = 248
       object btnAddChunk: TButton
         Left = 0
-        Top = 0
+        Top = 25
         Width = 82
         Height = 25
         Align = alTop
         Caption = 'Add chunk'
         TabOrder = 0
         OnClick = btnAddChunkClick
+        ExplicitTop = 0
       end
       object btnDelChunk: TButton
         Left = 0
-        Top = 25
+        Top = 50
         Width = 82
         Height = 25
         Align = alTop
@@ -65,43 +70,104 @@ object frmBoxes: TfrmBoxes
         Enabled = False
         TabOrder = 1
         OnClick = btnDelChunkClick
+        ExplicitTop = 25
       end
       object btnSaveChunk: TButton
         Left = 0
-        Top = 50
+        Top = 75
         Width = 82
         Height = 25
         Align = alTop
         Caption = 'Save chunk'
         Enabled = False
         TabOrder = 2
+        ExplicitTop = 50
       end
       object btnIncr: TButton
         Left = 0
-        Top = 75
+        Top = 100
         Width = 82
         Height = 25
         Align = alTop
         Caption = '+'
         TabOrder = 3
         OnClick = btnIncrClick
+        ExplicitTop = 75
       end
       object btnDecr: TButton
         Left = 0
-        Top = 100
+        Top = 125
         Width = 82
         Height = 25
         Align = alTop
         Caption = '-'
         TabOrder = 4
         OnClick = btnDecrClick
+        ExplicitTop = 100
+      end
+      object btnReject: TButton
+        Left = 0
+        Top = 192
+        Width = 82
+        Height = 25
+        Align = alBottom
+        Caption = 'Reject List'
+        TabOrder = 5
+        OnClick = btnRejectClick
+        ExplicitLeft = 6
+        ExplicitTop = 142
+      end
+      object Button1: TButton
+        Left = 0
+        Top = 217
+        Width = 82
+        Height = 25
+        Align = alBottom
+        Caption = 'Save'
+        TabOrder = 6
+        OnClick = btnSaveClick
+        ExplicitTop = 198
+      end
+      object Button2: TButton
+        Left = 0
+        Top = 242
+        Width = 82
+        Height = 25
+        Align = alBottom
+        Caption = 'Exit'
+        TabOrder = 7
+        OnClick = btnCancelClick
+        ExplicitTop = 223
+      end
+      object cbLog: TCheckBox
+        Left = 0
+        Top = 175
+        Width = 82
+        Height = 17
+        Align = alBottom
+        Caption = 'Show Log'
+        TabOrder = 8
+        OnClick = cbLogClick
+        ExplicitLeft = 18
+        ExplicitTop = 6
+        ExplicitWidth = 64
+      end
+      object btnAutoChunk: TButton
+        Left = 0
+        Top = 0
+        Width = 82
+        Height = 25
+        Align = alTop
+        Caption = 'Auto-Chunk'
+        TabOrder = 9
+        OnClick = btnAutoChunkClick
       end
     end
     object sgChunks: TStringGrid
       Left = 2
       Top = 15
       Width = 767
-      Height = 248
+      Height = 267
       Align = alClient
       DefaultDrawing = False
       FixedCols = 0
@@ -110,6 +176,9 @@ object frmBoxes: TfrmBoxes
       OnDrawCell = sgChunksDrawCell
       OnFixedCellClick = sgChunksFixedCellClick
       OnSetEditText = sgChunksSetEditText
+      ExplicitLeft = -4
+      ExplicitTop = 21
+      ExplicitHeight = 248
     end
   end
   object Panel1: TPanel
@@ -144,77 +213,22 @@ object frmBoxes: TfrmBoxes
       TabOrder = 1
       OnClick = btnCancelClick
     end
-    object cbLog: TCheckBox
-      Left = 622
-      Top = 6
-      Width = 64
-      Height = 17
-      Anchors = [akRight, akBottom]
-      Caption = 'Show Log'
-      TabOrder = 2
-      OnClick = cbLogClick
-    end
-    object radgrpRows: TRadioGroup
-      Left = 2
-      Top = 0
-      Width = 183
-      Height = 43
-      Caption = 'Show rows'
-      TabOrder = 3
-    end
-    object radbutAll: TRadioButton
-      Left = 48
-      Top = 16
-      Width = 30
-      Height = 17
-      Caption = 'All'
-      TabOrder = 4
-      OnClick = radbutAllClick
-    end
-    object radbutDefault: TRadioButton
-      Left = 10
-      Top = 16
-      Width = 33
-      Height = 17
-      Caption = '25'
-      Checked = True
-      TabOrder = 5
-      TabStop = True
-      OnClick = radbutDefaultClick
-    end
-    object radbutCustom: TRadioButton
-      Left = 84
-      Top = 16
-      Width = 57
-      Height = 17
-      Caption = 'Custom'
-      TabOrder = 6
-      OnClick = radbutCustomClick
-    end
-    object editCustomRows: TEdit
-      Left = 141
-      Top = 15
-      Width = 38
-      Height = 21
-      Enabled = False
-      TabOrder = 7
-      Text = '100'
-      OnChange = editCustomRowsChange
-    end
   end
   object GroupBox1: TGroupBox
     Left = 0
-    Top = 275
+    Top = 294
     Width = 853
-    Height = 269
+    Height = 250
     Align = alClient
     Caption = 'Boxes in chunk'
     TabOrder = 2
+    ExplicitTop = 275
+    ExplicitHeight = 269
     object sgBoxes: TStringGrid
       Left = 2
       Top = 15
       Width = 849
-      Height = 163
+      Height = 144
       Align = alClient
       DefaultDrawing = False
       FixedCols = 0
@@ -223,15 +237,17 @@ object frmBoxes: TfrmBoxes
       OnClick = sgBoxesClick
       OnDrawCell = sgBoxesDrawCell
       OnFixedCellClick = sgBoxesFixedCellClick
+      ExplicitHeight = 163
     end
     object memoDebug: TMemo
       Left = 2
-      Top = 178
+      Top = 159
       Width = 849
       Height = 89
       Align = alBottom
       TabOrder = 1
       Visible = False
+      ExplicitTop = 178
     end
     object panelLoading: TPanel
       Left = 232
@@ -250,13 +266,6 @@ object frmBoxes: TfrmBoxes
         TabOrder = 0
       end
     end
-  end
-  object timerCustomRows: TTimer
-    Enabled = False
-    Interval = 500
-    OnTimer = timerCustomRowsTimer
-    Left = 352
-    Top = 296
   end
   object timerLoadBoxes: TTimer
     Enabled = False

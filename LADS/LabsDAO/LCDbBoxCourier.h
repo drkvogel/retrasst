@@ -97,10 +97,9 @@ class LPDbBoxEvent : public LSDbBoxEvent
 		int boxID;
 		std::string text;
 
-		LPDbBoxEvent( const LQuery & query ) : LSDbBoxEvent( query )
-		{
-			boxID = 0;
-		}
+		LPDbBoxEvent( const LQuery & query )
+		 : LSDbBoxEvent( query ), boxID( 0 )
+		{}
 
 	public:
 
@@ -147,13 +146,13 @@ class LDbBoxArrival : public LSDbBoxCourier , public LCDbID
 				LDbBoxArrival( const LQuery & query );
 
 				void setLaptopCid( int x ) { laptop_cid=x; }
-				int getLaptopCid( void ) {return laptop_cid;}
+				int getLaptopCid( void ) const {return laptop_cid;}
 
 				void setProcessCid( int x ) { process_cid=x; }
-				int getProcessCid( void ) {return process_cid;}
+				int getProcessCid( void ) const {return process_cid;}
 
 				void setTankCid( const int x ) {tank_cid=x;}
-				 int  getTankCid(void )const { return tank_cid; }
+				 int  getTankCid(void ) const { return tank_cid; }
 
 				void setRackNumber( const std::string &x ){ rack_number=x;}
 				const std::string & getRackNumber( void )const {return rack_number; }

@@ -8,20 +8,23 @@ namespace paulst
     class LoggingService;
 };
 
+namespace paulstdb
+{
+    class DBConnection;
+}
+
 namespace valc
 {
-
-class DBConnection;
 
 class LoadClusterIDs
 {
 public:
-    LoadClusterIDs( ClusterIDs* clusterIDs, paulst::LoggingService* log, DBConnection* con, int localMachineID );
+    LoadClusterIDs( ClusterIDs* clusterIDs, paulst::LoggingService* log, paulstdb::DBConnection* con, int localMachineID );
     ~LoadClusterIDs();
     void execute();
 private:
     paulst::LoggingService* m_log;
-    DBConnection* m_con;
+    paulstdb::DBConnection* m_con;
     ClusterIDs* m_clusterIDs;
     const int m_localMachineID;
 

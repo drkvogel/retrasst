@@ -10,44 +10,49 @@
 
 
 
+
+
+
+
 USEFORM("FindSample.cpp", frmFind);
-USEFORM("DiscardSamples.cpp", frmDiscardSamples);
+USEFORM("MoveJobs.cpp", frmSelectJob);
 USEFORM("DiscardSearch.cpp", frmSearch);
-USEFORM("NewSection.cpp", frmNewSection);
 USEFORM("NewSite.cpp", frmNewSite);
 USEFORM("NewTank.cpp", frmNewTank);
-USEFORM("MoveJobs.cpp", frmSelectJob);
+USEFORM("NewType.cpp", frmNewStoreType);
 USEFORM("NewExercise.cpp", frmNewExercise);
 USEFORM("NewJob.cpp", frmNewJob);
-USEFORM("BrowseSample.cpp", frmBrowse);
+USEFORM("NewSection.cpp", frmNewSection);
 USEFORM("Configure.cpp", frmConfigure);
-USEFORM("AnalyseSamples.cpp", frmAnalyseSpecimens);
 USEFORM("BoxTransfer.cpp", frmBoxList);
-USEFORM("DiscardNote.cpp", frmDiscardNote);
+USEFORM("BrowseSample.cpp", frmBrowse);
 USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
 USEFORM("DiscardReason.cpp", frmDiscardReason);
+USEFORM("DiscardSamples.cpp", frmDiscardSamples);
 USEFORM("DiscardMethod.cpp", frmDiscardMethod);
+USEFORM("DiscardNote.cpp", frmDiscardNote);
 USEFORM("Storemain.cpp", frmStoremain);
-USEFORM("SelectSamples.cpp", frmSelectBoxes);
 USEFORM("ShowSamples.cpp", frmAliquotTypes);
 USEFORM("SMLogin.cpp", frmSMLogin);
-USEFORM("RetrievalAssistant.cpp", frmRetrievalAssistant);
 USEFORM("RetrievalAssistantAutoChunk.cpp", frmAutoChunk);
 USEFORM("RetrievalAssistantBoxes.cpp", frmBoxes);
-USEFORM("NewType.cpp", frmNewType);
+USEFORM("RetrievalAssistantProcess.cpp", frmProcess);
 USEFORM("ReferredBoxes.cpp", frmReferred);
 USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
-USEFORM("SampleEntry.cpp", frmRetrieveMain);
+USEFORM("RetrievalAssistant.cpp", frmRetrievalAssistant);
 USEFORM("SampleMove.cpp", frmMove);
-USEFORM("RetrievalAssistantProcess.cpp", frmProcess);
+USEFORM("SelectSamples.cpp", frmSelectBoxes);
 USEFORM("RetrievalAssistantSamples.cpp", frmSamples);
 USEFORM("RetrieveSamples.cpp", frmRetrieved);
+USEFORM("SampleEntry.cpp", frmRetrieveMain);
+USEFORM("AnalyseSamples.cpp", frmAnalyseSpecimens);
 USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
 USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
 USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
 USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
 USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
 USEFORM("AddSpecimens.cpp", frmAddSpecimens);
+USEFORM("NewBoxType.cpp", frmNewBoxType);
 //---------------------------------------------------------------------------
 WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
@@ -90,7 +95,8 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 		Application->CreateForm(__classid(TfrmProcess), &frmProcess);
 		Application->CreateForm(__classid(TfrmSamples), &frmSamples);
 		Application->CreateForm(__classid(TfrmReferred), &frmReferred);
-		Application->CreateForm(__classid(TfrmNewType), &frmNewType);
+		Application->CreateForm(__classid(TfrmNewStoreType), &frmNewStoreType);
+		Application->CreateForm(__classid(TfrmNewBoxType), &frmNewBoxType);
 		Application->Run();
 	}
 	catch (Exception &exception)
@@ -112,4 +118,5 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 }
 
 //---------------------------------------------------------------------------
+
 

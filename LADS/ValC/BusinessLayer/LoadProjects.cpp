@@ -1,4 +1,5 @@
-#include "API.h"
+#include "Cursor.h"
+#include "DBConnection.h"
 #include <boost/lexical_cast.hpp>
 #include "LoadProjects.h"
 #include "LoggingService.h"
@@ -9,7 +10,7 @@
 namespace valc
 {
 
-LoadProjects::LoadProjects( Projects* projects, paulst::LoggingService* log, DBConnection* con )
+LoadProjects::LoadProjects( Projects* projects, paulst::LoggingService* log, paulstdb::DBConnection* con )
     :
     m_log(log),
     m_con(con),
@@ -27,7 +28,7 @@ void LoadProjects::execute()
 {
     std::string sql = "select project_cid, lower(external_name), lower(db_name) from c_project";
 
-    for ( std::auto_ptr<Cursor> cursor( m_con->executeQuery( sql ) ); ! cursor->endOfRecordSet(); cursor->next() )
+    for ( std::auto_ptr<paulstdb::Cursor> cursor( m_con->executeQuery( sql ) ); ! cursor->endOfRecordSet(); cursor->next() )
     {
         int projectID = 0;
         std::string externalName, dbName;

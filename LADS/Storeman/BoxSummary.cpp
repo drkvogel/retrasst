@@ -1,9 +1,9 @@
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
-#include "LPDbBoxes.h"
+#include "LCDbProject.h"
 #include "BoxSummary.h"
-#include "LDbBoxType.h"
+#include "LPDbBoxes.h"
 #include "StoreUtil.h"
 #include "LPDbCryovial.h"
 #include "LCDbObject.h"
@@ -129,7 +129,7 @@ bool BoxSummary::BoxCheckTask::execute() {
 void BoxSummary::Results::checkContents()
 {
 	// find profiles expecting results so we don't need to check results table
-	LQuery pq( Util::projectQuery() );
+	LQuery pq( LIMSDatabase::getProjectDb() );
 	LPDbProfiles & profiles = LPDbProfiles::records();
 	std::set< int > testProfileIDs;
 	for( Range< LPDbProfile > pr = profiles; pr.isValid(); ++ pr ) {

@@ -8,10 +8,14 @@ namespace paulst
     class LoggingService;
 };
 
+namespace paulstdb
+{
+    class DBConnection;
+}
+
 namespace valc
 {
 
-class DBConnection;
 class DBUpdateExceptionHandlingPolicy;
 class DBUpdateSchedule;
 class SampleRunIDResolutionService;
@@ -20,7 +24,7 @@ class DBUpdateConsumer : public paulst::Runnable
 {
 public:
     DBUpdateConsumer( 
-        DBConnection* connection, 
+        paulstdb::DBConnection* connection, 
         paulst::LoggingService* log,
         SampleRunIDResolutionService* s,
         DBUpdateSchedule* updateSchedule,
@@ -28,7 +32,7 @@ public:
     void run( const paulst::Event* stopSignal );
     void waitFor();
 private:
-    DBConnection*                       m_connection;
+    paulstdb::DBConnection*             m_connection;
     paulst::LoggingService*             m_log;
     SampleRunIDResolutionService*       m_sampleRunIDResolutionService;
     DBUpdateSchedule*                   m_updateSchedule;

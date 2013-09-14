@@ -12,9 +12,9 @@
 #include <tchar.h>
 #include <cstdio>
 
+
 #include "BuddySampleIDKeyedOnSampleRunIDTest.h"
 #include "ForceReloadTest.h"
-#include "LuaDBTest.h"
 #include "QueuedSamplesFactoryTest.h"
 #include "SampleRunIDResolutionServiceTest.h"
 

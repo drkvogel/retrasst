@@ -2,6 +2,7 @@
 
 #include <vcl.h>
 
+#include "LCDbProject.h"
 #include "SelectSamples.h"
 #include "AddSpecimens.h"
 #include "SMLogin.h"

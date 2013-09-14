@@ -13,16 +13,16 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
-TfrmNewType *frmNewType;
+TfrmNewStoreType *frmNewStoreType;
 
 //---------------------------------------------------------------------------
 
-__fastcall TfrmNewType::TfrmNewType(TComponent* Owner) : TForm(Owner)
+__fastcall TfrmNewStoreType::TfrmNewStoreType(TComponent* Owner) : TForm(Owner)
 {}
 
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmNewType::SaveClick(TObject *Sender)
+void __fastcall TfrmNewStoreType::SaveClick(TObject *Sender)
 {
 	if( Util::validateText( TxtName, LblName )
 	 && Util::validateText( TxtFull, LblFull ) ) {
@@ -32,7 +32,7 @@ void __fastcall TfrmNewType::SaveClick(TObject *Sender)
 
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmNewType::FormShow(TObject *Sender)
+void __fastcall TfrmNewStoreType::FormShow(TObject *Sender)
 {
 	TxtName->Text = "";
 	TxtFull->Text = "";
@@ -41,7 +41,7 @@ void __fastcall TfrmNewType::FormShow(TObject *Sender)
 
 //---------------------------------------------------------------------------
 
-const LCDbObject * TfrmNewType::createRecord() {
+const LCDbObject * TfrmNewStoreType::createRecord() {
 	LCDbObject type( LCDbObject::STORAGE_TYPE );
 	AnsiString name = TxtName->Text.Trim();
 	type.setName( name.c_str() );

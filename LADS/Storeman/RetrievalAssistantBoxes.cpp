@@ -108,7 +108,6 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     maxRows             = DEFAULT_NUMROWS;
     setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
     setupStringGrid(sgBoxes,  SGBOXES_NUMCOLS,  sgBoxesColName,  sgBoxesColWidth);
-    radbutDefault->Caption = DEFAULT_NUMROWS;
     loadingMessage = "Loading boxes, please wait...";
 }
 
@@ -267,24 +266,6 @@ void __fastcall TfrmBoxes::sgChunksFixedCellClick(TObject *Sender, int ACol, int
     // prevent editing
 }
 
-void __fastcall TfrmBoxes::radbutDefaultClick(TObject *Sender) { radgrpRowsChange(); }
-
-void __fastcall TfrmBoxes::radbutAllClick(TObject *Sender) { radgrpRowsChange(); }
-
-void __fastcall TfrmBoxes::radbutCustomClick(TObject *Sender) { radgrpRowsChange(); }
-
-void __fastcall TfrmBoxes::editCustomRowsChange(TObject *Sender) {
-    timerCustomRows->Enabled = false; // reset
-    timerCustomRows->Enabled = true;;
-}
-
-void __fastcall TfrmBoxes::timerCustomRowsTimer(TObject *Sender) {
-    ostringstream oss; oss <<__FUNC__<<": load"<<": maxRows: "<<maxRows; debugLog(oss.str().c_str());
-    timerCustomRows->Enabled = false;
-    maxRows = editCustomRows->Text.ToIntDef(0);
-    loadRows();
-}
-
 void __fastcall TfrmBoxes::sgBoxesFixedCellClick(TObject *Sender, int ACol, int ARow) {
     sortList(ACol);
 }
@@ -312,24 +293,20 @@ void __fastcall TfrmBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
     Screen->Cursor = crDefault;
 }
 
-void TfrmBoxes::debugLog(String s) { frmBoxes->memoDebug->Lines->Add(s); }
-
-void TfrmBoxes::radgrpRowsChange() {
-    ostringstream oss; oss <<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
-    maxRows = 0;
-    if (radbutCustom->Checked) {
-        editCustomRows->Enabled = true;
-        return; // allow user to edit value
-    } else {
-        editCustomRows->Enabled = false;
-        if (radbutDefault->Checked) {
-            maxRows = DEFAULT_NUMROWS;
-        } else if (radbutAll->Checked) {
-            maxRows = -1;
-        }
+void __fastcall TfrmBoxes::btnRejectClick(TObject *Sender) {
+    if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
+        //xxxxrejectList();
+        job->setStatus(LCDbCryoJob::Status::REJECTED);
+        job->saveRecord(LIMSDatabase::getCentralDb());
+        Close();
     }
-    loadRows();
 }
+
+void __fastcall TfrmBoxes::btnAutoChunkClick(TObject *Sender) {
+    autoChunk();
+}
+
+void TfrmBoxes::debugLog(String s) { frmBoxes->memoDebug->Lines->Add(s); }
 
 void TfrmBoxes::addChunk() {
     if (chunks.size() == 0) {
@@ -398,6 +375,6 @@ void TfrmBoxes::sortList(int col) {
     Screen->Cursor = crDefault;
 }
 
-
-
-
+void TfrmBoxes::autoChunk() {
+    //
+}

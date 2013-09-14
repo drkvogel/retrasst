@@ -19,9 +19,26 @@ namespace tut
 {
     class BasicTestFixture
     {
+    public:
+        BasicTestFixture( const char* script  = "")
+            :   
+            m_script(script)
+        {
+        }
+
+        void run( lua_State* L )
+        {
+            const bool scriptOK = 0 == luaL_dostring( L, m_script.c_str() );
+            ensure( lua_tostring( L, -1 ),  scriptOK );
+        }
+
+    private:
+        std::string m_script;
     };
 
-    typedef test_group<BasicTestFixture, 4> BasicTestGroup;
+    typedef BasicTestFixture Script;
+
+    typedef test_group<BasicTestFixture, 5> BasicTestGroup;
     BasicTestGroup testGroupBasic( "Basic tests");
     typedef BasicTestGroup::object testBasic;
 
@@ -104,6 +121,34 @@ namespace tut
         ensure( 2  == lua_gettop(L) );
         ensure( 79 == lua_tointeger( L, -1 ) );
         ensure( 56 == lua_tointeger( L, -2 ) );
+     }
+
+    template<>
+    template<>
+    void testBasic::test<5>()
+    {
+        set_test_name("iterating over an array with nil values");
+
+        lua_State* L = lua_open();
+        boost::shared_ptr<void> closeOnExit( L, lua_close );
+        luaL_openlibs(L);
+        
+        Script( 
+            "local m = { 'a', 'b', 'c', 'd', nil, 'e' }\n"
+            "local lastValue\n"
+            "for index, value in ipairs(m) do lastValue = value end\n"
+            "return lastValue\n"
+            ).run(L);
+
+        ensure_equals( "Expect iteration to stop when it hits the nil.", std::string( lua_tostring( L, -1 ) ), std::string("d") );
+
+        Script(    
+            "local m = { 'a', 'b', 'c', 'd', nil, 'e' }\n"
+            "local lastValue\n"
+            "for i = 1,6 do lastValue = m[i] end\n"
+            "return lastValue\n").run(L);
+
+        ensure_equals( std::string( lua_tostring( L, -1 ) ), std::string("e") );
      }
 
 

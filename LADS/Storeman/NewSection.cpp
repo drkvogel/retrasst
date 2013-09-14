@@ -84,7 +84,7 @@ void __fastcall TfrmNewSection::CancelClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-int TfrmNewSection::getDefaultFillOrder()
+int TfrmNewSection::getDefaultFillOrder() const
 {
 	Section* childdata;
 	int fillorder = 0;
@@ -101,7 +101,7 @@ int TfrmNewSection::getDefaultFillOrder()
 	return fillorder + 1;
 }
 
-bool TfrmNewSection::isFillOrderDuplicate( int order )
+bool TfrmNewSection::isFillOrderDuplicate( int order ) const
 {
 	Section* childdata;
 
@@ -122,7 +122,7 @@ bool TfrmNewSection::isFillOrderDuplicate( int order )
 	return false;
 }
 
-bool TfrmNewSection::isPrefixDuplicate( std::string prefix )
+bool TfrmNewSection::isPrefixDuplicate( std::string prefix ) const
 {
 	Section* childdata;
 

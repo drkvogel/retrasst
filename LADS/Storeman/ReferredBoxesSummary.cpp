@@ -251,7 +251,7 @@ void TfrmReferredBoxesSummary::addEvent(LQuery & qp, BoxArrivalRecord * box) { /
     default:
         throw new Exception("unexpected box status"); // only add events for confirmed boxes
     }
-	if (!dummyRun) LPDbBoxName(box->box_arrival_id).addEventRecord(qp, event, "added by Referred Boxes");
+//	if (!dummyRun) LPDbBoxName(box->box_arrival_id).addEventRecord(qp, event, "added by Referred Boxes");
 }
 
 void TfrmReferredBoxesSummary::copyHistory(LQuery & qp, BoxArrivalRecord * box) {
@@ -267,7 +267,7 @@ void TfrmReferredBoxesSummary::copyHistory(LQuery & qp, BoxArrivalRecord * box) 
         // nothing in l_box_arrival_event_history
     } else {
         while (!qp.eof()) {
-            if (!dummyRun) LPDbBoxName(box->box_arrival_id).addEventRecord(qp, LCDbObjects::records().findByID(qp.readInt("event_cid")), "");
+//            if (!dummyRun) LPDbBoxName(box->box_arrival_id).addEventRecord(qp, LCDbObjects::records().findByID(qp.readInt("event_cid")), "");
             qp.next();
         }
     }

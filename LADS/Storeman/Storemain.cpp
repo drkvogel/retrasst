@@ -160,7 +160,7 @@ void __fastcall TfrmStoremain::BtnXferClick(TObject *Sender)
 
 void TfrmStoremain::countBoxes() {
 	LPDbBoxNames boxes;
-	if( boxes.readFilled( Util::projectQuery() ) ) {
+	if( boxes.readFilled( LIMSDatabase::getProjectDb() ) ) {
 		boxesReady += boxes.size();
 	}
 }
@@ -200,7 +200,7 @@ bool TfrmStoremain::switchProject() {
 	LCDbProjects & projects = LCDbProjects::records();
 	while( nextProject < projects.size() ) {
 		const LCDbProject & project = projects[ nextProject ++ ];
-		if( project.isValid() && !project.isCentral() ) {
+		if( project.isInCurrentSystem() && !project.isCentral() ) {
 			projects.setCurrent( project );
 			return true;
 		}

@@ -8,7 +8,6 @@
 #include "LDbValid.h"
 #include "LDbCacheBase.h"
 #include "LDbRange.h"
-#include "LIMSDatabase.h"
 
 //---------------------------------------------------------------------------
 
@@ -36,7 +35,7 @@ public:
 
 	bool isLive() const { return liveData; }
 	bool isCentral() const { return getID() == CENTRAL_DB; }
-	bool isValid() const { return LIMSDatabase::includes( database ); }
+	bool isInCurrentSystem() const;
 	bool hasBoxes() const { return boxImport; }
 
 	const std::string & getDbName() const { return database; }
@@ -74,6 +73,26 @@ public:
 	static int getCurrentID() { return records().currentID; }
 	void setCurrent( const LCDbProject & proj );
 	void clearCurrentID() { currentID = LCDbProject::NONE_SELECTED; }
+};
+
+//---------------------------------------------------------------------------
+//	Storage policy classes – records() returns the current LDbCache
+//---------------------------------------------------------------------------
+
+template< typename Values > struct LPDbCacheMap
+{
+	static Values & records( int key ) {
+		static std::map< int, Values > shared;
+		Values & cache = shared[ key ];
+		if( cache.empty() ) {
+			cache.read( LIMSDatabase::getProjectDb( key ) );
+		}
+		return cache;
+	}
+
+	static Values & records() {
+		return records( LCDbProjects::getCurrentID() );
+	}
 };
 
 //---------------------------------------------------------------------------

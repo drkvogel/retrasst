@@ -1,4 +1,5 @@
-#include "API.h"
+#include "Cursor.h"
+#include "DBConnection.h"
 #include "CursorBackedWorklistRelationsDataSource.h"
 #include "LoadWorklistEntries.h"
 #include "LoggingService.h"
@@ -8,7 +9,7 @@
 namespace valc
 {
 
-LoadWorklistEntries::LoadWorklistEntries( WorklistEntries* worklistEntries, DBConnection* con, 
+LoadWorklistEntries::LoadWorklistEntries( WorklistEntries* worklistEntries, paulstdb::DBConnection* con, 
     paulst::LoggingService* log, ResultIndex* resultIndex,
     const std::string& worklistSQL, const std::string& worklistRelationSQL, const std::string& inclusionRule, 
     ExceptionalDataHandler* exceptionalDataHandler )
@@ -35,7 +36,7 @@ void LoadWorklistEntries::execute()
     WorklistEntryBuilder builder( m_worklistEntries, m_resultIndex, &worklistRelations, m_inclusionRule,
         m_exceptionalDataHandler );
 
-    for ( std::auto_ptr<Cursor> cursorWorklist( m_con->executeQuery(m_worklistSQL) ); 
+    for ( std::auto_ptr<paulstdb::Cursor> cursorWorklist( m_con->executeQuery(m_worklistSQL) ); 
             ! cursorWorklist->endOfRecordSet() && builder.accept(cursorWorklist.get()); cursorWorklist->next() )
     ;
 

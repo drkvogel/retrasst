@@ -1,8 +1,8 @@
 inherited frmLogin: TfrmLogin
   ClientHeight = 316
   ClientWidth = 313
-  ExplicitWidth = 321
-  ExplicitHeight = 350
+  ExplicitWidth = 329
+  ExplicitHeight = 354
   PixelsPerInch = 96
   TextHeight = 13
   inherited Label2: TLabel

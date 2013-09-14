@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------
 //  Version history:
 //		07/12/10, NG:	Added method to get operator from process ID
-//
 //---------------------------------------------------------------------------
 
 
@@ -70,6 +69,8 @@ void LCDbCryoJob::createName( LQuery central, const std::string & nameBase )
 	out << '_' << abs( claimNextID( central ) );
 	setName( out.str() );
 }
+
+//---------------------------------------------------------------------------
 
 const char * LCDbCryoJob::getTypeName() const {
 	switch( jobType ) {
@@ -249,17 +250,6 @@ LCDbCryoJobs::LCDbCryoJobs( bool keepAlive )
 		renew -> Interval = 180000;		// update every 3 minutes or so
 		renew -> Enabled = true;
 	} else {
-		renew = NULL;
-	}
-}
-
-//---------------------------------------------------------------------------
-
-LCDbCryoJobs::~LCDbCryoJobs()
-{
-	if( renew != NULL ) {
-		renew -> Enabled = false;
-		delete renew;
 		renew = NULL;
 	}
 }

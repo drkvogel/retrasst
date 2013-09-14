@@ -32,6 +32,7 @@
 #include "LDbBoxStore.h"
 #include "LPDbCryovialStore.h"
 #include "LPDbDescriptor.h"
+#include "LCDbObject.h"
 
 #pragma hdrstop
 #pragma package(smart_init)
@@ -333,7 +334,7 @@ const LCDbObject * LPDbBoxName::findEvent( const char * eventName )
 //---------------------------------------------------------------------------
 //	Add an event from Box Reception to the history of this box
 //---------------------------------------------------------------------------
-
+/*
 bool LPDbBoxName::addEventRecord( LQuery query, const LCDbObject * event, const std::string & text )
 {
 	query.setSQL( "insert into box_event_history"
@@ -346,7 +347,7 @@ bool LPDbBoxName::addEventRecord( LQuery query, const LCDbObject * event, const 
 	query.setParam( "txt", text );
 	return query.execSQL();
 }
-
+*/
 //---------------------------------------------------------------------------
 //	Find a box with the given name (usually based on type + ID)
 //---------------------------------------------------------------------------

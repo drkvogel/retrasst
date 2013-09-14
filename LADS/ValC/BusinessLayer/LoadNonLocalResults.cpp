@@ -1,5 +1,6 @@
-#include "API.h"
 #include <cstdio>
+#include "Cursor.h"
+#include "DBConnection.h"
 #include "ExceptionalDataHandler.h"
 #include "LoadNonLocalResults.h"
 #include "LoadWorklistEntries.h"
@@ -15,7 +16,7 @@ namespace valc
 
 LoadNonLocalResults::LoadNonLocalResults(
         const Projects*         projects,
-        DBConnection*           con, 
+        paulstdb::DBConnection* con, 
         paulst::LoggingService* log,
         ResultIndex*            resultIndex,
         const std::string&      sql,
@@ -34,7 +35,7 @@ void LoadNonLocalResults::execute()
 {
     int numLoaded = 0;
 
-    for ( std::auto_ptr<Cursor> cursor( m_con->executeQuery(m_sql) ); ! cursor->endOfRecordSet(); cursor->next() )
+    for ( std::auto_ptr<paulstdb::Cursor> cursor( m_con->executeQuery(m_sql) ); ! cursor->endOfRecordSet(); cursor->next() )
     {
         if ( loadResult( *cursor ) )
         {
@@ -46,12 +47,14 @@ void LoadNonLocalResults::execute()
     LOG( logMsg );    
 }
 
-bool LoadNonLocalResults::loadResult( Cursor& c )
+bool LoadNonLocalResults::loadResult( paulstdb::Cursor& c )
 {
     bool loaded = false;
 
     do
     {
+        using namespace paulstdb;
+
         const std::string barcode         = read<std::string> ( c, 0 );
         const int         machineID       = read<int>         ( c, 1 );
         const int         alphaSampleID   = read<int>         ( c, 2 );

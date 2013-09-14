@@ -9,6 +9,11 @@ namespace paulst
     class LoggingService;
 };
 
+namespace paulstdb
+{
+    class DBConnection;
+}
+
 namespace valc
 {
 
@@ -29,7 +34,7 @@ class LoadReferencedWorklistEntries : public WorklistDirectory::Func
 {
 public:
     LoadReferencedWorklistEntries( 
-        DBConnection*           con, 
+        paulstdb::DBConnection* con, 
         paulst::LoggingService* log, 
         WorklistEntries*        worklistEntries, 
         ResultIndex*            resultIndex,
@@ -40,7 +45,7 @@ public:
     void execute();
     void execute( const WorklistEntry* wle );
 private:
-    DBConnection*           m_con;
+    paulstdb::DBConnection* m_con;
     paulst::LoggingService* m_log;
     WorklistEntries*        m_worklistEntries;
     ResultIndex*            m_resultIndex;

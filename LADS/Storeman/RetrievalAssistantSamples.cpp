@@ -27,7 +27,7 @@ __fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
     FreeOnTerminate = true;
 }
 
-void __fastcall LoadVialsWorkerThread::updateStatus() {
+void __fastcall LoadVialsWorkerThread::updateStatus() { // can't use args for synced method, don't know why
     //ostringstream oss; oss<<frmSamples->loadingMessage<<"\n"<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
     //frmSamples->panelLoading->Caption = oss.str().c_str();
     frmSamples->panelLoading->Caption = loadingMessage.c_str(); //oss.str().c_str();
@@ -38,8 +38,17 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     delete_referenced<vecpSampleRow>(frmSamples->vials);
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
     loadingMessage = oss.str().c_str();
-    rowCount = 0;
-    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true));
+
+/*
+destination box and position,
+cryovial barcode and current box,
+position, structure and location
+of the primary and secondary aliquots.
+*/
+
+/*    rowCount = 0;
+    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
+
     qd.setSQL(
         "SELECT"
         "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
@@ -63,33 +72,23 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         "   v.object_cid = storage_cid AND"
         "   cs.retrieval_cid = :jobID");
 
-    /* -- may have destination box defined, could find with left join:
-    but left join on ddb not allowed in ingres
-    from
-         cryovial_store s1
-    left join
-        cryovial c on c.cryovial_cid = s1.cryovial_id
-    left join
-        box_name n1 on n1.box_cid = s1.box_cid
-    left join
-        cryovial_store s2 on s1.cryovial_id = s2.cryovial_id and
-        s2.status = 0
-    left join
-        box_name n2 on n2.box_cid = s2.box_cid
-    where
-        s1.retrieval_cid = :jobID*/
+     -- may have destination box defined, could find with left join, e.g.:
+            from
+                 cryovial_store s1
+            left join
+                cryovial c on c.cryovial_cid = s1.cryovial_id
+            left join
+                box_name n1 on n1.box_cid = s1.box_cid
+            left join
+                cryovial_store s2 on s1.cryovial_id = s2.cryovial_id and
+                s2.status = 0
+            left join
+                box_name n2 on n2.box_cid = s2.box_cid
+            where
+                s1.retrieval_cid = :jobID
 
-    qd.setSQL( // from spec 2013-09-11
-        "SELECT"
-        "  cryovial_barcode, b1.external_name as source_box, s1.cryovial_position as source_pos,"
-        "  b2.external_name as destination_box,"
-        "  s2.cryovial_position as dest_pos"
-        " FROM"
-        "  cryovial_store s1, cryovial c, box_name b1, cryovial_store s2, box_name b2"
-        " WHERE"
-        "  c.cryovial_id = s1.cryovial_id AND b1.box_cid = s1.box_cid AND"
-        "  s1.cryovial_id = s2.cryovial_id AND s2.status = 0 AND"
-        "  b2.box_cid = s2.box_cid AND s1.retrieval_cid = :jobID;");
+        - but left join on ddb not allowed in ingres
+
     qd.setParam("jobID", frmSamples->job->getID());
     loadingMessage = frmSamples->loadingMessage; // base
     qd.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
@@ -97,8 +96,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         ostringstream oss; oss<<"Found "<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
         loadingMessage = oss.str().c_str();
         if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
-            // can't use args for synced method, don't know why
-        LPDbCryovialStore * vial = new LPDbCryovialStore(qd);
+        LPDbCryovialStore * vial = new LPDbCryovialStore(qd); // not query per row - not inefficient?
         pSampleRow  row = new SampleRow(
             vial,
             qd.readString("cryovial_barcode"),
@@ -115,7 +113,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         qd.next();
         rowCount++;
     }
-
+    // then find destinations
     int rowCount2 = 0;
     for (vecpSampleRow::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
         ostringstream oss; oss<<"Finding destinations: "<<rowCount2<<"/"<<rowCount;
@@ -132,9 +130,143 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         }
         rowCount2++;
     }
+    */
+
+    rowCount = 0;
+    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
+    qd.setSQL( // from spec 2013-09-11
+        "SELECT"
+        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position,"
+        "  cryovial_barcode,"
+        "  b1.external_name as source_box,"
+        "  s1.cryovial_position as source_pos,"
+        "  b2.external_name as destination_box,"
+        "  s2.cryovial_position as dest_pos"
+        " FROM"
+        "  cryovial_store s1, cryovial c, box_name b1, cryovial_store s2, box_name b2"
+        " WHERE"
+        "  c.cryovial_id = s1.cryovial_id AND"
+        "  b1.box_cid = s1.box_cid AND"
+        "  s1.cryovial_id = s2.cryovial_id AND"
+        "  s2.status = 0 AND"
+        "  b2.box_cid = s2.box_cid AND"
+        "  s1.retrieval_cid = :jobID");
+    qd.setParam("jobID", frmSamples->job->getID());
+    loadingMessage = frmSamples->loadingMessage; // base
+    qd.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
+    while (!qd.eof()) {
+        ostringstream oss; oss<<"Found "<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
+        loadingMessage = oss.str().c_str();
+        if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
+
+        LPDbCryovialStore * vial = new LPDbCryovialStore(qd); // not query per row - not inefficient?
+            // expects Cryovial_id, Note_Exists, retrieval_cid, box_cid, status, cryovial_position, cryovial_id
+        pSampleRow  row = new SampleRow(
+            vial,
+            qd.readString("cryovial_barcode"),
+            "", //qd.readString("aliquot"),
+            qd.readString("source_box"),
+            "", //qd.readString("site"),
+            0, //qd.readInt("position"),
+            "", //qd.readString("vessel"),
+            0, //qd.readInt("shelf_number"),
+            "", //qd.readString("rack"),
+            0 //qd.readInt("slot_position")
+            );
+        frmSamples->vials.push_back(row);
+        qd.next();
+        rowCount++;
+    }
+
+	//static std::map<int, const GridEntry *> boxes;
+    static std::map<int, const SampleRow *> samples;
+	ROSETTA result;
+	StoreDAO dao;
+	for (std::vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it) {
+        SampleRow * sample = *it;
+		//std::map<int, const GridEntry *>::const_iterator found = boxes.find( ge->bid );
+        //std::map<int, const SampleRow *>::const_iterator found = samples.find(sample->dest_box_id);
+        std::map<int, const SampleRow *>::iterator found = samples.find(sample->dest_box_id);
+		if (found != samples.end()) {
+			//ge->copyLocation( *(found->second) );
+            // copy fields
+            sample->site_name       = (*(found->second)).site_name;//result.getString();
+            sample->position        = (*(found->second)).position;
+            sample->vessel_name     = (*(found->second)).vessel_name;
+            sample->shelf_number    = (*(found->second)).shelf_number;
+            sample->rack_name       = (*(found->second)).rack_name;
+            sample->slot_position   = (*(found->second)).slot_position;
+		} else {
+			if (dao.findBox(sample->dest_box_id, LCDbProjects::getCurrentID(), result)) {
+				//ge->copyLocation(result);
+                // should merge with GridEntry
+                sample->site_name       = result.getString("site_name");
+                sample->position        = result.getInt("rack_pos"); // "position" should be "rack_pos" or similar to diff from slot
+                sample->vessel_name     = result.getString("vessel_name");
+                sample->shelf_number    = result.getInt("shelf_number");
+                sample->rack_name       = result.getString("structure"); // "rack_name" should be "structure"
+                sample->slot_position   = result.getInt("slot_position");
+                //sample->location = row.getInt("tank_pos"); ??
+			}
+			samples[sample->dest_box_id] = (*it);
+		}
+		//progress -> StepIt(); //drawGrid(); //Application -> ProcessMessages();
+	}
+
+/* suggested per-box query for finding where each box is stored:
+(over ddb but not using left join) - could be cached
+
+findBox( int box_id, int proj_id, ROSETTA & result )
+    does this
+
+Select
+s.external_name as site,
+m.position,
+v.external_full as vessel,
+shelf_number,
+r.external_name as rack,
+bs.slot_position
+from
+box_store bs,
+c_rack_number r,
+c_tank_map m,
+c_object_name s,
+c_object_name v
+where
+bs.status = 6 and
+m.status =0 and
+bs.rack_cid = r.rack_cid and
+r.tank_cid = m.tank_cid and
+s.object_cid = location_cid and
+v.object_cid = storage_cid and
+box_cid = :boxID;
+
+*/
+
 }
 
 void LoadVialsWorkerThread::findDestination(pSampleRow row) {
+/*
+	std::map<int, const GridEntry *> boxes;
+	ROSETTA result;
+	StoreDAO dao;
+	progress -> Max = rows.size();
+	progress -> Position = 0;
+	for( std::vector<GridEntry>::iterator ge = rows.begin(); ge != rows.end(); ++ ge ) {
+		std::map<int, const GridEntry *>::const_iterator found = boxes.find( ge->bid );
+		if( found != boxes.end() ) {
+			ge->copyLocation( *(found->second) );
+		} else {
+			if( dao.findBox( ge->bid, LCDbProjects::getCurrentID(), result ) ) {
+				ge->copyLocation( result );
+			}
+			boxes[ ge->bid ] = &(*ge);
+		}
+		progress -> StepIt();
+		drawGrid();
+		Application -> ProcessMessages();
+	}*/
+
 	static std::map<int, SampleRow *> boxes;
 	ROSETTA result;
 	StoreDAO dao;
@@ -222,16 +354,16 @@ void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
         // sign off?
-        // save stuff
-        // ie, create the retrieval plan by inserting into c_box_retrieval and l_sample_retrieval
+        // create the retrieval plan by inserting into c_box_retrieval and l_sample_retrieval
         for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
             // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
             SampleChunk * chunk = *it;
-            //      for boxes/samples
-            //          insert sample into C_BOX_RETRIEVAL with current section (chunk) number
+            //      for samples
+            //          insert destination box into C_BOX_RETRIEVAL with current section (chunk) number
             for (vecpSampleRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
                 pSampleRow sampleRow = (pSampleRow)*it;
                 LPDbCryovialStore * vial = sampleRow->store_record;
+                // insert into l_sample_retrieval
             }
 
             /*
@@ -382,7 +514,8 @@ void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
 
 void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
-        //xxxxrejectList();
+        job->setStatus(LCDbCryoJob::Status::REJECTED);
+        job->saveRecord(LIMSDatabase::getCentralDb());
         Close();
     }
 }
@@ -414,6 +547,7 @@ void TfrmSamples::loadRows() {
 
 void TfrmSamples::showChunks() {
     if (0 == chunks.size()) { // must always have one chunk anyway
+        throw Exception("No chunks");
         clearSG(sgChunks);
     } else {
         sgChunks->RowCount = chunks.size() + 1;
@@ -449,17 +583,6 @@ void TfrmSamples::addChunk() {
 
 void TfrmSamples::autoChunk() {
     frmAutoChunk->ShowModal();
-/*
-box_content.box_type_cid
-18  EDTA_1(UK)  HPS2-THRIVE EDTA 1 UK samples
-c_box_size.box_type_cid
-Display the size of the job and ask user if they want to divide up the list.  If they do:
-1.	Ask them the maximum section size (default = 500 cryovials)
-2.	Calculate slot/box (where `c_box_size.box_size_cid = box_content.box_size_cid`)
-3.	Ask them to select the size of first section from a list – it must be a multiple of the box size (from 2) and no more than the maximum (from 1)
-4.	Allocate the appropriate number of destination boxes to the first section
-5.	Repeat steps (2) and (3) until every entry has been allocated to a section
-*/
 }
 
 SampleChunk * TfrmSamples::currentChunk() {
@@ -505,19 +628,15 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
 void TfrmSamples::addSorter() {
     ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
     TComboBox * combo = new TComboBox(this);
-    combo->Parent = groupSort;
+    //groupSort->InsertControl(combo); // don't call this directly, set the parent as above
+    combo->Parent = groupSort; // new combo is last created, aligned to left
+        // to put in right order: take them all out, sort and put back in in reverse order?
     combo->Align = alLeft;
     combo->Style = csDropDown; // csDropDownList
-    //combo->Items->AddObject(groupSort->ControlCount, NULL);
-    //combo->AddItem(groupSort->ControlCount, NULL);
     for (int i=0; i<SGVIALS_NUMCOLS; i++) {
         combo->AddItem(sorter[i].description.c_str(), (TObject *)&sorter[i]);
     }
     //combo->OnChange = &comboSortOnChange;
-    // new combo is last created,
-    //groupSort->InsertControl(combo);
-    //ostringstream oss;
-    //oss.str(""); oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
 }
 
 void TfrmSamples::removeSorter() {
@@ -572,7 +691,6 @@ void TfrmSamples::sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::S
 }
 
 void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
-    //
     ostringstream oss;
     //oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str())<endl;
     //debugLog(oss.str().c_str());

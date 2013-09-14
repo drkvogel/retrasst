@@ -1,4 +1,5 @@
-#include "API.h"
+#include "Cursor.h"
+#include "DBConnection.h"
 #include "LoadClusterIDs.h"
 #include "LoggingService.h"
 #include "ClusterIDs.h"
@@ -9,7 +10,7 @@
 namespace valc
 {
 
-LoadClusterIDs::LoadClusterIDs( ClusterIDs* clusterIDs, paulst::LoggingService* log, DBConnection* con, int localMachineID )
+LoadClusterIDs::LoadClusterIDs( ClusterIDs* clusterIDs, paulst::LoggingService* log, paulstdb::DBConnection* con, int localMachineID )
     :
     m_log(log),
     m_con(con),
@@ -28,7 +29,7 @@ void LoadClusterIDs::execute()
 {
     std::string sql = std::string("SELECT cluster_cid FROM c_cluster_machine WHERE machine_cid = ") << m_localMachineID;
 
-    for ( std::auto_ptr<Cursor> cursor( m_con->executeQuery( sql ) ); ! cursor->endOfRecordSet(); cursor->next() )
+    for ( std::auto_ptr<paulstdb::Cursor> cursor( m_con->executeQuery( sql ) ); ! cursor->endOfRecordSet(); cursor->next() )
     {
         int clusterID = 0;
 

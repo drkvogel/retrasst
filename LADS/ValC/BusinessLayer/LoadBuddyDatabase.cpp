@@ -1,5 +1,5 @@
 #include <algorithm>
-#include "API.h"
+#include "Cursor.h"
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
@@ -7,6 +7,7 @@
 #include "BuddyDatabaseBuilder.h"
 #include "BuddyDatabaseEntryIndex.h"
 #include "BuddySampleIDKeyedOnSampleRunID.h"
+#include "DBConnection.h"
 #include "DBUpdateSchedule.h"
 #include <iterator>
 #include "LoadBuddyDatabase.h"
@@ -18,7 +19,7 @@
 namespace valc
 {
 
-LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, DBConnection* con, 
+LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, paulstdb::DBConnection* con, 
 	paulst::LoggingService* log, ResultIndex* resultIndex, Projects* projects,
 	BuddyDatabase** bd, DBUpdateSchedule* dbUpdateSchedule,
     SampleRunIDResolutionService* sampleRunIDResolutionService,
@@ -99,7 +100,7 @@ void LoadBuddyDatabase::execute()
     BuddyDatabaseBuilder builder(m_projects, m_resultIndex, sampleRuns.get(), candidateSampleRuns.get(), m_sampleRunIDResolutionService,
         m_dbUpdateSchedule, buddySampleIDKeyedOnSampleRunID.get(), buddyDatabaseEntryIndex.get(), m_inclusionRule, m_exceptionalDataHandler );
 
-    for ( std::auto_ptr<Cursor> cursor( m_con->executeQuery( m_sql ) ); 
+    for ( std::auto_ptr<paulstdb::Cursor> cursor( m_con->executeQuery( m_sql ) ); 
             ( ! cursor->endOfRecordSet() ) && builder.accept( cursor.get() ); cursor->next() );
    
     // Remove duplicates from sampleRuns

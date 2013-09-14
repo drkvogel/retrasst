@@ -18,11 +18,11 @@ public:
 	static const short OFFLINE = 5;  	// extends status
 
 	LCDbTankMap()
-	 : tankCID(0),storageCID(0),layoutCID(0),locationCID(0),position(0),storeTypeCID(0),shelf(0)
+	 : tankCID(0),storageCID(0),layoutCID(0),locationCID(0),storeTypeCID(0),position(0),shelf(0)
 	{}
 
 	LCDbTankMap( TDateTime from, TDateTime to, short rs ) : LDbValid( from, to, rs ),
-	   tankCID(0),storageCID(0),layoutCID(0),locationCID(0),position(0),storeTypeCID(0),shelf(0)
+	   tankCID(0),storageCID(0),layoutCID(0),locationCID(0),storeTypeCID(0),position(0),shelf(0)
 	{}
 
 	explicit LCDbTankMap( const LQuery & query );

@@ -38,24 +38,9 @@
 namespace valc
 {
 
-Properties::Properties()
+paulstdb::DBConnection* DBConnectionFactory::createConnection( const paulst::Properties& p )
 {
-}
-
-void Properties::setProperty( const std::string& name, const std::string& value )
-{
-    m_propertyValues.insert( std::make_pair(name, value) );
-}
-
-std::string Properties::getProperty( const std::string& name ) const
-{
-    Map::const_iterator i = m_propertyValues.find( name );
-    return i == m_propertyValues.end() ? std::string() : i->second;
-}
-
-DBConnection* DBConnectionFactory::createConnection( const Properties& p )
-{
-    return new DBConnectionADO( p );
+    return new paulstdb::DBConnectionADO( p );
 }
 
 void wait( HANDLE* array, int howMany, ThreadExceptionMsgs* exceptionMsgs )
@@ -69,7 +54,7 @@ void wait( HANDLE* array, int howMany, ThreadExceptionMsgs* exceptionMsgs )
 	exceptionMsgs->throwFirst();
 }
 
-AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, DBConnection* con, paulst::LoggingService* log, 
+AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, paulstdb::DBConnection* con, paulst::LoggingService* log, 
     const std::string& configString, UserAdvisor* userAdvisor )
 {
 	ResultIndex*        resultIndex        = new ResultIndex();
@@ -151,22 +136,6 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, D
 
     return new AnalysisActivitySnapshotImpl( clusterIDs, projects, buddyDatabase, log, resultIndex, worklistEntries, testNames,
         dbUpdateSchedule, sampleRunIDResolutionService.release() );
-}
-
-Cursor::Cursor()
-{
-}
-
-Cursor::~Cursor()
-{
-}
-
-DBConnection::DBConnection()
-{
-}
-
-DBConnection::~DBConnection()
-{
 }
 
 DBUpdateExceptionHandlingPolicy::DBUpdateExceptionHandlingPolicy()
