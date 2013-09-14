@@ -1,0 +1,25 @@
+﻿findBox( int box_id, int proj_id, ROSETTA & result )
+
+    v.external_full as vessel_name, 
+    shelf_number, 
+    r.position as rack_pos,
+    r.external_name as structure, 
+    slot_position, 
+    m.position as tank_pos, 
+    l.external_name as site_name
+	
+    box_cid = :bid AND bs.status = 6 				// current box position
+	
+loadBoxDetails( int box_id, int proj_id, ROSETTA & result )
+
+    b.box_cid, 
+    b.box_type_cid, 
+    b.external_name, 
+    box_capacity,
+    s.record_id, 
+    s.rack_cid, 
+    s.slot_position, 
+    s.retrieval_cid, 
+    s.status	
+
+	b.box_cid = :bid and s.status not in (LCDbBoxStore::REMOVED, LCDbBoxStore::DELETED)

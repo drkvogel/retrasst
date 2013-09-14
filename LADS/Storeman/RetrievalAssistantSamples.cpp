@@ -178,8 +178,46 @@ of the primary and secondary aliquots.
         rowCount++;
     }
 
+	//static std::map<int, const GridEntry *> boxes;
+    static std::map<int, const SampleRow *> samples;
+	ROSETTA result;
+	StoreDAO dao;
+	for (std::vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it) {
+        SampleRow * sample = *it;
+		//std::map<int, const GridEntry *>::const_iterator found = boxes.find( ge->bid );
+        //std::map<int, const SampleRow *>::const_iterator found = samples.find(sample->dest_box_id);
+        std::map<int, const SampleRow *>::iterator found = samples.find(sample->dest_box_id);
+		if (found != samples.end()) {
+			//ge->copyLocation( *(found->second) );
+            // copy fields
+            sample->site_name       = (*(found->second)).site_name;//result.getString();
+            sample->position        = (*(found->second)).position;
+            sample->vessel_name     = (*(found->second)).vessel_name;
+            sample->shelf_number    = (*(found->second)).shelf_number;
+            sample->rack_name       = (*(found->second)).rack_name;
+            sample->slot_position   = (*(found->second)).slot_position;
+		} else {
+			if (dao.findBox(sample->dest_box_id, LCDbProjects::getCurrentID(), result)) {
+				//ge->copyLocation(result);
+                // should merge with GridEntry
+                sample->site_name       = result.getString("site_name");
+                sample->position        = result.getInt("rack_pos"); // "position" should be "rack_pos" or similar to diff from slot
+                sample->vessel_name     = result.getString("vessel_name");
+                sample->shelf_number    = result.getInt("shelf_number");
+                sample->rack_name       = result.getString("structure"); // "rack_name" should be "structure"
+                sample->slot_position   = result.getInt("slot_position");
+                //sample->location = row.getInt("tank_pos"); ??
+			}
+			samples[sample->dest_box_id] = (*it);
+		}
+		//progress -> StepIt(); //drawGrid(); //Application -> ProcessMessages();
+	}
+
 /* suggested per-box query for finding where each box is stored:
 (over ddb but not using left join) - could be cached
+
+findBox( int box_id, int proj_id, ROSETTA & result )
+    does this
 
 Select
 s.external_name as site,
@@ -187,7 +225,9 @@ m.position,
 v.external_full as vessel,
 shelf_number,
 r.external_name as rack,
-bs.slot_position from box_store bs,
+bs.slot_position
+from
+box_store bs,
 c_rack_number r,
 c_tank_map m,
 c_object_name s,
