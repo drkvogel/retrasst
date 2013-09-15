@@ -1,4 +1,6 @@
-﻿
+﻿Looking at your Sorter again, I still couldn’t get it to do what I wanted it to, e.g. sorting by Vessel then rack left it in rack order, rather than Vessel+rack.  I have therefore created my own Sorter (in SampleEntry.cpp) but I’d be happy to merge it with yours – it would make more sense if all the screens worked in the same way
+
+
 a sample retrieval can include boxes that do not have their current locations recorded
 misc
     find destination boxes 1st
