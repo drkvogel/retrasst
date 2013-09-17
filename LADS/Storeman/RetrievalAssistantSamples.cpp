@@ -136,11 +136,13 @@ of the primary and secondary aliquots.
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
     qd.setSQL( // from spec 2013-09-11
         "SELECT"
-        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position,"
+        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
         "  cryovial_barcode,"
-        "  b1.external_name as source_box,"
+        "  b1.box_cid as source_id,"
+        "  b1.external_name as source_name,"
         "  s1.cryovial_position as source_pos,"
-        "  b2.external_name as destination_box,"
+        "  s2.box_cid as dest_id,"
+        "  b2.external_name as dest_name,"
         "  s2.cryovial_position as dest_pos"
         " FROM"
         "  cryovial_store s1, cryovial c, box_name b1, cryovial_store s2, box_name b2"
@@ -155,64 +157,70 @@ of the primary and secondary aliquots.
     loadingMessage = frmSamples->loadingMessage; // base
     qd.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
     while (!qd.eof()) {
-        ostringstream oss; oss<<"Found "<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
-        loadingMessage = oss.str().c_str();
-        if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
-
-        LPDbCryovialStore * vial = new LPDbCryovialStore(qd); // not query per row - not inefficient?
-            // expects Cryovial_id, Note_Exists, retrieval_cid, box_cid, status, cryovial_position, cryovial_id
+        if (0 == rowCount % 10) {
+            ostringstream oss; oss<<"Found "<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
+            loadingMessage = oss.str().c_str();
+            Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
+        }
         pSampleRow  row = new SampleRow(
-            vial,
+            new LPDbCryovialStore(qd),
             qd.readString("cryovial_barcode"),
-            "", //qd.readString("aliquot"),
-            qd.readString("source_box"),
-            "", //qd.readString("site"),
-            0, //qd.readInt("position"),
-            "", //qd.readString("vessel"),
-            0, //qd.readInt("shelf_number"),
-            "", //qd.readString("rack"),
-            0 //qd.readInt("slot_position")
-            );
+            "", //qd.readString("aliquot"),  //??
+            qd.readInt("source_id"),
+            qd.readString("source_name"),
+            qd.readInt("source_pos"),
+            qd.readInt("dest_id"),
+            qd.readString("dest_name"),
+            qd.readInt("dest_pos"),
+            "", 0, "", 0, "", 0 ); // no storage details yet
         frmSamples->vials.push_back(row);
         qd.next();
         rowCount++;
     }
 
-	//static std::map<int, const GridEntry *> boxes;
-    static std::map<int, const SampleRow *> samples;
+    // find the locations of the (src and destination?) boxes
+    static std::map<int, const SampleRow *> samples; //static std::map<int, const GridEntry *> boxes;
 	ROSETTA result;
 	StoreDAO dao;
-    return;
-	for (std::vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it) {
+    //return;
+    int rowCount2 = 0;
+	for (std::vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
-		//std::map<int, const GridEntry *>::const_iterator found = boxes.find( ge->bid );
-        //std::map<int, const SampleRow *>::const_iterator found = samples.find(sample->dest_box_id);
+        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]";
         std::map<int, const SampleRow *>::iterator found = samples.find(sample->dest_box_id);
-		if (found != samples.end()) {
-			//ge->copyLocation( *(found->second) );
-            // copy fields
-            sample->site_name       = (*(found->second)).site_name;//result.getString();
+		if (found != samples.end()) { // fill in box location from cache map
+            sample->site_name       = (*(found->second)).site_name;
             sample->position        = (*(found->second)).position;
             sample->vessel_name     = (*(found->second)).vessel_name;
             sample->shelf_number    = (*(found->second)).shelf_number;
             sample->rack_name       = (*(found->second)).rack_name;
-            sample->slot_position   = (*(found->second)).slot_position;
+            sample->slot_position   = (*(found->second)).slot_position; // box position, not cryovial_position
+            oss<<"(cached)";
 		} else {
-			if (dao.findBox(sample->dest_box_id, LCDbProjects::getCurrentID(), result)) {
-				//ge->copyLocation(result);
-                // should merge with GridEntry
+			if (dao.findBox(sample->dest_box_id, LCDbProjects::getCurrentID(), result)) { //ge->copyLocation(result);
                 sample->site_name       = result.getString("site_name");
                 sample->position        = result.getInt("rack_pos"); // "position" should be "rack_pos" or similar to diff from slot
                 sample->vessel_name     = result.getString("vessel_name");
                 sample->shelf_number    = result.getInt("shelf_number");
                 sample->rack_name       = result.getString("structure"); // "rack_name" should be "structure"
                 sample->slot_position   = result.getInt("slot_position");
-                //sample->location = row.getInt("tank_pos"); ??
-			}
-			samples[sample->dest_box_id] = (*it);
+                //oss<<"Found destination box "<<sample->str();
+                oss<<"(db)";
+                samples[sample->dest_box_id] = (*it);
+			} else {
+                sample->site_name       = "not found";
+                sample->position        = 0;
+                sample->vessel_name     = "not found";
+                sample->shelf_number    = 0;
+                sample->rack_name       = "not found";
+                sample->slot_position   = 0;
+                oss<<"(not found)";
+            }
 		}
-		//progress -> StepIt(); //drawGrid(); //Application -> ProcessMessages();
-	}
+        oss<<sample->storage_str();
+        loadingMessage = oss.str().c_str();
+        Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
+	} //progress -> StepIt(); //drawGrid(); //Application -> ProcessMessages();
 
 /* suggested per-box query for finding where each box is stored:
 (over ddb but not using left join) - could be cached
@@ -274,7 +282,7 @@ void LoadVialsWorkerThread::findDestination(pSampleRow row) {
 	std::map<int, SampleRow *>::const_iterator found = boxes.find(row->store_record->getBoxID());
     if (found != boxes.end()) {
         row->dest_box_id      = (*(found->second)).dest_box_id;
-        row->dest_box_name    = (*(found->second)).box_name;
+        row->dest_box_name    = (*(found->second)).dest_box_name;
         row->dest_box_pos     = (*(found->second)).dest_box_pos;
     } else {
         //if (dao.findBox(row->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) { finds t/r/s | v/s/s
@@ -427,9 +435,9 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
     if (State.Contains(gdSelected)) {
         TFontStyles oldFontStyle = cnv->Font->Style;
         TPenStyle oldPenStyle = cnv->Pen->Style;
-        cnv->Pen->Style = psDot;
+        cnv->Pen->Style     = psDot;
         cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
-        cnv->Font->Style = TFontStyles() << fsBold;
+        cnv->Font->Style    = TFontStyles() << fsBold;
     	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
         cnv->Pen->Style     = oldPenStyle;
         cnv->Font->Style    = oldFontStyle;
@@ -458,9 +466,9 @@ void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
     if (State.Contains(gdSelected)) {
         TFontStyles oldFontStyle = cnv->Font->Style;
         TPenStyle oldPenStyle = cnv->Pen->Style;
-        cnv->Pen->Style = psDot;
+        cnv->Pen->Style     = psDot;
         cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
-        cnv->Font->Style = TFontStyles() << fsBold;
+        cnv->Font->Style    = TFontStyles() << fsBold;
     	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgVials->Cells[ACol][ARow]);
         cnv->Pen->Style     = oldPenStyle;
         cnv->Font->Style    = oldFontStyle;
@@ -613,7 +621,7 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         sgVials->Cells[SGVIALS_BARCODE] [row]    = sampleRow->cryovial_barcode.c_str();
         sgVials->Cells[SGVIALS_DESTBOX] [row]    = sampleRow->dest_box_name.c_str();
         sgVials->Cells[SGVIALS_DESTPOS] [row]    = sampleRow->dest_box_pos;
-        sgVials->Cells[SGVIALS_CURRBOX] [row]    = sampleRow->box_name.c_str();
+        sgVials->Cells[SGVIALS_CURRBOX] [row]    = sampleRow->src_box_name.c_str();
         sgVials->Cells[SGVIALS_CURRPOS] [row]    = sampleRow->slot_position;
         sgVials->Cells[SGVIALS_SITE]    [row]    = sampleRow->site_name.c_str();
         sgVials->Cells[SGVIALS_POSITION][row]    = sampleRow->position;

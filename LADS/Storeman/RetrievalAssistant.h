@@ -157,7 +157,9 @@ public:
     LPDbCryovialStore * store_record;
     string              cryovial_barcode;
     string              aliquot_type_name;
-    string              box_name;
+    int                 src_box_id;
+    string              src_box_name;
+    int                 src_box_pos;
     int                 dest_box_id;
     string              dest_box_name;
     int                 dest_box_pos;
@@ -169,16 +171,22 @@ public:
     int                 slot_position;
     SampleRow() {}
     ~SampleRow() { if (store_record) delete store_record; }
-    SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
+    SampleRow(  LPDbCryovialStore * store_rec,
+                string barcode, string aliquot,
+                int src_id, string src_name, int src_pos,
+                int dest_id, string dest_name, int dest_pos,
                 string site, int pos, string vessel, int shelf, string rack, int slot) :
-        store_record(store_rec), cryovial_barcode(barcode), aliquot_type_name(aliquot), box_name(box),
+        store_record(store_rec),
+        cryovial_barcode(barcode), aliquot_type_name(aliquot),
+        src_box_id(src_id), src_box_name(src_name), src_box_pos(src_pos),
+        dest_box_id(dest_id), dest_box_name(dest_name), dest_box_pos(dest_pos),
         site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot) {}
 
     // box_name vs store_record->getID()?
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
     static bool sort_desc_barcode(const SampleRow *a, const SampleRow *b)   { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
-    static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->box_name, b->box_name); }
-    static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return Util::numericCompare(b->box_name, a->box_name); }
+    static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
+    static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return Util::numericCompare(b->src_box_name, a->src_box_name); }
     static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
     static bool sort_desc_currpos(const SampleRow *a, const SampleRow *b)   { return a->store_record->getPosition() > b->store_record->getPosition(); }
     static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
@@ -213,17 +221,18 @@ public:
             //<<"status"<<store_record->getStatus()<<", "
             //<<"position"<<store_record->getPosition()<<", "
         // SampleRow
-            <<"cryovial_barcode: "<<cryovial_barcode<<", "
-            <<"aliquot_type_name: "<<aliquot_type_name<<", "
-            <<"box_name: "<<box_name<<", "
-            <<"dest_box: "<<dest_box_name<<", "
-            <<"dest_pos: "<<dest_box_pos<<", "
-            <<"site_name: "<<site_name<<", "
-            <<"position: "<<position<<", "
-            <<"vessel_name: "<<vessel_name<<", "
-            <<"shelf_number: "<<shelf_number<<", "
-            <<"rack_name: "<<rack_name<<", "
-            <<"slot_position: "<<slot_position;
+            <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquot_type_name<<", "
+            <<"src: {"<<src_box_id<<", "<<src_box_name<<"["<<src_box_pos<<"]}, "
+            <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_box_pos<<"]}, "
+            <<"loc: {"<<storage_str()<<"}";
+//            <<"loc: {"<<site_name<<"["<<position<<"] "<<vessel_name
+//            <<" ["<<shelf_number<<"], "<<rack_name<<"["<<slot_position<<"]}";
+        return oss.str();
+    };
+    string storage_str() {
+        ostringstream oss;
+            oss<<site_name<<"["<<position<<"]: "<<vessel_name
+            <<" ["<<shelf_number<<"]/"<<rack_name<<"["<<slot_position<<"]";
         return oss.str();
     }
 };
