@@ -182,6 +182,7 @@ of the primary and secondary aliquots.
     static std::map<int, const SampleRow *> samples;
 	ROSETTA result;
 	StoreDAO dao;
+    return;
 	for (std::vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it) {
         SampleRow * sample = *it;
 		//std::map<int, const GridEntry *>::const_iterator found = boxes.find( ge->bid );

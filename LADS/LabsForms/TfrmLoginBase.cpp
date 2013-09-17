@@ -112,7 +112,7 @@ void __fastcall TfrmLoginBase::initialise(TObject *)
 	ebPassword -> Clear();
 	ebPassword -> Enabled = userList -> Enabled;
     userList->ItemIndex = 5;
-    ebPassword->Text = "hunter";
+    ebPassword->Text = "albatross";
 }
 
 //---------------------------------------------------------------------------

@@ -24,6 +24,7 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     //radbutDefault->Caption = DEFAULT_NUMROWS;
     loadingMessage = "Loading retrieval list, please wait...";
 }
+
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
 /*
 // template
@@ -46,12 +47,18 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
 
     panelLoading->Caption = loadingMessage;
 }
+
+void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
+    memoDebug->Visible = cbLog->Checked;
+}
+
 void __fastcall TfrmProcess::Exit1Click(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
         // save stuff
         Close();
     }
 }
+
 void TfrmProcess::loadRows() {
 /*
 /* SELECT
@@ -76,6 +83,7 @@ void TfrmProcess::loadRows() {
    v.object_cid = storage_cid AND
    cs.retrieval_cid = -1015 */
 }
+
 void TfrmProcess::showRows() {
 //    if (vials.size() <= 0) {
 //        clearSG(sgVials);
@@ -103,6 +111,7 @@ void TfrmProcess::showRows() {
 //    ostringstream oss; oss<<(-1 == maxRows) ? maxRows : vials.size()<<" of "<<vials.size()<<" vials";
 //    groupVials->Caption = oss.str().c_str();
 }
+
 void TfrmProcess::process() {
 /*
  * Work through list or sub-section by giving the storage location and sample ID of each sample on the list in the order saved above (REQ 8.3.8);
@@ -118,8 +127,5 @@ the destination location should be displayed and the next ID/location should be 
 }
 
 
-void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
-    memoDebug->Visible = cbLog->Checked;
-}
 
 

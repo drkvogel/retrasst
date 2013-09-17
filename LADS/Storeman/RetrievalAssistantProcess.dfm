@@ -102,8 +102,6 @@ object frmProcess: TfrmProcess
     Align = alBottom
     Caption = 'Sign Off'
     TabOrder = 1
-    ExplicitTop = 400
-    ExplicitWidth = 628
     DesignSize = (
       956
       77)

@@ -335,7 +335,8 @@ Sample retrieval
 */
     Screen->Cursor = crSQLWait;
     LQuery qc(LIMSDatabase::getCentralDb());
-    LCDbCryoJobs &jobs = LCDbCryoJobs::records();
+    //LCDbCryoJobs &jobs = LCDbCryoJobs::records();
+    jobs = LCDbCryoJobs::records();
 	jobs.read( LIMSDatabase::getCentralDb(), LCDbCryoJob::UNKNOWN, true); // $2 true: readall
 	delete_referenced<tdvecpJob>(vecJobs);
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {

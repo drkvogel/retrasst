@@ -340,6 +340,7 @@ __published:
 private:
     void debugLog(String s);
     tdvecpJob vecJobs;
+    LCDbCryoJobs jobs;
     void loadJobs();
     void showJobs();
     std::string getExerciseDescription(int exercise_cid);
