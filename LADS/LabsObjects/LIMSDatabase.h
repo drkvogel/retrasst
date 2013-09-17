@@ -61,13 +61,13 @@ private:
 };
 
 //---------------------------------------------------------------------------
-//	Storage policy classes – records() returns the current LDbCache
+//	Storage policy class – records() returns the current LDbCache
 //---------------------------------------------------------------------------
 
 template< typename Values > struct LCDbSingleton
 {
 	static Values & records() {
-		static std::map< LIMSDatabase::DbSystem, Values > cdb;
+		static Values cdb[ 3 ];
 		Values & cache = cdb[ LIMSDatabase::getCurrentSystem() ];
 		if( cache.empty() ) {
 			cache.read( LIMSDatabase::getCentralDb() );

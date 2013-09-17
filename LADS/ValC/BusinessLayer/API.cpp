@@ -38,9 +38,10 @@
 namespace valc
 {
 
-paulstdb::DBConnection* DBConnectionFactory::createConnection( const paulst::Properties& p )
+paulstdb::DBConnection* DBConnectionFactory::createConnection( const std::string& connectionString,
+        const std::string& sessionReadLockSetting )
 {
-    return new paulstdb::DBConnectionADO( p );
+    return new paulstdb::DBConnectionADO( connectionString, sessionReadLockSetting );
 }
 
 void wait( HANDLE* array, int howMany, ThreadExceptionMsgs* exceptionMsgs )

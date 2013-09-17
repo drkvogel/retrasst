@@ -208,16 +208,16 @@ object frmStoremain: TfrmStoremain
       WordWrap = True
       OnClick = OnCreateList
     end
-    object BtnPrevious: TButton
+    object btnViewLists: TButton
       Left = 30
       Top = 68
       Width = 116
       Height = 35
       Anchors = []
       Caption = 'View Lists'
-      Enabled = False
       TabOrder = 0
       WordWrap = True
+      OnClick = btnViewListsClick
     end
     object BtnRetrieve: TButton
       Left = 30

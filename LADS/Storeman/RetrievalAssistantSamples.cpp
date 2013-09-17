@@ -206,7 +206,6 @@ of the primary and secondary aliquots.
                 sample->slot_position   = result.getInt("slot_position");
                 //oss<<"Found destination box "<<sample->str();
                 oss<<"(db)";
-                samples[sample->dest_box_id] = (*it);
 			} else {
                 sample->site_name       = "not found";
                 sample->position        = 0;
@@ -216,6 +215,7 @@ of the primary and secondary aliquots.
                 sample->slot_position   = 0;
                 oss<<"(not found)";
             }
+            samples[sample->dest_box_id] = (*it); // cache result
 		}
         oss<<sample->storage_str();
         loadingMessage = oss.str().c_str();

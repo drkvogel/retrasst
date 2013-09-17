@@ -38,7 +38,7 @@ public:
 
 	void setTankLayoutCID( int param ){ tankLayoutCID = param; }
 	void setFillOrder( short param ){ fillOrder = param; }
-	void setSectionPrefix( std::string param ){ sectionPrefix = param; }
+	void setSectionPrefix( const std::string & param ){ sectionPrefix = param; }
 	void setFirstRack( short param ){ firstRack = param; }
 	void setLastRack( short param ){ lastRack = param; }
 	void setRackCapacity( short param ){ rackCapacity = param; }

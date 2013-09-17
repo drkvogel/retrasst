@@ -125,7 +125,6 @@ object frmSamples: TfrmSamples
         Caption = 'Reject List'
         TabOrder = 7
         OnClick = btnRejectClick
-        ExplicitTop = 167
       end
       object cbLog: TCheckBox
         Left = 0
@@ -187,9 +186,9 @@ object frmSamples: TfrmSamples
       Visible = False
     end
     object panelLoading: TPanel
-      Left = 280
-      Top = 112
-      Width = 273
+      Left = 168
+      Top = 104
+      Width = 521
       Height = 127
       Caption = 'Loading samples, please wait...'
       TabOrder = 2
@@ -197,10 +196,11 @@ object frmSamples: TfrmSamples
       object progressBottom: TProgressBar
         Left = 1
         Top = 109
-        Width = 271
+        Width = 519
         Height = 17
         Align = alBottom
         TabOrder = 0
+        ExplicitWidth = 271
       end
     end
   end
@@ -220,7 +220,6 @@ object frmSamples: TfrmSamples
       Align = alClient
       Caption = 'Sort'
       TabOrder = 0
-      ExplicitWidth = 699
       object btnDelSort: TButton
         Left = 800
         Top = 15
@@ -230,7 +229,6 @@ object frmSamples: TfrmSamples
         Caption = '-'
         TabOrder = 0
         OnClick = btnDelSortClick
-        ExplicitLeft = 615
       end
       object btnAddSort: TButton
         Left = 776
@@ -241,7 +239,6 @@ object frmSamples: TfrmSamples
         Caption = '+'
         TabOrder = 1
         OnClick = btnAddSortClick
-        ExplicitLeft = 591
       end
       object btnApplySort: TButton
         Left = 825
@@ -252,7 +249,6 @@ object frmSamples: TfrmSamples
         Caption = 'Apply'
         TabOrder = 2
         OnClick = btnApplySortClick
-        ExplicitLeft = 640
       end
     end
   end

@@ -76,16 +76,16 @@ public:
 };
 
 //---------------------------------------------------------------------------
-//	Storage policy classes – records() returns the current LDbCache
+//	Storage policy class – records() returns the current LDbCache
 //---------------------------------------------------------------------------
 
 template< typename Values > struct LPDbCacheMap
 {
-	static Values & records( int key ) {
+	static Values & records( int projID ) {
 		static std::map< int, Values > shared;
-		Values & cache = shared[ key ];
+		Values & cache = shared[ projID ];
 		if( cache.empty() ) {
-			cache.read( LIMSDatabase::getProjectDb( key ) );
+			cache.read( LIMSDatabase::getProjectDb( projID ) );
 		}
 		return cache;
 	}

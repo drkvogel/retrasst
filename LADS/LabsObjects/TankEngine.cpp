@@ -250,7 +250,7 @@ const bool TankEngine::buildData( LQuery  dbase )
 				const std::string name = o->getName();
 
 //				toPosIntDef( const std::string & sVal,int def )
-				int s=std::isdigit( name[ 1 ] );
+//				int s=std::isdigit( name[ 1 ] );
 
 				tankExt = (std::isdigit( name[ 0 ] )? toPosIntDef(name,0) : toPosIntDef(name.substr( 1, 9 ),0));
 

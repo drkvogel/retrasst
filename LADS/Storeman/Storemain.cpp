@@ -32,6 +32,8 @@
 #include "StoreUtil.h"
 #include "SampleMove.h"
 #include "RetrievalAssistant.h"
+#include "RetrievalList.h"
+#include "mainDialog.h"
 
 //---------------------------------------------------------------------------
 
@@ -325,4 +327,10 @@ void __fastcall TfrmStoremain::BtnRetrieveClick(TObject *Sender)
 
 //---------------------------------------------------------------------------
 
+void __fastcall TfrmStoremain::btnViewListsClick(TObject *Sender)
+{
+	frmViewListMain -> ShowModal();
+}
+
+//---------------------------------------------------------------------------
 

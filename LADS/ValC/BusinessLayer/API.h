@@ -77,7 +77,8 @@ struct Range : public std::pair<Iter, Iter>
 class DBConnectionFactory
 {
 public:
-    static paulstdb::DBConnection* createConnection( const paulst::Properties& p );
+    static paulstdb::DBConnection* createConnection( const std::string& connectionString,
+        const std::string& sessionReadLockSetting = "" );
 private:
     DBConnectionFactory();
 };

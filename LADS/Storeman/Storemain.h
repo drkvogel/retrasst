@@ -29,7 +29,7 @@ __published:	// IDE-managed Components
 	TPanel *Panel3;
 	TLabel *Label3;
 	TButton *BtnCreate;
-	TButton *BtnPrevious;
+	TButton *btnViewLists;
 	TButton *BtnRetrieve;
 	TPanel *Panel4;
 	TLabel *lbBoxesReady;
@@ -51,6 +51,7 @@ __published:	// IDE-managed Components
 	void __fastcall btnMoveClick(TObject *Sender);
 	void __fastcall BtnReferredClick(TObject *Sender);
     void __fastcall BtnRetrieveClick(TObject *Sender);
+	void __fastcall btnViewListsClick(TObject *Sender);
 
 private:	// User declarations
 

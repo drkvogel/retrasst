@@ -37,11 +37,11 @@ class SgData {
 // secondary aliquots: if defined, will be separate rows after all primary aliquots
 // if any primaries fail, these will be marked to make a new chunk of replacements
 
-enum {  SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_CURRPOS,
+enum {  SGVIALS_BARCODE, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
         SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
         SGVIALS_NUMCOLS};
-static const char * sgVialColName[SGVIALS_NUMCOLS] = {"Barcode", "Dest box", "Pos", "Curr box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
-static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 147, 43, 275, 37, 64, 50, 43, 100, 121, 40};
+static const char * sgVialColName[SGVIALS_NUMCOLS] = {"Barcode", "Curr box", "Pos", "Dest box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
+static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 275, 43, 275, 37, 64, 50, 43, 100, 121, 40};
 
 /*
 "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"

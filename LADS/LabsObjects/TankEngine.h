@@ -3,7 +3,7 @@
 #ifndef TankEngineH
 #define TankEngineH
 
-// #include "BRType.h"
+#include "BRType.h"
 #include "LQuery.h"
 
 
