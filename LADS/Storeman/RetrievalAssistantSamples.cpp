@@ -7,6 +7,7 @@
 #include "StoreDAO.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
+
 TfrmSamples *frmSamples;
 
 Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
@@ -23,7 +24,21 @@ Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
     { SampleRow::sort_asc_slot,      sgVialColName[SGVIALS_SLOT]    }
 };
 
-__fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
+static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
+
+__fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
+    //bool (*sort_func_asc)(const T *, const T *);
+
+    //ColDef<SampleRow *> aColDef(sort_asc_barcode, std::string("name"), std::string("desc"), 100, false, &vials);
+
+    ColDef<SampleRow *> sgVialsCol[] = {
+        //{vials, sort_asc_barcode, "name", "desc", 100, false }
+        //ColDef(bool (*f)(const T *, const T *), std::string n, std::string d, int w, std::vector<T *> * v) :
+        //ColDef(bool (*f)(const T *, const T *), std::string, std::string, int, bool, std::vector<T *> *) :
+        //ColDef<SampleRow *>(sort_asc_barcode, std::string("name"), std::string("desc"), 100, false, &vials)
+        //aColDef
+    };
+}
 
 void TfrmSamples::debugLog(String s) {
     frmSamples->memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
@@ -49,7 +64,8 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
-    delete_referenced<vecpSampleRow>(frmSamples->vials);
+    //delete_referenced<vecpSampleRow>(frmSamples->vials);
+    delete_referenced< std::vector <SampleRow * > >(frmSamples->vials);
     delete_referenced<vecpSampleChunk>(chunks);
 }
 
@@ -64,8 +80,8 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             SampleChunk * chunk = *it;
             //      for samples
             //          insert destination box into C_BOX_RETRIEVAL with current section (chunk) number
-            for (vecpSampleRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
-                pSampleRow sampleRow = (pSampleRow)*it;
+            for (std::vector <SampleRow * >::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
+                SampleRow * sampleRow = (SampleRow *)*it;
                 LPDbCryovialStore * vial = sampleRow->store_record;
                 // insert into l_sample_retrieval
             }
@@ -191,7 +207,9 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
-    ostringstream oss; oss << __FUNC__; oss << printColWidths(sgVials); debugLog(oss.str().c_str()); // print column widths so we can copy them into the source
+    ostringstream oss; oss << __FUNC__;
+    oss<<printColWidths(sgVials); debugLog(oss.str().c_str()); // print column widths so we can copy them into the source
+    oss<<"sorter: "<<sorter[ACol].description; debugLog(oss.str().c_str());
     sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
 }
 
@@ -286,8 +304,8 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         sgVials->FixedRows = 1;
     }
     int row = 1;
-    for (vecpSampleRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++, row++) { // vecpDataRow?
-        pSampleRow sampleRow = (pSampleRow)*it;
+    for (std::vector<SampleRow * >::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++, row++) { // vecpDataRow?
+        SampleRow * sampleRow = (SampleRow *)*it;
         LPDbCryovialStore * vial = sampleRow->store_record;
         sgVials->Cells[SGVIALS_BARCODE] [row]    = sampleRow->cryovial_barcode.c_str();
         sgVials->Cells[SGVIALS_ALIQUOT] [row]    = sampleRow->aliquot_type_name.c_str();
@@ -406,7 +424,7 @@ void __fastcall LoadVialsWorkerThread::updateStatus() { // can't use args for sy
 }
 
 void __fastcall LoadVialsWorkerThread::Execute() {
-    delete_referenced<vecpSampleRow>(frmSamples->vials);
+    delete_referenced< std::vector<SampleRow * > >(frmSamples->vials);
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
     loadingMessage = oss.str().c_str();
 
@@ -450,7 +468,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             loadingMessage = oss.str().c_str();
             Synchronize((TThreadMethod)&updateStatus);
         }
-        pSampleRow  row = new SampleRow(
+        SampleRow * row = new SampleRow(
             new LPDbCryovialStore(qd),
             qd.readString(  "cryovial_barcode"),
             qd.readString(  "aliquot"),

@@ -1,10 +1,17 @@
 ﻿fix comboSorter - broken window
  doesn't have descending option
 
+ 
 what are we listing?
   sample retrieval
      samples
-are we finding the destination boxes correctly?
+
+sgvialsfixedclick debuglog: show sorter name
+    sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
+curr pos sorting doing something funny, dest pos sorting not doing anything
+    because adding 'aliquot' column skewed everything - as there is no combined column definition (ColDef?) class,
+     sorter funcs can get out of sync with column names
+    does it need an enum at all? if an array of objects was initialized, numcols would be the size of the array
 
 storage (site, pos, shelf, vessel, structure, slot) of which box? current or destination? both?
     does it matter for setting up the chunks, or which matters more?
@@ -18,4 +25,12 @@ search for fixme/todo/xxx
 
 reset: ctrl-f2
 run: f9
+---todo---
+whsmiths food
+contact ucu about ay anyway
+---dealt with---
+splitter for memodebug-
+job title/description on chunking form-
+are we finding the destination boxes correctly? looks like it 
+---
 

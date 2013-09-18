@@ -187,9 +187,7 @@ object frmSamples: TfrmSamples
       OnClick = sgVialsClick
       OnDrawCell = sgVialsDrawCell
       OnFixedCellClick = sgVialsFixedCellClick
-      ExplicitLeft = 3
       ExplicitTop = 14
-      ExplicitHeight = 293
     end
     object panelLoading: TPanel
       Left = 176

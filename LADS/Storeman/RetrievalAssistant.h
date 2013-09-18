@@ -98,42 +98,22 @@ public:
         store_record(store_rec), box_name(box),
         site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot) {}
 
-    // box_name vs store_record->getID()?
     static bool sort_asc_currbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->box_name, b->box_name); }
-    static bool sort_desc_currbox(const BoxRow *a, const BoxRow *b)   { return Util::numericCompare(b->box_name, a->box_name); }
  //   static bool sort_asc_currpos(const BoxRow *a, const BoxRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
- //   static bool sort_desc_currpos(const BoxRow *a, const BoxRow *b)   { return a->store_record->getPosition() > b->store_record->getPosition(); }
     static bool sort_asc_destbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->dest_box, b->dest_box); }
-    static bool sort_desc_destbox(const BoxRow *a, const BoxRow *b)   { return Util::numericCompare(b->dest_box, a->dest_box); }
     static bool sort_asc_destpos(const BoxRow *a, const BoxRow *b)    { return a->dest_pos < b->dest_pos; }
-    static bool sort_desc_destpos(const BoxRow *a, const BoxRow *b)   { return a->dest_pos > b->dest_pos; }
     static bool sort_asc_site(const BoxRow *a, const BoxRow *b)       { return a->site_name.compare(b->site_name) < 0; }
-    static bool sort_desc_site(const BoxRow *a, const BoxRow *b)      { return a->site_name.compare(b->site_name) > 0; }
     static bool sort_asc_position(const BoxRow *a, const BoxRow *b)   { return a->position < b->position; }
-    static bool sort_desc_position(const BoxRow *a, const BoxRow *b)  { return a->position > b->position; }
     static bool sort_asc_shelf(const BoxRow *a, const BoxRow *b)      { return a->shelf_number < b->shelf_number; }
-    static bool sort_desc_shelf(const BoxRow *a, const BoxRow *b)     { return a->shelf_number > b->shelf_number; }
     static bool sort_asc_vessel(const BoxRow *a, const BoxRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
-    static bool sort_desc_vessel(const BoxRow *a, const BoxRow *b)    { return a->vessel_name.compare(b->vessel_name) > 0; }
     static bool sort_asc_structure(const BoxRow *a, const BoxRow *b)  { return Util::numericCompare(a->rack_name, b->rack_name); }//return a->rack_name.compare(b->rack_name) > 0; }
-    static bool sort_desc_structure(const BoxRow *a, const BoxRow *b) { return Util::numericCompare(a->rack_name, b->rack_name); }
     static bool sort_asc_slot(const BoxRow *a, const BoxRow *b)       { return a->slot_position < b->slot_position; }
-    static bool sort_desc_slot(const BoxRow *a, const BoxRow *b)      { return a->slot_position > b->slot_position; }
+
     string str() {
-        ostringstream oss; oss<<__FUNC__
-        //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position
+        ostringstream oss;// oss<<__FUNC__
+            oss
+        //	LCDbBoxStore:
             <<". id: "<<(store_record->getID())<<", "
-            //<<"status: "<<(store_record->getStatus())<<", "
-            //storeID       storeID
-            //retrievalID   retrievalID
-        // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position
-            // ?
-            //<<"barcode: "<<store_record->getBarcode()
-            //<<"boxID"<<store_record->getBoxID()
-            //<<"sampleID"<<store_record->getSampleID()
-            //<<"aliquot type ID"<<store_record->getAliquotType()
-            //<<"status"<<store_record->getStatus()<<", "
-            //<<"position"<<store_record->getPosition()<<", "
         // BoxRow
             //<<"cryovial_barcode: "<<cryovial_barcode<<", "
             //<<"aliquot_type_name: "<<aliquot_type_name<<", "
@@ -151,6 +131,24 @@ public:
 };
 typedef BoxRow * pBoxRow;
 typedef std::vector<pBoxRow> vecpBoxRow;
+
+
+
+
+//class ColDef {
+//    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
+//    std::string description;
+//    enum SortOrder { ASCENDING, DESCENDING, TOGGLE };
+//    void sort_asc(std::vector<T *> & vec) { sort(vec, ASCENDING);  }
+//    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING);  }
+//    void sort_toggle(std::vector<T *> & vec) { sort(vec, TOGGLE);  }
+    //virtual Sorter
+    //Sorter sorter;
+//};
+
+//ColDef sgChunksCol[];
+
+//class
 
 class SampleRow : public DataRow {
 public:
@@ -182,38 +180,24 @@ public:
         dest_box_id(dest_id), dest_box_name(dest_name), dest_box_pos(dest_pos),
         site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), structure_name(rack), slot_position(slot) {}
 
-    // box_name vs store_record->getID()?
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
-    static bool sort_desc_barcode(const SampleRow *a, const SampleRow *b)   { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
     static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
-    static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return Util::numericCompare(b->src_box_name, a->src_box_name); }
     static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
-    static bool sort_desc_currpos(const SampleRow *a, const SampleRow *b)   { return a->store_record->getPosition() > b->store_record->getPosition(); }
     static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
-    static bool sort_desc_destbox(const SampleRow *a, const SampleRow *b)   { return Util::numericCompare(b->dest_box_name, a->dest_box_name); }
     static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_box_pos < b->dest_box_pos; }
-    static bool sort_desc_destpos(const SampleRow *a, const SampleRow *b)   { return a->dest_box_pos > b->dest_box_pos; }
     static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
-    static bool sort_desc_site(const SampleRow *a, const SampleRow *b)      { return a->site_name.compare(b->site_name) > 0; }
     static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->position < b->position; }
-    static bool sort_desc_position(const SampleRow *a, const SampleRow *b)  { return a->position > b->position; }
     static bool sort_asc_shelf(const SampleRow *a, const SampleRow *b)      { return a->shelf_number < b->shelf_number; }
-    static bool sort_desc_shelf(const SampleRow *a, const SampleRow *b)     { return a->shelf_number > b->shelf_number; }
     static bool sort_asc_vessel(const SampleRow *a, const SampleRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
-    static bool sort_desc_vessel(const SampleRow *a, const SampleRow *b)    { return a->vessel_name.compare(b->vessel_name) > 0; }
     static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
-    static bool sort_desc_structure(const SampleRow *a, const SampleRow *b) { return a->structure_name.compare(b->structure_name) < 0; }
     static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->slot_position < b->slot_position; }
-    static bool sort_desc_slot(const SampleRow *a, const SampleRow *b)      { return a->slot_position > b->slot_position; }
+
     string str() {
         ostringstream oss; oss<<__FUNC__
         //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position
-            <<". id: "<<(store_record->getID())<<", "
+            <<"id: "<<(store_record->getID())<<", "
             <<"status: "<<(store_record->getStatus())<<", "
-            //storeID       storeID
-            //retrievalID   retrievalID
         // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position
-            // ?
             //<<"barcode: "<<store_record->getBarcode()
             //<<"boxID"<<store_record->getBoxID()
             //<<"sampleID"<<store_record->getSampleID()
@@ -225,8 +209,6 @@ public:
             <<"src: {"<<src_box_id<<", "<<src_box_name<<"["<<src_box_pos<<"]}, "
             <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_box_pos<<"]}, "
             <<"loc: {"<<storage_str()<<"}";
-//            <<"loc: {"<<site_name<<"["<<position<<"] "<<vessel_name
-//            <<" ["<<shelf_number<<"], "<<rack_name<<"["<<slot_position<<"]}";
         return oss.str();
     };
     string storage_str() {
@@ -236,8 +218,30 @@ public:
         return oss.str();
     }
 };
-typedef SampleRow * pSampleRow;
-typedef std::vector<pSampleRow> vecpSampleRow;
+//typedef SampleRow * pSampleRow;
+//typedef std::vector<pSampleRow> vecpSampleRow;
+//std::vector<SampleRow *>
+
+template <class T> // T is type of row to sort
+class ColDef {
+public:
+    ColDef() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false) {} //, vec(NULL) { }
+    ColDef(bool (*f)(const T *, const T *), std::string n, std::string d, int w, bool s, std::vector<T *> * v) :
+        sort_func_asc(f), name(n), description(d), width(w), sortAsc(s), vec(v) {}
+    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
+    std::string name;
+    std::string description; // sort description for (e.g.) combo box?
+    int width; // for StringGrid::ColWidths[]
+    bool sortAsc;
+//    void sort_asc() { std::sort(vec.begin(), vec.end(), sort_func_asc);  }
+//    void sort_dsc() { std::sort(vec.rbegin(), vec.rend(), sort_func_asc);  }
+    void sort_asc() { std::sort(vec->begin(), vec->end(), sort_func_asc);  }
+    void sort_dsc() { std::sort(vec->rbegin(), vec->rend(), sort_func_asc);  }
+    void sort_toggle(std::vector<T *> & vec) { sortAsc ? sort_asc() : sort_dsc(); sortAsc = !sortAsc; }
+    //std::vector<T *> & vec;
+    std::vector<T *> * vec;
+};
+
 
 ///** helper class to sort rows of type T via sort functions defined in intializer
 //    sort explicitly ascending or descending, or toggle last sort order */
@@ -285,7 +289,8 @@ typedef std::vector< Chunk * >  vecpChunk;
 class SampleChunk : public Chunk {
 public:
     //~SampleChunk() { delete_referenced<vecpSampleRow>(rows); } // rows allocated in 'vials' ie. vector of all rows -
-    vecpSampleRow   rows;
+    //vecpSampleRow   rows;
+    std::vector<SampleRow *> rows;
 };
 typedef std::vector< SampleChunk * >  vecpSampleChunk;
 

@@ -105,6 +105,7 @@ private:
     LCDbCryoJob *               job;
     std::vector<SampleChunk *>  chunks;
     std::vector<SampleRow *>    vials;      // all vials loaded
+    //vecpSampleRow    vials;      // all vials loaded
     void                        addSorter();
     void                        removeSorter();
     void                        applySort();
@@ -116,11 +117,12 @@ private:
     void                        radgrpRowsChange();
     void                        sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order);
     const char *                loadingMessage;
+    ColDef<SampleRow *>         sgVialsCol[];
 public:
-    __fastcall          TfrmSamples(TComponent* Owner);
-    void                debugLog(String s);
-    void                setJob(LCDbCryoJob * ajob) { job = ajob; };
-    void                addChunk();
+    __fastcall                  TfrmSamples(TComponent* Owner);
+    void                        debugLog(String s);
+    void                        setJob(LCDbCryoJob * ajob) { job = ajob; };
+    void                        addChunk();
 };
 
 extern PACKAGE TfrmSamples *frmSamples;
