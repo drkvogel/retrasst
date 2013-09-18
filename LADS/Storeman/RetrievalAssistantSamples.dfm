@@ -29,6 +29,17 @@ object frmSamples: TfrmSamples
     ExplicitLeft = -295
     ExplicitWidth = 713
   end
+  object splitterDebug: TSplitter
+    Left = 0
+    Top = 524
+    Width = 884
+    Height = 3
+    Cursor = crVSplit
+    Align = alBottom
+    Visible = False
+    ExplicitLeft = 2
+    ExplicitTop = 552
+  end
   object groupList: TGroupBox
     Left = 0
     Top = 0
@@ -157,15 +168,17 @@ object frmSamples: TfrmSamples
     Left = 0
     Top = 316
     Width = 884
-    Height = 310
+    Height = 208
     Align = alClient
     Caption = 'Vials in chunk'
     TabOrder = 1
+    ExplicitTop = 320
+    ExplicitHeight = 310
     object sgVials: TStringGrid
       Left = 2
       Top = 15
       Width = 880
-      Height = 204
+      Height = 191
       Align = alClient
       DefaultDrawing = False
       FixedCols = 0
@@ -174,24 +187,17 @@ object frmSamples: TfrmSamples
       OnClick = sgVialsClick
       OnDrawCell = sgVialsDrawCell
       OnFixedCellClick = sgVialsFixedCellClick
-    end
-    object memoDebug: TMemo
-      Left = 2
-      Top = 219
-      Width = 880
-      Height = 89
-      Align = alBottom
-      ScrollBars = ssVertical
-      TabOrder = 1
-      Visible = False
+      ExplicitLeft = 3
+      ExplicitTop = 14
+      ExplicitHeight = 293
     end
     object panelLoading: TPanel
-      Left = 168
-      Top = 104
+      Left = 176
+      Top = 64
       Width = 521
       Height = 127
       Caption = 'Loading samples, please wait...'
-      TabOrder = 2
+      TabOrder = 1
       Visible = False
       object progressBottom: TProgressBar
         Left = 1
@@ -220,6 +226,8 @@ object frmSamples: TfrmSamples
       Align = alClient
       Caption = 'Sort'
       TabOrder = 0
+      ExplicitLeft = 40
+      ExplicitTop = -3
       object btnDelSort: TButton
         Left = 800
         Top = 15
@@ -251,6 +259,18 @@ object frmSamples: TfrmSamples
         OnClick = btnApplySortClick
       end
     end
+  end
+  object memoDebug: TMemo
+    Left = 0
+    Top = 527
+    Width = 884
+    Height = 99
+    Align = alBottom
+    ScrollBars = ssVertical
+    TabOrder = 3
+    Visible = False
+    ExplicitLeft = 8
+    ExplicitTop = 600
   end
   object timerLoadVials: TTimer
     Enabled = False

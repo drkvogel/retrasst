@@ -15,13 +15,8 @@ using namespace std;
 
 // spec: show
 // cryovial barcode, destination box, position, current box, position, structure and location of the primary and secondary
-/*
-    cs.Cryovial_id, cs.Note_Exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,
-SampleRow(  LPDbCryovialStore * store_rec, string barcode, string aliquot, string box,
-                string site, int pos, string vessel, int shelf, string rack, int slot) :
-        "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
-        "   s.external_name AS site, m.position, v.external_full AS vessel,"
-        "   shelf_number, r.external_name AS rack, bs.slot_position" */
+// secondary aliquots: if defined, will be separate rows after all primary aliquots
+// if any primaries fail, these will be marked to make a new chunk of replacements
 
 // encapsulate data about a stringgrid in a class?
 class SgData {
@@ -34,25 +29,11 @@ class SgData {
     int             colwidths[];
 };
 
-// secondary aliquots: if defined, will be separate rows after all primary aliquots
-// if any primaries fail, these will be marked to make a new chunk of replacements
-
-enum {  SGVIALS_BARCODE, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
+enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
         SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
         SGVIALS_NUMCOLS};
-static const char * sgVialColName[SGVIALS_NUMCOLS] = {"Barcode", "Curr box", "Pos", "Dest box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
-static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 275, 43, 275, 37, 64, 50, 43, 100, 121, 40};
-
-/*
-"   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
-"   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
-"   s.external_name AS site, m.position, v.external_full AS vessel,"
-"   shelf_number, r.external_name AS rack, bs.slot_position"
-" FROM"
-"   cryovial c, cryovial_store cs, box_name b, box_store bs, c_rack_number r,"
-"   c_tank_map m, c_object_name s,"   // site
-"   c_object_name v,"                 // vessel
-"   c_object_name t"                  // aliquot? */
+static const char * sgVialColName[SGVIALS_NUMCOLS] = {"Barcode", "Aliquot", "Curr box", "Pos", "Dest box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
+static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 100, 275, 43, 275, 37, 64, 50, 43, 100, 121, 40};
 
 class LoadVialsWorkerThread : public TThread {
 private:
@@ -60,11 +41,9 @@ protected:
     void __fastcall Execute();
 public:
     __fastcall LoadVialsWorkerThread();
-    int             rowCount;       // current rows loaded, for thread sync
+    int             rowCount;
     string          loadingMessage;
-    void __fastcall updateStatus(); // syncronized method can't have args (?) - was going to use (int numerator, int denominator)
-    void findDestination(pSampleRow sampleRow);
-    void findDestinationSlowly(pSampleRow sampleRow);
+    void __fastcall updateStatus(); // syncronized methods can't have args
 };
 
 //extern Sorter<SampleRow> sorter[SGVIALS_NUMCOLS];
@@ -82,7 +61,6 @@ __published:
     TStringGrid *sgChunks;
     TGroupBox *groupVials;
     TStringGrid *sgVials;
-    TMemo *memoDebug;
     TButton *btnAutoChunk;
     TPanel *panelLoading;
     TProgressBar *progressBottom;
@@ -96,6 +74,8 @@ __published:
     TButton *btnDelSort;
     TButton *btnAddSort;
     TButton *btnApplySort;
+    TSplitter *splitterDebug;
+    TMemo *memoDebug;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
@@ -120,7 +100,6 @@ __published:
     void __fastcall sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value);
     void __fastcall sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value);
 private:
-    //void __fastcall             comboSortOnChange(TObject *Sender);
     LoadVialsWorkerThread *     loadVialsWorkerThread;
     void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *               job;
@@ -143,10 +122,6 @@ public:
     void                setJob(LCDbCryoJob * ajob) { job = ajob; };
     void                addChunk();
 };
-    //void                sortList(enum SampleRow::SortType);
-    //void                sortList(void *); // function argument
-    //void                sortList(Sorter sorter); // struct argument - structs could be encapsulated in e.g. SampleRow
-    //void                sortList(int sortType); //
 
 extern PACKAGE TfrmSamples *frmSamples;
 #endif

@@ -1,0 +1,21 @@
+﻿fix comboSorter - broken window
+ doesn't have descending option
+
+what are we listing?
+  sample retrieval
+     samples
+are we finding the destination boxes correctly?
+
+storage (site, pos, shelf, vessel, structure, slot) of which box? current or destination? both?
+    does it matter for setting up the chunks, or which matters more?
+    
+    in the retrieval, will want to find storage of both?
+
+are there any example jobs that have the destination boxes
+what about secondary aliquots?
+chunking
+search for fixme/todo/xxx
+
+reset: ctrl-f2
+run: f9
+

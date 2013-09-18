@@ -167,7 +167,7 @@ public:
     int                 position;
     string              vessel_name;
     int                 shelf_number;
-    string              rack_name;
+    string              structure_name;
     int                 slot_position;
     SampleRow() {}
     ~SampleRow() { if (store_record) delete store_record; }
@@ -180,7 +180,7 @@ public:
         cryovial_barcode(barcode), aliquot_type_name(aliquot),
         src_box_id(src_id), src_box_name(src_name), src_box_pos(src_pos),
         dest_box_id(dest_id), dest_box_name(dest_name), dest_box_pos(dest_pos),
-        site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot) {}
+        site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), structure_name(rack), slot_position(slot) {}
 
     // box_name vs store_record->getID()?
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
@@ -201,8 +201,8 @@ public:
     static bool sort_desc_shelf(const SampleRow *a, const SampleRow *b)     { return a->shelf_number > b->shelf_number; }
     static bool sort_asc_vessel(const SampleRow *a, const SampleRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
     static bool sort_desc_vessel(const SampleRow *a, const SampleRow *b)    { return a->vessel_name.compare(b->vessel_name) > 0; }
-    static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->rack_name, b->rack_name); }//return a->rack_name.compare(b->rack_name) > 0; }
-    static bool sort_desc_structure(const SampleRow *a, const SampleRow *b) { return a->rack_name.compare(b->rack_name) < 0; }
+    static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
+    static bool sort_desc_structure(const SampleRow *a, const SampleRow *b) { return a->structure_name.compare(b->structure_name) < 0; }
     static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->slot_position < b->slot_position; }
     static bool sort_desc_slot(const SampleRow *a, const SampleRow *b)      { return a->slot_position > b->slot_position; }
     string str() {
@@ -232,7 +232,7 @@ public:
     string storage_str() {
         ostringstream oss;
             oss<<site_name<<"["<<position<<"]: "<<vessel_name
-            <<" ["<<shelf_number<<"]/"<<rack_name<<"["<<slot_position<<"]";
+            <<" ["<<shelf_number<<"]/"<<structure_name<<"["<<slot_position<<"]";
         return oss.str();
     }
 };
@@ -296,9 +296,9 @@ public:
 };
 typedef std::vector< BoxChunk * >  vecpBoxChunk;
 
-enum { SGJOBS_DESCRIP, SGJOBS_JOBTYPE, SGJOBS_STATUS, SGJOBS_PRIMARY, SGJOBS_PROJECT, SGJOBS_REASON, SGJOBS_TIMESTAMP, SGJOBS_NUMCOLS };
-static const char * sgJobsColName[SGJOBS_NUMCOLS]   = { "Description", "Job type", "Status", "Primary Aliquot", "Project", "Reason", "Timestamp" };
-static const int    sgJobsColWidth[SGJOBS_NUMCOLS]  = {401, 113, 72, 109, 100, 229, 127 };
+enum { SGJOBS_DESCRIP, SGJOBS_JOBTYPE, SGJOBS_STATUS, SGJOBS_PRIMARY, SGJOBS_SECONDARY, SGJOBS_PROJECT, SGJOBS_REASON, SGJOBS_TIMESTAMP, SGJOBS_NUMCOLS };
+static const char * sgJobsColName[SGJOBS_NUMCOLS]   = { "Description", "Job type", "Status", "Primary Aliquot", "Secondary Aliquot", "Project", "Reason", "Timestamp" };
+static const int    sgJobsColWidth[SGJOBS_NUMCOLS]  =  {359, 105, 88, 88, 134, 103, 177, 127 };
 
 static const char * jobStatusString(short status) {
     static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Deleted" };
@@ -331,6 +331,7 @@ __published:
     TCheckBox *cbLog;
     TMemo *memoDebug;
     TTimer *Timer1;
+    TCheckBox *cbRejected;
     void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall cbNewJobClick(TObject *Sender);
     void __fastcall cbInProgressClick(TObject *Sender);
@@ -346,6 +347,7 @@ __published:
     void __fastcall cbLogClick(TObject *Sender);
     void __fastcall sgJobsClick(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
+    void __fastcall cbRejectedClick(TObject *Sender);
 private:
     void debugLog(String s);
     tdvecpJob vecJobs;

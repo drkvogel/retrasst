@@ -63,7 +63,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Left = 0
         Top = 0
         Width = 113
-        Height = 89
+        Height = 105
         Align = alTop
         Caption = 'Status'
         TabOrder = 0
@@ -110,11 +110,25 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           Caption = 'Deleted'
           TabOrder = 3
           OnClick = cbDeletedClick
+          ExplicitLeft = 6
+        end
+        object cbRejected: TCheckBox
+          Left = 2
+          Top = 83
+          Width = 109
+          Height = 17
+          Align = alTop
+          Caption = 'Rejected'
+          TabOrder = 4
+          OnClick = cbRejectedClick
+          ExplicitLeft = 16
+          ExplicitTop = 88
+          ExplicitWidth = 97
         end
       end
       object groupRetrievalTypeCheck: TGroupBox
         Left = 0
-        Top = 89
+        Top = 105
         Width = 113
         Height = 114
         Align = alTop
@@ -124,6 +138,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Padding.Right = 5
         Padding.Bottom = 5
         TabOrder = 1
+        ExplicitTop = 89
         object cbBoxRetrieval: TCheckBox
           Left = 7
           Top = 20

@@ -27,6 +27,8 @@ void __fastcall TfrmRetrievalAssistant::cbDoneClick(TObject *Sender) { loadJobs(
 
 void __fastcall TfrmRetrievalAssistant::cbDeletedClick(TObject *Sender) { loadJobs(); }
 
+void __fastcall TfrmRetrievalAssistant::cbRejectedClick(TObject *Sender) { loadJobs(); }
+
 void __fastcall TfrmRetrievalAssistant::cbBoxRetrievalClick(TObject *Sender) { loadJobs(); }
 
 void __fastcall TfrmRetrievalAssistant::cbSampleRetrievalClick(TObject *Sender) { loadJobs(); }
@@ -335,7 +337,6 @@ Sample retrieval
 */
     Screen->Cursor = crSQLWait;
     LQuery qc(LIMSDatabase::getCentralDb());
-    //LCDbCryoJobs &jobs = LCDbCryoJobs::records();
     jobs = LCDbCryoJobs::records();
 	jobs.read( LIMSDatabase::getCentralDb(), LCDbCryoJob::UNKNOWN, true); // $2 true: readall
 	delete_referenced<tdvecpJob>(vecJobs);
@@ -348,6 +349,7 @@ Sample retrieval
         if (jr->getStatus() == LCDbCryoJob::Status::INPROGRESS          && !cbInProgress->Checked) continue;
         if (jr->getStatus() == LCDbCryoJob::Status::DONE                && !cbDone->Checked) continue;
         if (jr->getStatus() == LCDbCryoJob::Status::DELETED             && !cbDeleted->Checked) continue;
+        if (jr->getStatus() == LCDbCryoJob::Status::REJECTED            && !cbRejected->Checked) continue;
         if (jr->getJobType() == LCDbCryoJob::JobKind::BOX_RETRIEVAL     && !cbBoxRetrieval->Checked) continue;
         if (jr->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL  && !cbSampleRetrieval->Checked) continue;
         if (jr->getJobType() == LCDbCryoJob::JobKind::BOX_MOVE          && !cbBoxMove->Checked) continue;
@@ -370,9 +372,13 @@ void TfrmRetrievalAssistant::showJobs() {
         sgJobs->Cells[SGJOBS_JOBTYPE]   [row] = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
         sgJobs->Cells[SGJOBS_STATUS]    [row] = jobStatusString(job->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
         sgJobs->Cells[SGJOBS_PRIMARY]   [row] = getAliquotDescription(job->getPrimaryAliquot()).c_str(); // int
+        sgJobs->Cells[SGJOBS_SECONDARY] [row] = getAliquotDescription(job->getSecondaryAliquot()).c_str(); // int
         sgJobs->Cells[SGJOBS_PROJECT]   [row] = getProjectDescription(job->getProjectID()).c_str();
         sgJobs->Cells[SGJOBS_REASON]    [row] = job->getReason().c_str();
         sgJobs->Cells[SGJOBS_TIMESTAMP] [row] = job->getTimeStamp().DateTimeString();
         sgJobs->Objects[0][row] = (TObject *)job;
     }
 }
+
+
+

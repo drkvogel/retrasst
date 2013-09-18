@@ -10,324 +10,18 @@
 TfrmSamples *frmSamples;
 
 Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
-    { SampleRow::sort_asc_barcode,   sgVialColName[0] },
-    { SampleRow::sort_asc_destbox,   sgVialColName[1] },
-    { SampleRow::sort_asc_destpos,   sgVialColName[2] },
-    { SampleRow::sort_asc_currbox,   sgVialColName[3] },
-    { SampleRow::sort_asc_currpos,   sgVialColName[4] },
-    { SampleRow::sort_asc_site,      sgVialColName[5] },
-    { SampleRow::sort_asc_position,  sgVialColName[6] },
-    { SampleRow::sort_asc_shelf,     sgVialColName[7] },
-    { SampleRow::sort_asc_vessel,    sgVialColName[8] },
-    { SampleRow::sort_asc_structure, sgVialColName[9] },
-    { SampleRow::sort_asc_slot,      sgVialColName[10] }
+    { SampleRow::sort_asc_barcode,   sgVialColName[SGVIALS_BARCODE] },
+    { SampleRow::sort_asc_currbox,   sgVialColName[SGVIALS_CURRBOX] },
+    { SampleRow::sort_asc_currpos,   sgVialColName[SGVIALS_CURRPOS] },
+    { SampleRow::sort_asc_destbox,   sgVialColName[SGVIALS_DESTBOX] },
+    { SampleRow::sort_asc_destpos,   sgVialColName[SGVIALS_DESTPOS] },
+    { SampleRow::sort_asc_site,      sgVialColName[SGVIALS_SITE]    },
+    { SampleRow::sort_asc_position,  sgVialColName[SGVIALS_POSITION]},
+    { SampleRow::sort_asc_shelf,     sgVialColName[SGVIALS_SHELF]   },
+    { SampleRow::sort_asc_vessel,    sgVialColName[SGVIALS_VESSEL]  },
+    { SampleRow::sort_asc_structure, sgVialColName[SGVIALS_STRUCTURE]},
+    { SampleRow::sort_asc_slot,      sgVialColName[SGVIALS_SLOT]    }
 };
-
-__fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
-    FreeOnTerminate = true;
-}
-
-void __fastcall LoadVialsWorkerThread::updateStatus() { // can't use args for synced method, don't know why
-    //ostringstream oss; oss<<frmSamples->loadingMessage<<"\n"<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
-    //frmSamples->panelLoading->Caption = oss.str().c_str();
-    frmSamples->panelLoading->Caption = loadingMessage.c_str(); //oss.str().c_str();
-    frmSamples->panelLoading->Repaint();
-}
-
-void __fastcall LoadVialsWorkerThread::Execute() {
-    delete_referenced<vecpSampleRow>(frmSamples->vials);
-    ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
-    loadingMessage = oss.str().c_str();
-
-/*
-destination box and position,
-cryovial barcode and current box,
-position, structure and location
-of the primary and secondary aliquots.
-*/
-
-/*    rowCount = 0;
-    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
-
-    qd.setSQL(
-        "SELECT"
-        "   cs.cryovial_id, cs.note_exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,"
-        "   c.cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,"
-        "   s.external_name AS site, m.position, v.external_full AS vessel,"
-        "   shelf_number, r.external_name AS rack, bs.slot_position"
-        " FROM"
-        "   cryovial c, cryovial_store cs, box_name b, box_store bs, c_rack_number r,"
-        "   c_tank_map m, c_object_name s,"   // site
-        "   c_object_name v,"                 // vessel
-        "   c_object_name t"                  // aliquot?
-        " WHERE"
-        "   c.cryovial_id = cs.cryovial_id AND"
-        "   b.box_cid = cs.box_cid AND"
-        "   b.box_cid = bs.box_cid AND"
-        "   bs.status = 6 AND"    // 6?
-        "   t.object_cid = aliquot_type_cid AND"
-        "   bs.rack_cid = r.rack_cid AND"
-        "   r.tank_cid = m.tank_cid AND"
-        "   s.object_cid = location_cid AND"
-        "   v.object_cid = storage_cid AND"
-        "   cs.retrieval_cid = :jobID");
-
-     -- may have destination box defined, could find with left join, e.g.:
-            from
-                 cryovial_store s1
-            left join
-                cryovial c on c.cryovial_cid = s1.cryovial_id
-            left join
-                box_name n1 on n1.box_cid = s1.box_cid
-            left join
-                cryovial_store s2 on s1.cryovial_id = s2.cryovial_id and
-                s2.status = 0
-            left join
-                box_name n2 on n2.box_cid = s2.box_cid
-            where
-                s1.retrieval_cid = :jobID
-
-        - but left join on ddb not allowed in ingres
-
-    qd.setParam("jobID", frmSamples->job->getID());
-    loadingMessage = frmSamples->loadingMessage; // base
-    qd.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
-    while (!qd.eof()) {
-        ostringstream oss; oss<<"Found "<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
-        loadingMessage = oss.str().c_str();
-        if (0 == rowCount % 10) Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
-        LPDbCryovialStore * vial = new LPDbCryovialStore(qd); // not query per row - not inefficient?
-        pSampleRow  row = new SampleRow(
-            vial,
-            qd.readString("cryovial_barcode"),
-            qd.readString("aliquot"),
-            qd.readString("box"),
-            qd.readString("site"),
-            qd.readInt("position"),
-            qd.readString("vessel"),
-            qd.readInt("shelf_number"),
-            qd.readString("rack"),
-            qd.readInt("slot_position")
-            );
-        frmSamples->vials.push_back(row);
-        qd.next();
-        rowCount++;
-    }
-    // then find destinations
-    int rowCount2 = 0;
-    for (vecpSampleRow::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); it++) { // vecpDataRow?
-        ostringstream oss; oss<<"Finding destinations: "<<rowCount2<<"/"<<rowCount;
-        loadingMessage = oss.str().c_str();
-        if (0 == rowCount2 % 10) Synchronize((TThreadMethod)&updateStatus);
-        pSampleRow sampleRow = (pSampleRow)*it;
-        try {
-            //findDestinationSlowly(sampleRow);
-            findDestination(sampleRow);
-        } catch(Exception & e) {
-            msgbox(e.Message);
-        } catch(...) {
-            msgbox("error");
-        }
-        rowCount2++;
-    }
-    */
-
-    rowCount = 0;
-    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
-    qd.setSQL( // from spec 2013-09-11
-        "SELECT"
-        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
-        "  cryovial_barcode,"
-        "  b1.box_cid as source_id,"
-        "  b1.external_name as source_name,"
-        "  s1.cryovial_position as source_pos,"
-        "  s2.box_cid as dest_id,"
-        "  b2.external_name as dest_name,"
-        "  s2.cryovial_position as dest_pos"
-        " FROM"
-        "  cryovial_store s1, cryovial c, box_name b1, cryovial_store s2, box_name b2"
-        " WHERE"
-        "  c.cryovial_id = s1.cryovial_id AND"
-        "  b1.box_cid = s1.box_cid AND"
-        "  s1.cryovial_id = s2.cryovial_id AND"
-        "  s2.status = 0 AND"
-        "  b2.box_cid = s2.box_cid AND"
-        "  s1.retrieval_cid = :jobID");
-    qd.setParam("jobID", frmSamples->job->getID());
-    loadingMessage = frmSamples->loadingMessage; // base
-    qd.open(); // most time - about 30 seconds - is taken opening the query. Cursoring through 1000+ rows takes 1-2 seconds
-    while (!qd.eof()) {
-        if (0 == rowCount % 10) {
-            ostringstream oss; oss<<"Found "<<rowCount<<" vials";//<<numerator<<" of "<<denominator;
-            loadingMessage = oss.str().c_str();
-            Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
-        }
-        pSampleRow  row = new SampleRow(
-            new LPDbCryovialStore(qd),
-            qd.readString("cryovial_barcode"),
-            "", //qd.readString("aliquot"),  //??
-            qd.readInt("source_id"),
-            qd.readString("source_name"),
-            qd.readInt("source_pos"),
-            qd.readInt("dest_id"),
-            qd.readString("dest_name"),
-            qd.readInt("dest_pos"),
-            "", 0, "", 0, "", 0 ); // no storage details yet
-        frmSamples->vials.push_back(row);
-        qd.next();
-        rowCount++;
-    }
-
-    // find the locations of the (src and destination?) boxes
-    static std::map<int, const SampleRow *> samples; //static std::map<int, const GridEntry *> boxes;
-	ROSETTA result;
-	StoreDAO dao;
-    //return;
-    int rowCount2 = 0;
-	for (std::vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it, rowCount2++) {
-        SampleRow * sample = *it;
-        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]";
-        std::map<int, const SampleRow *>::iterator found = samples.find(sample->dest_box_id);
-		if (found != samples.end()) { // fill in box location from cache map
-            sample->site_name       = (*(found->second)).site_name;
-            sample->position        = (*(found->second)).position;
-            sample->vessel_name     = (*(found->second)).vessel_name;
-            sample->shelf_number    = (*(found->second)).shelf_number;
-            sample->rack_name       = (*(found->second)).rack_name;
-            sample->slot_position   = (*(found->second)).slot_position; // box position, not cryovial_position
-            oss<<"(cached)";
-		} else {
-			if (dao.findBox(sample->dest_box_id, LCDbProjects::getCurrentID(), result)) { //ge->copyLocation(result);
-                sample->site_name       = result.getString("site_name");
-                sample->position        = result.getInt("rack_pos"); // "position" should be "rack_pos" or similar to diff from slot
-                sample->vessel_name     = result.getString("vessel_name");
-                sample->shelf_number    = result.getInt("shelf_number");
-                sample->rack_name       = result.getString("structure"); // "rack_name" should be "structure"
-                sample->slot_position   = result.getInt("slot_position");
-                //oss<<"Found destination box "<<sample->str();
-                oss<<"(db)";
-			} else {
-                sample->site_name       = "not found";
-                sample->position        = 0;
-                sample->vessel_name     = "not found";
-                sample->shelf_number    = 0;
-                sample->rack_name       = "not found";
-                sample->slot_position   = 0;
-                oss<<"(not found)";
-            }
-            samples[sample->dest_box_id] = (*it); // cache result
-		}
-        oss<<sample->storage_str();
-        loadingMessage = oss.str().c_str();
-        Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
-	} //progress -> StepIt(); //drawGrid(); //Application -> ProcessMessages();
-
-/* suggested per-box query for finding where each box is stored:
-(over ddb but not using left join) - could be cached
-
-findBox( int box_id, int proj_id, ROSETTA & result )
-    does this
-
-Select
-s.external_name as site,
-m.position,
-v.external_full as vessel,
-shelf_number,
-r.external_name as rack,
-bs.slot_position
-from
-box_store bs,
-c_rack_number r,
-c_tank_map m,
-c_object_name s,
-c_object_name v
-where
-bs.status = 6 and
-m.status =0 and
-bs.rack_cid = r.rack_cid and
-r.tank_cid = m.tank_cid and
-s.object_cid = location_cid and
-v.object_cid = storage_cid and
-box_cid = :boxID;
-
-*/
-
-}
-
-void LoadVialsWorkerThread::findDestination(pSampleRow row) {
-/*
-	std::map<int, const GridEntry *> boxes;
-	ROSETTA result;
-	StoreDAO dao;
-	progress -> Max = rows.size();
-	progress -> Position = 0;
-	for( std::vector<GridEntry>::iterator ge = rows.begin(); ge != rows.end(); ++ ge ) {
-		std::map<int, const GridEntry *>::const_iterator found = boxes.find( ge->bid );
-		if( found != boxes.end() ) {
-			ge->copyLocation( *(found->second) );
-		} else {
-			if( dao.findBox( ge->bid, LCDbProjects::getCurrentID(), result ) ) {
-				ge->copyLocation( result );
-			}
-			boxes[ ge->bid ] = &(*ge);
-		}
-		progress -> StepIt();
-		drawGrid();
-		Application -> ProcessMessages();
-	}*/
-
-	static std::map<int, SampleRow *> boxes;
-	ROSETTA result;
-	StoreDAO dao;
-	std::map<int, SampleRow *>::const_iterator found = boxes.find(row->store_record->getBoxID());
-    if (found != boxes.end()) {
-        row->dest_box_id      = (*(found->second)).dest_box_id;
-        row->dest_box_name    = (*(found->second)).dest_box_name;
-        row->dest_box_pos     = (*(found->second)).dest_box_pos;
-    } else {
-        //if (dao.findBox(row->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) { finds t/r/s | v/s/s
-        dao.loadBoxDetails(row->store_record->getBoxID(), LCDbProjects::getCurrentID(), result);
-        row->dest_box_id      = result.getInt("box_cid");
-        row->dest_box_name    = result.getString("external_name");
-        row->dest_box_pos     = result.getInt("slot_position");
-        //} // isn't this just getting details of the current box, not the destination?
-        boxes[row->dest_box_id] = &(*row);
-    }
-}
-
-void LoadVialsWorkerThread::findDestinationSlowly(pSampleRow sampleRow) {
-    // look for destination boxes, can't left join in ddb, so do project query per row
-    // may be v time-consuming - could do outer join instead and check sequence for gaps
-    // p.s. *is* v time-consuming...
-    //look in the right database
-    LQuery qp(Util::projectQuery(frmSamples->job->getProjectID(), false)); // project db
-    qp.setSQL(
-        "SELECT"
-        "   n1.box_cid AS boxid, n1.external_name AS boxname, s2.cryovial_position AS pos"
-        " FROM"
-        "   cryovial_store s1, cryovial c, box_name n1, cryovial_store s2, box_name n2"
-        " WHERE"
-        "   c.cryovial_id = s1.cryovial_id"
-        " AND n1.box_cid = s1.box_cid"
-        " AND s1.cryovial_id = s2.cryovial_id"
-        " AND s2.status = 0"
-        " AND n2.box_cid = s2.box_cid"
-        " AND s1.retrieval_cid = :jobID"
-        " AND s1.cryovial_id = :vial" // e.g. 1137824 (t_ldb1)
-        );
-    qp.setParam("jobID", frmSamples->job->getID());
-    qp.setParam("vial",  sampleRow->store_record->getID());
-    //LPDbCryovialStore * vial = sampleRow->store_record;
-    if (qp.open()) {
-        sampleRow->dest_box_id      = qp.readInt("boxid");
-        sampleRow->dest_box_name    = qp.readString("boxname");
-        sampleRow->dest_box_pos     = qp.readInt("pos");
-    } else {
-        sampleRow->dest_box_id      = 0;
-        sampleRow->dest_box_name    = "";
-        sampleRow->dest_box_pos     = 0;
-    }
-}
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) { }
 
@@ -337,7 +31,6 @@ void TfrmSamples::debugLog(String s) {
 
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
-    //maxRows             = DEFAULT_NUMROWS;
     job                 = NULL;
     setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
     setupStringGrid(sgVials, SGVIALS_NUMCOLS, sgVialColName, sgVialColWidth);
@@ -345,6 +38,8 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormShow(TObject *Sender) {
+    ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription();
+    Caption = oss.str().c_str();
     btnSave->Enabled = true;
     chunks.clear();
     clearSG(sgChunks);
@@ -404,10 +99,12 @@ void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::cbLogClick(TObject *Sender) {
     memoDebug->Visible = cbLog->Checked;
+    splitterDebug->Visible  = cbLog->Checked;
 }
 
 void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
     if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
+        //fixme move contents into preceding chunk
         delete chunks.back();
         chunks.pop_back();
         showChunks();
@@ -477,18 +174,6 @@ void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
     }
 }
 
-void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
-    progressBottom->Style = pbstNormal; progressBottom->Visible = false;
-    panelLoading->Visible = false;
-    chunks.clear();
-    clearSG(sgChunks);
-    addChunk(); // create a default chunk // no - not before list loaded
-    showChunks(); //showChunk(); // must do this outside thread, unless synchronised - does gui stuff
-    Screen->Cursor = crDefault;
-    //ShowCursor(true);
-    Enabled = true;
-}
-
 void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
     showChunk(); // default is 1st
 }
@@ -513,7 +198,6 @@ void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, in
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
     SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     sample?debugLog(sample->str().c_str()):debugLog("NULL sample");
-    job?debugLog(job->getName().c_str()):debugLog("NULL job");
 }
 
 void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
@@ -539,19 +223,6 @@ void __fastcall TfrmSamples::btnDelSortClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::btnApplySortClick(TObject *Sender) {
     applySort();
-}
-
-void TfrmSamples::loadRows() {
-    panelLoading->Caption = loadingMessage;
-    panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
-    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
-    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
-    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
-    Screen->Cursor = crSQLWait; // disable mouse?
-    //ShowCursor(false);
-    Enabled = false;
-    loadVialsWorkerThread = new LoadVialsWorkerThread();
-    loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
 }
 
 void TfrmSamples::showChunks() {
@@ -619,6 +290,7 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         pSampleRow sampleRow = (pSampleRow)*it;
         LPDbCryovialStore * vial = sampleRow->store_record;
         sgVials->Cells[SGVIALS_BARCODE] [row]    = sampleRow->cryovial_barcode.c_str();
+        sgVials->Cells[SGVIALS_ALIQUOT] [row]    = sampleRow->aliquot_type_name.c_str();
         sgVials->Cells[SGVIALS_DESTBOX] [row]    = sampleRow->dest_box_name.c_str();
         sgVials->Cells[SGVIALS_DESTPOS] [row]    = sampleRow->dest_box_pos;
         sgVials->Cells[SGVIALS_CURRBOX] [row]    = sampleRow->src_box_name.c_str();
@@ -627,11 +299,10 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         sgVials->Cells[SGVIALS_POSITION][row]    = sampleRow->position;
         sgVials->Cells[SGVIALS_SHELF]   [row]    = sampleRow->shelf_number;
         sgVials->Cells[SGVIALS_VESSEL]  [row]    = sampleRow->vessel_name.c_str();
-        sgVials->Cells[SGVIALS_STRUCTURE][row]   = sampleRow->rack_name.c_str();
+        sgVials->Cells[SGVIALS_STRUCTURE][row]   = sampleRow->structure_name.c_str();
         sgVials->Cells[SGVIALS_SLOT]    [row]    = sampleRow->slot_position;
         sgVials->Objects[0][row] = (TObject *)sampleRow;
     }
-    //groupVials->Caption = oss.str().c_str();
 }
 
 void TfrmSamples::addSorter() {
@@ -694,7 +365,6 @@ void TfrmSamples::sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::S
             sorter[col].sort_toggle(chunk->rows);
             break;
     }
-    //sorter[col].sort_toggle(chunk->rows); //partial_sort
     showChunk(chunk);
     Screen->Cursor = crDefault;
 }
@@ -711,5 +381,142 @@ void __fastcall TfrmSamples::sgChunksGetEditText(TObject *Sender, int ACol, int 
     oss<<__FUNC__; debugLog(oss.str().c_str()); //String(sgChunks->Cells[ACol][ARow].c_str())<endl;
     //debugLog(oss.str().c_str());
     debugLog(sgChunks->Cells[ACol][ARow]);
+}
+
+void TfrmSamples::loadRows() {
+    panelLoading->Caption = loadingMessage;
+    panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
+    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+    Screen->Cursor = crSQLWait; // disable mouse?
+    //ShowCursor(false);
+    Enabled = false;
+    loadVialsWorkerThread = new LoadVialsWorkerThread();
+    loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
+}
+
+__fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
+    FreeOnTerminate = true;
+}
+
+void __fastcall LoadVialsWorkerThread::updateStatus() { // can't use args for synced method, don't know why
+    frmSamples->panelLoading->Caption = loadingMessage.c_str();
+    frmSamples->panelLoading->Repaint();
+}
+
+void __fastcall LoadVialsWorkerThread::Execute() {
+    delete_referenced<vecpSampleRow>(frmSamples->vials);
+    ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
+    loadingMessage = oss.str().c_str();
+
+    //return;
+/* destination box and position, cryovial barcode and current box, position,
+   structure and location of the primary and secondary aliquots */
+
+    rowCount = 0;
+    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
+    qd.setSQL( // from spec 2013-09-11
+        "SELECT"
+        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
+        "  cryovial_barcode, t.external_name AS aliquot,"
+        "  b1.box_cid as source_id,"
+        "  b1.external_name as source_name,"
+        "  s1.cryovial_position as source_pos,"
+        "  s2.box_cid as dest_id,"
+        "  b2.external_name as dest_name,"
+        "  s2.cryovial_position as dest_pos"
+        " FROM"
+        "  cryovial c, cryovial_store s1, box_name b1,"
+        "  cryovial_store s2, box_name b2,"
+        "  c_object_name t"
+        " WHERE"
+        "  c.cryovial_id = s1.cryovial_id AND"
+        "  b1.box_cid = s1.box_cid AND"
+        "  s1.cryovial_id = s2.cryovial_id AND"
+        "  s2.status = 0 AND"
+        "  b2.box_cid = s2.box_cid AND"
+        "  t.object_cid = aliquot_type_cid AND"
+        "  s1.retrieval_cid = :jobID"
+        " ORDER BY"
+        "  cryovial_barcode"
+        );
+    qd.setParam("jobID", frmSamples->job->getID());
+    loadingMessage = frmSamples->loadingMessage;
+    qd.open();
+    while (!qd.eof()) {
+        if (0 == rowCount % 10) {
+            ostringstream oss; oss<<"Found "<<rowCount<<" vials";
+            loadingMessage = oss.str().c_str();
+            Synchronize((TThreadMethod)&updateStatus);
+        }
+        pSampleRow  row = new SampleRow(
+            new LPDbCryovialStore(qd),
+            qd.readString(  "cryovial_barcode"),
+            qd.readString(  "aliquot"),
+            qd.readInt(     "source_id"),
+            qd.readString(  "source_name"),
+            qd.readInt(     "source_pos"),
+            qd.readInt(     "dest_id"),
+            qd.readString(  "dest_name"),
+            qd.readInt(     "dest_pos"),
+            "", 0, "", 0, "", 0 ); // no storage details yet
+        frmSamples->vials.push_back(row);
+        qd.next();
+        rowCount++;
+    }
+
+    // find the locations of the (src and destination?) boxes
+    static std::map<int, const SampleRow *> samples;
+	ROSETTA result;
+	StoreDAO dao;
+    int rowCount2 = 0;
+	for (std::vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it, rowCount2++) {
+        SampleRow * sample = *it;
+        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]";
+        std::map<int, const SampleRow *>::iterator found = samples.find(sample->dest_box_id);
+		if (found != samples.end()) { // fill in box location from cache map
+            sample->site_name       = (*(found->second)).site_name;
+            sample->position        = (*(found->second)).position;
+            sample->vessel_name     = (*(found->second)).vessel_name;
+            sample->shelf_number    = (*(found->second)).shelf_number;
+            sample->structure_name  = (*(found->second)).structure_name;
+            sample->slot_position   = (*(found->second)).slot_position; // box position, not cryovial_position
+            oss<<"(cached)";
+		} else {
+			if (dao.findBox(sample->dest_box_id, LCDbProjects::getCurrentID(), result)) { //ge->copyLocation(result);
+                sample->site_name       = result.getString("site_name");
+                sample->position        = result.getInt("rack_pos"); // "position" should be "rack_pos" or similar to diff from slot
+                sample->vessel_name     = result.getString("vessel_name");
+                sample->shelf_number    = result.getInt("shelf_number");
+                sample->structure_name  = result.getString("structure");
+                sample->slot_position   = result.getInt("slot_position");
+                oss<<"(db)";
+			} else {
+                sample->site_name       = "not found";
+                sample->position        = 0;
+                sample->vessel_name     = "not found";
+                sample->shelf_number    = 0;
+                sample->structure_name  = "not found";
+                sample->slot_position   = 0;
+                oss<<"(not found)";
+            }
+            samples[sample->dest_box_id] = (*it); // cache result
+		}
+        oss<<sample->storage_str();
+        loadingMessage = oss.str().c_str();
+        Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
+	} //progress -> StepIt(); //drawGrid(); //Application -> ProcessMessages();
+}
+
+void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
+    progressBottom->Style = pbstNormal; progressBottom->Visible = false;
+    panelLoading->Visible = false;
+    chunks.clear();
+    clearSG(sgChunks);
+    addChunk(); // default chunk
+    showChunks();
+    Screen->Cursor = crDefault;
+    Enabled = true;
 }
 
