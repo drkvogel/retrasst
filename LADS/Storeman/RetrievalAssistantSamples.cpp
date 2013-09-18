@@ -35,7 +35,7 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
         //{vials, sort_asc_barcode, "name", "desc", 100, false }
         //ColDef(bool (*f)(const T *, const T *), std::string n, std::string d, int w, std::vector<T *> * v) :
         //ColDef(bool (*f)(const T *, const T *), std::string, std::string, int, bool, std::vector<T *> *) :
-        //ColDef<SampleRow *>(sort_asc_barcode, std::string("name"), std::string("desc"), 100, false, &vials)
+        ColDef<SampleRow *>(std::string("name"), std::string("desc"), 100)//, &vials)
         //aColDef
     };
 }

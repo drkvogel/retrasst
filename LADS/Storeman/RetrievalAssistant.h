@@ -226,8 +226,10 @@ template <class T> // T is type of row to sort
 class ColDef {
 public:
     ColDef() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false) {} //, vec(NULL) { }
-    ColDef(bool (*f)(const T *, const T *), std::string n, std::string d, int w, bool s, std::vector<T *> * v) :
-        sort_func_asc(f), name(n), description(d), width(w), sortAsc(s), vec(v) {}
+    //ColDef(bool (*f)(const T *, const T *), std::string n, std::string d, int w, bool s, std::vector<T *> * v) :
+        //sort_func_asc(f), name(n), description(d), width(w), sortAsc(s), vec(v) {}
+    ColDef(std::string n, std::string d, int w) :
+        name(n), description(d), width(w), sortAsc(false) {}
     bool (*sort_func_asc)(const T *, const T *); // ascending sort function
     std::string name;
     std::string description; // sort description for (e.g.) combo box?
