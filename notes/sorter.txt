@@ -1,0 +1,57 @@
+﻿# Sorting out the Sorter
+
+
+
+template <class T>
+class Sorter {
+public:
+    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
+    std::string description;
+    enum SortOrder { ASCENDING, DESCENDING, TOGGLE };
+    void sort_asc(std::vector<T *> & vec) { sort(vec, ASCENDING);  }
+    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING);  }
+    void sort_toggle(std::vector<T *> & vec) { sort(vec, TOGGLE);  }
+private:
+    SortOrder sortOrder; // last used sort order for toggle
+    void sort(std::vector<T *> & vec, SortOrder order) {
+        switch (order) {
+            case ASCENDING:
+                std::sort(vec.begin(), vec.end(), sort_func_asc);   break;
+            case DESCENDING:
+                std::sort(vec.rbegin(), vec.rend(), sort_func_asc); break; // reverse iterators
+            case TOGGLE:
+                sort(vec, sortOrder);
+                sortOrder = (sortOrder == ASCENDING) ? DESCENDING : ASCENDING; // toggle
+                break;
+            default:
+                throw Exception("Invalid sort order");
+        }
+    }
+};
+
+// declare sort asc/desc functions:
+
+    static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
+    static bool sort_desc_barcode(const SampleRow *a, const SampleRow *b)   { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
+    static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
+    static bool sort_desc_currbox(const SampleRow *a, const SampleRow *b)   { return Util::numericCompare(b->src_box_name, a->src_box_name); }
+    static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
+    static bool sort_desc_currpos(const SampleRow *a, const SampleRow *b)   { return a->store_record->getPosition() > b->store_record->getPosition(); }
+    static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
+    static bool sort_desc_destbox(const SampleRow *a, const SampleRow *b)   { return Util::numericCompare(b->dest_box_name, a->dest_box_name); }
+
+// declare sorter array:    
+
+Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
+    { SampleRow::sort_asc_barcode,   sgVialColName[SGVIALS_BARCODE] },
+    { SampleRow::sort_asc_currbox,   sgVialColName[SGVIALS_CURRBOX] },
+    ...
+    
+# Problems
+
+ * asc and desc funcs both need to be declared - couldn't one be a reverse of the other?
+   * already removed from class spec - implementations in SampleRow now redundant
+ * why are the sort funcs implemented in SampleRow anyway?
+ * using enum as parameter to Sorter::sort rather than calling sort_asc/desc/toggle directly seems unnecessary
+ * separate Sorter array means it can get out of sync with column definitions - group together in (e.g.) ColDef?
+ 
