@@ -243,32 +243,6 @@ public:
 };
 
 
-///** helper class to sort rows of type T via sort functions defined in intializer
-//    sort explicitly ascending or descending, or toggle last sort order */
-//template <class T>
-//class Sorter {
-//public:
-//    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-//    bool (*sort_func_dsc)(const T *, const T *); // descending sort function
-//    string description;
-//    void sort_asc(std::vector<T *> & vec) { sort(vec, ASCENDING);  }
-//    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING); }
-//    void sort_toggle(std::vector<T *> & vec) {
-//        sort(vec, sortOrder);
-//        sortOrder = (sortOrder == ASCENDING) ? DESCENDING : ASCENDING; // toggle
-//    }
-//    //Sorter() { sortOrder = ASCENDING; } // compiler expects this ctor to be initialized??
-//private:
-//    enum SortOrder { ASCENDING, DESCENDING } sortOrder;
-//    void sort(std::vector<T *> & vec, SortOrder order) {
-//        switch (order) {
-//            case ASCENDING:     std::sort(vec.begin(), vec.end(), sort_func_asc); break;
-//            case DESCENDING:    std::sort(vec.begin(), vec.end(), sort_func_dsc); break;
-//            default:            throw Exception("Invalid sort order");
-//        }
-//    }
-//};
-
 enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
 static const char * sgChunksColName[SGCHUNKS_NUMCOLS]   = { "Section", "Start", "End", "Size" };
 static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 200, 200, 200, 200 };
