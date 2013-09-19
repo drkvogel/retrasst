@@ -220,17 +220,6 @@ public:
 };
 //typedef SampleRow * pSampleRow;
 typedef std::vector<SampleRow *> vecpSampleRow;
-//std::vector<SampleRow *>
-
-template <class T>
-class Test {
-public:
-    Test() {}
-    Test(vecpSampleRow * v) : vec(v) {}
-    Test(bool (*f)(const T *, const T *), vecpSampleRow * v) : func(f), vec(v) {}
-    bool (*func)(const T *, const T *);
-    vecpSampleRow * vec; // use a pointer instead of a reference
-};
 
 template <class T> // T is type of row to sort
 class ColDef {
@@ -259,9 +248,6 @@ class Chunk { // not recorded in database
 public:
     Chunk() : section(0), start("start"), end("end") { }
     Chunk(string name, int section, string start, string end) : section(section), start(start), end(end) { }
-    //virtual ~Chunk() { delete_referenced<vecpDataRow>(rows); }
-    //virtual ~Chunk() = 0;
-    //virtual vecpDataRow rows;
     string      name;
     int         section;
     string      start;
@@ -352,48 +338,3 @@ public:
 };
 extern PACKAGE TfrmRetrievalAssistant *frmRetrievalAssistant;
 #endif
-
-//struct SampleLocation { // to include in SampleRow for each aliquot?
-//    int dummy;
-//};
-
-//class Sorter {
-//    int dummy;
-//};
-//    struct Sort1 : public Sorter {
-//        bool operator()(const SampleRow &a, const SampleRow &b) const {
-//            return a.position < b.position;
-//        }
-//    } sort1;
-
-//     SGVIALS_BARCODE, SGVIALS_DESTBOX, SGVIALS_DESTPOS, SGVIALS_CURRBOX, SGVIALS_CURRPOS,
-//    SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT,
-    //static bool less_than_(const SampleRow *a, const SampleRow *b) { return a-> < b->; }
-
-//class RetrievalPlan : public LCDbID { // c_retrieval_plan
-//    int                     retrieval_plan_cid;
-//    std::string             name;
-//    vecpChunk               chunks;
-//    int                     status;
-//    LCDbCryoJob::JobKind    jobType;
-//public:
-//    RetrievalPlan(std::string nm) : retrieval_plan_cid(0), name(nm) { }
-//    void readChunks();
-//    void deletePlan() { /* set 99 */ }
-//    void setCID(int id) { retrieval_plan_cid = id; }
-//    void setStatus(int st) { status = st; }
-//    int getStatus() { return status; }
-//    void setName(std::string nm) { name = nm; }
-//    std::string getName() { return name; }
-//    void addChunk(Chunk * ch) { chunks.push_back(ch); }
-//    void popChunk() { delete chunks.back(); chunks.pop_back(); }
-//};
-//
-//typedef std::vector<RetrievalPlan *> vecpRetrievalPlan;
-
-//class RetrievalPlans : public LCDbID {
-//class RetrievalPlans : public LDbCache< RetrievalPlan >, public LDbSingleton< RetrievalPlan > {
-//    vecpRetrievalPlan plans;
-//public:
-//    void read();
-//};

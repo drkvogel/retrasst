@@ -27,9 +27,9 @@ Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
 static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
-    Test<SampleRow> test(&vials);
-    test.func = sort_asc_barcode;
-    Test<SampleRow> test2(sort_asc_barcode, &vials);
+//    Test<SampleRow> test(&vials);
+//    test.func = sort_asc_barcode;
+//    Test<SampleRow> test2(sort_asc_barcode, &vials);
 
     ColDef<SampleRow> sgVialsCol[] = {
          ColDef<SampleRow>(&vials, sort_asc_barcode, "name", "desc", 100),
