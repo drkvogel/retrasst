@@ -1,7 +1,26 @@
 ﻿# Sorting out the Sorter
 
+   Test(std::vector<T *> & v) : vec(v) {}
+   
+   std::vector<SampleRow *>    vials;
+   
+   Test<SampleRow *> test(vials);
 
+E2285 Could not find a match for 'Test<SampleRow *>::Test(vector<SampleRow *,allocator<SampleRow *> >)'
 
+use typedef?
+use pointer to vector instead of reference
+
+now just passing function pointer to ColDef constructor is not right
+
+E2034 Cannot convert 'bool(const SampleRow *,const SampleRow *)' to 'bool (*)(SampleRow * const *,SampleRow * const *)'
+    notice ** double pointers
+  
+  - how did I do it with Sorter?
+
+ah, because Sorter was specialized with SampleRow, and ColDef is being specialized with SampleRow *  
+  
+---
 template <class T>
 class Sorter {
 public:
@@ -50,8 +69,29 @@ Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
 # Problems
 
  * asc and desc funcs both need to be declared - couldn't one be a reverse of the other?
-   * already removed from class spec - implementations in SampleRow now redundant
+   * already removed from class spec - implementations in SampleRow now redundant-taken out
  * why are the sort funcs implemented in SampleRow anyway?
  * using enum as parameter to Sorter::sort rather than calling sort_asc/desc/toggle directly seems unnecessary
  * separate Sorter array means it can get out of sync with column definitions - group together in (e.g.) ColDef?
- 
+   * does Sorter being a template make this a problem? the type T is e.g. SampleRow for all columns
+   * 
+
+/* enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
+        SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
+        SGVIALS_NUMCOLS};
+static const char * sgVialColName[SGVIALS_NUMCOLS] = {"Barcode", "Aliquot", "Curr box", "Pos", "Dest box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
+static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 100, 275, 43, 275, 37, 64, 50, 43, 100, 121, 40}; */   
+
+template <class T> // T is type of row to sort
+class ColDef {
+public:
+    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
+    std::string name;
+    std::string description; // sort description for (e.g.) combo box?
+    int width; // for StringGrid::ColWidths[]
+    enum SortOrder { ASCENDING, DESCENDING, TOGGLE };
+    void sort_asc(std::vector<T *> & vec) { sort(vec, ASCENDING);  }
+    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING);  }
+    void sort_toggle(std::vector<T *> & vec) { sort(vec, TOGGLE);  }
+};
+

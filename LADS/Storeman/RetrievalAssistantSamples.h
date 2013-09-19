@@ -104,7 +104,8 @@ private:
     void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *               job;
     std::vector<SampleChunk *>  chunks;
-    std::vector<SampleRow *>    vials;      // all vials loaded
+    //std::vector<SampleRow *>    vials;      // all vials loadedvecpSampleRow
+    vecpSampleRow    vials;      // all vials loaded
     //vecpSampleRow    vials;      // all vials loaded
     void                        addSorter();
     void                        removeSorter();

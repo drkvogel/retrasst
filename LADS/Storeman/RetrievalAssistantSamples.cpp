@@ -27,16 +27,14 @@ Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
 static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
-    //bool (*sort_func_asc)(const T *, const T *);
+    Test<SampleRow> test(&vials);
+    test.func = sort_asc_barcode;
+    Test<SampleRow> test2(sort_asc_barcode, &vials);
 
-    //ColDef<SampleRow *> aColDef(sort_asc_barcode, std::string("name"), std::string("desc"), 100, false, &vials);
-
-    ColDef<SampleRow *> sgVialsCol[] = {
-        //{vials, sort_asc_barcode, "name", "desc", 100, false }
-        //ColDef(bool (*f)(const T *, const T *), std::string n, std::string d, int w, std::vector<T *> * v) :
-        //ColDef(bool (*f)(const T *, const T *), std::string, std::string, int, bool, std::vector<T *> *) :
-        ColDef<SampleRow *>(std::string("name"), std::string("desc"), 100)//, &vials)
-        //aColDef
+    ColDef<SampleRow> sgVialsCol[] = {
+         ColDef<SampleRow>(&vials, sort_asc_barcode, "name", "desc", 100),
+         ColDef<SampleRow>(&vials, sort_asc_barcode, "name", "desc", 200)
+         //{&vials, sort_asc_barcode, "name", "desc", 100}
     };
 }
 

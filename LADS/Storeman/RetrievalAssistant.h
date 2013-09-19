@@ -219,17 +219,26 @@ public:
     }
 };
 //typedef SampleRow * pSampleRow;
-//typedef std::vector<pSampleRow> vecpSampleRow;
+typedef std::vector<SampleRow *> vecpSampleRow;
 //std::vector<SampleRow *>
+
+template <class T>
+class Test {
+public:
+    Test() {}
+    Test(vecpSampleRow * v) : vec(v) {}
+    Test(bool (*f)(const T *, const T *), vecpSampleRow * v) : func(f), vec(v) {}
+    bool (*func)(const T *, const T *);
+    vecpSampleRow * vec; // use a pointer instead of a reference
+};
 
 template <class T> // T is type of row to sort
 class ColDef {
 public:
     ColDef() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false) {} //, vec(NULL) { }
-    //ColDef(bool (*f)(const T *, const T *), std::string n, std::string d, int w, bool s, std::vector<T *> * v) :
-        //sort_func_asc(f), name(n), description(d), width(w), sortAsc(s), vec(v) {}
-    ColDef(std::string n, std::string d, int w) :
-        name(n), description(d), width(w), sortAsc(false) {}
+    ColDef(std::vector<T *> * v, bool (*f)(const T *, const T *), std::string n, std::string d, int w) :
+        vec(v), sort_func_asc(f), name(n), description(d), width(w), sortAsc(false) {}
+    std::vector<T *> * vec;
     bool (*sort_func_asc)(const T *, const T *); // ascending sort function
     std::string name;
     std::string description; // sort description for (e.g.) combo box?
@@ -240,8 +249,6 @@ public:
     void sort_asc() { std::sort(vec->begin(), vec->end(), sort_func_asc);  }
     void sort_dsc() { std::sort(vec->rbegin(), vec->rend(), sort_func_asc);  }
     void sort_toggle(std::vector<T *> & vec) { sortAsc ? sort_asc() : sort_dsc(); sortAsc = !sortAsc; }
-    //std::vector<T *> & vec;
-    std::vector<T *> * vec;
 };
 
 
