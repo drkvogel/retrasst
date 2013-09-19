@@ -18,6 +18,15 @@ Retrieval_2415 : A job with a few THRIVE cryovial (no cryvials though?)
 
 must be thread-related? e.g. sample->store_record->getBoxID()?
 non-threaded version seems ok... something in worker thread must be doing something gui-related... one of the classes descended from a VCL class?
+void __fastcall LCDbCryoJobs::Renewal(TObject *)? timer in main thread though so should be ok
+what if I take the synchronized updateStatus calls out?
+  looked promising, but still crashing
+be pragmatic, it seems to work non-threaded.
+still much faster when locations are found, shouldn't be - is the query messing things up?
+no, still crashes on notAThread
+    on second load of same job
+    vials not being reset/deleted?
+    some other change I've made recently - follow it through from the start
 
 002000758 EDTA_BC SEARCH Buffy 7 / SEARCH buffy coat retrieval 330 Pos 8 
   Position give EAccessViolation and corrupt position, break on 

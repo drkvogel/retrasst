@@ -320,7 +320,6 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
 void TfrmSamples::addSorter() {
     ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
     TComboBox * combo = new TComboBox(this);
-    //groupSort->InsertControl(combo); // don't call this directly, set the parent as above
     combo->Parent = groupSort; // new combo is last created, aligned to left
         // to put in right order: take them all out, sort and put back in in reverse order?
     combo->Align = alLeft;
@@ -461,7 +460,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         if (0 == rowCount % 10) {
             ostringstream oss; oss<<"Found "<<rowCount<<" vials";
             loadingMessage = oss.str().c_str();
-            Synchronize((TThreadMethod)&updateStatus);
+            //Synchronize((TThreadMethod)&updateStatus);
         }
         SampleRow * row = new SampleRow(
             new LPDbCryovialStore(qd),
@@ -530,7 +529,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             sample->slot_position   = -1;
         }
         loadingMessage = oss.str().c_str();
-        Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
+        //Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
 	} //progress -> StepIt(); //drawGrid(); //Application -> ProcessMessages();
 }
 
