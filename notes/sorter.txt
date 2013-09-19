@@ -1,4 +1,14 @@
-﻿# Sorting out the Sorter
+﻿t_ldb1_ddb
+
+002000758 EDTA_BC SEARCH Buffy 7 / SEARCH buffy coat retrieval 330 Pos 8 
+  Position give EAccessViolation and corrupt position, break on 
+		if (found != samples.end()) { // fill in box location from cache map
+            sample->site_name       = (*(found->second)).site_name;
+            sample->position        = (*(found->second)).position;
+            sample->vessel_name     = (*(found->second)).vessel_name;
+
+
+# Sorting out the Sorter
 
    Test(std::vector<T *> & v) : vec(v) {}
    

@@ -27,15 +27,12 @@ Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
 static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
-//    Test<SampleRow> test(&vials);
-//    test.func = sort_asc_barcode;
-//    Test<SampleRow> test2(sort_asc_barcode, &vials);
-
     ColDef<SampleRow> sgVialsCol[] = {
          ColDef<SampleRow>(&vials, sort_asc_barcode, "name", "desc", 100),
          ColDef<SampleRow>(&vials, sort_asc_barcode, "name", "desc", 200)
-         //{&vials, sort_asc_barcode, "name", "desc", 100}
+         // etc
     };
+    // how to apply sorter to coldef?
 }
 
 void TfrmSamples::debugLog(String s) {
@@ -62,9 +59,8 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
-    //delete_referenced<vecpSampleRow>(frmSamples->vials);
     delete_referenced< std::vector <SampleRow * > >(frmSamples->vials);
-    delete_referenced<vecpSampleChunk>(chunks);
+    delete_referenced<vecpSampleChunk>(chunks); // chunk objects, not contents of chunks
 }
 
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
@@ -119,6 +115,8 @@ void __fastcall TfrmSamples::cbLogClick(TObject *Sender) {
 void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
     if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
         //fixme move contents into preceding chunk
+        //vecpSampleRow::back_insert_iterator bit;
+        //vecpSampleRow::back_inserter bit;
         delete chunks.back();
         chunks.pop_back();
         showChunks();
@@ -138,7 +136,6 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
         } else {
             background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
-        //else if (chunk->
     }
     TCanvas * cnv = sgChunks->Canvas;
 	cnv->Brush->Color = background;
@@ -169,7 +166,6 @@ void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
         } else {
             background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
-        //else if (chunk->
     }
     TCanvas * cnv = sgVials->Canvas;
 	cnv->Brush->Color = background;
@@ -482,6 +478,8 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         rowCount++;
     }
 
+    // src_box_id is redundant? use sample->store_record->getBoxID()
+
     // find the locations of the (src and destination?) boxes
     static std::map<int, const SampleRow *> samples;
 	ROSETTA result;
@@ -490,36 +488,46 @@ void __fastcall LoadVialsWorkerThread::Execute() {
 	for (std::vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]";
-        std::map<int, const SampleRow *>::iterator found = samples.find(sample->dest_box_id);
-		if (found != samples.end()) { // fill in box location from cache map
-            sample->site_name       = (*(found->second)).site_name;
-            sample->position        = (*(found->second)).position;
-            sample->vessel_name     = (*(found->second)).vessel_name;
-            sample->shelf_number    = (*(found->second)).shelf_number;
-            sample->structure_name  = (*(found->second)).structure_name;
-            sample->slot_position   = (*(found->second)).slot_position; // box position, not cryovial_position
-            oss<<"(cached)";
-		} else {
-			if (dao.findBox(sample->dest_box_id, LCDbProjects::getCurrentID(), result)) { //ge->copyLocation(result);
-                sample->site_name       = result.getString("site_name");
-                sample->position        = result.getInt("rack_pos"); // "position" should be "rack_pos" or similar to diff from slot
-                sample->vessel_name     = result.getString("vessel_name");
-                sample->shelf_number    = result.getInt("shelf_number");
-                sample->structure_name  = result.getString("structure");
-                sample->slot_position   = result.getInt("slot_position");
-                oss<<"(db)";
-			} else {
-                sample->site_name       = "not found";
-                sample->position        = 0;
-                sample->vessel_name     = "not found";
-                sample->shelf_number    = 0;
-                sample->structure_name  = "not found";
-                sample->slot_position   = 0;
-                oss<<"(not found)";
+
+        try {
+            std::map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
+            if (found != samples.end()) { // fill in box location from cache map
+                sample->site_name       = (*(found->second)).site_name;
+                sample->position        = (*(found->second)).position;
+                sample->vessel_name     = (*(found->second)).vessel_name;
+                sample->shelf_number    = (*(found->second)).shelf_number;
+                sample->structure_name  = (*(found->second)).structure_name;
+                sample->slot_position   = (*(found->second)).slot_position; // box position, not cryovial_position
+                oss<<"(cached)";
+            } else {
+                if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) { //ge->copyLocation(result);
+                    sample->site_name       = result.getString("site_name");
+                    sample->position        = result.getInt("rack_pos"); // "position" should be "rack_pos" or similar to diff from slot
+                    sample->vessel_name     = result.getString("vessel_name");
+                    sample->shelf_number    = result.getInt("shelf_number");
+                    sample->structure_name  = result.getString("structure");
+                    sample->slot_position   = result.getInt("slot_position");
+                    oss<<"(db)";
+                } else {
+                    sample->site_name       = "not found";
+                    sample->position        = 0;
+                    sample->vessel_name     = "not found";
+                    sample->shelf_number    = 0;
+                    sample->structure_name  = "not found";
+                    sample->slot_position   = 0;
+                    oss<<"(not found)";
+                }
+                samples[sample->store_record->getBoxID()] = (*it); // cache result
             }
-            samples[sample->dest_box_id] = (*it); // cache result
-		}
-        oss<<sample->storage_str();
+            oss<<sample->storage_str();
+        } catch (...) {
+            sample->site_name       = "error!";
+            sample->position        = -1;
+            sample->vessel_name     = "error!";
+            sample->shelf_number    = -1;
+            sample->structure_name  = "error!";
+            sample->slot_position   = -1;
+        }
         loadingMessage = oss.str().c_str();
         Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
 	} //progress -> StepIt(); //drawGrid(); //Application -> ProcessMessages();

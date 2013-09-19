@@ -132,30 +132,12 @@ public:
 typedef BoxRow * pBoxRow;
 typedef std::vector<pBoxRow> vecpBoxRow;
 
-
-
-
-//class ColDef {
-//    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-//    std::string description;
-//    enum SortOrder { ASCENDING, DESCENDING, TOGGLE };
-//    void sort_asc(std::vector<T *> & vec) { sort(vec, ASCENDING);  }
-//    void sort_dsc(std::vector<T *> & vec) { sort(vec, DESCENDING);  }
-//    void sort_toggle(std::vector<T *> & vec) { sort(vec, TOGGLE);  }
-    //virtual Sorter
-    //Sorter sorter;
-//};
-
-//ColDef sgChunksCol[];
-
-//class
-
 class SampleRow : public DataRow {
 public:
     LPDbCryovialStore * store_record;
     string              cryovial_barcode;
     string              aliquot_type_name;
-    int                 src_box_id;
+    int                 src_box_id; // redundant, use sample->store_record->getBoxID() instead?
     string              src_box_name;
     int                 src_box_pos;
     int                 dest_box_id;
@@ -218,7 +200,7 @@ public:
         return oss.str();
     }
 };
-//typedef SampleRow * pSampleRow;
+
 typedef std::vector<SampleRow *> vecpSampleRow;
 
 template <class T> // T is type of row to sort
@@ -233,17 +215,17 @@ public:
     std::string description; // sort description for (e.g.) combo box?
     int width; // for StringGrid::ColWidths[]
     bool sortAsc;
-//    void sort_asc() { std::sort(vec.begin(), vec.end(), sort_func_asc);  }
-//    void sort_dsc() { std::sort(vec.rbegin(), vec.rend(), sort_func_asc);  }
-    void sort_asc() { std::sort(vec->begin(), vec->end(), sort_func_asc);  }
+    void sort_asc() { std::sort(vec->begin(), vec->end(), sort_func_asc);  } // dot notation: vec.begin() also works - how?
     void sort_dsc() { std::sort(vec->rbegin(), vec->rend(), sort_func_asc);  }
     void sort_toggle(std::vector<T *> & vec) { sortAsc ? sort_asc() : sort_dsc(); sortAsc = !sortAsc; }
 };
 
-
 enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
+
 static const char * sgChunksColName[SGCHUNKS_NUMCOLS]   = { "Section", "Start", "End", "Size" };
+
 static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 200, 200, 200, 200 };
+
 class Chunk { // not recorded in database
 public:
     Chunk() : section(0), start("start"), end("end") { }
@@ -253,14 +235,16 @@ public:
     string      start;
     string      end;
 };
-typedef std::vector< Chunk * >  vecpChunk;
+
+typedef std::vector< Chunk * > vecpChunk;
 
 class SampleChunk : public Chunk {
 public:
     //~SampleChunk() { delete_referenced<vecpSampleRow>(rows); } // rows allocated in 'vials' ie. vector of all rows -
-    //vecpSampleRow   rows;
-    std::vector<SampleRow *> rows;
+    vecpSampleRow   rows;
+    //std::vector<SampleRow *> rows;
 };
+
 typedef std::vector< SampleChunk * >  vecpSampleChunk;
 
 class BoxChunk : public Chunk {
@@ -268,10 +252,13 @@ public:
     ~BoxChunk() { delete_referenced<vecpBoxRow>(rows); }
     vecpBoxRow      rows;
 };
+
 typedef std::vector< BoxChunk * >  vecpBoxChunk;
 
 enum { SGJOBS_DESCRIP, SGJOBS_JOBTYPE, SGJOBS_STATUS, SGJOBS_PRIMARY, SGJOBS_SECONDARY, SGJOBS_PROJECT, SGJOBS_REASON, SGJOBS_TIMESTAMP, SGJOBS_NUMCOLS };
+
 static const char * sgJobsColName[SGJOBS_NUMCOLS]   = { "Description", "Job type", "Status", "Primary Aliquot", "Secondary Aliquot", "Project", "Reason", "Timestamp" };
+
 static const int    sgJobsColWidth[SGJOBS_NUMCOLS]  =  {359, 105, 88, 88, 134, 103, 177, 127 };
 
 static const char * jobStatusString(short status) {
@@ -283,6 +270,7 @@ static const char * jobTypeString(short status) {
     static const char * jobTypeStrings[] = { "Unknown", "Box move", "Box retrieval", "Box discard", "Sample retrieval", "Sample discard", "NUM_TYPES" };
     return status < LCDbCryoJob::JobKind::NUM_TYPES ? jobTypeStrings[status] : "Invalid";
 };
+
 typedef std::vector<LCDbCryoJob *> tdvecpJob;
 
 class TfrmRetrievalAssistant : public TForm {
@@ -336,5 +324,6 @@ public:
     __fastcall TfrmRetrievalAssistant(TComponent* Owner);
     void init();
 };
+
 extern PACKAGE TfrmRetrievalAssistant *frmRetrievalAssistant;
 #endif

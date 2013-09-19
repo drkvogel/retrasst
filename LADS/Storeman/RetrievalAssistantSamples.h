@@ -8,6 +8,7 @@
 #include <Vcl.Grids.hpp>
 #include <Vcl.ComCtrls.hpp>
 #include <sstream>
+#include <iterator>
 #include "LCDbJob.h"
 #include "RetrievalAssistant.h"
 
@@ -32,18 +33,19 @@ class SgData {
 enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
         SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
         SGVIALS_NUMCOLS};
+
 static const char * sgVialColName[SGVIALS_NUMCOLS] = {"Barcode", "Aliquot", "Curr box", "Pos", "Dest box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
+
 static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 100, 275, 43, 275, 37, 64, 50, 43, 100, 121, 40};
 
 class LoadVialsWorkerThread : public TThread {
-private:
 protected:
     void __fastcall Execute();
 public:
     __fastcall LoadVialsWorkerThread();
     int             rowCount;
     string          loadingMessage;
-    void __fastcall updateStatus(); // syncronized methods can't have args
+    void __fastcall updateStatus(); // synchronized methods can't have args
 };
 
 //extern Sorter<SampleRow> sorter[SGVIALS_NUMCOLS];
