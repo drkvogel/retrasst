@@ -1,13 +1,42 @@
 ﻿t_ldb1_ddb
 
+(* == has locations)
+### throwing errors
+SEARCH May 2008
+SEARCH BC Aug 2009 : Aug 2009 SEARCH Buffy Coat retrieval
+* A cryovial retrieval for Chris
+SEARCH BC 2003 : 2003 SEARCH Buffy Coat retrieval
+
+"An empty retrieval list" - null chunk!
+
+### not throwing errors? 
+THRIVE Lp(a) baseline : THRIVE Lp(a) analysis (big!)
+SEARCH EDTA_1 Oct 2012 : Oct 2012 retrieval for myopathy biomarker
+bianca rocca (box retrieval)
+Retrieval_2415 : A job with a few THRIVE cryovial (no cryvials though?)
+* Retrieval_2418 : Another THRIVE sample retrieval
+
+must be thread-related? e.g. sample->store_record->getBoxID()?
+non-threaded version seems ok... something in worker thread must be doing something gui-related... one of the classes descended from a VCL class?
+
 002000758 EDTA_BC SEARCH Buffy 7 / SEARCH buffy coat retrieval 330 Pos 8 
   Position give EAccessViolation and corrupt position, break on 
 		if (found != samples.end()) { // fill in box location from cache map
-            sample->site_name       = (*(found->second)).site_name;
+            sample->site_name       = (*(found->second)).site_name; <-- here
             sample->position        = (*(found->second)).position;
-            sample->vessel_name     = (*(found->second)).vessel_name;
+            sample->vessel_name     = (*(found->second)).vessel_name; <-- or here
+or
+002000758 src box_id -40269
 
+double-clicking a sample/box should mark the end of a chunk and create a new one
 
+i started the coldef thing because I put the aliquot column in and it threw all the sorters out
+
+---
+sorters are not on correct columns; ColDef class is supposed to prevent this
+'sorting' a column where values are largely the same (e.g. dest box "Example retrieval box 9") results in almost random sorting
+things are 
+            
 # Sorting out the Sorter
 
    Test(std::vector<T *> & v) : vec(v) {}

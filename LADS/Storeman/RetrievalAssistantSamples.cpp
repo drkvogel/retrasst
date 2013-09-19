@@ -404,8 +404,9 @@ void TfrmSamples::loadRows() {
     Screen->Cursor = crSQLWait; // disable mouse?
     //ShowCursor(false);
     Enabled = false;
-    loadVialsWorkerThread = new LoadVialsWorkerThread();
-    loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
+    //loadVialsWorkerThread = new LoadVialsWorkerThread();
+    //loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
+    loadRowsNotAThread();
 }
 
 __fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
@@ -500,7 +501,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
                 sample->slot_position   = (*(found->second)).slot_position; // box position, not cryovial_position
                 oss<<"(cached)";
             } else {
-                if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) { //ge->copyLocation(result);
+                if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
                     sample->site_name       = result.getString("site_name");
                     sample->position        = result.getInt("rack_pos"); // "position" should be "rack_pos" or similar to diff from slot
                     sample->vessel_name     = result.getString("vessel_name");
@@ -531,6 +532,122 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         loadingMessage = oss.str().c_str();
         Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
 	} //progress -> StepIt(); //drawGrid(); //Application -> ProcessMessages();
+}
+
+void TfrmSamples::loadRowsNotAThread() {
+    int rowCount = 0;
+    LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
+    qd.setSQL( // from spec 2013-09-11
+        "SELECT"
+        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
+        "  cryovial_barcode, t.external_name AS aliquot,"
+        "  b1.box_cid as source_id,"
+        "  b1.external_name as source_name,"
+        "  s1.cryovial_position as source_pos,"
+        "  s2.box_cid as dest_id,"
+        "  b2.external_name as dest_name,"
+        "  s2.cryovial_position as dest_pos"
+        " FROM"
+        "  cryovial c, cryovial_store s1, box_name b1,"
+        "  cryovial_store s2, box_name b2,"
+        "  c_object_name t"
+        " WHERE"
+        "  c.cryovial_id = s1.cryovial_id AND"
+        "  b1.box_cid = s1.box_cid AND"
+        "  s1.cryovial_id = s2.cryovial_id AND"
+        "  s2.status = 0 AND"
+        "  b2.box_cid = s2.box_cid AND"
+        "  t.object_cid = aliquot_type_cid AND"
+        "  s1.retrieval_cid = :jobID"
+        " ORDER BY"
+        "  cryovial_barcode"
+        );
+    qd.setParam("jobID", job->getID());
+    loadingMessage = loadingMessage;
+    qd.open();
+    while (!qd.eof()) {
+//        if (0 == rowCount % 10) {
+//            ostringstream oss; oss<<"Found "<<rowCount<<" vials";
+//            loadingMessage = oss.str().c_str();
+//            Synchronize((TThreadMethod)&updateStatus);
+//        }
+        SampleRow * row = new SampleRow(
+            new LPDbCryovialStore(qd),
+            qd.readString(  "cryovial_barcode"),
+            qd.readString(  "aliquot"),
+            qd.readInt(     "source_id"),
+            qd.readString(  "source_name"),
+            qd.readInt(     "source_pos"),
+            qd.readInt(     "dest_id"),
+            qd.readString(  "dest_name"),
+            qd.readInt(     "dest_pos"),
+            "", 0, "", 0, "", 0 ); // no storage details yet
+        vials.push_back(row);
+        qd.next();
+        rowCount++;
+    }
+
+    // src_box_id is redundant? use sample->store_record->getBoxID()
+
+    // find the locations of the (src and destination?) boxes
+    static std::map<int, const SampleRow *> samples;
+	ROSETTA result;
+	StoreDAO dao;
+    int rowCount2 = 0;
+	for (std::vector<SampleRow *>::iterator it = vials.begin(); it != vials.end(); ++it, rowCount2++) {
+        SampleRow * sample = *it;
+        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]";
+
+        try {
+            std::map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
+            if (found != samples.end()) { // fill in box location from cache map
+                sample->site_name       = (*(found->second)).site_name;
+                sample->position        = (*(found->second)).position;
+                sample->vessel_name     = (*(found->second)).vessel_name;
+                sample->shelf_number    = (*(found->second)).shelf_number;
+                sample->structure_name  = (*(found->second)).structure_name;
+                sample->slot_position   = (*(found->second)).slot_position; // box position, not cryovial_position
+                oss<<"(cached)";
+            } else {
+                if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
+                    sample->site_name       = result.getString("site_name");
+                    sample->position        = result.getInt("rack_pos"); // "position" should be "rack_pos" or similar to diff from slot
+                    sample->vessel_name     = result.getString("vessel_name");
+                    sample->shelf_number    = result.getInt("shelf_number");
+                    sample->structure_name  = result.getString("structure");
+                    sample->slot_position   = result.getInt("slot_position");
+                    oss<<"(db)";
+                } else {
+                    sample->site_name       = "not found";
+                    sample->position        = 0;
+                    sample->vessel_name     = "not found";
+                    sample->shelf_number    = 0;
+                    sample->structure_name  = "not found";
+                    sample->slot_position   = 0;
+                    oss<<"(not found)";
+                }
+                samples[sample->store_record->getBoxID()] = (*it); // cache result
+            }
+            oss<<sample->storage_str();
+        } catch (...) {
+            sample->site_name       = "error!";
+            sample->position        = -1;
+            sample->vessel_name     = "error!";
+            sample->shelf_number    = -1;
+            sample->structure_name  = "error!";
+            sample->slot_position   = -1;
+        }
+        //loadingMessage = oss.str().c_str();
+        //Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
+	} //progress -> StepIt(); //drawGrid(); //Application -> ProcessMessages();
+    progressBottom->Style = pbstNormal; progressBottom->Visible = false;
+    panelLoading->Visible = false;
+    chunks.clear();
+    clearSG(sgChunks);
+    addChunk(); // default chunk
+    showChunks();
+    Screen->Cursor = crDefault;
+    Enabled = true;
 }
 
 void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {

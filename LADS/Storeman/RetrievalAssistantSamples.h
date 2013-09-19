@@ -104,6 +104,7 @@ __published:
 private:
     LoadVialsWorkerThread *     loadVialsWorkerThread;
     void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
+    void                        loadRowsNotAThread(); // testing
     LCDbCryoJob *               job;
     std::vector<SampleChunk *>  chunks;
     //std::vector<SampleRow *>    vials;      // all vials loadedvecpSampleRow
