@@ -144,7 +144,7 @@ public:
     string              dest_box_name;
     int                 dest_box_pos;
     string              site_name;
-    int                 position;
+    int                 position; //rack_pos;?
     string              vessel_name;
     int                 shelf_number;
     string              structure_name;
@@ -174,6 +174,28 @@ public:
     static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
     static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->slot_position < b->slot_position; }
 
+//    copyLocation(const SampleRow & other) {
+//        site_name       = other.site_name;
+//        rack_pos        = other.rack_pos;
+//        vessel_name     = other.vessel_name;
+//        shelf_number    = other.shelf_number;
+//        structure_name  = other.structure_name;
+//        slot_position   = other.slot_position;
+//    }
+//
+//    void copyLocation(const ROSETTA & row) {
+//        site_name       = row.getString("site_name");
+//        rack_pos    = row.getInt("rack_pos");
+//        location    = row.getInt("tank_pos");
+//        vessel      = row.getString("vessel_name");
+//        shelf       = row.getInt("shelf_number");
+//        structure   = row.getString("structure");
+//        slot        = row.getInt("slot_position");
+//    }
+
+    // position vs rack_pos vs tank_pos?
+    // src_box_pos is dupe of store_record->getPosition()
+
     string str() {
         ostringstream oss; oss<<__FUNC__
         //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position
@@ -181,11 +203,11 @@ public:
             <<"status: "<<(store_record->getStatus())<<", "
         // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position
             //<<"barcode: "<<store_record->getBarcode()
-            //<<"boxID"<<store_record->getBoxID()
-            //<<"sampleID"<<store_record->getSampleID()
-            //<<"aliquot type ID"<<store_record->getAliquotType()
-            //<<"status"<<store_record->getStatus()<<", "
-            //<<"position"<<store_record->getPosition()<<", "
+            //<<"boxID"<<cryo_record->getBoxID()
+            //<<"sampleID"<<cryo_record->getSampleID()
+            //<<"aliquot type ID"<<cryo_record->getAliquotType()
+            <<"status"<<store_record->getStatus()<<", "
+            <<"position"<<store_record->getPosition()<<", "
         // SampleRow
             <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquot_type_name<<", "
             <<"src: {"<<src_box_id<<", "<<src_box_name<<"["<<src_box_pos<<"]}, "

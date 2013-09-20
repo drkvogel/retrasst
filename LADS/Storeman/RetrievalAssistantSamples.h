@@ -36,7 +36,8 @@ enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVI
 
 static const char * sgVialColName[SGVIALS_NUMCOLS] = {"Barcode", "Aliquot", "Curr box", "Pos", "Dest box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
 
-static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 100, 275, 43, 275, 37, 64, 50, 43, 100, 121, 40};
+static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 100, 275, 43, 275, 37, 116, 50, 43, 100, 121, 40};
+
 
 class LoadVialsWorkerThread : public TThread {
 protected:
@@ -104,7 +105,7 @@ __published:
 private:
     LoadVialsWorkerThread *     loadVialsWorkerThread;
     void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
-    void                        loadRowsNotAThread(); // testing
+
     LCDbCryoJob *               job;
     std::vector<SampleChunk *>  chunks;
     //std::vector<SampleRow *>    vials;      // all vials loadedvecpSampleRow

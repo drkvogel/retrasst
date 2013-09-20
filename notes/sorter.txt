@@ -1,41 +1,13 @@
-﻿t_ldb1_ddb
+﻿
 
-(* == has locations)
-### throwing errors
-SEARCH May 2008
-SEARCH BC Aug 2009 : Aug 2009 SEARCH Buffy Coat retrieval
-* A cryovial retrieval for Chris
-SEARCH BC 2003 : 2003 SEARCH Buffy Coat retrieval
+
 
 "An empty retrieval list" - null chunk!
+    
+position vs rack_pos vs tank_pos?
+    
+what is paul doing with lua?
 
-### not throwing errors? 
-THRIVE Lp(a) baseline : THRIVE Lp(a) analysis (big!)
-SEARCH EDTA_1 Oct 2012 : Oct 2012 retrieval for myopathy biomarker
-bianca rocca (box retrieval)
-Retrieval_2415 : A job with a few THRIVE cryovial (no cryvials though?)
-* Retrieval_2418 : Another THRIVE sample retrieval
-
-must be thread-related? e.g. sample->store_record->getBoxID()?
-non-threaded version seems ok... something in worker thread must be doing something gui-related... one of the classes descended from a VCL class?
-void __fastcall LCDbCryoJobs::Renewal(TObject *)? timer in main thread though so should be ok
-what if I take the synchronized updateStatus calls out?
-  looked promising, but still crashing
-be pragmatic, it seems to work non-threaded.
-still much faster when locations are found, shouldn't be - is the query messing things up?
-no, still crashes on notAThread
-    on second load of same job
-    vials not being reset/deleted?
-    some other change I've made recently - follow it through from the start
-
-002000758 EDTA_BC SEARCH Buffy 7 / SEARCH buffy coat retrieval 330 Pos 8 
-  Position give EAccessViolation and corrupt position, break on 
-		if (found != samples.end()) { // fill in box location from cache map
-            sample->site_name       = (*(found->second)).site_name; <-- here
-            sample->position        = (*(found->second)).position;
-            sample->vessel_name     = (*(found->second)).vessel_name; <-- or here
-or
-002000758 src box_id -40269
 
 double-clicking a sample/box should mark the end of a chunk and create a new one
 
@@ -143,3 +115,38 @@ public:
     void sort_toggle(std::vector<T *> & vec) { sort(vec, TOGGLE);  }
 };
 
+---
+002000758 EDTA_BC SEARCH Buffy 7 / SEARCH buffy coat retrieval 330 Pos 8 
+  Position give EAccessViolation and corrupt position, break on 
+		if (found != samples.end()) { // fill in box location from cache map
+            sample->site_name       = (*(found->second)).site_name; <-- here
+            sample->position        = (*(found->second)).position;
+            sample->vessel_name     = (*(found->second)).vessel_name; <-- or here
+t_ldb1_ddb
+(* == has locations)
+### throwing errors
+SEARCH May 2008
+SEARCH BC Aug 2009 : Aug 2009 SEARCH Buffy Coat retrieval
+* A cryovial retrieval for Chris
+SEARCH BC 2003 : 2003 SEARCH Buffy Coat retrieval
+
+### not throwing errors? 
+THRIVE Lp(a) baseline : THRIVE Lp(a) analysis (big!)
+SEARCH EDTA_1 Oct 2012 : Oct 2012 retrieval for myopathy biomarker
+bianca rocca (box retrieval)
+Retrieval_2415 : A job with a few THRIVE cryovial (no cryvials though?)
+* Retrieval_2418 : Another THRIVE sample retrieval
+
+must be thread-related? e.g. sample->store_record->getBoxID()?
+non-threaded version seems ok... something in worker thread must be doing something gui-related... one of the classes descended from a VCL class?
+void __fastcall LCDbCryoJobs::Renewal(TObject *)? timer in main thread though so should be ok
+what if I take the synchronized updateStatus calls out?
+  looked promising, but still crashing
+be pragmatic, it seems to work non-threaded.
+still much faster when locations are found, shouldn't be - is the query messing things up?
+no, still crashes on notAThread
+    on second load of same job <-- code smell
+    vials not being reset/deleted?
+    some other change I've made recently - follow it through from the start   
+    unitialized map? clear?
+    it was because the map was static
