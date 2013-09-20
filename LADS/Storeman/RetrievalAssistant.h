@@ -137,14 +137,12 @@ public:
     LPDbCryovialStore * store_record;
     string              cryovial_barcode;
     string              aliquot_type_name;
-    int                 src_box_id; // redundant, use sample->store_record->getBoxID() instead?
-    string              src_box_name;
-    int                 src_box_pos;
+    string              src_box_name; // id and pos are in store_record
     int                 dest_box_id;
     string              dest_box_name;
-    int                 dest_box_pos;
+    int                 dest_box_pos;   // cryovial_position
     string              site_name;
-    int                 position; //rack_pos;?
+    int                 rack_pos;       // c_rack_number.position as rack_pos
     string              vessel_name;
     int                 shelf_number;
     string              structure_name;
@@ -153,14 +151,14 @@ public:
     ~SampleRow() { if (store_record) delete store_record; }
     SampleRow(  LPDbCryovialStore * store_rec,
                 string barcode, string aliquot,
-                int src_id, string src_name, int src_pos,
+                string src_name,
                 int dest_id, string dest_name, int dest_pos,
                 string site, int pos, string vessel, int shelf, string rack, int slot) :
         store_record(store_rec),
         cryovial_barcode(barcode), aliquot_type_name(aliquot),
-        src_box_id(src_id), src_box_name(src_name), src_box_pos(src_pos),
+        src_box_name(src_name),
         dest_box_id(dest_id), dest_box_name(dest_name), dest_box_pos(dest_pos),
-        site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), structure_name(rack), slot_position(slot) {}
+        site_name(site), rack_pos(pos), vessel_name(vessel), shelf_number(shelf), structure_name(rack), slot_position(slot) {}
 
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
     static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
@@ -168,7 +166,7 @@ public:
     static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
     static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_box_pos < b->dest_box_pos; }
     static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
-    static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->position < b->position; }
+    static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->rack_pos < b->rack_pos; }
     static bool sort_asc_shelf(const SampleRow *a, const SampleRow *b)      { return a->shelf_number < b->shelf_number; }
     static bool sort_asc_vessel(const SampleRow *a, const SampleRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
     static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
@@ -194,7 +192,6 @@ public:
 //    }
 
     // position vs rack_pos vs tank_pos?
-    // src_box_pos is dupe of store_record->getPosition()
 
     string str() {
         ostringstream oss; oss<<__FUNC__
@@ -210,14 +207,14 @@ public:
             <<"position"<<store_record->getPosition()<<", "
         // SampleRow
             <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquot_type_name<<", "
-            <<"src: {"<<src_box_id<<", "<<src_box_name<<"["<<src_box_pos<<"]}, "
+            <<"src: {"<<store_record->getBoxID()<<", "<<src_box_name<<"["<<store_record->getPosition()<<"]}, "
             <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_box_pos<<"]}, "
             <<"loc: {"<<storage_str()<<"}";
         return oss.str();
     };
     string storage_str() {
         ostringstream oss;
-            oss<<site_name<<"["<<position<<"]: "<<vessel_name
+            oss<<site_name<<"["<<rack_pos<<"]: "<<vessel_name
             <<" ["<<shelf_number<<"]/"<<structure_name<<"["<<slot_position<<"]";
         return oss.str();
     }

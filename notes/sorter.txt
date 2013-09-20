@@ -1,10 +1,42 @@
-﻿
+﻿sample grid - shelf and vessel wrong way round
 
+ColDef
 
+                            SampleRow(
+                               LPDbCryovialStore * store_rec[
+                               LPDbID               cryovial_store.cryovial_id
+                               LDbNoteCount         cryovial_store.Note_Exists
+                               retrievalID          cryovial_store.retrieval_cid
+                               boxID                cryovial_store.box_cid
+                               status               cryovial_store.status
+                               position             cryovial_store.cryovial_position
+                               cryovialID],         cryovial_store.cryovial_id
+string cryovial_barcode     barcode,                cryovial_barcode
+string aliquot_type_name    aliquot,                aliquot_type_cid
+string src_box_name         string src_name,        box_name.external_name
+int dest_box_id             dest_id,                s2.box_cid
+string dest_box_name        dest_name,              b2.external_name
+int dest_box_pos            dest_pos                cryovial_position as dest_pos //position of cryovial in box/sample rack
+string site_name            site, 
+int rack_pos                pos, //?                c_rack_number.position as rack_pos
+    // "The position of this structure within the population. The first structure in the first section is at position 1"
+                    string vessel, 
+                    int shelf, 
+                    string rack, 
+int slot_position   int slot)              slot_position
+                    ?                      c_tank_map.position as tank_pos?
+    // "The (current) position of the vessel at that site"
+    
+                                            
+                                            
+                                            
+copyLocation
+    position vs rack_pos vs tank_pos?
+        src_box_pos is dupe of store_record->getPosition()
 
 "An empty retrieval list" - null chunk!
     
-position vs rack_pos vs tank_pos?
+
     
 what is paul doing with lua?
 
@@ -150,3 +182,8 @@ no, still crashes on notAThread
     some other change I've made recently - follow it through from the start   
     unitialized map? clear?
     it was because the map was static
+
+take out dupes:
+int src_box_pos             s1.cryovial_position as source_pos // dupe
+int src_box_id,             cryovial_store.box_cid // dupe
+    

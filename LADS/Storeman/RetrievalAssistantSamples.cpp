@@ -306,11 +306,11 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         sgVials->Cells[SGVIALS_DESTBOX] [row]    = sampleRow->dest_box_name.c_str();
         sgVials->Cells[SGVIALS_DESTPOS] [row]    = sampleRow->dest_box_pos;
         sgVials->Cells[SGVIALS_CURRBOX] [row]    = sampleRow->src_box_name.c_str();
-        sgVials->Cells[SGVIALS_CURRPOS] [row]    = sampleRow->slot_position;
+        sgVials->Cells[SGVIALS_CURRPOS] [row]    = sampleRow->store_record->getPosition();
         sgVials->Cells[SGVIALS_SITE]    [row]    = sampleRow->site_name.c_str();
-        sgVials->Cells[SGVIALS_POSITION][row]    = sampleRow->position;
-        sgVials->Cells[SGVIALS_SHELF]   [row]    = sampleRow->shelf_number;
+        sgVials->Cells[SGVIALS_POSITION][row]    = sampleRow->rack_pos;
         sgVials->Cells[SGVIALS_VESSEL]  [row]    = sampleRow->vessel_name.c_str();
+        sgVials->Cells[SGVIALS_SHELF]   [row]    = sampleRow->shelf_number;
         sgVials->Cells[SGVIALS_STRUCTURE][row]   = sampleRow->structure_name.c_str();
         sgVials->Cells[SGVIALS_SLOT]    [row]    = sampleRow->slot_position;
         sgVials->Objects[0][row] = (TObject *)sampleRow;
@@ -400,12 +400,10 @@ void TfrmSamples::loadRows() {
     panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
-    Screen->Cursor = crSQLWait; // disable mouse?
-    //ShowCursor(false);
+    Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
     Enabled = false;
     loadVialsWorkerThread = new LoadVialsWorkerThread();
     loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
-    //loadRowsNotAThread();
 }
 
 __fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
@@ -464,9 +462,9 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             new LPDbCryovialStore(qd),
             qd.readString(  "cryovial_barcode"),
             qd.readString(  "aliquot"),
-            qd.readInt(     "source_id"),
+            //qd.readInt(     "source_id"),
             qd.readString(  "source_name"),
-            qd.readInt(     "source_pos"),
+            //qd.readInt(     "source_pos"),
             qd.readInt(     "dest_id"),
             qd.readString(  "dest_name"),
             qd.readInt(     "dest_pos"),
@@ -488,7 +486,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             std::map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
             if (found != samples.end()) { // fill in box location from cache map
                 sample->site_name       = (*(found->second)).site_name;
-                sample->position        = (*(found->second)).position;
+                sample->rack_pos        = (*(found->second)).rack_pos;
                 sample->vessel_name     = (*(found->second)).vessel_name;
                 sample->shelf_number    = (*(found->second)).shelf_number;
                 sample->structure_name  = (*(found->second)).structure_name;
@@ -497,7 +495,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             } else {
                 if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
                     sample->site_name       = result.getString("site_name");
-                    sample->position        = result.getInt("rack_pos"); // "position" should be "rack_pos" or similar to diff from slot
+                    sample->rack_pos        = result.getInt("rack_pos"); // "position" should be "rack_pos" or similar to diff from slot
                     sample->vessel_name     = result.getString("vessel_name");
                     sample->shelf_number    = result.getInt("shelf_number");
                     sample->structure_name  = result.getString("structure");
@@ -505,7 +503,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
                     oss<<"(db)";
                 } else {
                     sample->site_name       = "not found";
-                    sample->position        = 0;
+                    sample->rack_pos        = 0;
                     sample->vessel_name     = "not found";
                     sample->shelf_number    = 0;
                     sample->structure_name  = "not found";
@@ -517,7 +515,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             oss<<sample->storage_str();
         } catch (...) {
             sample->site_name       = "error!";
-            sample->position        = -1;
+            sample->rack_pos        = -1;
             sample->vessel_name     = "error!";
             sample->shelf_number    = -1;
             sample->structure_name  = "error!";
@@ -525,7 +523,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         }
         loadingMessage = oss.str().c_str();
         Synchronize((TThreadMethod)&updateStatus);
-	} //progress -> StepIt(); //drawGrid(); //Application -> ProcessMessages();
+	}
 }
 
 void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
