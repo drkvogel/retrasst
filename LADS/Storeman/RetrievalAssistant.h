@@ -137,61 +137,78 @@ public:
     LPDbCryovialStore * store_record;
     string              cryovial_barcode;
     string              aliquot_type_name;
-    string              src_box_name; // id and pos are in store_record
+    string              src_box_name; // id and cryo pos are in store_record
     int                 dest_box_id;
     string              dest_box_name;
-    int                 dest_box_pos;   // cryovial_position
+    int                 dest_cryo_pos;   // cryovial_position
     string              site_name;
-    int                 rack_pos;       // c_rack_number.position as rack_pos
+    int                 vessel_pos;
     string              vessel_name;
     int                 shelf_number;
+    int                 structure_pos;       // c_rack_number.position as rack_pos
     string              structure_name;
-    int                 slot_position;
+    int                 box_pos;
     SampleRow() {}
     ~SampleRow() { if (store_record) delete store_record; }
     SampleRow(  LPDbCryovialStore * store_rec,
                 string barcode, string aliquot,
                 string src_name,
                 int dest_id, string dest_name, int dest_pos,
-                string site, int pos, string vessel, int shelf, string rack, int slot) :
+                string site, int vssl_pos, string vssl_name, int shelf, int strct_pos, string strct_name, int slot) :
         store_record(store_rec),
         cryovial_barcode(barcode), aliquot_type_name(aliquot),
         src_box_name(src_name),
-        dest_box_id(dest_id), dest_box_name(dest_name), dest_box_pos(dest_pos),
-        site_name(site), rack_pos(pos), vessel_name(vessel), shelf_number(shelf), structure_name(rack), slot_position(slot) {}
+        dest_box_id(dest_id), dest_box_name(dest_name), dest_cryo_pos(dest_pos),
+        site_name(site), vessel_pos(vssl_pos), vessel_name(vssl_name), shelf_number(shelf), structure_pos(strct_pos), structure_name(strct_name), box_pos(slot) {}
 
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
     static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
     static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
     static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
-    static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_box_pos < b->dest_box_pos; }
+    static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_cryo_pos < b->dest_cryo_pos; }
     static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
-    static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->rack_pos < b->rack_pos; }
+    static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->structure_pos < b->structure_pos; }
     static bool sort_asc_shelf(const SampleRow *a, const SampleRow *b)      { return a->shelf_number < b->shelf_number; }
     static bool sort_asc_vessel(const SampleRow *a, const SampleRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
     static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
-    static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->slot_position < b->slot_position; }
+    static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->box_pos < b->box_pos; }
+/* site_name;
+vessel_pos;
+vessel_name;
+shelf_number;
+structure_pos;
+structure_name;
+box_pos; */
 
-//    copyLocation(const SampleRow & other) {
-//        site_name       = other.site_name;
-//        rack_pos        = other.rack_pos;
-//        vessel_name     = other.vessel_name;
-//        shelf_number    = other.shelf_number;
-//        structure_name  = other.structure_name;
-//        slot_position   = other.slot_position;
-//    }
-//
-//    void copyLocation(const ROSETTA & row) {
-//        site_name       = row.getString("site_name");
-//        rack_pos    = row.getInt("rack_pos");
-//        location    = row.getInt("tank_pos");
-//        vessel      = row.getString("vessel_name");
-//        shelf       = row.getInt("shelf_number");
-//        structure   = row.getString("structure");
-//        slot        = row.getInt("slot_position");
-//    }
+    void setLocation(string site, int vssl_pos, string vssl_name, int shelf, int strctr_pos, string strctr_name, int boxpos) {
+        site_name       = site;
+        vessel_pos      = vssl_pos;
+        vessel_name     = vssl_name;
+        shelf_number    = shelf;
+        structure_pos   = strctr_pos;
+        structure_name  = strctr_name;
+        box_pos         = boxpos;
+    }
 
-    // position vs rack_pos vs tank_pos?
+    void copyLocation(const SampleRow & other) {
+        site_name       = other.site_name;
+        vessel_pos      = other.vessel_pos;
+        vessel_name     = other.vessel_name;
+        shelf_number    = other.shelf_number;
+        structure_pos   = other.structure_pos;
+        structure_name  = other.structure_name;
+        box_pos         = other.box_pos;
+    }
+
+    void copyLocation(const ROSETTA & row) {
+        site_name       = row.getString("site_name");
+        vessel_pos      = row.getInt("tank_pos");
+        vessel_name     = row.getString("vessel_name");
+        shelf_number    = row.getInt("shelf_number");
+        structure_pos   = row.getInt("rack_pos");
+        structure_name  = row.getString("structure");
+        box_pos         = row.getInt("slot_position");
+    }
 
     string str() {
         ostringstream oss; oss<<__FUNC__
@@ -208,14 +225,14 @@ public:
         // SampleRow
             <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquot_type_name<<", "
             <<"src: {"<<store_record->getBoxID()<<", "<<src_box_name<<"["<<store_record->getPosition()<<"]}, "
-            <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_box_pos<<"]}, "
+            <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_cryo_pos<<"]}, "
             <<"loc: {"<<storage_str()<<"}";
         return oss.str();
     };
     string storage_str() {
         ostringstream oss;
-            oss<<site_name<<"["<<rack_pos<<"]: "<<vessel_name
-            <<" ["<<shelf_number<<"]/"<<structure_name<<"["<<slot_position<<"]";
+            oss<<site_name<<"["<<vessel_pos<<"]: "<<vessel_name<<":"<<shelf_number
+            <<"["<<structure_pos<<"]/"<<structure_name<<"["<<box_pos<<"]";
         return oss.str();
     }
 };

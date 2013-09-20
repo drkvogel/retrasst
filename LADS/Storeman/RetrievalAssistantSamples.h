@@ -36,7 +36,7 @@ enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVI
 
 static const char * sgVialColName[SGVIALS_NUMCOLS] = {"Barcode", "Aliquot", "Curr box", "Pos", "Dest box", "Pos", "Site", "Position", "Vessel", "Shelf", "Structure", "Slot"};
 
-static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 100, 275, 43, 275, 37, 116, 50, 100, 43, 121, 40};
+static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 100, 275, 43, 213, 37, 116, 50, 100, 43, 121, 40};
 
 class LoadVialsWorkerThread : public TThread {
 protected:
