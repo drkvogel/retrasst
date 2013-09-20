@@ -162,6 +162,7 @@ public:
         site_name(site), vessel_pos(vssl_pos), vessel_name(vssl_name), shelf_number(shelf), structure_pos(strct_pos), structure_name(strct_name), box_pos(slot) {}
 
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
+    static bool sort_asc_aliquot(const SampleRow *a, const SampleRow *b)    { return a->aliquot_type_name.compare(b->aliquot_type_name); }
     static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
     static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
     static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
@@ -239,21 +240,57 @@ box_pos; */
 
 typedef std::vector<SampleRow *> vecpSampleRow;
 
-template <class T> // T is type of row to sort
-class ColDef {
+//template <class T> // T is type of row to sort
+//class ColDef {
+//public:
+//    ColDef() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false) {} //, vec(NULL) { }
+//    ColDef(std::vector<T *> * v, bool (*f)(const T *, const T *), std::string n, std::string d, int w) :
+//        vec(v), sort_func_asc(f), name(n), description(d), width(w), sortAsc(false) {}
+//    std::vector<T *> * vec;
+//    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
+//    std::string name;
+//    std::string description; // sort description for (e.g.) combo box?
+//    int width; // for StringGrid::ColWidths[]
+//    bool sortAsc;
+//    void sort_asc() { std::sort(vec->begin(), vec->end(), sort_func_asc);  } // dot notation: vec.begin() also works - how?
+//    void sort_dsc() { std::sort(vec->rbegin(), vec->rend(), sort_func_asc);  }
+//    void sort_toggle(std::vector<T *> & vec) { sortAsc ? sort_asc() : sort_dsc(); sortAsc = !sortAsc; }
+//};
+
+/*ColDef<SampleRow> sgVialsCol[] = {
+     ColDef<SampleRow>(&vials, sort_asc_barcode, "name", "desc", 100),
+     ColDef<SampleRow>(&vials, sort_asc_barcode, "name", "desc", 200)
+     // etc
+};*/
+
+// encapsulate data about a stringgrid in a class?
+template <class T> // T is type of data in rows
+class SGWrapper {
+    TStringGrid * sg;
+    std::vector<T *> * rows;
 public:
-    ColDef() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false) {} //, vec(NULL) { }
-    ColDef(std::vector<T *> * v, bool (*f)(const T *, const T *), std::string n, std::string d, int w) :
-        vec(v), sort_func_asc(f), name(n), description(d), width(w), sortAsc(false) {}
-    std::vector<T *> * vec;
-    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-    std::string name;
-    std::string description; // sort description for (e.g.) combo box?
-    int width; // for StringGrid::ColWidths[]
-    bool sortAsc;
-    void sort_asc() { std::sort(vec->begin(), vec->end(), sort_func_asc);  } // dot notation: vec.begin() also works - how?
-    void sort_dsc() { std::sort(vec->rbegin(), vec->rend(), sort_func_asc);  }
-    void sort_toggle(std::vector<T *> & vec) { sortAsc ? sort_asc() : sort_dsc(); sortAsc = !sortAsc; }
+    class Col {
+    public:
+        Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false) {} //, vec(NULL) { }
+        Col(bool (*f)(const T *, const T *), std::string n, std::string d, int w) :
+            sort_func_asc(f), name(n), description(d), width(w), sortAsc(false) {}
+        bool (*sort_func_asc)(const T *, const T *); // ascending sort function
+        std::string name;
+        std::string description; // sort description for (e.g.) combo box?
+        int width; // for StringGrid::ColWidths[]
+        bool sortAsc;
+    };
+    SGWrapper(TStringGrid * g, std::vector<T *> * v) : sg(g), rows(v) {}
+    void addCol(Col c) { cols.push_back(c); sg->ColCount = cols.size(); }
+    void addCol(bool (*f)(const T *, const T *), std::string n, std::string d, int w) {
+        addCol(SGWrapper<SampleRow>::Col(f, n, d, w));
+    }
+    std::vector< Col >cols;
+    int size();
+    //int colNum(std::string colName); // key-value (stl?) lookup func instead of enums; map eg. "barcode" to (column) 4
+    void sort_asc(int col) { std::sort(rows->begin(), rows->end(), cols[col].sort_func_asc);  } // dot notation: vec.begin() also works - how?
+    void sort_dsc(int col) { std::sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc);  }
+    void sort_toggle(int col) { cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc; }
 };
 
 enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;

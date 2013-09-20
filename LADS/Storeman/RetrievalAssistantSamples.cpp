@@ -27,12 +27,23 @@ Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
 static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
-    ColDef<SampleRow> sgVialsCol[] = {
-         ColDef<SampleRow>(&vials, sort_asc_barcode, "name", "desc", 100),
-         ColDef<SampleRow>(&vials, sort_asc_barcode, "name", "desc", 200)
-         // etc
-    };
-    // how to apply sorter to coldef?
+    SGWrapper<SampleRow> sg(sgVials, &vials);
+/*  enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
+        SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_VESSEL, SGVIALS_SHELF, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
+        SGVIALS_NUMCOLS};*/
+    sg.addCol(SampleRow::sort_asc_barcode,  "Barcode",  "", 102);
+    sg.addCol(SampleRow::sort_asc_aliquot,  "Aliquot",  "", 100);
+    sg.addCol(SampleRow::sort_asc_currbox,  "Curr box", "", 275);
+    sg.addCol(SampleRow::sort_asc_currpos,  "Pos",      "", 43);
+    sg.addCol(SampleRow::sort_asc_destbox,  "Dest box", "", 213);
+    sg.addCol(SampleRow::sort_asc_destpos,  "Pos",      "", 37);
+    sg.addCol(SampleRow::sort_asc_site,     "Site",     "", 116);
+    sg.addCol(SampleRow::sort_asc_position, "Position", "", 50); //??
+    sg.addCol(SampleRow::sort_asc_shelf,    "Shelf",    "", 100);
+    sg.addCol(SampleRow::sort_asc_vessel,   "Vessel",   "", 43);
+    sg.addCol(SampleRow::sort_asc_structure,"Structure","", 121);
+    sg.addCol(SampleRow::sort_asc_slot,     "Slot",     "", 40);
+    sg.sort_asc(1);
 }
 
 void TfrmSamples::debugLog(String s) {

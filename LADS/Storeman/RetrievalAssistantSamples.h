@@ -14,21 +14,9 @@
 
 using namespace std;
 
-// spec: show
 // cryovial barcode, destination box, position, current box, position, structure and location of the primary and secondary
 // secondary aliquots: if defined, will be separate rows after all primary aliquots
 // if any primaries fail, these will be marked to make a new chunk of replacements
-
-// encapsulate data about a stringgrid in a class?
-class SgData {
-    // key-value (stl?) lookup func instead of enums; map eg. "barcode" to (column) 4
-    int colNum(std::string colName);
-    TStringGrid *   sg;
-    String          caption;
-    enum            cols {};
-    char *          colnames[];
-    int             colwidths[];
-};
 
 enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
         SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_VESSEL, SGVIALS_SHELF, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
@@ -107,9 +95,7 @@ private:
 
     LCDbCryoJob *               job;
     std::vector<SampleChunk *>  chunks;
-    //std::vector<SampleRow *>    vials;      // all vials loadedvecpSampleRow
-    vecpSampleRow    vials;      // all vials loaded
-    //vecpSampleRow    vials;      // all vials loaded
+    vecpSampleRow               vials;      // all vials in job
     void                        addSorter();
     void                        removeSorter();
     void                        applySort();
@@ -121,7 +107,7 @@ private:
     void                        radgrpRowsChange();
     void                        sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order);
     const char *                loadingMessage;
-    ColDef<SampleRow *>         sgVialsCol[];
+    //ColDef<SampleRow *>         sgVialsCol[];
 public:
     __fastcall                  TfrmSamples(TComponent* Owner);
     void                        debugLog(String s);

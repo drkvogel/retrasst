@@ -11,32 +11,7 @@ in fact, storage details should come after src box
 
 ColDef
 
-Member                      Constructor     Database
 
-                            SampleRow(
-                             LPDbCryovialStore * store_rec[
-                             LPDbID         cryovial_store.cryovial_id
-                             LDbNoteCount   cryovial_store.Note_Exists
-                             retrievalID    cryovial_store.retrieval_cid
-                             boxID          cryovial_store.box_cid
-                             status         cryovial_store.status
-                             position       cryovial_store.cryovial_position
-                             cryovialID],   cryovial_store.cryovial_id
-                             
-string cryovial_barcode     barcode,        cryovial_barcode
-string aliquot_type_name    aliquot,        aliquot_type_cid -> name
-string src_box_name         src_name,       box_name.external_name
-int dest_box_id             dest_id,        s2.box_cid
-string dest_box_name        dest_name,      b2.external_name
-int dest_box_pos            dest_pos        cryovial_position as dest_pos  # pos of cryovial in box/sample rack
-
-string site_name            site,           c_tank_map.location_cid -> name
-int vessel_pos              tank_pos,       c_tank_map.position as tank_pos? # current pos of vessel at site
-string vessel_name          vessel,         c_tank_map.storage_cid -> name
-int shelf_number            shelf,          c_tank_map.shelf_number # current pos of population within vessel (0: single population)                                
-int structure_pos           rack_pos,       c_rack_number.position as rack_pos # pos of structure within population (in a vessel?) 1st structure in 1st section is at pos 1
-int structure_name          rack_name,      c_rack_number.rack_cid -> name
-int box_position           slot)           box_store.slot_position # pos of box/rack in structure
 
     
                                             
@@ -194,4 +169,32 @@ no, still crashes on notAThread
 take out dupes:
 int src_box_pos             s1.cryovial_position as source_pos // dupe
 int src_box_id,             cryovial_store.box_cid // dupe
+    
+sort out SampleRow:
+Member                      Constructor     Database
+
+                            SampleRow(
+                             LPDbCryovialStore * store_rec[
+                             LPDbID         cryovial_store.cryovial_id
+                             LDbNoteCount   cryovial_store.Note_Exists
+                             retrievalID    cryovial_store.retrieval_cid
+                             boxID          cryovial_store.box_cid
+                             status         cryovial_store.status
+                             position       cryovial_store.cryovial_position
+                             cryovialID],   cryovial_store.cryovial_id
+                             
+string cryovial_barcode     barcode,        cryovial_barcode
+string aliquot_type_name    aliquot,        aliquot_type_cid -> name
+string src_box_name         src_name,       box_name.external_name
+int dest_box_id             dest_id,        s2.box_cid
+string dest_box_name        dest_name,      b2.external_name
+int dest_box_pos            dest_pos        cryovial_position as dest_pos  # pos of cryovial in box/sample rack
+
+string site_name            site,           c_tank_map.location_cid -> name
+int vessel_pos              tank_pos,       c_tank_map.position as tank_pos? # current pos of vessel at site
+string vessel_name          vessel,         c_tank_map.storage_cid -> name
+int shelf_number            shelf,          c_tank_map.shelf_number # current pos of population within vessel (0: single population)                                
+int structure_pos           rack_pos,       c_rack_number.position as rack_pos # pos of structure within population (in a vessel?) 1st structure in 1st section is at pos 1
+int structure_name          rack_name,      c_rack_number.rack_cid -> name
+int box_position           slot)           box_store.slot_position # pos of box/rack in structure    
     
