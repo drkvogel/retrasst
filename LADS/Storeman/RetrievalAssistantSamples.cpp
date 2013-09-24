@@ -523,3 +523,8 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     Enabled = true;
 }
 
+void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
+    // mark chunk boundary
+    msgbox("chunk split");
+}
+
