@@ -10,23 +10,6 @@
 
 TfrmSamples *frmSamples;
 
-//Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
-//    { SampleRow::sort_asc_barcode,   sgVialColName[SGVIALS_BARCODE] },
-//    { SampleRow::sort_asc_currbox,   sgVialColName[SGVIALS_CURRBOX] },
-//    { SampleRow::sort_asc_currpos,   sgVialColName[SGVIALS_CURRPOS] },
-//    { SampleRow::sort_asc_destbox,   sgVialColName[SGVIALS_DESTBOX] },
-//    { SampleRow::sort_asc_destpos,   sgVialColName[SGVIALS_DESTPOS] },
-//    { SampleRow::sort_asc_site,      sgVialColName[SGVIALS_SITE]    },
-//    { SampleRow::sort_asc_position,  sgVialColName[SGVIALS_POSITION]},
-//    { SampleRow::sort_asc_shelf,     sgVialColName[SGVIALS_SHELF]   },
-//    { SampleRow::sort_asc_vessel,    sgVialColName[SGVIALS_VESSEL]  },
-//    { SampleRow::sort_asc_structure, sgVialColName[SGVIALS_STRUCTURE]},
-//    { SampleRow::sort_asc_slot,      sgVialColName[SGVIALS_SLOT]    }
-//};
-/*  enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
-        SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_VESSEL, SGVIALS_SHELF, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
-        SGVIALS_NUMCOLS};*/
-
 static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
@@ -220,7 +203,6 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     ostringstream oss; oss << __FUNC__;
     oss<<sgwVials->printColWidths(); debugLog(oss.str().c_str()); // print column widths so we can copy them into the source
-    //oss<<"sorter: "<<sorter[ACol].description; debugLog(oss.str().c_str());
     sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
 }
 

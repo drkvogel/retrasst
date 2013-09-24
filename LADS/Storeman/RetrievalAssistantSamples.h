@@ -18,14 +18,6 @@ using namespace std;
 // secondary aliquots: if defined, will be separate rows after all primary aliquots
 // if any primaries fail, these will be marked to make a new chunk of replacements
 
-//enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
-//        SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_VESSEL, SGVIALS_SHELF, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
-//        SGVIALS_NUMCOLS};
-//
-//static const char * sgVialColName[SGVIALS_NUMCOLS] = {"Barcode", "Aliquot", "Curr box", "Pos", "Dest box", "Pos", "Site", "Position", "Vessel", "Shelf", "Structure", "Slot"};
-//
-//static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 100, 275, 43, 213, 37, 116, 50, 100, 43, 121, 40};
-
 class LoadVialsWorkerThread : public TThread {
 protected:
     void __fastcall Execute();
@@ -35,8 +27,6 @@ public:
     string          loadingMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
 };
-
-//extern Sorter<SampleRow> sorter[SGVIALS_NUMCOLS];
 
 class TfrmSamples : public TForm {
     friend class LoadVialsWorkerThread;

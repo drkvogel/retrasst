@@ -191,7 +191,6 @@ void TfrmRetrievalAssistant::init() {
     //cbLog->Visible = RETRASSTDEBUG;
 
     sgwJobs = new StringGridWrapper<LCDbCryoJob>(sgJobs, &vecJobs);
-    //sgwChunks   = new SGWrapper<SampleChunk>(sgChunks, &chunks);
     sgwJobs->addCol("desc",     "Description",      359);
     sgwJobs->addCol("type",     "Job type",         105);
     sgwJobs->addCol("status",   "Status",           88);
@@ -202,8 +201,6 @@ void TfrmRetrievalAssistant::init() {
     sgwJobs->addCol("time",     "Timestamp",        127);
     sgwJobs->init();
 
-    //setupStringGrid(sgJobs, SGJOBS_NUMCOLS, sgJobsColName, sgJobsColWidth);
-    sgwJobs->init();
     loadJobs();
 }
 

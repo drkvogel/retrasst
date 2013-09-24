@@ -9,18 +9,6 @@
 
 TfrmBoxes *frmBoxes;
 
-Sorter<BoxRow> boxSorter[SGBOXES_NUMCOLS] = {
-    { BoxRow::sort_asc_currbox,   sgBoxesColName[0] },
-//        { BoxRow::sort_asc_destbox,   sgBoxesColName[1] },
-//        { BoxRow::sort_asc_destpos,   sgBoxesColName[2] },
-    { BoxRow::sort_asc_site,      sgBoxesColName[1] },
-    { BoxRow::sort_asc_position,  sgBoxesColName[2] },
-    { BoxRow::sort_asc_shelf,     sgBoxesColName[3] },
-    { BoxRow::sort_asc_vessel,    sgBoxesColName[4] },
-    { BoxRow::sort_asc_structure, sgBoxesColName[5] },
-    { BoxRow::sort_asc_slot,      sgBoxesColName[6] },
-};
-
 __fastcall LoadBoxesWorkerThread::LoadBoxesWorkerThread() {
     FreeOnTerminate = true;
 }
@@ -105,10 +93,24 @@ __fastcall TfrmBoxes::TfrmBoxes(TComponent* Owner) : TForm(Owner) { }
 void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     job                 = NULL;
+
     sgwChunks = new StringGridWrapper<BoxChunk>(sgChunks, &chunks);
-    sgwBoxes  = new StringGridWrapper<BoxRow>(sgBoxes, &boxes);
+    sgwChunks->addCol("section",  "Section",  200);
+    sgwChunks->addCol("start",    "Start",    200);
+    sgwChunks->addCol("end",      "End",      200);
+    sgwChunks->addCol("size",     "Size",     200);
     sgwChunks->init();
+
+    sgwBoxes  = new StringGridWrapper<BoxRow>(sgBoxes, &boxes);
+    sgwBoxes->addCol("boxname","Box name",     266,    BoxRow::sort_asc_currbox);
+    sgwBoxes->addCol("site",   "Site",         156,    BoxRow::sort_asc_site);
+    sgwBoxes->addCol("pos",    "Position",     74,     BoxRow::sort_asc_position);
+    sgwBoxes->addCol("shelf",  "Shelf",        74,     BoxRow::sort_asc_shelf);
+    sgwBoxes->addCol("vessel", "Vessel",       262,    BoxRow::sort_asc_vessel);
+    sgwBoxes->addCol("struct", "Structure",    200,    BoxRow::sort_asc_structure);
+    sgwBoxes->addCol("slot",   "Slot",         78,     BoxRow::sort_asc_slot);
     sgwBoxes->init();
+
     loadingMessage = "Loading boxes, please wait...";
 }
 
@@ -359,20 +361,20 @@ void TfrmBoxes::showRows() {
     vecpBoxRow::const_iterator it;
     for (it = boxes.begin(); it != boxes.end(); it++, row++) {
         BoxRow * box = *it;
-        sgBoxes->Cells[SGBOXES_BOXNAME]  [row] = box->box_name.c_str();
-        sgBoxes->Cells[SGBOXES_SITE]     [row] = box->site_name.c_str();
-        sgBoxes->Cells[SGBOXES_POSITION] [row] = box->position;
-        sgBoxes->Cells[SGBOXES_SHELF]    [row] = box->shelf_number;
-        sgBoxes->Cells[SGBOXES_VESSEL]   [row] = box->vessel_name.c_str();
-        sgBoxes->Cells[SGBOXES_STRUCTURE][row] = box->rack_name.c_str();
-        sgBoxes->Cells[SGBOXES_SLOT]     [row] = box->slot_position;
+//        sgBoxes->Cells[SGBOXES_BOXNAME]  [row] = box->box_name.c_str();
+//        sgBoxes->Cells[SGBOXES_SITE]     [row] = box->site_name.c_str();
+//        sgBoxes->Cells[SGBOXES_POSITION] [row] = box->position;
+//        sgBoxes->Cells[SGBOXES_SHELF]    [row] = box->shelf_number;
+//        sgBoxes->Cells[SGBOXES_VESSEL]   [row] = box->vessel_name.c_str();
+//        sgBoxes->Cells[SGBOXES_STRUCTURE][row] = box->rack_name.c_str();
+//        sgBoxes->Cells[SGBOXES_SLOT]     [row] = box->slot_position;
         sgBoxes->Objects[0][row] = (TObject *)box;
     }
 }
 
 void TfrmBoxes::sortList(int col) {
     Screen->Cursor = crSQLWait;
-    boxSorter[col].sort_toggle(boxes);
+    //boxSorter[col].sort_toggle(boxes);
     //boxSorter[col].sort(boxes, Sorter::SortOrder::TOGGLE);
     showRows();
     Screen->Cursor = crDefault;

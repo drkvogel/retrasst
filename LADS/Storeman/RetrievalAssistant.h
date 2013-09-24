@@ -45,30 +45,6 @@ void msgbox(String main, string title="Info") {
     Application->MessageBoxW(main.w_str(), String(title.c_str()).c_str(), MB_OK);
 }
 
-//void clearGridSelection(TStringGrid * sg) { // put this in storeutil?
-//    TGridRect myRect;
-//    myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
-//    sg->Selection = myRect;
-//}
-//
-//void clearSG(TStringGrid * sg) { // put this in storeutil?
-//    clearGridSelection(sg);
-//    sg->FixedRows = 0; sg->RowCount = 0; sg->RowCount = 2; sg->FixedRows = 1;
-//    for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
-//    sg->Cells[0][1] = "No results.";
-//}
-//
-//void setupStringGrid(TStringGrid * sg, const int cols, const char * colnames[], const int colwidths[]) {
-//    sg->ColCount = cols;
-//    for (int i=0; i<cols; i++) { sg->Cells[i][0] = colnames[i]; sg->ColWidths[i] = colwidths[i]; }
-//}
-//
-//std::string printColWidths(TStringGrid * sg) {
-//    std::ostringstream oss;
-//    oss << sg->Name.c_str() << ": {"; for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; } oss << "};";
-//    return oss.str();
-//}
-
 class DataRow {
     // common fields
 };
@@ -79,8 +55,6 @@ class BoxRow : public DataRow {
 public:
     LCDbBoxStore * store_record; // public LPDbID
     //LPDbBoxName ?? getStatus
-    //string              cryovial_barcode;
-    //string              aliquot_type_name;
     string              box_name;
     string              dest_box;
     string              dest_pos;
@@ -92,14 +66,12 @@ public:
     int                 slot_position;
     BoxRow() {}
     ~BoxRow() { if (store_record) delete store_record; }
-    BoxRow(  LCDbBoxStore * store_rec, //string barcode, string aliquot,
-                string box,
+    BoxRow(  LCDbBoxStore * store_rec, string box,
                 string site, int pos, string vessel, int shelf, string rack, int slot) :
         store_record(store_rec), box_name(box),
         site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot) {}
 
     static bool sort_asc_currbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->box_name, b->box_name); }
- //   static bool sort_asc_currpos(const BoxRow *a, const BoxRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
     static bool sort_asc_destbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->dest_box, b->dest_box); }
     static bool sort_asc_destpos(const BoxRow *a, const BoxRow *b)    { return a->dest_pos < b->dest_pos; }
     static bool sort_asc_site(const BoxRow *a, const BoxRow *b)       { return a->site_name.compare(b->site_name) < 0; }
@@ -111,8 +83,7 @@ public:
 
     string str() {
         ostringstream oss; oss
-        //	LCDbBoxStore:
-            <<". id: "<<(store_record->getID())<<", "
+            <<". id: "<<(store_record->getID())<<", " // LCDbBoxStore
             <<"box_name: "<<box_name<<", "
             <<"dest_box: "<<dest_box<<", "
             <<"dest_pos: "<<dest_pos<<", "
@@ -200,8 +171,7 @@ public:
 
     string str() {
         ostringstream oss; oss<<__FUNC__
-        //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position
-            <<"id: "<<(store_record->getID())<<", "
+            <<"id: "<<(store_record->getID())<<", " //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position
             <<"status: "<<(store_record->getStatus())<<", "
         // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position
             //<<"barcode: "<<store_record->getBarcode()
