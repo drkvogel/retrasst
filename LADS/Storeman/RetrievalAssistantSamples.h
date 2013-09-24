@@ -97,6 +97,8 @@ private:
     LCDbCryoJob *               job;
     std::vector<SampleChunk *>  chunks;
     vecpSampleRow               vials;      // all vials in job
+    SGWrapper<SampleRow> *      sgwVials;
+    SGWrapper<SampleChunk> *    sgwChunks;
     void                        addSorter();
     void                        removeSorter();
     void                        applySort();
@@ -108,7 +110,6 @@ private:
     void                        radgrpRowsChange();
     void                        sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order);
     const char *                loadingMessage;
-    //ColDef<SampleRow *>         sgVialsCol[];
 public:
     __fastcall                  TfrmSamples(TComponent* Owner);
     void                        debugLog(String s);

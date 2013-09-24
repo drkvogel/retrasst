@@ -243,11 +243,13 @@ class SGWrapper {
         bool sortAsc;
     };
     TStringGrid * sg;
-    std::vector< T * > * rows;
-    std::vector< Col >cols;
     std::map< std::string, int > mapColNameToInt;
     bool initialised;
 public:
+    std::vector< T * > * rows;
+    std::vector< Col >cols;
+
+    SGWrapper(TStringGrid * g, std::vector<T *> * v) : sg(g), rows(v) {}
     void init() {
         sg->ColCount = cols.size(); // was setupStringGrid
         for (int i=0; i<cols.size(); i++) {
@@ -256,7 +258,6 @@ public:
             initialised = true;
         }
     }
-    SGWrapper(TStringGrid * g, std::vector<T *> * v) : sg(g), rows(v) {}
     void addCol(Col c) {
         if (initialised) throw "Already initialised";
         mapColNameToInt[c.name] = cols.size();
@@ -269,7 +270,8 @@ public:
         if (mapColNameToInt.find(colName) == mapColNameToInt.end()) throw "column name not found";
         return mapColNameToInt[colName];
     }
-    //int size() { return rows.size(); }
+    int colCount() { return cols.size(); }
+    int rowCount() { return rows.size(); }
     std::string printColWidths() {
         std::ostringstream oss; oss << sg->Name.c_str() << ": {";
         for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; }
@@ -286,17 +288,23 @@ public:
         for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
         sg->Cells[0][1] = "No results.";
     }
-    void sort_asc(std::string colName) {
-        int col = colNameToInt(colName);
+    void sort_asc(int col) {
         std::sort(rows->begin(), rows->end(), cols[col].sort_func_asc); // dot notation: vec.begin() also seems to work - how?
     }
-    void sort_dsc(std::string colName) {
-        int col = colNameToInt(colName);
+    void sort_dsc(int col) {
         std::sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc);
     }
-    void sort_toggle(std::string colName) {
-        int col = colNameToInt(colName);
+    void sort_asc(std::string colName) {
+        sort_asc(colNameToInt(colName));
+    }
+    void sort_dsc(std::string colName) {
+        sort_dsc(colNameToInt(colName));
+    }
+    void sort_toggle(int col) {
         cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
+    }
+    void sort_toggle(std::string colName) {
+        sort_toggle(colNameToInt(colName));
     }
 };
 

@@ -10,40 +10,41 @@
 
 TfrmSamples *frmSamples;
 
-Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
-    { SampleRow::sort_asc_barcode,   sgVialColName[SGVIALS_BARCODE] },
-    { SampleRow::sort_asc_currbox,   sgVialColName[SGVIALS_CURRBOX] },
-    { SampleRow::sort_asc_currpos,   sgVialColName[SGVIALS_CURRPOS] },
-    { SampleRow::sort_asc_destbox,   sgVialColName[SGVIALS_DESTBOX] },
-    { SampleRow::sort_asc_destpos,   sgVialColName[SGVIALS_DESTPOS] },
-    { SampleRow::sort_asc_site,      sgVialColName[SGVIALS_SITE]    },
-    { SampleRow::sort_asc_position,  sgVialColName[SGVIALS_POSITION]},
-    { SampleRow::sort_asc_shelf,     sgVialColName[SGVIALS_SHELF]   },
-    { SampleRow::sort_asc_vessel,    sgVialColName[SGVIALS_VESSEL]  },
-    { SampleRow::sort_asc_structure, sgVialColName[SGVIALS_STRUCTURE]},
-    { SampleRow::sort_asc_slot,      sgVialColName[SGVIALS_SLOT]    }
-};
+//Sorter<SampleRow> sorter[SGVIALS_NUMCOLS] = {
+//    { SampleRow::sort_asc_barcode,   sgVialColName[SGVIALS_BARCODE] },
+//    { SampleRow::sort_asc_currbox,   sgVialColName[SGVIALS_CURRBOX] },
+//    { SampleRow::sort_asc_currpos,   sgVialColName[SGVIALS_CURRPOS] },
+//    { SampleRow::sort_asc_destbox,   sgVialColName[SGVIALS_DESTBOX] },
+//    { SampleRow::sort_asc_destpos,   sgVialColName[SGVIALS_DESTPOS] },
+//    { SampleRow::sort_asc_site,      sgVialColName[SGVIALS_SITE]    },
+//    { SampleRow::sort_asc_position,  sgVialColName[SGVIALS_POSITION]},
+//    { SampleRow::sort_asc_shelf,     sgVialColName[SGVIALS_SHELF]   },
+//    { SampleRow::sort_asc_vessel,    sgVialColName[SGVIALS_VESSEL]  },
+//    { SampleRow::sort_asc_structure, sgVialColName[SGVIALS_STRUCTURE]},
+//    { SampleRow::sort_asc_slot,      sgVialColName[SGVIALS_SLOT]    }
+//};
+/*  enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
+        SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_VESSEL, SGVIALS_SHELF, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
+        SGVIALS_NUMCOLS};*/
 
 static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
-    SGWrapper<SampleRow> sg(sgVials, &vials);
-/*  enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
-        SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_VESSEL, SGVIALS_SHELF, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
-        SGVIALS_NUMCOLS};*/
-    sg.addCol(SampleRow::sort_asc_barcode,  "barcode",  "Barcode",          102);
-    sg.addCol(SampleRow::sort_asc_aliquot,  "aliquot",  "Aliquot",          100);
-    sg.addCol(SampleRow::sort_asc_currbox,  "currbox",  "Current box",      275);
-    sg.addCol(SampleRow::sort_asc_currpos,  "currpos",  "Pos",              43);
-    sg.addCol(SampleRow::sort_asc_destbox,  "destbox",  "Destination box",  213);
-    sg.addCol(SampleRow::sort_asc_destpos,  "destpos",  "Pos",              37);
-    sg.addCol(SampleRow::sort_asc_site,     "site",     "Site",             116);
-    sg.addCol(SampleRow::sort_asc_position, "vesspos",  "Position",         50); // vessel pos in site
-    sg.addCol(SampleRow::sort_asc_shelf,    "shelf",    "Shelf",            100);
-    sg.addCol(SampleRow::sort_asc_vessel,   "vessel",   "Vessel",           43);
-    sg.addCol(SampleRow::sort_asc_structure,"structure","Structure",        121);
-    sg.addCol(SampleRow::sort_asc_slot,     "boxslot",  "Pos",              40);
-    sg.sort_asc("barcode");
+    sgwVials = new SGWrapper<SampleRow>(sgVials, &vials);
+
+    sgwVials->addCol(SampleRow::sort_asc_barcode,  "barcode",  "Barcode",          102);
+    sgwVials->addCol(SampleRow::sort_asc_aliquot,  "aliquot",  "Aliquot",          100);
+    sgwVials->addCol(SampleRow::sort_asc_currbox,  "currbox",  "Current box",      275);
+    sgwVials->addCol(SampleRow::sort_asc_currpos,  "currpos",  "Pos",              43);
+    sgwVials->addCol(SampleRow::sort_asc_destbox,  "destbox",  "Destination box",  213);
+    sgwVials->addCol(SampleRow::sort_asc_destpos,  "destpos",  "Pos",              37);
+    sgwVials->addCol(SampleRow::sort_asc_site,     "site",     "Site",             116);
+    sgwVials->addCol(SampleRow::sort_asc_position, "vesspos",  "Position",         50); // vessel pos in site
+    sgwVials->addCol(SampleRow::sort_asc_shelf,    "shelf",    "Shelf",            100);
+    sgwVials->addCol(SampleRow::sort_asc_vessel,   "vessel",   "Vessel",           43);
+    sgwVials->addCol(SampleRow::sort_asc_structure,"structure","Structure",        121);
+    sgwVials->addCol(SampleRow::sort_asc_slot,     "boxslot",  "Pos",              40);
+    //sg.sort_asc("barcode");
 }
 
 void TfrmSamples::debugLog(String s) {
@@ -214,7 +215,7 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     ostringstream oss; oss << __FUNC__;
     oss<<printColWidths(sgVials); debugLog(oss.str().c_str()); // print column widths so we can copy them into the source
-    oss<<"sorter: "<<sorter[ACol].description; debugLog(oss.str().c_str());
+    //oss<<"sorter: "<<sorter[ACol].description; debugLog(oss.str().c_str());
     sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
 }
 
@@ -335,8 +336,10 @@ void TfrmSamples::addSorter() {
         // to put in right order: take them all out, sort and put back in in reverse order?
     combo->Align = alLeft;
     combo->Style = csDropDown; // csDropDownList
-    for (int i=0; i<SGVIALS_NUMCOLS; i++) {
-        combo->AddItem(sorter[i].description.c_str(), (TObject *)&sorter[i]);
+    //for (int i=0; i<SGVIALS_NUMCOLS; i++) {
+    for (int i=0; i<sgwVials->colCount(); i++) {
+        //combo->AddItem(sorter[i].description.c_str(), (TObject *)&sorter[i]);
+        combo->AddItem(sgwVials->cols[i].sortDescription().c_str(), (TObject *)&sgwVials->cols[i]);
     }
     //combo->OnChange = &comboSortOnChange;
 }
@@ -378,13 +381,13 @@ void TfrmSamples::sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::S
     Screen->Cursor = crSQLWait;
     switch (order) {
         case Sorter<SampleRow *>::ASCENDING:
-            sorter[col].sort_asc(chunk->rows);
+            sgwVials->sort_asc(col);
             break;
         case Sorter<SampleRow *>::DESCENDING:
-            sorter[col].sort_dsc(chunk->rows);
+            sgwVials->sort_dsc(col);
             break;
         case Sorter<SampleRow *>::TOGGLE:
-            sorter[col].sort_toggle(chunk->rows);
+            sgwVials->sort_toggle(col);
             break;
     }
     showChunk(chunk);
