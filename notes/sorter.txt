@@ -29,10 +29,8 @@ worried about ay?
   tell all concerned that it is only because I am worried that ay is looking for ways to discredit me that I am doing this.
 I hate my boss. Can I move?
 ---
-sample grid - shelf and vessel wrong way round-
-in fact, storage details should come after src box
-
-                             
+sample grid - shelf and vessel wrong way round-dn
+in fact, storage details should come after src box - not done, was going to get my coldefs and sorters working first and re-arrange columns like that.
                                             
 copyLocation
     position vs rack_pos vs tank_pos?

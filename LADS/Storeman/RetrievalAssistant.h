@@ -228,29 +228,39 @@ typedef std::vector<SampleRow *> vecpSampleRow;
 /** SGWrapper
 
 Wrapper for TStringGrid, provides sorting functions. T is type of data in each row */
-template <class T>
+template < class T >
 class SGWrapper {
     class Col {
     public:
-        Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false), vec(NULL) { }
+        Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false), vec(NULL), initialised(false) { }
         Col(bool (*f)(const T *, const T *), std::string n, std::string d, int w) :
-            sort_func_asc(f), name(n), description(d), width(w), sortAsc(false) {}
+            sort_func_asc(f), name(n), title(d), width(w), sortAsc(false) {}
+        std::string sortDescription() { ostringstream oss; oss<<"Sort by "<<title<<" ascending"; return oss.str(); }
         bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-        std::string name;
-        std::string description;    // sort description for (e.g.) combo box
+        std::string name;           // internal identifier string
+        std::string title;          // text to display in stringgrid header
         int width;                  // for StringGrid::ColWidths[]
         bool sortAsc;
     };
     TStringGrid * sg;
-    std::vector<T *> * rows;
+    std::vector< T * > * rows;
     std::vector< Col >cols;
     std::map< std::string, int > mapColNameToInt;
+    bool initialised;
 public:
+    void init() {
+        sg->ColCount = cols.size(); // was setupStringGrid
+        for (int i=0; i<cols.size(); i++) {
+            sg->Cells[i][0]     = cols[i].title;
+            sg->ColWidths[i]    = cols[i].width;
+            initialised = true;
+        }
+    }
     SGWrapper(TStringGrid * g, std::vector<T *> * v) : sg(g), rows(v) {}
     void addCol(Col c) {
+        if (initialised) throw "Already initialised";
         mapColNameToInt[c.name] = cols.size();
         cols.push_back(c);
-        sg->ColCount = cols.size();
     }
     void addCol(bool (*f)(const T *, const T *), std::string n, std::string d, int w) {
         addCol(SGWrapper<SampleRow>::Col(f, n, d, w));
@@ -259,11 +269,27 @@ public:
         if (mapColNameToInt.find(colName) == mapColNameToInt.end()) throw "column name not found";
         return mapColNameToInt[colName];
     }
-    int size();
+    //int size() { return rows.size(); }
+    std::string printColWidths() {
+        std::ostringstream oss; oss << sg->Name.c_str() << ": {";
+        for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; }
+        oss << "};"; return oss.str();
+    }
+    void clearSelection() {
+        TGridRect myRect;
+        myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
+        sg->Selection = myRect;
+    }
+    void clear() {
+        clearSelection();
+        sg->FixedRows = 0; sg->RowCount = 0; sg->RowCount = 2; sg->FixedRows = 1;
+        for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
+        sg->Cells[0][1] = "No results.";
+    }
     void sort_asc(std::string colName) {
         int col = colNameToInt(colName);
-        std::sort(rows->begin(), rows->end(), cols[col].sort_func_asc);
-    } // dot notation: vec.begin() also works - how?
+        std::sort(rows->begin(), rows->end(), cols[col].sort_func_asc); // dot notation: vec.begin() also seems to work - how?
+    }
     void sort_dsc(std::string colName) {
         int col = colNameToInt(colName);
         std::sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc);
