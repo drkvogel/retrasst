@@ -110,13 +110,9 @@ public:
     static bool sort_asc_slot(const BoxRow *a, const BoxRow *b)       { return a->slot_position < b->slot_position; }
 
     string str() {
-        ostringstream oss;// oss<<__FUNC__
-            oss
+        ostringstream oss; oss
         //	LCDbBoxStore:
             <<". id: "<<(store_record->getID())<<", "
-        // BoxRow
-            //<<"cryovial_barcode: "<<cryovial_barcode<<", "
-            //<<"aliquot_type_name: "<<aliquot_type_name<<", "
             <<"box_name: "<<box_name<<", "
             <<"dest_box: "<<dest_box<<", "
             <<"dest_pos: "<<dest_pos<<", "
@@ -137,23 +133,21 @@ public:
     LPDbCryovialStore * store_record;
     string              cryovial_barcode;
     string              aliquot_type_name;
-    string              src_box_name; // id and cryo pos are in store_record
+    string              src_box_name;       // id and cryo pos are in store_record
     int                 dest_box_id;
     string              dest_box_name;
-    int                 dest_cryo_pos;   // cryovial_position
+    int                 dest_cryo_pos;      // cryovial_position
     string              site_name;
     int                 vessel_pos;
     string              vessel_name;
     int                 shelf_number;
-    int                 structure_pos;       // c_rack_number.position as rack_pos
+    int                 structure_pos;      // c_rack_number.position as rack_pos
     string              structure_name;
     int                 box_pos;
     SampleRow() {}
     ~SampleRow() { if (store_record) delete store_record; }
     SampleRow(  LPDbCryovialStore * store_rec,
-                string barcode, string aliquot,
-                string src_name,
-                int dest_id, string dest_name, int dest_pos,
+                string barcode, string aliquot, string src_name, int dest_id, string dest_name, int dest_pos,
                 string site, int vssl_pos, string vssl_name, int shelf, int strct_pos, string strct_name, int slot) :
         store_record(store_rec),
         cryovial_barcode(barcode), aliquot_type_name(aliquot),
@@ -173,13 +167,6 @@ public:
     static bool sort_asc_vessel(const SampleRow *a, const SampleRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
     static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
     static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->box_pos < b->box_pos; }
-/* site_name;
-vessel_pos;
-vessel_name;
-shelf_number;
-structure_pos;
-structure_name;
-box_pos; */
 
     void setLocation(string site, int vssl_pos, string vssl_name, int shelf, int strctr_pos, string strctr_name, int boxpos) {
         site_name       = site;
@@ -218,12 +205,10 @@ box_pos; */
             <<"status: "<<(store_record->getStatus())<<", "
         // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position
             //<<"barcode: "<<store_record->getBarcode()
-            //<<"boxID"<<cryo_record->getBoxID()
             //<<"sampleID"<<cryo_record->getSampleID()
             //<<"aliquot type ID"<<cryo_record->getAliquotType()
             <<"status"<<store_record->getStatus()<<", "
             <<"position"<<store_record->getPosition()<<", "
-        // SampleRow
             <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquot_type_name<<", "
             <<"src: {"<<store_record->getBoxID()<<", "<<src_box_name<<"["<<store_record->getPosition()<<"]}, "
             <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_cryo_pos<<"]}, "
@@ -240,57 +225,53 @@ box_pos; */
 
 typedef std::vector<SampleRow *> vecpSampleRow;
 
-//template <class T> // T is type of row to sort
-//class ColDef {
-//public:
-//    ColDef() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false) {} //, vec(NULL) { }
-//    ColDef(std::vector<T *> * v, bool (*f)(const T *, const T *), std::string n, std::string d, int w) :
-//        vec(v), sort_func_asc(f), name(n), description(d), width(w), sortAsc(false) {}
-//    std::vector<T *> * vec;
-//    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-//    std::string name;
-//    std::string description; // sort description for (e.g.) combo box?
-//    int width; // for StringGrid::ColWidths[]
-//    bool sortAsc;
-//    void sort_asc() { std::sort(vec->begin(), vec->end(), sort_func_asc);  } // dot notation: vec.begin() also works - how?
-//    void sort_dsc() { std::sort(vec->rbegin(), vec->rend(), sort_func_asc);  }
-//    void sort_toggle(std::vector<T *> & vec) { sortAsc ? sort_asc() : sort_dsc(); sortAsc = !sortAsc; }
-//};
+/** SGWrapper
 
-/*ColDef<SampleRow> sgVialsCol[] = {
-     ColDef<SampleRow>(&vials, sort_asc_barcode, "name", "desc", 100),
-     ColDef<SampleRow>(&vials, sort_asc_barcode, "name", "desc", 200)
-     // etc
-};*/
-
-// encapsulate data about a stringgrid in a class?
-template <class T> // T is type of data in rows
+Wrapper for TStringGrid, provides sorting functions. T is type of data in each row */
+template <class T>
 class SGWrapper {
-    TStringGrid * sg;
-    std::vector<T *> * rows;
-public:
     class Col {
     public:
-        Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false) {} //, vec(NULL) { }
+        Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false), vec(NULL) { }
         Col(bool (*f)(const T *, const T *), std::string n, std::string d, int w) :
             sort_func_asc(f), name(n), description(d), width(w), sortAsc(false) {}
         bool (*sort_func_asc)(const T *, const T *); // ascending sort function
         std::string name;
-        std::string description; // sort description for (e.g.) combo box?
-        int width; // for StringGrid::ColWidths[]
+        std::string description;    // sort description for (e.g.) combo box
+        int width;                  // for StringGrid::ColWidths[]
         bool sortAsc;
     };
+    TStringGrid * sg;
+    std::vector<T *> * rows;
+    std::vector< Col >cols;
+    std::map< std::string, int > mapColNameToInt;
+public:
     SGWrapper(TStringGrid * g, std::vector<T *> * v) : sg(g), rows(v) {}
-    void addCol(Col c) { cols.push_back(c); sg->ColCount = cols.size(); }
+    void addCol(Col c) {
+        mapColNameToInt[c.name] = cols.size();
+        cols.push_back(c);
+        sg->ColCount = cols.size();
+    }
     void addCol(bool (*f)(const T *, const T *), std::string n, std::string d, int w) {
         addCol(SGWrapper<SampleRow>::Col(f, n, d, w));
     }
-    std::vector< Col >cols;
+    int colNameToInt(std::string colName) {
+        if (mapColNameToInt.find(colName) == mapColNameToInt.end()) throw "column name not found";
+        return mapColNameToInt[colName];
+    }
     int size();
-    //int colNum(std::string colName); // key-value (stl?) lookup func instead of enums; map eg. "barcode" to (column) 4
-    void sort_asc(int col) { std::sort(rows->begin(), rows->end(), cols[col].sort_func_asc);  } // dot notation: vec.begin() also works - how?
-    void sort_dsc(int col) { std::sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc);  }
-    void sort_toggle(int col) { cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc; }
+    void sort_asc(std::string colName) {
+        int col = colNameToInt(colName);
+        std::sort(rows->begin(), rows->end(), cols[col].sort_func_asc);
+    } // dot notation: vec.begin() also works - how?
+    void sort_dsc(std::string colName) {
+        int col = colNameToInt(colName);
+        std::sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc);
+    }
+    void sort_toggle(std::string colName) {
+        int col = colNameToInt(colName);
+        cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
+    }
 };
 
 enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;

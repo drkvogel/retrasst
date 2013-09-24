@@ -31,19 +31,19 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
 /*  enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
         SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_VESSEL, SGVIALS_SHELF, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
         SGVIALS_NUMCOLS};*/
-    sg.addCol(SampleRow::sort_asc_barcode,  "Barcode",  "", 102);
-    sg.addCol(SampleRow::sort_asc_aliquot,  "Aliquot",  "", 100);
-    sg.addCol(SampleRow::sort_asc_currbox,  "Curr box", "", 275);
-    sg.addCol(SampleRow::sort_asc_currpos,  "Pos",      "", 43);
-    sg.addCol(SampleRow::sort_asc_destbox,  "Dest box", "", 213);
-    sg.addCol(SampleRow::sort_asc_destpos,  "Pos",      "", 37);
-    sg.addCol(SampleRow::sort_asc_site,     "Site",     "", 116);
-    sg.addCol(SampleRow::sort_asc_position, "Position", "", 50); //??
-    sg.addCol(SampleRow::sort_asc_shelf,    "Shelf",    "", 100);
-    sg.addCol(SampleRow::sort_asc_vessel,   "Vessel",   "", 43);
-    sg.addCol(SampleRow::sort_asc_structure,"Structure","", 121);
-    sg.addCol(SampleRow::sort_asc_slot,     "Slot",     "", 40);
-    sg.sort_asc(1);
+    sg.addCol(SampleRow::sort_asc_barcode,  "barcode",  "Barcode",          102);
+    sg.addCol(SampleRow::sort_asc_aliquot,  "aliquot",  "Aliquot",          100);
+    sg.addCol(SampleRow::sort_asc_currbox,  "currbox",  "Current box",      275);
+    sg.addCol(SampleRow::sort_asc_currpos,  "currpos",  "Pos",              43);
+    sg.addCol(SampleRow::sort_asc_destbox,  "destbox",  "Destination box",  213);
+    sg.addCol(SampleRow::sort_asc_destpos,  "destpos",  "Pos",              37);
+    sg.addCol(SampleRow::sort_asc_site,     "site",     "Site",             116);
+    sg.addCol(SampleRow::sort_asc_position, "vesspos",  "Position",         50); // vessel pos in site
+    sg.addCol(SampleRow::sort_asc_shelf,    "shelf",    "Shelf",            100);
+    sg.addCol(SampleRow::sort_asc_vessel,   "vessel",   "Vessel",           43);
+    sg.addCol(SampleRow::sort_asc_structure,"structure","Structure",        121);
+    sg.addCol(SampleRow::sort_asc_slot,     "boxslot",  "Pos",              40);
+    sg.sort_asc("barcode");
 }
 
 void TfrmSamples::debugLog(String s) {
