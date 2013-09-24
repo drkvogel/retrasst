@@ -42,6 +42,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       OnClick = sgJobsClick
       OnDblClick = sgJobsDblClick
       OnDrawCell = sgJobsDrawCell
+      ExplicitLeft = 3
       ColWidths = (
         196
         64
@@ -110,7 +111,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           Caption = 'Deleted'
           TabOrder = 3
           OnClick = cbDeletedClick
-          ExplicitLeft = 6
         end
         object cbRejected: TCheckBox
           Left = 2
@@ -121,9 +121,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           Caption = 'Rejected'
           TabOrder = 4
           OnClick = cbRejectedClick
-          ExplicitLeft = 16
-          ExplicitTop = 88
-          ExplicitWidth = 97
         end
       end
       object groupRetrievalTypeCheck: TGroupBox
@@ -138,7 +135,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Padding.Right = 5
         Padding.Bottom = 5
         TabOrder = 1
-        ExplicitTop = 89
         object cbBoxRetrieval: TCheckBox
           Left = 7
           Top = 20

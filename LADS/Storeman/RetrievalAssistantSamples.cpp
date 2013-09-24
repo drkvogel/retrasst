@@ -30,21 +30,28 @@ TfrmSamples *frmSamples;
 static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
-    sgwVials = new SGWrapper<SampleRow>(sgVials, &vials);
+    sgwChunks   = new StringGridWrapper<SampleChunk>(sgChunks, &chunks);
+    sgwChunks->addCol("section",  "Section",  200);
+    sgwChunks->addCol("start",    "Start",    200);
+    sgwChunks->addCol("end",      "End",      200);
+    sgwChunks->addCol("size",     "Size",     200);
+    sgwChunks->init();
 
-    sgwVials->addCol(SampleRow::sort_asc_barcode,  "barcode",  "Barcode",          102);
-    sgwVials->addCol(SampleRow::sort_asc_aliquot,  "aliquot",  "Aliquot",          100);
-    sgwVials->addCol(SampleRow::sort_asc_currbox,  "currbox",  "Current box",      275);
-    sgwVials->addCol(SampleRow::sort_asc_currpos,  "currpos",  "Pos",              43);
-    sgwVials->addCol(SampleRow::sort_asc_destbox,  "destbox",  "Destination box",  213);
-    sgwVials->addCol(SampleRow::sort_asc_destpos,  "destpos",  "Pos",              37);
-    sgwVials->addCol(SampleRow::sort_asc_site,     "site",     "Site",             116);
-    sgwVials->addCol(SampleRow::sort_asc_position, "vesspos",  "Position",         50); // vessel pos in site
-    sgwVials->addCol(SampleRow::sort_asc_shelf,    "shelf",    "Shelf",            100);
-    sgwVials->addCol(SampleRow::sort_asc_vessel,   "vessel",   "Vessel",           43);
-    sgwVials->addCol(SampleRow::sort_asc_structure,"structure","Structure",        121);
-    sgwVials->addCol(SampleRow::sort_asc_slot,     "boxslot",  "Pos",              40);
-    //sg.sort_asc("barcode");
+    sgwVials    = new StringGridWrapper<SampleRow>(sgVials, &vials);
+    sgwVials->addCol("barcode",  "Barcode",          102,   SampleRow::sort_asc_barcode);
+    sgwVials->addCol("aliquot",  "Aliquot",          100,   SampleRow::sort_asc_aliquot);
+    sgwVials->addCol("currbox",  "Current box",      275,   SampleRow::sort_asc_currbox);
+    sgwVials->addCol("currpos",  "Pos",              43,    SampleRow::sort_asc_currpos);
+    sgwVials->addCol("destbox",  "Destination box",  213,   SampleRow::sort_asc_destbox);
+    sgwVials->addCol("destpos",  "Pos",              37,    SampleRow::sort_asc_destpos);
+    sgwVials->addCol("site",     "Site",             116,   SampleRow::sort_asc_site);
+    sgwVials->addCol("vesspos",  "Position",         50,    SampleRow::sort_asc_position); // vessel pos in site
+    sgwVials->addCol("shelf",    "Shelf",            100,   SampleRow::sort_asc_shelf);
+    sgwVials->addCol("vessel",   "Vessel",           43,    SampleRow::sort_asc_vessel);
+    sgwVials->addCol("struct",   "Structure",        121,   SampleRow::sort_asc_structure);
+    sgwVials->addCol("boxpos",   "Pos",              40,    SampleRow::sort_asc_slot);
+    sgwVials->init();
+
 }
 
 void TfrmSamples::debugLog(String s) {
@@ -54,8 +61,6 @@ void TfrmSamples::debugLog(String s) {
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     job                 = NULL;
-    setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
-    setupStringGrid(sgVials, SGVIALS_NUMCOLS, sgVialColName, sgVialColWidth);
     loadingMessage = "Loading samples, please wait...";
 }
 
@@ -64,8 +69,8 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     Caption = oss.str().c_str();
     btnSave->Enabled = true;
     chunks.clear();
-    clearSG(sgChunks);
-    clearSG(sgVials);
+    sgwChunks->clear();
+    sgwVials->clear();
     timerLoadVials->Enabled = true;
     //if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
 }
@@ -214,7 +219,7 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     ostringstream oss; oss << __FUNC__;
-    oss<<printColWidths(sgVials); debugLog(oss.str().c_str()); // print column widths so we can copy them into the source
+    oss<<sgwVials->printColWidths(); debugLog(oss.str().c_str()); // print column widths so we can copy them into the source
     //oss<<"sorter: "<<sorter[ACol].description; debugLog(oss.str().c_str());
     sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
 }
@@ -252,7 +257,7 @@ void __fastcall TfrmSamples::btnApplySortClick(TObject *Sender) {
 void TfrmSamples::showChunks() {
     if (0 == chunks.size()) { // must always have one chunk anyway
         throw Exception("No chunks");
-        clearSG(sgChunks);
+        sgwChunks->clear();
     } else {
         sgChunks->RowCount = chunks.size() + 1;
         sgChunks->FixedRows = 1; // "Fixed row count must be LESS than row count"
@@ -304,7 +309,7 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         chunk = currentChunk();
     }
     if (chunk->rows.size() <= 0) {
-        clearSG(sgVials);
+        sgwVials->clear();
     } else {
         sgVials->RowCount = chunk->rows.size();
         sgVials->FixedRows = 1;
@@ -313,18 +318,22 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
     for (std::vector<SampleRow * >::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++, row++) { // vecpDataRow?
         SampleRow * sampleRow = (SampleRow *)*it;
         LPDbCryovialStore * vial = sampleRow->store_record;
-        sgVials->Cells[SGVIALS_BARCODE] [row]    = sampleRow->cryovial_barcode.c_str();
-        sgVials->Cells[SGVIALS_ALIQUOT] [row]    = sampleRow->aliquot_type_name.c_str();
-        sgVials->Cells[SGVIALS_DESTBOX] [row]    = sampleRow->dest_box_name.c_str();
-        sgVials->Cells[SGVIALS_DESTPOS] [row]    = sampleRow->dest_cryo_pos;
-        sgVials->Cells[SGVIALS_CURRBOX] [row]    = sampleRow->src_box_name.c_str();
-        sgVials->Cells[SGVIALS_CURRPOS] [row]    = sampleRow->store_record->getPosition();
-        sgVials->Cells[SGVIALS_SITE]    [row]    = sampleRow->site_name.c_str();
-        sgVials->Cells[SGVIALS_POSITION][row]    = sampleRow->structure_pos;
-        sgVials->Cells[SGVIALS_VESSEL]  [row]    = sampleRow->vessel_name.c_str();
-        sgVials->Cells[SGVIALS_SHELF]   [row]    = sampleRow->shelf_number;
-        sgVials->Cells[SGVIALS_STRUCTURE][row]   = sampleRow->structure_name.c_str();
-        sgVials->Cells[SGVIALS_SLOT]    [row]    = sampleRow->box_pos;
+
+//"barcode", "aliquot", "currbox", "currpos", "destbox", "destpos", "site", "vesspos", "shelf", "vessel", "structure", "boxpos",
+//site_name; vessel_pos; vessel_name; shelf_number; structure_pos; structure_name; box_pos;
+
+        sgVials->Cells[sgwVials->colNameToInt("barcode")] [row] = sampleRow->cryovial_barcode.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("aliquot")] [row] = sampleRow->aliquot_type_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("currbox")] [row] = sampleRow->src_box_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("currpos")] [row] = sampleRow->store_record->getPosition();
+        sgVials->Cells[sgwVials->colNameToInt("destbox")] [row] = sampleRow->dest_box_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("destpos")] [row] = sampleRow->dest_cryo_pos;
+        sgVials->Cells[sgwVials->colNameToInt("site"   )] [row] = sampleRow->site_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("vesspos")] [row] = sampleRow->vessel_pos;
+        sgVials->Cells[sgwVials->colNameToInt("shelf"  )] [row] = sampleRow->structure_pos;
+        sgVials->Cells[sgwVials->colNameToInt("vessel" )] [row] = sampleRow->vessel_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("struct" )] [row] = sampleRow->structure_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("boxpos" )] [row] = sampleRow->box_pos;
         sgVials->Objects[0][row] = (TObject *)sampleRow;
     }
 }
@@ -519,7 +528,7 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     chunks.clear();
-    clearSG(sgChunks);
+    sgwChunks->clear();
     addChunk(); // default chunk
     showChunks();
     Screen->Cursor = crDefault;

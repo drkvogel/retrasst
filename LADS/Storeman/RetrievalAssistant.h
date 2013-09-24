@@ -45,29 +45,29 @@ void msgbox(String main, string title="Info") {
     Application->MessageBoxW(main.w_str(), String(title.c_str()).c_str(), MB_OK);
 }
 
-void clearGridSelection(TStringGrid * sg) { // put this in storeutil?
-    TGridRect myRect;
-    myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
-    sg->Selection = myRect;
-}
-
-void clearSG(TStringGrid * sg) { // put this in storeutil?
-    clearGridSelection(sg);
-    sg->FixedRows = 0; sg->RowCount = 0; sg->RowCount = 2; sg->FixedRows = 1;
-    for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
-    sg->Cells[0][1] = "No results.";
-}
-
-void setupStringGrid(TStringGrid * sg, const int cols, const char * colnames[], const int colwidths[]) {
-    sg->ColCount = cols;
-    for (int i=0; i<cols; i++) { sg->Cells[i][0] = colnames[i]; sg->ColWidths[i] = colwidths[i]; }
-}
-
-std::string printColWidths(TStringGrid * sg) {
-    std::ostringstream oss;
-    oss << sg->Name.c_str() << ": {"; for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; } oss << "};";
-    return oss.str();
-}
+//void clearGridSelection(TStringGrid * sg) { // put this in storeutil?
+//    TGridRect myRect;
+//    myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
+//    sg->Selection = myRect;
+//}
+//
+//void clearSG(TStringGrid * sg) { // put this in storeutil?
+//    clearGridSelection(sg);
+//    sg->FixedRows = 0; sg->RowCount = 0; sg->RowCount = 2; sg->FixedRows = 1;
+//    for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
+//    sg->Cells[0][1] = "No results.";
+//}
+//
+//void setupStringGrid(TStringGrid * sg, const int cols, const char * colnames[], const int colwidths[]) {
+//    sg->ColCount = cols;
+//    for (int i=0; i<cols; i++) { sg->Cells[i][0] = colnames[i]; sg->ColWidths[i] = colwidths[i]; }
+//}
+//
+//std::string printColWidths(TStringGrid * sg) {
+//    std::ostringstream oss;
+//    oss << sg->Name.c_str() << ": {"; for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; } oss << "};";
+//    return oss.str();
+//}
 
 class DataRow {
     // common fields
@@ -225,16 +225,16 @@ public:
 
 typedef std::vector<SampleRow *> vecpSampleRow;
 
-/** SGWrapper
+/** StringGridWrapper
 
 Wrapper for TStringGrid, provides sorting functions. T is type of data in each row */
 template < class T >
-class SGWrapper {
+class StringGridWrapper {
     class Col {
     public:
         Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false), vec(NULL), initialised(false) { }
-        Col(bool (*f)(const T *, const T *), std::string n, std::string d, int w) :
-            sort_func_asc(f), name(n), title(d), width(w), sortAsc(false) {}
+        Col(std::string n, std::string t, int w, bool (*f)(const T *, const T *)=NULL) :
+            name(n), title(t), width(w), sort_func_asc(f), sortAsc(false) {}
         std::string sortDescription() { ostringstream oss; oss<<"Sort by "<<title<<" ascending"; return oss.str(); }
         bool (*sort_func_asc)(const T *, const T *); // ascending sort function
         std::string name;           // internal identifier string
@@ -249,22 +249,22 @@ public:
     std::vector< T * > * rows;
     std::vector< Col >cols;
 
-    SGWrapper(TStringGrid * g, std::vector<T *> * v) : sg(g), rows(v) {}
+    StringGridWrapper(TStringGrid * g, std::vector<T *> * v) : sg(g), rows(v), initialised(false) {}
     void init() {
         sg->ColCount = cols.size(); // was setupStringGrid
         for (int i=0; i<cols.size(); i++) {
-            sg->Cells[i][0]     = cols[i].title;
+            sg->Cells[i][0]     = cols[i].title.c_str();
             sg->ColWidths[i]    = cols[i].width;
-            initialised = true;
         }
+        initialised = true;
     }
     void addCol(Col c) {
         if (initialised) throw "Already initialised";
         mapColNameToInt[c.name] = cols.size();
         cols.push_back(c);
     }
-    void addCol(bool (*f)(const T *, const T *), std::string n, std::string d, int w) {
-        addCol(SGWrapper<SampleRow>::Col(f, n, d, w));
+    void addCol(std::string n, std::string d, int w, bool (*f)(const T *, const T *)=NULL) {
+        addCol(StringGridWrapper< T >::Col(n, d, w, f));
     }
     int colNameToInt(std::string colName) {
         if (mapColNameToInt.find(colName) == mapColNameToInt.end()) throw "column name not found";
@@ -328,9 +328,7 @@ typedef std::vector< Chunk * > vecpChunk;
 
 class SampleChunk : public Chunk {
 public:
-    //~SampleChunk() { delete_referenced<vecpSampleRow>(rows); } // rows allocated in 'vials' ie. vector of all rows -
     vecpSampleRow   rows;
-    //std::vector<SampleRow *> rows;
 };
 
 typedef std::vector< SampleChunk * >  vecpSampleChunk;
@@ -342,12 +340,6 @@ public:
 };
 
 typedef std::vector< BoxChunk * >  vecpBoxChunk;
-
-enum { SGJOBS_DESCRIP, SGJOBS_JOBTYPE, SGJOBS_STATUS, SGJOBS_PRIMARY, SGJOBS_SECONDARY, SGJOBS_PROJECT, SGJOBS_REASON, SGJOBS_TIMESTAMP, SGJOBS_NUMCOLS };
-
-static const char * sgJobsColName[SGJOBS_NUMCOLS]   = { "Description", "Job type", "Status", "Primary Aliquot", "Secondary Aliquot", "Project", "Reason", "Timestamp" };
-
-static const int    sgJobsColWidth[SGJOBS_NUMCOLS]  =  {359, 105, 88, 88, 134, 103, 177, 127 };
 
 static const char * jobStatusString(short status) {
     static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Deleted" };
@@ -399,15 +391,16 @@ __published:
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall cbRejectedClick(TObject *Sender);
 private:
-    void debugLog(String s);
-    tdvecpJob vecJobs;
-    LCDbCryoJobs jobs;
-    void loadJobs();
-    void showJobs();
-    std::string getExerciseDescription(int exercise_cid);
-    std::string getProjectDescription(int project_cid);
-    std::string getAliquotDescription(int primary_aliquot);
-    std::string getAuditInfo(int process_cid);
+    void                    debugLog(String s);
+    tdvecpJob               vecJobs;
+    LCDbCryoJobs            jobs;
+    StringGridWrapper<LCDbCryoJob> *  sgwJobs;
+    void                    loadJobs();
+    void                    showJobs();
+    std::string             getExerciseDescription(int exercise_cid);
+    std::string             getProjectDescription(int project_cid);
+    std::string             getAliquotDescription(int primary_aliquot);
+    std::string             getAuditInfo(int process_cid);
 public:
     __fastcall TfrmRetrievalAssistant(TComponent* Owner);
     void init();

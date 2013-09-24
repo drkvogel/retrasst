@@ -140,8 +140,8 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
 
 void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
     ostringstream oss; oss << __FUNC__;
-    oss << printColWidths(sgJobs); // so we can copy them into the source
-    oss << endl << "row: " << sgJobs->Row << ", col: " << sgJobs->Col;
+    //oss << printColWidths(sgJobs); // so we can copy them into the source
+    //oss << endl << "row: " << sgJobs->Row << ", col: " << sgJobs->Col;
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
     if (NULL == job) return;
     oss << endl << "job: projectid: "<<job->getProjectID()<<", status: "<<job->getStatus();
@@ -188,8 +188,22 @@ std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { /
 void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
 
 void TfrmRetrievalAssistant::init() {
-    cbLog->Visible = RETRASSTDEBUG;
-    setupStringGrid(sgJobs, SGJOBS_NUMCOLS, sgJobsColName, sgJobsColWidth);
+    //cbLog->Visible = RETRASSTDEBUG;
+
+    sgwJobs = new StringGridWrapper<LCDbCryoJob>(sgJobs, &vecJobs);
+    //sgwChunks   = new SGWrapper<SampleChunk>(sgChunks, &chunks);
+    sgwJobs->addCol("desc",     "Description",      359);
+    sgwJobs->addCol("type",     "Job type",         105);
+    sgwJobs->addCol("status",   "Status",           88);
+    sgwJobs->addCol("primary",  "Primary Aliquot",  88);
+    sgwJobs->addCol("secondary","Secondary Aliquot",134);
+    sgwJobs->addCol("project",  "Project",          103);
+    sgwJobs->addCol("reason",   "Reason",           177);
+    sgwJobs->addCol("time",     "Timestamp",        127);
+    sgwJobs->init();
+
+    //setupStringGrid(sgJobs, SGJOBS_NUMCOLS, sgJobsColName, sgJobsColWidth);
+    sgwJobs->init();
     loadJobs();
 }
 
@@ -368,14 +382,14 @@ void TfrmRetrievalAssistant::showJobs() {
     int row = 1;
     for (it = vecJobs.begin(); it != vecJobs.end(); it++, row++) {
         LCDbCryoJob * job = *it;
-        sgJobs->Cells[SGJOBS_DESCRIP]   [row] = job->getDescription().c_str();
-        sgJobs->Cells[SGJOBS_JOBTYPE]   [row] = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
-        sgJobs->Cells[SGJOBS_STATUS]    [row] = jobStatusString(job->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
-        sgJobs->Cells[SGJOBS_PRIMARY]   [row] = getAliquotDescription(job->getPrimaryAliquot()).c_str(); // int
-        sgJobs->Cells[SGJOBS_SECONDARY] [row] = getAliquotDescription(job->getSecondaryAliquot()).c_str(); // int
-        sgJobs->Cells[SGJOBS_PROJECT]   [row] = getProjectDescription(job->getProjectID()).c_str();
-        sgJobs->Cells[SGJOBS_REASON]    [row] = job->getReason().c_str();
-        sgJobs->Cells[SGJOBS_TIMESTAMP] [row] = job->getTimeStamp().DateTimeString();
+        sgJobs->Cells[sgwJobs->colNameToInt("desc" )]    [row] = job->getDescription().c_str();
+        sgJobs->Cells[sgwJobs->colNameToInt("type")]     [row] = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
+        sgJobs->Cells[sgwJobs->colNameToInt("status")]   [row] = jobStatusString(job->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
+        sgJobs->Cells[sgwJobs->colNameToInt("primary")]  [row] = getAliquotDescription(job->getPrimaryAliquot()).c_str(); // int
+        sgJobs->Cells[sgwJobs->colNameToInt("secondary")][row] = getAliquotDescription(job->getSecondaryAliquot()).c_str(); // int
+        sgJobs->Cells[sgwJobs->colNameToInt("project")]  [row] = getProjectDescription(job->getProjectID()).c_str();
+        sgJobs->Cells[sgwJobs->colNameToInt("reason")]   [row] = job->getReason().c_str();
+        sgJobs->Cells[sgwJobs->colNameToInt("time")]     [row] = job->getTimeStamp().DateTimeString();
         sgJobs->Objects[0][row] = (TObject *)job;
     }
 }

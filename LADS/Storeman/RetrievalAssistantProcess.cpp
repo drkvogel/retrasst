@@ -19,8 +19,8 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     maxRows             = DEFAULT_NUMROWS;
     job                 = NULL;
-    setupStringGrid(sgChunks,    SGCHUNKS_NUMCOLS,    sgChunksColName,    sgChunksColWidth);
-    setupStringGrid(sgRetrieval, SGRETRIEVAL_NUMCOLS, sgRetrievalColName, sgRetrievalColWidth);
+    //setupStringGrid(sgChunks,    SGCHUNKS_NUMCOLS,    sgChunksColName,    sgChunksColWidth);
+    //setupStringGrid(sgRetrieval, SGRETRIEVAL_NUMCOLS, sgRetrievalColName, sgRetrievalColWidth);
     //radbutDefault->Caption = DEFAULT_NUMROWS;
     loadingMessage = "Loading retrieval list, please wait...";
 }

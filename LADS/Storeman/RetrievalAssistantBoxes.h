@@ -117,17 +117,19 @@ private:
     const char *        loadingMessage;
     LoadBoxesWorkerThread * loadBoxesWorkerThread;
     void __fastcall loadBoxesWorkerThreadTerminated(TObject *Sender);
-    int                 maxRows; // rows to show at a time
-    LCDbCryoJob *       job;
-    vecpBoxChunk        chunks;
-    vecpBoxRow          boxes;
-    void                sortList(int col);
-    void                addChunk();
-    void                showChunks();
-    void                autoChunk();
-    void                loadRows();
-    void                showRows();
-    void                radgrpRowsChange();
+    //int                         maxRows; // rows to show at a time
+    LCDbCryoJob *               job;
+    vecpBoxChunk                chunks;
+    vecpBoxRow                  boxes;
+    StringGridWrapper<BoxRow> *     sgwBoxes;
+    StringGridWrapper<BoxChunk> *   sgwChunks;
+    void                        sortList(int col);
+    void                        addChunk();
+    void                        showChunks();
+    void                        autoChunk();
+    void                        loadRows();
+    void                        showRows();
+    //void                        radgrpRowsChange();
     UINT TimerId;
     static VOID CALLBACK TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime);
         // Declaring the function static stops the __closure keyword being included

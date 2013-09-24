@@ -105,9 +105,10 @@ __fastcall TfrmBoxes::TfrmBoxes(TComponent* Owner) : TForm(Owner) { }
 void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     job                 = NULL;
-    maxRows             = DEFAULT_NUMROWS;
-    setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
-    setupStringGrid(sgBoxes,  SGBOXES_NUMCOLS,  sgBoxesColName,  sgBoxesColWidth);
+    sgwChunks = new StringGridWrapper<BoxChunk>(sgChunks, &chunks);
+    sgwBoxes  = new StringGridWrapper<BoxRow>(sgBoxes, &boxes);
+    sgwChunks->init();
+    sgwBoxes->init();
     loadingMessage = "Loading boxes, please wait...";
 }
 
@@ -125,8 +126,11 @@ VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dw
 void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
     std::ostringstream oss; oss << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL"); debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
-    clearSG(sgChunks);
-    clearSG(sgBoxes);
+    //clearSG(sgChunks);
+    //clearSG(sgBoxes);
+    sgwChunks->clear();
+    sgwBoxes->clear();
+
     timerLoadBoxes->Enabled = true; // "not enough timers are available" - misleading error message cause by mem corruption
         //TfrmBoxes::TimerId = SetTimer(NULL, 0, 50, &TimerProc); //$3: milliseconds // tried WinAPI timer instead
 }
@@ -279,7 +283,7 @@ void __fastcall TfrmBoxes::sgBoxesClick(TObject *Sender) {
     BoxRow*box=(BoxRow*)sgBoxes->Objects[0][sgBoxes->Row];
     box?debugLog(box->str().c_str()):debugLog("NULL box");
     job?debugLog(job->getName().c_str()):debugLog("NULL job");
-    debugLog(printColWidths(sgBoxes).c_str());
+    debugLog(sgwBoxes->printColWidths().c_str());
 }
 
 void __fastcall TfrmBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
@@ -287,7 +291,7 @@ void __fastcall TfrmBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     chunks.clear();
-    clearSG(sgChunks);
+    sgwChunks->clear();
     addChunk(); // create a default chunk now list is loaded
     showChunks();
     Screen->Cursor = crDefault;
@@ -333,7 +337,7 @@ void TfrmBoxes::showChunks() {
 }
 
 void TfrmBoxes::loadRows() {
-    std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
+    //std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true;
     panelLoading->Top = (sgBoxes->Height / 2) - (panelLoading->Height / 2);
@@ -346,9 +350,9 @@ void TfrmBoxes::loadRows() {
 
 void TfrmBoxes::showRows() {
     if (boxes.size() <= 0) {
-        clearSG(sgBoxes);
+        sgwBoxes->clear();
     } else {
-        sgBoxes->RowCount = (-1 == maxRows) ? boxes.size() + 1 : maxRows + 1;
+        sgBoxes->RowCount = boxes.size() + 1;
         sgBoxes->FixedRows = 1;
     }
     int row = 1;
@@ -363,7 +367,6 @@ void TfrmBoxes::showRows() {
         sgBoxes->Cells[SGBOXES_STRUCTURE][row] = box->rack_name.c_str();
         sgBoxes->Cells[SGBOXES_SLOT]     [row] = box->slot_position;
         sgBoxes->Objects[0][row] = (TObject *)box;
-        if (row >= maxRows) break;
     }
 }
 
