@@ -1,4 +1,8 @@
-﻿
+﻿Have implemented the StringGridWrapper, but sorting is no longer working. Must rembember that at all times, even if the chunk is a default chunk containing all rows, we should be sorting a chunk and not the underlying vector of rows.
+
+That means the 'rows' of the StringGridWrapper should be set to be the rows of whichever chunk is currently selected.
+
+
 
 I have your new card so please pop in with the old one when you’re next passing.
 

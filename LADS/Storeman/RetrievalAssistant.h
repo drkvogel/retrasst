@@ -278,20 +278,24 @@ public:
     }
 };
 
-enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
-
-static const char * sgChunksColName[SGCHUNKS_NUMCOLS]   = { "Section", "Start", "End", "Size" };
-
-static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 200, 200, 200, 200 };
+//enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
+//
+//static const char * sgChunksColName[SGCHUNKS_NUMCOLS]   = { "Section", "Start", "End", "Size" };
+//
+//static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 200, 200, 200, 200 };
 
 class Chunk { // not recorded in database
 public:
     Chunk() : section(0), start("start"), end("end") { }
     Chunk(string name, int section, string start, string end) : section(section), start(start), end(end) { }
-    string      name;
-    int         section;
-    string      start;
-    string      end;
+    string          name;
+    int             section;
+    string          start;
+    string          end;
+    //virtual void    sortAsc(int col) = 0;
+    //virtual void    sortDesc(int col) = 0;
+    //virtual void    sortToggle(int col) = 0;
+    //virtual void    setRows() = 0;
 };
 
 typedef std::vector< Chunk * > vecpChunk;
@@ -299,6 +303,9 @@ typedef std::vector< Chunk * > vecpChunk;
 class SampleChunk : public Chunk {
 public:
     vecpSampleRow   rows;
+    void    sortAsc(int col);
+    void    sortDesc(int col);
+    void    sortToggle(int col);
 };
 
 typedef std::vector< SampleChunk * >  vecpSampleChunk;
@@ -307,6 +314,9 @@ class BoxChunk : public Chunk {
 public:
     ~BoxChunk() { delete_referenced<vecpBoxRow>(rows); }
     vecpBoxRow      rows;
+    void    sortAsc() { return; };
+    void    sortDesc();
+    void    sortToggle();
 };
 
 typedef std::vector< BoxChunk * >  vecpBoxChunk;

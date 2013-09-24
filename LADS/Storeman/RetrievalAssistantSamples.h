@@ -83,7 +83,6 @@ __published:
 private:
     LoadVialsWorkerThread *     loadVialsWorkerThread;
     void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
-
     LCDbCryoJob *               job;
     std::vector<SampleChunk *>  chunks;
     vecpSampleRow               vials;      // all vials in job
@@ -97,8 +96,8 @@ private:
     void                        showChunks();
     void                        loadRows();
     void                        showChunk(SampleChunk * chunk=NULL);
-    void                        radgrpRowsChange();
-    void                        sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order);
+    //void                        radgrpRowsChange();
+    //void                        sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order);
     const char *                loadingMessage;
 public:
     __fastcall                  TfrmSamples(TComponent* Owner);

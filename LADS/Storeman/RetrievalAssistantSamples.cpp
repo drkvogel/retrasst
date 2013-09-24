@@ -13,26 +13,26 @@ TfrmSamples *frmSamples;
 static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
-    sgwChunks   = new StringGridWrapper<SampleChunk>(sgChunks, &chunks);
+    sgwChunks = new StringGridWrapper<SampleChunk>(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  200);
     sgwChunks->addCol("start",    "Start",    200);
     sgwChunks->addCol("end",      "End",      200);
     sgwChunks->addCol("size",     "Size",     200);
     sgwChunks->init();
 
-    sgwVials    = new StringGridWrapper<SampleRow>(sgVials, &vials);
+    sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
     sgwVials->addCol("barcode",  "Barcode",          102,   SampleRow::sort_asc_barcode);
     sgwVials->addCol("aliquot",  "Aliquot",          100,   SampleRow::sort_asc_aliquot);
     sgwVials->addCol("currbox",  "Current box",      275,   SampleRow::sort_asc_currbox);
     sgwVials->addCol("currpos",  "Pos",              43,    SampleRow::sort_asc_currpos);
-    sgwVials->addCol("destbox",  "Destination box",  213,   SampleRow::sort_asc_destbox);
-    sgwVials->addCol("destpos",  "Pos",              37,    SampleRow::sort_asc_destpos);
     sgwVials->addCol("site",     "Site",             116,   SampleRow::sort_asc_site);
     sgwVials->addCol("vesspos",  "Position",         50,    SampleRow::sort_asc_position); // vessel pos in site
     sgwVials->addCol("shelf",    "Shelf",            100,   SampleRow::sort_asc_shelf);
     sgwVials->addCol("vessel",   "Vessel",           43,    SampleRow::sort_asc_vessel);
     sgwVials->addCol("struct",   "Structure",        121,   SampleRow::sort_asc_structure);
     sgwVials->addCol("boxpos",   "Pos",              40,    SampleRow::sort_asc_slot);
+    sgwVials->addCol("destbox",  "Destination box",  213,   SampleRow::sort_asc_destbox);
+    sgwVials->addCol("destpos",  "Pos",              37,    SampleRow::sort_asc_destpos);
     sgwVials->init();
 
 }
@@ -203,7 +203,8 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     ostringstream oss; oss << __FUNC__;
     oss<<sgwVials->printColWidths(); debugLog(oss.str().c_str()); // print column widths so we can copy them into the source
-    sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
+    //sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
+    //currentChunk()->sortToggle(ACol);
 }
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
@@ -247,10 +248,10 @@ void TfrmSamples::showChunks() {
     int row = 1;
     for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
         SampleChunk * chunk = *it;
-        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
-        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
-        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();
-        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = 0;//chunk->end - chunk->start;
+//        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
+//        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
+//        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();
+//        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = 0;//chunk->end - chunk->start;
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
     showChunk();
@@ -301,21 +302,18 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         SampleRow * sampleRow = (SampleRow *)*it;
         LPDbCryovialStore * vial = sampleRow->store_record;
 
-//"barcode", "aliquot", "currbox", "currpos", "destbox", "destpos", "site", "vesspos", "shelf", "vessel", "structure", "boxpos",
-//site_name; vessel_pos; vessel_name; shelf_number; structure_pos; structure_name; box_pos;
-
         sgVials->Cells[sgwVials->colNameToInt("barcode")] [row] = sampleRow->cryovial_barcode.c_str();
         sgVials->Cells[sgwVials->colNameToInt("aliquot")] [row] = sampleRow->aliquot_type_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("currbox")] [row] = sampleRow->src_box_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("currpos")] [row] = sampleRow->store_record->getPosition();
-        sgVials->Cells[sgwVials->colNameToInt("destbox")] [row] = sampleRow->dest_box_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("destpos")] [row] = sampleRow->dest_cryo_pos;
         sgVials->Cells[sgwVials->colNameToInt("site"   )] [row] = sampleRow->site_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("vesspos")] [row] = sampleRow->vessel_pos;
         sgVials->Cells[sgwVials->colNameToInt("shelf"  )] [row] = sampleRow->structure_pos;
         sgVials->Cells[sgwVials->colNameToInt("vessel" )] [row] = sampleRow->vessel_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("struct" )] [row] = sampleRow->structure_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("boxpos" )] [row] = sampleRow->box_pos;
+        sgVials->Cells[sgwVials->colNameToInt("destbox")] [row] = sampleRow->dest_box_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("destpos")] [row] = sampleRow->dest_cryo_pos;
         sgVials->Objects[0][row] = (TObject *)sampleRow;
     }
 }
@@ -359,7 +357,7 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
             if (-1 != combo->ItemIndex) {
                 debugLog("sorting: ");
                 debugLog(combo->Items->Strings[combo->ItemIndex].c_str());
-                sortChunk(chunk, combo->ItemIndex, Sorter<SampleRow *>::ASCENDING);
+                //sortChunk(chunk, combo->ItemIndex, Sorter<SampleRow *>::ASCENDING);
             }
         } else {
             debugLog("not a combo box, finish sorting.");
@@ -368,22 +366,24 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
     }
 }
 
-void TfrmSamples::sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order) {
-    Screen->Cursor = crSQLWait;
-    switch (order) {
-        case Sorter<SampleRow *>::ASCENDING:
-            sgwVials->sort_asc(col);
-            break;
-        case Sorter<SampleRow *>::DESCENDING:
-            sgwVials->sort_dsc(col);
-            break;
-        case Sorter<SampleRow *>::TOGGLE:
-            sgwVials->sort_toggle(col);
-            break;
-    }
-    showChunk(chunk);
-    Screen->Cursor = crDefault;
-}
+//void TfrmSamples::sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order) {
+//void TfrmSamples::sortChunk(SampleChunk * chunk, int col) {
+//    Screen->Cursor = crSQLWait;
+//    switch (order) {
+//        case Sorter<SampleRow *>::ASCENDING:
+//            sgwVials->sort_asc(col);
+//            //chunk->rows
+//            break;
+//        case Sorter<SampleRow *>::DESCENDING:
+//            sgwVials->sort_dsc(col);
+//            break;
+//        case Sorter<SampleRow *>::TOGGLE:
+//            sgwVials->sort_toggle(col);
+//            break;
+//    }
+//    showChunk(chunk);
+//    Screen->Cursor = crDefault;
+//}
 
 void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
     ostringstream oss;

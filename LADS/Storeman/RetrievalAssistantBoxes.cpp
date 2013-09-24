@@ -260,10 +260,10 @@ void __fastcall TfrmBoxes::sgChunksSetEditText(TObject *Sender, int ACol, int AR
         return;
     }
     switch (ACol) {
-    case SGCHUNKS_SECTION:  break;
-    case SGCHUNKS_START:    break;
-    case SGCHUNKS_END:      break;
-    case SGCHUNKS_SIZE:     break;
+//    case SGCHUNKS_SECTION:  break;
+//    case SGCHUNKS_START:    break;
+//    case SGCHUNKS_END:      break;
+//    case SGCHUNKS_SIZE:     break;
     default:                break;
     }
 }
@@ -330,10 +330,10 @@ void TfrmBoxes::showChunks() {
     int row = 1;
     for (vecpBoxChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
         Chunk * chunk = *it;
-        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
-        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
-        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();
-        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = 0;//chunk->end - chunk->start;
+//        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
+//        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
+//        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();
+//        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = 0;//chunk->end - chunk->start;
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
 }

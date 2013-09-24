@@ -43,18 +43,18 @@ void delete_referenced(Container& c) {
     sorter[col].sort_toggle(std::vector<T *>);  // sort the opposite way to the last call
 */
 
-template <class T>
-class Sorter {
-public:
-    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-    std::string description;
-    enum SortOrder { ASCENDING, DESCENDING, TOGGLE };
-    void sort_asc(std::vector<T *> & vec) { std::sort(vec.begin(), vec.end(), sort_func_asc); }
-    void sort_dsc(std::vector<T *> & vec) { std::sort(vec.rbegin(), vec.rend(), sort_func_asc);  }
-    void sort_toggle(std::vector<T *> & vec) { last_sort_descending ? sort_asc(vec) : sort_dsc(vec); last_sort_descending = !last_sort_descending; }
-private:
-    bool last_sort_descending; // default: false
-};
+//template <class T>
+//class Sorter {
+//public:
+//    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
+//    std::string description;
+//    enum SortOrder { ASCENDING, DESCENDING, TOGGLE };
+//    void sort_asc(std::vector<T *> & vec) { std::sort(vec.begin(), vec.end(), sort_func_asc); }
+//    void sort_dsc(std::vector<T *> & vec) { std::sort(vec.rbegin(), vec.rend(), sort_func_asc);  }
+//    void sort_toggle(std::vector<T *> & vec) { last_sort_descending ? sort_asc(vec) : sort_dsc(vec); last_sort_descending = !last_sort_descending; }
+//private:
+//    bool last_sort_descending; // default: false
+//};
 
 class Util
 {
