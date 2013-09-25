@@ -56,8 +56,13 @@ public: //protected: ?
     string              structure_name;
     int                 box_pos;
 
-    //RetrievalRow(srcnm, dstid, dstnm, dstps, site, vsps, vsnm, shlf, stps, stnm, bxps)
-    RetrievalRow(string srcnm, int dstid, string dstnm, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) {}
+    RetrievalRow(string srcnm, int dstid, string dstnm, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+        src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm),
+        site_name(site), vessel_pos(vsps), vessel_name(vsnm), shelf_number(shlf), structure_pos(stps), structure_name(stnm), box_pos(bxps) {}
+
+    // sort functions could also be factored out; not sure if worth it
+    // fun refactoring for a rainy day?
+    //static bool sort_asc_currbox(const RetrievalRow *a, const RetrievalRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
 
     void setLocation(string site, int vssl_pos, string vssl_name, int shelf, int strctr_pos, string strctr_name, int boxpos) {
         site_name       = site;
@@ -256,12 +261,6 @@ public:
         sort_toggle(colNameToInt(colName));
     }
 };
-
-//enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
-//
-//static const char * sgChunksColName[SGCHUNKS_NUMCOLS]   = { "Section", "Start", "End", "Size" };
-//
-//static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 200, 200, 200, 200 };
 
 /**
 http://stackoverflow.com/questions/18311149/ho-to-get-rid-of-cbuilder-warning-virtual-function-hides

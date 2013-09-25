@@ -249,6 +249,7 @@ void TfrmSamples::showChunks() {
     int row = 1;
     for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
         SampleChunk * chunk = *it;
+        // sgwChunks->colNameToInt
 //        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
 //        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
 //        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();
