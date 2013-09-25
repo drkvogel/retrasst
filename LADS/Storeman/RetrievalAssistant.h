@@ -292,7 +292,16 @@ public:
         //Derived d;
         //d.foo(1, 1.2);
     }
+    getSection() { return section; }
     setSection(int s) { section = s; }
+    getStart() { return start; }
+    setStart(int s) { start = s; }
+    getEnd() { return end; }
+    setEnd(int e) { end = e; }
+    getSize() { return end - start; }
+    //setStart(int s) { start = s; }
+
+
 //    incrStart();
 //    decrStart();
     incrEnd();

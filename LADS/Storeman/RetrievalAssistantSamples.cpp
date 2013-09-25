@@ -249,11 +249,10 @@ void TfrmSamples::showChunks() {
     int row = 1;
     for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
         SampleChunk * chunk = *it;
-        // sgwChunks->colNameToInt
-//        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
-//        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
-//        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();
-//        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = 0;//chunk->end - chunk->start;
+        sgChunks->Cells[sgwChunks->colNameToInt("section")]   [row] = chunk->getSection();
+        sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStart(); //start.c_str(); // or name of vial at start?
+        sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEnd(); //end.c_str();
+        sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = 0;//chunk->end - chunk->start;
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
     showChunk();
@@ -367,25 +366,6 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
         }
     }
 }
-
-//void TfrmSamples::sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order) {
-//void TfrmSamples::sortChunk(SampleChunk * chunk, int col) {
-//    Screen->Cursor = crSQLWait;
-//    switch (order) {
-//        case Sorter<SampleRow *>::ASCENDING:
-//            sgwVials->sort_asc(col);
-//            //chunk->rows
-//            break;
-//        case Sorter<SampleRow *>::DESCENDING:
-//            sgwVials->sort_dsc(col);
-//            break;
-//        case Sorter<SampleRow *>::TOGGLE:
-//            sgwVials->sort_toggle(col);
-//            break;
-//    }
-//    showChunk(chunk);
-//    Screen->Cursor = crDefault;
-//}
 
 void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
     ostringstream oss;
