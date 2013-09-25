@@ -139,13 +139,25 @@ object frmSamples: TfrmSamples
       end
       object cbLog: TCheckBox
         Left = 0
-        Top = 125
+        Top = 142
         Width = 82
         Height = 17
         Align = alTop
         Caption = 'Show Log'
         TabOrder = 8
         OnClick = cbLogClick
+        ExplicitTop = 125
+      end
+      object cbSnapToBoxes: TCheckBox
+        Left = 0
+        Top = 125
+        Width = 82
+        Height = 17
+        Align = alTop
+        Caption = 'Snap to boxes'
+        TabOrder = 9
+        ExplicitLeft = 6
+        ExplicitTop = 116
       end
     end
     object sgChunks: TStringGrid

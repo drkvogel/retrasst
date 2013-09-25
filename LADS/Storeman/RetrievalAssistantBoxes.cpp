@@ -72,13 +72,28 @@ Set status = 1 when the position's confirmed */
     while (!q.eof()) {
         if (rowCount > 0 && 0 == rowCount % 10) Synchronize((TThreadMethod)&(this->updateStatus)); // seems to cause thread to terminate
         LCDbBoxStore * store = new LCDbBoxStore(q); // ???
+/*
+        SampleRow * row = new SampleRow(
+            new LPDbCryovialStore(qd),
+            qd.readString(  "cryovial_barcode"),
+            qd.readString(  "aliquot"),
+            qd.readString(  "source_name"),
+            qd.readInt(     "dest_id"),
+            qd.readString(  "dest_name"),
+            qd.readInt(     "dest_pos"),
+            "", 0, "", 0, 0, "", 0 ); // no storage details yet*/
+//BoxRow(LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps)
         BoxRow * box = new BoxRow(
             store,
             q.readString("box"),
+            0, //q.readInt("box_cid"),
+            "",
+            0,
             q.readString("site"),
             q.readInt("position"),
             q.readString("vessel"),
             q.readInt("shelf_number"),
+            0, // q.readInt("") // should be structure('rack') position
             q.readString("rack"),
             q.readInt("slot_position")
         );
@@ -104,7 +119,6 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     sgwBoxes  = new StringGridWrapper<BoxRow>(sgBoxes, &boxes);
     sgwBoxes->addCol("boxname","Box name",     266,    BoxRow::sort_asc_currbox);
     sgwBoxes->addCol("site",   "Site",         156,    BoxRow::sort_asc_site);
-    sgwBoxes->addCol("pos",    "Position",     74,     BoxRow::sort_asc_position);
     sgwBoxes->addCol("shelf",  "Shelf",        74,     BoxRow::sort_asc_shelf);
     sgwBoxes->addCol("vessel", "Vessel",       262,    BoxRow::sort_asc_vessel);
     sgwBoxes->addCol("struct", "Structure",    200,    BoxRow::sort_asc_structure);
@@ -319,7 +333,7 @@ void TfrmBoxes::addChunk() {
         // first chunk, make default chunk from entire list
     }
     BoxChunk * chunk = new BoxChunk;
-    chunk->section = chunks.size() + 1;
+    chunk->setSection(chunks.size() + 1);
     chunks.push_back(chunk);
     btnDelChunk->Enabled = true;
     showChunks();

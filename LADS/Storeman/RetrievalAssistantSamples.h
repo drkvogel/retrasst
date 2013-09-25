@@ -56,6 +56,7 @@ __published:
     TButton *btnApplySort;
     TSplitter *splitterDebug;
     TMemo *memoDebug;
+    TCheckBox *cbSnapToBoxes;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);

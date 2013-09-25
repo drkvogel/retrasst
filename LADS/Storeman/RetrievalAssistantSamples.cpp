@@ -193,11 +193,12 @@ void __fastcall TfrmSamples::btnAutoChunkClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::btnIncrClick(TObject *Sender) {
-    //
+    // increase end of current chunk
 }
 
 void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
-    //
+    // decrease end of current chunk
+
 }
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
@@ -259,7 +260,7 @@ void TfrmSamples::showChunks() {
 
 void TfrmSamples::addChunk() {
     SampleChunk * chunk = new SampleChunk;
-    chunk->section = chunks.size() + 1;
+    chunk->setSection(chunks.size() + 1);
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
 //        for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) {
 //            chunk->rows.push_back((SampleRow *)*(it));

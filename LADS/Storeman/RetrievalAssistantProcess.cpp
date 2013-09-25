@@ -41,7 +41,7 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     }
     Screen->Cursor = crDefault;
 */
-
+    loadRows();
     panelLoading->Caption = loadingMessage;
 }
 
@@ -49,7 +49,7 @@ void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
     memoDebug->Visible = cbLog->Checked;
 }
 
-void __fastcall TfrmProcess::Exit1Click(TObject *Sender) {
+void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
         // save stuff
         Close();

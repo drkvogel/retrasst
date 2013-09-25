@@ -10,7 +10,7 @@ object frmProcess: TfrmProcess
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  Menu = MainMenu1
+  Menu = mainMenuMain
   OldCreateOrder = False
   WindowState = wsMaximized
   OnCreate = FormCreate
@@ -25,9 +25,6 @@ object frmProcess: TfrmProcess
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
-    ExplicitTop = 0
-    ExplicitWidth = 628
-    ExplicitHeight = 400
     object sgRetrieval: TStringGrid
       Left = 2
       Top = 15
@@ -36,8 +33,6 @@ object frmProcess: TfrmProcess
       Align = alClient
       FixedCols = 0
       TabOrder = 0
-      ExplicitWidth = 624
-      ExplicitHeight = 297
     end
     object GroupBox3: TGroupBox
       Left = 2
@@ -47,8 +42,6 @@ object frmProcess: TfrmProcess
       Align = alBottom
       Caption = 'Details'
       TabOrder = 1
-      ExplicitTop = 312
-      ExplicitWidth = 624
       object Label3: TLabel
         Left = 70
         Top = 52
@@ -126,7 +119,6 @@ object frmProcess: TfrmProcess
       Align = alRight
       Caption = 'Accept'
       TabOrder = 0
-      ExplicitLeft = 476
     end
     object btnSkip: TButton
       Left = 879
@@ -136,7 +128,6 @@ object frmProcess: TfrmProcess
       Align = alRight
       Caption = 'Skip'
       TabOrder = 1
-      ExplicitLeft = 551
     end
     object editBarcode: TEdit
       Left = 192
@@ -170,9 +161,6 @@ object frmProcess: TfrmProcess
     Align = alTop
     Caption = 'Chunks'
     TabOrder = 2
-    ExplicitLeft = 392
-    ExplicitTop = 216
-    ExplicitWidth = 185
     object sgChunks: TStringGrid
       Left = 2
       Top = 15
@@ -193,12 +181,12 @@ object frmProcess: TfrmProcess
     TabOrder = 3
     Visible = False
   end
-  object MainMenu1: TMainMenu
+  object mainMenuMain: TMainMenu
     Left = 512
     Top = 65520
-    object Exit1: TMenuItem
+    object menuItemExit: TMenuItem
       Caption = 'E&xit'
-      OnClick = Exit1Click
+      OnClick = menuItemExitClick
     end
   end
 end

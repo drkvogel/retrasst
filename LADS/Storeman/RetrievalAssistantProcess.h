@@ -11,6 +11,8 @@
 #include <Vcl.ComCtrls.hpp>
 #include <Vcl.ExtCtrls.hpp>
 
+#define DEFAULT_NUMROWS 25
+
 enum {  SGRETRIEVAL_BARCODE, SGRETRIEVAL_DESTBOX, SGRETRIEVAL_DESTPOS, SGRETRIEVAL_CURRBOX, SGRETRIEVAL_CURRPOS,
         SGRETRIEVAL_SITE, SGRETRIEVAL_POSITION, SGRETRIEVAL_SHELF, SGRETRIEVAL_VESSEL, SGRETRIEVAL_STRUCTURE, SGRETRIEVAL_SLOT, // location in "Russian Doll order"
         SGRETRIEVAL_NUMCOLS};
@@ -32,8 +34,8 @@ __published:
     TGroupBox *GroupBox3;
     TLabel *Label3;
     TLabel *Label2;
-    TMainMenu *MainMenu1;
-    TMenuItem *Exit1;
+    TMainMenu *mainMenuMain;
+    TMenuItem *menuItemExit;
     TGroupBox *Chunks;
     TStringGrid *sgChunks;
     TCheckBox *cbLog;
@@ -42,7 +44,7 @@ __published:
     TProgressBar *progressBottom;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
-    void __fastcall Exit1Click(TObject *Sender);
+    void __fastcall menuItemExitClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
 private:
     LCDbCryoJob * job;

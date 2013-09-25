@@ -24,8 +24,6 @@ const bool RETRASSTDEBUG =
     false;
 #endif
 
-#define DEFAULT_NUMROWS 25
-
 #define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
 #define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
 #define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
@@ -45,69 +43,11 @@ void msgbox(String main, string title="Info") {
     Application->MessageBoxW(main.w_str(), String(title.c_str()).c_str(), MB_OK);
 }
 
-class DataRow {
-    // common fields
-};
-typedef DataRow * pDataRow;
-typedef std::vector<pDataRow> vecpDataRow;
-
-class BoxRow : public DataRow {
-public:
-    LCDbBoxStore * store_record; // public LPDbID
-    //LPDbBoxName ?? getStatus
-    string              box_name;
-    string              dest_box;
-    string              dest_pos;
-    string              site_name;
-    int                 position;
-    string              vessel_name;
-    int                 shelf_number;
-    string              rack_name;
-    int                 slot_position;
-    BoxRow() {}
-    ~BoxRow() { if (store_record) delete store_record; }
-    BoxRow(  LCDbBoxStore * store_rec, string box,
-                string site, int pos, string vessel, int shelf, string rack, int slot) :
-        store_record(store_rec), box_name(box),
-        site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot) {}
-
-    static bool sort_asc_currbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->box_name, b->box_name); }
-    static bool sort_asc_destbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->dest_box, b->dest_box); }
-    static bool sort_asc_destpos(const BoxRow *a, const BoxRow *b)    { return a->dest_pos < b->dest_pos; }
-    static bool sort_asc_site(const BoxRow *a, const BoxRow *b)       { return a->site_name.compare(b->site_name) < 0; }
-    static bool sort_asc_position(const BoxRow *a, const BoxRow *b)   { return a->position < b->position; }
-    static bool sort_asc_shelf(const BoxRow *a, const BoxRow *b)      { return a->shelf_number < b->shelf_number; }
-    static bool sort_asc_vessel(const BoxRow *a, const BoxRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
-    static bool sort_asc_structure(const BoxRow *a, const BoxRow *b)  { return Util::numericCompare(a->rack_name, b->rack_name); }//return a->rack_name.compare(b->rack_name) > 0; }
-    static bool sort_asc_slot(const BoxRow *a, const BoxRow *b)       { return a->slot_position < b->slot_position; }
-
-    string str() {
-        ostringstream oss; oss
-            <<". id: "<<(store_record->getID())<<", " // LCDbBoxStore
-            <<"box_name: "<<box_name<<", "
-            <<"dest_box: "<<dest_box<<", "
-            <<"dest_pos: "<<dest_pos<<", "
-            <<"site_name: "<<site_name<<", "
-            <<"position: "<<position<<", "
-            <<"vessel_name: "<<vessel_name<<", "
-            <<"shelf_number: "<<shelf_number<<", "
-            <<"rack_name: "<<rack_name<<", "
-            <<"slot_position: "<<slot_position;
-        return oss.str();
-    }
-};
-typedef BoxRow * pBoxRow;
-typedef std::vector<pBoxRow> vecpBoxRow;
-
-class SampleRow : public DataRow {
-public:
-    LPDbCryovialStore * store_record;
-    string              cryovial_barcode;
-    string              aliquot_type_name;
+class RetrievalRow {
+public: //protected: ?
     string              src_box_name;       // id and cryo pos are in store_record
     int                 dest_box_id;
     string              dest_box_name;
-    int                 dest_cryo_pos;      // cryovial_position
     string              site_name;
     int                 vessel_pos;
     string              vessel_name;
@@ -115,29 +55,9 @@ public:
     int                 structure_pos;      // c_rack_number.position as rack_pos
     string              structure_name;
     int                 box_pos;
-    SampleRow() {}
-    ~SampleRow() { if (store_record) delete store_record; }
-    SampleRow(  LPDbCryovialStore * store_rec,
-                string barcode, string aliquot, string src_name, int dest_id, string dest_name, int dest_pos,
-                string site, int vssl_pos, string vssl_name, int shelf, int strct_pos, string strct_name, int slot) :
-        store_record(store_rec),
-        cryovial_barcode(barcode), aliquot_type_name(aliquot),
-        src_box_name(src_name),
-        dest_box_id(dest_id), dest_box_name(dest_name), dest_cryo_pos(dest_pos),
-        site_name(site), vessel_pos(vssl_pos), vessel_name(vssl_name), shelf_number(shelf), structure_pos(strct_pos), structure_name(strct_name), box_pos(slot) {}
 
-    static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
-    static bool sort_asc_aliquot(const SampleRow *a, const SampleRow *b)    { return a->aliquot_type_name.compare(b->aliquot_type_name); }
-    static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
-    static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
-    static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
-    static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_cryo_pos < b->dest_cryo_pos; }
-    static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
-    static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->structure_pos < b->structure_pos; }
-    static bool sort_asc_shelf(const SampleRow *a, const SampleRow *b)      { return a->shelf_number < b->shelf_number; }
-    static bool sort_asc_vessel(const SampleRow *a, const SampleRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
-    static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
-    static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->box_pos < b->box_pos; }
+    //RetrievalRow(srcnm, dstid, dstnm, dstps, site, vsps, vsnm, shlf, stps, stnm, bxps)
+    RetrievalRow(string srcnm, int dstid, string dstnm, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) {}
 
     void setLocation(string site, int vssl_pos, string vssl_name, int shelf, int strctr_pos, string strctr_name, int boxpos) {
         site_name       = site;
@@ -149,7 +69,7 @@ public:
         box_pos         = boxpos;
     }
 
-    void copyLocation(const SampleRow & other) {
+    void copyLocation(const RetrievalRow & other) {
         site_name       = other.site_name;
         vessel_pos      = other.vessel_pos;
         vessel_name     = other.vessel_name;
@@ -169,28 +89,87 @@ public:
         box_pos         = row.getInt("slot_position");
     }
 
-    string str() {
-        ostringstream oss; oss<<__FUNC__
-            <<"id: "<<(store_record->getID())<<", " //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position
-            <<"status: "<<(store_record->getStatus())<<", "
-        // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position
-            //<<"barcode: "<<store_record->getBarcode()
-            //<<"sampleID"<<cryo_record->getSampleID()
-            //<<"aliquot type ID"<<cryo_record->getAliquotType()
-            <<"status"<<store_record->getStatus()<<", "
-            <<"position"<<store_record->getPosition()<<", "
-            <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquot_type_name<<", "
-            <<"src: {"<<store_record->getBoxID()<<", "<<src_box_name<<"["<<store_record->getPosition()<<"]}, "
-            <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_cryo_pos<<"]}, "
-            <<"loc: {"<<storage_str()<<"}";
-        return oss.str();
-    };
     string storage_str() {
         ostringstream oss;
             oss<<site_name<<"["<<vessel_pos<<"]: "<<vessel_name<<":"<<shelf_number
             <<"["<<structure_pos<<"]/"<<structure_name<<"["<<box_pos<<"]";
         return oss.str();
     }
+
+};
+typedef RetrievalRow * pRetrievalRow;
+typedef std::vector<pRetrievalRow> vecpRetrievalRow;
+
+class BoxRow : public RetrievalRow {
+public:
+    LCDbBoxStore * store_record; // public LPDbID //LPDbBoxName ?? getStatus
+
+    BoxRow(LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+        store_record(rec), RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps) {
+    }
+    ~BoxRow() { if (store_record) delete store_record; }
+
+    static bool sort_asc_currbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
+    static bool sort_asc_destbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
+    static bool sort_asc_site(const BoxRow *a, const BoxRow *b)       { return a->site_name.compare(b->site_name) < 0; }
+    static bool sort_asc_vessname(const BoxRow *a, const BoxRow *b)   { return Util::numericCompare(a->vessel_name, b->vessel_name); }
+    static bool sort_asc_vesspos(const BoxRow *a, const BoxRow *b)   { return a->vessel_pos < b->vessel_pos; }
+    static bool sort_asc_shelf(const BoxRow *a, const BoxRow *b)      { return a->shelf_number < b->shelf_number; }
+    static bool sort_asc_vessel(const BoxRow *a, const BoxRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
+    static bool sort_asc_structure(const BoxRow *a, const BoxRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
+    static bool sort_asc_slot(const BoxRow *a, const BoxRow *b)       { return a->box_pos < b->box_pos; }
+
+    string str() {
+        ostringstream oss; oss
+            <<". id: "<<(store_record->getID())<<", "<<"src_box_name: "<<src_box_name<<", "
+            <<"dest_box_name: "<<dest_box_name<<", "
+            <<"loc: {"<<storage_str()<<"}";
+        return oss.str();
+    }
+};
+typedef BoxRow * pBoxRow;
+typedef std::vector<pBoxRow> vecpBoxRow;
+
+class SampleRow : public RetrievalRow {
+public:
+    LPDbCryovialStore * store_record;
+    string              cryovial_barcode;
+    string              aliquot_type_name;
+    int                 dest_cryo_pos;      // cryovial_position
+    ~SampleRow() { if (store_record) delete store_record; }
+    SampleRow(  LPDbCryovialStore * store_rec,
+                string barc, string aliq, string srcnm, int dstid, string dstnm, int dstps,
+                string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+                RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps),
+                store_record(store_rec), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps) {
+            // why can't derived members be initialised in constructor's initialization list?
+            // because they can't - but you can delegate to the base class' constructor
+            // http://stackoverflow.com/questions/17196495/initialise-protected-data-members-from-derived-class-constructor
+    }
+
+    static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
+    static bool sort_asc_aliquot(const SampleRow *a, const SampleRow *b)    { return a->aliquot_type_name.compare(b->aliquot_type_name); }
+    static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
+    static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
+    static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
+    static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_cryo_pos < b->dest_cryo_pos; }
+    static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
+    static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->structure_pos < b->structure_pos; }
+    static bool sort_asc_shelf(const SampleRow *a, const SampleRow *b)      { return a->shelf_number < b->shelf_number; }
+    static bool sort_asc_vessel(const SampleRow *a, const SampleRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
+    static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
+    static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->box_pos < b->box_pos; }
+
+    string str() {
+        ostringstream oss; oss<<__FUNC__
+            <<"id: "<<(store_record->getID())<<", " //	LPDbCryovi alStore: cryovialID, boxID, retrievalID, status, position// <<"status: "<<(store_record->getStatus())<<", " // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position //<<"barcode: "<<store_record->getBarcode() //<<"sampleID"<<cryo_record->getSampleID() //<<"aliquot type ID"<<cryo_record->getAliquotType()
+            <<"status"<<store_record->getStatus()<<", "
+            <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquot_type_name<<", "
+            <<"src: {"<<store_record->getBoxID()<<", "<<src_box_name<<"["<<store_record->getPosition()<<"]}, "
+            <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_cryo_pos<<"]}, "
+            <<"loc: {"<<storage_str()<<"}";
+        return oss.str();
+    };
 };
 
 typedef std::vector<SampleRow *> vecpSampleRow;
@@ -284,14 +263,42 @@ public:
 //
 //static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 200, 200, 200, 200 };
 
+/**
+http://stackoverflow.com/questions/18311149/ho-to-get-rid-of-cbuilder-warning-virtual-function-hides
+*/
+struct Base {
+  virtual void foo(int) {}
+  virtual void foo(int, double) {}
+
+};
+
+struct Derived : Base {
+  virtual void foo(int) {}
+  //using Base::foo;
+};
+/** end */
+
 class Chunk { // not recorded in database
-public:
-    Chunk() : section(0), start("start"), end("end") { }
-    Chunk(string name, int section, string start, string end) : section(section), start(start), end(end) { }
     string          name;
     int             section;
-    string          start;
-    string          end;
+//    string          start;
+//    string          end;
+    int             start;
+    int             end;
+public:
+    //Chunk() : section(0), start("start"), end("end") { }
+    Chunk() : section(0), start(0), end(0) { }
+    //Chunk(string name, int section, string start, string end) : section(section), start(start), end(end) {
+    Chunk(string name, int sc, int st, int end) : section(sc), start(st), end(end) {
+        //Derived d;
+        //d.foo(1, 1.2);
+    }
+    setSection(int s) { section = s; }
+//    incrStart();
+//    decrStart();
+    incrEnd();
+    decrEnd();
+
     //virtual void    sortAsc(int col) = 0;
     //virtual void    sortDesc(int col) = 0;
     //virtual void    sortToggle(int col) = 0;
@@ -312,7 +319,6 @@ typedef std::vector< SampleChunk * >  vecpSampleChunk;
 
 class BoxChunk : public Chunk {
 public:
-    ~BoxChunk() { delete_referenced<vecpBoxRow>(rows); }
     vecpBoxRow      rows;
     void    sortAsc() { return; };
     void    sortDesc();
