@@ -3,7 +3,7 @@
 sgBoxesFixedCellClick
     sortChunk    
     
-    
+get rid of samplechunk, boxchunk?    
     
 sgwVials
     chunks[] // indexes to start/end of list

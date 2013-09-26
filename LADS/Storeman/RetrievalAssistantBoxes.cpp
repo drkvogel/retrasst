@@ -123,6 +123,12 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     sgwBoxes->addCol("vessel", "Vessel",       262,    BoxRow::sort_asc_vessel);
     sgwBoxes->addCol("struct", "Structure",    200,    BoxRow::sort_asc_structure);
     sgwBoxes->addCol("slot",   "Slot",         78,     BoxRow::sort_asc_slot);
+//    sgwBoxes->addCol("boxname","Box name",     266,    BoxRow::sort_asc_currbox);
+//    sgwBoxes->addCol("site",   "Site",         156,    RetrievalRow::sort_asc_site);
+//    sgwBoxes->addCol("shelf",  "Shelf",        74,     RetrievalRow::sort_asc_shelf);
+//    sgwBoxes->addCol("vessel", "Vessel",       262,    RetrievalRow::sort_asc_vessel);
+//    sgwBoxes->addCol("struct", "Structure",    200,    RetrievalRow::sort_asc_structure);
+//    sgwBoxes->addCol("slot",   "Slot",         78,     RetrievalRow::sort_asc_slot);
     sgwBoxes->init();
 
     loadingMessage = "Loading boxes, please wait...";

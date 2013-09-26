@@ -198,10 +198,9 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
-    ostringstream oss; oss << __FUNC__;
-    oss<<sgwVials->printColWidths(); debugLog(oss.str().c_str()); // print column widths so we can copy them into the source
+    ostringstream oss; oss << __FUNC__; oss<<sgwVials->printColWidths(); debugLog(oss.str().c_str());
     //sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
-    //currentChunk()->sortToggle(ACol);
+//    currentChunk()->sortToggle(ACol);
 }
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {

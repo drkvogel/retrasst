@@ -63,6 +63,13 @@ public: //protected: ?
     // sort functions could also be factored out; not sure if worth it
     // fun refactoring for a rainy day?
     //static bool sort_asc_currbox(const RetrievalRow *a, const RetrievalRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
+//    static bool sort_asc_site(const RetrievalRow *a, const RetrievalRow *b)       { return a->site_name.compare(b->site_name) < 0; }
+//    static bool sort_asc_vessname(const RetrievalRow *a, const RetrievalRow *b)   { return Util::numericCompare(a->vessel_name, b->vessel_name); }
+//    static bool sort_asc_vesspos(const RetrievalRow *a, const RetrievalRow *b)    { return a->vessel_pos < b->vessel_pos; }
+//    static bool sort_asc_shelf(const RetrievalRow *a, const RetrievalRow *b)      { return a->shelf_number < b->shelf_number; }
+//    static bool sort_asc_vessel(const RetrievalRow *a, const RetrievalRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
+//    static bool sort_asc_structure(const RetrievalRow *a, const RetrievalRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
+//    static bool sort_asc_slot(const RetrievalRow *a, const RetrievalRow *b)       { return a->box_pos < b->box_pos; }
 
     void setLocation(string site, int vssl_pos, string vssl_name, int shelf, int strctr_pos, string strctr_name, int boxpos) {
         site_name       = site;
@@ -218,6 +225,7 @@ public:
         cols.push_back(c);
     }
     void addCol(std::string n, std::string d, int w, bool (*f)(const T *, const T *)=NULL) {
+    //void addCol(std::string n, std::string d, int w, bool (*f)(const RetrievalRow *, const RetrievalRow *)=NULL) {
         addCol(StringGridWrapper< T >::Col(n, d, w, f));
     }
     int colNameToInt(std::string colName) {
@@ -282,6 +290,7 @@ public:
     int getEnd() { return end; }
     void setEnd(int e) { end = e; }
     int getSize() { return end - start; }
+    //void sortToggle(int col) { /* do something */ }
     //setStart(int s) { start = s; }
 
 //    incrStart();
@@ -316,6 +325,11 @@ public:
 };
 
 typedef std::vector< BoxChunk * >  vecpBoxChunk;
+
+class RetrievalList {
+    RetrievalRow rows[];
+    Chunk chunks[];
+};
 
 static const char * jobStatusString(short status) {
     static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Deleted" };
