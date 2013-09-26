@@ -10,8 +10,6 @@
 
 TfrmSamples *frmSamples;
 
-static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b) { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
-
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwChunks = new StringGridWrapper<SampleChunk>(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  200);
@@ -26,7 +24,7 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("currbox",  "Current box",      275,   SampleRow::sort_asc_currbox);
     sgwVials->addCol("currpos",  "Pos",              43,    SampleRow::sort_asc_currpos);
     sgwVials->addCol("site",     "Site",             116,   SampleRow::sort_asc_site);
-    sgwVials->addCol("vesspos",  "Position",         50,    SampleRow::sort_asc_position); // vessel pos in site
+    sgwVials->addCol("vesspos",  "Position",         50,    SampleRow::sort_asc_position);
     sgwVials->addCol("shelf",    "Shelf",            100,   SampleRow::sort_asc_shelf);
     sgwVials->addCol("vessel",   "Vessel",           43,    SampleRow::sort_asc_vessel);
     sgwVials->addCol("struct",   "Structure",        121,   SampleRow::sort_asc_structure);
@@ -34,7 +32,6 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("destbox",  "Destination box",  213,   SampleRow::sort_asc_destbox);
     sgwVials->addCol("destpos",  "Pos",              37,    SampleRow::sort_asc_destpos);
     sgwVials->init();
-
 }
 
 void TfrmSamples::debugLog(String s) {
@@ -80,8 +77,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                 // insert into l_sample_retrieval
             }
 
-            /*
-            retrieval_cid	 i4		c_retrieval_job	 The retrieval task this entry is part of
+        /* retrieval_cid	 i4		c_retrieval_job	 The retrieval task this entry is part of
             retrieval_type	 i2			obsolete - see c_retrieval_job
             box_id	 i4		box_name	 The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
             section	 i2			 Which chunk of the retrieval plan this entry belongs to (0 = retrieve all boxes in parallel)

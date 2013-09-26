@@ -8,23 +8,17 @@ Have implemented the StringGridWrapper, but sorting is no longer working. Must r
 
 That means the 'rows' of the StringGridWrapper should be set to be the rows of whichever chunk is currently selected.
 At which point (which routine) should we do this? Something smells wrong about the current way chunks are handled.
-
 Pragmatic - forget sorting for now, fire some tracer bullets - get some visual stuff up and database inserts going
 
 I have your new card so please pop in with the old one when you’re next passing.
 
 Another minor feature to add to the retrieval assistant when you’re implementing the final part: when you’ve finished retrieving samples from a box, check if it’s empty.  That’s unlikely to be necessary for tasks I’ve created but anyone using Jonathan’s utility to rationalise tanks may end up throwing the old boxes away
 
-Chris
-This means we’ll be demonstrating next week using the mirror system, just in case it makes any difference
-Nick
+Chris - This means we’ll be demonstrating next week using the mirror system, just in case it makes any difference Nick
 
-I'm happy for it to be split I f that makes more sense.
-Martin
+I'm happy for it to be split I f that makes more sense. Martin
 
-Hi Martin
-Did I gather that the labs are going to be quiet on 2nd as well as 1st October?  If it's going to be our only chance for a while, can we clobber Ingres both days?  Rather than doing the whole thing in one day, I'd like to suggest rebuilding the test system (v2.7.2) on 1st October and, if that goes according to plan, do the development system (v2.7.3) the following day.
-
+Hi Martin Did I gather that the labs are going to be quiet on 2nd as well as 1st October?  If it's going to be our only chance for a while, can we clobber Ingres both days?  Rather than doing the whole thing in one day, I'd like to suggest rebuilding the test system (v2.7.2) on 1st October and, if that goes according to plan, do the development system (v2.7.3) the following day.
 
 As I mentioned earlier, there's a bit of a problem including boxes in a retrieval if we don't know where they are.  Our current thinking is that we'll ask the user about such boxes when they create a retrieval list and add dummy/incomplete box_store records.  I'm about to add such records for existing jobs.  Please ignore any integrity errors that result
 

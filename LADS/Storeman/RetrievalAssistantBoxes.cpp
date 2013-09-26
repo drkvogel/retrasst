@@ -287,7 +287,7 @@ void __fastcall TfrmBoxes::sgChunksFixedCellClick(TObject *Sender, int ACol, int
 }
 
 void __fastcall TfrmBoxes::sgBoxesFixedCellClick(TObject *Sender, int ACol, int ARow) {
-    sortList(ACol);
+    sortChunk(ACol);
 }
 
 void __fastcall TfrmBoxes::timerLoadBoxesTimer(TObject *Sender) {
@@ -332,9 +332,9 @@ void TfrmBoxes::addChunk() {
     if (chunks.size() == 0) {
         // first chunk, make default chunk from entire list
     }
-    BoxChunk * chunk = new BoxChunk;
-    chunk->setSection(chunks.size() + 1);
-    chunks.push_back(chunk);
+//    BoxChunk * chunk = new BoxChunk;
+//    chunk->setSection(chunks.size() + 1);
+//    chunks.push_back(chunk);
     btnDelChunk->Enabled = true;
     showChunks();
 }
@@ -386,8 +386,9 @@ void TfrmBoxes::showRows() {
     }
 }
 
-void TfrmBoxes::sortList(int col) {
+void TfrmBoxes::sortChunk(int col) {
     Screen->Cursor = crSQLWait;
+
     //boxSorter[col].sort_toggle(boxes);
     //boxSorter[col].sort(boxes, Sorter::SortOrder::TOGGLE);
     showRows();

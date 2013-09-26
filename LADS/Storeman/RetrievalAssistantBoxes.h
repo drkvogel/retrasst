@@ -116,7 +116,7 @@ private:
     vecpBoxRow                  boxes;
     StringGridWrapper<BoxRow> *     sgwBoxes;
     StringGridWrapper<BoxChunk> *   sgwChunks;
-    void                        sortList(int col);
+    void                        sortChunk(int col);
     void                        addChunk();
     void                        showChunks();
     void                        autoChunk();

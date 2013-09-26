@@ -97,7 +97,6 @@ private:
     void                        showChunks();
     void                        loadRows();
     void                        showChunk(SampleChunk * chunk=NULL);
-    //void                        radgrpRowsChange();
     //void                        sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order);
     const char *                loadingMessage;
 public:

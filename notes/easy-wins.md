@@ -1,4 +1,20 @@
-﻿easy wins:
+﻿today:
+    chunking
+sgBoxesFixedCellClick
+    sortChunk    
+    
+    
+    
+sgwVials
+    chunks[] // indexes to start/end of list
+    
+or
+
+Chunk
+    * list? // pointer to *part* of vector...hmmm
+    * wrapper->sort
+    
+easy wins:
 finish off chunk stringgridwrapper refactoring
 sort out add first chunk mess:
     count the number of rows and put that as the end and size of the initial chunk
@@ -15,3 +31,4 @@ sort out add first chunk mess:
 reject list
 create list?
 
+wrench -> settings -> advanced -> privacy -> content settings -> all cookies

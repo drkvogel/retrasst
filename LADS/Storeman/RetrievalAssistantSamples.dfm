@@ -146,7 +146,6 @@ object frmSamples: TfrmSamples
         Caption = 'Show Log'
         TabOrder = 8
         OnClick = cbLogClick
-        ExplicitTop = 125
       end
       object cbSnapToBoxes: TCheckBox
         Left = 0
@@ -156,8 +155,6 @@ object frmSamples: TfrmSamples
         Align = alTop
         Caption = 'Snap to boxes'
         TabOrder = 9
-        ExplicitLeft = 6
-        ExplicitTop = 116
       end
     end
     object sgChunks: TStringGrid

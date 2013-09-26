@@ -201,7 +201,7 @@ class StringGridWrapper {
     bool initialised;
 public:
     std::vector< T * > * rows;
-    std::vector< Col >cols;
+    std::vector< Col > cols;
 
     StringGridWrapper(TStringGrid * g, std::vector<T *> * v) : sg(g), rows(v), initialised(false) {}
     void init() {
@@ -242,65 +242,47 @@ public:
         for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
         sg->Cells[0][1] = "No results.";
     }
-    void sort_asc(int col) {
+    void sort_asc(int col, int start, int end) {
         std::sort(rows->begin(), rows->end(), cols[col].sort_func_asc); // dot notation: vec.begin() also seems to work - how?
     }
-    void sort_dsc(int col) {
+    void sort_dsc(int col, int start, int end) {
         std::sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc);
+        //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
     }
-    void sort_asc(std::string colName) {
+    void sort_asc(std::string colName, int start, int end) {
         sort_asc(colNameToInt(colName));
     }
-    void sort_dsc(std::string colName) {
+    void sort_dsc(std::string colName, int start, int end) {
         sort_dsc(colNameToInt(colName));
     }
-    void sort_toggle(int col) {
+    void sort_toggle(int col, int start, int end) {
         cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
     }
-    void sort_toggle(std::string colName) {
+    void sort_toggle(std::string colName, int start, int end) {
         sort_toggle(colNameToInt(colName));
     }
 };
 
-/**
-http://stackoverflow.com/questions/18311149/ho-to-get-rid-of-cbuilder-warning-virtual-function-hides
-*/
-struct Base {
-  virtual void foo(int) {}
-  virtual void foo(int, double) {}
-
-};
-
-struct Derived : Base {
-  virtual void foo(int) {}
-  //using Base::foo;
-};
-/** end */
-
 class Chunk { // not recorded in database
     string          name;
     int             section;
-//    string          start;
-//    string          end;
     int             start;
+    string          startDescrip;
     int             end;
+    string          endDescrip;
 public:
-    //Chunk() : section(0), start("start"), end("end") { }
     Chunk() : section(0), start(0), end(0) { }
-    //Chunk(string name, int section, string start, string end) : section(section), start(start), end(end) {
     Chunk(string name, int sc, int st, int end) : section(sc), start(st), end(end) {
-        //Derived d;
-        //d.foo(1, 1.2);
-    }
-    getSection() { return section; }
-    setSection(int s) { section = s; }
-    getStart() { return start; }
-    setStart(int s) { start = s; }
-    getEnd() { return end; }
-    setEnd(int e) { end = e; }
-    getSize() { return end - start; }
-    //setStart(int s) { start = s; }
 
+    }
+    int getSection() { return section; }
+    void setSection(int s) { section = s; }
+    int getStart() { return start; }
+    void setStart(int s) { start = s; }
+    int getEnd() { return end; }
+    void setEnd(int e) { end = e; }
+    int getSize() { return end - start; }
+    //setStart(int s) { start = s; }
 
 //    incrStart();
 //    decrStart();
