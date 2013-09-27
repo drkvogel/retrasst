@@ -274,7 +274,7 @@ void TfrmSamples::addChunk() {
         // or
         // just set markers to the start and end of the chunk in the main list
         // most lightweight way to do it, doesn't duplicate information, and useable for either samples or boxes?
-        chunk->setStart(1); // 1-indexed
+        //chunk->setStart(1); // 1-indexed
 
         //chunk = new Chunk< SampleRow >(sgwVials->rows, chunks.size() + 1, 1, vials.size());
         chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 1, vials.size());

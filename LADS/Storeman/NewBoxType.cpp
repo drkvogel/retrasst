@@ -19,6 +19,7 @@ __fastcall TfrmNewBoxType::TfrmNewBoxType(TComponent* Owner)
 	: TForm(Owner)
 {
 }
+
 //---------------------------------------------------------------------------
 
 void __fastcall TfrmNewBoxType::aliquotDropDown(TObject *Sender)

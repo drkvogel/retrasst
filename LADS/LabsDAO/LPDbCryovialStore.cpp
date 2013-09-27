@@ -1,11 +1,13 @@
-//---------------------------------------------------------------------------
-//
-// 	Methods for the cryovial_store table - use with LPDbCryovial
-//
-//---------------------------------------------------------------------------
+/*---------------------------------------------------------------------------
+ *
+ * 	Methods for the cryovial_store table - use with LPDbCryovial
+ *
+ *	27 Sepember 2013	Read sample volume (if available)
+ ---------------------------------------------------------------------------*/
 
 #include <vcl.h>
 #include <stdlib.h>
+#include <sstream>
 
 #include "LPDbCryovialStore.h"
 #include "LQuery.h"
@@ -27,7 +29,9 @@ LPDbCryovialStore::LPDbCryovialStore( const LQuery & query )
    status( query.readInt( "status" ) ),
    position( query.readInt( "cryovial_position" ) ),
    cryovialID( query.readInt( "cryovial_id" ) )
-{}
+{
+	volume = query.fieldExists( "sample_volume" ) ? query.readDouble( "sample_volume" ) : -1;
+}
 
 //---------------------------------------------------------------------------
 //	Mark record as belonging to given job; return false if claim fails
@@ -84,13 +88,12 @@ bool LPDbCryovialStores::readMarked( LQuery ddq )
 }
 
 //---------------------------------------------------------------------------
-//	Read latest cryovials entries taken from given specimen, any status
+//	Create or update cryovial_store record.  TODO: set volume on insert
 //---------------------------------------------------------------------------
 
 bool LPDbCryovialStore::saveRecord( LQuery query )
 {
-	if( !saved )
-	{
+	if( !saved ) {
 		claimNextID( query );
 		query.setSQL( "insert into cryovial_store (record_id, cryovial_id, box_cid,"
 					 " cryovial_position, time_stamp, status, note_exists, process_cid, retrieval_cid)"
@@ -98,24 +101,24 @@ bool LPDbCryovialStore::saveRecord( LQuery query )
 		query.setParam( "cid", getID() );
 		query.setParam( "bid", boxID );
 		query.setParam( "pos", position );
-	}
-	else
-	{	std::string fields = "status = :sts, retrieval_cid = jcid, process_cid = :pid";
-		switch( status )
-		{
+	} else {
+		std::stringstream fields;
+		fields << "update cryovial_store set status = :sts, retrieval_cid = jcid, process_cid = :pid";
+		switch( status ) {
 			case ALLOCATED:
 			case CONFIRMED:
-				fields += ", time_stamp = 'now'";
+				fields << ", time_stamp = 'now'";
 			break;
-
 			case ANALYSED:
 			case DESTROYED:
-				fields += ", removed = 'now'";
+				fields << ", removed = 'now'";
 		}
-
-		query.setSQL( "update cryovial_store set " + fields + " where record_id = :rid" );
+		if( volume >= 0 ) {
+			fields << ", sample_volume = " << volume;
+		}
+		fields << " where record_id = :rid";
+		query.setSQL( fields.str() );
 	}
-
 	query.setParam( "sts", status );
 	query.setParam( "jcid", retrievalID );
 	query.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );

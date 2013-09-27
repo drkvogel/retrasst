@@ -13,6 +13,23 @@
 
 TfrmRetrievalAssistant *frmRetrievalAssistant;
 
+//template < class T >
+//Chunk< T >::Chunk(StringGridWrapper< T > * w, int sc, int st, int e) { // : sgw(w), section(sc) {
+//    sgw = w;
+//    section = sc;
+//    setEnd(end);
+//    setStart(st);
+//}//template < class T >//Chunk< T >::Chunk(StringGridWrapper< T > * w, int sc, int st, int e) { // : sgw(w), section(sc) {
+//    sgw = w;
+//    section = sc;
+//    setEnd(end);
+//    setStart(st);
+//}////template < class SampleRow >//Chunk< SampleRow >::Chunk(StringGridWrapper< SampleRow > * w, int sc, int st, int e) { // : sgw(w), section(sc) {
+//    sgw = w;
+//    section = sc;
+//    setEnd(end);
+//    setStart(st);
+//}
 __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
 
 void __fastcall TfrmRetrievalAssistant::cbLogClick(TObject *Sender) { memoDebug->Visible = cbLog->Checked; }

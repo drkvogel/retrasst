@@ -271,6 +271,13 @@ public:
     }
 };
 
+// http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates
+//export
+//inline
+// attempts to move definition of Chunk() to .cpp in order to try to set breakpoints which disappear at runtime when
+// I set them in the header. none worked. it seems templated methods must be defined in the header.
+// why my breakpoints, which I need to find out why the program is crashing, are disappearing, I do not know.
+// I'm going home.
 template < class T >
 class Chunk { // not recorded in database
     StringGridWrapper< T > * sgw;
@@ -281,50 +288,43 @@ class Chunk { // not recorded in database
     int                 end;
     string              endDescrip;
 public:
-    //Chunk(vector< T * > * rows, int sc, int st, int e) : totalRows(rows), section(sc) {
     Chunk(StringGridWrapper< T > * w, int sc, int st, int e) : sgw(w), section(sc) {
+        sgw = w;
+        section = sc;
         setEnd(end);
         setStart(st);
     }
     // http://stackoverflow.com/questions/1568091/why-use-getters-and-setters
-    //void    setRows(vector< T * > * ofRows) { totalRows = ofRows }
     int     getSection() { return section; }
-    //void    setSection(int s) { section = s; }
     int     getStart() { return start; }
     void    setStart(int s) {
-        if (s < 1 || s > end) throw "invalid chunk start value";
+        if (s < 1 || s > end)
+            throw "invalid chunk start value";
         start = s;
     }
     int     getEnd() { return end; }
     void    setEnd(int e) {
-        //if (e > totalRows->size()) throw "invalid chunk end value";
-        if (e > sgw->rowCount()) throw "invalid chunk end value";
+        if (e > sgw->rowCount())
+            throw "invalid chunk end value";
         end = e;
     }
     int     getSize() { return end - start; }
 
     T *     at(int pos) { return totalRows->at(start + pos); }
 
-    void    blah() {
-        oajfoidsafhaosnfaonf  // not compiled because not used (because in template?)
-    }
-
     void sort_asc(string colName) {
         totalRows->sort_asc(colNameToInt(colName));  // not compiled when not used (because in template?)
     }
+
     void sort_dsc(string colName) {
         totalRows->sort_dsc(colNameToInt(colName));
     }
-    //void sortToggle(int col, int start, int end) {
+
     void sortToggle(int col) {
         //totalRows->cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
         sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
         sgw->cols[col].sortAsc = !sgw->cols[col].sortAsc; // toggle
     }
-
-
-    //void sortToggle(int col) { /* do something */ }
-    //setStart(int s) { start = s; }
 
 //    incrStart();
 //    decrStart();
