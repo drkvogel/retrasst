@@ -139,13 +139,22 @@ object frmSamples: TfrmSamples
       end
       object cbLog: TCheckBox
         Left = 0
-        Top = 125
+        Top = 142
         Width = 82
         Height = 17
         Align = alTop
         Caption = 'Show Log'
         TabOrder = 8
         OnClick = cbLogClick
+      end
+      object cbSnapToBoxes: TCheckBox
+        Left = 0
+        Top = 125
+        Width = 82
+        Height = 17
+        Align = alTop
+        Caption = 'Snap to boxes'
+        TabOrder = 9
       end
     end
     object sgChunks: TStringGrid
@@ -172,8 +181,6 @@ object frmSamples: TfrmSamples
     Align = alClient
     Caption = 'Vials in chunk'
     TabOrder = 1
-    ExplicitTop = 320
-    ExplicitHeight = 310
     object sgVials: TStringGrid
       Left = 2
       Top = 15
@@ -185,9 +192,9 @@ object frmSamples: TfrmSamples
       Options = [goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect, goFixedRowClick]
       TabOrder = 0
       OnClick = sgVialsClick
+      OnDblClick = sgVialsDblClick
       OnDrawCell = sgVialsDrawCell
       OnFixedCellClick = sgVialsFixedCellClick
-      ExplicitTop = 14
     end
     object panelLoading: TPanel
       Left = 176
@@ -204,7 +211,6 @@ object frmSamples: TfrmSamples
         Height = 17
         Align = alBottom
         TabOrder = 0
-        ExplicitWidth = 271
       end
     end
   end
@@ -224,8 +230,6 @@ object frmSamples: TfrmSamples
       Align = alClient
       Caption = 'Sort'
       TabOrder = 0
-      ExplicitLeft = 40
-      ExplicitTop = -3
       object btnDelSort: TButton
         Left = 800
         Top = 15
@@ -267,8 +271,6 @@ object frmSamples: TfrmSamples
     ScrollBars = ssVertical
     TabOrder = 3
     Visible = False
-    ExplicitLeft = 8
-    ExplicitTop = 600
   end
   object timerLoadVials: TTimer
     Enabled = False

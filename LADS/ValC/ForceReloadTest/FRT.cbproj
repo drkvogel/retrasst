@@ -57,13 +57,16 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <ILINK_LibraryPath>..\BusinessLayer\;..\..\..\paulst\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <VerInfo_Locale>2057</VerInfo_Locale>
+        <Manifest_File>None</Manifest_File>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <ILINK_LibraryPath>..\..\..\paulst\db\;..\BusinessLayer\;..\..\..\paulst\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <UsingDelphiRTL>true</UsingDelphiRTL>
         <PackageImports>bindcompfmx;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;inetdb;DBXInterBaseDriver;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;soaprtl;bindengine;dsnap;IndyCore;fmxase;inet;fmxobj;inetdbxpress;fmxdae;dbexpress;$(PackageImports)</PackageImports>
         <Multithreaded>true</Multithreaded>
         <_TCHARMapping>wchar_t</_TCHARMapping>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <IncludePath>..\..\..\paulst\;..\BusinessLayer\;../BusinessLayer/;../../../paulst/;..\..\LUA;$(IncludePath)</IncludePath>
+        <IncludePath>..\..\..\paulst\db\;..\..\..\paulst\;..\BusinessLayer\;..\..\LUA\lua-5.2.2\src;$(IncludePath)</IncludePath>
         <ProjectType>CppConsoleApplication</ProjectType>
         <AllPackageLibs>rtl.lib;vcl.lib</AllPackageLibs>
         <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
@@ -86,7 +89,7 @@
         <ILINK_LibraryPath>J:\cvs\paulst\Win32\Release\;J:\cvs\LADS\ValC\db\Win32\Debug\;J:\cvs\LADS\ValC\ForceReloadTest\;J:\cvs\LADS\ValC\BusinessLayer\Win32\Debug\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <ILINK_LibraryPath>J:\cvs\LADS\ValC\ForceReloadTest\;J:\cvs\paulst\Win64\Release\;J:\cvs\LADS\ValC\BusinessLayer\Win64\Debug\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>J:\cvs\LADS\LUA\64bit\;J:\cvs\LADS\ValC\ForceReloadTest\;J:\cvs\paulst\Win64\Release\;J:\cvs\LADS\ValC\BusinessLayer\Win64\Debug\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -119,7 +122,6 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <_TCHARMapping>char</_TCHARMapping>
-        <Manifest_File>None</Manifest_File>
         <LinkPackageImports>rtl.bpi;vcl.bpi</LinkPackageImports>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Defines>_DEBUG;$(Defines)</Defines>
@@ -134,10 +136,10 @@
         <Defines>NDEBUG;$(Defines)</Defines>
     </PropertyGroup>
     <ItemGroup>
-        <CppCompile Include="..\BusinessLayer\ADODB_TLB.cpp">
-            <DependentOn>..\BusinessLayer\ADODB_TLB.h</DependentOn>
-            <BuildOrder>2</BuildOrder>
-        </CppCompile>
+        <LibFiles Include="..\..\LUA\64bit\Lua_5_2_2_64.a" Condition="'$(Platform)'=='Win64'">
+            <BuildOrder>65</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
         <CppCompile Include="..\BusinessLayer\AllocateLocalResultsToWorklistEntries.cpp">
             <DependentOn>..\BusinessLayer\AllocateLocalResultsToWorklistEntries.h</DependentOn>
             <BuildOrder>3</BuildOrder>
@@ -166,21 +168,13 @@
             <DependentOn>..\BusinessLayer\BuddySampleIDKeyedOnSampleRunID.h</DependentOn>
             <BuildOrder>58</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\BusinessLayer\ComUtil.cpp">
-            <DependentOn>..\BusinessLayer\ComUtil.h</DependentOn>
-            <BuildOrder>8</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\BusinessLayer\CursorADO.cpp">
-            <DependentOn>..\BusinessLayer\CursorADO.h</DependentOn>
-            <BuildOrder>9</BuildOrder>
+        <CppCompile Include="..\BusinessLayer\ConnectionCache.cpp">
+            <DependentOn>..\BusinessLayer\ConnectionCache.h</DependentOn>
+            <BuildOrder>67</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\BusinessLayer\CursorBackedWorklistRelationsDataSource.cpp">
             <DependentOn>..\BusinessLayer\CursorBackedWorklistRelationsDataSource.h</DependentOn>
             <BuildOrder>10</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\BusinessLayer\DBConnectionADO.cpp">
-            <DependentOn>..\BusinessLayer\DBConnectionADO.h</DependentOn>
-            <BuildOrder>11</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\BusinessLayer\DBUpdateConsumer.cpp">
             <DependentOn>..\BusinessLayer\DBUpdateConsumer.h</DependentOn>
@@ -198,9 +192,21 @@
             <DependentOn>..\BusinessLayer\DBUpdateTaskInsertSampleRun.h</DependentOn>
             <BuildOrder>55</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\BusinessLayer\DBUpdateTaskLinkResultToWorklistEntry.cpp">
+            <DependentOn>..\BusinessLayer\DBUpdateTaskLinkResultToWorklistEntry.h</DependentOn>
+            <BuildOrder>63</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\BusinessLayer\DBUpdateTaskUpdateSampleRunID.cpp">
             <DependentOn>..\BusinessLayer\DBUpdateTaskUpdateSampleRunID.h</DependentOn>
             <BuildOrder>56</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\ExceptionalDataHandler.cpp">
+            <DependentOn>..\BusinessLayer\ExceptionalDataHandler.h</DependentOn>
+            <BuildOrder>64</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\ExceptionalDataHandlerImpl.cpp">
+            <DependentOn>..\BusinessLayer\ExceptionalDataHandlerImpl.h</DependentOn>
+            <BuildOrder>65</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\BusinessLayer\InclusionRule.cpp">
             <DependentOn>..\BusinessLayer\InclusionRule.h</DependentOn>
@@ -233,6 +239,9 @@
         <CppCompile Include="..\BusinessLayer\LoadWorklistEntries.cpp">
             <DependentOn>..\BusinessLayer\LoadWorklistEntries.h</DependentOn>
             <BuildOrder>18</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\LuaUtil.cpp">
+            <BuildOrder>68</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\BusinessLayer\MockConnection.cpp">
             <DependentOn>..\BusinessLayer\MockConnection.h</DependentOn>
@@ -268,10 +277,6 @@
         <CppCompile Include="..\BusinessLayer\SampleRunIDResolutionService.cpp">
             <DependentOn>..\BusinessLayer\SampleRunIDResolutionService.h</DependentOn>
             <BuildOrder>28</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\BusinessLayer\StringBackedCursor.cpp">
-            <DependentOn>..\BusinessLayer\StringBackedCursor.h</DependentOn>
-            <BuildOrder>29</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\BusinessLayer\TestResultImpl.cpp">
             <DependentOn>..\BusinessLayer\TestResultImpl.h</DependentOn>
@@ -309,10 +314,6 @@
             <DependentOn>..\BusinessLayer\WorklistRelation.h</DependentOn>
             <BuildOrder>38</BuildOrder>
         </CppCompile>
-        <LibFiles Include="Lua64.a" Condition="'$(Platform)'=='Win64'">
-            <BuildOrder>61</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
         <CppCompile Include="Main.cpp">
             <BuildOrder>0</BuildOrder>
         </CppCompile>
@@ -330,6 +331,38 @@
         <CppCompile Include="..\..\..\paulst\CritSec.cpp">
             <DependentOn>..\..\..\paulst\CritSec.h</DependentOn>
             <BuildOrder>50</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\db\AbstractConnectionFactory.cpp">
+            <DependentOn>..\..\..\paulst\db\AbstractConnectionFactory.h</DependentOn>
+            <BuildOrder>66</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\db\ADODB_TLB.cpp">
+            <DependentOn>..\..\..\paulst\db\ADODB_TLB.h</DependentOn>
+            <BuildOrder>67</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\db\ComUtil.cpp">
+            <DependentOn>..\..\..\paulst\db\ComUtil.h</DependentOn>
+            <BuildOrder>66</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\db\Cursor.cpp">
+            <DependentOn>..\..\..\paulst\db\Cursor.h</DependentOn>
+            <BuildOrder>65</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\db\CursorADO.cpp">
+            <DependentOn>..\..\..\paulst\db\CursorADO.h</DependentOn>
+            <BuildOrder>64</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\db\DBConnection.cpp">
+            <DependentOn>..\..\..\paulst\db\DBConnection.h</DependentOn>
+            <BuildOrder>63</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\db\DBConnectionADO.cpp">
+            <DependentOn>..\..\..\paulst\db\DBConnectionADO.h</DependentOn>
+            <BuildOrder>62</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\db\StringBackedCursor.cpp">
+            <DependentOn>..\..\..\paulst\db\StringBackedCursor.h</DependentOn>
+            <BuildOrder>61</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\paulst\FileWriterC.cpp">
             <BuildOrder>49</BuildOrder>

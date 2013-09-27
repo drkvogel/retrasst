@@ -104,7 +104,7 @@ void TfrmBoxList::listBoxTypes( ) {
 	types.clear( );
 	int row = 1;
 	for( Range< LPDbBoxType >tr = LPDbBoxTypes::records( ); tr.isValid( ); ++tr ) {
-		if( tr->getStatus( ) == LPDbBoxType::SHORT_TERM || tr->getStatus( ) == LPDbBoxType::LONG_TERM ) {
+		if( tr->getUse() == LPDbBoxType::SHORT_TERM || tr->getUse( ) == LPDbBoxType::LONG_TERM ) {
 			sgBoxTypes->Cells[ TYPE ][ row ] = tr->getName().c_str();
 			sgBoxTypes->Cells[ COUNT ][ row ] = tr->getExpectedUses();
 			sgBoxTypes->Cells[ PLUS ][ row ] = "+";

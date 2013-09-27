@@ -37,21 +37,11 @@ LCDbProject::LCDbProject( const LQuery & query  )
 			 query.readDateTime( "valid_to" ),
 			 query.readInt( "status" ) ),
    database( query.readString( "db_name" ) ),
-   contact( query.readString( "info_url" ) )
+   contact( query.readString( "info_url" ) ),
+   version( query.readInt( "database_version" ),
+			query.readInt( "database_minor_version" ),
+			query.readInt( "database_minor_phase" ) )
 {
-	if( query.fieldExists( "database_version" ) )
-		version.first = query.readInt( "database_version" );
-	else
-		version.first = 2;
-
-	if( query.fieldExists( "database_minor_version" ) )
-		version.second = query.readInt( "database_minor_version" );
-	else
-		version.second = 5;
-
-	if( query.fieldExists( "database_minor_phase" ) )
-		;
-
 	if( query.fieldExists( "study_code" ) )
 		code = query.readString( "study_code" );
 	if( code.empty() || code == "." )
@@ -121,7 +111,7 @@ bool LCDbProject::saveRecord( LQuery query )
 std::string LCDbProject::getVersionString() const
 {
 	std::stringstream out;
-	out << version.first << '.' << version.second;
+	out << version.major << '.' << version.minor << '.' << version.phase;
 	return out.str();
 }
 

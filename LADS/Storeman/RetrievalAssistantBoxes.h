@@ -51,12 +51,6 @@ public:
 	TDateTime getFinishDate() const { return finish_date; }
 */
 
-enum {  SGBOXES_BOXNAME, SGBOXES_SITE, SGBOXES_POSITION, SGBOXES_SHELF, SGBOXES_VESSEL, SGBOXES_STRUCTURE, SGBOXES_SLOT, // location in "Russian Doll order"
-        SGBOXES_NUMCOLS };
-static const char * sgBoxesColName[SGBOXES_NUMCOLS] = {"Box name", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
-static int sgBoxesColWidth[SGBOXES_NUMCOLS] = {266, 156, 74, 74, 262, 200, 78 };
-
-//extern Sorter<BoxRow> boxSorter[SGBOXES_NUMCOLS];
 
 class LoadBoxesWorkerThread : public TThread {
 private:
@@ -117,17 +111,19 @@ private:
     const char *        loadingMessage;
     LoadBoxesWorkerThread * loadBoxesWorkerThread;
     void __fastcall loadBoxesWorkerThreadTerminated(TObject *Sender);
-    int                 maxRows; // rows to show at a time
-    LCDbCryoJob *       job;
-    vecpBoxChunk        chunks;
-    vecpBoxRow          boxes;
-    void                sortList(int col);
-    void                addChunk();
-    void                showChunks();
-    void                autoChunk();
-    void                loadRows();
-    void                showRows();
-    void                radgrpRowsChange();
+    LCDbCryoJob *               job;
+    //vecpBoxChunk                chunks;
+    vector< Chunk< BoxRow > *>  chunks;
+    vecpBoxRow                  boxes;
+    StringGridWrapper<BoxRow> *     sgwBoxes;
+    //StringGridWrapper<BoxChunk> *   sgwChunks;
+    StringGridWrapper< Chunk< BoxRow > > *   sgwChunks;
+    void                        sortChunk(int col);
+    void                        addChunk();
+    void                        showChunks();
+    void                        autoChunk();
+    void                        loadRows();
+    void                        showRows();
     UINT TimerId;
     static VOID CALLBACK TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime);
         // Declaring the function static stops the __closure keyword being included

@@ -70,13 +70,13 @@ void __fastcall TfrmRetrieveMain::AddClick(TObject *Sender)
 	}
 	std::unique_ptr< TStrings > idList( new TStringList );
 	idList->LoadFromFile(OpenDialog1->FileName);
-	int primary = getTypeID( CmbAliquot1 );
-	int secondary = getTypeID( CmbAliquot2 );
+	progress -> Position = 0;
+	progress -> Max = idList->Count;
 
 	Screen->Cursor = crSQLWait;
 	StoreDAO dao;
-	progress -> Position = 0;
-	progress -> Max = idList->Count;
+	int primary = getAliquotTypeID( CmbAliquot1 ), secondary = getAliquotTypeID( CmbAliquot2 );
+	const LCDbProject & proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() );
 	for( int i = 0; i < idList->Count; i++ ) {
 		AnsiString id = idList->Strings[ i ];
 		std::string specimen, cryovial, box;
@@ -89,14 +89,14 @@ void __fastcall TfrmRetrieveMain::AddClick(TObject *Sender)
 				cryovial = id.c_str();
 				break;
 
-			case 2: //box (query to be written )
+			case 2: //box (query to be written)
 				box = id.c_str();
 				break;
 		}
 		std::vector< ROSETTA > results;
-		if( !dao.loadCryovials( specimen, cryovial, primary, secondary, LCDbProjects::getCurrentID(), results ) ) {
+		if( !dao.loadCryovials( specimen, cryovial, primary, secondary, proj.getID(), results ) ) {
 			String error = "No samples found for " + id;
-			Application->MessageBox(error.c_str(), NULL, MB_OK);
+			Application->MessageBox( error.c_str(), NULL, MB_OK );
 		}
 		for( unsigned i = 0; i < results.size(); i ++ ) {
 			rows.push_back( GridEntry( results[i] ) );
@@ -105,6 +105,8 @@ void __fastcall TfrmRetrieveMain::AddClick(TObject *Sender)
 		drawGrid();
 		Application -> ProcessMessages();
 	}
+	checkBoxTypes();
+	enableButtons();
 	Screen->Cursor = crDefault;
 }
 
@@ -113,7 +115,7 @@ void __fastcall TfrmRetrieveMain::AddClick(TObject *Sender)
 void __fastcall TfrmRetrieveMain::cbProjectChange(TObject *Sender)
 {
 	LCDbProjects &projList = LCDbProjects::records( );
-	AnsiString proj = cbProject->Text;
+	AnsiString proj = cbProject->Text.Trim();
 	const LCDbProject *selected = projList.findByName( proj.c_str() );
 	if( selected == NULL ) {
 		rows.clear();
@@ -134,7 +136,7 @@ void __fastcall TfrmRetrieveMain::cbProjectDropDown(TObject *Sender)
 			if( pr->getID( ) == LCDbProjects::getCurrentID( ) ) {
 				selected = cbProject->Items->Count;
 			}
-			cbProject->Items->Add( pr->getName( ).c_str( ) );
+			cbProject->Items->Add( pr->getName().c_str( ) );
 		}
 	}
 	cbProject->ItemIndex = selected;
@@ -196,22 +198,8 @@ void __fastcall TfrmRetrieveMain::FormResize(TObject *Sender)
 
 void __fastcall TfrmRetrieveMain::btnDestinationClick(TObject *Sender)
 {
-	int primary = getTypeID( CmbAliquot1 );
-	int secondary = getTypeID( CmbAliquot2 );
-
-	// pick existing box type - FIXME should check for boxes including both aliquot
-	// types and allow user to select from list or create new box type
-
-	const LPDbBoxType * boxType = NULL;
-	for( Range< LPDbBoxType > tr = LPDbBoxTypes::records( ); tr.isValid( ); ++ tr ) {
-		if( tr -> isActive() ) {
-			for( Range< int > atr = tr->getAliquots( ); atr.isValid( ); ++ atr ) {
-				if( *atr == primary || *atr == secondary ) {
-					boxType = &(*tr);
-				}
-			}
-		}
-	}
+	AnsiString content = cbBoxType->Text.Trim();
+	const LPDbBoxType * boxType = LPDbBoxTypes::records().find( content.c_str() );
 	if( boxType == NULL ) {
 		throw Exception( "No matching formation type" );
 	}
@@ -249,7 +237,7 @@ void __fastcall TfrmRetrieveMain::CmbAliquot2DropDown(TObject *Sender)
 void TfrmRetrieveMain::populate( TComboBox * target, TComboBox * other )
 {
 	std::set< int > types = LPDbCryovials::getAliquotTypes( LIMSDatabase::getProjectDb() );
-	types.erase( getTypeID( other ) );
+	types.erase( getAliquotTypeID( other ) );
 	target->Clear();
 	for( Range< LCDbObject > at = LCDbObjects::records(); at.isValid(); ++ at ) {
 		if( types.count( at->getID() ) != 0 ) {
@@ -260,7 +248,7 @@ void TfrmRetrieveMain::populate( TComboBox * target, TComboBox * other )
 
 //---------------------------------------------------------------------------
 
-int TfrmRetrieveMain::getTypeID( TComboBox * cb )
+int TfrmRetrieveMain::getAliquotTypeID( TComboBox * cb )
 {
 	const LCDbObject * aliquot = NULL;
 	AnsiString selected = cb->Text.Trim();
@@ -272,20 +260,54 @@ int TfrmRetrieveMain::getTypeID( TComboBox * cb )
 
 //---------------------------------------------------------------------------
 
+void __fastcall TfrmRetrieveMain::cbBoxTypeDropDown(TObject *Sender)
+{
+	checkBoxTypes();
+}
+
+//---------------------------------------------------------------------------
+
+void TfrmRetrieveMain::checkBoxTypes()
+{
+	AnsiString current = cbBoxType->Text.Trim();
+	std::set< int > required;
+	for( std::vector<GridEntry>::const_iterator ge = rows.begin(); ge != rows.end(); ++ ge ) {
+		required.insert( ge->aid );
+	}
+	cbBoxType -> Clear();
+	int selected = -1;
+	for( Range< LPDbBoxType > bt = LPDbBoxTypes::records(); bt.isValid(); ++ bt ) {
+		bool include = true;
+		for( std::set< int >::const_iterator ge = required.begin(); ge != required.end(); ++ ge ) {
+			if( !bt->hasAliquot( *ge ) ) {
+				include = false;
+			}
+		}
+		if( include ) {
+			if( current.AnsiCompareIC( bt->getName().c_str() ) == 0 ) {
+				selected = cbBoxType -> Items -> Count;
+			}
+			cbBoxType -> Items -> Add( bt->getName().c_str() );
+		}
+	}
+	cbBoxType -> ItemIndex = selected;
+}
+
+//---------------------------------------------------------------------------
+
 void __fastcall TfrmRetrieveMain::btnLocateClick(TObject *Sender)
 {
 	std::map<int, const GridEntry *> boxes;
-	ROSETTA result;
-	StoreDAO dao;
-	progress -> Max = rows.size();
 	progress -> Position = 0;
+	progress -> Max = rows.size();
 	for( std::vector<GridEntry>::iterator ge = rows.begin(); ge != rows.end(); ++ ge ) {
 		int boxID = ge->oid;
 		std::map<int, const GridEntry *>::const_iterator found = boxes.find( boxID );
 		if( found != boxes.end() ) {
 			ge->copyLocation( *(found->second) );
 		} else {
-			if( dao.findBox( boxID, LCDbProjects::getCurrentID(), result ) ) {
+			ROSETTA result;
+			if( StoreDAO().findBox( boxID, LCDbProjects::getCurrentID(), result ) ) {
 				ge->copyLocation( result );
 			}
 			boxes[ boxID ] = &(*ge);
@@ -303,19 +325,17 @@ void __fastcall TfrmRetrieveMain::btnSaveListClick(TObject *Sender)
 	//// fixme - check radIDType: could be box retrieval
 	frmNewJob -> init( LCDbCryoJob::SAMPLE_RETRIEVAL );
 
-	int projID = LCDbProjects::getCurrentID();
-	int primary = getTypeID( CmbAliquot1 );
-	int secondary = getTypeID( CmbAliquot2 );
+	int primary = getAliquotTypeID( CmbAliquot1 ), secondary = getAliquotTypeID( CmbAliquot2 );
 	String error;
-	StoreDAO dao;
 	if( frmNewJob -> ShowModal() == mrOk ) {
 		Screen->Cursor = crSQLWait;
-		if( !frmNewJob -> createJob( projID, primary, secondary ) ) {
+		if( !frmNewJob -> createJob( LCDbProjects::getCurrentID(), primary, secondary ) ) {
 			error = "Cannot create job record";
 		} else {
 			const LCDbCryoJob & job = frmNewJob -> getDetails();
+			StoreDAO dao;
 			for( std::vector<GridEntry>::const_iterator ge = rows.begin(); ge != rows.end(); ++ ge ) {
-				if( !dao.addToRetrieval( job.getID(), ge->cid, projID, ge->nid, ge->new_pos ) ) {
+				if( !dao.addToRetrieval( job.getID(), ge->cid, LCDbProjects::getCurrentID(), ge->nid, ge->new_pos ) ) {
 					if( error.IsEmpty() ) {
 						error = "Cannot add cryovial(s) ";
 					} else {
@@ -336,7 +356,7 @@ void __fastcall TfrmRetrieveMain::btnSaveListClick(TObject *Sender)
 
 //---------------------------------------------------------------------------
 
-TfrmRetrieveMain::GridEntry::GridEntry( const ROSETTA & row )
+GridEntry::GridEntry( const ROSETTA & row )
 : sid(row.getInt("sample_id")),sample(row.getString("barcode")),
   cid(row.getInt("cryovial_id")),cryovial(row.getString("cryovial_barcode")),
   aid(row.getInt("aliquot_type_cid")),aliquot(row.getString("aliquot")),
@@ -350,7 +370,7 @@ TfrmRetrieveMain::GridEntry::GridEntry( const ROSETTA & row )
 
 //---------------------------------------------------------------------------
 
-void TfrmRetrieveMain::GridEntry::copyLocation( const ROSETTA & row ) {
+void GridEntry::copyLocation( const ROSETTA & row ) {
 	vessel = row.getString("vessel_name");
 	shelf = row.getInt("shelf_number");
 	rack_pos = row.getInt("rack_pos");
@@ -362,7 +382,7 @@ void TfrmRetrieveMain::GridEntry::copyLocation( const ROSETTA & row ) {
 
 //---------------------------------------------------------------------------
 
-void TfrmRetrieveMain::GridEntry::copyLocation( const GridEntry & other ) {
+void GridEntry::copyLocation( const GridEntry & other ) {
 	vessel = other.vessel;
 	shelf = other.shelf;
 	rack_pos = other.rack_pos;
@@ -376,15 +396,15 @@ void TfrmRetrieveMain::GridEntry::copyLocation( const GridEntry & other ) {
 
 void __fastcall TfrmRetrieveMain::btnClrSortClick(TObject *Sender)
 {
-	sortList.clear();
 	lbSortCols->Clear();
+	sortList.clear();
 	std::sort( rows.begin(), rows.end(), sortList );
 	drawGrid();
 }
 
 //---------------------------------------------------------------------------
 
-typedef const TfrmRetrieveMain::GridEntry & GER;
+typedef const GridEntry & GER;
 static int compareSample( GER i, GER j ) { return i.sample.compare( j.sample ); }
 static int compareCryovial( GER i, GER j ) { return i.cryovial.compare( j.cryovial ); }
 static int compareAliquot( GER i, GER j ) { return i.aliquot.compare( j.aliquot ); }
@@ -480,8 +500,8 @@ void TfrmRetrieveMain::Sorter::addColumn( int (*cf)( GER, GER ), const std::stri
 }
 
 //---------------------------------------------------------------------------
-//	Compare given entries using columns in the sorter.  Return true if a < b.
-//	Use record_number as tie breaker if sorter is empty or values are equal.
+//	Compare entries using columns in the sorter.  Return true if a < b.
+//	Use record_number if sorter is empty or selected values are equal.
 //---------------------------------------------------------------------------
 
 bool TfrmRetrieveMain::Sorter::operator() ( GER a, GER b ) const {
@@ -498,28 +518,42 @@ bool TfrmRetrieveMain::Sorter::operator() ( GER a, GER b ) const {
 
 void __fastcall TfrmRetrieveMain::btnNewContentClick(TObject *Sender)
 {
-	frmNewBoxType -> ShowModal();
+	if( frmNewBoxType -> ShowModal() == mrOk ) {
+		LPDbBoxType created = frmNewBoxType -> getDetails();
+		created.setUse( LPDbBoxType::ANALYSIS );
+		created.saveRecord( LIMSDatabase::getCentralDb() );
+		cbBoxType->Text = created.getName().c_str();
+		checkBoxTypes();
+	}
 }
 
 //---------------------------------------------------------------------------
 
 void TfrmRetrieveMain::enableButtons() {
-	const LCDbProjects &projList = LCDbProjects::records( );
-	const LCDbProject * proj = projList.findByID( LCDbProjects::getCurrentID() );
-	bool ready = (proj != NULL);
-	btnAddFile->Enabled = ready;
-	btnAddRecords->Enabled = ready;
-	ready = ready && !rows.empty();
-	btnLocate->Enabled = ready;
-	btnDestination->Enabled = ready;
-	btnNewContent->Enabled = ready;
-	ready = ready && !sortList.columns.empty();
-	btnClrSort->Enabled = ready;
+	AnsiString projName = cbProject->Text, btName = cbBoxType->Text;
+	const LCDbProject * pp = LCDbProjects::records().findByName( projName.c_str() );
+	bool proj = false, boxType = false;
+	if( pp != NULL ) {
+		if( !btName.IsEmpty() ) {
+			boxType = LPDbBoxTypes::records( pp->getID() ).find( btName.c_str() );
+		}
+		proj = true;
+	}
+	bool read = !rows.empty();
+	bool sort = !sortList.columns.empty();
 
-///	fixme: needs to be calculated				btnSaveList->Enabled = false;
+	CmbAliquot1->Enabled = proj;
+	CmbAliquot2->Enabled = proj;
+	cbBoxType->Enabled = proj;
 
+	btnAddFile->Enabled = proj;
+	btnAddRecords->Enabled = proj;
+	btnLocate->Enabled = proj && read;
+	btnNewContent->Enabled = proj;
+	btnDestination->Enabled = read && boxType;
+	btnSaveList->Enabled = read && boxType;
+	btnClrSort->Enabled = sort;
 }
 
 //---------------------------------------------------------------------------
-
 

@@ -13,7 +13,7 @@ LoadBuddyDatabase:
         left join sample_run sr on bd.sample_run_id = sr.run_id  
     )                                                           
     WHERE                                                      
-    bd.machine_cid = -1019349                                 
+    bd.machine_cid = -1019429                                 
     AND                                                      
     ( ( bd.barcode like 'QC%' ) OR ( bd.alpha_sample_id != 0 ) )   
     order by NVL( sr.sequence_position, bd.buddy_sample_id )
@@ -21,21 +21,22 @@ LoadBuddyDatabase:
 
 
 BuddyDatabaseInclusionRule:
-    --[[
-    function accept ( barcode, dbName, actionFlag, faoLevelOne )
+    --[[                                                          
+    function accept ( barcode, dbName, actionFlag, faoLevelOne ) 
+        local ok = false    
+        if actionFlag == '0' then 
+            ok = true 
+        elseif actionFlag == 'X' then 
+            ok = true 
+        end 
+        return ok 
+    end 
+    ]] \n
+    function accept ( barcode, dbName, actionFlag ) \n
+        -- Note that, if there is no result, actionFlag is '?' \n
         local ok = false
-        if actionFlag == '0' then
-            ok = true
-        elseif actionFlag == 'X' then
-            ok = true
+        if ( ( actionFlag == '0' ) or ( actionFlag == 'NO_RESULT' ) ) then ok = true 
         end
-        return ok
-    end
-    ]]
-    function accept ( barcode, dbName, actionFlag ) 
-        -- Note that, if there is no result, actionFlag is '?'
-        local ok = false
-        if ( actionFlag == '0' ) then ok = true end
         return ok
     end
 
@@ -48,7 +49,7 @@ LoadWorklistEntries:
     diluent, buddy_result_id                                   
     from valc_worklist wl                                     
     WHERE                                                    
-    wl.machine_cid in (-1019349, -1019430)                  
+    wl.machine_cid in (-1019429, -1019430)                  
     ORDER BY wl.record_no                                 
 
 
@@ -60,7 +61,7 @@ WorklistInclusionRule:
         if validStatusValues[status] then ok = true end
         return ok
     end
-    ]]
+    ]] \n
     function accept ( barcode, categoryID, projectID, profileID, profileName, status ) 
         local ok = true
         if status == 'T' then ok = false end
@@ -73,7 +74,7 @@ LoadWorklistRelations:
     FROM valc_worklist wl, c_worklist_relation wr                
     WHERE wl.record_no in ( wr.rerun_id, wr.parent_id )         
     and                                                        
-    wl.machine_cid in (-1019349, -1019430)                    
+    wl.machine_cid in (-1019429, -1019430)                    
     ORDER BY wl.record_no                                   
 
 
@@ -132,8 +133,8 @@ LoadNonLocalResults:
       (brf.buddy_result_id = cbw.buddy_result_id)        
     )                                                   
     and brf.buddy_sample_id = bd.buddy_sample_id       
-    and bd.machine_cid != -1019349                    
-    and cbw.machine_cid in (-1019349, -1019430)      
+    and bd.machine_cid != -1019429                    
+    and cbw.machine_cid in (-1019429, -1019430)      
     and cbw.status in ('Q','P','C','S','W', 'X')    
 
 
@@ -145,26 +146,26 @@ ExceptionalDataHandler:
         end
         return ok
     end
-    ---------------------------------------------------------
+    ---------------------------------------------------------\n
     function getProjectIDFor( barcode ) 
         if ( string.find( barcode, '118' ) ~= 1 ) then
             error( "Cannot identify project ID for barcode " .. barcode )
         end
         return -832455
     end
-    ---------------------------------------------------------
+    ---------------------------------------------------------\n
     function notifyBuddyDatabaseEntryIgnored()
         local continueProcessing = true
         local adviseUser = true
         return continueProcessing, adviseUser
     end
-    ---------------------------------------------------------
+    ---------------------------------------------------------\n
     function notifyCannotAllocateResultToWorklistEntry()
         local continueProcessing = true
         local adviseUser = true
         return continueProcessing, adviseUser
     end
-    ---------------------------------------------------------
+    ---------------------------------------------------------\n
     function notifyWorklistEntryIgnored()
         local continueProcessing = true
         local adviseUser = true

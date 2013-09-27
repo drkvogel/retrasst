@@ -78,8 +78,7 @@ bool LCDbTests::read( LQuery cQuery, bool readAll )
 
 	if( readAll )
 	{
-		cQuery.setSQL( "select * from c_test_machine"
-					  " order by test_cid, record_cid" );
+		cQuery.setSQL( "select * from c_test_machine order by test_cid, record_cid" );
 	}
 	else
 	{	cQuery.setSQL( "select * from c_test_machine"

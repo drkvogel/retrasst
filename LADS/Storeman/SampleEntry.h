@@ -14,6 +14,22 @@
 #include <Vcl.ComCtrls.hpp>
 
 //---------------------------------------------------------------------------
+
+struct GridEntry {
+	unsigned record_number;
+	int sid, cid, aid, oid, nid;
+	std::string sample, cryovial, aliquot;
+	std::string site, vessel, structure;
+	short location, shelf, rack_pos, slot;
+	std::string old_box, new_box;
+	short old_pos, new_pos;
+	GridEntry( const ROSETTA & row );
+	void copyLocation( const GridEntry & other );
+	void copyLocation( const ROSETTA & row );
+};
+
+//---------------------------------------------------------------------------
+
 class TfrmRetrieveMain : public TForm
 {
 __published:	// IDE-managed Components
@@ -38,6 +54,7 @@ __published:	// IDE-managed Components
 	TButton *btnNewContent;
 	TLabel *Label3;
 	TComboBox *cbBoxType;
+
 	void __fastcall AddClick(TObject *Sender);
 	void __fastcall cbProjectChange(TObject *Sender);
 	void __fastcall cbProjectDropDown(TObject *Sender);
@@ -50,6 +67,7 @@ __published:	// IDE-managed Components
 	void __fastcall btnSaveListClick(TObject *Sender);
 	void __fastcall btnClrSortClick(TObject *Sender);
 	void __fastcall btnNewContentClick(TObject *Sender);
+	void __fastcall cbBoxTypeDropDown(TObject *Sender);
 
 private:	// User declarations
 
@@ -57,28 +75,13 @@ private:	// User declarations
 			STRUCTURE, SLOT_POS, OLD_BOX, OLD_POS, NEW_BOX, NEW_POS, COL_COUNT };
 
 	void populate( TComboBox * target, TComboBox * other );
-	static int getTypeID( TComboBox * cb );
+	static int getAliquotTypeID( TComboBox * cb );
 	void drawGrid();
 	void resizeGrid();
+	void checkBoxTypes();
 	void setValue( int col, int row, short value );
 	void setValue( int col, int row, const std::string & value );
 	void enableButtons();
-
-public:		// User declarations
-
-	struct GridEntry {
-		unsigned record_number;
-		int sid, cid, aid, oid, nid;
-		std::string sample, cryovial, aliquot;
-		std::string site, vessel, structure;
-		short location, shelf, rack_pos, slot;
-		std::string old_box, new_box;
-		short old_pos, new_pos;
-		GridEntry( const ROSETTA & row );
-		void copyLocation( const GridEntry & other );
-		void copyLocation( const ROSETTA & row );
-	};
-	std::vector<GridEntry> rows;
 
 	typedef int (*CompareFunction)( const GridEntry & a, const GridEntry & b );
 
@@ -99,7 +102,10 @@ public:		// User declarations
 	};
 	Sorter sortList;
 
+public:		// User declarations
+
 	std::vector<IPart*> slist;
+	std::vector<GridEntry> rows;
 
 	__fastcall TfrmRetrieveMain(TComponent* Owner);
 	void init();

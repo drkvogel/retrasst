@@ -15,6 +15,9 @@
         <Projects Include="BusinessLayer\BusinessLayerFM.cbproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="..\..\paulst\db\paulstdb.cbproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -59,14 +62,23 @@
     <Target Name="BusinessLayerFM:Make">
         <MSBuild Projects="BusinessLayer\BusinessLayerFM.cbproj" Targets="Make"/>
     </Target>
+    <Target Name="paulstdb">
+        <MSBuild Projects="..\..\paulst\db\paulstdb.cbproj"/>
+    </Target>
+    <Target Name="paulstdb:Clean">
+        <MSBuild Projects="..\..\paulst\db\paulstdb.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="paulstdb:Make">
+        <MSBuild Projects="..\..\paulst\db\paulstdb.cbproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="FRT;paulst;UnitTests;BusinessLayerFM"/>
+        <CallTarget Targets="FRT;paulst;UnitTests;BusinessLayerFM;paulstdb"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="FRT:Clean;paulst:Clean;UnitTests:Clean;BusinessLayerFM:Clean"/>
+        <CallTarget Targets="FRT:Clean;paulst:Clean;UnitTests:Clean;BusinessLayerFM:Clean;paulstdb:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="FRT:Make;paulst:Make;UnitTests:Make;BusinessLayerFM:Make"/>
+        <CallTarget Targets="FRT:Make;paulst:Make;UnitTests:Make;BusinessLayerFM:Make;paulstdb:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

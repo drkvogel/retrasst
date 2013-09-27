@@ -51,7 +51,7 @@ __published:	// IDE-managed Components
 private:	// User declarations
 
 	void ShowMoveButton(IPart* data);
-	void expandSubTree( TTreeNode* parent, const std::string & selection );
+	void expandSubTree( TTreeNode* parent, AnsiString selection );
 
 	IPart* sites;
 	bool browse_only;

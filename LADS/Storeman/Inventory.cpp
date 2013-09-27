@@ -986,7 +986,7 @@ void Rack::populate( ) {
 	std::vector< ROSETTA > results;
 	if( isSingleProject() ) {
 		dao.loadBoxes( id, project_cid, results );
-		if( results.size() < capacity ) {
+		if( results.size() != capacity && results.size() + emptySlots != capacity ) {
 			results.clear();	// not enough from this project; should check again
 		}
 	}
@@ -1013,9 +1013,9 @@ void Rack::populate( ) {
 	}
 	childCount = partlist.size();
 
-	// update summary fields of c_rack_number record if rack contents have changed
+	// update summary fields in c_rack_number if rack contents have changed
 	bool changed = name.empty();
-	int boxProj = (projects.size() == 1 ? *projects.begin() : 0);
+	int boxProj = (projects.empty() ? -1 : projects.size() == 1 ? *projects.begin() : 0);
 	if( project_cid != boxProj ) {
 		project_cid = boxProj;
 		changed = true;
@@ -1410,6 +1410,10 @@ void Sample::populate( ) {
 		TDateTime when = hi->getTime( "time_stamp" ).outputTDateTime();
 		std::stringstream detail;
 		detail << hi->getString( "box_name" ) << ", position " << hi->getInt( "cryovial_position" );
+		float volume = hi->getRealDefault( "sample_volume", -1 );
+		if( volume >= 0 ) {
+            detail << ": " << volume << "ml";
+        }
 		history[ when ] = detail.str( );
 	}
 	dao.loadAnalysisHistory( name, aliquot_type, project_cid, results );

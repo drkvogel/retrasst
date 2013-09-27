@@ -9,18 +9,6 @@
 
 TfrmBoxes *frmBoxes;
 
-Sorter<BoxRow> boxSorter[SGBOXES_NUMCOLS] = {
-    { BoxRow::sort_asc_currbox,   sgBoxesColName[0] },
-//        { BoxRow::sort_asc_destbox,   sgBoxesColName[1] },
-//        { BoxRow::sort_asc_destpos,   sgBoxesColName[2] },
-    { BoxRow::sort_asc_site,      sgBoxesColName[1] },
-    { BoxRow::sort_asc_position,  sgBoxesColName[2] },
-    { BoxRow::sort_asc_shelf,     sgBoxesColName[3] },
-    { BoxRow::sort_asc_vessel,    sgBoxesColName[4] },
-    { BoxRow::sort_asc_structure, sgBoxesColName[5] },
-    { BoxRow::sort_asc_slot,      sgBoxesColName[6] },
-};
-
 __fastcall LoadBoxesWorkerThread::LoadBoxesWorkerThread() {
     FreeOnTerminate = true;
 }
@@ -84,13 +72,28 @@ Set status = 1 when the position's confirmed */
     while (!q.eof()) {
         if (rowCount > 0 && 0 == rowCount % 10) Synchronize((TThreadMethod)&(this->updateStatus)); // seems to cause thread to terminate
         LCDbBoxStore * store = new LCDbBoxStore(q); // ???
+/*
+        SampleRow * row = new SampleRow(
+            new LPDbCryovialStore(qd),
+            qd.readString(  "cryovial_barcode"),
+            qd.readString(  "aliquot"),
+            qd.readString(  "source_name"),
+            qd.readInt(     "dest_id"),
+            qd.readString(  "dest_name"),
+            qd.readInt(     "dest_pos"),
+            "", 0, "", 0, 0, "", 0 ); // no storage details yet*/
+//BoxRow(LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps)
         BoxRow * box = new BoxRow(
             store,
             q.readString("box"),
+            0, //q.readInt("box_cid"),
+            "",
+            0,
             q.readString("site"),
             q.readInt("position"),
             q.readString("vessel"),
             q.readInt("shelf_number"),
+            0, // q.readInt("") // should be structure('rack') position
             q.readString("rack"),
             q.readInt("slot_position")
         );
@@ -105,15 +108,30 @@ __fastcall TfrmBoxes::TfrmBoxes(TComponent* Owner) : TForm(Owner) { }
 void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     job                 = NULL;
-    maxRows             = DEFAULT_NUMROWS;
-    setupStringGrid(sgChunks, SGCHUNKS_NUMCOLS, sgChunksColName, sgChunksColWidth);
-    setupStringGrid(sgBoxes,  SGBOXES_NUMCOLS,  sgBoxesColName,  sgBoxesColWidth);
+
+    sgwChunks = new StringGridWrapper< Chunk< BoxRow > >(sgChunks, &chunks);
+    sgwChunks->addCol("section",  "Section",  200);
+    sgwChunks->addCol("start",    "Start",    200);
+    sgwChunks->addCol("end",      "End",      200);
+    sgwChunks->addCol("size",     "Size",     200);
+    sgwChunks->init();
+
+    sgwBoxes  = new StringGridWrapper< BoxRow >(sgBoxes, &boxes);
+    sgwBoxes->addCol("boxname","Box name",     266,    BoxRow::sort_asc_currbox);
+    sgwBoxes->addCol("site",   "Site",         156,    BoxRow::sort_asc_site);
+    sgwBoxes->addCol("shelf",  "Shelf",        74,     BoxRow::sort_asc_shelf);
+    sgwBoxes->addCol("vessel", "Vessel",       262,    BoxRow::sort_asc_vessel);
+    sgwBoxes->addCol("struct", "Structure",    200,    BoxRow::sort_asc_structure);
+    sgwBoxes->addCol("slot",   "Slot",         78,     BoxRow::sort_asc_slot);
+    sgwBoxes->init();
+
     loadingMessage = "Loading boxes, please wait...";
 }
 
 void __fastcall TfrmBoxes::FormClose(TObject *Sender, TCloseAction &Action) {
     delete_referenced<vecpBoxRow>(boxes);
-    delete_referenced<vecpBoxChunk>(chunks);
+    //delete_referenced<vecpBoxChunk>(chunks);
+    delete_referenced< vector< Chunk< BoxRow > * > >(chunks);
 }
 
 VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime) { //cout << "CALLBACK " << dwTime << '\n'; cout.flush();
@@ -123,10 +141,13 @@ VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dw
 }
 
 void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
-    std::ostringstream oss; oss << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL"); debugLog(oss.str().c_str()); //;
+    ostringstream oss; oss << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL"); debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
-    clearSG(sgChunks);
-    clearSG(sgBoxes);
+    //clearSG(sgChunks);
+    //clearSG(sgBoxes);
+    sgwChunks->clear();
+    sgwBoxes->clear();
+
     timerLoadBoxes->Enabled = true; // "not enough timers are available" - misleading error message cause by mem corruption
         //TfrmBoxes::TimerId = SetTimer(NULL, 0, 50, &TimerProc); //$3: milliseconds // tried WinAPI timer instead
 }
@@ -142,8 +163,8 @@ void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow,
     if (0 == ARow) {
         background = clBtnFace;
     } else {
-        Chunk * chunk = NULL;
-        chunk = (Chunk *)sgChunks->Objects[0][ARow];
+        Chunk< BoxRow > * chunk = NULL;
+        chunk = (Chunk< BoxRow > *)sgChunks->Objects[0][ARow];
         if (NULL == chunk) {
             background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
@@ -173,8 +194,8 @@ void __fastcall TfrmBoxes::sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, 
     if (0 == ARow) {
         background = clBtnFace;
     } else {
-        Chunk * chunk = NULL;
-        chunk = (Chunk *)sgBoxes->Objects[0][ARow];
+        Chunk< BoxRow > * chunk = NULL;
+        chunk = (Chunk< BoxRow > *)sgBoxes->Objects[0][ARow];
         if (NULL == chunk) {
             background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
@@ -202,12 +223,15 @@ void __fastcall TfrmBoxes::sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, 
 void __fastcall TfrmBoxes::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
         // sign off?
-        for (vecpBoxChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
-            BoxChunk * chunk = *it;
+        for (vector< Chunk< BoxRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
+            Chunk< BoxRow > * chunk = *it;
             //      for boxes
             //          insert box into C_BOX_RETRIEVAL with current section (chunk) number
-            for (vecpBoxRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
-                pBoxRow boxRow = (pBoxRow)*it;
+            //for (vecpBoxRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
+            //for (vecpBoxRow::const_iterator it = chunk->begin(); it != chunk->end(); it++) { // vecpDataRow?
+            for (int i = 1; i < chunk->getSize(); i++) {
+                //pBoxRow boxRow = (pBoxRow)*it;
+                pBoxRow boxRow = chunk->rowAt(i);
                 //LPDbCryovialStore * vial = sampleRow->store_record;
             }
             /*
@@ -254,10 +278,10 @@ void __fastcall TfrmBoxes::sgChunksSetEditText(TObject *Sender, int ACol, int AR
         return;
     }
     switch (ACol) {
-    case SGCHUNKS_SECTION:  break;
-    case SGCHUNKS_START:    break;
-    case SGCHUNKS_END:      break;
-    case SGCHUNKS_SIZE:     break;
+//    case SGCHUNKS_SECTION:  break;
+//    case SGCHUNKS_START:    break;
+//    case SGCHUNKS_END:      break;
+//    case SGCHUNKS_SIZE:     break;
     default:                break;
     }
 }
@@ -267,7 +291,7 @@ void __fastcall TfrmBoxes::sgChunksFixedCellClick(TObject *Sender, int ACol, int
 }
 
 void __fastcall TfrmBoxes::sgBoxesFixedCellClick(TObject *Sender, int ACol, int ARow) {
-    sortList(ACol);
+    sortChunk(ACol);
 }
 
 void __fastcall TfrmBoxes::timerLoadBoxesTimer(TObject *Sender) {
@@ -279,7 +303,7 @@ void __fastcall TfrmBoxes::sgBoxesClick(TObject *Sender) {
     BoxRow*box=(BoxRow*)sgBoxes->Objects[0][sgBoxes->Row];
     box?debugLog(box->str().c_str()):debugLog("NULL box");
     job?debugLog(job->getName().c_str()):debugLog("NULL job");
-    debugLog(printColWidths(sgBoxes).c_str());
+    debugLog(sgwBoxes->printColWidths().c_str());
 }
 
 void __fastcall TfrmBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
@@ -287,7 +311,7 @@ void __fastcall TfrmBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     chunks.clear();
-    clearSG(sgChunks);
+    sgwChunks->clear();
     addChunk(); // create a default chunk now list is loaded
     showChunks();
     Screen->Cursor = crDefault;
@@ -295,7 +319,6 @@ void __fastcall TfrmBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
 
 void __fastcall TfrmBoxes::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
-        //xxxxrejectList();
         job->setStatus(LCDbCryoJob::Status::REJECTED);
         job->saveRecord(LIMSDatabase::getCentralDb());
         Close();
@@ -312,9 +335,9 @@ void TfrmBoxes::addChunk() {
     if (chunks.size() == 0) {
         // first chunk, make default chunk from entire list
     }
-    BoxChunk * chunk = new BoxChunk;
-    chunk->section = chunks.size() + 1;
-    chunks.push_back(chunk);
+//    BoxChunk * chunk = new BoxChunk;
+//    chunk->setSection(chunks.size() + 1);
+//    chunks.push_back(chunk);
     btnDelChunk->Enabled = true;
     showChunks();
 }
@@ -322,18 +345,18 @@ void TfrmBoxes::addChunk() {
 void TfrmBoxes::showChunks() {
     sgChunks->RowCount = chunks.size() + 1;
     int row = 1;
-    for (vecpBoxChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
-        Chunk * chunk = *it;
-        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
-        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
-        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();
-        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = 0;//chunk->end - chunk->start;
+    for (vector< Chunk< BoxRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
+        Chunk< BoxRow > * chunk = *it;
+//        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
+//        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
+//        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();
+//        sgChunks->Cells[SGCHUNKS_SIZE]      [row] = 0;//chunk->end - chunk->start;
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
 }
 
 void TfrmBoxes::loadRows() {
-    std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
+    //std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true;
     panelLoading->Top = (sgBoxes->Height / 2) - (panelLoading->Height / 2);
@@ -346,30 +369,30 @@ void TfrmBoxes::loadRows() {
 
 void TfrmBoxes::showRows() {
     if (boxes.size() <= 0) {
-        clearSG(sgBoxes);
+        sgwBoxes->clear();
     } else {
-        sgBoxes->RowCount = (-1 == maxRows) ? boxes.size() + 1 : maxRows + 1;
+        sgBoxes->RowCount = boxes.size() + 1;
         sgBoxes->FixedRows = 1;
     }
     int row = 1;
     vecpBoxRow::const_iterator it;
     for (it = boxes.begin(); it != boxes.end(); it++, row++) {
         BoxRow * box = *it;
-        sgBoxes->Cells[SGBOXES_BOXNAME]  [row] = box->box_name.c_str();
-        sgBoxes->Cells[SGBOXES_SITE]     [row] = box->site_name.c_str();
-        sgBoxes->Cells[SGBOXES_POSITION] [row] = box->position;
-        sgBoxes->Cells[SGBOXES_SHELF]    [row] = box->shelf_number;
-        sgBoxes->Cells[SGBOXES_VESSEL]   [row] = box->vessel_name.c_str();
-        sgBoxes->Cells[SGBOXES_STRUCTURE][row] = box->rack_name.c_str();
-        sgBoxes->Cells[SGBOXES_SLOT]     [row] = box->slot_position;
+//        sgBoxes->Cells[SGBOXES_BOXNAME]  [row] = box->box_name.c_str();
+//        sgBoxes->Cells[SGBOXES_SITE]     [row] = box->site_name.c_str();
+//        sgBoxes->Cells[SGBOXES_POSITION] [row] = box->position;
+//        sgBoxes->Cells[SGBOXES_SHELF]    [row] = box->shelf_number;
+//        sgBoxes->Cells[SGBOXES_VESSEL]   [row] = box->vessel_name.c_str();
+//        sgBoxes->Cells[SGBOXES_STRUCTURE][row] = box->rack_name.c_str();
+//        sgBoxes->Cells[SGBOXES_SLOT]     [row] = box->slot_position;
         sgBoxes->Objects[0][row] = (TObject *)box;
-        if (row >= maxRows) break;
     }
 }
 
-void TfrmBoxes::sortList(int col) {
+void TfrmBoxes::sortChunk(int col) {
     Screen->Cursor = crSQLWait;
-    boxSorter[col].sort_toggle(boxes);
+
+    //boxSorter[col].sort_toggle(boxes);
     //boxSorter[col].sort(boxes, Sorter::SortOrder::TOGGLE);
     showRows();
     Screen->Cursor = crDefault;

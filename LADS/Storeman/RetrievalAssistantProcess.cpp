@@ -19,32 +19,12 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     maxRows             = DEFAULT_NUMROWS;
     job                 = NULL;
-    setupStringGrid(sgChunks,    SGCHUNKS_NUMCOLS,    sgChunksColName,    sgChunksColWidth);
-    setupStringGrid(sgRetrieval, SGRETRIEVAL_NUMCOLS, sgRetrievalColName, sgRetrievalColWidth);
-    //radbutDefault->Caption = DEFAULT_NUMROWS;
     loadingMessage = "Loading retrieval list, please wait...";
 }
 
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
-/*
-// template
-    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
-    LQuery q(LIMSDatabase::getCentralDb());
-    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
-    q.setSQL("SELECT * FROM  WHERE status != 99");
-    Screen->Cursor = crSQLWait;
-    q.open();
-    delete_referenced<vecp>(s);
-    while (!q.eof()) {
-        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
-        //ob-> = q.readInt("");
-        //ob-> = q.readString("");
-        s.push_back();
-        q.next();
-    }
-    Screen->Cursor = crDefault;
-*/
 
+    loadRows();
     panelLoading->Caption = loadingMessage;
 }
 
@@ -52,7 +32,7 @@ void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
     memoDebug->Visible = cbLog->Checked;
 }
 
-void __fastcall TfrmProcess::Exit1Click(TObject *Sender) {
+void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
         // save stuff
         Close();

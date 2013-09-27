@@ -24,8 +24,6 @@ const bool RETRASSTDEBUG =
     false;
 #endif
 
-#define DEFAULT_NUMROWS 25
-
 #define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
 #define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
 #define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
@@ -45,221 +43,306 @@ void msgbox(String main, string title="Info") {
     Application->MessageBoxW(main.w_str(), String(title.c_str()).c_str(), MB_OK);
 }
 
-void clearGridSelection(TStringGrid * sg) { // put this in storeutil?
-    TGridRect myRect;
-    myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
-    sg->Selection = myRect;
-}
-
-void clearSG(TStringGrid * sg) { // put this in storeutil?
-    clearGridSelection(sg);
-    sg->FixedRows = 0; sg->RowCount = 0; sg->RowCount = 2; sg->FixedRows = 1;
-    for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
-    sg->Cells[0][1] = "No results.";
-}
-
-void setupStringGrid(TStringGrid * sg, const int cols, const char * colnames[], const int colwidths[]) {
-    sg->ColCount = cols;
-    for (int i=0; i<cols; i++) { sg->Cells[i][0] = colnames[i]; sg->ColWidths[i] = colwidths[i]; }
-}
-
-std::string printColWidths(TStringGrid * sg) {
-    std::ostringstream oss;
-    oss << sg->Name.c_str() << ": {"; for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; } oss << "};";
-    return oss.str();
-}
-
-class DataRow {
-    // common fields
-};
-typedef DataRow * pDataRow;
-typedef std::vector<pDataRow> vecpDataRow;
-
-class BoxRow : public DataRow {
-public:
-    LCDbBoxStore * store_record; // public LPDbID
-    //LPDbBoxName ?? getStatus
-    //string              cryovial_barcode;
-    //string              aliquot_type_name;
-    string              box_name;
-    string              dest_box;
-    string              dest_pos;
+class RetrievalRow {
+public: //protected: ?
+    string              src_box_name;       // id and cryo pos are in store_record
+    int                 dest_box_id;
+    string              dest_box_name;
     string              site_name;
-    int                 position;
+    int                 vessel_pos;
     string              vessel_name;
     int                 shelf_number;
-    string              rack_name;
-    int                 slot_position;
-    BoxRow() {}
-    ~BoxRow() { if (store_record) delete store_record; }
-    BoxRow(  LCDbBoxStore * store_rec, //string barcode, string aliquot,
-                string box,
-                string site, int pos, string vessel, int shelf, string rack, int slot) :
-        store_record(store_rec), box_name(box),
-        site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), rack_name(rack), slot_position(slot) {}
+    int                 structure_pos;      // c_rack_number.position as rack_pos
+    string              structure_name;
+    int                 box_pos;
 
-    static bool sort_asc_currbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->box_name, b->box_name); }
- //   static bool sort_asc_currpos(const BoxRow *a, const BoxRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
-    static bool sort_asc_destbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->dest_box, b->dest_box); }
-    static bool sort_asc_destpos(const BoxRow *a, const BoxRow *b)    { return a->dest_pos < b->dest_pos; }
+    RetrievalRow(string srcnm, int dstid, string dstnm, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+        src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm),
+        site_name(site), vessel_pos(vsps), vessel_name(vsnm), shelf_number(shlf), structure_pos(stps), structure_name(stnm), box_pos(bxps) {}
+
+    // sort functions could also be factored out; not sure if worth it
+    // fun refactoring for a rainy day?
+    //static bool sort_asc_currbox(const RetrievalRow *a, const RetrievalRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
+//    static bool sort_asc_site(const RetrievalRow *a, const RetrievalRow *b)       { return a->site_name.compare(b->site_name) < 0; }
+//    static bool sort_asc_vessname(const RetrievalRow *a, const RetrievalRow *b)   { return Util::numericCompare(a->vessel_name, b->vessel_name); }
+//    static bool sort_asc_vesspos(const RetrievalRow *a, const RetrievalRow *b)    { return a->vessel_pos < b->vessel_pos; }
+//    static bool sort_asc_shelf(const RetrievalRow *a, const RetrievalRow *b)      { return a->shelf_number < b->shelf_number; }
+//    static bool sort_asc_vessel(const RetrievalRow *a, const RetrievalRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
+//    static bool sort_asc_structure(const RetrievalRow *a, const RetrievalRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
+//    static bool sort_asc_slot(const RetrievalRow *a, const RetrievalRow *b)       { return a->box_pos < b->box_pos; }
+
+    void setLocation(string site, int vssl_pos, string vssl_name, int shelf, int strctr_pos, string strctr_name, int boxpos) {
+        site_name       = site;
+        vessel_pos      = vssl_pos;
+        vessel_name     = vssl_name;
+        shelf_number    = shelf;
+        structure_pos   = strctr_pos;
+        structure_name  = strctr_name;
+        box_pos         = boxpos;
+    }
+
+    void copyLocation(const RetrievalRow & other) {
+        site_name       = other.site_name;
+        vessel_pos      = other.vessel_pos;
+        vessel_name     = other.vessel_name;
+        shelf_number    = other.shelf_number;
+        structure_pos   = other.structure_pos;
+        structure_name  = other.structure_name;
+        box_pos         = other.box_pos;
+    }
+
+    void copyLocation(const ROSETTA & row) {
+        site_name       = row.getString("site_name");
+        vessel_pos      = row.getInt("tank_pos");
+        vessel_name     = row.getString("vessel_name");
+        shelf_number    = row.getInt("shelf_number");
+        structure_pos   = row.getInt("rack_pos");
+        structure_name  = row.getString("structure");
+        box_pos         = row.getInt("slot_position");
+    }
+
+    string storage_str() {
+        ostringstream oss;
+            oss<<site_name<<"["<<vessel_pos<<"]: "<<vessel_name<<":"<<shelf_number
+            <<"["<<structure_pos<<"]/"<<structure_name<<"["<<box_pos<<"]";
+        return oss.str();
+    }
+
+};
+typedef RetrievalRow * pRetrievalRow;
+typedef std::vector<pRetrievalRow> vecpRetrievalRow;
+
+class BoxRow : public RetrievalRow {
+public:
+    LCDbBoxStore * store_record; // public LPDbID //LPDbBoxName ?? getStatus
+
+    BoxRow(LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+        store_record(rec), RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps) {
+    }
+    ~BoxRow() { if (store_record) delete store_record; }
+
+    static bool sort_asc_currbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
+    static bool sort_asc_destbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
     static bool sort_asc_site(const BoxRow *a, const BoxRow *b)       { return a->site_name.compare(b->site_name) < 0; }
-    static bool sort_asc_position(const BoxRow *a, const BoxRow *b)   { return a->position < b->position; }
+    static bool sort_asc_vessname(const BoxRow *a, const BoxRow *b)   { return Util::numericCompare(a->vessel_name, b->vessel_name); }
+    static bool sort_asc_vesspos(const BoxRow *a, const BoxRow *b)   { return a->vessel_pos < b->vessel_pos; }
     static bool sort_asc_shelf(const BoxRow *a, const BoxRow *b)      { return a->shelf_number < b->shelf_number; }
     static bool sort_asc_vessel(const BoxRow *a, const BoxRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
-    static bool sort_asc_structure(const BoxRow *a, const BoxRow *b)  { return Util::numericCompare(a->rack_name, b->rack_name); }//return a->rack_name.compare(b->rack_name) > 0; }
-    static bool sort_asc_slot(const BoxRow *a, const BoxRow *b)       { return a->slot_position < b->slot_position; }
+    static bool sort_asc_structure(const BoxRow *a, const BoxRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
+    static bool sort_asc_slot(const BoxRow *a, const BoxRow *b)       { return a->box_pos < b->box_pos; }
 
     string str() {
-        ostringstream oss;// oss<<__FUNC__
-            oss
-        //	LCDbBoxStore:
-            <<". id: "<<(store_record->getID())<<", "
-        // BoxRow
-            //<<"cryovial_barcode: "<<cryovial_barcode<<", "
-            //<<"aliquot_type_name: "<<aliquot_type_name<<", "
-            <<"box_name: "<<box_name<<", "
-            <<"dest_box: "<<dest_box<<", "
-            <<"dest_pos: "<<dest_pos<<", "
-            <<"site_name: "<<site_name<<", "
-            <<"position: "<<position<<", "
-            <<"vessel_name: "<<vessel_name<<", "
-            <<"shelf_number: "<<shelf_number<<", "
-            <<"rack_name: "<<rack_name<<", "
-            <<"slot_position: "<<slot_position;
+        ostringstream oss; oss
+            <<". id: "<<(store_record->getID())<<", "<<"src_box_name: "<<src_box_name<<", "
+            <<"dest_box_name: "<<dest_box_name<<", "
+            <<"loc: {"<<storage_str()<<"}";
         return oss.str();
     }
 };
 typedef BoxRow * pBoxRow;
 typedef std::vector<pBoxRow> vecpBoxRow;
 
-class SampleRow : public DataRow {
+class SampleRow : public RetrievalRow {
 public:
     LPDbCryovialStore * store_record;
     string              cryovial_barcode;
     string              aliquot_type_name;
-    int                 src_box_id; // redundant, use sample->store_record->getBoxID() instead?
-    string              src_box_name;
-    int                 src_box_pos;
-    int                 dest_box_id;
-    string              dest_box_name;
-    int                 dest_box_pos;
-    string              site_name;
-    int                 position;
-    string              vessel_name;
-    int                 shelf_number;
-    string              structure_name;
-    int                 slot_position;
-    SampleRow() {}
+    int                 dest_cryo_pos;      // cryovial_position
     ~SampleRow() { if (store_record) delete store_record; }
     SampleRow(  LPDbCryovialStore * store_rec,
-                string barcode, string aliquot,
-                int src_id, string src_name, int src_pos,
-                int dest_id, string dest_name, int dest_pos,
-                string site, int pos, string vessel, int shelf, string rack, int slot) :
-        store_record(store_rec),
-        cryovial_barcode(barcode), aliquot_type_name(aliquot),
-        src_box_id(src_id), src_box_name(src_name), src_box_pos(src_pos),
-        dest_box_id(dest_id), dest_box_name(dest_name), dest_box_pos(dest_pos),
-        site_name(site), position(pos), vessel_name(vessel), shelf_number(shelf), structure_name(rack), slot_position(slot) {}
+                string barc, string aliq, string srcnm, int dstid, string dstnm, int dstps,
+                string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+                RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps),
+                store_record(store_rec), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps) {
+            // why can't derived members be initialised in constructor's initialization list?
+            // because they can't - but you can delegate to the base class' constructor
+            // http://stackoverflow.com/questions/17196495/initialise-protected-data-members-from-derived-class-constructor
+    }
 
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
+    static bool sort_asc_aliquot(const SampleRow *a, const SampleRow *b)    { return a->aliquot_type_name.compare(b->aliquot_type_name); }
     static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
     static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
     static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
-    static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_box_pos < b->dest_box_pos; }
+    static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_cryo_pos < b->dest_cryo_pos; }
     static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
-    static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->position < b->position; }
+    static bool sort_asc_position(const SampleRow *a, const SampleRow *b)   { return a->structure_pos < b->structure_pos; }
     static bool sort_asc_shelf(const SampleRow *a, const SampleRow *b)      { return a->shelf_number < b->shelf_number; }
     static bool sort_asc_vessel(const SampleRow *a, const SampleRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
     static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
-    static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->slot_position < b->slot_position; }
+    static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->box_pos < b->box_pos; }
 
     string str() {
         ostringstream oss; oss<<__FUNC__
-        //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position
-            <<"id: "<<(store_record->getID())<<", "
-            <<"status: "<<(store_record->getStatus())<<", "
-        // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position
-            //<<"barcode: "<<store_record->getBarcode()
-            //<<"boxID"<<store_record->getBoxID()
-            //<<"sampleID"<<store_record->getSampleID()
-            //<<"aliquot type ID"<<store_record->getAliquotType()
-            //<<"status"<<store_record->getStatus()<<", "
-            //<<"position"<<store_record->getPosition()<<", "
-        // SampleRow
+            <<"id: "<<(store_record->getID())<<", " //	LPDbCryovi alStore: cryovialID, boxID, retrievalID, status, position// <<"status: "<<(store_record->getStatus())<<", " // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position //<<"barcode: "<<store_record->getBarcode() //<<"sampleID"<<cryo_record->getSampleID() //<<"aliquot type ID"<<cryo_record->getAliquotType()
+            <<"status"<<store_record->getStatus()<<", "
             <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquot_type_name<<", "
-            <<"src: {"<<src_box_id<<", "<<src_box_name<<"["<<src_box_pos<<"]}, "
-            <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_box_pos<<"]}, "
+            <<"src: {"<<store_record->getBoxID()<<", "<<src_box_name<<"["<<store_record->getPosition()<<"]}, "
+            <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_cryo_pos<<"]}, "
             <<"loc: {"<<storage_str()<<"}";
         return oss.str();
     };
-    string storage_str() {
-        ostringstream oss;
-            oss<<site_name<<"["<<position<<"]: "<<vessel_name
-            <<" ["<<shelf_number<<"]/"<<structure_name<<"["<<slot_position<<"]";
-        return oss.str();
-    }
 };
 
 typedef std::vector<SampleRow *> vecpSampleRow;
 
-template <class T> // T is type of row to sort
-class ColDef {
+/** StringGridWrapper
+
+Wrapper for TStringGrid, provides sorting functions. T is type of data in each row */
+template < class T >
+class StringGridWrapper {
+    class Col {
+    public:
+        Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false), vec(NULL), initialised(false) { }
+        Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL) :
+            name(n), title(t), width(w), sort_func_asc(f), sortAsc(false) {}
+        string sortDescription() { ostringstream oss; oss<<"Sort by "<<title<<" ascending"; return oss.str(); }
+        bool (*sort_func_asc)(const T *, const T *); // ascending sort function
+        string name;           // internal identifier string
+        string title;          // text to display in stringgrid header
+        int width;                  // for StringGrid::ColWidths[]
+        bool sortAsc;
+    };
+    TStringGrid * sg;
+    map< string, int > mapColNameToInt;
+    bool initialised;
 public:
-    ColDef() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false) {} //, vec(NULL) { }
-    ColDef(std::vector<T *> * v, bool (*f)(const T *, const T *), std::string n, std::string d, int w) :
-        vec(v), sort_func_asc(f), name(n), description(d), width(w), sortAsc(false) {}
-    std::vector<T *> * vec;
-    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-    std::string name;
-    std::string description; // sort description for (e.g.) combo box?
-    int width; // for StringGrid::ColWidths[]
-    bool sortAsc;
-    void sort_asc() { std::sort(vec->begin(), vec->end(), sort_func_asc);  } // dot notation: vec.begin() also works - how?
-    void sort_dsc() { std::sort(vec->rbegin(), vec->rend(), sort_func_asc);  }
-    void sort_toggle(std::vector<T *> & vec) { sortAsc ? sort_asc() : sort_dsc(); sortAsc = !sortAsc; }
+    vector< T * > * rows;
+    vector< Col > cols;
+
+    StringGridWrapper(TStringGrid * g, vector<T *> * v) : sg(g), rows(v), initialised(false) {}
+    void init() {
+        sg->ColCount = cols.size(); // was setupStringGrid
+        for (int i=0; i<cols.size(); i++) {
+            sg->Cells[i][0]     = cols[i].title.c_str();
+            sg->ColWidths[i]    = cols[i].width;
+        }
+        initialised = true;
+    }
+    void addCol(Col c) {
+        if (initialised) throw "Already initialised";
+        mapColNameToInt[c.name] = cols.size();
+        cols.push_back(c);
+    }
+    void addCol(string n, string d, int w, bool (*f)(const T *, const T *)=NULL) {
+    //void addCol(std::string n, std::string d, int w, bool (*f)(const RetrievalRow *, const RetrievalRow *)=NULL) {
+        addCol(StringGridWrapper< T >::Col(n, d, w, f));
+    }
+    int colNameToInt(string colName) {
+        if (mapColNameToInt.find(colName) == mapColNameToInt.end()) throw "column name not found";
+        return mapColNameToInt[colName];
+    }
+    int colCount() { return cols.size(); }
+    int rowCount() { return rows->size(); }
+    string printColWidths() {
+        ostringstream oss; oss << sg->Name.c_str() << ": {";
+        for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; }
+        oss << "};"; return oss.str();
+    }
+    void clearSelection() {
+        TGridRect myRect;
+        myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
+        sg->Selection = myRect;
+    }
+    void clear() {
+        clearSelection();
+        sg->FixedRows = 0; sg->RowCount = 0; sg->RowCount = 2; sg->FixedRows = 1;
+        for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
+        sg->Cells[0][1] = "No results.";
+    }
+    void sort_asc(int col, int start, int end) {
+        sort(rows->begin(), rows->end(), cols[col].sort_func_asc); // dot notation: vec.begin() also seems to work - how?
+    }                                                              // it wasn't being compiled because dead code in a template
+    void sort_dsc(int col, int start, int end) {
+        sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc);
+        //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
+    }
+    void sort_asc(string colName, int start, int end) {
+        sort_asc(colNameToInt(colName));
+    }
+    void sort_dsc(string colName, int start, int end) {
+        sort_dsc(colNameToInt(colName));
+    }
+    void sort_toggle(int col, int start, int end) {
+        cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
+    }
+    void sort_toggle(string colName, int start, int end) {
+        sort_toggle(colNameToInt(colName));
+    }
 };
 
-enum { SGCHUNKS_SECTION, SGCHUNKS_START,  SGCHUNKS_END, SGCHUNKS_SIZE, SGCHUNKS_NUMCOLS };// sgChunks_cols;
-
-static const char * sgChunksColName[SGCHUNKS_NUMCOLS]   = { "Section", "Start", "End", "Size" };
-
-static const int    sgChunksColWidth[SGCHUNKS_NUMCOLS]  = { 200, 200, 200, 200 };
-
+// http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates
+//export
+//inline
+// attempts to move definition of Chunk() to .cpp in order to try to set breakpoints which disappear at runtime when
+// I set them in the header. none worked. it seems templated methods must be defined in the header.
+// why my breakpoints, which I need to find out why the program is crashing, are disappearing, I do not know.
+// I'm going home.
+template < class T >
 class Chunk { // not recorded in database
+    StringGridWrapper< T > * sgw;
+    vector< T * > *     totalRows;
+    int                 section;
+    int                 start;          // 1-indexed
+    string              startDescrip;
+    int                 end;
+    string              endDescrip;
 public:
-    Chunk() : section(0), start("start"), end("end") { }
-    Chunk(string name, int section, string start, string end) : section(section), start(start), end(end) { }
-    string      name;
-    int         section;
-    string      start;
-    string      end;
+    Chunk(StringGridWrapper< T > * w, int sc, int st, int e) : sgw(w), section(sc) {
+//        sgw = w;
+//        section = sc;
+//        setEnd(end);
+//        setStart(st);
+    }
+    // http://stackoverflow.com/questions/1568091/why-use-getters-and-setters
+    int     getSection() { return section; }
+    int     getStart() { return start; }
+    void    setStart(int s) {
+        if (s < 1 || s > end)
+            throw "invalid chunk start value";
+        start = s;
+    }
+    int     getEnd() { return end; }
+    void    setEnd(int e) {
+        if (e > sgw->rowCount())
+            throw "invalid chunk end value";
+        end = e;
+    }
+    int     getSize() { return end - start; }
+
+    T *     rowAt(int pos) {
+        int i=0;
+        return totalRows->at(start + pos);
+    }
+
+    void sort_asc(string colName) {
+        totalRows->sort_asc(colNameToInt(colName));  // not compiled when not used (because in template?)
+    }
+
+    void sort_dsc(string colName) {
+        totalRows->sort_dsc(colNameToInt(colName));
+    }
+
+    void sortToggle(int col) {
+        //totalRows->cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
+        sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
+        sgw->cols[col].sortAsc = !sgw->cols[col].sortAsc; // toggle
+    }
+
+//    incrStart();
+//    decrStart();
+    incrEnd();
+    decrEnd();
+
 };
 
 typedef std::vector< Chunk * > vecpChunk;
 
-class SampleChunk : public Chunk {
-public:
-    //~SampleChunk() { delete_referenced<vecpSampleRow>(rows); } // rows allocated in 'vials' ie. vector of all rows -
-    vecpSampleRow   rows;
-    //std::vector<SampleRow *> rows;
-};
-
-typedef std::vector< SampleChunk * >  vecpSampleChunk;
-
-class BoxChunk : public Chunk {
-public:
-    ~BoxChunk() { delete_referenced<vecpBoxRow>(rows); }
-    vecpBoxRow      rows;
-};
-
-typedef std::vector< BoxChunk * >  vecpBoxChunk;
-
-enum { SGJOBS_DESCRIP, SGJOBS_JOBTYPE, SGJOBS_STATUS, SGJOBS_PRIMARY, SGJOBS_SECONDARY, SGJOBS_PROJECT, SGJOBS_REASON, SGJOBS_TIMESTAMP, SGJOBS_NUMCOLS };
-
-static const char * sgJobsColName[SGJOBS_NUMCOLS]   = { "Description", "Job type", "Status", "Primary Aliquot", "Secondary Aliquot", "Project", "Reason", "Timestamp" };
-
-static const int    sgJobsColWidth[SGJOBS_NUMCOLS]  =  {359, 105, 88, 88, 134, 103, 177, 127 };
+//???
+//class RetrievalList {
+//    RetrievalRow rows[];
+//    Chunk chunks[];
+//};
 
 static const char * jobStatusString(short status) {
     static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Deleted" };
@@ -311,15 +394,16 @@ __published:
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall cbRejectedClick(TObject *Sender);
 private:
-    void debugLog(String s);
-    tdvecpJob vecJobs;
-    LCDbCryoJobs jobs;
-    void loadJobs();
-    void showJobs();
-    std::string getExerciseDescription(int exercise_cid);
-    std::string getProjectDescription(int project_cid);
-    std::string getAliquotDescription(int primary_aliquot);
-    std::string getAuditInfo(int process_cid);
+    void                    debugLog(String s);
+    tdvecpJob               vecJobs;
+    LCDbCryoJobs            jobs;
+    StringGridWrapper<LCDbCryoJob> *  sgwJobs;
+    void                    loadJobs();
+    void                    showJobs();
+    string             getExerciseDescription(int exercise_cid);
+    string             getProjectDescription(int project_cid);
+    string             getAliquotDescription(int primary_aliquot);
+    string             getAuditInfo(int process_cid);
 public:
     __fastcall TfrmRetrievalAssistant(TComponent* Owner);
     void init();

@@ -70,6 +70,11 @@ class TankEngine
 
 		CitrTankInfoMap getTankInfoBegin(void);
 		CitrTankInfoMap getTankInfoEnd(void);
+
+		CitrTankDisplayMap getTankDisplayMapBegin(void);
+		CitrTankDisplayMap getTankDisplayMapEnd(void);
+		const bool isTankDisplayEnd(const CitrTankDisplayMap ti );
+
 		CitrSectionCountMap getSectionCountBegin(void);
 		CitrSectionCountMap getSectionCountEnd(void);
 
@@ -123,6 +128,7 @@ class TankEngine
 //==============================================================
 		static TankEngine* instance;
 		static TankInfoMap tankInfos; // Summary of tank infomation
+		static TankDisplayMap tankDisplays;
 
 		 // sectionCounts - Summary of Slots avaliable and used
 		 // with a key of tankCID and section name.

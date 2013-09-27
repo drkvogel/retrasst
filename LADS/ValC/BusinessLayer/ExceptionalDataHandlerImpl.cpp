@@ -103,7 +103,12 @@ bool ExceptionalDataHandlerImpl::runNotifyMethod( const std::string& methodName,
 
     if( lua_pcall(L, 0, 2, 0) )
     {
-        throw Exception( lua_tostring( L, -1 ) );
+		throw Exception(
+			UnicodeString( L"Script Error: "		) +
+			UnicodeString( lua_tostring( L, -1 ) 	) +
+			UnicodeString( L"  Method Name: " 		) +
+			UnicodeString( methodName.c_str() 		)
+			);
     }
 
     if ( ! ( lua_isboolean( L, -1 )  && lua_isboolean( L, -2 ) ) )

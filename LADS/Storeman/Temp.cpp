@@ -8,6 +8,27 @@ TfrmTest *frmTest;
 __fastcall TfrmTest::TfrmTest(TComponent* Owner) : TForm(Owner) { }
 
 /*
+
+/**
+http://stackoverflow.com/questions/18311149/ho-to-get-rid-of-cbuilder-warning-virtual-function-hides
+
+struct Base {
+  virtual void foo(int) {}
+  virtual void foo(int, double) {}
+
+};
+
+struct Derived : Base {
+  virtual void foo(int) {}
+  //using Base::foo;
+};
+
+        //Derived d;
+        //d.foo(1, 1.2);
+/** end */
+
+
+
 // template
     ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
     LQuery q(LIMSDatabase::getCentralDb());

@@ -7,8 +7,11 @@ extern "C" {
 #include "lualib.h"
 }
 
+#include "Require.h"
+
 #ifndef lua_open
 #define lua_open luaL_newstate
 #endif
 
 #endif
+

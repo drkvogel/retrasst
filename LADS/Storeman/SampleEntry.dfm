@@ -25,11 +25,11 @@ object frmRetrieveMain: TfrmRetrieveMain
     Caption = 'Primary aliquot:'
   end
   object LblAliquot2: TLabel
-    Left = 294
+    Left = 313
     Top = 83
-    Width = 90
+    Width = 55
     Height = 13
-    Caption = 'Secondary aliquot:'
+    Caption = 'Secondary:'
   end
   object Label1: TLabel
     Left = 8
@@ -39,15 +39,15 @@ object frmRetrieveMain: TfrmRetrieveMain
     Caption = 'Project:'
   end
   object Label2: TLabel
-    Left = 862
+    Left = 867
     Top = 33
     Width = 53
     Height = 13
     Caption = 'Sort order:'
   end
   object Label3: TLabel
-    Left = 592
-    Top = 33
+    Left = 608
+    Top = 83
     Width = 47
     Height = 13
     Caption = 'Box type:'
@@ -69,7 +69,7 @@ object frmRetrieveMain: TfrmRetrieveMain
   object btnAddFile: TButton
     Left = 8
     Top = 128
-    Width = 96
+    Width = 97
     Height = 34
     Caption = 'Add from file'
     Enabled = False
@@ -77,19 +77,19 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnClick = AddClick
   end
   object btnLocate: TButton
-    Left = 313
+    Left = 300
     Top = 128
-    Width = 96
+    Width = 97
     Height = 34
-    Caption = 'Set location'
+    Caption = 'Check location'
     Enabled = False
     TabOrder = 6
     OnClick = btnLocateClick
   end
   object CmbAliquot1: TComboBox
-    Left = 89
+    Left = 92
     Top = 80
-    Width = 172
+    Width = 165
     Height = 21
     Enabled = False
     Sorted = True
@@ -97,9 +97,9 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnDropDown = CmbAliquot1DropDown
   end
   object rgItemType: TRadioGroup
-    Left = 294
+    Left = 313
     Top = 8
-    Width = 268
+    Width = 280
     Height = 52
     Caption = 'Item type'
     Columns = 3
@@ -111,9 +111,9 @@ object frmRetrieveMain: TfrmRetrieveMain
     TabOrder = 1
   end
   object CmbAliquot2: TComboBox
-    Left = 390
+    Left = 380
     Top = 80
-    Width = 172
+    Width = 165
     Height = 21
     Enabled = False
     Sorted = True
@@ -121,9 +121,9 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnDropDown = CmbAliquot2DropDown
   end
   object cbProject: TComboBox
-    Left = 89
+    Left = 92
     Top = 30
-    Width = 172
+    Width = 165
     Height = 21
     Sorted = True
     TabOrder = 0
@@ -140,9 +140,9 @@ object frmRetrieveMain: TfrmRetrieveMain
     TabOrder = 10
   end
   object btnDestination: TButton
-    Left = 466
+    Left = 447
     Top = 128
-    Width = 96
+    Width = 97
     Height = 34
     Caption = 'Set destination'
     Enabled = False
@@ -151,7 +151,7 @@ object frmRetrieveMain: TfrmRetrieveMain
   end
   object lbSortCols: TListBox
     Left = 928
-    Top = 16
+    Top = 18
     Width = 154
     Height = 104
     Enabled = False
@@ -159,16 +159,16 @@ object frmRetrieveMain: TfrmRetrieveMain
     TabOrder = 11
   end
   object btnAddRecords: TButton
-    Left = 160
+    Left = 154
     Top = 128
-    Width = 96
+    Width = 97
     Height = 34
     Caption = 'Add specimens'
     Enabled = False
     TabOrder = 5
   end
   object btnSaveList: TButton
-    Left = 655
+    Left = 740
     Top = 128
     Width = 96
     Height = 34
@@ -187,8 +187,8 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnClick = btnClrSortClick
   end
   object btnNewContent: TButton
-    Left = 655
-    Top = 74
+    Left = 593
+    Top = 128
     Width = 96
     Height = 34
     Caption = 'Add Box Type'
@@ -197,11 +197,12 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnClick = btnNewContentClick
   end
   object cbBoxType: TComboBox
-    Left = 655
-    Top = 30
-    Width = 172
+    Left = 671
+    Top = 80
+    Width = 165
     Height = 21
     TabOrder = 14
+    OnDropDown = cbBoxTypeDropDown
   end
   object OpenDialog1: TOpenDialog
     Left = 114

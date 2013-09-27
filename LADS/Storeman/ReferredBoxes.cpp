@@ -546,24 +546,26 @@ void __fastcall FindMatchesWorkerThread::Execute() {
 
     // populate event history dropdown
 	frmReferred->comboEventHistory->Clear();
-    LQuery qc(LIMSDatabase::getCentralDb());
-    qc.setSQL(
-        "SELECT event_cid, operator_cid, event_date, process_cid, project_cid"
-        " FROM l_box_arrival_event_history WHERE box_arrival_id = :baid"
-        " ORDER BY event_date DESC");
-    qc.setParam("baid", frmReferred->referredBox->box_arrival_id);
-    if (!qc.open()) {
-        frmReferred->comboEventHistory->Items->Add("No event history");
-    } else {
-        while (!qc.eof()) {
-            std::stringstream ss;
-            ss << qc.readDateTime("event_date").DateTimeString().c_str() << ": " <<
-            LCDbObjects::records().get(qc.readInt("event_cid")).getName().c_str();
-            frmReferred->comboEventHistory->Items->Add(ss.str().c_str());
-            qc.next();
-        }
-    }
-    frmReferred->comboEventHistory->ItemIndex = 0;
+	/*	removed NG: 18/9/13 - new Box Reception won't use l_box_arrival_event_history
+		LQuery qc(LIMSDatabase::getCentralDb());
+		qc.setSQL(
+			"SELECT event_cid, operator_cid, event_date, process_cid, project_cid"
+			" FROM l_box_arrival_event_history WHERE box_arrival_id = :baid"
+			" ORDER BY event_date DESC");
+		qc.setParam("baid", frmReferred->referredBox->box_arrival_id);
+		if (!qc.open()) {
+			frmReferred->comboEventHistory->Items->Add("No event history");
+		} else {
+			while (!qc.eof()) {
+				std::stringstream ss;
+				ss << qc.readDateTime("event_date").DateTimeString().c_str() << ": " <<
+				LCDbObjects::records().get(qc.readInt("event_cid")).getName().c_str();
+				frmReferred->comboEventHistory->Items->Add(ss.str().c_str());
+				qc.next();
+			}
+		}
+	*/
+	frmReferred->comboEventHistory->ItemIndex = 0;
 
     // determine whether stats are set on cryovial_store table
     bool stat_record_id, stat_cryovial_id, stat_box_cid, have_stats;

@@ -14,29 +14,9 @@
 
 using namespace std;
 
-// spec: show
 // cryovial barcode, destination box, position, current box, position, structure and location of the primary and secondary
 // secondary aliquots: if defined, will be separate rows after all primary aliquots
 // if any primaries fail, these will be marked to make a new chunk of replacements
-
-// encapsulate data about a stringgrid in a class?
-class SgData {
-    // key-value (stl?) lookup func instead of enums; map eg. "barcode" to (column) 4
-    int colNum(std::string colName);
-    TStringGrid *   sg;
-    String          caption;
-    enum            cols {};
-    char *          colnames[];
-    int             colwidths[];
-};
-
-enum {  SGVIALS_BARCODE, SGVIALS_ALIQUOT, SGVIALS_CURRBOX, SGVIALS_CURRPOS, SGVIALS_DESTBOX, SGVIALS_DESTPOS,
-        SGVIALS_SITE, SGVIALS_POSITION, SGVIALS_SHELF, SGVIALS_VESSEL, SGVIALS_STRUCTURE, SGVIALS_SLOT, // location in "Russian Doll order"
-        SGVIALS_NUMCOLS};
-
-static const char * sgVialColName[SGVIALS_NUMCOLS] = {"Barcode", "Aliquot", "Curr box", "Pos", "Dest box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"};
-
-static int sgVialColWidth[SGVIALS_NUMCOLS] = {102, 100, 275, 43, 275, 37, 64, 50, 43, 100, 121, 40};
 
 class LoadVialsWorkerThread : public TThread {
 protected:
@@ -47,8 +27,6 @@ public:
     string          loadingMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
 };
-
-//extern Sorter<SampleRow> sorter[SGVIALS_NUMCOLS];
 
 class TfrmSamples : public TForm {
     friend class LoadVialsWorkerThread;
@@ -78,6 +56,7 @@ __published:
     TButton *btnApplySort;
     TSplitter *splitterDebug;
     TMemo *memoDebug;
+    TCheckBox *cbSnapToBoxes;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
@@ -101,27 +80,24 @@ __published:
     void __fastcall sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value);
     void __fastcall sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value);
+    void __fastcall sgVialsDblClick(TObject *Sender);
 private:
     LoadVialsWorkerThread *     loadVialsWorkerThread;
     void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
-    void                        loadRowsNotAThread(); // testing
     LCDbCryoJob *               job;
-    std::vector<SampleChunk *>  chunks;
-    //std::vector<SampleRow *>    vials;      // all vials loadedvecpSampleRow
-    vecpSampleRow    vials;      // all vials loaded
-    //vecpSampleRow    vials;      // all vials loaded
+    vector< Chunk< SampleRow > *>  chunks;
+    vecpSampleRow               vials;      // all vials in job
+    StringGridWrapper<SampleRow> *      sgwVials;
+    StringGridWrapper< Chunk< SampleRow > > * sgwChunks;
     void                        addSorter();
     void                        removeSorter();
     void                        applySort();
     void                        autoChunk();
-    SampleChunk *               currentChunk();
+    Chunk< SampleRow > *        currentChunk();
     void                        showChunks();
     void                        loadRows();
-    void                        showChunk(SampleChunk * chunk=NULL);
-    void                        radgrpRowsChange();
-    void                        sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order);
+    void                        showCurrentChunk(Chunk< SampleRow > * chunk=NULL);
     const char *                loadingMessage;
-    ColDef<SampleRow *>         sgVialsCol[];
 public:
     __fastcall                  TfrmSamples(TComponent* Owner);
     void                        debugLog(String s);

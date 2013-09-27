@@ -16,6 +16,7 @@
  *	27 May 2009, NG:	set rack_cid + slot_position when appropriate
  *  1 Feb 2010, NG:		count boxes that are ready to take to Worminghall
  *  5 Feb 2013, NG:		set new status (ANALYSED) if ready to be transferred
+ * 20 September 2013:	ignore events - no longer required; add barcode
  *---------------------------------------------------------------------------*/
 
 #include <vcl.h>
@@ -51,6 +52,14 @@ LPDbBoxName::LPDbBoxName( const LQuery & query )
    status( query.readInt( "status" ) ),
    filledBy( 0 )
 {
+	if( query.fieldExists( "barcode" ) ) {
+		barcode = query.readString( "barcode" );
+	}
+	if( barcode.empty() || barcode == "." ) {
+		char buff[ 16 ];
+		std::sprintf( buff, "%d", abs( getID() ) );
+		barcode = buff;
+	}
 	cryovials.resize( getSize() - query.readInt( "box_capacity" ), "?" );
 }
 
@@ -112,8 +121,9 @@ void LPDbBoxName::checkFilledBy( LQuery & pq )
 
 const LPDbBoxName * LPDbBoxNames::readRecord( LQuery pQuery, std::string name )
 {
-	pQuery.setSQL( "select * from box_name where lower(external_name) = lower(:nam)" );
-	pQuery.setParam( "nam", name );
+	pQuery.setSQL( "select * from box_name"
+				  " where upper( :bn ) in (barcode, upper(external_name))" );
+	pQuery.setParam( "bn", name );
 	return pQuery.open() ? insert( LPDbBoxName( pQuery ) ) : NULL;
 }
 
@@ -168,13 +178,19 @@ bool LPDbBoxNames::readFilled( LQuery pq )
 
 bool LPDbBoxName::create( const LPDbBoxType & type, LQuery query )
 {
-	std::stringstream out;
-	out << type.getName() << ' ' << abs( claimNextID( query ) );
-	name = out.str();
-	std::string proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() ).getName();
-	if( proj.compare( name.substr( 0, proj.length() ) ) != 0 ) {
-		name = proj + " " + name;
+	const LCDbProject & proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() );
+	unsigned code = abs( claimNextID( query ) );
+	char buff[ 64 ];
+	std::sprintf( buff, "%s%.6u", proj.getStudyCode().c_str(), code );
+	barcode = buff;
+	AnsiString projName = proj.getName().c_str();
+	AnsiString typeName = type.getName().c_str();
+	if( typeName.UpperCase().Pos( projName.UpperCase() ) == 0 ) {
+		std::sprintf( buff, "%s %s %u", projName.c_str(), typeName.c_str(), code );
+	} else {
+		std::sprintf( buff, "%s %u", typeName.c_str(), code );
 	}
+	name = buff;
 	boxTypeID = type.getID();
 	filledBy = 0;
 	cryovials.clear();
@@ -285,6 +301,7 @@ bool LPDbBoxName::saveRecord( LQuery query )
 
 		query.setSQL( "insert into box_name (box_cid, box_type_cid, box_capacity,"
 					" external_name, status, time_stamp, process_cid, note_exists)"
+///// fixme - include barcode after upgrade
 					" values ( :bid, :btid, :cap, :exn, :sts, 'now', :pid, :nex)" );
 		query.setParam( "exn", name );
 		query.setParam( "btid", boxTypeID );

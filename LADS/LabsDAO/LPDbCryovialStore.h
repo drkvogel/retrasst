@@ -13,17 +13,18 @@ class LPDbCryovialStore : public LPDbID, public LDbNoteCount
 {
 	int cryovialID, boxID, retrievalID;
 	short status, position;
+	float volume;
 
 public:
 
 	enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, DELETED = 99 };
 
 	LPDbCryovialStore() : LDbNoteCount( 0 ), status( ALLOCATED ),
-		 cryovialID( 0 ), retrievalID( 0 ), boxID( 0 ), position( 0 )
+		 cryovialID( 0 ), retrievalID( 0 ), boxID( 0 ), position( 0 ), volume( -1 )
 	{}
 
 	LPDbCryovialStore( int id, int cryovial, int box, short pos )
-	 : LPDbID( id ), LDbNoteCount( 0 ), status( ALLOCATED ),
+	 : LPDbID( id ), LDbNoteCount( 0 ), status( ALLOCATED ), volume( -1 ),
 	   cryovialID( cryovial ), retrievalID( 0 ), boxID( box ), position( pos )
 	{}
 

@@ -27,7 +27,6 @@
  *  10/03/2009, NG:		Don't throw exception when e-mail cannot be sent
  *  9 April 09, NG:		Bug fix: check process ID before adding record
  *  1 July 09, NG:		Encourage wider use of pre-defined message types
- *
  *	11 June 2012, NG	Modified for C++Builder XE2
  *-------------------------------------------------------------------------*/
 
@@ -136,7 +135,11 @@ void LCDbAuditTrail::start( const std::string & message )
 	if( getID() != 0 && LCDbOperators::getCurrentID() != 0 ) {
 		mt = USER_LOGIN;
 	}
-	claimNextID( cQuery );
+	int id = claimNextID( cQuery );
+	const LCDbProject * central = LCDbProjects::records().findByID( 0 );
+	if( id > 0 && central != NULL && central->getVersion().minor <= 7 && central->getVersion().phase<2 ) {
+		setID( -id );
+    }
 	addRecord( message, mt );
 }
 

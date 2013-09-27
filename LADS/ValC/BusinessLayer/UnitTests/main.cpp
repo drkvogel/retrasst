@@ -16,6 +16,7 @@
 #include "BuddySampleIDKeyedOnSampleRunIDTest.h"
 #include "ForceReloadTest.h"
 #include "QueuedSamplesFactoryTest.h"
+#include "RuleEngineTest.h"
 #include "SampleRunIDResolutionServiceTest.h"
 
 void pause()

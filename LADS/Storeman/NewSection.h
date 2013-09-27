@@ -45,7 +45,7 @@ public:		// User declarations
 	void init( IPart* lay, Section* p_section );
 	int getDefaultFillOrder() const;
 	bool isFillOrderDuplicate( int order ) const;
-	bool isPrefixDuplicate( std::string prefix ) const;
+	bool isPrefixDuplicate( AnsiString prefix ) const;
 	Section* getSection() const { return section; }
 };
 

@@ -7,6 +7,7 @@
 
     <xsl:variable name="NULL_VALUE" select="'rabbit'"/>
 
+    <xsl:template match="text()"/>
     <xsl:template match='table_structure'/>
 
     <xsl:template match='field'>

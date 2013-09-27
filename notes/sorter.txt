@@ -1,43 +1,54 @@
 ﻿is it initializing the ColDefs in frmSample() that's corrupting memory?
 http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
 t_ldb1_ddb
+C:\Users\cbird\Projects\lims-generic\doxygen\html
 
-(* == has locations)
-### throwing errors
-SEARCH May 2008
-SEARCH BC Aug 2009 : Aug 2009 SEARCH Buffy Coat retrieval
-* A cryovial retrieval for Chris
-SEARCH BC 2003 : 2003 SEARCH Buffy Coat retrieval
+Chunk: what is a chunk? it's a bit of the whole list. If The Whole List is an object, we shouldn't duplicate it in any way - either 
+	move all the contents of the initial list into chunks, 
+or 
+	keep the list, but chunks context indexes into it, and do partial_sorts of its contents.
+	then again, the StringGridWrapper should be shy - just display and sort sth, without knowing whether that list is a part or a whole
+
+Have implemented the StringGridWrapper, but sorting is no longer working. Must rembember that at all times, even if the chunk is a default chunk containing all rows, we should be sorting a chunk and not the underlying vector of rows.
+
+That means the 'rows' of the StringGridWrapper should be set to be the rows of whichever chunk is currently selected.
+At which point (which routine) should we do this? Something smells wrong about the current way chunks are handled.
+Pragmatic - forget sorting for now, fire some tracer bullets - get some visual stuff up and database inserts going
+
+I have your new card so please pop in with the old one when you’re next passing.
+
+Another minor feature to add to the retrieval assistant when you’re implementing the final part: when you’ve finished retrieving samples from a box, check if it’s empty.  That’s unlikely to be necessary for tasks I’ve created but anyone using Jonathan’s utility to rationalise tanks may end up throwing the old boxes away
+
+Chris - This means we’ll be demonstrating next week using the mirror system, just in case it makes any difference Nick
+
+I'm happy for it to be split I f that makes more sense. Martin
+
+Hi Martin Did I gather that the labs are going to be quiet on 2nd as well as 1st October?  If it's going to be our only chance for a while, can we clobber Ingres both days?  Rather than doing the whole thing in one day, I'd like to suggest rebuilding the test system (v2.7.2) on 1st October and, if that goes according to plan, do the development system (v2.7.3) the following day.
+
+As I mentioned earlier, there's a bit of a problem including boxes in a retrieval if we don't know where they are.  Our current thinking is that we'll ask the user about such boxes when they create a retrieval list and add dummy/incomplete box_store records.  I'm about to add such records for existing jobs.  Please ignore any integrity errors that result
+
+This doesn't seem to have caused any problems.  The dummy box_store records have a status of 1 (unconfirmed), rack_cid=0 and slot_position=0.  StoreDAO::findBox() will still return false because it looks for the rack_cid in c_rack_number
+
+---
+worried about ay?
+  talk to ana about it - moving house, being tired
+  talk to occ health about that
+  talk to union
+  get nick to verify that ref boxes was ready ages ago and generic comms is in use
+  get rg to verify that stig is working and in use
+  tell all concerned that it is only because I am worried that ay is looking for ways to discredit me that I am doing this.
+I hate my boss. Can I move?
+---
+sample grid - shelf and vessel wrong way round-dn
+in fact, storage details should come after src box - not done, was going to get my coldefs and sorters working first and re-arrange columns like that.
+                                            
+copyLocation
+    position vs rack_pos vs tank_pos?
+        src_box_pos is dupe of store_record->getPosition()
 
 "An empty retrieval list" - null chunk!
-
-### not throwing errors? 
-THRIVE Lp(a) baseline : THRIVE Lp(a) analysis (big!)
-SEARCH EDTA_1 Oct 2012 : Oct 2012 retrieval for myopathy biomarker
-bianca rocca (box retrieval)
-Retrieval_2415 : A job with a few THRIVE cryovial (no cryvials though?)
-* Retrieval_2418 : Another THRIVE sample retrieval
-
-must be thread-related? e.g. sample->store_record->getBoxID()?
-non-threaded version seems ok... something in worker thread must be doing something gui-related... one of the classes descended from a VCL class?
-void __fastcall LCDbCryoJobs::Renewal(TObject *)? timer in main thread though so should be ok
-what if I take the synchronized updateStatus calls out?
-  looked promising, but still crashing
-be pragmatic, it seems to work non-threaded.
-still much faster when locations are found, shouldn't be - is the query messing things up?
-no, still crashes on notAThread
-    on second load of same job
-    vials not being reset/deleted?
-    some other change I've made recently - follow it through from the start
-
-002000758 EDTA_BC SEARCH Buffy 7 / SEARCH buffy coat retrieval 330 Pos 8 
-  Position give EAccessViolation and corrupt position, break on 
-		if (found != samples.end()) { // fill in box location from cache map
-            sample->site_name       = (*(found->second)).site_name; <-- here
-            sample->position        = (*(found->second)).position;
-            sample->vessel_name     = (*(found->second)).vessel_name; <-- or here
-or
-002000758 src box_id -40269
+        
+what is paul doing with lua?
 
 double-clicking a sample/box should mark the end of a chunk and create a new one
 
@@ -145,3 +156,71 @@ public:
     void sort_toggle(std::vector<T *> & vec) { sort(vec, TOGGLE);  }
 };
 
+---
+002000758 EDTA_BC SEARCH Buffy 7 / SEARCH buffy coat retrieval 330 Pos 8 
+  Position give EAccessViolation and corrupt position, break on 
+		if (found != samples.end()) { // fill in box location from cache map
+            sample->site_name       = (*(found->second)).site_name; <-- here
+            sample->position        = (*(found->second)).position;
+            sample->vessel_name     = (*(found->second)).vessel_name; <-- or here
+t_ldb1_ddb
+(* == has locations)
+### throwing errors
+SEARCH May 2008
+SEARCH BC Aug 2009 : Aug 2009 SEARCH Buffy Coat retrieval
+* A cryovial retrieval for Chris
+SEARCH BC 2003 : 2003 SEARCH Buffy Coat retrieval
+
+### not throwing errors? 
+THRIVE Lp(a) baseline : THRIVE Lp(a) analysis (big!)
+SEARCH EDTA_1 Oct 2012 : Oct 2012 retrieval for myopathy biomarker
+bianca rocca (box retrieval)
+Retrieval_2415 : A job with a few THRIVE cryovial (no cryvials though?)
+* Retrieval_2418 : Another THRIVE sample retrieval
+
+must be thread-related? e.g. sample->store_record->getBoxID()?
+non-threaded version seems ok... something in worker thread must be doing something gui-related... one of the classes descended from a VCL class?
+void __fastcall LCDbCryoJobs::Renewal(TObject *)? timer in main thread though so should be ok
+what if I take the synchronized updateStatus calls out?
+  looked promising, but still crashing
+be pragmatic, it seems to work non-threaded.
+still much faster when locations are found, shouldn't be - is the query messing things up?
+no, still crashes on notAThread
+    on second load of same job <-- code smell
+    vials not being reset/deleted?
+    some other change I've made recently - follow it through from the start   
+    unitialized map? clear?
+    it was because the map was static
+
+take out dupes:
+int src_box_pos             s1.cryovial_position as source_pos // dupe
+int src_box_id,             cryovial_store.box_cid // dupe
+    
+sort out SampleRow:
+Member                      Constructor     Database
+
+                            SampleRow(
+                             LPDbCryovialStore * store_rec[
+                             LPDbID         cryovial_store.cryovial_id
+                             LDbNoteCount   cryovial_store.Note_Exists
+                             retrievalID    cryovial_store.retrieval_cid
+                             boxID          cryovial_store.box_cid
+                             status         cryovial_store.status
+                             position       cryovial_store.cryovial_position
+                             cryovialID],   cryovial_store.cryovial_id
+                             
+string cryovial_barcode     barcode,        cryovial_barcode
+string aliquot_type_name    aliquot,        aliquot_type_cid -> name
+string src_box_name         src_name,       box_name.external_name
+int dest_box_id             dest_id,        s2.box_cid
+string dest_box_name        dest_name,      b2.external_name
+int dest_box_pos            dest_pos        cryovial_position as dest_pos  # pos of cryovial in box/sample rack
+
+string site_name            site,           c_tank_map.location_cid -> name
+int vessel_pos              tank_pos,       c_tank_map.position as tank_pos? # current pos of vessel at site
+string vessel_name          vessel,         c_tank_map.storage_cid -> name
+int shelf_number            shelf,          c_tank_map.shelf_number # current pos of population within vessel (0: single population)                                
+int structure_pos           rack_pos,       c_rack_number.position as rack_pos # pos of structure within population (in a vessel?) 1st structure in 1st section is at pos 1
+int structure_name          rack_name,      c_rack_number.rack_cid -> name
+int box_position           slot)           box_store.slot_position # pos of box/rack in structure    
+    
