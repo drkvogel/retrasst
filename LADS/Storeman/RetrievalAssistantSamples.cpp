@@ -300,7 +300,6 @@ void TfrmSamples::autoChunk() {
 
 Chunk< SampleRow > * TfrmSamples::currentChunk() {
     if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
-    //SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
     Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][sgChunks->Row];
     if (NULL == chunk) {// still null
         ostringstream oss; oss<<__FUNC__<<": Null chunk"; debugLog(oss.str().c_str());
@@ -317,14 +316,11 @@ void TfrmSamples::showCurrentChunk(Chunk< SampleRow > * chunk) {
     if (chunk->getSize() <= 0) {
         sgwVials->clear();
     } else {
-        //sgVials->RowCount = chunk->rows.size();
         sgVials->RowCount = chunk->getSize();
         sgVials->FixedRows = 1;
     }
-    //int row = 1;
-    //for (std::vector<SampleRow * >::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++, row++) { // vecpDataRow?
+
     for (int row = 1; row < chunk->getSize(); row++) {
-        //SampleRow * sampleRow = (SampleRow *)*it;
         SampleRow * sampleRow = chunk->at(row);
         LPDbCryovialStore * vial = sampleRow->store_record;
 
