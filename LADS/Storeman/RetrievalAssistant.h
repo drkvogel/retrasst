@@ -271,25 +271,31 @@ public:
     }
 };
 
+template < class T >
 class Chunk { // not recorded in database
+    vector< T * > * totalRows;
     string          name;
     int             section;
-    int             start;
+    int             start;          // 1-indexed
     string          startDescrip;
     int             end;
     string          endDescrip;
 public:
-    Chunk() : section(0), start(0), end(0) { }
-    Chunk(string name, int sc, int st, int end) : section(sc), start(st), end(end) {
-
+    Chunk() : totalRows(NULL), section(0), start(0), end(0) { }
+    Chunk(vector< T * > * ofRows, string name, int sc, int st, int end) : section(sc), start(st), end(end) {
+        totalRows
     }
+    // http://stackoverflow.com/questions/1568091/why-use-getters-and-setters
+    void setRows(vector< T * > * ofRows) { totalRows = ofRows }
     int getSection() { return section; }
     void setSection(int s) { section = s; }
     int getStart() { return start; }
-    void setStart(int s) { start = s; }
+    void setStart(int s) { if (s < 1) throw "invalid chunk start value"; start = s; }
     int getEnd() { return end; }
-    void setEnd(int e) { end = e; }
+    void setEnd(int e) { if (e > totalRows->size()) throw "invalid chunk end value"; end = e; }
     int getSize() { return end - start; }
+    //vector< T * >::iterator begin() { return totalRows->at(start); }
+    T * at(int pos) { return totalRows->at(start + pos); }
     //void sortToggle(int col) { /* do something */ }
     //setStart(int s) { start = s; }
 
@@ -306,30 +312,31 @@ public:
 
 typedef std::vector< Chunk * > vecpChunk;
 
-class SampleChunk : public Chunk {
-public:
-    vecpSampleRow   rows;
-    void    sortAsc(int col);
-    void    sortDesc(int col);
-    void    sortToggle(int col);
-};
+//class SampleChunk : public Chunk {
+//public:
+//    vecpSampleRow   rows;
+//    void    sortAsc(int col);
+//    void    sortDesc(int col);
+//    void    sortToggle(int col);
+//};
+//
+//typedef std::vector< SampleChunk * >  vecpSampleChunk;
+//
+//class BoxChunk : public Chunk {
+//public:
+//    vecpBoxRow      rows;
+//    void    sortAsc() { return; };
+//    void    sortDesc();
+//    void    sortToggle();
+//};
 
-typedef std::vector< SampleChunk * >  vecpSampleChunk;
+//typedef std::vector< BoxChunk * >  vecpBoxChunk;
 
-class BoxChunk : public Chunk {
-public:
-    vecpBoxRow      rows;
-    void    sortAsc() { return; };
-    void    sortDesc();
-    void    sortToggle();
-};
-
-typedef std::vector< BoxChunk * >  vecpBoxChunk;
-
-class RetrievalList {
-    RetrievalRow rows[];
-    Chunk chunks[];
-};
+//???
+//class RetrievalList {
+//    RetrievalRow rows[];
+//    Chunk chunks[];
+//};
 
 static const char * jobStatusString(short status) {
     static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Deleted" };

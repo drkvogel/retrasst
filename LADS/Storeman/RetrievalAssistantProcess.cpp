@@ -23,24 +23,7 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
 }
 
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
-/*
-// template
-    ostringstream oss; oss<<__FUNC__; debugLog(oss.str().c_str());
-    LQuery q(LIMSDatabase::getCentralDb());
-    //LQuery q(Util::projectQuery(project), true); // get ddb with central and project dbs
-    q.setSQL("SELECT * FROM  WHERE status != 99");
-    Screen->Cursor = crSQLWait;
-    q.open();
-    delete_referenced<vecp>(s);
-    while (!q.eof()) {
-        RetrievalPlan * plan = new RetrievalPlan(q.readString("name"));
-        //ob-> = q.readInt("");
-        //ob-> = q.readString("");
-        s.push_back();
-        q.next();
-    }
-    Screen->Cursor = crDefault;
-*/
+
     loadRows();
     panelLoading->Caption = loadingMessage;
 }

@@ -11,7 +11,8 @@
 TfrmSamples *frmSamples;
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
-    sgwChunks = new StringGridWrapper<SampleChunk>(sgChunks, &chunks);
+    //sgwChunks = new StringGridWrapper<SampleChunk>(sgChunks, &chunks);
+    sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  200);
     sgwChunks->addCol("start",    "Start",    200);
     sgwChunks->addCol("end",      "End",      200);
@@ -52,12 +53,14 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     sgwChunks->clear();
     sgwVials->clear();
     timerLoadVials->Enabled = true;
-    //if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
+    if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
 }
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
     delete_referenced< vector <SampleRow * > >(frmSamples->vials);
-    delete_referenced<vecpSampleChunk>(chunks); // chunk objects, not contents of chunks
+    //delete_referenced<vecpSampleChunk>(chunks); // chunk objects, not contents of chunks
+    delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
+
 }
 
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
@@ -66,13 +69,17 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
         // sign off?
         // create the retrieval plan by inserting into c_box_retrieval and l_sample_retrieval
-        for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
+        //for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
+        for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
             // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
-            SampleChunk * chunk = *it;
+            Chunk< SampleRow > * chunk = *it;
             //      for samples
             //          insert destination box into C_BOX_RETRIEVAL with current section (chunk) number
-            for (vector <SampleRow * >::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
-                SampleRow * sampleRow = (SampleRow *)*it;
+            //for (vector <SampleRow * >::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
+            for (int i = 1; i < chunk->getSize(); i++) {
+                //pBoxRow boxRow = (pBoxRow)*it;
+                //pBoxRow boxRow = chunk->at(i);
+                SampleRow * sampleRow = chunk->at(i); //(Chunk< SampleRow > *)*it;
                 LPDbCryovialStore * vial = sampleRow->store_record;
                 // insert into l_sample_retrieval
             }
@@ -125,7 +132,8 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
     if (0 == ARow) {
         background = clBtnFace;
     } else {
-        SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][ARow];
+        //SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][ARow];
+        Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][ARow];
         background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == chunk) {
             background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
@@ -242,8 +250,10 @@ void TfrmSamples::showChunks() {
         sgChunks->FixedRows = 1; // "Fixed row count must be LESS than row count"
     }
     int row = 1;
-    for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
-        SampleChunk * chunk = *it;
+    //for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
+    for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
+        //SampleChunk * chunk = *it;
+        Chunk< SampleRow > * chunk = *it;
         sgChunks->Cells[sgwChunks->colNameToInt("section")]   [row] = chunk->getSection();
         sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStart(); //start.c_str(); // or name of vial at start?
         sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEnd(); //end.c_str();
@@ -254,16 +264,25 @@ void TfrmSamples::showChunks() {
 }
 
 void TfrmSamples::addChunk() {
-    SampleChunk * chunk = new SampleChunk;
+    //SampleChunk * chunk = new SampleChunk;
+    Chunk< SampleRow > * chunk = new Chunk< SampleRow >;
     chunk->setSection(chunks.size() + 1);
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-//        for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) {
-//            chunk->rows.push_back((SampleRow *)*(it));
-//        }
-        chunk->rows = vials;
+        // copy individually into new vector
+        // for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) { chunk->rows.push_back((SampleRow *)*(it)); }
+        // or
+        // this copies anyway?
+        //chunk->rows = vials;
+        // or
+        // just set markers to the start and end of the chunk in the main list
+        // most lightweight way to do it, doesn't duplicate information, and useable for either samples or boxes?
+        chunk->setStart(1); // 1-indexed
     } else {
         //chunk->rows.push_back(*(vials.begin()));
     }
+
+    // fixme make it the current chunk
+
     chunks.push_back(chunk);
     btnDelChunk->Enabled = true;
     showChunks();
@@ -273,9 +292,11 @@ void TfrmSamples::autoChunk() {
     frmAutoChunk->ShowModal();
 }
 
-SampleChunk * TfrmSamples::currentChunk() {
+//SampleChunk * TfrmSamples::currentChunk() {
+Chunk< SampleRow > * TfrmSamples::currentChunk() {
     if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
-    SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
+    //SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
+    Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][sgChunks->Row];
     if (NULL == chunk) {// still null
         ostringstream oss; oss<<__FUNC__<<": Null chunk"; debugLog(oss.str().c_str());
         throw Exception("null chunk");
@@ -283,19 +304,24 @@ SampleChunk * TfrmSamples::currentChunk() {
     return chunk;
 }
 
-void TfrmSamples::showChunk(SampleChunk * chunk) {
+//void TfrmSamples::showChunk(SampleChunk * chunk) {
+void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
     if (NULL == chunk) { // default
         chunk = currentChunk();
     }
-    if (chunk->rows.size() <= 0) {
+    //if (chunk->rows.size() <= 0) {
+    if (chunk->getSize() <= 0) {
         sgwVials->clear();
     } else {
-        sgVials->RowCount = chunk->rows.size();
+        //sgVials->RowCount = chunk->rows.size();
+        sgVials->RowCount = chunk->getSize();
         sgVials->FixedRows = 1;
     }
-    int row = 1;
-    for (std::vector<SampleRow * >::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++, row++) { // vecpDataRow?
-        SampleRow * sampleRow = (SampleRow *)*it;
+    //int row = 1;
+    //for (std::vector<SampleRow * >::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++, row++) { // vecpDataRow?
+    for (int row = 1; row < chunk->getSize(); row++) {
+        //SampleRow * sampleRow = (SampleRow *)*it;
+        SampleRow * sampleRow = chunk->at(row);
         LPDbCryovialStore * vial = sampleRow->store_record;
 
         sgVials->Cells[sgwVials->colNameToInt("barcode")] [row] = sampleRow->cryovial_barcode.c_str();
@@ -313,6 +339,27 @@ void TfrmSamples::showChunk(SampleChunk * chunk) {
         sgVials->Objects[0][row] = (TObject *)sampleRow;
     }
 }
+
+void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
+    //ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str())<endl; //debugLog(oss.str().c_str());
+    debugLog(sgChunks->Cells[ACol][ARow]);
+}
+
+void __fastcall TfrmSamples::sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value) {
+    ostringstream oss;
+    oss<<__FUNC__; debugLog(oss.str().c_str()); //String(sgChunks->Cells[ACol][ARow].c_str())<endl;
+    //debugLog(oss.str().c_str());
+    debugLog(sgChunks->Cells[ACol][ARow]);
+}
+
+void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
+    // mark chunk boundary
+    //msgbox("chunk split");
+    addChunk(); // default chunk
+    showChunks();
+}
+
+//-------------- sorters --------------
 
 void TfrmSamples::addSorter() {
     ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
@@ -345,7 +392,8 @@ void TfrmSamples::removeSorter() {
 
 void TfrmSamples::applySort() { // loop through sorters and apply each selected sort
     ostringstream oss; oss<<__FUNC__<<groupSort->ControlCount<<" controls"<<endl; debugLog(oss.str().c_str());
-    SampleChunk * chunk = currentChunk();
+    //SampleChunk * chunk = currentChunk();
+    //Chunk< SampleRow > * chunk = currentChunk();
     for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box // controls are in creation order, ie. buttons first from design, and last added combo is last
         TControl * control = groupSort->Controls[i];
         TComboBox * combo = dynamic_cast<TComboBox *>(control);
@@ -362,17 +410,7 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
     }
 }
 
-void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
-    //ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str())<endl; //debugLog(oss.str().c_str());
-    debugLog(sgChunks->Cells[ACol][ARow]);
-}
-
-void __fastcall TfrmSamples::sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value) {
-    ostringstream oss;
-    oss<<__FUNC__; debugLog(oss.str().c_str()); //String(sgChunks->Cells[ACol][ARow].c_str())<endl;
-    //debugLog(oss.str().c_str());
-    debugLog(sgChunks->Cells[ACol][ARow]);
-}
+//-------------- samples --------------
 
 void TfrmSamples::loadRows() {
     panelLoading->Caption = loadingMessage;
@@ -492,8 +530,4 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     Enabled = true;
 }
 
-void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
-    // mark chunk boundary
-    msgbox("chunk split");
-}
 

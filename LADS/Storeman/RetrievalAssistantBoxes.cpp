@@ -109,14 +109,14 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     job                 = NULL;
 
-    sgwChunks = new StringGridWrapper<BoxChunk>(sgChunks, &chunks);
+    sgwChunks = new StringGridWrapper< Chunk< BoxRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  200);
     sgwChunks->addCol("start",    "Start",    200);
     sgwChunks->addCol("end",      "End",      200);
     sgwChunks->addCol("size",     "Size",     200);
     sgwChunks->init();
 
-    sgwBoxes  = new StringGridWrapper<BoxRow>(sgBoxes, &boxes);
+    sgwBoxes  = new StringGridWrapper< BoxRow >(sgBoxes, &boxes);
     sgwBoxes->addCol("boxname","Box name",     266,    BoxRow::sort_asc_currbox);
     sgwBoxes->addCol("site",   "Site",         156,    BoxRow::sort_asc_site);
     sgwBoxes->addCol("shelf",  "Shelf",        74,     BoxRow::sort_asc_shelf);
@@ -136,7 +136,8 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
 
 void __fastcall TfrmBoxes::FormClose(TObject *Sender, TCloseAction &Action) {
     delete_referenced<vecpBoxRow>(boxes);
-    delete_referenced<vecpBoxChunk>(chunks);
+    //delete_referenced<vecpBoxChunk>(chunks);
+    delete_referenced< vector< Chunk< BoxRow > * > >(chunks);
 }
 
 VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime) { //cout << "CALLBACK " << dwTime << '\n'; cout.flush();
@@ -168,8 +169,8 @@ void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow,
     if (0 == ARow) {
         background = clBtnFace;
     } else {
-        Chunk * chunk = NULL;
-        chunk = (Chunk *)sgChunks->Objects[0][ARow];
+        Chunk< BoxRow > * chunk = NULL;
+        chunk = (Chunk< BoxRow > *)sgChunks->Objects[0][ARow];
         if (NULL == chunk) {
             background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
@@ -199,8 +200,8 @@ void __fastcall TfrmBoxes::sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, 
     if (0 == ARow) {
         background = clBtnFace;
     } else {
-        Chunk * chunk = NULL;
-        chunk = (Chunk *)sgBoxes->Objects[0][ARow];
+        Chunk< BoxRow > * chunk = NULL;
+        chunk = (Chunk< BoxRow > *)sgBoxes->Objects[0][ARow];
         if (NULL == chunk) {
             background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
@@ -228,12 +229,15 @@ void __fastcall TfrmBoxes::sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, 
 void __fastcall TfrmBoxes::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
         // sign off?
-        for (vecpBoxChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
-            BoxChunk * chunk = *it;
+        for (vector< Chunk< BoxRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
+            Chunk< BoxRow > * chunk = *it;
             //      for boxes
             //          insert box into C_BOX_RETRIEVAL with current section (chunk) number
-            for (vecpBoxRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
-                pBoxRow boxRow = (pBoxRow)*it;
+            //for (vecpBoxRow::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
+            //for (vecpBoxRow::const_iterator it = chunk->begin(); it != chunk->end(); it++) { // vecpDataRow?
+            for (int i = 1; i < chunk->getSize(); i++) {
+                //pBoxRow boxRow = (pBoxRow)*it;
+                pBoxRow boxRow = chunk->at(i);
                 //LPDbCryovialStore * vial = sampleRow->store_record;
             }
             /*
@@ -321,7 +325,6 @@ void __fastcall TfrmBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
 
 void __fastcall TfrmBoxes::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
-        //xxxxrejectList();
         job->setStatus(LCDbCryoJob::Status::REJECTED);
         job->saveRecord(LIMSDatabase::getCentralDb());
         Close();
@@ -348,8 +351,8 @@ void TfrmBoxes::addChunk() {
 void TfrmBoxes::showChunks() {
     sgChunks->RowCount = chunks.size() + 1;
     int row = 1;
-    for (vecpBoxChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
-        Chunk * chunk = *it;
+    for (vector< Chunk< BoxRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
+        Chunk< BoxRow > * chunk = *it;
 //        sgChunks->Cells[SGCHUNKS_SECTION]   [row] = chunk->section;
 //        sgChunks->Cells[SGCHUNKS_START]     [row] = chunk->start.c_str();
 //        sgChunks->Cells[SGCHUNKS_END]       [row] = chunk->end.c_str();

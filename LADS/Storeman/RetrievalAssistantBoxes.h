@@ -112,10 +112,12 @@ private:
     LoadBoxesWorkerThread * loadBoxesWorkerThread;
     void __fastcall loadBoxesWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *               job;
-    vecpBoxChunk                chunks;
+    //vecpBoxChunk                chunks;
+    vector< Chunk< BoxRow > *>  chunks;
     vecpBoxRow                  boxes;
     StringGridWrapper<BoxRow> *     sgwBoxes;
-    StringGridWrapper<BoxChunk> *   sgwChunks;
+    //StringGridWrapper<BoxChunk> *   sgwChunks;
+    StringGridWrapper< Chunk< BoxRow > > *   sgwChunks;
     void                        sortChunk(int col);
     void                        addChunk();
     void                        showChunks();
