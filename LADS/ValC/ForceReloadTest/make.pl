@@ -41,7 +41,10 @@ if ( $userArg eq 'Make' ) {
     unlink "valc.log";
     unlink "trace.txt";
     print "Running $project...\n";
-    system("$project.exe") == 0 or die "Failed to run $project: $!";
+# candidate local machine ID values for AU680:
+#   -1019429
+#   -1019349
+    system("$project.exe", '-1019429') == 0 or die "Failed to run $project: $!";
     chdir $cwd;
 }
 

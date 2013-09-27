@@ -136,16 +136,16 @@ void __fastcall TfrmBrowse::BtnFindClick(TObject *Sender)
 		PartFactory pf( true, true );
 		pf.addBox( box );
 		init( pf.createSiteList(), true );
-		expandSubTree( SampleTree -> Items -> GetFirstNode(), box->getName() );
+		expandSubTree( SampleTree -> Items -> GetFirstNode(), box->getName().c_str() );
 		delete box;
 	}
 }
 
 //---------------------------------------------------------------------------
 
-void TfrmBrowse::expandSubTree( TTreeNode* parent, const std::string & selection ) {
+void TfrmBrowse::expandSubTree( TTreeNode* parent, AnsiString selection ) {
 	IPart * data = (IPart *)(parent -> Data);
-	if( data != NULL && data->getName() == selection ) {
+	if( data != NULL && selection.AnsiCompareIC( data->getName().c_str() ) == 0 ) {
 		SampleTree -> Selected = parent;
 		TreeClick( SampleTree );
 	}

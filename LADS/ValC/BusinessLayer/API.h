@@ -1,6 +1,7 @@
 #ifndef APIH
 #define APIH
 
+#include "AbstractConnectionFactory.h"
 #include <System.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/variant.hpp>
@@ -65,22 +66,19 @@ struct Range : public std::pair<Iter, Iter>
     It is the caller's responsibility to delete the returned instance 
     when they are done with it.
 
-    The Properties object must include a value for 'ConnectionString'.
-    An example of such a value:
+    Example value for connectionString:
         dsn=paulst_brat_64;db=paulst_test
     In the preceding example, 'paulst_test' is the name of the database and 
     'paulst_brat_64' is the name of a 64bit ODBC datasource.
 
-    Optionally, properties may include a value for 'SessionReadLockSetting', e.g.
-    'set lockmode session where readlock = nolock'.
+    Example value for sessionReadLockSetting:
+        set lockmode session where readlock = nolock
 */
-class DBConnectionFactory
+class DBConnectionFactory : public paulstdb::AbstractConnectionFactory
 {
 public:
-    static paulstdb::DBConnection* createConnection( const std::string& connectionString,
-        const std::string& sessionReadLockSetting = "" );
-private:
     DBConnectionFactory();
+    paulstdb::DBConnection* createConnection( const std::string& connectionString, const std::string& sessionReadLockSetting = "" );
 };
 
 /*
@@ -230,6 +228,33 @@ struct BuddyDatabaseEntry
 };
 
 typedef std::vector<BuddyDatabaseEntry> BuddyDatabaseEntries;
+
+struct RuleResult
+{
+    int         resultCode;
+    std::string rule;
+    std::string msg;
+};
+
+class RuleResults
+{
+public:
+    typedef std::vector<RuleResult> RuleResultCollection;
+    typedef RuleResultCollection::const_iterator const_iterator;
+
+    RuleResults();
+    RuleResults( const_iterator begin, const_iterator end, int summaryResultCode, const std::string& summaryMsg );
+    RuleResults( const RuleResults& );
+    RuleResults& operator=( const RuleResults& );
+    const_iterator  begin() const;
+    const_iterator  end() const;
+    int             getSummaryResultCode() const;
+    std::string     getSummaryMsg() const;
+private:
+    int                  m_summaryResultCode;
+    std::string          m_summaryMsg;
+    RuleResultCollection m_results;
+};
 
 /*  
     AnalysisActivitySnapshot is the model of which the ValC

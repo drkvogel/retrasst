@@ -87,6 +87,9 @@ std::string LCDbObject::findDescription( Category type )
 		case STORAGE_EXERCISE:
 			return "Storage exercise";
 
+		case ANALYSER_MODEL:
+			return "Analyser model";
+
 		default:
 			return "(unknown)";
 	}
@@ -96,10 +99,11 @@ std::string LCDbObject::findDescription( Category type )
 
 LCDbObject::Category LCDbObject::findObjectType( const std::string & description )
 {
-	for( int type = CALIBRANT; type < NUM_TYPES; type ++ )
-		if( description.compare( findDescription( Category( type ) ) ) == 0 )
-			return Category( type );
-
+	for( int type = 0; type < NUM_TYPES; type ++ ) {
+		if( description.compare( findDescription( type ) ) == 0 ) {
+			return type;
+		}
+	}
 	return UNKNOWN;
 }
 

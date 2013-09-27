@@ -121,10 +121,12 @@ void TfrmReferredBoxesSummary::signOffBoxes() {
         out.str(""); out<<"Processing box "<<box->box_name<<" ["<<box->box_arrival_id<<"]"; debugLog(out.str());
         LQuery qp = Util::projectQuery(box->project_cid, true); // true 2nd param gets ddb
         switch (box->status) {
-        case LPDbBoxName::Status::IN_TANK:
-            storeTRS(qp, box);        // update/insert into box_store
-            copyHistory(qp, box);     // copy l_box_arrival_event_history into box_event_history
-            addEvent(qp, box);        // add new event
+		case LPDbBoxName::Status::IN_TANK:
+			storeTRS(qp, box);        // update/insert into box_store
+			/* REMOVED 18/9/2013, NG: new Box Reception won't create l_box_arrival_event_history records
+				copyHistory(qp, box);     // copy l_box_arrival_event_history into box_event_history
+				addEvent(qp, box);        // add new event
+			*/
         case LPDbBoxName::Status::DELETED:
             updateLBA(qc, box);       // update l_box_arrival
             break;
@@ -260,8 +262,8 @@ void TfrmReferredBoxesSummary::copyHistory(LQuery & qp, BoxArrivalRecord * box) 
     debugLog("Copying l_box_arrival_event_history into box_event_history.");
     qp.setSQL(
         "SELECT event_cid, operator_cid, event_date, process_cid, project_cid"
-        " FROM l_box_arrival_event_history WHERE box_arrival_id = :baid"
-        " ORDER BY event_date DESC");
+		" FROM l_box_arrival_event_history WHERE box_arrival_id = :baid"
+		" ORDER BY event_date DESC");
     qp.setParam("baid", box->box_arrival_id);
     if (!qp.open()) {
         // nothing in l_box_arrival_event_history

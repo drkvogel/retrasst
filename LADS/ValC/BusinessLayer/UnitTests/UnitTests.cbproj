@@ -62,10 +62,10 @@
         <VerInfo_Locale>2057</VerInfo_Locale>
         <PackageImports>bindcompfmx;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;inetdb;DBXInterBaseDriver;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;soaprtl;bindengine;CustomIPTransport;dsnap;IndyCore;fmxase;inet;fmxobj;inetdbxpress;fmxdae;dbexpress;IPIndyImpl;$(PackageImports)</PackageImports>
         <Multithreaded>true</Multithreaded>
-        <ILINK_LibraryPath>..\..\..\..\paulst\db\;..\..\..\..\paulst\;..\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>..\..\..\..\paulst\luadb\;..\..\..\..\paulst\db\;..\..\..\..\paulst\;..\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <ProjectType>CppConsoleApplication</ProjectType>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <IncludePath>..\..\..\..\paulst\db\;..\..\..\..\paulst\;..\;..\..\..\TUT;..\..\..\..\paulst;..\..\..\LUA\lua-5.2.2\src;$(IncludePath)</IncludePath>
+        <IncludePath>..\..\..\..\paulst\luadb\;..\..\..\..\paulst\db\;..\..\..\..\paulst\;..\;..\..\..\TUT;..\..\..\..\paulst;..\..\..\LUA\lua-5.2.2\src;$(IncludePath)</IncludePath>
         <UsingDelphiRTL>true</UsingDelphiRTL>
         <AllPackageLibs>rtl.lib;vcl.lib</AllPackageLibs>
         <_TCHARMapping>char</_TCHARMapping>
@@ -160,6 +160,10 @@
             <DependentOn>..\BuddySampleIDKeyedOnSampleRunID.h</DependentOn>
             <BuildOrder>60</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\ConnectionCache.cpp">
+            <DependentOn>..\ConnectionCache.h</DependentOn>
+            <BuildOrder>73</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\CursorBackedWorklistRelationsDataSource.cpp">
             <DependentOn>..\CursorBackedWorklistRelationsDataSource.h</DependentOn>
             <BuildOrder>27</BuildOrder>
@@ -228,6 +232,9 @@
             <DependentOn>..\LoadWorklistEntries.h</DependentOn>
             <BuildOrder>35</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\LuaUtil.cpp">
+            <BuildOrder>76</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\MockConfig.cpp">
             <DependentOn>..\MockConfig.h</DependentOn>
             <BuildOrder>63</BuildOrder>
@@ -258,6 +265,10 @@
         </CppCompile>
         <CppCompile Include="..\ResultIndex.cpp">
             <BuildOrder>42</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\RuleEngine.cpp">
+            <DependentOn>..\RuleEngine.h</DependentOn>
+            <BuildOrder>71</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\SampleRun.cpp">
             <DependentOn>..\SampleRun.h</DependentOn>
@@ -294,6 +305,9 @@
         </CppCompile>
         <None Include="QueuedSamplesFactoryTest.h">
             <BuildOrder>2</BuildOrder>
+        </None>
+        <None Include="RuleEngineTest.h">
+            <BuildOrder>75</BuildOrder>
         </None>
         <None Include="SampleRunIDResolutionServiceTest.h">
             <BuildOrder>62</BuildOrder>
@@ -337,6 +351,10 @@
             <DependentOn>..\..\..\..\paulst\CritSec.h</DependentOn>
             <BuildOrder>14</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\db\AbstractConnectionFactory.cpp">
+            <DependentOn>..\..\..\..\paulst\db\AbstractConnectionFactory.h</DependentOn>
+            <BuildOrder>72</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\..\..\..\paulst\db\ADODB_TLB.cpp">
             <DependentOn>..\..\..\..\paulst\db\ADODB_TLB.h</DependentOn>
             <BuildOrder>72</BuildOrder>
@@ -375,6 +393,10 @@
         <CppCompile Include="..\..\..\..\paulst\LoggingService.cpp">
             <DependentOn>..\..\..\..\paulst\LoggingService.h</DependentOn>
             <BuildOrder>11</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\luadb\LuaDB.cpp">
+            <DependentOn>..\..\..\..\paulst\luadb\LuaDB.h</DependentOn>
+            <BuildOrder>74</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\..\paulst\Properties.cpp">
             <DependentOn>..\..\..\..\paulst\Properties.h</DependentOn>

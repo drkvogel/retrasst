@@ -7,12 +7,16 @@
 #include <tchar.h>
 #include <stdio.h>
 
+#include "AcquireCriticalSection.h"
 #include <algorithm>
 #include "API.h"
 #include <boost/scoped_ptr.hpp>
 #include <boost/variant.hpp>
 #include "ConsoleWriter.h"
+#include "CritSec.h"
 #include <cstdio>
+#include <cstdlib>
+#include "DBConnection.h"
 #include <Dialogs.hpp>
 #include <iostream>
 #include "LoggingService.h"
@@ -21,8 +25,9 @@
 #include <string>
 #include "StringBuilder.h"
 #include "StrUtil.h"
+#include <vector>
 
-const int LOCAL_MACHINE_ID = -1019349;
+const char* connectionString = "dsn=paulst_brat_64;db=paulst_test2";
 
 const std::string configFile = "J:\\cvs\\LADS\\ValC\\BusinessLayer\\config.txt";
 
@@ -68,6 +73,28 @@ int countResults( const valc::WorklistEntry* wle )
     return std::distance( results.first, results.second );
 }
 
+char resultActionFlag( const valc::WorklistEntry* wle )
+{
+    char returnValue = ' ';
+    valc::Range< valc::TestResultIterator > results = wle->getTestResults();
+    int numResults = std::distance( results.first, results.second );
+    if ( numResults == 0 )
+    {
+        returnValue = ' ';
+    }
+    else if ( numResults == 1 )
+    {
+        const valc::TestResult* result = *(results.first);
+        returnValue = result->getActionFlag();
+    }
+    else
+    {
+        returnValue = '*';
+    }
+
+    return returnValue;
+}
+
 std::string describe( valc::Range< valc::WorklistEntryIterator >& worklistEntries )
 {
     std::string desc;
@@ -76,7 +103,7 @@ std::string describe( valc::Range< valc::WorklistEntryIterator >& worklistEntrie
     for ( valc::WorklistEntryIterator i = worklistEntries.first; i != worklistEntries.second; ++i )
     {
         const valc::WorklistEntry* wle = *i;
-        std::sprintf( buffer, "|%-9d %-1c%-2d", wle->getID(), wle->getStatus(), countResults(wle) );
+        std::sprintf( buffer, "|%-8d %-1c%-1d%-1c", wle->getID(), wle->getStatus(), countResults(wle), resultActionFlag(wle) );
         desc.append( buffer );
     }
 
@@ -163,19 +190,63 @@ void print( const valc::QueuedSample& qs, const valc::AnalysisActivitySnapshot* 
  
 }
 
+class QueuedWarnings : public valc::UserAdvisor
+{
+public:
+    typedef std::vector< std::string > Messages;
+    typedef Messages::const_iterator const_iterator;
+
+    QueuedWarnings() 
+    {
+    }
+
+    void advise( const std::string& warning )
+    {
+        paulst::AcquireCriticalSection a(m_critSec);
+
+        {
+            m_messages.push_back( warning );
+        }
+    }
+
+    const_iterator begin() const { return m_messages.begin(); }
+    const_iterator end()   const { return m_messages.end()  ; }
+
+private:
+    paulst::CritSec m_critSec;
+    Messages m_messages;
+};
+
+void throwUsageException()
+{
+    throw Exception(
+        L"Usage\n"
+        L"\n"
+        L"Must supply local machine ID as an argument\n\n"
+        );
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
     try
     {
-        const std::string configString = paulst::loadContentsOf( configFile );
-        valc::Properties connectionProperties;
-        connectionProperties.setProperty( "ConnectionString", "dsn=paulst_brat_64;db=paulst_test" );
-        connectionProperties.setProperty( "SessionReadLockSetting", "set lockmode session where readlock = nolock" );
-        boost::scoped_ptr<valc::DBConnection> connection( valc::DBConnectionFactory::createConnection( connectionProperties ) );
+        if ( argc < 2 )
+        {
+            throwUsageException();
+        }
+
+        int localMachineID = std::atoi( argv[1] );
+
+		const std::string configString = paulst::loadContentsOf( configFile );
+        valc::DBConnectionFactory connectionFactory;
+		boost::scoped_ptr<paulstdb::DBConnection> connection(
+			connectionFactory.createConnection( connectionString, "set lockmode session where readlock = nolock" ) );
         
 	    std::auto_ptr<paulst::LoggingService> log( new paulst::LoggingService( new paulst::ConsoleWriter() ) );
-        boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( LOCAL_MACHINE_ID, 1234, connection.get(), log.get(),
-            configString ) );
+        log->log( configString );
+        QueuedWarnings warnings;
+        boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( localMachineID, 1234, connection.get(), log.get(),
+            configString, &warnings ) );
 
         CountingVisitor counts (s.get());
         PrintingVisitor printer(s.get(), log.get());
@@ -204,6 +275,7 @@ int _tmain(int argc, _TCHAR* argv[])
         
 		log->log( std::string() << "queued samples: " << numQueued << "\n" );
 
+        /*
         log->log( "Processing updates...\n" );
 
         ExceptionHandlingPolicy cachedExceptionMsg;
@@ -213,6 +285,13 @@ int _tmain(int argc, _TCHAR* argv[])
         if ( ! cachedExceptionMsg.empty() )
         {
             log->log( cachedExceptionMsg.get() );
+        }
+        */
+
+        for ( QueuedWarnings::const_iterator i = warnings.begin(); i != warnings.end(); ++i )
+        {
+            std::string warningMsg = std::string("WARNING: ") + *i;
+            log->log( warningMsg );
         }
 
         log->log( "All done.\n" );

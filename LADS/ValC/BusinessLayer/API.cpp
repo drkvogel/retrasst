@@ -38,8 +38,12 @@
 namespace valc
 {
 
-paulstdb::DBConnection* DBConnectionFactory::createConnection( const std::string& connectionString,
-        const std::string& sessionReadLockSetting )
+DBConnectionFactory::DBConnectionFactory()
+{
+}
+
+paulstdb::DBConnection* DBConnectionFactory::createConnection( const std::string& connectionString, 
+    const std::string& sessionReadLockSetting )
 {
     return new paulstdb::DBConnectionADO( connectionString, sessionReadLockSetting );
 }
@@ -342,6 +346,57 @@ UserAdvisor::UserAdvisor()
 
 UserAdvisor::~UserAdvisor()
 {
+}
+
+
+RuleResults::RuleResults()
+    : m_summaryResultCode(0)
+{
+}
+
+RuleResults::RuleResults( RuleResults::const_iterator begin, RuleResults::const_iterator end, int summaryResultCode,
+    const std::string& summaryMsg ) 
+    :
+    m_summaryResultCode(summaryResultCode),
+    m_summaryMsg(summaryMsg),
+    m_results( begin, end )
+{
+}
+
+RuleResults::RuleResults( const RuleResults& other )
+    :
+    m_summaryResultCode( other.m_summaryResultCode ),
+    m_summaryMsg( other.m_summaryMsg ),
+    m_results( other.m_results )
+{
+}
+
+RuleResults& RuleResults::operator=( const RuleResults& other )
+{
+    m_summaryResultCode = other.m_summaryResultCode;
+    m_summaryMsg = other.m_summaryMsg;
+    m_results = other.m_results;
+    return *this;
+}
+
+int RuleResults::getSummaryResultCode() const
+{
+    return m_summaryResultCode;
+}
+
+std::string RuleResults::getSummaryMsg() const
+{
+    return m_summaryMsg;
+}
+
+RuleResults::const_iterator RuleResults::begin() const
+{
+    return m_results.begin();
+}
+
+RuleResults::const_iterator RuleResults::end() const
+{
+    return m_results.end();
 }
 
 }

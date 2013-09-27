@@ -101,6 +101,8 @@ int TfrmNewSection::getDefaultFillOrder() const
 	return fillorder + 1;
 }
 
+//---------------------------------------------------------------------------
+
 bool TfrmNewSection::isFillOrderDuplicate( int order ) const
 {
 	Section* childdata;
@@ -122,14 +124,16 @@ bool TfrmNewSection::isFillOrderDuplicate( int order ) const
 	return false;
 }
 
-bool TfrmNewSection::isPrefixDuplicate( std::string prefix ) const
+//---------------------------------------------------------------------------
+
+bool TfrmNewSection::isPrefixDuplicate( AnsiString prefix ) const
 {
 	Section* childdata;
 
 	for( int i = 0; i <(int) newSectionList.size(); i++ )
 	{
 		childdata = (Section*) newSectionList[i];
-		if( childdata != section && childdata->getName() == prefix )
+		if( childdata != section && prefix.AnsiCompareIC( childdata->getName().c_str() ) == 0 )
 		{
 			String buf = "Section prefix must be unique";
 			Application->MessageBox( buf.c_str(), L"Validation Error", MB_OK);
@@ -141,4 +145,5 @@ bool TfrmNewSection::isPrefixDuplicate( std::string prefix ) const
 	return false;
 }
 
+//---------------------------------------------------------------------------
 

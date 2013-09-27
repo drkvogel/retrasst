@@ -105,11 +105,23 @@ bool LPDbBoxType::saveRecord( LQuery pQuery )
 	pQuery.setParam( "at3", alr == content.end() ? 0 : *alr ++ );
 	if( pQuery.execSQL() )
 	{
-    	saved = true;
+		saved = true;
 		LPDbBoxTypes::records().insert( *this );
 		return true;
 	}
 	else return false;
+}
+
+//---------------------------------------------------------------------------
+
+bool LPDbBoxType::hasAliquot( int atid ) const
+{
+    for( Aliquots ali = content; ali.isValid(); ++ ali ) {
+		if( *ali == atid ) {
+			return true;
+		}
+	}
+	return false;
 }
 
 //---------------------------------------------------------------------------

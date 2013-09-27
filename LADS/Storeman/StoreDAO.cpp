@@ -106,12 +106,13 @@ bool StoreDAO::saveTankObject( ROSETTA& data )
 	if( tid != 0 ) {
 		t = names.findByID( tid );
 	}
-	std::string population = data.getString("content_name");
+	AnsiString population = data.getString("content_name").c_str();
 	if( t == NULL ) {
-		t = names.find( population, LCDbObject::STORAGE_POPULATION );
+		t = names.find( population.c_str(), LCDbObject::STORAGE_POPULATION );
 	}
-	std::string description = data.getString("content_full");
-	if( t != NULL && t->getName() == population && t->getDescription() == description ) {
+	AnsiString description = data.getString("content_full").c_str();
+	if( t != NULL && population.AnsiCompareIC( t->getName().c_str() ) == 0
+	 && description.AnsiCompareIC( t->getDescription().c_str() ) == 0 ) {
 		data.setInt( "tank_cid", t->getID() );
 		return true;
 	}
@@ -119,8 +120,8 @@ bool StoreDAO::saveTankObject( ROSETTA& data )
 	if( t != NULL ) {
 		tank = *t;
 	}
-	tank.setName( population );
-	tank.setDescription( description );
+	tank.setName( population.c_str() );
+	tank.setDescription( description.c_str() );
 	bool ok = tank.saveRecord( LIMSDatabase::getCentralDb() );
 	data.setInt( "tank_cid", tank.getID() );
 	return ok;
@@ -134,12 +135,13 @@ bool StoreDAO::savePhysicalStore( ROSETTA& data )
 	if( sid != 0 ) {
 		t = names.findByID( sid );
 	}
-	std::string vessel = data.getString( "serial_number" );
+	AnsiString vessel = data.getString( "serial_number" ).c_str();
 	if( t == NULL ) {
-		t = names.find( vessel, LCDbObject::STORAGE_VESSEL );
+		t = names.find( vessel.c_str(), LCDbObject::STORAGE_VESSEL );
 	}
-	std::string description = data.getString("Name");
-	if( t != NULL && t->getName() == vessel && t->getDescription() == description ) {
+	AnsiString description = data.getString("Name").c_str();
+	if( t != NULL && vessel.AnsiCompareIC( t->getName().c_str() ) == 0
+	 && description.AnsiCompareIC( t->getDescription().c_str() ) == 0 ) {
 		data.setInt( "storage_cid", t->getID() );
 		return true;
 	}
@@ -147,8 +149,8 @@ bool StoreDAO::savePhysicalStore( ROSETTA& data )
 	if( t != NULL ) {
 		sd = *t;
 	}
-	sd.setName( vessel );
-	sd.setDescription( description );
+	sd.setName( vessel.c_str() );
+	sd.setDescription( description.c_str() );
 	bool ok = sd.saveRecord( LIMSDatabase::getCentralDb() );
 	data.setInt( "storage_cid", sd.getID() );
 	return ok;
@@ -790,7 +792,7 @@ bool StoreDAO::findBox( int box_id, int proj_id, ROSETTA & result )
 	std::string sql = "SELECT v.external_full as vessel_name, shelf_number, r.position as rack_pos,"
 			" r.external_name as structure, slot_position, m.position as tank_pos, l.external_name as site_name"
 			" FROM box_store bs, c_rack_number r, c_tank_map m, c_object_name v, c_object_name l "
-			" WHERE box_cid = :bid AND bs.status = 6" 				// current box position
+			" WHERE box_cid = :bid AND bs.status in (1, 2, 6)" 		// current box position
 			" AND bs.rack_cid = r.rack_cid AND r.tank_cid = m.tank_cid AND m.storage_cid = v.object_cid"
 			" AND m.location_cid = l.object_cid AND m.status=0"; 	// population on-line
 	LQuery pQuery = Util::projectQuery( proj_id, true );

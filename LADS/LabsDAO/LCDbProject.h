@@ -16,8 +16,12 @@ class TLeaseManager;
 class LCDbProject : public LCDbID, public LDbNames, public LDbValid
 {
 	std::string database, contact, code;
-	std::pair< short, short > version;
 	bool liveData, boxImport;
+	struct Version {
+		short major, minor, phase;
+		Version( short a, short b, short c ) : major(a), minor(b), phase(c)
+		{}
+	} version;
 
 	int getFlags();
 
@@ -27,7 +31,7 @@ public:
 	static const int CENTRAL_DB = 0, NONE_SELECTED = -1;
 
 	LCDbProject( int id = NONE_SELECTED )
-	 : LCDbID( id ), version( 2, 6 ), liveData( false ), boxImport( false )
+	 : LCDbID( id ), version( 2, 7, 0 ), liveData( false ), boxImport( false )
 	{}
 
 	LCDbProject( const LQuery & central );
@@ -48,7 +52,7 @@ public:
 	void setStudyCode( const std::string & acronym ) { code = acronym; }
 
 	void setVersionString( const std::string & sVer );
-	std::pair< short, short > getVersion() const { return version; }
+	Version getVersion() const { return version; }
 	std::string getVersionString() const;
 };
 

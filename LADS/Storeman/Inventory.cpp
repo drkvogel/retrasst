@@ -986,7 +986,7 @@ void Rack::populate( ) {
 	std::vector< ROSETTA > results;
 	if( isSingleProject() ) {
 		dao.loadBoxes( id, project_cid, results );
-		if( results.size() < capacity ) {
+		if( results.size() + emptySlots != capacity ) {
 			results.clear();	// not enough from this project; should check again
 		}
 	}

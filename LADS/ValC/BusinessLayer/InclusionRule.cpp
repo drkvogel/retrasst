@@ -17,7 +17,7 @@ InclusionRule::InclusionRule( const std::string& script, const std::string& func
         std::string exceptionMsg = lua_tostring( L, -1 );
         lua_close(L);
         L = 0;
-        throw Exception( exceptionMsg.c_str() );
+        throw Exception( UnicodeString( exceptionMsg.c_str() ) + UnicodeString(L"  Script: ") + UnicodeString(script.c_str()) );
     }
 }
 

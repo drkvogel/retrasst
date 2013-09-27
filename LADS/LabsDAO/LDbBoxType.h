@@ -22,9 +22,9 @@ class LPDbBoxType : public LPDbID, public LDbNames
 
 public:
 
-	enum Expectation { SHORT_TERM, LONG_TERM, SEND_AWAY, DISPOSAL, DELETED = 99 };
+	enum Expectation { SHORT_TERM, LONG_TERM, ANALYSIS, DISPOSAL, DELETED = 99 };
 
-	LPDbBoxType( int id )
+	LPDbBoxType( int id = 0 )
 	 : LPDbID( id ), group( 0 ), position( 0 ), status( LONG_TERM ), uses( 0 ), sizeID( 0 )
 	{}
 
@@ -32,8 +32,8 @@ public:
 	bool saveRecord( LQuery pQuery );
 
 	bool isActive() const { return status != DELETED; }
-	Expectation getStatus() const { return Expectation( status ); }
-
+	Expectation getUse() const { return Expectation( status ); }
+	void setUse( Expectation ex ) { status = short( ex ); }
 	int getSizeID() const { return sizeID; }
 	void setSizeID( int cid ) { sizeID = cid; }
 	short getLink() const { return group; }
@@ -45,6 +45,7 @@ public:
 
 	typedef Range< int > Aliquots;
 	Aliquots getAliquots() const { return content; }
+	bool hasAliquot( int atid ) const;
 	void setAliquots( Aliquots aliquotTypes );
 };
 

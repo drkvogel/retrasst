@@ -85,3 +85,16 @@ bool LCDbBoxSize::saveRecord( LQuery cQuery )
 
 //---------------------------------------------------------------------------
 
+const LCDbBoxSize * LCDbBoxSizes::find( const std::string & description ) const
+{
+	AnsiString icDesc;
+	for( ConstIter si = begin(); si != end(); ++ si ) {
+		if( icDesc.AnsiCompareIC( si->getName().c_str() ) == 0 ) {
+			return &(*si);
+		}
+	}
+	return NULL;
+}
+
+//---------------------------------------------------------------------------
+

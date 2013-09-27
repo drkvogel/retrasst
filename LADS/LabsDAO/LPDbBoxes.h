@@ -16,7 +16,7 @@ class LCDbBoxSize;
 
 class LPDbBoxName : public LPDbID
 {
-	std::string name;
+	std::string name, barcode;
 	short status;
 	int boxTypeID;
 //	const char * event;

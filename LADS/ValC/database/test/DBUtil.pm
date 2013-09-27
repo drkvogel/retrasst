@@ -1,3 +1,6 @@
+package DBUtil;
+our @EXPORT = qw( runSQLOnIngres dumpAll buildAll );
+use base qw(Exporter);
 use strict;
 use warnings;
 use DBI;
@@ -6,6 +9,27 @@ use File::Slurp qw(edit_file);
 use YAML;
 
 my $verbose = 0;
+my $terminalMonitor = "\"C:/Program Files/Ingres/IngresIJ/ingres/bin/Sql.exe\"";
+
+sub runSQLOnIngres {
+    my ($cmds, $vnode, $db) = @_;
+    
+    unshift @{$cmds}, "set autocommit on";
+
+    my $vnodeDB = sprintf( "%s::%s", $vnode, $db );
+
+    open my $dbSession, "|$terminalMonitor $vnodeDB" or die "Failed to connect to $vnodeDB: $!";
+
+    foreach my $cmd ( @{$cmds} ) {
+        print $dbSession "$cmd\\g\n";
+        print $dbSession "\\r\n";
+    }
+
+    print $dbSession "\\q\n";
+
+    close $dbSession;
+}
+
 
 sub logIt {
     my $funcName = shift @_;
@@ -63,27 +87,10 @@ sub dumpFromMySQL {
 
 sub toCSV {
     my ($inFile, $outFilename) = @_;
-    cmdOutToFile( "xslt $inFile to_csv.xsl", $outFilename );
+    cmdOutToFile( "xslt.bat -IN $inFile -XSL to_csv.xsl", $outFilename );
 }
 
-sub runSQLOnIngres {
-    my ($cmds, $vnode, $db) = @_;
-    
-    unshift @{$cmds}, "set autocommit on";
 
-    my $vnodeDB = sprintf( "%s::%s", $vnode, $db );
-
-    open my $dbSession, "|sql $vnodeDB" or die "Failed to connect to $vnodeDB: $!";
-
-    foreach my $cmd ( @{$cmds} ) {
-        print $dbSession "$cmd\\g\n";
-        print $dbSession "\\r\n";
-    }
-
-    print $dbSession "\\q\n";
-
-    close $dbSession;
-}
 
 sub uploadToIngres {
     my ($params) = @_;
@@ -159,7 +166,8 @@ sub colSpecFromCreateTableScript {
 sub createQCIterator {
     my ($dataSource,$username) = @_;
 
-    my $dbh = DBI->connect( "dbi:ODBC:DSN=$dataSource", $username, undef, undef );
+    my $connectionString = "dbi:ODBC:DSN=$dataSource";
+    my $dbh = DBI->connect( $connectionString, $username, undef, undef ) or die "Oh dear.";#$DBI::err;
 
     my $SQL = <<EOF;
 select 
@@ -290,7 +298,7 @@ sub dumpQCs {
 # when cannot find its level in qc_level.  Have experienced this for QCRCl00117.
 sub createTestInfoSource {
     my ($dataSource) = @_;
-    my $dbh = DBI->connect( "dbi:ODBC:DSN=$dataSource", undef, undef, {AutoCommit => 1} ) or die $DBI::err;
+    my $dbh = DBI->connect( "dbi:ODBC:DSN=$dataSource", undef, undef, {AutoCommit => 1} ) or die "Oh dear";#$DBI::err;
     my $query_qc_level = 'select record_cid from qc_level where material = ? and qc_level = ? and status != 99';
     my $query_qc_test_machine = 'select test_cid, diluent from qc_test_machine where level_cid = ? and machine_cid = ? and status != 99';
 
@@ -347,7 +355,7 @@ sub createTestInfoSource {
 # also be learnt which tests (if any) have actually been run for that QC.
 sub supplementUsingBuddyResultFloat {
     my ($dataSource,$username, $delegate) = @_;
-    my $dbh = DBI->connect( "dbi:ODBC:DSN=$dataSource", $username, undef, undef ) or die $DBI::err;
+    my $dbh = DBI->connect( "dbi:ODBC:DSN=$dataSource", $username, undef, undef ) or die "Oh dear.";#$DBI::err;
     my $query = $dbh->prepare('select buddy_result_id, test_id, date_analysed from buddy_result_float where buddy_sample_id = ?') or 
         die $dbh->errstr;
 
@@ -411,7 +419,7 @@ sub MaterialLevelMachine {
 
 sub createValcWorklistRecNumSequence {
     my ($dataSource) = @_;
-    my $dbh = DBI->connect( "dbi:ODBC:DSN=$dataSource", undef, undef, {AutoCommit => 1} ) or die $DBI::err;
+    my $dbh = DBI->connect( "dbi:ODBC:DSN=$dataSource", undef, undef, {AutoCommit => 1} ) or die "Oh dear";#die $DBI::err;
     my $row = $dbh->selectrow_arrayref( 'select max(record_no) from valc_worklist' ) or die $dbh->errstr;
     my $sequenceVal = $row->[0];
     die unless ( defined($sequenceVal) );
@@ -422,7 +430,9 @@ sub createValcWorklistRecNumSequence {
 }
 
 sub dumpAll {
-    my ($toDir,$clusterHost) = @_;
+    my ($toDir,$clusterHost, $vnode_vlab) = @_;
+
+    die ("Must specify vnode_vlab vnode name.") unless $vnode_vlab;
 
     foreach my $table ( qw/ buddy_database buddy_result_float buddy_worklist / ) {
 
@@ -440,7 +450,7 @@ sub dumpAll {
 
     foreach my $table( qw/ c_project c_cluster_machine / ) {
         dumpIngresTable( {
-            vnode       => 'vnode_vlab', 
+            vnode       => $vnode_vlab, 
             db          => 'ldbc', 
             table       => $table,
             outFile     => "$toDir/$table.dump",
@@ -450,7 +460,7 @@ sub dumpAll {
     }
 
     dumpIngresTable( {
-        vnode       => 'vnode_vlab', 
+        vnode       => $vnode_vlab, 
         db          => 'ldbc', 
         table       => 'c_buddy_worklist',
         outFile     => "$toDir/c_buddy_worklist.dump",
@@ -473,10 +483,12 @@ sub addWorklistEntriesForQCs {
         "$dumpDir/qc_worklist_entries.dump"
     );
 
+    print Dump($targetDB);
+
     uploadToIngres( {
-        vnode   => $targetDB->{vnode},
-        db      => $targetDB->{db},
-        table   => 'valc_worklist',
+        vnode           => $targetDB->{vnode},
+        db              => $targetDB->{db},
+        table           => 'valc_worklist',
         colSpecFunc     => sub { colSpecFromCreateTableScript('create_table_valc_worklist.sql') },
         tableDataFile   => "$dumpDir/qc_worklist_entries.dump",
         truncateYesNo   => 'no',
@@ -543,7 +555,7 @@ sub buildAll {
             vnode         => $targetDB->{vnode},
             db            => $targetDB->{db},
             table         => $table,
-            colSpecFunc   => sub { `xslt "$dumpDir/$table.dump" create_copy_cmd_col_list.xsl`},
+            colSpecFunc   => sub { `xslt.bat -IN "$dumpDir/$table.dump" -XSL create_copy_cmd_col_list.xsl`},
             tableDataFile => "$dumpDir/$table.csv",
             truncateYesNo => 'yes',
             } );
@@ -555,6 +567,15 @@ sub buildAll {
         table           => 'valc_worklist',
         colSpecFunc     => sub { colSpecFromCreateTableScript('create_table_valc_worklist.sql') },
         tableDataFile   => "$dumpDir/c_buddy_worklist.dump",
+        truncateYesNo   => 'yes',
+        } );
+
+    uploadToIngres( {
+        vnode           => $targetDB->{vnode},
+        db              => $targetDB->{db},
+        table           => 'c_test',
+        colSpecFunc     => sub { colSpecFromCreateTableScript('create_table_c_test.sql') },
+        tableDataFile   => "./c_test.dump",
         truncateYesNo   => 'yes',
         } );
 
@@ -574,15 +595,5 @@ sub buildAll {
     addWorklistEntriesForReruns( $dumpDir, $targetDB );
 }
 
-
-dumpAll( 'workdir2', 'au680-1016.ctsu.ox.ac.uk' );
-buildAll( 
-    'workdir2', 
-    -1234, 
-    {
-        vnode => 'brat_cp',
-        db    => 'paulst_test',
-        dsn   => 'paulst_test_on_brat',
-    } 
-    );
+1;
 
