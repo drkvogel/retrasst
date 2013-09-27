@@ -4,10 +4,6 @@ AND  s1.retrieval_cid = -1180114
 ORDER BY  cryovial_barcode
 */
 
-
-
-
-
 /*
 
 ## boxes 

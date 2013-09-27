@@ -95,7 +95,7 @@ namespace tut
         }
     };
 
-    typedef test_group<RuleEngineTestFixture, 4> RuleEngineTestGroup;
+    typedef test_group<RuleEngineTestFixture, 5> RuleEngineTestGroup;
 	RuleEngineTestGroup testGroupRuleEngine( "RuleEngine tests");
 	typedef RuleEngineTestGroup::object testRuleEngine;
 
@@ -110,6 +110,8 @@ namespace tut
         const std::string ruleScript(// The following script returns
                 //      an array of the names of failed rules
                 //      an integer value describing the overall result
+                " function onLoad() end                     \n"
+                "                                           \n"
                 " function applyRules( qc )                 \n"
                 "   assert( qc.testID     == 2 )            \n"
                 "   assert( qc.resultID   == 6 )            \n"
@@ -215,8 +217,7 @@ namespace tut
                 "     globalValue = globalValue + 1                         \n"
                 "     return {}, 'ok', globalValue                          \n"
                 " end                                                       \n"
-                "                                                           \n"
-                "onLoad()                                                   \n" );  
+                "                                                           \n");
 
 
         int connectionsOpened = 0;
@@ -265,7 +266,7 @@ namespace tut
                 }
 
                 ensure_equals( actualResults.size(), 9U );
-                ensure( equal( actualResults.begin(), actualResults.end(), expectedResults.begin() ) );
+                ensure( "Results as expected?", equal( actualResults.begin(), actualResults.end(), expectedResults.begin() ) );
             }
             catch( const Exception& e )
             {
@@ -287,6 +288,8 @@ namespace tut
 		using namespace valc;
 
         const std::string ruleScript(
+                " function onLoad( loadFunc )            \n"
+                " end                                    \n"
                 " function applyRules( qc )              \n"
                 "   error( 'biscuits' )                  \n"
                 "   return {}, '', 1                     \n"
@@ -357,7 +360,6 @@ namespace tut
             ensure_equals( testFixture.countResults(), 1U );
             RuleResults ruleResults = testFixture.getResultFor( 6 );
             ensure_equals( ruleResults.getSummaryResultCode(), ERROR_CODE );
-            std::printf( "%s\n", ruleResults.getSummaryMsg().c_str() );
         }
         catch( const Exception& e )
         {
@@ -366,8 +368,85 @@ namespace tut
         }
 	}
 
+    template<>
+	template<>
+	void testRuleEngine::test<5>()
+	{
+		set_test_name("Rule loading");
 
-    // extra test: when a script reports a fail
+		using namespace valc;
+
+		RuleEngineTestFixture testFixture;
+        
+        const std::string configRuleScript(
+                " loadedRules = {}                                  \n"
+                "                                                   \n"
+                " context = {}                                      \n"
+                "                                                   \n"
+                " ruleNames = { 'someRule' }                        \n"
+                "                                                   \n"
+                " function onLoad(loadFunc)                         \n"
+                "   for i, ruleName in ipairs(ruleNames) do         \n"
+                "      local script = loadFunc(ruleName)            \n"
+                "      loadedRules[ruleName] = load(script)         \n"
+                "   end                                             \n"
+                "   context.sequence = { 12, 49, 52 }               \n"
+                "   context.stdDev   = 1.9                          \n"
+                "   context.mean     = 38                           \n"
+                " end                                               \n"
+                "                                                   \n"
+                " function applyRules( qc )                         \n"
+                "                                                   \n"
+                "   local results = {}                              \n"
+                "   context.qc = qc                                 \n"
+                "   for name, rule in pairs(loadedRules) do         \n"
+                "     local result = rule()                         \n"
+                "     table.insert( results, result )               \n"
+                "   end                                             \n"
+                "                                                   \n"
+                "   return results, results[1].msg, results[1].resultCode \n"
+                " end                                               \n"
+                );  
+
+        const std::string someRule(
+                " return { resultCode = context.mean, rule = 'this here rule', msg = 'success' } "
+            );
+
+        testFixture.ruleLoader.addRule( "configRule", configRuleScript );
+        testFixture.ruleLoader.addRule( "someRule"  , someRule );
+        testFixture.rulesConfig.addMapping( 2, 8, "configRule" );
+
+        UncontrolledResult result;
+        result.testID = 2;
+        result.resultID = 6;
+        result.machineID = 8;
+        result.projectID = 4;
+        result.resultValue = 27.8;
+        result.resultText = "dog";
+        result.barcode = "chicken";
+        result.dateAnalysed = TDateTime( 1998, 10, 30, 14, 33, 5, 10 );
+
+        try
+        {
+            testFixture.ruleEngine.queue( result );
+            testFixture.ruleEngine.waitForQueued();
+            
+            ensure_equals( testFixture.countResults(), 1U );
+            RuleResults ruleResults = testFixture.getResultFor( 6 );
+            ensure_equals( ruleResults.getSummaryMsg(), std::string("success" ) );
+            ensure_equals( ruleResults.getSummaryResultCode(), 38 );
+            RuleResult ruleResult = *(ruleResults.begin());
+            ensure_equals( ruleResult.resultCode, 38 );
+            ensure_equals( ruleResult.rule, std::string("this here rule") );
+            ensure_equals( ruleResult.msg, std::string("success") );
+        }
+        catch( const Exception& e )
+        {
+            AnsiString ansiStr( e.Message.c_str() );
+            ensure( ansiStr.c_str(), false );
+        }
+	}
+
 };
 
 #endif

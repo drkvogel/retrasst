@@ -1,6 +1,5 @@
 ﻿what do we mean by 'size' of a chunk - number of boxes
 
-
 chunks
     section - Cannot Be Changed 
     start

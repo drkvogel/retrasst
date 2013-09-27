@@ -1,6 +1,6 @@
 #include "AcquireCriticalSection.h"
-#include "LuaDB.h"
 #include "LuaInclude.h"
+#include "LuaDB.h"
 #include "LuaUtil.h"
 #include "Require.h"
 #include "RuleEngine.h"
@@ -84,7 +84,35 @@ UncontrolledResult::UncontrolledResult()
 {
 }
 
-Rules::Rules( const std::string& script, ConnectionFactory cf, void* connectionState )
+int loadRuleScript( lua_State* L )
+{
+    try
+    {
+        std::string ruleName = lua_tostring( L, -1 );
+
+        int index = lua_upvalueindex( 1 );
+
+        RuleLoader* ruleLoader = (RuleLoader*) lua_touserdata( L, index );
+
+        std::string script = ruleLoader->loadRulesFor( ruleName );
+
+        lua_pushstring( L, script.c_str() );
+    }
+    catch( const Exception& e )
+    {
+        lua_pushstring( L, AnsiString( e.Message.c_str() ).c_str() );
+        lua_error( L );
+    }
+    catch( ... )
+    {
+        lua_pushstring( L, "Unspecified exception in loadRuleScript" );
+        lua_error( L );
+    }
+
+    return 1;
+}
+
+Rules::Rules( const std::string& script, ConnectionFactory cf, void* connectionState, RuleLoader* ruleLoader )
     : 
     L( lua_open() ),
     m_connectionFactory( cf ),
@@ -92,9 +120,29 @@ Rules::Rules( const std::string& script, ConnectionFactory cf, void* connectionS
 {
     luaL_openlibs( L );
 
-    LuaDB luaDB( L, m_connectionFactory, m_connectionState );
+    class LuaError {};
 
-    if ( luaL_dostring( L, script.c_str() ) )
+    try
+    {
+        LuaDB luaDB( L, m_connectionFactory, m_connectionState );
+
+        if ( luaL_dostring( L, script.c_str() ) )
+        {
+            throw LuaError();
+        }
+
+        lua_getglobal( L, "onLoad" );
+
+        lua_pushlightuserdata( L, ruleLoader );
+
+        lua_pushcclosure( L, loadRuleScript, 1 );
+
+        if ( lua_pcall( L, 1, 0, 0 ) )
+        {
+            throw LuaError();
+        }
+    }
+    catch( const LuaError& luaError )
     {
         std::string errorMsg(  lua_tostring( L, -1 ) );
         lua_close(L);
@@ -282,7 +330,7 @@ Rules* RulesCache::getRulesFor( int test, int machine )
 Rules* RulesCache::load( const std::string& ruleName )
 {
     std::string script = m_ruleLoader->loadRulesFor( ruleName );
-    return new Rules( script, obtainConnectionFromCache, m_connectionCache );
+    return new Rules( script, obtainConnectionFromCache, m_connectionCache, m_ruleLoader );
 }
 
 void RulesCache::setConnectionCache( ConnectionCache* cc )

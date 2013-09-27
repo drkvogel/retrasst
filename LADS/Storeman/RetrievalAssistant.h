@@ -194,23 +194,23 @@ class StringGridWrapper {
     class Col {
     public:
         Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false), vec(NULL), initialised(false) { }
-        Col(std::string n, std::string t, int w, bool (*f)(const T *, const T *)=NULL) :
+        Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL) :
             name(n), title(t), width(w), sort_func_asc(f), sortAsc(false) {}
-        std::string sortDescription() { ostringstream oss; oss<<"Sort by "<<title<<" ascending"; return oss.str(); }
+        string sortDescription() { ostringstream oss; oss<<"Sort by "<<title<<" ascending"; return oss.str(); }
         bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-        std::string name;           // internal identifier string
-        std::string title;          // text to display in stringgrid header
+        string name;           // internal identifier string
+        string title;          // text to display in stringgrid header
         int width;                  // for StringGrid::ColWidths[]
         bool sortAsc;
     };
     TStringGrid * sg;
-    std::map< std::string, int > mapColNameToInt;
+    map< string, int > mapColNameToInt;
     bool initialised;
 public:
-    std::vector< T * > * rows;
-    std::vector< Col > cols;
+    vector< T * > * rows;
+    vector< Col > cols;
 
-    StringGridWrapper(TStringGrid * g, std::vector<T *> * v) : sg(g), rows(v), initialised(false) {}
+    StringGridWrapper(TStringGrid * g, vector<T *> * v) : sg(g), rows(v), initialised(false) {}
     void init() {
         sg->ColCount = cols.size(); // was setupStringGrid
         for (int i=0; i<cols.size(); i++) {
@@ -224,18 +224,18 @@ public:
         mapColNameToInt[c.name] = cols.size();
         cols.push_back(c);
     }
-    void addCol(std::string n, std::string d, int w, bool (*f)(const T *, const T *)=NULL) {
+    void addCol(string n, string d, int w, bool (*f)(const T *, const T *)=NULL) {
     //void addCol(std::string n, std::string d, int w, bool (*f)(const RetrievalRow *, const RetrievalRow *)=NULL) {
         addCol(StringGridWrapper< T >::Col(n, d, w, f));
     }
-    int colNameToInt(std::string colName) {
+    int colNameToInt(string colName) {
         if (mapColNameToInt.find(colName) == mapColNameToInt.end()) throw "column name not found";
         return mapColNameToInt[colName];
     }
     int colCount() { return cols.size(); }
     int rowCount() { return rows.size(); }
-    std::string printColWidths() {
-        std::ostringstream oss; oss << sg->Name.c_str() << ": {";
+    string printColWidths() {
+        ostringstream oss; oss << sg->Name.c_str() << ": {";
         for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; }
         oss << "};"; return oss.str();
     }
@@ -251,22 +251,22 @@ public:
         sg->Cells[0][1] = "No results.";
     }
     void sort_asc(int col, int start, int end) {
-        std::sort(rows->begin(), rows->end(), cols[col].sort_func_asc); // dot notation: vec.begin() also seems to work - how?
+        sort(rows->begin(), rows->end(), cols[col].sort_func_asc); // dot notation: vec.begin() also seems to work - how?
     }
     void sort_dsc(int col, int start, int end) {
-        std::sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc);
+        sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc);
         //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
     }
-    void sort_asc(std::string colName, int start, int end) {
+    void sort_asc(string colName, int start, int end) {
         sort_asc(colNameToInt(colName));
     }
-    void sort_dsc(std::string colName, int start, int end) {
+    void sort_dsc(string colName, int start, int end) {
         sort_dsc(colNameToInt(colName));
     }
     void sort_toggle(int col, int start, int end) {
         cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
     }
-    void sort_toggle(std::string colName, int start, int end) {
+    void sort_toggle(string colName, int start, int end) {
         sort_toggle(colNameToInt(colName));
     }
 };
@@ -387,10 +387,10 @@ private:
     StringGridWrapper<LCDbCryoJob> *  sgwJobs;
     void                    loadJobs();
     void                    showJobs();
-    std::string             getExerciseDescription(int exercise_cid);
-    std::string             getProjectDescription(int project_cid);
-    std::string             getAliquotDescription(int primary_aliquot);
-    std::string             getAuditInfo(int process_cid);
+    string             getExerciseDescription(int exercise_cid);
+    string             getProjectDescription(int project_cid);
+    string             getAliquotDescription(int primary_aliquot);
+    string             getAuditInfo(int process_cid);
 public:
     __fastcall TfrmRetrievalAssistant(TComponent* Owner);
     void init();

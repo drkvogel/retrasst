@@ -56,7 +56,7 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
-    delete_referenced< std::vector <SampleRow * > >(frmSamples->vials);
+    delete_referenced< vector <SampleRow * > >(frmSamples->vials);
     delete_referenced<vecpSampleChunk>(chunks); // chunk objects, not contents of chunks
 }
 
@@ -71,7 +71,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             SampleChunk * chunk = *it;
             //      for samples
             //          insert destination box into C_BOX_RETRIEVAL with current section (chunk) number
-            for (std::vector <SampleRow * >::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
+            for (vector <SampleRow * >::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
                 SampleRow * sampleRow = (SampleRow *)*it;
                 LPDbCryovialStore * vial = sampleRow->store_record;
                 // insert into l_sample_retrieval
@@ -363,9 +363,7 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
 }
 
 void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
-    ostringstream oss;
-    //oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str())<endl;
-    //debugLog(oss.str().c_str());
+    //ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str())<endl; //debugLog(oss.str().c_str());
     debugLog(sgChunks->Cells[ACol][ARow]);
 }
 
@@ -398,7 +396,7 @@ void __fastcall LoadVialsWorkerThread::updateStatus() { // can't use args for sy
 }
 
 void __fastcall LoadVialsWorkerThread::Execute() {
-    delete_referenced< std::vector<SampleRow * > >(frmSamples->vials);
+    delete_referenced< vector<SampleRow * > >(frmSamples->vials);
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
     loadingMessage = oss.str().c_str(); //return;
 
@@ -455,15 +453,15 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     }
 
     // find the locations of the source boxes
-    std::map<int, const SampleRow *> samples;
+    map<int, const SampleRow *> samples;
 	ROSETTA result;
 	StoreDAO dao;
     int rowCount2 = 0;
-	for (std::vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it, rowCount2++) {
+	for (vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]";
         try {
-            std::map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
+            map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
             if (found != samples.end()) { // fill in box location from cache map
                 sample->copyLocation(*(found->second)); //oss<<"(cached)";
             } else {

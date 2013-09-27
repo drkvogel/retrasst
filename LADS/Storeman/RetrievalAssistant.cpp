@@ -140,11 +140,9 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
 
 void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
     ostringstream oss; oss << __FUNC__;
-    //oss << printColWidths(sgJobs); // so we can copy them into the source
-    //oss << endl << "row: " << sgJobs->Row << ", col: " << sgJobs->Col;
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
     if (NULL == job) return;
-    oss << endl << "job: projectid: "<<job->getProjectID()<<", status: "<<job->getStatus();
+    oss << endl << "job: projectid: "<<job->getProjectID()<<", status: "<<(job->getStatus())<<sgwJobs->printColWidths();
     debugLog(oss.str().c_str());
 }
 
@@ -152,17 +150,17 @@ void __fastcall TfrmRetrievalAssistant::FormClose(TObject *Sender, TCloseAction 
     delete_referenced<tdvecpJob>(vecJobs);
 }
 
-std::string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
+string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
     if (0 == project_cid) return "Project not specified";
     try {
         return LCDbProjects::records().get(project_cid).getName().c_str();
     } catch (...) {
-        std::ostringstream oss; oss<<"Project ID "<<project_cid<<" not found"; return oss.str();
+        ostringstream oss; oss<<"Project ID "<<project_cid<<" not found"; return oss.str();
     }
 }
 
-std::string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_cid) { // c_object_name 6: aliquot type?
-    std::ostringstream oss;
+string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_cid) { // c_object_name 6: aliquot type?
+    ostringstream oss;
     if (0 == primary_aliquot_cid) return "Aliquot not specified";
     try {
         const LCDbObject * primary_aliquot = LCDbObjects::records().findByID(primary_aliquot_cid);
@@ -173,14 +171,14 @@ std::string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_ci
     return oss.str();
 }
 
-std::string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
+string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
     // c_audit_trail
     //LCDbCryoJob::getUserID()
     return "";
 }
 
-std::string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { // c_object_name: 20: storage exercise
-    std::ostringstream oss;
+string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { // c_object_name: 20: storage exercise
+    ostringstream oss;
     const LCDbObject * exercise = LCDbObjects::records().findByID(exercise_cid);
     oss << exercise->getName().c_str(); return oss.str();
 }
@@ -353,7 +351,7 @@ Sample retrieval
 	delete_referenced<tdvecpJob>(vecJobs);
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {
         if (!jr->isAvailable()) continue;
-        std::ostringstream oss;
+        ostringstream oss;
         oss<<__FUNC__<<", type: "<<jr->getJobType()<<": desc: "<<jr->getDescription().c_str();
         debugLog(oss.str().c_str());
         if (jr->getStatus() == LCDbCryoJob::Status::NEW_JOB             && !cbNewJob->Checked) continue;

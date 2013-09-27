@@ -85,7 +85,7 @@ private:
     LoadVialsWorkerThread *     loadVialsWorkerThread;
     void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *               job;
-    std::vector<SampleChunk *>  chunks;
+    vector<SampleChunk *>  chunks;
     vecpSampleRow               vials;      // all vials in job
     StringGridWrapper<SampleRow> *      sgwVials;
     StringGridWrapper<SampleChunk> *    sgwChunks;

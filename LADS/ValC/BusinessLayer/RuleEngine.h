@@ -69,7 +69,7 @@ void lua_pushUncontrolledResult( lua_State* L, const UncontrolledResult& r );
 class Rules
 {
 public:
-    Rules( const std::string& script, ConnectionFactory cf, void* connectionState );
+    Rules( const std::string& script, ConnectionFactory cf, void* connectionState, RuleLoader* rl );
     ~Rules();
     RuleResults applyTo( const UncontrolledResult& r );
 private:
