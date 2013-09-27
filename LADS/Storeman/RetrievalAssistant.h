@@ -233,7 +233,7 @@ public:
         return mapColNameToInt[colName];
     }
     int colCount() { return cols.size(); }
-    int rowCount() { return rows.size(); }
+    int rowCount() { return rows->size(); }
     string printColWidths() {
         ostringstream oss; oss << sg->Name.c_str() << ": {";
         for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; }
@@ -252,7 +252,7 @@ public:
     }
     void sort_asc(int col, int start, int end) {
         sort(rows->begin(), rows->end(), cols[col].sort_func_asc); // dot notation: vec.begin() also seems to work - how?
-    }
+    }                                                              // it wasn't being compiled because dead code in a template
     void sort_dsc(int col, int start, int end) {
         sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc);
         //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
@@ -273,48 +273,53 @@ public:
 
 template < class T >
 class Chunk { // not recorded in database
-    vector< T * > * totalRows;
-    //string          name;           //needed???
-    int             section;
-    int             start;          // 1-indexed
-    string          startDescrip;
-    int             end;
-    string          endDescrip;
+    StringGridWrapper< T > * sgw;
+    vector< T * > *     totalRows;
+    int                 section;
+    int                 start;          // 1-indexed
+    string              startDescrip;
+    int                 end;
+    string              endDescrip;
 public:
-    Chunk() : totalRows(NULL), section(0), start(0), end(0) { }
-    Chunk(vector< T * > * rows, int sc, int st, int e) : section(sc), start(st), end(e) {
-        totalRows = rows;
-        //totalRows
+    //Chunk(vector< T * > * rows, int sc, int st, int e) : totalRows(rows), section(sc) {
+    Chunk(StringGridWrapper< T > * w, int sc, int st, int e) : sgw(w), section(sc) {
         setEnd(end);
         setStart(st);
     }
     // http://stackoverflow.com/questions/1568091/why-use-getters-and-setters
-    void setRows(vector< T * > * ofRows) { totalRows = ofRows }
-    int getSection() { return section; }
-    void setSection(int s) { section = s; }
-    int getStart() { return start; }
-    void setStart(int s) {
+    //void    setRows(vector< T * > * ofRows) { totalRows = ofRows }
+    int     getSection() { return section; }
+    //void    setSection(int s) { section = s; }
+    int     getStart() { return start; }
+    void    setStart(int s) {
         if (s < 1 || s > end) throw "invalid chunk start value";
         start = s;
     }
-    int getEnd() { return end; }
-    void setEnd(int e) { if (e > totalRows->size()) throw "invalid chunk end value"; end = e; }
-    int getSize() { return end - start; }
-    //vector< T * >::iterator begin() { return totalRows->at(start); }
-    T * at(int pos) { return totalRows->at(start + pos); }
+    int     getEnd() { return end; }
+    void    setEnd(int e) {
+        //if (e > totalRows->size()) throw "invalid chunk end value";
+        if (e > sgw->rowCount()) throw "invalid chunk end value";
+        end = e;
+    }
+    int     getSize() { return end - start; }
 
-    void blah() {
+    T *     at(int pos) { return totalRows->at(start + pos); }
+
+    void    blah() {
         oajfoidsafhaosnfaonf  // not compiled because not used (because in template?)
     }
 
-    volatile void sort_asc(string colName) {
-        totalRows->sort_aaaasc(colNameToInt(colName));  // not compiled when not used (because in template?)
+    void sort_asc(string colName) {
+        totalRows->sort_asc(colNameToInt(colName));  // not compiled when not used (because in template?)
     }
     void sort_dsc(string colName) {
         totalRows->sort_dsc(colNameToInt(colName));
     }
-    void sort_toggle(int col, int start, int end) {
-        cools[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
+    //void sortToggle(int col, int start, int end) {
+    void sortToggle(int col) {
+        //totalRows->cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
+        sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
+        sgw->cols[col].sortAsc = !sgw->cols[col].sortAsc; // toggle
     }
 
 

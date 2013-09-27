@@ -85,23 +85,18 @@ private:
     LoadVialsWorkerThread *     loadVialsWorkerThread;
     void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *               job;
-    //vector<SampleChunk *>  chunks;
     vector< Chunk< SampleRow > *>  chunks;
     vecpSampleRow               vials;      // all vials in job
     StringGridWrapper<SampleRow> *      sgwVials;
-    //StringGridWrapper<SampleChunk> *    sgwChunks;
-    StringGridWrapper< Chunk< SampleRow > > *    sgwChunks;
+    StringGridWrapper< Chunk< SampleRow > > * sgwChunks;
     void                        addSorter();
     void                        removeSorter();
     void                        applySort();
     void                        autoChunk();
-    //SampleChunk *               currentChunk();
     Chunk< SampleRow > *        currentChunk();
     void                        showChunks();
     void                        loadRows();
-    //void                        showChunk(SampleChunk * chunk=NULL);
-    void                        showChunk(Chunk< SampleRow > * chunk=NULL);
-    //void                        sortChunk(SampleChunk * chunk, int col, Sorter<SampleRow *>::SortOrder order);
+    void                        showCurrentChunk(Chunk< SampleRow > * chunk=NULL);
     const char *                loadingMessage;
 public:
     __fastcall                  TfrmSamples(TComponent* Owner);

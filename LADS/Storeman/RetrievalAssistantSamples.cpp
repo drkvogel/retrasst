@@ -189,7 +189,7 @@ void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
 }
 
 void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
-    showChunk(); // default is 1st
+    showCurrentChunk(); // default is 1st
 }
 
 void __fastcall TfrmSamples::btnAutoChunkClick(TObject *Sender) {
@@ -208,7 +208,8 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     ostringstream oss; oss << __FUNC__; oss<<sgwVials->printColWidths(); debugLog(oss.str().c_str());
     //sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
-//    currentChunk()->sortToggle(ACol);
+    currentChunk()->sortToggle(ACol);
+    showCurrentChunk(); // showCurrentChunk()?
 }
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
@@ -250,22 +251,18 @@ void TfrmSamples::showChunks() {
         sgChunks->FixedRows = 1; // "Fixed row count must be LESS than row count"
     }
     int row = 1;
-    //for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
     for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
-        //SampleChunk * chunk = *it;
         Chunk< SampleRow > * chunk = *it;
         sgChunks->Cells[sgwChunks->colNameToInt("section")]   [row] = chunk->getSection();
         sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStart(); //start.c_str(); // or name of vial at start?
         sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEnd(); //end.c_str();
-        sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = 0;//chunk->end - chunk->start;
+        sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();//chunk->end - chunk->start;
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
-    showChunk();
+    showCurrentChunk();
 }
 
 void TfrmSamples::addChunk() {
-    //SampleChunk * chunk = new SampleChunk;
-    //Chunk< SampleRow > * chunk = new Chunk< SampleRow >;
     Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
     //chunk->setSection(chunks.size() + 1);
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
@@ -279,10 +276,15 @@ void TfrmSamples::addChunk() {
         // most lightweight way to do it, doesn't duplicate information, and useable for either samples or boxes?
         chunk->setStart(1); // 1-indexed
 
-        chunk = new Chunk< SampleRow >(sgwVials->rows, chunks.size() + 1, 1, vials.size());
+        //chunk = new Chunk< SampleRow >(sgwVials->rows, chunks.size() + 1, 1, vials.size());
+        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 1, vials.size());
     } else {
-        //chunk->rows.push_back(*(vials.begin()));
-        chunk = new Chunk< SampleRow >(sgwVials->rows, chunks.size() + 1, currentChunk()->getSize() + 1, vials.size());
+        // new chunk starting one after the end of the last one...
+        // should be starting where you chose the division point, end of last one will always be end of list!
+        // with my current idiom, 'the division point' is the point you've chosen... in the current chunk!
+                                                        // section num    // start                      // end
+        //chunk = new Chunk< SampleRow >(sgwVials->rows, chunks.size() + 1, currentChunk()->getSize() + 1, vials.size());
+        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, currentChunk()->getSize() + 1, vials.size());
     }
 
     // fixme make it the current chunk
@@ -307,11 +309,11 @@ Chunk< SampleRow > * TfrmSamples::currentChunk() {
     return chunk;
 }
 
-void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
+void TfrmSamples::showCurrentChunk(Chunk< SampleRow > * chunk) {
     if (NULL == chunk) { // default
         chunk = currentChunk();
     }
-    //if (chunk->rows.size() <= 0) {
+
     if (chunk->getSize() <= 0) {
         sgwVials->clear();
     } else {
@@ -357,7 +359,7 @@ void __fastcall TfrmSamples::sgChunksGetEditText(TObject *Sender, int ACol, int 
 void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
     // mark chunk boundary
     //msgbox("chunk split");
-    addChunk(); // default chunk
+    addChunk();
     showChunks();
 }
 
