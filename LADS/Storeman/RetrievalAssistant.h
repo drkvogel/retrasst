@@ -289,10 +289,10 @@ class Chunk { // not recorded in database
     string              endDescrip;
 public:
     Chunk(StringGridWrapper< T > * w, int sc, int st, int e) : sgw(w), section(sc) {
-        sgw = w;
-        section = sc;
-        setEnd(end);
-        setStart(st);
+//        sgw = w;
+//        section = sc;
+//        setEnd(end);
+//        setStart(st);
     }
     // http://stackoverflow.com/questions/1568091/why-use-getters-and-setters
     int     getSection() { return section; }
@@ -310,7 +310,10 @@ public:
     }
     int     getSize() { return end - start; }
 
-    T *     at(int pos) { return totalRows->at(start + pos); }
+    T *     rowAt(int pos) {
+        int i=0;
+        return totalRows->at(start + pos);
+    }
 
     void sort_asc(string colName) {
         totalRows->sort_asc(colNameToInt(colName));  // not compiled when not used (because in template?)

@@ -79,7 +79,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             for (int i = 1; i < chunk->getSize(); i++) {
                 //pBoxRow boxRow = (pBoxRow)*it;
                 //pBoxRow boxRow = chunk->at(i);
-                SampleRow * sampleRow = chunk->at(i); //(Chunk< SampleRow > *)*it;
+                SampleRow * sampleRow = chunk->rowAt(i); //(Chunk< SampleRow > *)*it;
                 LPDbCryovialStore * vial = sampleRow->store_record;
                 // insert into l_sample_retrieval
             }
@@ -278,6 +278,8 @@ void TfrmSamples::addChunk() {
 
         //chunk = new Chunk< SampleRow >(sgwVials->rows, chunks.size() + 1, 1, vials.size());
         chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 1, vials.size());
+        chunk->setEnd(vials.size());
+        chunk->setStart(1);
     } else {
         // new chunk starting one after the end of the last one...
         // should be starting where you chose the division point, end of last one will always be end of list!
@@ -310,7 +312,7 @@ Chunk< SampleRow > * TfrmSamples::currentChunk() {
 
 void TfrmSamples::showCurrentChunk(Chunk< SampleRow > * chunk) {
     if (NULL == chunk) { // default
-        chunk = currentChunk();
+        chunk = currentChunk(); // not sure if this is returning a valid chunk....
     }
 
     if (chunk->getSize() <= 0) {
@@ -321,7 +323,7 @@ void TfrmSamples::showCurrentChunk(Chunk< SampleRow > * chunk) {
     }
 
     for (int row = 1; row < chunk->getSize(); row++) {
-        SampleRow * sampleRow = chunk->at(row);
+        SampleRow * sampleRow = chunk->rowAt(row);
         LPDbCryovialStore * vial = sampleRow->store_record;
 
         sgVials->Cells[sgwVials->colNameToInt("barcode")] [row] = sampleRow->cryovial_barcode.c_str();
