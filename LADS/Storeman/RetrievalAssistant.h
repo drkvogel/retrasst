@@ -274,7 +274,7 @@ public:
 template < class T >
 class Chunk { // not recorded in database
     vector< T * > * totalRows;
-    string          name;
+    //string          name;           //needed???
     int             section;
     int             start;          // 1-indexed
     string          startDescrip;
@@ -282,20 +282,42 @@ class Chunk { // not recorded in database
     string          endDescrip;
 public:
     Chunk() : totalRows(NULL), section(0), start(0), end(0) { }
-    Chunk(vector< T * > * ofRows, string name, int sc, int st, int end) : section(sc), start(st), end(end) {
-        totalRows
+    Chunk(vector< T * > * rows, int sc, int st, int e) : section(sc), start(st), end(e) {
+        totalRows = rows;
+        //totalRows
+        setEnd(end);
+        setStart(st);
     }
     // http://stackoverflow.com/questions/1568091/why-use-getters-and-setters
     void setRows(vector< T * > * ofRows) { totalRows = ofRows }
     int getSection() { return section; }
     void setSection(int s) { section = s; }
     int getStart() { return start; }
-    void setStart(int s) { if (s < 1) throw "invalid chunk start value"; start = s; }
+    void setStart(int s) {
+        if (s < 1 || s > end) throw "invalid chunk start value";
+        start = s;
+    }
     int getEnd() { return end; }
     void setEnd(int e) { if (e > totalRows->size()) throw "invalid chunk end value"; end = e; }
     int getSize() { return end - start; }
     //vector< T * >::iterator begin() { return totalRows->at(start); }
     T * at(int pos) { return totalRows->at(start + pos); }
+
+    void blah() {
+        oajfoidsafhaosnfaonf  // not compiled because not used (because in template?)
+    }
+
+    volatile void sort_asc(string colName) {
+        totalRows->sort_aaaasc(colNameToInt(colName));  // not compiled when not used (because in template?)
+    }
+    void sort_dsc(string colName) {
+        totalRows->sort_dsc(colNameToInt(colName));
+    }
+    void sort_toggle(int col, int start, int end) {
+        cools[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
+    }
+
+
     //void sortToggle(int col) { /* do something */ }
     //setStart(int s) { start = s; }
 
@@ -304,33 +326,9 @@ public:
     incrEnd();
     decrEnd();
 
-    //virtual void    sortAsc(int col) = 0;
-    //virtual void    sortDesc(int col) = 0;
-    //virtual void    sortToggle(int col) = 0;
-    //virtual void    setRows() = 0;
 };
 
 typedef std::vector< Chunk * > vecpChunk;
-
-//class SampleChunk : public Chunk {
-//public:
-//    vecpSampleRow   rows;
-//    void    sortAsc(int col);
-//    void    sortDesc(int col);
-//    void    sortToggle(int col);
-//};
-//
-//typedef std::vector< SampleChunk * >  vecpSampleChunk;
-//
-//class BoxChunk : public Chunk {
-//public:
-//    vecpBoxRow      rows;
-//    void    sortAsc() { return; };
-//    void    sortDesc();
-//    void    sortToggle();
-//};
-
-//typedef std::vector< BoxChunk * >  vecpBoxChunk;
 
 //???
 //class RetrievalList {

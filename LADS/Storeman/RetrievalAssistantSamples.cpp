@@ -265,8 +265,9 @@ void TfrmSamples::showChunks() {
 
 void TfrmSamples::addChunk() {
     //SampleChunk * chunk = new SampleChunk;
-    Chunk< SampleRow > * chunk = new Chunk< SampleRow >;
-    chunk->setSection(chunks.size() + 1);
+    //Chunk< SampleRow > * chunk = new Chunk< SampleRow >;
+    Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
+    //chunk->setSection(chunks.size() + 1);
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
         // copy individually into new vector
         // for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) { chunk->rows.push_back((SampleRow *)*(it)); }
@@ -277,8 +278,11 @@ void TfrmSamples::addChunk() {
         // just set markers to the start and end of the chunk in the main list
         // most lightweight way to do it, doesn't duplicate information, and useable for either samples or boxes?
         chunk->setStart(1); // 1-indexed
+
+        chunk = new Chunk< SampleRow >(sgwVials->rows, chunks.size() + 1, 1, vials.size());
     } else {
         //chunk->rows.push_back(*(vials.begin()));
+        chunk = new Chunk< SampleRow >(sgwVials->rows, chunks.size() + 1, currentChunk()->getSize() + 1, vials.size());
     }
 
     // fixme make it the current chunk
@@ -292,7 +296,6 @@ void TfrmSamples::autoChunk() {
     frmAutoChunk->ShowModal();
 }
 
-//SampleChunk * TfrmSamples::currentChunk() {
 Chunk< SampleRow > * TfrmSamples::currentChunk() {
     if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
     //SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][sgChunks->Row];
@@ -304,7 +307,6 @@ Chunk< SampleRow > * TfrmSamples::currentChunk() {
     return chunk;
 }
 
-//void TfrmSamples::showChunk(SampleChunk * chunk) {
 void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
     if (NULL == chunk) { // default
         chunk = currentChunk();
