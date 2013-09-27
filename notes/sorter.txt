@@ -1,4 +1,6 @@
-﻿t_ldb1_ddb
+﻿is it initializing the ColDefs in frmSample() that's corrupting memory?
+http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
+t_ldb1_ddb
 
 (* == has locations)
 ### throwing errors
