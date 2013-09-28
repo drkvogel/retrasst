@@ -64,7 +64,7 @@ void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
 
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
-        // sign off?
+        // fixme sign off?
         // create the retrieval plan by inserting into c_box_retrieval and l_sample_retrieval
         for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
             // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
@@ -113,11 +113,9 @@ void __fastcall TfrmSamples::cbLogClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
     if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
-        //fixme move contents into preceding chunk
-        //vecpSampleRow::back_insert_iterator bit;
-        //vecpSampleRow::back_inserter bit;
         delete chunks.back();
         chunks.pop_back();
+        (*(chunks.end())->setEnd(vials.size());
         showChunks();
     }
     if (chunks.size() == 1) btnDelChunk->Enabled = false;
@@ -270,7 +268,7 @@ void TfrmSamples::addChunk() {
     }
 
     // fixme make it the current chunk
-
+    sgChunks->Row = sgChunks->RowCount;
     chunks.push_back(chunk);
     btnDelChunk->Enabled = true;
     showChunks();
