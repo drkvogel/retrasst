@@ -1,5 +1,15 @@
 ﻿is it initializing the ColDefs in frmSample() that's corrupting memory?
 http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
+
+### Cultural learnings of 2013-09-28
+
+ * Templated code is not compiled until it is instantiated - i.e. if there is part of your template that is not used, it will not throw a compile error even if bad syntax
+ * Debug symbols do not seem to be generated for templated code, meaning breakpoints cannot be set. I don't know if this can be changed in the options.
+ * Windows' API debug function is `OutputDebugString()` and is captured by the Event Log tab in C++ Builder
+ * Use it like this: `OutputDebugString(L"string")` or like this: `wstringstream oss; oss<<__FUNC__<<"text"<<var; OutputDebugString(oss.str().c_str());`
+ * Churchill canteen food is OK and cheap, good for recovering.
+ * Andrew Weatherall's Vice Mix is quite good.
+
 t_ldb1_ddb
 C:\Users\cbird\Projects\lims-generic\doxygen\html
 

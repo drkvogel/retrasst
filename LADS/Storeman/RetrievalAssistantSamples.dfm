@@ -49,9 +49,9 @@ object frmSamples: TfrmSamples
     Caption = 'Chunks'
     TabOrder = 0
     object Panel2: TPanel
-      Left = 800
+      Left = 792
       Top = 15
-      Width = 82
+      Width = 90
       Height = 248
       Align = alRight
       BevelOuter = bvNone
@@ -59,108 +59,118 @@ object frmSamples: TfrmSamples
       object btnAddChunk: TButton
         Left = 0
         Top = 25
-        Width = 82
+        Width = 90
         Height = 25
         Align = alTop
         Caption = 'Add chunk'
         TabOrder = 0
         OnClick = btnAddChunkClick
+        ExplicitWidth = 82
       end
       object btnDelChunk: TButton
         Left = 0
         Top = 50
-        Width = 82
+        Width = 90
         Height = 25
         Align = alTop
         Caption = 'Del chunk'
         Enabled = False
         TabOrder = 1
         OnClick = btnDelChunkClick
+        ExplicitWidth = 82
       end
       object btnIncr: TButton
         Left = 0
         Top = 75
-        Width = 82
+        Width = 90
         Height = 25
         Align = alTop
         Caption = '+'
         TabOrder = 2
         OnClick = btnIncrClick
+        ExplicitWidth = 82
       end
       object btnDecr: TButton
         Left = 0
         Top = 100
-        Width = 82
+        Width = 90
         Height = 25
         Align = alTop
         Caption = '-'
         TabOrder = 3
         OnClick = btnDecrClick
+        ExplicitWidth = 82
       end
       object btnAutoChunk: TButton
         Left = 0
         Top = 0
-        Width = 82
+        Width = 90
         Height = 25
         Align = alTop
         Caption = 'Auto-Chunk'
         TabOrder = 4
         OnClick = btnAutoChunkClick
+        ExplicitWidth = 82
       end
       object btnCancel: TButton
         Left = 0
         Top = 223
-        Width = 82
+        Width = 90
         Height = 25
         Align = alBottom
         Caption = 'Exit'
         TabOrder = 5
         OnClick = btnCancelClick
+        ExplicitWidth = 82
       end
       object btnSave: TButton
         Left = 0
         Top = 198
-        Width = 82
+        Width = 90
         Height = 25
         Align = alBottom
         Caption = 'Save'
         TabOrder = 6
         OnClick = btnSaveClick
+        ExplicitWidth = 82
       end
       object btnReject: TButton
         Left = 0
         Top = 173
-        Width = 82
+        Width = 90
         Height = 25
         Align = alBottom
         Caption = 'Reject List'
         TabOrder = 7
         OnClick = btnRejectClick
+        ExplicitWidth = 82
       end
       object cbLog: TCheckBox
         Left = 0
         Top = 142
-        Width = 82
+        Width = 90
         Height = 17
         Align = alTop
         Caption = 'Show Log'
         TabOrder = 8
         OnClick = cbLogClick
+        ExplicitWidth = 82
       end
       object cbSnapToBoxes: TCheckBox
         Left = 0
         Top = 125
-        Width = 82
+        Width = 90
         Height = 17
         Align = alTop
         Caption = 'Snap to boxes'
         TabOrder = 9
+        ExplicitWidth = 82
       end
     end
     object sgChunks: TStringGrid
       Left = 2
       Top = 15
-      Width = 798
+      Width = 790
       Height = 248
       Align = alClient
       DefaultDrawing = False
@@ -171,6 +181,7 @@ object frmSamples: TfrmSamples
       OnDrawCell = sgChunksDrawCell
       OnGetEditText = sgChunksGetEditText
       OnSetEditText = sgChunksSetEditText
+      ExplicitWidth = 798
     end
   end
   object groupVials: TGroupBox

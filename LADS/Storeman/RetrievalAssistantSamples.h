@@ -84,11 +84,11 @@ __published:
 private:
     LoadVialsWorkerThread *     loadVialsWorkerThread;
     void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
-    LCDbCryoJob *               job;
-    vector< Chunk< SampleRow > *>  chunks;
-    vecpSampleRow               vials;      // all vials in job
-    StringGridWrapper<SampleRow> *      sgwVials;
-    StringGridWrapper< Chunk< SampleRow > > * sgwChunks;
+    LCDbCryoJob *                               job;
+    vector< Chunk< SampleRow > *>               chunks;
+    vecpSampleRow                               vials;      // all vials in job
+    StringGridWrapper<SampleRow> *              sgwVials;
+    StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
     void                        addSorter();
     void                        removeSorter();
     void                        applySort();

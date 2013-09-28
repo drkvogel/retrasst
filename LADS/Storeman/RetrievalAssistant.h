@@ -283,7 +283,6 @@ public:
 template < class T >
 class Chunk { // not recorded in database
     StringGridWrapper< T > * sgw;
-    vector< T * > *     totalRows;
     int                 section;
     int                 start;          // 1-indexed
     string              startDescrip;
@@ -308,11 +307,14 @@ public:
             throw "invalid chunk end value";
         end = e;
     }
-    int     getSize() { return end - start; }
+    int     getSize() {
+        //OutputDebugString(L"I am here");
+        return end - start;
+    }
 
     T *     rowAt(int pos) {
-        int i=0;
-        return totalRows->at(start + pos);
+        wstringstream oss; oss<<__FUNC__<<"start: "<<start<<", pos: "<<pos; OutputDebugString(oss.str().c_str());
+        return sgw->rows->at((start-1)+(pos-1));
     }
 
     void sort_asc(string colName) {

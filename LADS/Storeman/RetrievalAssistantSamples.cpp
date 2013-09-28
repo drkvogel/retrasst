@@ -52,7 +52,6 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     sgwChunks->clear();
     sgwVials->clear();
     timerLoadVials->Enabled = true;
-    if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {autoChunk();}
 }
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
@@ -115,7 +114,7 @@ void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
     if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
         delete chunks.back();
         chunks.pop_back();
-        (*(chunks.end())->setEnd(vials.size());
+        (*(chunks.end()))->setEnd(vials.size());
         showChunks();
     }
     if (chunks.size() == 1) btnDelChunk->Enabled = false;
@@ -234,6 +233,34 @@ void __fastcall TfrmSamples::btnApplySortClick(TObject *Sender) {
     applySort();
 }
 
+void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
+    // mark chunk boundary
+    //msgbox("chunk split");
+    addChunk();
+    showChunks();
+}
+
+void TfrmSamples::addChunk() {
+    Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
+    if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
+        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 1, vials.size()); // 1-indexed
+        chunk->setEnd(vials.size());
+        chunk->setStart(1);
+    } else {
+        // new chunk starting one after the end of the last one...
+        // should be starting where you chose the division point, end of last one will always be end of list!
+        // with my current idiom, 'the division point' is the point you've chosen... in the current chunk!
+                                                        // section num    // start                      // end
+        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, currentChunk()->getSize() + 1, vials.size());
+    }
+
+    // fixme make it the current chunk
+    sgChunks->Row = sgChunks->RowCount - 1;
+    chunks.push_back(chunk);
+    btnDelChunk->Enabled = true;
+    showChunks();
+}
+
 void TfrmSamples::showChunks() {
     if (0 == chunks.size()) { // must always have one chunk anyway
         throw Exception("No chunks");
@@ -253,31 +280,6 @@ void TfrmSamples::showChunks() {
     showCurrentChunk();
 }
 
-void TfrmSamples::addChunk() {
-    Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
-    if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 1, vials.size()); // 1-indexed
-        chunk->setEnd(vials.size());
-        chunk->setStart(1); 
-    } else {
-        // new chunk starting one after the end of the last one...
-        // should be starting where you chose the division point, end of last one will always be end of list!
-        // with my current idiom, 'the division point' is the point you've chosen... in the current chunk!
-                                                        // section num    // start                      // end
-        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, currentChunk()->getSize() + 1, vials.size());
-    }
-
-    // fixme make it the current chunk
-    sgChunks->Row = sgChunks->RowCount;
-    chunks.push_back(chunk);
-    btnDelChunk->Enabled = true;
-    showChunks();
-}
-
-void TfrmSamples::autoChunk() {
-    frmAutoChunk->ShowModal();
-}
-
 Chunk< SampleRow > * TfrmSamples::currentChunk() {
     if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
     Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][sgChunks->Row];
@@ -289,19 +291,20 @@ Chunk< SampleRow > * TfrmSamples::currentChunk() {
 }
 
 void TfrmSamples::showCurrentChunk(Chunk< SampleRow > * chunk) {
-    if (NULL == chunk) { // default
-        chunk = currentChunk(); // not sure if this is returning a valid chunk....
-    }
+    if (NULL == chunk) { chunk = currentChunk(); } // default
 
     if (chunk->getSize() <= 0) {
         sgwVials->clear();
     } else {
-        sgVials->RowCount = chunk->getSize();
+        sgVials->RowCount = chunk->getSize(); //getSize() works, ie. returns debug value.
         sgVials->FixedRows = 1;
     }
 
+    OutputDebugString(L"testing myself");
+
     for (int row = 1; row < chunk->getSize(); row++) {
-        SampleRow * sampleRow = chunk->rowAt(row);
+        SampleRow * sampleRow = chunk->rowAt(row); // does OutputDebugString work? yes, in Event Log tab.
+            // start + pos is probably wrong. it is being called. no debug symbols for templates though. way to enable this?
         LPDbCryovialStore * vial = sampleRow->store_record;
 
         sgVials->Cells[sgwVials->colNameToInt("barcode")] [row] = sampleRow->cryovial_barcode.c_str();
@@ -321,19 +324,16 @@ void TfrmSamples::showCurrentChunk(Chunk< SampleRow > * chunk) {
 }
 
 void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
-    ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str())<endl; debugLog(oss.str().c_str());
+    //ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str()); debugLog(oss.str().c_str());
 }
 
 void __fastcall TfrmSamples::sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value) {
-    ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str())<endl;
-    debugLog(oss.str().c_str());
+    //ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str());
+    //debugLog(oss.str().c_str());
 }
 
-void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
-    // mark chunk boundary
-    //msgbox("chunk split");
-    addChunk();
-    showChunks();
+void TfrmSamples::autoChunk() {
+    frmAutoChunk->ShowModal();
 }
 
 //-------------- sorters --------------
@@ -496,12 +496,16 @@ void __fastcall LoadVialsWorkerThread::Execute() {
 void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
-    chunks.clear();
-    sgwChunks->clear();
-    addChunk(); // default chunk
-    showChunks();
     Screen->Cursor = crDefault;
     Enabled = true;
+    chunks.clear();
+    sgwChunks->clear();
+    if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {
+        autoChunk();
+    } else {
+        addChunk(); // default chunk
+    }
+    showChunks();
 }
 
 
