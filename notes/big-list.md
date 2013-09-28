@@ -1,9 +1,7 @@
-﻿Looking at your Sorter again, I still couldn’t get it to do what I wanted it to, e.g. sorting by Vessel then rack left it in rack order, rather than Vessel+rack.  I have therefore created my own Sorter (in SampleEntry.cpp) but I’d be happy to merge it with yours – it would make more sense if all the screens worked in the same way
-
-
+﻿
 a sample retrieval can include boxes that do not have their current locations recorded
 misc
-    find destination boxes 1st
+    find destination boxes 1st-
     restructure DataRow etc to be more like/same as nick's GridEntry
 sorting
     Nick's sorter in SampleEntry.cpp/h
@@ -27,18 +25,11 @@ chunks
         1st chunk: 
     size:
         calculate end (max if not valid)
-
-    specify in samples or boxes?
-        
+    specify in samples or boxes depending on job
     highlight current sample/box
     double-click sample/box
         current chunks upper boundary is here (check valid)
         next chunk (if present) lower boundary is here
-find destination boxes - faster method using sequence?
-    nick's method - 
-        build map of boxes first, groups of many samples will map to each box
-            TfrmRetrieveMain::btnLocateClick
-                if(dao.findBox())    
   
 ## Retrieval Assistant
 
@@ -59,20 +50,16 @@ find destination boxes - faster method using sequence?
  * General
     * Box Retrieval
         * Select * from c_box_retrieval b order by b.section, b.rj_box_cid
-        
     * Sample (cryovial) Retrieval
         * Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position  
-
  * As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box
- * Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position
  * If required, the secondary aliquots appear at the end of the retrieval plan for each chunk – they may never be needed
     * TODO
  * a panel displaying sort order for both Create List and Retrieval Assistant
     * Kind of
  * sort by location
     * Via column clicks and/or sorter panel
- * location should include site+position+name+layout, as it does in StoreMan’s storage browser.-
-    * OK
+
  * chunking -  Allow the user to divide up the list
     * TODO
  * save changes with the option of going back to re-order if necessary.
@@ -81,8 +68,16 @@ find destination boxes - faster method using sequence?
     * TODO
 
 ---to sort---
-
+Looking at your Sorter again, I still couldn’t get it to do what I wanted it to, e.g. sorting by Vessel then rack left it in rack order, rather than Vessel+rack.  I have therefore created my own Sorter (in SampleEntry.cpp) but I’d be happy to merge it with yours – it would make more sense if all the screens worked in the same way
+ * Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position
 ---done---
+find destination boxes - faster method using sequence?
+    nick's method - 
+        build map of boxes first, groups of many samples will map to each box
+            TfrmRetrieveMain::btnLocateClick
+                if(dao.findBox())  
+ * location should include site+position+name+layout, as it does in StoreMan’s storage browser.-
+    * OK
 invalid pointer operation on click retrieval assistant open 1st time only- nick has sorted
   diff btwn specs in notes/spec-comparison
     sample query-
