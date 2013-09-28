@@ -194,21 +194,23 @@ class StringGridWrapper {
     class Col {
     public:
         Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false), vec(NULL), initialised(false) { }
-        Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL) :
-            name(n), title(t), width(w), sort_func_asc(f), sortAsc(false) {}
-        string sortDescription() { ostringstream oss; oss<<"Sort by "<<title<<" ascending"; return oss.str(); }
-        bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-        string name;           // internal identifier string
-        string title;          // text to display in stringgrid header
-        int width;                  // for StringGrid::ColWidths[]
-        bool sortAsc;
+        Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL) : name(n), title(t), width(w), sort_func_asc(f), sortAsc(false) {}
+        
+        string  sortDescription() { 
+            ostringstream oss; oss<<"Sort by "<<title<<" ascending"; return oss.str(); 
+        }
+        bool    (*sort_func_asc)(const T *, const T *); // ascending sort function
+        string  name;           // internal identifier string
+        string  title;          // text to display in stringgrid header
+        int     width;          // for StringGrid::ColWidths[]
+        bool    sortAsc;        // sort toggle
     };
-    TStringGrid * sg;
-    map< string, int > mapColNameToInt;
-    bool initialised;
+    TStringGrid *       sg;
+    map< string, int >  mapColNameToInt;
+    bool                initialised;
 public:
-    vector< T * > * rows;
-    vector< Col > cols;
+    vector< T * > *     rows;
+    vector< Col >       cols;
 
     StringGridWrapper(TStringGrid * g, vector<T *> * v) : sg(g), rows(v), initialised(false) {}
     void init() {
@@ -289,8 +291,6 @@ class Chunk { // not recorded in database
     string              endDescrip;
 public:
     Chunk(StringGridWrapper< T > * w, int sc, int st, int e) : sgw(w), section(sc) {
-//        sgw = w;
-//        section = sc;
 //        setEnd(end);
 //        setStart(st);
     }
@@ -324,7 +324,6 @@ public:
     }
 
     void sortToggle(int col) {
-        //totalRows->cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
         sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
         sgw->cols[col].sortAsc = !sgw->cols[col].sortAsc; // toggle
     }

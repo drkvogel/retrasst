@@ -405,6 +405,3 @@ void TfrmRetrievalAssistant::showJobs() {
         sgJobs->Objects[0][row] = (TObject *)job;
     }
 }
-
-
-

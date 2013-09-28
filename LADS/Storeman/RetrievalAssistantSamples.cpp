@@ -11,7 +11,6 @@
 TfrmSamples *frmSamples;
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
-    //sgwChunks = new StringGridWrapper<SampleChunk>(sgChunks, &chunks);
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  200);
     sgwChunks->addCol("start",    "Start",    200);
@@ -58,9 +57,7 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
     delete_referenced< vector <SampleRow * > >(frmSamples->vials);
-    //delete_referenced<vecpSampleChunk>(chunks); // chunk objects, not contents of chunks
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
-
 }
 
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
@@ -69,7 +66,6 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
         // sign off?
         // create the retrieval plan by inserting into c_box_retrieval and l_sample_retrieval
-        //for (vecpSampleChunk::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
         for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
             // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
             Chunk< SampleRow > * chunk = *it;
@@ -132,7 +128,6 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
     if (0 == ARow) {
         background = clBtnFace;
     } else {
-        //SampleChunk * chunk = (SampleChunk *)sgChunks->Objects[0][ARow];
         Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][ARow];
         background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == chunk) {
@@ -207,7 +202,6 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     ostringstream oss; oss << __FUNC__; oss<<sgwVials->printColWidths(); debugLog(oss.str().c_str());
-    //sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
     currentChunk()->sortToggle(ACol);
     showCurrentChunk(); // showCurrentChunk()?
 }
@@ -245,7 +239,6 @@ void __fastcall TfrmSamples::btnApplySortClick(TObject *Sender) {
 void TfrmSamples::showChunks() {
     if (0 == chunks.size()) { // must always have one chunk anyway
         throw Exception("No chunks");
-        sgwChunks->clear();
     } else {
         sgChunks->RowCount = chunks.size() + 1;
         sgChunks->FixedRows = 1; // "Fixed row count must be LESS than row count"
@@ -264,28 +257,15 @@ void TfrmSamples::showChunks() {
 
 void TfrmSamples::addChunk() {
     Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
-    //chunk->setSection(chunks.size() + 1);
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-        // copy individually into new vector
-        // for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) { chunk->rows.push_back((SampleRow *)*(it)); }
-        // or
-        // this copies anyway?
-        //chunk->rows = vials;
-        // or
-        // just set markers to the start and end of the chunk in the main list
-        // most lightweight way to do it, doesn't duplicate information, and useable for either samples or boxes?
-        //chunk->setStart(1); // 1-indexed
-
-        //chunk = new Chunk< SampleRow >(sgwVials->rows, chunks.size() + 1, 1, vials.size());
-        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 1, vials.size());
+        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 1, vials.size()); // 1-indexed
         chunk->setEnd(vials.size());
-        chunk->setStart(1);
+        chunk->setStart(1); 
     } else {
         // new chunk starting one after the end of the last one...
         // should be starting where you chose the division point, end of last one will always be end of list!
         // with my current idiom, 'the division point' is the point you've chosen... in the current chunk!
                                                         // section num    // start                      // end
-        //chunk = new Chunk< SampleRow >(sgwVials->rows, chunks.size() + 1, currentChunk()->getSize() + 1, vials.size());
         chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, currentChunk()->getSize() + 1, vials.size());
     }
 
@@ -343,15 +323,12 @@ void TfrmSamples::showCurrentChunk(Chunk< SampleRow > * chunk) {
 }
 
 void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
-    //ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str())<endl; //debugLog(oss.str().c_str());
-    debugLog(sgChunks->Cells[ACol][ARow]);
+    ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str())<endl; debugLog(oss.str().c_str());
 }
 
 void __fastcall TfrmSamples::sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value) {
-    ostringstream oss;
-    oss<<__FUNC__; debugLog(oss.str().c_str()); //String(sgChunks->Cells[ACol][ARow].c_str())<endl;
-    //debugLog(oss.str().c_str());
-    debugLog(sgChunks->Cells[ACol][ARow]);
+    ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str())<endl;
+    debugLog(oss.str().c_str());
 }
 
 void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
@@ -370,9 +347,7 @@ void TfrmSamples::addSorter() {
         // to put in right order: take them all out, sort and put back in in reverse order?
     combo->Align = alLeft;
     combo->Style = csDropDown; // csDropDownList
-    //for (int i=0; i<SGVIALS_NUMCOLS; i++) {
     for (int i=0; i<sgwVials->colCount(); i++) {
-        //combo->AddItem(sorter[i].description.c_str(), (TObject *)&sorter[i]);
         combo->AddItem(sgwVials->cols[i].sortDescription().c_str(), (TObject *)&sgwVials->cols[i]);
     }
     //combo->OnChange = &comboSortOnChange;
@@ -394,8 +369,7 @@ void TfrmSamples::removeSorter() {
 
 void TfrmSamples::applySort() { // loop through sorters and apply each selected sort
     ostringstream oss; oss<<__FUNC__<<groupSort->ControlCount<<" controls"<<endl; debugLog(oss.str().c_str());
-    //SampleChunk * chunk = currentChunk();
-    //Chunk< SampleRow > * chunk = currentChunk();
+    Chunk< SampleRow > * chunk = currentChunk();
     for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box // controls are in creation order, ie. buttons first from design, and last added combo is last
         TControl * control = groupSort->Controls[i];
         TComboBox * combo = dynamic_cast<TComboBox *>(control);
@@ -403,7 +377,7 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
             if (-1 != combo->ItemIndex) {
                 debugLog("sorting: ");
                 debugLog(combo->Items->Strings[combo->ItemIndex].c_str());
-                //sortChunk(chunk, combo->ItemIndex, Sorter<SampleRow *>::ASCENDING);
+                //chunk->;
             }
         } else {
             debugLog("not a combo box, finish sorting.");
