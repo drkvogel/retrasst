@@ -1,5 +1,12 @@
-﻿is it initializing the ColDefs in frmSample() that's corrupting memory?
-http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
+﻿http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
+
+click on chunk - show wait cursor while loading
+drawcell border round selected chunk
+can only double click to split chunk on last chunk?
+
+sorting works again! OMG!
+sorting by shelf doesn't seem to do anything
+it is quite slow though...
 
 ### Cultural learnings of 2013-09-28
 
@@ -234,3 +241,4 @@ int structure_pos           rack_pos,       c_rack_number.position as rack_pos #
 int structure_name          rack_name,      c_rack_number.rack_cid -> name
 int box_position           slot)           box_store.slot_position # pos of box/rack in structure    
     
+is it initializing the ColDefs in frmSample() that's corrupting memory? -no

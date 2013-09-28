@@ -291,6 +291,9 @@ Chunk< SampleRow > * TfrmSamples::currentChunk() {
 }
 
 void TfrmSamples::showCurrentChunk(Chunk< SampleRow > * chunk) {
+    Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
+    Enabled = false;
+
     if (NULL == chunk) { chunk = currentChunk(); } // default
 
     if (chunk->getSize() <= 0) {
@@ -300,7 +303,7 @@ void TfrmSamples::showCurrentChunk(Chunk< SampleRow > * chunk) {
         sgVials->FixedRows = 1;
     }
 
-    OutputDebugString(L"testing myself");
+    //OutputDebugString(L"testing myself");
 
     for (int row = 1; row < chunk->getSize(); row++) {
         SampleRow * sampleRow = chunk->rowAt(row); // does OutputDebugString work? yes, in Event Log tab.
@@ -321,6 +324,9 @@ void TfrmSamples::showCurrentChunk(Chunk< SampleRow > * chunk) {
         sgVials->Cells[sgwVials->colNameToInt("destpos")] [row] = sampleRow->dest_cryo_pos;
         sgVials->Objects[0][row] = (TObject *)sampleRow;
     }
+
+    Screen->Cursor = crDefault;
+    Enabled = true;
 }
 
 void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
@@ -343,6 +349,7 @@ void TfrmSamples::addSorter() {
     TComboBox * combo = new TComboBox(this);
     combo->Parent = groupSort; // new combo is last created, aligned to left
         // to put in right order: take them all out, sort and put back in in reverse order?
+    combo->Width = 250;
     combo->Align = alLeft;
     combo->Style = csDropDown; // csDropDownList
     for (int i=0; i<sgwVials->colCount(); i++) {

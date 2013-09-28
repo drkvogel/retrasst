@@ -175,7 +175,7 @@ object frmSamples: TfrmSamples
       Align = alClient
       DefaultDrawing = False
       FixedCols = 0
-      Options = [goFixedVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goAlwaysShowEditor, goThumbTracking]
+      Options = [goFixedVertLine, goHorzLine, goRangeSelect, goColSizing, goAlwaysShowEditor, goThumbTracking]
       TabOrder = 1
       OnClick = sgChunksClick
       OnDrawCell = sgChunksDrawCell
