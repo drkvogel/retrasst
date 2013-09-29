@@ -258,7 +258,7 @@ void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
         job->setStatus(LCDbCryoJob::Status::REJECTED);
         job->saveRecord(LIMSDatabase::getCentralDb());
         //Close();
-        ModalResult = mrCancel;
+        ModalResult = mrCancel; //??? don't use modalresult
     }
 }
 
@@ -465,9 +465,12 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     qd.setSQL( // from spec 2013-09-11
     /* destination box and position, cryovial barcode and current box, position,
        structure and location of the primary and secondary aliquots */
+// LPDbCryovial: Cryovial_id, Cryovial_Barcode, record_id, sample_id, aliquot_type_cid, box_cid, status, cryovial_position, Note_Exists, retrieval_cid
         "SELECT"
         "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
-        "  cryovial_barcode, t.external_name AS aliquot,"
+        "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
+            // LPDbCryovial::storeID( query.readInt( "record_id" ) ) <-- record_id comes from cryovial_store?
+        "  c.cryovial_barcode, t.external_name AS aliquot,"
         "  b1.box_cid as source_id,"
         "  b1.external_name as source_name,"
         "  s1.cryovial_position as source_pos,"
