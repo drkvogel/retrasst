@@ -85,16 +85,15 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                     " (retrieval_cid, retrieval_type, box_id, section, position, box_name, rj_box_cid, status, time_stamp)"
                     " VALUES"
                     " (:rtid, :rtty, :bid, :sect, :pos, :bn, :bid, :st, :tm)");
-                qc.setParam("rtid");
-                qc.setParam("rtty");
-                qc.setParam("bid");
-                qc.setParam("sect");
-                qc.setParam("pos");
-                qc.setParam("bn");
-                qc.setParam("bid"); ??? again?
-                qc.setParam("st");
-                qc.setParam("tm"); not necessary
-                
+                qc.setParam("rtid", sampleRow->);
+                qc.setParam("rtty", sampleRow->);
+                qc.setParam("bid",  sampleRow->);
+                qc.setParam("sect", sampleRow->);
+                qc.setParam("pos",  sampleRow->);
+                qc.setParam("bn",   sampleRow->);
+                qc.setParam("bid",  sampleRow->); ??? again?
+                qc.setParam("st",   sampleRow->);
+                qc.setParam("tm",   sampleRow->); not necessary
                 qc.execSQL();
                   
             }
@@ -109,13 +108,8 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             status	 i2			 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
             time_stamp	 d/t			 When this record was inserted or updated*/
         }
-        return;
-        // update c_retrieval_job (in progress)
-        // job->setStatus(LCDbCryoJob::INPROGRESS);
-        // job->saveRecord(LIMSDatabase::getCentralDb());
         btnSave->Enabled = false;
-        //Close();
-        ModalResult = mrOk;
+        ModalResult = mrOk; // update c_retrieval_job (in progress)
     } else { // start again
         chunks.clear();
         addChunk(); // start again
@@ -238,7 +232,8 @@ void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
         job->setStatus(LCDbCryoJob::Status::REJECTED);
         job->saveRecord(LIMSDatabase::getCentralDb());
-        Close();
+        //Close();
+        ModalResult mrCancel;
     }
 }
 
