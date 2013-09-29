@@ -5,15 +5,36 @@
 #pragma resource "*.dfm"
 TfrmProcess *frmProcess;
 
-__fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) { }
+__fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) { 
+/* enum {  SGRETRIEVAL_BARCODE, SGRETRIEVAL_DESTBOX, SGRETRIEVAL_DESTPOS, SGRETRIEVAL_CURRBOX, SGRETRIEVAL_CURRPOS,
+        SGRETRIEVAL_SITE, SGRETRIEVAL_POSITION, SGRETRIEVAL_SHELF, SGRETRIEVAL_VESSEL, SGRETRIEVAL_STRUCTURE, SGRETRIEVAL_SLOT, // location in "Russian Doll order"
+        SGRETRIEVAL_NUMCOLS};
+static const char * sgRetrievalColName[SGRETRIEVAL_NUMCOLS] = {
+    "Barcode", "Dest box", "Pos", "Curr box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"
+};
+static int sgRetrievalColWidth[SGRETRIEVAL_NUMCOLS] = {102, 147, 43, 275, 37, 64, 50, 43, 100, 121, 40 }; */
+    sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
+    sgwChunks->addCol("section",  "Section",  200);
+    sgwChunks->addCol("start",    "Start",    200);
+    sgwChunks->addCol("end",      "End",      200);
+    sgwChunks->addCol("size",     "Size",     200);
+    sgwChunks->init();
 
-/*
-For a box retrieval, the retrieval plan will be given by
-Select * from c_box_retrieval b order by b.section, b.rj_box_cid
-
-For a cryovial retrieval, the retrieval plan will be:
-Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position
-*/
+    sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
+    sgwVials->addCol("barcode",  "Barcode",          102,   SampleRow::sort_asc_barcode);
+    sgwVials->addCol("aliquot",  "Aliquot",          100,   SampleRow::sort_asc_aliquot);
+    sgwVials->addCol("currbox",  "Current box",      275,   SampleRow::sort_asc_currbox);
+    sgwVials->addCol("currpos",  "Pos",              43,    SampleRow::sort_asc_currpos);
+    sgwVials->addCol("site",     "Site",             116,   SampleRow::sort_asc_site);
+    sgwVials->addCol("vesspos",  "Position",         50,    SampleRow::sort_asc_position);
+    sgwVials->addCol("shelf",    "Shelf",            100,   SampleRow::sort_asc_shelf);
+    sgwVials->addCol("vessel",   "Vessel",           43,    SampleRow::sort_asc_vessel);
+    sgwVials->addCol("struct",   "Structure",        121,   SampleRow::sort_asc_structure);
+    sgwVials->addCol("boxpos",   "Pos",              40,    SampleRow::sort_asc_slot);
+    sgwVials->addCol("destbox",  "Destination box",  213,   SampleRow::sort_asc_destbox);
+    sgwVials->addCol("destpos",  "Pos",              37,    SampleRow::sort_asc_destpos);
+    sgwVials->init();
+}
 
 void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
@@ -23,8 +44,8 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
 }
 
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
-
     loadRows();
+    showRows();
     panelLoading->Caption = loadingMessage;
 }
 
@@ -41,6 +62,12 @@ void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
 
 void TfrmProcess::loadRows() {
 /*
+For a box retrieval, the retrieval plan will be given by
+Select * from c_box_retrieval b order by b.section, b.rj_box_cid
+
+For a cryovial retrieval, the retrieval plan will be:
+Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position
+*/
 /* SELECT
    cs.Cryovial_id, cs.Note_Exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,
    cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,
@@ -84,12 +111,13 @@ void TfrmProcess::showRows() {
 //        loc << sampleRow->site_name << " " << sampleRow->position << " ["<< sampleRow->shelf_number<<"]:"
 //        << sampleRow->vessel_name<<" [layout?], "<<sampleRow->rack_name<< " slot "<<sampleRow->slot_position;
 //        sgVials->Cells[SGVIALS_LOCATION][row]   = loc.str().c_str();
-//
 //        sgVials->Objects[0][row] = (TObject *)sampleRow;
 //        if (-1 != maxRows && row >= maxRows) break;
 //    }
 //    ostringstream oss; oss<<(-1 == maxRows) ? maxRows : vials.size()<<" of "<<vials.size()<<" vials";
 //    groupVials->Caption = oss.str().c_str();
+        // sgVials->Cells[sgwVials->colNameToInt("destpos")] [row] = sampleRow->dest_cryo_pos;
+        // sgVials->Objects[0][row] = (TObject *)sampleRow;
 }
 
 void TfrmProcess::process() {

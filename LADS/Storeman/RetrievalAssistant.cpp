@@ -104,14 +104,19 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
         switch (job->getJobType()) {
             case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
                 frmSamples->setJob(job);
-                if (IDOK == frmSamples->ShowModal()) {
+                //if (IDOK == frmSamples->ShowModal()) {
+                if (mrOk == frmSamples->ShowModal()) {
                     // then make INPROGRESS?
+                    job->setStatus(LCDbCryoJob::INPROGRESS);
+                    job->saveRecord(LIMSDatabase::getCentralDb());
                 }
                 break;
             case LCDbCryoJob::JobKind::BOX_RETRIEVAL: //cout.flush();
                 frmBoxes->setJob(job);
-                if (IDOK == frmBoxes->ShowModal()) {
+                if (mrOk == frmBoxes->ShowModal()) {
                     // then make INPROGRESS?
+                    job->setStatus(LCDbCryoJob::INPROGRESS);
+                    job->saveRecord(LIMSDatabase::getCentralDb());
                 }
                 break;
             default:
@@ -122,11 +127,17 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
         switch (job->getJobType()) {
         case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
             frmProcess->setJob(job);
-            frmProcess->ShowModal();
+            if (mrOk == frmProcess->ShowModal() {
+                job->setStatus(LCDbCryoJob::);
+                job->saveRecord(LIMSDatabase::getCentralDb());
+            }
             break;
         case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
             frmProcess->setJob(job);
-            frmProcess->ShowModal();
+            if (mrOk == frmProcessBoxes->ShowModal() {
+                job->setStatus(LCDbCryoJob::);
+                job->saveRecord(LIMSDatabase::getCentralDb());
+            }
             break;
         default:
             throw Exception("Unknown job type");

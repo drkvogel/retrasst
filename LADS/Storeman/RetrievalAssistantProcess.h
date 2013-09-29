@@ -30,7 +30,6 @@ __published:
     TButton *btnSkip;
     TEdit *editBarcode;
     TLabel *Label1;
-    TStringGrid *sgRetrieval;
     TGroupBox *GroupBox3;
     TLabel *Label3;
     TLabel *Label2;
@@ -38,6 +37,7 @@ __published:
     TMenuItem *menuItemExit;
     TGroupBox *Chunks;
     TStringGrid *sgChunks;
+    TStringGrid *sgRetrieval;
     TCheckBox *cbLog;
     TMemo *memoDebug;
     TPanel *panelLoading;
@@ -48,6 +48,12 @@ __published:
     void __fastcall cbLogClick(TObject *Sender);
 private:
     LCDbCryoJob * job;
+    
+    vector< Chunk< SampleRow > *>               chunks;
+    vecpSampleRow                               vials;
+    StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
+    StringGridWrapper<SampleRow> *              sgwVials;    
+
     void loadRows();
     void showRows();
     void process();

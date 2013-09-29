@@ -59,12 +59,14 @@ void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
 }
 
-void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { Close(); }
+void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) { 
+    //Close(); 
+    ModalResult = mrCancel;
+}
 
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
-        // fixme sign off?
-        // create the retrieval plan by inserting into c_box_retrieval and l_sample_retrieval
+         fixme sign off?
         for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
             // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
             Chunk< SampleRow > * chunk = *it;
@@ -72,11 +74,29 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             //          insert destination box into C_BOX_RETRIEVAL with current section (chunk) number
             //for (vector <SampleRow * >::const_iterator it = chunk->rows.begin(); it != chunk->rows.end(); it++) { // vecpDataRow?
             for (int i = 1; i < chunk->getSize(); i++) {
-                //pBoxRow boxRow = (pBoxRow)*it;
-                //pBoxRow boxRow = chunk->at(i);
                 SampleRow * sampleRow = chunk->rowAt(i); //(Chunk< SampleRow > *)*it;
                 LPDbCryovialStore * vial = sampleRow->store_record;
-                // insert into l_sample_retrieval
+                // insert into l_sample_retrieval - no class for this yet
+                and c_box_retrieval
+                LQuery qc(LIMSDatabase::getCentralDb());
+                
+                qc.setSQL(
+                    "INSERT INTO l_cryovial_retrieval"
+                    " (retrieval_cid, retrieval_type, box_id, section, position, box_name, rj_box_cid, status, time_stamp)"
+                    " VALUES"
+                    " (:rtid, :rtty, :bid, :sect, :pos, :bn, :bid, :st, :tm)");
+                qc.setParam("rtid");
+                qc.setParam("rtty");
+                qc.setParam("bid");
+                qc.setParam("sect");
+                qc.setParam("pos");
+                qc.setParam("bn");
+                qc.setParam("bid"); ??? again?
+                qc.setParam("st");
+                qc.setParam("tm"); not necessary
+                
+                qc.execSQL();
+                  
             }
 
         /* retrieval_cid	 i4		c_retrieval_job	 The retrieval task this entry is part of
@@ -91,13 +111,14 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         }
         return;
         // update c_retrieval_job (in progress)
-        job->setStatus(LCDbCryoJob::INPROGRESS);
-        job->saveRecord(LIMSDatabase::getCentralDb());
+        // job->setStatus(LCDbCryoJob::INPROGRESS);
+        // job->saveRecord(LIMSDatabase::getCentralDb());
         btnSave->Enabled = false;
-        Close();
+        //Close();
+        ModalResult = mrOk;
     } else { // start again
-        chunks.clear(); // delete memory
-        addChunk();
+        chunks.clear();
+        addChunk(); // start again
     }
 }
 
