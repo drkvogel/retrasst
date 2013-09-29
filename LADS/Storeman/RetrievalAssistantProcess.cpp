@@ -20,7 +20,7 @@ static int sgRetrievalColWidth[SGRETRIEVAL_NUMCOLS] = {102, 147, 43, 275, 37, 64
     sgwChunks->addCol("size",     "Size",     200);
     sgwChunks->init();
 
-    sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
+    sgwVials = new StringGridWrapper<SampleRow>(sgRetrieval, &vials);
     sgwVials->addCol("barcode",  "Barcode",          102,   SampleRow::sort_asc_barcode);
     sgwVials->addCol("aliquot",  "Aliquot",          100,   SampleRow::sort_asc_aliquot);
     sgwVials->addCol("currbox",  "Current box",      275,   SampleRow::sort_asc_currbox);

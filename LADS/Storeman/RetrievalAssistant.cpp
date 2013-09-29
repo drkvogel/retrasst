@@ -8,6 +8,7 @@
 #include "RetrievalProcess.h"
 #include "RetrievalAssistantSamples.h"
 #include "RetrievalAssistantBoxes.h"
+#include "RetrievalAssistantProcessBoxes.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -127,15 +128,15 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
         switch (job->getJobType()) {
         case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
             frmProcess->setJob(job);
-            if (mrOk == frmProcess->ShowModal() {
-                job->setStatus(LCDbCryoJob::);
+            if (mrOk == frmProcess->ShowModal()) {
+                job->setStatus(LCDbCryoJob::Status::DONE);
                 job->saveRecord(LIMSDatabase::getCentralDb());
             }
             break;
         case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
             frmProcess->setJob(job);
-            if (mrOk == frmProcessBoxes->ShowModal() {
-                job->setStatus(LCDbCryoJob::);
+            if (mrOk == frmProcessBoxes->ShowModal()) {
+                job->setStatus(LCDbCryoJob::Status::DONE);
                 job->saveRecord(LIMSDatabase::getCentralDb());
             }
             break;

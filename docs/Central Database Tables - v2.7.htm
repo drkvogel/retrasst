@@ -1,0 +1,3826 @@
+<!DOCTYPE html>
+<!-- saved from url=(0065)file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_AUDIT_TRAIL -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"> 
+        <title> Central Database Tables - v2.7</title> 
+        <style type="text/css"> 
+            table {
+                border-collapse: collapse;
+            }
+            td, th {
+                border: 2px solid green;
+            }
+        </style> 
+    </head> 
+    <body> 
+        <h1> Laboratory System Central Database - Version 2.7</h1> 
+        <p> <cite> Updated 26 September 2013</cite> </p> 
+        <p> Most tables include a unique record ID, taken from c_id_sequence.
+            Tables and fields marked as obsolete should not be used by new programs;
+            they will be removed as the roll-out of v2.7 continues. Obsolete fields and
+            those added to existing tables have default values so that old and new programs
+            alike can safely add data.</p> 
+        <p> New programs should access the labs database using the (64-bit) vNode
+            'vnode_lab_64'. Existing code uses the (32-bit) ODBC connection 'dsn_lab_ingres' or 'dsn_lab_star'.
+            Old programs also use a BDE alias, 'alias_local_buddy', for temporary storage. This may point to a MySQL database
+            on the cluster controller or it may point to Ingres on vlab. A similar setup
+            exists on the laptop PC(s) used for the storage sub-system, using Ingres   locally. </p> 
+        <h3 id="BUDDY_DATABASE"> BUDDY_DATABASE </h3> 
+        <p> A record is added to this table when a list of assays is sent to an
+            analyser. Comms links results to it as they are returned from the
+            analyser. Results from a single run may occasionally appear to be from multiple
+            analyses, in which case there will be multiple buddy_database records.
+            Validation will link these using sample_run_id </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> buddy_sample_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A unique ID for this analysis </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a>  </td> 
+                <td> The analyser the assay list was sent to and/or the results were  produced by </td> 
+            </tr> 
+            <tr> 
+                <td> barcode </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The barcode read by the analyser </td> 
+            </tr> 
+            <tr> 
+                <td> date_analysed </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When the assay list was sent to the analyser (if programmed),
+                    or when the results were received </td> 
+            </tr> 
+            <tr> 
+                <td> action_flag </td> 
+                <td> v1 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> '7':   project/sample ID not known; '8': sample programmed;
+                    '0': results awaiting validation; '9': results wiped from analyser;
+                    '1': results validated at first level;  '6': keep for later;
+                    '4': all results invalidated; '2': validation complete<em> 
+                        (use with caution: buddy_result_float's action_flag is more specific)</em>; 
+                    '3': results sent to project; 'X': closed off   </td> 
+            </tr> 
+            <tr> 
+                <td> database_name </td> 
+                <td> v20 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_PROJECT"> c_project</a>  </td> 
+                <td> The project from which the sample came or the database to
+                    which results have been sent ("unknown" or empty if no work list
+                    entries) </td> 
+            </tr> 
+            <tr> 
+                <td> alpha_sample_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#SPECIMEN"> specimen</a> 
+                </td> 
+                <td> The (project-specific) ID of the specimen this came from
+                    (0 if no work list entries) </td> 
+            </tr> 
+            <tr> 
+                <td> rack_number </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The barcode of the rack or plate this sample came from (if
+                    known, otherwise blank, '.' or '0') </td> 
+            </tr> 
+            <tr> 
+                <td> cup_number </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The position of the sample in the rack (if known,
+                    otherwise 0) </td> 
+            </tr> 
+            <tr> 
+                <td> sample_type </td> 
+                <td> v20 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST_MACHINE"> c_test_machine</a>  </td> 
+                <td> The analyser's code for the sample type, e.g. "Whole
+                    Blood" (DXH) or "U" (AU680) </td> 
+            </tr> 
+            <tr> 
+                <td> update_when </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this record was most recently modified - used by
+                    NightShift to determine when it is safe to delete the record </td> 
+            </tr> 
+            <tr> 
+                <td> note_exists </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The number of notes for this analysis (in buddy_note,
+                    linked on buddy_sample_id) </td> 
+            </tr> 
+            <tr> 
+                <td> test_type </td> 
+                <td> v20 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Identifies this sample on the analyser (e.g. AU680
+                    type+kind+number) </td> 
+            </tr> 
+            <tr> 
+                <td> sample_run_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#BUDDY_SAMPLE_RUN"> buddy_sample_run</a>  </td> 
+                <td> Groups analyses that constitute a single run of a sample
+                    (machine_cid, barcode, alpha_sample_id and database_name should all match) </td> 
+            </tr> 
+            <tr> 
+                <td> result_type </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <em> obsolete</em>  </td> 
+            </tr> 
+            <tr> 
+                <td> delete_status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <em> obsolete</em>  </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="BUDDY_NEXT_ID"> BUDDY_NEXT_ID </h3> 
+        <p> <i> Obsolete</i> </p> 
+        <h3 id="BUDDY_NOTE"> BUDDY_NOTE </h3> 
+        <p> Stores notes attached to analyses (in buddy_database) and results (in
+            buddy_result_float) </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_no </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> buddy_object_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#BUDDY_RESULT_FLOAT"> buddy_result_float</a> or <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#BUDDY_DATABASE"> buddy_database</a>  </td> 
+                <td> this note's owner, i.e. the analysis or result this note
+                    refers to </td> 
+            </tr> 
+            <tr> 
+                <td> operator_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OPERATOR"> c_operator</a>  </td> 
+                <td> The operator that added this note (0 if
+                    note added by comms, e.g. error message from analyser) </td> 
+            </tr> 
+            <tr> 
+                <td> contents </td> 
+                <td> v200 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The text to be associated with the analysis or result </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this note was created - it should not be modified </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="./Central Database Tables - v2.7_files/Central Database Tables - v2.7.htm"> c_audit_trail</a>  </td> 
+                <td> The process that created this entry </td> 
+            </tr> 
+            <tr> 
+                <td> delete_status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="BUDDY_RES_ATTRIBUTE"> BUDDY_RES_ATTRIBUTE </h3> 
+        <p> <i> Obsolete - use c_reagent_lot etc.</i> </p> 
+        <h3 id="BUDDY_RESULT_FLOAT"> BUDDY_RESULT_FLOAT </h3> 
+        <p> A record for each result sent by the analyser. Created by comms; modified or
+            added to by Validation </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> buddy_result_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> buddy_sample_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#BUDDY_DATABASE"> buddy_database</a>  </td> 
+                <td> The analysis this result belongs to </td> 
+            </tr> 
+            <tr> 
+                <td> test_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a>  </td> 
+                <td> The test that was performed </td> 
+            </tr> 
+            <tr> 
+                <td> cbw_record_no </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_BUDDY_WORKLIST"> c_buddy_worklist</a>  </td> 
+                <td> The work-list entry that required this result </td> 
+            </tr> 
+            <tr> 
+                <td> action_flag </td> 
+                <td> v1 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> '0': result awaiting validation;
+                    '1': marked valid at first  level validation; 
+                    '5': display with special marker; '4': marked
+                    invalid; '2': validation complete; 
+                    '3': sent to project; '7': ignore 
+                    (no matching work list entry);   'X': closed off </td> 
+            </tr> 
+            <tr> 
+                <td> person1_validate </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OPERATOR"> c_operator</a>  </td> 
+                <td> The operator who signed this result off at first level  validation </td> 
+            </tr> 
+            <tr> 
+                <td> person2_validate </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OPERATOR"> c_operator</a>  </td> 
+                <td> The operator who completed the second level validation (0 if not
+                    yet validated or marked as invalid at level 1) </td> 
+            </tr> 
+            <tr> 
+                <td> date_analysed </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When the analyser produced the result </td> 
+            </tr> 
+            <tr> 
+                <td> res_text </td> 
+                <td> v20 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The string sent back from the analyser, displayed in
+                    Validation or saved by the user (e.g. "12.5", "###" or
+                    "&lt;2") </td> 
+            </tr> 
+            <tr> 
+                <td> reagent_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_REAGENT_LOT"> c_reagent_lot</a> </td> 
+                <td> The (set of) reagents the analyser used to produce these
+                    results </td> 
+            </tr> 
+            <tr> 
+                <td> cuvette_num </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The well or cuvette in which the analysis took place (used
+                    to distinguish between results if a single analysis includes multiple results
+                    for the same test) </td> 
+            </tr> 
+            <tr> 
+                <td> unit_code </td> 
+                <td> v20 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The measurement units used (if reported by the analyser) </td> 
+            </tr> 
+            <tr> 
+                <td> result_edited </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: original; 1: edited (original value should be stored as
+                    a note) </td> 
+            </tr> 
+            <tr> 
+                <td> is_private </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> update_when </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this record was last modified </td> 
+            </tr> 
+            <tr> 
+                <td> process_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="./Central Database Tables - v2.7_files/Central Database Tables - v2.7.htm"> c_audit_trail</a>  </td> 
+                <td> the process that created this entry </td> 
+            </tr> 
+            <tr> 
+                <td> res_value </td> 
+                <td> f8 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the result as a number (-999 if no value returned by the
+                    analyser but may give actual result even if it isn't displayed) </td> 
+            </tr> 
+            <tr> 
+                <td> note_exists </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the number of notes attached to this result (links on
+                    buddy_result_id) </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a>  </td> 
+                <td> <i> obsolete </i> </td> 
+            </tr> 
+            <tr> 
+                <td> qc_batch </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <em> obsolete</em>  </td> 
+            </tr> 
+            <tr> 
+                <td> delete_status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <em> obsolete</em>  </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="BUDDY_SAMPLE_RUN"> BUDDY_SAMPLE_RUN </h3> 
+        <p> A record of one or more analyses for a sample displayed together in
+            Validation </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> run_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> created_when </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this collection of analyses was first displayed </td> 
+            </tr> 
+            <tr> 
+                <td> created_by </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="./Central Database Tables - v2.7_files/Central Database Tables - v2.7.htm"> c_audit_trail</a>  </td> 
+                <td> The program run that created this entry </td> 
+            </tr> 
+            <tr> 
+                <td> sequence_position </td> 
+                <td> f4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The relative position of this run on the Validation screen
+                </td> 
+            </tr> 
+            <tr> 
+                <td> closed_when </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this collection of analyses was closed off </td> 
+            </tr> 
+            <tr> 
+                <td> closed_by </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OPERATOR"> c_operator</a>  </td> 
+                <td> The person who closed off this sample run (likely to match
+                    person1_validate for the corresponding buddy_result_float records) </td> 
+            </tr> 
+            <tr> 
+                <td> fao_level_one </td> 
+                <td> v1 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 'Y' if run is to be displayed with a special marker (see
+                    action_flag in buddy_database and buddy_result_float for further details) </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="BUDDY_RUN_HISTORY"> BUDDY_RUN_HISTORY </h3> 
+        <p> <i> Obsolete - use c_worklist_relation </i> </p> 
+
+        <h3 id="C_AUDIT_TRAIL"> C_AUDIT_TRAIL </h3> 
+        <p> A record of significant events from each run of each program. When someone
+            logs into a program, a new process ID is taken from c_id_sequence and a new
+            entry created. Subsequent messages will use the same program name and process
+            ID</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> message_date </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this record was added <i> (default: 'Now'; do not
+                        update)</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> the ID of the process that made this entry </td> 
+            </tr> 
+            <tr> 
+                <td> pid_sequence </td> 
+                <td> i2 </td> 
+                <td> 2 </td> 
+                <td> </td> 
+                <td> set by RFP: the oldest record from each process has
+                    pid_sequence 1, the second, 2 etc. </td> 
+            </tr> 
+            <tr> 
+                <td> operator_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OPERATOR"> c_operator</a>  </td> 
+                <td> the operator running this program (if applicable) </td> 
+            </tr> 
+            <tr> 
+                <td> message_type </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> INFORMATION = 0, // a normal event, for info.<br> 
+                    STARTUP = 1, // first entry in audit trail<br> 
+                    SHUTDOWN = 2, // last (if normal shut-down)<br> 
+                    USER_LOGIN = 3, // creates new process ID<br> 
+                    DB_CHANGE = 4, // switch to another project<br> 
+                    MINOR_ERROR = 5, // logged but continues<br> 
+                    MAJOR_ERROR = 6, // e-mail message also sent<br> 
+                    COMPLETED = 7 // process ran to completion </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_machine"> c_machine</a>  </td> 
+                <td> the machine the program is running on </td> 
+            </tr> 
+            <tr> 
+                <td> database_name </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the currently selected (project or central) database </td> 
+            </tr> 
+            <tr> 
+                <td> program_name </td> 
+                <td> v64 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the program making this entry (including its version
+                    number) </td> 
+            </tr> 
+            <tr> 
+                <td> details </td> 
+                <td> v1000 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> any other relevant information </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_BLOCK"> C_BLOCK </h3> 
+        <p> Specifies which programs can and cannot use the same database at the same  time </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Reference </th> 
+            </tr> 
+            <tr> 
+                <td> running </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> the ID of a program taking out a lease </td> 
+            </tr> 
+            <tr> 
+                <td> blocked </td> 
+                <td> i4 </td> 
+                <td> 2 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> the ID of a program that it blocks </td> 
+            </tr> 
+            <tr> 
+                <td> block_type </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = new record, 1 = modified, 99 = obsolete </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_BOX_ARRIVAL"> C_BOX_ARRIVAL </h3> 
+        <p> <i> Obsolete - records remain in l_box_arrival</i> </p> 
+        <h3 id="C_BOX_RETRIEVAL"> C_BOX_RETRIEVAL </h3> 
+        <p> Retrieval plans, created and used by StoreMan's Retrieval Assistant. Sample
+            retrieval/disposal tasks will also have entries in l_cryovial_retrieval. </p> 
+        <p> Each retrieval may be divided up into sections/chunks to be carried out in a
+            particular order. The plan for a box retrieval/disposal is given by<br> 
+            <code> 
+                select * from c_box_retrieval b where retrieval_cid = ? order by b.section, b.rj_box_cid
+            </code> </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Index order </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> retrieval_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_retrieval_job"> c_retrieval_job</a>  </td> 
+                <td> The retrieval task this entry is part of </td> 
+            </tr> 
+            <tr> 
+                <td> retrieval_type </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete - see c_retrieval_job</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> box_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#BOX_NAME"> box_name</a> </td> 
+                <td> The box being retrieved (for box retrieval/disposal) or
+                    retrieved into (for sample retrieval/disposal) </td> 
+            </tr> 
+            <tr> 
+                <td> section </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Which chunk of the retrieval plan this entry belongs to (0
+                    = retrieve all boxes in parallel) </td> 
+            </tr> 
+            <tr> 
+                <td> position </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i> </td> 
+            </tr> 
+            <tr> 
+                <td> box_name </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> rj_box_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> Unique ID for this retrieval list entry (also determines
+                    retrieval order for box retrievals) </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new record; 1: part-filled, 2: collected; 3: not found;
+                    99: record deleted </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this record was inserted or updated </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_BOX_SIZE"> C_BOX_SIZE </h3> 
+        <p> Types of "storage formation" that can be stored in the tanks and
+            freezers </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> box_size_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A unique ID for this type of box/rack </td> 
+            </tr> 
+            <tr> 
+                <td> description </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A unique name for this type of box/rack </td> 
+            </tr> 
+            <tr> 
+                <td> box_capacity </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The number of tube positions in this type of formation
+                    (positions are numbered from 1) </td> 
+            </tr> 
+            <tr> 
+                <td> empty_position </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A position to leave empty (e.g. if box_capacity = 100 and
+                    empty_position = 91, the box has 99 slots, numbered 1-90 and 92-100; usually
+                    0: no empty positions) </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When the box type was set up </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this box type becomes obsolete </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new entry; 1: in use; 99: obsolete </td> 
+            </tr> 
+            <tr> 
+                <td> tube_type </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> the type of tube this box/rack holds </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_BOX_WORKLIST"> C_BOX_WORKLIST </h3> 
+        <p> How vacutainers/cryovials should be stored: Sample Reception creates a list
+            of entries for each source tube; Aliquot Allocation updates it as aliquots are taken
+            put into boxes/racks. Used entries are eventually removed by NightShift </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_no </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> barcode </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the barcode on the original sample tube </td> 
+            </tr> 
+            <tr> 
+                <td> project_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_PROJECT"> c_project</a>  </td> 
+                <td> the internal ID of the project </td> 
+            </tr> 
+            <tr> 
+                <td> sample_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#SPECIMEN"> specimen</a> 
+                </td> 
+                <td> the ID for this sample within the project </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> v1 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Q: new record; P: cryovial barcode assigned; C: cryovial
+                    assigned to box; N: entry removed; T: data transferred to project; X:
+                    obsolete record </td> 
+            </tr> 
+            <tr> 
+                <td> profile_name </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#TEST_PROFILE_DESCRIPTION"> test_profile_description</a> 
+                </td> 
+                <td> the profile this work list entry comes from </td> 
+            </tr> 
+            <tr> 
+                <td> box_type_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#BOX_CONTENT"> box_content</a> 
+                </td> 
+                <td> the box formation (i.e. box/rack type + combination of
+                    aliquots) to be used </td> 
+            </tr> 
+            <tr> 
+                <td> cryovial_barcode </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the barcode for this [group of] cryovials ('.' if status =
+                    'Q' or 'N') </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this record was created or modified </td> 
+            </tr> 
+            <tr> 
+                <td> ts_sequence </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the order in which entries with the same time_stamp were
+                    inserted or updated <em> (set by RFP)</em>  </td> 
+            </tr> 
+            <tr> 
+                <td> group_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_BOX_WORKLIST"> c_box_worklist</a> and <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_BUDDY_WORKLIST"> c_buddy_worklist</a>  </td> 
+                <td> groups records from a single participant visit (e.g. same barcode or source name) </td> 
+            </tr> 
+            <tr> 
+                <td> category_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> copied from the profile map, used as a filter in Aliquot Allocation </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_BUDDY_WORKLIST"> C_BUDDY_WORKLIST </h3> 
+        <p> How samples should by analysed: Sample Reception creates a list of entries
+            for each tube, used by Validation and the comms programs. Old entries are
+            eventually removed by NightShift </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_no </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a> <i> or</i> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a>  </td> 
+                <td> The cluster or analyser to run the test on </td> 
+            </tr> 
+            <tr> 
+                <td> barcode </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The barcode on the tube to be analysed </td> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a>  </td> 
+                <td> The test to be run </td> 
+            </tr> 
+            <tr> 
+                <td> group_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_BOX_WORKLIST"> c_box_worklist</a> and <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_BUDDY_WORKLIST"> c_buddy_worklist</a>  </td> 
+                <td> Groups records from a single participant visit (source
+                    name) </td> 
+            </tr> 
+            <tr> 
+                <td> category_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> copied from the profile map, used as a filter in comms
+                    programs  </td> 
+            </tr> 
+            <tr> 
+                <td> project_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_PROJECT"> c_project</a>  </td> 
+                <td> the project that needs the result </td> 
+            </tr> 
+            <tr> 
+                <td> sample_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#SAMPLE"> specimen</a> 
+                </td> 
+                <td> the ID for this sample in the project database </td> 
+            </tr> 
+            <tr> 
+                <td> range_set </td> 
+                <td> c1 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> min_value </td> 
+                <td> real </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> max_value </td> 
+                <td> real </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> profile_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#T_PROFILE_DESCRIPTION"> test_profile_description</a> 
+                </td> 
+                <td> The set of test profiles this record is taken from </td> 
+            </tr> 
+            <tr> 
+                <td> profile_name </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> (test_profile_description) </td> 
+                <td> The reason for insertion (usually the test profile name if
+                    this record was created by Sample Reception) </td> 
+            </tr> 
+            <tr> 
+                <td> buddy_read </td> 
+                <td> v1 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <em> obsolete</em>  </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this record was created or updated </td> 
+            </tr> 
+            <tr> 
+                <td> ts_sequence </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the order in which entries with the same time_stamp were
+                    created or modified <em> (set by RFP)</em>  </td> 
+            </tr> 
+            <tr> 
+                <td> in_date </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this sample was expected to arrive (if known) </td> 
+            </tr> 
+            <tr> 
+                <td> max_results </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The number of results expected for this test <em> (usually
+                        1)</em>  </td> 
+            </tr> 
+            <tr> 
+                <td> trigger_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> lower_trigger_limit </td> 
+                <td> real </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> upper_trigger_limit </td> 
+                <td> real </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> private_result </td> 
+                <td> v1 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> c1 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Q: ready to run; P: accepted by analyser; C: result(s) in buddy_result_float;
+                    S: sample re-run required; W: results wiped from analyzer; F: validated at
+                    first level; V: marked valid at level 2; N: marked invalid; T: result(s) sent
+                    to project database; X: obsolete record </td> 
+            </tr> 
+            <tr> 
+                <td> diluent </td> 
+                <td> real </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete </i> </td> 
+            </tr> 
+            <tr> 
+                <td> buddy_result_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#buddy_result_float"> buddy_result_float</a>  </td> 
+                <td> <i> obsolete - link using buddy_result_float.cbw_record_no</i> 
+                </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_CALIBREAG_TEST"> C_CALIBREAG_TEST </h3> 
+        <p> Identifies calibrants and reagents for some tests - if a single assay produces
+        multiple test results, the combination of reagents should be the same for each test</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> calibreag_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> internal ID for calibrant or reagent type </td> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> 2 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a>  </td> 
+                <td> internal identifier for the test </td> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = new record, 1 = in use, 99 = obsolete </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_CANNED_TEXT"> C_CANNED_TEXT </h3> 
+        <p> Pieces of text that can be chosen by the operator, e.g. to add as a note </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> internal ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> text_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> the group of values this record belongs to </td> 
+            </tr> 
+            <tr> 
+                <td> name </td> 
+                <td> v60 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> value </td> 
+                <td> v160 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the text that the user will see </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = new record, 1 = in use, 99 = obsolete </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_audit_trail"> c_audit_trail</a>  </td> 
+                <td> the program that added this record (0: added by hand) </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_CISC_DEFINITION"> C_CISC_DEFINITION </h3> 
+        <p> Further information about some of the tests, if the results are going to be
+            exported using CDISC reporting standards </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference</th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> cisc_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> Unique identifier for this record </td> 
+            </tr> 
+            <tr> 
+                <td> test_code </td> 
+                <td> v8 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The CDISC standard code used for this test </td> 
+            </tr> 
+            <tr> 
+                <td> test_description </td> 
+                <td> v40 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A description for this test </td> 
+            </tr> 
+            <tr> 
+                <td> category </td> 
+                <td> v80 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Type of test e.g. HEMATOLOGY, URINALYSIS or CHEMISTRY </td> 
+            </tr> 
+            <tr> 
+                <td> subcategory </td> 
+                <td> v80 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A further categorization of a test method, e.g. DIFFERENTIAL,
+                    COAGULATON, LIVER FUNCTION, ELECTROLYTES </td> 
+            </tr> 
+            <tr> 
+                <td> specimen_type </td> 
+                <td> v80 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The type of specimen used, e.g. SERUM, PLASMA, URINE
+                    (often the verbatim name of the sample type in c_test and c_test_machine) </td> 
+            </tr> 
+            <tr> 
+                <td> test_method </td> 
+                <td> v80 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Test method used e.g. EIA (Enzyme Immunoassay),
+                    ELECTROPHORESIS </td> 
+            </tr> 
+            <tr> 
+                <td> standard_unit </td> 
+                <td> v40 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The units to be used to report results from this test (may
+                    be different to the units specified in c_test and result) </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_CLUSTER_MACHINE"> C_CLUSTER_MACHINE </h3> 
+        <p> A list of the analysers in each cluster (most machines are in one
+            cluster at most; most clusters include more than one machine). </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td>1 </td> 
+                <td> </td> 
+                <td> The unique ID of this record </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td>  </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a>  </td> 
+                <td> An analyser that's in a cluster </td> 
+            </tr> 
+            <tr> 
+                <td> cluster_cid </td> 
+                <td> i4 </td> 
+                <td>  </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> A cluster the analyser is a member of </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = new record, 1 = in use, 99 = obsolete </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_EVENT_LOG"> C_EVENT_LOG </h3> 
+        <p> A record of specific events from the run of a program </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> event_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> unique ID for this event </td> 
+            </tr> 
+            <tr> 
+                <td> event_code </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> ID for the type of event that occurred </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a>  </td> 
+                <td> The machine the program was running on (0 if not
+                    applicable) </td> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a>  </td> 
+                <td> The test being run (0 if not applicable) </td> 
+            </tr> 
+            <tr> 
+                <td> related_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> A calibrant, reagent or other associated object (0 if not
+                    applicable) </td> 
+            </tr> 
+            <tr> 
+                <td> operator_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The person recording this event (0 if not applicable) </td> 
+            </tr> 
+            <tr> 
+                <td> event_date </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this event occurred </td> 
+            </tr> 
+            <tr> 
+                <td> log_date </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this record was added to the log </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="./Central Database Tables - v2.7_files/Central Database Tables - v2.7.htm"> c_audit_trail</a>  </td> 
+                <td> The program run that recorded the event </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_LEASE"> C_LEASE </h3> 
+        <p> A list of the programs currently running and the project databases they are
+            using </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> task_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_object_name"> c_object_name</a>  </td> 
+                <td> the ID of the program that has taken out this lease </td> 
+            </tr> 
+            <tr> 
+                <td> proj_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_PROJECT"> c_project</a>  </td> 
+                <td> a project database for which a lease has been taken out </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="./Central Database Tables - v2.7_files/Central Database Tables - v2.7.htm"> c_audit_trail</a>  </td> 
+                <td> identifies the program run that took the lease </td> 
+            </tr> 
+            <tr> 
+                <td> task_desc </td> 
+                <td> v64 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> a brief description of the program and where it is running
+                </td> 
+            </tr> 
+            <tr> 
+                <td> lease_type </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: controlled through c_block; -1: exclusive lock </td> 
+            </tr> 
+            <tr> 
+                <td> start </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when the lease was taken out (set on insert) </td> 
+            </tr> 
+            <tr> 
+                <td> expiry </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when the lease is due to expire (updated while program is
+                    running) </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_MACHINE"> C_MACHINE </h3> 
+        <p> A list of PCs and analysers used by the LIMS. If a PC is connected to an
+            analyser, they share the same ID.  Analysers with the same model number are
+            often in the same cluster. </p>
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> unique ID for this machine </td> 
+            </tr> 
+            <tr> 
+                <td> external_name </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The label on the machine (buddy PCs have their computer
+                    name set match the name + serial number of the analyser) </td> 
+            </tr> 
+            <tr> 
+                <td> external_full </td> 
+                <td> v64 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> a descriptive name by which the machine is known to lab
+                    staff </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this machine entered service </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the date this machine was, or will be, decommissioned </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new entry, 1: analyser+buddy PC, 2: laptop/PC, 99: no
+                    longer in use </td> 
+            </tr> 
+            <tr> 
+                <td> location </td> 
+                <td> v64 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> physical location of machine, e.g. "lab 3, bench
+                    7" </td> 
+            </tr> 
+            <tr> 
+                <td> cluster_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The make and model of this analyser (use c_cluster_machine to
+                    find the cluster(s) it currently belongs to) </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_NEXT_CID"> C_NEXT_CID </h3> 
+        <p> <i> Obsolete</i> </p> 
+        <h3 id="C_OBJECT_NAME"> C_OBJECT_NAME </h3> 
+        <p> Various objects with an identity in the LIMS system </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> object_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A unique ID for this object </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="./Central Database Tables - v2.7_files/Central Database Tables - v2.7.htm"> c_audit_trail</a>  </td> 
+                <td> the program that first created this entry (0: added by
+                    hand) </td> 
+            </tr> 
+            <tr> 
+                <td> external_name </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A unique name for this object, used in programs </td> 
+            </tr> 
+            <tr> 
+                <td> external_full </td> 
+                <td> v64 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A description for this object, shown to the users </td> 
+            </tr> 
+            <tr> 
+                <td> object_type </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 1: calibrant type, 2: reagent type, 3: analyser event, 4:
+                    sample storage event, 5: analyser cluster, 6: aliquot type, 7: storage type
+                    (e.g. Nitrogen Vapour), 8: storage site (e.g. Worminghall), 9: storage
+                    population, 10: storage layout, 11: LIMS application, 12: test/aliquot
+                    worklist category, 13: result attribute <i> (obsolete)</i> , 14: lab name (e.g.
+                    Wolfson Laboratories), 15: QC rule, 16: storage vessel (external_name =
+                    serial number), 17: QC material, 18: tube type (e.g. in c_box_size), 19:
+                    canned text, 20: storage exercise, 21: analyser model </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = new record, 1 = object in use, 99: object no longer in
+                    use </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this object was added to the system, modified or
+                    marked obsolete </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_OPERATOR"> C_OPERATOR </h3> 
+        <p> A list of people [currently] able to use the labs system </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> operator_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> LIMS-specific ID for this person </td> 
+            </tr> 
+            <tr> 
+                <td> external_name </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> LIMS user name for this person </td> 
+            </tr> 
+            <tr> 
+                <td> external_full </td> 
+                <td> v128 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> full name for this person </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this person was entered into system </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this person's password expires </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new record; 1: active user; 2: new password; 90:
+                    account locked, 99 = inactive </td> 
+            </tr> 
+            <tr> 
+                <td> abilities </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> password_md5 </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> MD5 digest of password, required to perform most
+                    operations </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_PERMISSION"> C_PERMISSION </h3> 
+        <p> Specifies who is allowed to run each program </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> permission_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> operator_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_operator"> c_operator</a>  </td> 
+                <td> an (active) operator </td> 
+            </tr> 
+            <tr> 
+                <td> program_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_object_name"> c_object_name</a>  </td> 
+                <td> a program the operator is allowed to save data from </td> 
+            </tr> 
+            <tr> 
+                <td> project_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_project"> c_project</a>  </td> 
+                <td> where they can save that data (0 = all projects) </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_machine"> c_machine</a>  </td> 
+                <td> a machine this program can be run from (default: 0 = all) </td> 
+            </tr> 
+            <tr> 
+                <td> page_number </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the page/section/level they can save from (default: 0 =
+                    all screens) </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new record; 1: in use; 99: obsolete </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_PROJECT"> C_PROJECT </h3> 
+        <p> A list of the projects with databases in the LIMS system (in groups of
+            three: live, test and mirror/development) </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> project_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> unique ID for project; 0 for central database </td> 
+            </tr> 
+            <tr> 
+                <td> external_name </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> a unique name for this project, e.g. VIDAL, test_vidal or
+                    dev_vidal </td> 
+            </tr> 
+            <tr> 
+                <td> external_full </td> 
+                <td> v128 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> a description for this project </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when project database was created within LIMS </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this project ceased/will cease to be active </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new/test project; 1: active/live; 99: obsolete (test
+                    and dev projects should be marked obsolete in the live system; live projects
+                    should be 99ed in test and mirror systems) </td> 
+            </tr> 
+            <tr> 
+                <td> database_version </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> always 2 <i> (obsolete?)</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> database_minor_version </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> always 7 <i> (obsolete?)</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> database_minor_phase </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> used by scripts that check/modify/upgrade the database </td> 
+            </tr> 
+            <tr> 
+                <td> db_name </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the name of the corresponding database: ldbc, t_ldbc or
+                    test_ldbc for the central database; ldb(n), t_ldb(n) and test_ldb(n) for
+                    project data </td> 
+            </tr> 
+            <tr> 
+                <td> activity_flags </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: samples arriving, in storage and/or being analysed; 1:
+                    samples arriving for storage (sample barcodes in specimen table); 2: samples
+                    arriving for storage (box names in specimen table); 3: samples in storage (no
+                    more arriving or being analysed) </td> 
+            </tr> 
+            <tr> 
+                <td> info_url </td> 
+                <td> v128 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the email address for the project, ('.' or 'none' if no
+                    e-mail is required) </td> 
+            </tr> 
+            <tr> 
+                <td> study_code </td> 
+                <td> c4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> an abbreviation used in report forms etc. </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_RACK_CAPACITY"> C_RACK_CAPACITY </h3> 
+        <p> <i> (obsolete - use c_tank_layout instead)</i> </p> 
+        <h3 id="C_RACK_NUMBER"> C_RACK_NUMBER </h3> 
+        <p> An entry for every storage <b> structure</b> that has anything in it and/or
+            has been reserved for a storage job. Each time a vessel is rearranged, a new <b> population</b> 
+            of entries is created so that the intended position of each box can be
+            recorded.</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Refers to </th> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> rack_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A unique ID for this structure </td> 
+            </tr> 
+            <tr> 
+                <td> tank_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The population this structure belongs to </td> 
+            </tr> 
+            <tr> 
+                <td> position </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The position of this structure within the population. The
+                    first structure in the first section is at position 1 </td> 
+            </tr> 
+            <tr> 
+                <td> external_name </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The label associated with this structure. The first
+                    structure in the first section of each population in the vessel is often
+                    called 'A1' </td> 
+            </tr> 
+            <tr> 
+                <td> rack_type_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TANK_LAYOUT"> c_tank_layout</a>  </td> 
+                <td> Further details about this structure, e.g. the section it
+                    belongs to and the number of boxes it may hold </td> 
+            </tr> 
+            <tr> 
+                <td> project_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_PROJECT"> c_project</a>  </td> 
+                <td> the project that owns this structure (-1 if not yet
+                    allocated; 0 if it includes boxes from more than one project) </td> 
+            </tr> 
+            <tr> 
+                <td> default_box_type </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#BOX_CONTENT"> box_content</a> </td> 
+                <td> the type of box in this structure (0 if empty or more than
+                    one type) </td> 
+            </tr> 
+            <tr> 
+                <td> capacity </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The number of slots left in this structure, if known (0 =
+                    full; -1 = not known) </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_REAGENT_LOT"> C_REAGENT_LOT </h3> 
+        <p> A record of the calibrants and reagents used for each assay on each machine. Records
+            can be added when a new bottle of reagent is put on the analyser or comms/NightShift
+            can create them when it cannot find a set matching the lot/serial number from the analysers</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Refers to </th> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> wedge_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> The unique ID for this record. A new set of records is created
+                    each time any of the reagents change so there may be multiple records for
+                    each wedge/bottle/plate </td> 
+            </tr> 
+            <tr> 
+                <td> serial_number </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The serial number on this bottle/wedge/plate </td> 
+            </tr> 
+            <tr> 
+                <td> lot_number </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The lot number this calibrant or reagent comes from </td> 
+            </tr> 
+            <tr> 
+                <td> calibreag_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The type of calibrant or reagent </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a>  </td> 
+                <td> The analyser this calibrant or reagent has been running on </td> 
+            </tr> 
+            <tr> 
+                <td> first_result </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this combination of calibrants and/or reagents was first used </td> 
+            </tr> 
+            <tr> 
+                <td> reagent_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Identifies a set of reagents and/or calibrants used on
+                    this analyser at that time (used in <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#RESULT"> result</a>) </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_RETRIEVAL_JOB"> C_RETRIEVAL_JOB </h3> 
+        <p> A list of one or more tasks for each retrieval exercise. For example, an
+            analysis exercise may include one task retrieving the cryovials and another for
+            disposing of them</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Refers to </th> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> retrieval_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A unique ID for this task </td> 
+            </tr> 
+            <tr> 
+                <td> exercise_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_object_name"> c_object_name</a>  </td> 
+                <td> The exercise this task is part of (may be 0) </td> 
+            </tr> 
+            <tr> 
+                <td> external_name </td> 
+                <td> v30 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A (unique) name for this task </td> 
+            </tr> 
+            <tr> 
+                <td> description </td> 
+                <td> v120 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Summarises what needs to be done in this task </td> 
+            </tr> 
+            <tr> 
+                <td> reason </td> 
+                <td> v120 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete - use the full name of the exercise</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> job_type </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 1: box move, 2: box retrieval, 3: box
+                    disposal, 4: cryovial retrieval, 5: cryovial disposal </td> 
+            </tr> 
+            <tr> 
+                <td> project_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_project"> c_project</a>  </td> 
+                <td> The project these boxes comes from (0 if boxes from more
+                    than one project are being moved) </td> 
+            </tr> 
+            <tr> 
+                <td> primary_aliquot </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The main aliquot type being retrieved </td> 
+            </tr> 
+            <tr> 
+                <td> secondary_aliquot </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> For a box retrieval, the second aliquot type in the boxes;
+                    for a sample retrieval, an alternative aliquot if the primary cannot be found
+                    (0 for most tasks) </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_audit_trail"> c_audit_trail</a>  </td> 
+                <td> Who set this task up, when, how etc. </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> How near this task is to reaching completion: 0 = new
+                    task, 1 = plan created, 2 = retrieval completed, 99 = invalid/obsolete record </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> start_date </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this task started (if status &gt;= 1) </td> 
+            </tr> 
+            <tr> 
+                <td> claimed_until </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Marks this task as active; no other program can use this
+                    record until the specified time </td> 
+            </tr> 
+            <tr> 
+                <td> finish_date </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this retrieval was completed (if status == 2) </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_SAMPLE_EVENT"> C_SAMPLE_EVENT </h3> 
+        <p> A record for each box/sample disposal - the electronic equivalent of a
+            Sample Event Form. May also be used to document other events in future </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <td> Refers to </td> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> sef_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A unique ID for this Sample Event Form </td> 
+            </tr> 
+            <tr> 
+                <td> sef_profile </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The type of event (suggesting a particular report layout) </td> 
+            </tr> 
+            <tr> 
+                <td> project_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_project"> c_project</a>  </td> 
+                <td> The project the sample(s) belong to </td> 
+            </tr> 
+            <tr> 
+                <td> creation_date </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this report was started </td> 
+            </tr> 
+            <tr> 
+                <td> operator_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_operator"> c_operator</a>  </td> 
+                <td> the person creating the report </td> 
+            </tr> 
+            <tr> 
+                <td> job_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_retrieval_job"> c_retrieval_job</a>  </td> 
+                <td> The task that this is reporting (if applicable) </td> 
+            </tr> 
+            <tr> 
+                <td> source </td> 
+                <td> v30 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The reason for this report </td> 
+            </tr> 
+            <tr> 
+                <td> aliquots </td> 
+                <td> v160 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> a list of the aliquots affected (if applicable) </td> 
+            </tr> 
+            <tr> 
+                <td> summary </td> 
+                <td> v200 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> free text, explaining what happened </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_SEF_DETAIL"> C_SEF_DETAIL </h3> 
+        <p> Part of a Sample Event Form: describes one stage in the process </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <td> Refers to </td> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> An ID for this section of the form </td> 
+            </tr> 
+            <tr> 
+                <td> sef_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_sample_event"> c_sample_event</a>  </td> 
+                <td> The form this is part of </td> 
+            </tr> 
+            <tr> 
+                <td> section_type </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The stage/part/section of the form (its meaning may depend
+                    on the SEF profile) </td> 
+            </tr> 
+            <tr> 
+                <td> items </td> 
+                <td> v200 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the items affected </td> 
+            </tr> 
+            <tr> 
+                <td> reason </td> 
+                <td> v200 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the reason for this happening </td> 
+            </tr> 
+            <tr> 
+                <td> method </td> 
+                <td> v200 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> how it happened </td> 
+            </tr> 
+            <tr> 
+                <td> completion_date </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when it happened </td> 
+            </tr> 
+            <tr> 
+                <td> operator_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the person that signed it off </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_SLOT_ALLOCATION"> C_SLOT_ALLOCATION </h3> 
+        <p> <i> obsolete</i> </p> 
+        <h3 id="C_STORAGE_DETAILS"> C_STORAGE_DETAILS </h3> 
+        <p> <i> obsolete</i> </p> 
+        <h3 id="C_TANK_LAYOUT"> C_TANK_LAYOUT </h3> 
+        <p> Defines the way boxes are organised in a storage vessel and the order in
+            which they are filled. Each population will have an associated layout and the
+            structures within it will be labelled accordingly</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Refers to </th> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> rack_layout_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> Groups the definitions for a particular layout </td> 
+            </tr> 
+            <tr> 
+                <td> fill_order </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the order in which to create, display and fill the
+                    sections within a population </td> 
+            </tr> 
+            <tr> 
+                <td> section_prefix </td> 
+                <td> v6 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A label shared by structures in this section. Sections
+                    with fill_order = 1 often have prefix = 'A' </td> 
+            </tr> 
+            <tr> 
+                <td> first_rack </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The number of the first structure in a section - often 1 </td> 
+            </tr> 
+            <tr> 
+                <td> last_rack </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The last structure in this section. Each section has space
+                    for (last_rack - first_rack + 1) structures </td> 
+            </tr> 
+            <tr> 
+                <td> rack_type_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = new; 1 = active; 99 = deleted </td> 
+            </tr> 
+            <tr> 
+                <td> rack_capacity </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The number of boxes each structure in this section can
+                    hold (all boxes are assumed to have the same formation; 0 = undefined) </td> 
+            </tr> 
+            <tr> 
+                <td> confirm_rack </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: Box Reception can allocate boxes to new structures
+                    without confirmation; &gt;= 1 operator must confirm allocation after this
+                    many boxes </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_TANK_MAP"> C_TANK_MAP </h3> 
+        <p> Identifies the layout, storage type, content and location of each tank,
+            frame etc. Tanks contain a single population, originally named from the tank's
+            location, e.g. W12. A frame may have a different population on each shelf.
+            Reorganising or moving a tank or a shelf will create a new record, leaving the
+            old mapping available but off line. </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Refers to </th> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> Unique ID for this definition </td> 
+            </tr> 
+            <tr> 
+                <td> tank_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The population (currently) stored in this vessel </td> 
+            </tr> 
+            <tr> 
+                <td> storage_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The name and serial number of the storage vessel </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this storage was allocated/mapped </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: expected; 1: in use; 5: off line; 99: mapping deleted </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When the mapping was taken off line (if set, this vessel's
+                    contents should have been moved; this record then becomes part of the
+                    samples' storage history) </td> 
+            </tr> 
+            <tr> 
+                <td> rack_layout_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The arrangement of structures in the population (defined
+                    in c_tank_layout) </td> 
+            </tr> 
+            <tr> 
+                <td> location_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The site where this vessel is (currently) located </td> 
+            </tr> 
+            <tr> 
+                <td> position </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The (current) position of the vessel at that site </td> 
+            </tr> 
+            <tr> 
+                <td> shelf_number </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The (current) position of the population within the vessel
+                    (0: vessel contains a single population) </td> 
+            </tr> 
+            <tr> 
+                <td> storage_type </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The type of storage used, e.g. Nitrogen vapour </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_TEST"> C_TEST </h3> 
+        <p> A test or check used on one or more analysers. Similar assays may produce similar
+            results (and have the same CDISC test name) but the results may not be directly
+            comparable </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> Unique ID for this test </td> 
+            </tr> 
+            <tr> 
+                <td> external_name </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> An abbreviation for this test. Different assays may have
+                    similar names if they're measuring the same thing, e.g. "ALB" and
+                    "ALB." both measure Albumin </td> 
+            </tr> 
+            <tr> 
+                <td> external_full </td> 
+                <td> v120 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> What is being measured (and how/where) </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When the assay was first available </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this assay (is likely to be) replaced </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new record; 1: active (entries in c_test_location and c_test_machine
+                    or c_test_definition); 99: obsolete </td> 
+            </tr> 
+            <tr> 
+                <td> data_type </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <em> obsolete</em>  </td> 
+            </tr> 
+            <tr> 
+                <td> min_datapoints </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The minimum number of result required for this test <em> (usually  1)</em>  </td> 
+            </tr> 
+            <tr> 
+                <td> max_datapoints </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The maximum number of result expected <em> (often 1;
+                        however some analysers repeat some tests and report each result separately)</em> 
+                </td> 
+            </tr> 
+            <tr> 
+                <td> default_lower_limit </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Lower limit of analytical range: raw results below this
+                    limit suggest the test should be re-run </td> 
+            </tr> 
+            <tr> 
+                <td> default_upper_limit </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Upper limit of analytical range: raw results above this
+                    limit suggest the sample should be diluted </td> 
+            </tr> 
+            <tr> 
+                <td> precision </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The number of decimal places to display in Validation </td> 
+            </tr> 
+            <tr> 
+                <td> sample_type </td> 
+                <td> v4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Human-readable abbreviation for the sample type, e.g. PL
+                    (plasma), SE (serum), WB (whole blood) or UR (urine) </td> 
+            </tr> 
+            <tr> 
+                <td> cisc_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_cisc_definition"> c_cisc_definition</a>  </td> 
+                <td> CDISC-defined text to export with the results from this
+                    analyte, e.g. all HbA1c assays are reported as HBA1C </td> 
+            </tr> 
+            <tr> 
+                <td> lower_export_limit </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Processed results below this value should be displayed and sent to the
+                    projects as "&lt;limit" ('0', '.' or blank = no lower limit) </td> 
+            </tr> 
+            <tr> 
+                <td> upper_export_limit </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Processed results above this value should be displayed and sent to the
+                    projects as "&gt;limit" ('0', '.' or blank = no upper limit) </td> 
+            </tr> 
+            <tr> 
+                <td> default_unit </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The expected units for results from this assay (and for
+                    the limits specified above) </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_TEST_DEFINITION"> C_TEST_DEFINITION </h3> 
+        <p> A list of calculated tests/checks.  Results are calculated by working
+            through records with the same  result_test_cid: </p> 
+        <ol> 
+            <li> start with a subtotal of 0</li> 
+            <li> for each record, in test_position order:</li> 
+            <ol> 
+                <li> find the next not-yet-validated result for
+                    source_test_cid (use 1.0 if source_test_cid=0)</li> 
+                <li> multiply that result by source_multiple</li> 
+                <li> take the previous subtotal and add, subtract, multiply or
+                    divide by the product of step 2</li> 
+            </ol> 
+            <li> store the total as the result for result_test_cid</li> 
+        </ol> 
+        <table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Refers to </th> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> result_test_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a>  </td> 
+                <td> The value being calculated </td> 
+            </tr> 
+            <tr> 
+                <td> calculation </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The calculation to be performed for this step: 0 =
+                    subtract, 1 = divide, 2 = add, 3 = multiply </td> 
+            </tr> 
+            <tr> 
+                <td> test_position </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The position of this step in the calculation </td> 
+            </tr> 
+            <tr> 
+                <td> source_test_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a>  </td> 
+                <td> The result to be used for this step <i> (0: use
+                        source_multiple as a constant)</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> source_multiple </td> 
+                <td> f8 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Multiply the source result by this factor </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this (part of the) definition changed </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this (part of the) definition will no longer apply </td> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> unique id for this record </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> current status: 0 = new record, 1 = in use, 99 = obsolete </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_TEST_LOCATION"> C_TEST_LOCATION </h3> 
+        <p> A list of the tests destined for each analyser or cluster and how the
+        results should be processed.  Entries for an analyser should not conflict with
+        entries for the clusters to which it belongs so, for example, if three analysers
+        in a cluster can run a test but it's calculated on the fourth, there should be
+        one record for each analyser and nothing for the cluster.</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a>  </td> 
+                <td> The test/assay being carried out </td> 
+            </tr> 
+            <tr> 
+                <td> lab_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> Where the tests are being performed, e.g. Wolfson  Laboratories </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/C_MACHINE"> c_machine</a> or <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a> 
+                </td> 
+                <td> The analyser or cluster the results are coming from </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this definition became active </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this definition will no longer apply </td> 
+            </tr> 
+            <tr> 
+                <td> action_flags </td> 
+                <td> i2 </td> 
+                <td>  </td> 
+                <td> </td> 
+                <td>  1: analysed (entries in c_test_machine); 2: calculated
+                    (entries in c_test_definition); 3: calculated if not analysed (entries in
+                    c_test_definition and c_test_machine); 5: result stored as sample note
+                    (entries in c_test_machine) </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Current status: 0 = new record, 1 = in use, 99 = obsolete </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_TEST_MACHINE"> C_TEST_MACHINE </h3> 
+        <p> A list of the codes to program an assay and retrieve the results (the protocol
+            can be used to distinguish between these two if necessary).  The machine test name usually names
+            the assay; the test order indicates the sequence in which results are  returned</p>
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> &nbsp; </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a>  </td> 
+                <td> internal ID for the test/assay </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> &nbsp; </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The make and model of analyser that uses these codes
+                for this test (use c_test_location for individual analysers) </td> 
+            </tr> 
+            <tr> 
+                <td> machine_test_name </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The text used by the analyser for this assay or result </td> 
+            </tr> 
+            <tr> 
+                <td> protocol </td> 
+                <td> i2 </td> 
+                <td> &nbsp; </td> 
+                <td> </td> 
+                <td> protocol number to use for this test on this machine
+                    (e.g. DXH test panel, or AU680 LIH flag) </td> 
+            </tr> 
+            <tr> 
+                <td> test_order </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> where the result for this assay appears in the analyser's
+                    output (machine_test_name + test_order should normally be unique,
+                    as should protocol + test_order)</td> 
+            </tr> 
+            <tr> 
+                <td> sample_type </td> 
+                <td> v20 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The analyser's code for the type of sample required for
+                    this assay, e.g. "Serum" or "5" </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this definition started </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this definition finishes </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new record, 1: in use, 99: obsolete </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_TEXT_FILTER"> C_TEXT_FILTER </h3> 
+        <p> A filter that can be applied to records in c_canned_text to limit who can
+            use those entries in each program</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> text_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> the group of values that can be used (from c_canned_text) </td> 
+            </tr> 
+            <tr> 
+                <td> program_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> the program that can use it </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a>  </td> 
+                <td> where it can be used (0 = any machine) </td> 
+            </tr> 
+            <tr> 
+                <td> project_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_project"> c_project</a>  </td> 
+                <td> a project that can use it (0 = any project) </td> 
+            </tr> 
+            <tr> 
+                <td> operator_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_operator"> c_operator</a>  </td> 
+                <td> an operator that can use it (0 = any user) </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new record; 1: in use; 99: ignore </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="C_WORKLIST_RELATION"> C_WORKLIST_RELATION</h3> 
+        <p> Links re-runs and triggered tests to the test that caused them </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> rerun_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_BUDDY_WORKLIST"> c_buddy_worklist</a>  </td> 
+                <td> the worklist entry for the re-run </td> 
+            </tr> 
+            <tr> 
+                <td> parent_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_BUDDY_WORKLIST"> c_buddy_worklist</a>  </td> 
+                <td> the sample/test that caused the re-run </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="./Central Database Tables - v2.7_files/Central Database Tables - v2.7.htm"> c_audit_trail</a>  </td> 
+                <td> the Validation instance that requested the re-run </td> 
+            </tr> 
+            <tr> 
+                <td> insert_when </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when the test was requested </td> 
+            </tr> 
+            <tr> 
+                <td> motivation </td> 
+                <td> c1 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> B: batch re-run, R: sample re-run, T: triggered test </td> 
+            </tr> 
+            <tr> 
+                <td> dilution </td> 
+                <td> f8 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the diluent to add to each unit of specimen (0 =
+                    undiluted, 0.5 = 2:1, 1 = 50:50, 2 = 1:2 etc.) </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="L_BOX_ARRIVAL"> L_BOX_ARRIVAL </h3> 
+        <p> An incomplete record of where boxes were stored. <b> <i> Not</i> </b> <i> a
+                record of the current location of these boxes. </i> Box Reception adds a record
+            for each box it sees. The user then confirms or refers the details. Confirmed
+            entries are copied into the relevant project database (currently by Storage
+            Sync). Referred entries are handled by StoreMan.</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_no </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> An ID for this arrival event </td> 
+            </tr> 
+            <tr> 
+                <td> laptop_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_machine"> c_machine</a>  </td> 
+                <td> The ID of the machine Box Reception was running on </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_audit_trail"> c_audit_trail</a>  </td> 
+                <td> The run of Box Reception used for this box/rack </td> 
+            </tr> 
+            <tr> 
+                <td> project_cid </td> 
+                <td> i4 </td> 
+                <td> 2 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_project"> c_project</a>  </td> 
+                <td> The project being worked on </td> 
+            </tr> 
+            <tr> 
+                <td> box_arrival_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> (usually) <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#SPECIMEN"> specimen
+                    </a> or <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#BOX_NAME"> box_name</a> 
+                </td> 
+                <td> Links to the original box record if possible; 0 if
+                    unexpected </td> 
+            </tr> 
+            <tr> 
+                <td> swipe_time </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When the box/rack was swiped in </td> 
+            </tr> 
+            <tr> 
+                <td> box_name </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The label on the box/rack </td> 
+            </tr> 
+            <tr> 
+                <td> first_position </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The position of the first cryovial in the box (normally 1)
+                </td> 
+            </tr> 
+            <tr> 
+                <td> first_barcode </td> 
+                <td> v64 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The barcode on the first cryovial (encrypted or '.' on the
+                    laptop) </td> 
+            </tr> 
+            <tr> 
+                <td> last_position </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The position of the last cryovial in the box (e.g. 100) </td> 
+            </tr> 
+            <tr> 
+                <td> last_barcode </td> 
+                <td> v64 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The barcode on the last cryovial (encrypted or '.' on the
+                    laptop) </td> 
+            </tr> 
+            <tr> 
+                <td> tank_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The storage population this box has been assigned to </td> 
+            </tr> 
+            <tr> 
+                <td> rack_number </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The storage structure this box has been assigned to </td> 
+            </tr> 
+            <tr> 
+                <td> slot_position </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The position of the box within the structure </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new record (expected box); 2: unexpected box; 5:
+                    position allocated; 6: position confirmed; 7: entry referred; 4: central
+                    database updated; 99 = invalid record </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When the record was inserted or updated </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="L_BOX_ARRIVAL_EVENT_HISTORY"> L_BOX_ARRIVAL_EVENT_HISTORY </h3> 
+        <p> <i> Obsolete</i> </p> 
+        <h3 id="L_BOX_EXPECTED"> L_BOX_EXPECTED </h3> 
+        <p> <i> Obsolete</i> </p> 
+        <h3 id="L_CRYOVIAL_EXPECTED"> L_CRYOVIAL_EXPECTED </h3> 
+        <p> <i> Obsolete</i> </p> 
+        <h3 id="L_CRYOVIAL_RETRIEVAL"> L_CRYOVIAL_RETRIEVAL </h3> 
+        <p> Sample retrieval plans, created and used by StoreMan's Retrieval Assistant.
+            Each retrieval may be divided up into sections/chunks to be carried out in a
+            particular order. Boxes in the same chunk are filled together. </p> 
+        <p> The plan for a sample retrieval/disposal is given by<br> 
+            <code> 
+                select * from c_box_retrieval b, l_cryovial_retrieval c
+                where b.rj_box_cid = c.rj_box_cid and retrieval_cid = ?
+                order by b.section, c.position
+            </code> </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Index order </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> rj_box_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_box_retrieval"> c_box_retrieval</a>  </td> 
+                <td> The box the sample should be placed into </td> 
+            </tr> 
+            <tr> 
+                <td> position </td> 
+                <td> i2 </td> 
+                <td> 2 </td> 
+                <td> </td> 
+                <td> Where this sample appears in [the corresponding section
+                    of] the retrieval plan </td> 
+            </tr> 
+            <tr> 
+                <td> cryovial_barcode </td> 
+                <td> v64 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The barcode on the sample </td> 
+            </tr> 
+            <tr> 
+                <td> aliquot_type_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_object_name"> c_object_name</a>  </td> 
+                <td> The aliquot type (cryovial_barcode + aliquot_type_cid
+                    should uniquely identify the cryovial within the project) </td> 
+            </tr> 
+            <tr> 
+                <td> slot_number </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The expected position of the cryovial in the destination
+                    box (if two records suggest the same position in the same box, the first
+                    should be the primary aliquot; the second will be ignored if the first is
+                    found) </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_audit_trail"> c_audit_trail</a>  </td> 
+                <td> Who stored it, which program etc. </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: expected; 1: ignored, 2: collected; 3: not found; 99:
+                    record deleted </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this record was created/updated </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="QC_GATE"> QC_GATE </h3> 
+        <p> Records the mean and standard deviation in force for each test on each
+            machine for each QC lot once they have been run in. When several records have
+            the same qc_id+machine_cid+test_cid, Validation uses the most recent one as the
+            basis for QC alerts </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> qc_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#QC_LOT"> qc_lot</a>  </td> 
+                <td> the QC lot used </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> 2 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a>  </td> 
+                <td> the machine it runs on </td> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> 3 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a>  </td> 
+                <td> internal identifier for the assay being tracked </td> 
+            </tr> 
+            <tr> 
+                <td> mean </td> 
+                <td> f8 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> expected mean; entered by lab </td> 
+            </tr> 
+            <tr> 
+                <td> stddev </td> 
+                <td> f8 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> expected standard deviation; entered by lab </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> 4 </td> 
+                <td> </td> 
+                <td> when this QC gate came into force </td> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> unique ID for this record </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="QC_LEVEL"> QC_LEVEL </h3> 
+        <p> The levels in use for each QC material. Usually there will be one lot active
+            for each level for each material </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> material </td> 
+                <td> v2 </td> 
+                <td> 1 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> a two-letter code for the QC material, used in the sample
+                    barcode </td> 
+            </tr> 
+            <tr> 
+                <td> qc_level </td> 
+                <td> v1 </td> 
+                <td> 2 </td> 
+                <td> </td> 
+                <td> a code for this level, used as the third character of the
+                    barcode </td> 
+            </tr> 
+            <tr> 
+                <td> level_descrip </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A short description for this level </td> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new; 1: one or more active lots; 99: no active lots for
+                    at this level </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="QC_LOT"> QC_LOT </h3> 
+        <p> A record of each batch of QC material used: QCs made up from this batch will
+            have a barcode: 'QC' + material + level + lot + run number </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> qc_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> unique ID for this QC lot </td> 
+            </tr> 
+            <tr> 
+                <td> material </td> 
+                <td> v2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> qc_level </td> 
+                <td> v1 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> lot </td> 
+                <td> v3 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> QC lot number </td> 
+            </tr> 
+            <tr> 
+                <td> lot_descrip </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A description for this QC lot </td> 
+            </tr> 
+            <tr> 
+                <td> arrival_date </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The date this lot arrived </td> 
+            </tr> 
+            <tr> 
+                <td> level_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#QC_LEVEL"> qc_level</a>  </td> 
+                <td> The QC level this lot is used for </td> 
+            </tr> 
+            <tr> 
+                <td> qc_status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new; 1: running in; 2: in use; 3: expired; 99: deleted </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="QC_MATERIAL"> QC_MATERIAL </h3> 
+        <p> <em> obsolete - replaced by a view onto c_object_name</em> </p> 
+        <h3 id="QC_RULE"> QC_RULE </h3> 
+        <p> A rule used by Validation to check QC values </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> rule_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> the name and description of this rule </td> 
+            </tr> 
+            <tr> 
+                <td> return_type </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> how this rule is used: 0 = traffic light (returns
+                    yes/no/maybe), 1 = master (returns a list of rules) </td> 
+            </tr> 
+            <tr> 
+                <td> external_name </td> 
+                <td> v30 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> internal_name </td> 
+                <td> v30 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Describes this version of the rule </td> 
+            </tr> 
+            <tr> 
+                <td> script </td> 
+                <td> v1000 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The LUA script that will perform the calculation </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: not yet in force; 1: in use; 2: resting; 99: obsolete </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this version of the rule came into force </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this version of the rule stopped being used </td> 
+            </tr> 
+            <tr> 
+                <td> values_required </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="QC_RULE_CONFIG"> QC_RULE_CONFIG </h3> 
+        <p> Which rules are applied to which tests on which analysers </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> Unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> rule_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The master rule that should be applied </td> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a>  </td> 
+                <td> An assay it can be applied to (0 = default master) </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a> or <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> An analyser or cluster that uses this rule </td> 
+            </tr> 
+            <tr> 
+                <td> project_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_PROJECT"> c_project</a>  </td> 
+                <td> The project to apply this rule to (used to distinguish
+                    between QCs and participant samples) </td> 
+            </tr> 
+            <tr> 
+                <td> qc_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#qc_lot"> qc_lot</a>  </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new; 1: in use; 99: obsolete </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this rule comes into force </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this rule stopped being applied </td> 
+            </tr> 
+            <tr> 
+                <td> rule_parameter </td> 
+                <td> v40 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> a parameter for the rule </td> 
+            </tr> 
+            <tr> 
+                <td> required </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete</i>  </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="QC_TEST"> QC_TEST </h3> 
+        <p> A record of the expected mean and standard deviation for each test on each
+            QC lot. If nonzero, Validation can use these as a basis for QC alerts on lots
+            that are still being run in </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> qc_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#QC_LOT"> qc_lot</a>  </td> 
+                <td> id of a specific QC lot </td> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> 2 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a>  </td> 
+                <td> the assay these figures apply to </td> 
+            </tr> 
+            <tr> 
+                <td> packet_mean </td> 
+                <td> f8 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> expected mean </td> 
+            </tr> 
+            <tr> 
+                <td> packet_stddev </td> 
+                <td> f8 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> expected standard deviation </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> date/time </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this record was last created or modified </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = new, 1 = in use, 99 = obsolete/ignored </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="QC_TEST_MACHINE"> QC_TEST_MACHINE</h3> 
+        <p> Which QCs should run on which machines - used by the comms code to determine
+            which tests to run on the given analyser if there are no corresponding worklist
+            records </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> level_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#QC_LEVEL"> qc_level</a>  </td> 
+                <td> internal ID of given level of QC </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> 2 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a>  </td> 
+                <td> an analyser this assay will run on (each machine in a
+                    cluster should be added separately) </td> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> 3 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a>  </td> 
+                <td> the assay to be run </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = new, 1 = in use, 99 = obsolete/ignored </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this QC test starts running on this machine </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this QC test stops running on this machine </td> 
+            </tr> 
+            <tr> 
+                <td> diluent </td> 
+                <td> real </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete </i> </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="G_COMMS_FIELD"> G_COMMS_FIELD</h3> 
+        <p> Items of data from a results file read by the Generic Comms</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> field_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> filetype_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#G_COMMS_FILETYPE"> g_comms_filetype</a>  </td> 
+                <td> The file type this datum is part of </td> 
+            </tr> 
+            <tr> 
+                <td> pos </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Where this entry appears on the screen. Data files are
+                    scanned in this order </td> 
+            </tr> 
+            <tr> 
+                <td> parent_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#G_COMMS_FIELD"> g_comms_field</a>  </td> 
+                <td> The data item this is part of, e.g. a year may be part of
+                    a start date or date analysed </td> 
+            </tr> 
+            <tr> 
+                <td> tag </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> text used to identify a record type this item can be found
+                    in if the file type includes more than one type of record </td> 
+            </tr> 
+            <tr> 
+                <td> tagcol </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the field in which to find the record tag (-1 = no tag) </td> 
+            </tr> 
+            <tr> 
+                <td> valcol </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the field in which to find this data item </td> 
+            </tr> 
+            <tr> 
+                <td> datum_type </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 1: Participant ID, 2: barcode, 3: start date (contains
+                    year, month etc.), 4: sample type, 5: result (contains test, value etc.), 6:
+                    test code, 7: result units, 8: result value, 9: analysis date (contains year,
+                    month etc.), 10: cuvette number, 11: reagent (contains serial number and lot),
+                    12: bottle/wedge/plate ID, 13: reagent lot, 14: notes (free text), 15: year, 16:
+                    month, 17: day, 18: hour, 19: minutes, 20: seconds </td> 
+            </tr> 
+            <tr> 
+                <td> subcol </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> which part of the field to use (-1: field has no
+                    sub-columns) </td> 
+            </tr> 
+            <tr> 
+                <td> offset </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the first character to use (starting from zero) </td> 
+            </tr> 
+            <tr> 
+                <td> length </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the number of characters to use (-1: use all available) </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new record, 1: modified, 99: obsolete </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this record was inserted/updated </td> 
+            </tr> 
+            <tr> 
+                <td> datum_name </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A short description, e.g. "Result#2" </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="G_COMMS_FILETYPE"> G_COMMS_FILETYPE</h3> 
+        <p> A record for each result file format used by Generic comms</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> filetype_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> name </td> 
+                <td> v32 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> unique name for this file format </td> 
+            </tr> 
+            <tr> 
+                <td> description </td> 
+                <td> v120 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> a description of the contents of this type of file </td> 
+            </tr> 
+            <tr> 
+                <td> type </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST_MACHINE"> c_test_machine </a> </td> 
+                <td> The test protocol to use for this file type (usually 0) </td> 
+            </tr> 
+            <tr> 
+                <td> model_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a>  </td> 
+                <td> The make and model of analyser that produces this output </td> 
+            </tr> 
+            <tr> 
+                <td> firstrow </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The first row that contains data </td> 
+            </tr> 
+            <tr> 
+                <td> delim </td> 
+                <td> v4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the character(s) that separate fields in a record </td> 
+            </tr> 
+            <tr> 
+                <td> subdelim </td> 
+                <td> v4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the character(s) that separate columns within a field </td> 
+            </tr> 
+            <tr> 
+                <td> escape </td> 
+                <td> v4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> allows special characters to be included as values </td> 
+            </tr> 
+            <tr> 
+                <td> quote </td> 
+                <td> v4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the character(s) enclosing a string </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = new, 1 = in use, 99 = obsolete/ignored </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this record was last updated </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="G_COMMS_MAP"> G_COMMS_MAP</h3> 
+        <p> <i> obsolete </i> </p>
+     
+ 
+</body></html>

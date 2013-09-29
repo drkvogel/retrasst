@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<!-- saved from url=(0060)file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#SPECIMEN -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"> 
+        <title> Project Database Tables - v2.7</title> 
+        <style type="text/css"> 
+            table {
+                border-collapse: collapse;
+            }
+            td, th {
+                border: 2px solid green;
+            }
+        </style> 
+    </head> 
+    <body> 
+        <h1> Laboratory System Project Databases - Version 2.7</h1> 
+        <p> <cite> Updated 27 September 2013</cite> </p> 
+        <p> New programs should access the labs database using the Ingres x-library using the (64-bit) vNode
+            'vnode_lab_64'. Existing code uses the (32-bit) ODBC connection 'dsn_lab_ingres' or 'dsn_lab_star'.
+            Fields and tables marked as obsolete should not be used - they may be deleted in future
+            versions of the database. </p> 
+        <p> Most tables include a unique record ID, taken from id_sequence</p> 
+        <h3 id="ALIQUOT_PROFILE"> ALIQUOT_PROFILE</h3> 
+        <p> This table, together with TEST_PROFILE, describes what to do with samples
+            matching a particular profile. Used by Specimen Reception to identify the box
+            types to add to C_BOX_WORKLIST for a received specimen 
+        </p><table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Refers to </th> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> record_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A project-unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> profile_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#TEST_PROFILE_DESCRIPTION"> test_profile_description</a> </td> 
+                <td> An ID shared by a group of tests and aliquot types </td> 
+            </tr> 
+            <tr> 
+                <td> box_type_cid </td> 
+                <td> i4 </td> 
+                <td> 2 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/C_BOX_CONTENT"> box_content</a> </td> 
+                <td> The formation of aliquots to store in a box/rack </td> 
+            </tr> 
+            <tr> 
+                <td> box_order </td> 
+                <td> i2 </td> 
+                <td> 3 </td> 
+                <td> </td> 
+                <td> Where this entry is listed in the Wizard </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this became part of the profile<i> </i> </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this part of the profile ceased to be used<i> </i> </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = store aliquot, 1 = store original specimen, 99 = ignore/obsolete record</td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="BOX_CONTENT"> BOX_CONTENT</h3> 
+        <p> The Wizard adds entries to this table to show how boxes and sample racks should be made up.
+            StoreMan may add other records to show how cryovials have been stored. 
+        </p><table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Refers to </th> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> box_type_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A project-specific ID for this type of box/rack </td> 
+            </tr> 
+            <tr> 
+                <td> external_name </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A name for this type of box - usually the
+                    aliquot(s) it contains </td> 
+            </tr> 
+            <tr> 
+                <td> description </td> 
+                <td> v60 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> What this type of box/rack is used for </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: short term storage; 1: long term storage; 2: analysis;
+                    3: disposal; 99: invalid/no longer in use </td> 
+            </tr> 
+            <tr> 
+                <td> box_size_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_BOX_SIZE"> c_box_size</a> </td> 
+                <td> The box or sample rack formation to use, e.g. 99 or 100 slots</td> 
+            </tr> 
+            <tr> 
+                <td> aliquot_type1 </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a> </td> 
+                <td> The first aliquot type stored in this type of box </td> 
+            </tr> 
+            <tr> 
+                <td> aliquot_type2 </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a> </td> 
+                <td> The second aliquot type to be stored (0 if only one type) </td> 
+            </tr> 
+            <tr> 
+                <td> aliquot_type3 </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a> </td> 
+                <td> The third aliquot type stored (usually 0) </td> 
+            </tr> 
+            <tr> 
+                <td> box_set_link </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Links boxes in a set that should be filled together </td> 
+            </tr> 
+            <tr> 
+                <td> box_order </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Where to display this type in the Aliquot Allocation utility </td> 
+            </tr> 
+            <tr> 
+                <td> expected_use </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The expected number of analyses before the samples are stored off-site
+                    or disposed of</td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="BOX_EVENT_HISTORY"> BOX_EVENT_HISTORY</h3> 
+        <p> <i> Obsolete</i> </p> 
+        <h3 id="BOX_NAME"> BOX_NAME</h3> 
+        <p> A record of each box, rack or bag of cryovials </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Refers to </th> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> box_cid </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A project-specific ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> barcode </td> 
+                <td> v24 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The ID to be printed on the container (usually &lt;project code&gt; &lt;box_cid&gt;) </td> 
+            </tr> 
+            <tr> 
+                <td> box_type_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#BOX_CONTENT"> box_content</a> </td> 
+                <td> The formation of aliquot types stored in this container </td> 
+            </tr> 
+            <tr> 
+                <td> box_capacity </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The number of cryovials that can still be added (0 = full box; -1 = not known) </td> 
+            </tr> 
+            <tr> 
+                <td> external_name </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A unique label for this box. Usually &lt;project name&gt;
+                    &lt;box type&gt; &lt;box_cid&gt; </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = new/empty, 1 = cryovials added, 2 = content confirmed, 3 = ready to store,
+                    4 = stored, 8 = destroyed, 99 = invalid record </td> 
+            </tr> 
+            <tr> 
+                <td> slot_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <i> obsolete - use box_store</i> </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this record was last updated </td> 
+            </tr> 
+            <tr> 
+                <td> note_exists </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: no notes; &gt;=1: one or more corresponding records in
+                    the NOTE table </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_AUDIT_TRAIL"> c_audit_trail</a> </td> 
+                <td> The program run that created or updated this record </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="BOX_STORE"> BOX_STORE</h3> 
+        <p> A record of where a box or sample rack has been (or will be) stored. Each
+            entry in BOX_NAME with a status of 4 should have a record in this table with
+            no date in removed, showing its current location. Other records give the box's
+            past or expected position. 
+        </p><table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Refers to </th> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> record_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A project-unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> box_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#box_name"> box_name</a> </td> 
+                <td> The box that is being stored </td> 
+            </tr> 
+            <tr> 
+                <td> rack_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_RACK_NUMBER"> c_rack_number</a> </td> 
+                <td> The structure this box has been stored in </td> 
+            </tr> 
+            <tr> 
+                <td> slot_position </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The position of this box/rack in that structure </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: slot reserved (by StoreMan), 1: unconfirmed (imported data),
+                    2: removal expected, 3: removed, 5: slot allocated (by Box Reception),
+                    6: slot confirmed, 7: referred by operator, 99: deleted </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this record was created or confirmed </td> 
+            </tr> 
+            <tr> 
+                <td> removed </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When the box was removed from this position (empty if still
+                    in position) </td> 
+            </tr> 
+            <tr> 
+                <td> retrieval_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_retrieval_job"> c_retrieval_job</a> </td> 
+                <td> The task that caused this box to be moved or
+                    removed (0 if still in position)</td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_AUDIT_TRAIL"> c_audit_trail</a> </td> 
+                <td> The program run that created or updated this record </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="CRYOVIAL"> CRYOVIAL </h3> 
+        <p> A record of (expected) aliquots from a sample. Cryovials collected from the same
+            source may have the same barcode but this should not be relied on: check the source
+            name in the specimen record they come from. Cryovials collected from the same
+            source will have different aliquot types, e.g. EDTA_1, EDTA_2, Urine_1 etc.</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Refers to </th> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> cryovial_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> The internal ID for this aliquot from this sample </td> 
+            </tr> 
+            <tr> 
+                <td> sample_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="./Project Database Tables - v2.7_files/Project Database Tables - v2.7.htm"> specimen</a> </td> 
+                <td> The ID of the sample the aliquot was taken from.
+                    If aliquots are taken at the clinic, the specimen entry
+                    will match this record </td> 
+            </tr> 
+            <tr> 
+                <td> cryovial_barcode </td> 
+                <td> v16 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> The barcode on the (set of) cryovials storing this sample </td> 
+            </tr> 
+            <tr> 
+                <td> aliquot_type_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_object_name"> c_object_name</a> </td> 
+                <td> The type of aliquot in this cryovial </td> 
+            </tr> 
+            <tr> 
+                <td> note_exists </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: no note for this aliquot, &gt;=1: entry/ies for this
+                    aliquot in NOTE </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_AUDIT_TRAIL"> c_audit_trail</a> </td> 
+                <td> The program run that created or updated this record </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this entry was created/modified </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = new entry, 1 = stored/confirmed, 2 = contents transferred
+                    to other cryovials, 3 = disposed of, 99 = record invalid/deleted </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="CRYOVIAL_STORE"> CRYOVIAL_STORE </h3> 
+        <p> Where to find a cryovial. Each entry in CRYOVIAL with a status of 1 should
+            have a record in this table showing its current location with no date in removed.
+            Other records give the cryovial's history. 
+        </p><table> 
+            <tbody><tr> 
+                <th> Field name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Refers to </th> 
+                <th> Description / Comments </th> 
+            </tr> 
+            <tr> 
+                <td> record_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A (project-related) ID for this entry </td> 
+            </tr> 
+            <tr> 
+                <td> cryovial_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#CRYOVIAL"> cryovial</a> </td> 
+                <td> The cryovial to be stored </td> 
+            </tr> 
+            <tr> 
+                <td> box_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#BOX_NAME"> box_name</a> </td> 
+                <td> The ID of the container this cryovial should be put in </td> 
+            </tr> 
+            <tr> 
+                <td> cryovial_position </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Where in the box/sample rack the cryovial is </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this tube was put into that container </td> 
+            </tr> 
+            <tr> 
+                <td> sample_volume </td> 
+                <td> f8 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The volume of liquid stored, in mililitres (if recorded, otherwise &lt; 0) </td> 
+            </tr> 
+            <tr> 
+                <td> removed </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this tube was taken out of this box (initially empty) </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = space allocated, 1 = position confirmed, 2 = removal expected,
+                    3 = removed for disposal (note gives reason), 4 = removed for analysis,
+                    5 = moved to another box, 99 = record invalid/deleted </td> 
+            </tr> 
+            <tr> 
+                <td> note_exists </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = no note; &gt;=1: one or more note in the NOTE table </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_AUDIT_TRAIL"> c_audit_trail</a> </td> 
+                <td> The program run that made this entry </td> 
+            </tr> 
+            <tr> 
+                <td> retrieval_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_retrieval_job"> c_retrieval_job</a> </td> 
+                <td> The task that caused this cryovial to be moved (initially 0)</td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="DESCRIP"> DESCRIP </h3> 
+        <p> Gives project-specific names to columns in the specimen table and links
+            them to the profile map. </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> descriptor_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> An ID for this descriptor </td> 
+            </tr> 
+            <tr> 
+                <td> descriptor_name </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> The (project-unique) name for this descriptor (used by the LabAPI routines) </td> 
+            </tr> 
+            <tr> 
+                <td> description</td> 
+                <td> v60</td> 
+                <td> </td> 
+                <td> the reason for using this descriptor</td> 
+            </tr> 
+            <tr> 
+                <td> source</td> 
+                <td> v12</td> 
+                <td> </td> 
+                <td> <i> obsolete</i> </td> 
+            </tr> 
+            <tr> 
+                <td> parse_order</td> 
+                <td> i2</td> 
+                <td> </td> 
+                <td> <i> obsolete</i> </td> 
+            </tr> 
+            <tr> 
+                <td> start_delimiter</td> 
+                <td> v4</td> 
+                <td> </td> 
+                <td> <i> obsolete</i> </td> 
+            </tr> 
+            <tr> 
+                <td> min_length </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> the minimum length for the data, in characters (&gt;= 1) </td> 
+            </tr> 
+            <tr> 
+                <td> max_length </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> the maximum length for the data (min_length &lt;=
+                    max_length &lt;= 14) </td> 
+            </tr> 
+            <tr> 
+                <td> specimen_field_name </td> 
+                <td> v20 </td> 
+                <td> </td> 
+                <td> the name of the column in the SPECIMEN
+                    table that holds the descriptor value </td> 
+            </tr> 
+            <tr> 
+                <td> data_type </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> <i> obsolete</i> </td> 
+            </tr> 
+            <tr> 
+                <td> map_field_name </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> <i> obsolete</i> </td> 
+            </tr> 
+            <tr> 
+                <td> descriptor_flags </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> 0: unique values, select by hand; 1: value ranges, read
+                    from the specimen table; 8: values from c_object_name table (e.g.
+                    aliquot_type); 13: value not used in profile </td> 
+            </tr> 
+            <tr> 
+                <td> display_order </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> Where to display in Sample Reception: -1 = not displayed </td> 
+            </tr> 
+            <tr> 
+                <td> grouping_level </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> Where to display in NightShift report: 0 = not used for grouping </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> 0: new record; 1: in use; 99: record no longer use </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> When this entry was created </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> When this entry ceased to be relevant </td> 
+            </tr> 
+        </tbody></table> 
+        <p> Sample Reception identify the type of box, cryovial or 
+            vacutainer using a combination of "by-hand" descriptor values, then find a 
+            matching specimen record using the barcode. There should not be more 
+            than one matching record. The descriptor values in the corresponding specimen
+            record can then be used to identify a test/aliquot profile - there should be one record in 
+            test_profile_description that matches (a sub-set of) the record's values.</p> 
+        <p> By-hand descriptors might include:</p> 
+        <ul> 
+            <li> analysis (required): the type of procedure requested, e.g. 'storage' </li> 
+            <li> vial_size: 'C' = cryovial, 'L' = large vacutainer etc.</li> 
+            <li> tube_type: 'EDTA', Urine etc. (should match an analysis category in c_object_name)</li> 
+            <li> aliquot_type (required): each value should match an aliquot type in c_object_name</li> 
+        </ul> 
+        <p> Other descriptors might include:</p> 
+        <ul> 
+            <li> barcode or box_label - the tube or box the sample(s) arrived in
+                (specimen_field_name = 'barcode'; descriptor_flags = 13)</li> 
+            <li> source_name (required) - links entries for samples from a single participant visit,
+                including any aliquots taken from those samples</li> 
+            <li> first_cryovial and last_cryovial - the barcodes of the first and last cryovials 
+                in a box (used by Box Reception)</li> 
+            <li> long_term_storage - has participant consented</li> 
+        </ul> 
+        <h3 id="DESCRIPTOR_VALUE"> DESCRIPTOR_VALUE </h3> 
+        <p> Values that can be stored in the corresponding column in the SPECIMEN table.
+            The corresponding value IDs are then used in the profile map to identify the
+            profile for that sample. If no value is specified for a descriptor with a
+            default value, that should be used when adding records to the specimen table</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> value_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> an ID for this descriptor value or range </td> 
+            </tr> 
+            <tr> 
+                <td> descriptor_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#DESCRIP"> descrip</a> </td> 
+                <td> the descriptor to which this value refers </td> 
+            </tr> 
+            <tr> 
+                <td> value_name </td> 
+                <td> v20 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> a name for this value or range of values </td> 
+            </tr> 
+            <tr> 
+                <td> min_value </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> minimum value that is acceptable (length &gt;=
+                    descriptor.min_length) </td> 
+            </tr> 
+            <tr> 
+                <td> max_value </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> maximum value that is acceptable (&gt;= min_value; length
+                    &lt;= descriptor.max_length) </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0 = new entry; 1 = in use; 2 = default value; 99 = invalid/inactive </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="INVALID_RESULT"> INVALID_RESULT </h3> 
+        <p> NightShift copies invalidated and obsolete results into this table before
+            deleting them from buddy_result_float</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> invalid_result_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A table-unique ID for this record (may be taken from buddy_result_id) </td> 
+            </tr> 
+            <tr> 
+                <td> sample_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="./Project Database Tables - v2.7_files/Project Database Tables - v2.7.htm"> specimen</a> </td> 
+                <td> the tube from which the result was obtained </td> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a> </td> 
+                <td> the assay that produced this result </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a> </td> 
+                <td> the analyser that produced this result </td> 
+            </tr> 
+            <tr> 
+                <td> reaction_site </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Where the result came from, e.g. cuvette number of well ID </td> 
+            </tr> 
+            <tr> 
+                <td> reagent_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_reagent_lot"> c_reagent_lot</a> </td> 
+                <td> The combination of reagents used </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this result was created or edited </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: not validated, 1: only validated to level 1; 4:
+                    marked invalid; 7: unexpected; 99 record deleted </td> 
+            </tr> 
+            <tr> 
+                <td> result_type </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <em> obsolete</em> </td> 
+            </tr> 
+            <tr> 
+                <td> note_exists </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the number of notes added to this result </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_AUDIT_TRAIL"> c_audit_trail</a> </td> 
+                <td> the program run that created or edited this result </td> 
+            </tr> 
+            <tr> 
+                <td> string_value </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the actual or edited result from the analyser </td> 
+            </tr> 
+            <tr> 
+                <td> person1_validate </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_operator"> c_operator</a> </td> 
+                <td> Who in/validated this result at level 1 </td> 
+            </tr> 
+            <tr> 
+                <td> person2_validate </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_operator"> c_operator</a> </td> 
+                <td> Who invalidated this result at level 2 <i> (default = 0)</i> </td> 
+            </tr> 
+            <tr> 
+                <td> insert_time </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When NightShift copied this result </td> 
+            </tr> 
+            <tr> 
+                <td> result_units </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The units used for this measurement <em> (if known)</em> </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="MULTI_RESULT_REAL"> MULTI_RESULT_REAL </h3> 
+        <p> <em> Obsolete </em> </p> 
+        <h3 id="MULTI_RESULT_INT"> MULTI_RESULT_INT </h3> 
+        <p> <em> Obsolete </em> 
+        </p><h3 id="MULTI_RESULT_TEXT"> MULTI_RESULT_TEXT </h3> 
+        <p> <em> Obsolete</em> 
+        </p><h3 id="NEXT_ID"> NEXT_ID </h3> 
+        <p> <em> Obsolete</em> 
+        </p><h3 id="NOTE"> NOTE </h3> 
+        <p> Attaches text to records of other objects within the same database 
+        </p><table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> note_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> an ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> object_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> various </td> 
+                <td> the ID of the record to which this note refers </td> 
+            </tr> 
+            <tr> 
+                <td> operator_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the person who added the note </td> 
+            </tr> 
+            <tr> 
+                <td> contents </td> 
+                <td> v255 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> descriptive text constituting the note </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this comment was made about this object </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_AUDIT_TRAIL"> c_audit_trail</a> </td> 
+                <td> which program run created this note </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="PROFILE_MAP"> PROFILE_MAP </h3> 
+        <i> Obsolete - use profile_map_header and profile_map_node </i> 
+        <h3 id="PROFILE_MAP_HEADER"> PROFILE_MAP_HEADER </h3> 
+        <p> Used by Specimen Reception to identify a specimen's test and aliquot profiles: once a specimen record
+            has been selected, it calculates the corresponding descriptor value IDs and matches
+            them to a profile map to identify the relevant test_profile_description entry.</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> profile_map_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A project-specific ID for this set of values </td> 
+            </tr> 
+            <tr> 
+                <td> test_profile_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#TEST_PROFILE_DESCRIPTION"> test_profile_description</a> </td> 
+                <td> The profile of tests and box types that should be queued for
+                    specimens matching these descriptor values </td> 
+            </tr> 
+            <tr> 
+                <td> group_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#DESCRIP"> descrip</a> </td> 
+                <td> The descriptor used to group entries with this profile, e.g. the barcode
+                    descriptor if you want work list entries generated from specimen records
+                    with the same barcode to have the same group ID </td> 
+            </tr> 
+            <tr> 
+                <td> analysis_category </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#C_OBJECT_NAME"> c_object_name</a> </td> 
+                <td> ID copied into generated c_buddy_worklist entries,
+                    used for filtering entries in comms programs</td> 
+            </tr> 
+            <tr> 
+                <td> storage_category </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#C_OBJECT_NAME"> c_object_name</a> </td> 
+                <td> ID copied into generated c_box_worklist entries,
+                    used for filtering entries in Aliquot Allocation</td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new; 1: in use; 99: record no longer used </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td>  </td> 
+                <td> </td> 
+                <td> When this became part of the profile </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this part of the profile finished </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="PROFILE_MAP_NODE"> PROFILE_MAP_NODE </h3> 
+        <p> The LabAPI classes use this table to identify descriptor values that need to be used
+            for the SPECIMEN record(s): once a specimen has been added, it calculates the
+            corresponding descriptor value IDs and creates a SPECIMEN record for each matching
+            entry in the profile map.</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> profile_map_id </td> 
+                <td> i4 </td> 
+                <td>  </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#PROFILE_MAP_HEADER"> profile_map_header </a> </td> 
+                <td> An ID shared by this set of values </td> 
+            </tr> 
+
+            <tr> 
+                <td> value_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#DESCRIPTOR_VALUE"> descriptor_value </a> </td> 
+                <td> The ID of a descriptor value. If a specimen record includes a
+                    value for this descriptor, it must match this value </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="REFERENCE_RANGE"> REFERENCE_RANGE </h3> 
+        <p> <i> Obsolete - never used</i> 
+        </p><h3 id="RESULT"> RESULT</h3> 
+        <p> Validated results, copied by NightShift at the end of the day, to be picked
+            up by the wrappers and sent to the projects </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> result_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A table-unique internal identifier (may be taken from buddy_result_id) </td> 
+            </tr> 
+            <tr> 
+                <td> sample_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="./Project Database Tables - v2.7_files/Project Database Tables - v2.7.htm"> specimen</a> </td> 
+                <td> ID of the tube from which the result was obtained </td> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a> </td> 
+                <td> the assay performed to produce this result </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a> </td> 
+                <td> the analyser that produced this result </td> 
+            </tr> 
+            <tr> 
+                <td> reaction_site </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> Where the result came from, e.g. cuvette number of well ID </td> 
+            </tr> 
+            <tr> 
+                <td> reagent_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_REAGENT_LOT"> c_reagent_lot</a> </td> 
+                <td> The combination of reagents used </td> 
+            </tr> 
+            <tr> 
+                <td> time_stamp </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this result was created or edited </td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: validated; 1: invalid (e.g. after checking QC trends); 2: private (result 
+                    used in calculation); 99: obsolete/deleted </td> 
+            </tr> 
+            <tr> 
+                <td> result_type </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> <em> obsolete</em> </td> 
+            </tr> 
+            <tr> 
+                <td> note_exists </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the number of notes attached to this result </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_AUDIT_TRAIL"> c_audit_trail</a> </td> 
+                <td> the program run that created or edited this result </td> 
+            </tr> 
+            <tr> 
+                <td> string_value </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the actual or edited result from the analyser </td> 
+            </tr> 
+            <tr> 
+                <td> person1_validate </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_operator"> c_operator</a> </td> 
+                <td> Who validated this result at level 1<i> </i> </td> 
+            </tr> 
+            <tr> 
+                <td> person2_validate </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_operator"> c_operator</a> </td> 
+                <td> Who validated this result at level 2 </td> 
+            </tr> 
+            <tr> 
+                <td> result_units </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the units used for this measurement (if known)</td> 
+            </tr> 
+            <tr> 
+                <td> insert_time </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When NightShift added this record <em> (default: 'now')</em> </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="SPECIMEN"> SPECIMEN </h3> 
+        <p> An entry for each occasion a box, kit, vacutainer or cryovial needs to be processed by the labs.
+            Projects can add records to this table to notify LIMS when something is
+            expected. The operator scans a vacutainer or cryovial into Specimen Reception
+            which checks the descriptor values and creates appropriate worklist entries.
+            Later, results or cryovials are attached. Boxes are matched through Box Reception</p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> sample_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> A project-unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> parent_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/SPECIMEN"> specimen </a> </td> 
+                <td> The sample_id of the source this is taken from, otherwise 0 </td> 
+            </tr> 
+            <tr> 
+                <td> external_name </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A table-unique name for this entry. For a kit, this should match the source name.
+                    For a box, this may be the name written on the box</td> 
+            </tr> 
+            <tr> 
+                <td> barcode </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The barcode on the box, cryovial or vacutainer. For a box without a barcode,
+                    this may be the name written on the box</td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: expected sample, 1: received, 2: results available, 3: results
+                    and/or cryovial data collected, 4: cryovials stored, 5: unexpected (project
+                    notified), 6: discarded, 7: source/kit details, 8: expected box
+                    99: obsolete/invalid </td> 
+            </tr> 
+            <tr> 
+                <td> specimen_taken </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when the blood/urine was taken (usually the appointment
+                    date, if known; <em> a.k.a. "in" date</em> ) </td> 
+            </tr> 
+            <tr> 
+                <td> swipe_time </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when the tube was swiped in by labs staff (set by
+                    Sample Reception or Box Reception when status changes to 1) </td> 
+            </tr> 
+            <tr> 
+                <td> update_when </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this record was last updated, if it has been </td> 
+            </tr> 
+            <tr> 
+                <td> insert_who </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> The person or program that first made this entry </td> 
+            </tr> 
+            <tr> 
+                <td> insert_when </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this record was added to the table (<i> default: 'Now' </i> ) </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_AUDIT_TRAIL"> c_audit_trail</a> </td> 
+                <td> The run of the program that created or updated this record </td> 
+            </tr> 
+            <tr> 
+                <td> operator_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_AUDIT_TRAIL"> c_operator</a> </td> 
+                <td> The operator that swiped this sample in </td> 
+            </tr> 
+            <tr> 
+                <td> profile_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#TEST_PROFILE_DESCRIPTION"> test_profile_description</a> </td> 
+                <td> the ID of the identified profile (can be updated when sample is swiped in) </td> 
+            </tr> 
+            <tr> 
+                <td> note_exists </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> whether a note has been added (0: no, &gt;=1: yes) </td> 
+            </tr> 
+            <tr> 
+                <td> value1 </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the value for the descriptor with a specimen_field_name of
+                    value1 [default .] </td> 
+            </tr> 
+            <tr> 
+                <td> value2 </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the value for the descriptor with a specimen_field_name of
+                    value2 [default .] </td> 
+            </tr> 
+            <tr> 
+                <td> value3 </td> 
+                <td> v12 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> the value for the descriptor with a specimen_field_name of
+                    value3 [default .] </td> 
+            </tr> 
+            <tr> 
+                <td colspan="5"> 
+                    etc. up to value25 </td> 
+            </tr> 
+        </tbody></table> 
+        <h3> Table: SPECIMEN_ACTION</h3> 
+        <p> <i> Obsolete</i> 
+        </p><h3 id="TEST_PROFILE"> TEST_PROFILE </h3> 
+        <p> The tests that need to be run as part of a test profile, together with
+            various ranges applied by Validation 
+        </p><table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> record_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A project-unique ID for this record </td> 
+            </tr> 
+            <tr> 
+                <td> test_profile_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#TEST_PROFILE_DESCRIPTION"> test_profile_description</a> </td> 
+                <td> an identifier for a range of tests that together make up
+                    this profile </td> 
+            </tr> 
+            <tr> 
+                <td> test_cid </td> 
+                <td> i4 </td> 
+                <td> 2 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_TEST"> c_test</a> </td> 
+                <td> an assay to be run </td> 
+            </tr> 
+            <tr> 
+                <td> machine_cid </td> 
+                <td> i4 </td> 
+                <td> 3 </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_MACHINE"> c_machine</a> 
+                    or <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#C_OBJECT_NAME"> c_object_name</a> </td> 
+                <td> the analyser or cluster to run this test on (must exist in
+                    in c_test_machine) </td> 
+            </tr> 
+            <tr> 
+                <td> lower_test_limit </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> lower value for project range check </td> 
+            </tr> 
+            <tr> 
+                <td> upper_test_limit </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> upper value for project range check </td> 
+            </tr> 
+            <tr> 
+                <td> lower_warning </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> if set, results below this level generate a warning e-mail </td> 
+            </tr> 
+            <tr> 
+                <td> upper_warning </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> if set, results above this level generate a warning e-mail </td> 
+            </tr> 
+            <tr> 
+                <td> trigger_id </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/ProjectDb.htm#TEST_PROFILE_DESCRIPTION"> test_profile_description</a> </td> 
+                <td> ID of test profile to be triggered if value falls below lower or
+                    above upper limit </td> 
+            </tr> 
+            <tr> 
+                <td> lower_trigger_limit </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> limit below which more tests are triggered (0: no limit)</td> 
+            </tr> 
+            <tr> 
+                <td> upper_trigger_limit </td> 
+                <td> v16 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> limit above which more tests are triggered (0: no limit)</td> 
+            </tr> 
+            <tr> 
+                <td> test_flags </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: ignore limits; 13: use limits if specified; 15: private
+                    result; 99: record no longer used </td> 
+            </tr> 
+            <tr> 
+                <td> valid_from </td> 
+                <td> d/t </td> 
+                <td> 3 </td> 
+                <td> </td> 
+                <td> When this became part of the profile </td> 
+            </tr> 
+            <tr> 
+                <td> valid_to </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> When this part of the profile finished </td> 
+            </tr> 
+            <tr> 
+                <td> test_order </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> where in the list this entry should be displayed </td> 
+            </tr> 
+        </tbody></table> 
+        <h3 id="TEST_PROFILE_DESCRIPTION"> TEST_PROFILE_DESCRIPTION </h3> 
+        <p> Gives a name to a type of sample and what to do when it arrives </p> 
+        <table> 
+            <tbody><tr> 
+                <th> Name </th> 
+                <th> Type </th> 
+                <th> Key </th> 
+                <th> Reference </th> 
+                <th> Description </th> 
+            </tr> 
+            <tr> 
+                <td> test_profile_id </td> 
+                <td> i4 </td> 
+                <td> 1 </td> 
+                <td> </td> 
+                <td> an ID for this test and/or aliquot profile </td> 
+            </tr> 
+            <tr> 
+                <td> test_profile_name </td> 
+                <td> v32 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> A project-unique name of this profile </td> 
+            </tr> 
+            <tr> 
+                <td> test_profile_description </td> 
+                <td> v128 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> a description of this test/aliquot profile </td> 
+            </tr> 
+            <tr> 
+                <td> date_last_modified </td> 
+                <td> d/t </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> when this description was last changed </td> 
+            </tr> 
+            <tr> 
+                <td> note_exists </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> how many notes regarding this record have been entered </td> 
+            </tr> 
+            <tr> 
+                <td> profile_flags </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: disposal (no tests or aliquots added to the worklists;
+                    no aliquot_profile with status&lt;&gt; 99 or test_profile records with
+                    test_flags&lt;&gt;99)<br> 
+                    1: take aliquots - Specimen Reception creates records in c_box_worklist with
+                    status 'Q' (for entries in aliquot_profile with status 0)<br> 
+                    2: analyse the sample - Specimen Reception creates entries in
+                    c_buddy_worklist with status 'Q' (for entries in test_profile with
+                    test_flags&lt;&gt;99)<br> 
+                    3: analyse the sample and store aliquots from it - Specimen Reception creates
+                    entries in c_buddy_worklist and c_box_worklist<br> 
+                    4: store the original sample (SR creates a record in c_box_worklist with 'P'
+                    status for entries in aliquot_profile with status 1)<br> 
+                    5: take aliquots and store original (SR adds c_box_worklist records with status
+                    'Q' for aliquot_profile status 0, 'P' for status 1)<br> 
+                    6: analyse and store the original (c_buddy_worklist 'Q' from test_profile,
+                    c_box_worklist 'P' from aliquot_profile status 1)<br> 
+                    7: analyse, take aliquots and store original (c_buddy_worklist 'Q' from
+                    test_profile, c_box_worklist 'P' or 'Q' from aliquot_profile 1 or 0)</td> 
+            </tr> 
+            <tr> 
+                <td> status </td> 
+                <td> i2 </td> 
+                <td> </td> 
+                <td> </td> 
+                <td> 0: new record; 1: in used/modified; 99: obsolete/ignored </td> 
+            </tr> 
+            <tr> 
+                <td> process_cid </td> 
+                <td> i4 </td> 
+                <td> </td> 
+                <td> <a href="file:///K:/webcore/LIMS/database/v2.7/CentralDb.htm#c_audit_trail"> c_audit_trail</a> </td> 
+                <td> The program that created/updated this record </td> 
+            </tr> 
+        </tbody></table> 
+     
+ 
+</body></html>

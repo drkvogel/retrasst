@@ -5,6 +5,7 @@
 #include "LCDbRack.h"
 #include "RetrievalAssistantAutoChunk.h"
 #include "StoreDAO.h"
+#include "TfrmConfirm.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -66,7 +67,13 @@ void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
-         fixme sign off?
+        // fixme sign off?
+
+        std::set<int> projects;
+        projects.insert(job->getProjectID());
+        // TfrmConfirm::initialise( short stage, const std::string & summary, const std::set< int > & projects )
+        frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Ready to sign off", projects);  //status???
+        if (mrOk != frmConfirm->ShowModal()) return;
         for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
             // TODO insert rows into c_box_retrieval and l_cryovial_retrieval
             Chunk< SampleRow > * chunk = *it;
