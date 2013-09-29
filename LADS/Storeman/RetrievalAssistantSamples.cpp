@@ -6,6 +6,8 @@
 #include "RetrievalAssistantAutoChunk.h"
 #include "StoreDAO.h"
 #include "TfrmConfirm.h"
+#include "LCDbAuditTrail.h"
+#include "LPDbCryovialStore.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -83,26 +85,42 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             for (int i = 1; i < chunk->getSize(); i++) {
                 SampleRow * sampleRow = chunk->rowAt(i); //(Chunk< SampleRow > *)*it;
                 LPDbCryovialStore * vial = sampleRow->store_record;
-                // insert into l_sample_retrieval - no class for this yet
-                and c_box_retrieval
+
+                // c_box_retrieval
                 LQuery qc(LIMSDatabase::getCentralDb());
-                
+                qc.setSQL(
+                    "INSERT INTO c_box_retrieval"
+                    " (retrieval_cid, section, box_id, rj_box_cid, status)"
+                    " VALUES"
+                    // box_id, rj_box_cid - which is which?
+                    " (:rtid, :sect, :bid, :rjbid, :stat)"
+                );
+                qc.setParam("rtid", job->getID());
+                qc.setParam("sect", chunk->getSection());
+                qc.setParam("bid",  sampleRow->store_record->getBoxID());
+                qc.setParam("rjbid",sampleRow->dest_box_id); //??
+                qc.setParam("stat", LCDbBoxStore::Status::SLOT_ALLOCATED); //??
+                qc.execSQL();
+
+                // l_cryovial_retrieval
                 qc.setSQL(
                     "INSERT INTO l_cryovial_retrieval"
-                    " (retrieval_cid, retrieval_type, box_id, section, position, box_name, rj_box_cid, status, time_stamp)"
+                    " (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, process_cid, time_stamp, status)"
                     " VALUES"
-                    " (:rtid, :rtty, :bid, :sect, :pos, :bn, :bid, :st, :tm)");
-                qc.setParam("rtid", sampleRow->);
-                qc.setParam("rtty", sampleRow->);
-                qc.setParam("bid",  sampleRow->);
-                qc.setParam("sect", sampleRow->);
-                qc.setParam("pos",  sampleRow->);
-                qc.setParam("bn",   sampleRow->);
-                qc.setParam("bid",  sampleRow->); ??? again?
-                qc.setParam("st",   sampleRow->);
-                qc.setParam("tm",   sampleRow->); not necessary
+                    " (:rjid, :pos, :barc, :aliq, :pid, 'now', :st)"
+                ); //status?
+
+                qc.setParam("rjid", sampleRow->store_record->getID());
+                qc.setParam("rjid", sampleRow->dest_box_id); //??
+                qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
+                qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
+                qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
+                const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+                qc.setParam("pid",  pid);
+                //qc.setParam("tm",   Now().DateTimeString()); // no
+                qc.setParam("st",   LPDbCryovialStore::Status::ALLOCATED); //??
                 qc.execSQL();
-                  
+
             }
 
         /* retrieval_cid	 i4		c_retrieval_job	 The retrieval task this entry is part of
@@ -240,7 +258,7 @@ void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
         job->setStatus(LCDbCryoJob::Status::REJECTED);
         job->saveRecord(LIMSDatabase::getCentralDb());
         //Close();
-        ModalResult mrCancel;
+        ModalResult = mrCancel;
     }
 }
 
@@ -481,6 +499,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             Synchronize((TThreadMethod)&updateStatus);
         }
         SampleRow * row = new SampleRow(
+            new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
             qd.readString(  "cryovial_barcode"),
             qd.readString(  "aliquot"),

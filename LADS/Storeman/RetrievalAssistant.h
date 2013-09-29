@@ -144,19 +144,18 @@ typedef std::vector<pBoxRow> vecpBoxRow;
 
 class SampleRow : public RetrievalRow {
 public:
+    LPDbCryovial *      cryo_record;
     LPDbCryovialStore * store_record;
     string              cryovial_barcode;
-    string              aliquot_type_name;
+    string              aliquot_type_name; // not in LPDbCryovial
+    //int                 aliquot_type_cid; // getAliquotType()
     int                 dest_cryo_pos;      // cryovial_position
     ~SampleRow() { if (store_record) delete store_record; }
-    SampleRow(  LPDbCryovialStore * store_rec,
+    SampleRow(  LPDbCryovial * cryo_rec,LPDbCryovialStore * store_rec,
                 string barc, string aliq, string srcnm, int dstid, string dstnm, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
                 RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps),
-                store_record(store_rec), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps) {
-            // why can't derived members be initialised in constructor's initialization list?
-            // because they can't - but you can delegate to the base class' constructor
-            // http://stackoverflow.com/questions/17196495/initialise-protected-data-members-from-derived-class-constructor
+                cryo_record(cryo_rec), store_record(store_rec), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps) {
     }
 
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }

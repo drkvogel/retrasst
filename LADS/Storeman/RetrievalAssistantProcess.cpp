@@ -5,7 +5,7 @@
 #pragma resource "*.dfm"
 TfrmProcess *frmProcess;
 
-__fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) { 
+__fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
 /* enum {  SGRETRIEVAL_BARCODE, SGRETRIEVAL_DESTBOX, SGRETRIEVAL_DESTPOS, SGRETRIEVAL_CURRBOX, SGRETRIEVAL_CURRPOS,
         SGRETRIEVAL_SITE, SGRETRIEVAL_POSITION, SGRETRIEVAL_SHELF, SGRETRIEVAL_VESSEL, SGRETRIEVAL_STRUCTURE, SGRETRIEVAL_SLOT, // location in "Russian Doll order"
         SGRETRIEVAL_NUMCOLS};
@@ -133,7 +133,4 @@ the destination location should be displayed and the next ID/location should be 
 */
 
 }
-
-
-
 

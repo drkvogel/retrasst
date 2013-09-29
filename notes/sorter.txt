@@ -153,3 +153,7 @@ int box_position           slot)           box_store.slot_position # pos of box/
     
 is it initializing the ColDefs in frmSample() that's corrupting memory? -no
 I have your new card so please pop in with the old one when you’re next passing.-
+
+            // why can't derived members be initialised in constructor's initialization list?
+            // because they can't - but you can delegate to the base class' constructor
+            // http://stackoverflow.com/questions/17196495/initialise-protected-data-members-from-derived-class-constructor
