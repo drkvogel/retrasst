@@ -128,6 +128,11 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     loadingMessage = "Loading boxes, please wait...";
 }
 
+void __fastcall TfrmBoxes::FormDestroy(TObject *Sender) {
+    delete sgwChunks;
+    delete sgwBoxes;
+}
+
 void __fastcall TfrmBoxes::FormClose(TObject *Sender, TCloseAction &Action) {
     delete_referenced<vecpBoxRow>(boxes);
     //delete_referenced<vecpBoxChunk>(chunks);
@@ -401,3 +406,5 @@ void TfrmBoxes::sortChunk(int col) {
 void TfrmBoxes::autoChunk() {
     //
 }
+
+

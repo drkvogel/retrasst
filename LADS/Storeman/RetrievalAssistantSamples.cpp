@@ -51,6 +51,11 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     loadingMessage = "Loading samples, please wait...";
 }
 
+void __fastcall TfrmSamples::FormDestroy(TObject *Sender) {
+    delete sgwChunks;
+    delete sgwVials;
+}
+
 void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription();
     Caption = oss.str().c_str();
@@ -215,7 +220,7 @@ void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
 }
 
 void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
-    showCurrentChunk(); // default is 1st
+    showChunk(); // default is 1st
 }
 
 void __fastcall TfrmSamples::btnAutoChunkClick(TObject *Sender) {
@@ -234,7 +239,7 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     ostringstream oss; oss << __FUNC__; oss<<sgwVials->printColWidths(); debugLog(oss.str().c_str());
     currentChunk()->sortToggle(ACol);
-    showCurrentChunk(); // showCurrentChunk()?
+    showChunk();
 }
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
@@ -331,7 +336,7 @@ void TfrmSamples::showChunks() {
         sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();//chunk->end - chunk->start;
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
-    showCurrentChunk();
+    showChunk();
 }
 
 Chunk< SampleRow > * TfrmSamples::currentChunk() {
@@ -344,7 +349,7 @@ Chunk< SampleRow > * TfrmSamples::currentChunk() {
     return chunk;
 }
 
-void TfrmSamples::showCurrentChunk(Chunk< SampleRow > * chunk) {
+void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
     Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
     Enabled = false;
 
@@ -565,5 +570,4 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     }
     showChunks();
 }
-
 

@@ -13,16 +13,18 @@
 
 #define DEFAULT_NUMROWS 25
 
-enum {  SGRETRIEVAL_BARCODE, SGRETRIEVAL_DESTBOX, SGRETRIEVAL_DESTPOS, SGRETRIEVAL_CURRBOX, SGRETRIEVAL_CURRPOS,
-        SGRETRIEVAL_SITE, SGRETRIEVAL_POSITION, SGRETRIEVAL_SHELF, SGRETRIEVAL_VESSEL, SGRETRIEVAL_STRUCTURE, SGRETRIEVAL_SLOT, // location in "Russian Doll order"
-        SGRETRIEVAL_NUMCOLS};
-static const char * sgRetrievalColName[SGRETRIEVAL_NUMCOLS] = {
-    "Barcode", "Dest box", "Pos", "Curr box", "Pos", "Site", "Position", "Shelf", "Vessel", "Structure", "Slot"
+class LoadVialsWorkerThread : public TThread {
+protected:
+    void __fastcall Execute();
+public:
+    __fastcall LoadVialsWorkerThread();
+    int             rowCount;
+    string          loadingMessage;
+    void __fastcall updateStatus(); // synchronized methods can't have args
 };
-static int sgRetrievalColWidth[SGRETRIEVAL_NUMCOLS] = {102, 147, 43, 275, 37, 64, 50, 43, 100, 121, 40 };
-
 
 class TfrmProcess : public TForm {
+    friend class LoadVialsWorkerThread;
 __published:
     TGroupBox *List;
     TGroupBox *GroupBox2;
@@ -37,7 +39,7 @@ __published:
     TMenuItem *menuItemExit;
     TGroupBox *Chunks;
     TStringGrid *sgChunks;
-    TStringGrid *sgRetrieval;
+    TStringGrid *sgVials;
     TCheckBox *cbLog;
     TMemo *memoDebug;
     TPanel *panelLoading;
@@ -46,18 +48,21 @@ __published:
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
+    void __fastcall FormDestroy(TObject *Sender);
 private:
+    LoadVialsWorkerThread * loadVialsWorkerThread;
+    void __fastcall loadVialsWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob * job;
-    
     vector< Chunk< SampleRow > *>               chunks;
     vecpSampleRow                               vials;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
-    StringGridWrapper<SampleRow> *              sgwVials;    
-
-    void loadRows();
-    void showRows();
-    void process();
-    int maxRows;
+    StringGridWrapper<SampleRow> *              sgwVials;
+    Chunk< SampleRow > *                        currentChunk();
+    void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
+    void                                        loadRows();
+    //void                                        showRows();
+    void                                        process();
+    //int maxRows;
     const char *        loadingMessage;
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }

@@ -15,6 +15,7 @@ object frmSamples: TfrmSamples
   WindowState = wsMaximized
   OnClose = FormClose
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

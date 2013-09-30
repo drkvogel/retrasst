@@ -107,6 +107,7 @@ __published:
     void __fastcall sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall btnRejectClick(TObject *Sender);
     void __fastcall btnAutoChunkClick(TObject *Sender);
+    void __fastcall FormDestroy(TObject *Sender);
 private:
     const char *        loadingMessage;
     LoadBoxesWorkerThread * loadBoxesWorkerThread;

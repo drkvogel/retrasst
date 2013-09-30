@@ -14,6 +14,7 @@ object frmProcess: TfrmProcess
   OldCreateOrder = False
   WindowState = wsMaximized
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -25,7 +26,7 @@ object frmProcess: TfrmProcess
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
-    object sgRetrieval: TStringGrid
+    object sgVials: TStringGrid
       Left = 2
       Top = 15
       Width = 952

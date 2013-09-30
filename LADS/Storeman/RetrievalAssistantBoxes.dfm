@@ -16,6 +16,7 @@ object frmBoxes: TfrmBoxes
   WindowState = wsMaximized
   OnClose = FormClose
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -46,9 +47,6 @@ object frmBoxes: TfrmBoxes
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitLeft = 775
-      ExplicitTop = 21
-      ExplicitHeight = 248
       object btnAddChunk: TButton
         Left = 0
         Top = 25
@@ -58,7 +56,6 @@ object frmBoxes: TfrmBoxes
         Caption = 'Add chunk'
         TabOrder = 0
         OnClick = btnAddChunkClick
-        ExplicitTop = 0
       end
       object btnDelChunk: TButton
         Left = 0
@@ -70,7 +67,6 @@ object frmBoxes: TfrmBoxes
         Enabled = False
         TabOrder = 1
         OnClick = btnDelChunkClick
-        ExplicitTop = 25
       end
       object btnSaveChunk: TButton
         Left = 0
@@ -81,7 +77,6 @@ object frmBoxes: TfrmBoxes
         Caption = 'Save chunk'
         Enabled = False
         TabOrder = 2
-        ExplicitTop = 50
       end
       object btnIncr: TButton
         Left = 0
@@ -92,7 +87,6 @@ object frmBoxes: TfrmBoxes
         Caption = '+'
         TabOrder = 3
         OnClick = btnIncrClick
-        ExplicitTop = 75
       end
       object btnDecr: TButton
         Left = 0
@@ -103,7 +97,6 @@ object frmBoxes: TfrmBoxes
         Caption = '-'
         TabOrder = 4
         OnClick = btnDecrClick
-        ExplicitTop = 100
       end
       object btnReject: TButton
         Left = 0
@@ -114,8 +107,6 @@ object frmBoxes: TfrmBoxes
         Caption = 'Reject List'
         TabOrder = 5
         OnClick = btnRejectClick
-        ExplicitLeft = 6
-        ExplicitTop = 142
       end
       object Button1: TButton
         Left = 0
@@ -126,7 +117,6 @@ object frmBoxes: TfrmBoxes
         Caption = 'Save'
         TabOrder = 6
         OnClick = btnSaveClick
-        ExplicitTop = 198
       end
       object Button2: TButton
         Left = 0
@@ -137,7 +127,6 @@ object frmBoxes: TfrmBoxes
         Caption = 'Exit'
         TabOrder = 7
         OnClick = btnCancelClick
-        ExplicitTop = 223
       end
       object cbLog: TCheckBox
         Left = 0
@@ -148,9 +137,6 @@ object frmBoxes: TfrmBoxes
         Caption = 'Show Log'
         TabOrder = 8
         OnClick = cbLogClick
-        ExplicitLeft = 18
-        ExplicitTop = 6
-        ExplicitWidth = 64
       end
       object btnAutoChunk: TButton
         Left = 0
@@ -176,9 +162,6 @@ object frmBoxes: TfrmBoxes
       OnDrawCell = sgChunksDrawCell
       OnFixedCellClick = sgChunksFixedCellClick
       OnSetEditText = sgChunksSetEditText
-      ExplicitLeft = -4
-      ExplicitTop = 21
-      ExplicitHeight = 248
     end
   end
   object Panel1: TPanel
@@ -222,8 +205,6 @@ object frmBoxes: TfrmBoxes
     Align = alClient
     Caption = 'Boxes in chunk'
     TabOrder = 2
-    ExplicitTop = 275
-    ExplicitHeight = 269
     object sgBoxes: TStringGrid
       Left = 2
       Top = 15
@@ -237,7 +218,6 @@ object frmBoxes: TfrmBoxes
       OnClick = sgBoxesClick
       OnDrawCell = sgBoxesDrawCell
       OnFixedCellClick = sgBoxesFixedCellClick
-      ExplicitHeight = 163
     end
     object memoDebug: TMemo
       Left = 2
@@ -247,7 +227,6 @@ object frmBoxes: TfrmBoxes
       Align = alBottom
       TabOrder = 1
       Visible = False
-      ExplicitTop = 178
     end
     object panelLoading: TPanel
       Left = 232

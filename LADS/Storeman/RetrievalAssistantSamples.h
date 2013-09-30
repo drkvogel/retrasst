@@ -81,6 +81,7 @@ __published:
     void __fastcall sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value);
     void __fastcall sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value);
     void __fastcall sgVialsDblClick(TObject *Sender);
+    void __fastcall FormDestroy(TObject *Sender);
 private:
     LoadVialsWorkerThread *     loadVialsWorkerThread;
     void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
@@ -96,7 +97,7 @@ private:
     Chunk< SampleRow > *        currentChunk();
     void                        showChunks();
     void                        loadRows();
-    void                        showCurrentChunk(Chunk< SampleRow > * chunk=NULL);
+    void                        showChunk(Chunk< SampleRow > * chunk=NULL);
     const char *                loadingMessage;
 public:
     __fastcall                  TfrmSamples(TComponent* Owner);
