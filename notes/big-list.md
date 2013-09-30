@@ -1,18 +1,17 @@
-﻿
-a sample retrieval can include boxes that do not have their current locations recorded
-misc
-    find destination boxes 1st-
-    restructure DataRow etc to be more like/same as nick's GridEntry
+﻿misc
+    a sample retrieval can include boxes that do not have their current locations recorded
 sorting
+    sorters
     Nick's sorter in SampleEntry.cpp/h
     check sorting works properly 
     sort racks using rack position instead of name?
-    "P.P.S. I ended up using the c_rack_number.position to sort the structures.  Different layouts follow different naming conventions"
+    P.P.S. I ended up using the c_rack_number.position to sort the structures.  Different layouts follow different naming conventions
 find number of boxes
     current box
     destination box?
     what do we mean by 'size' of a chunk - number of boxes
 chunks
+    chunk/section number should begin at 1, not 0, as 0 means 'no chunk'
     chunks fill in situ if manual
     select row - 'chunk here'?
     auto chunk - populate chunks only when ok is pressed
@@ -31,10 +30,6 @@ chunks
         current chunks upper boundary is here (check valid)
         next chunk (if present) lower boundary is here
   
-## Retrieval Assistant
-
-### Background
-
 #### Create List
 
  * Any aliquot type used by a project can be selected as the primary; the secondary cannot match the primary
@@ -69,7 +64,6 @@ chunks
 
 ---to sort---
 Looking at your Sorter again, I still couldn’t get it to do what I wanted it to, e.g. sorting by Vessel then rack left it in rack order, rather than Vessel+rack.  I have therefore created my own Sorter (in SampleEntry.cpp) but I’d be happy to merge it with yours – it would make more sense if all the screens worked in the same way
- * Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position
 ---done---
 find destination boxes - faster method using sequence?
     nick's method - 
@@ -79,23 +73,30 @@ find destination boxes - faster method using sequence?
  * location should include site+position+name+layout, as it does in StoreMan’s storage browser.-
     * OK
 invalid pointer operation on click retrieval assistant open 1st time only- nick has sorted
-  diff btwn specs in notes/spec-comparison
-    sample query-
-        gets src and dest boxes in one projectdb-only query - but not storage details, these can be looked up after and cached in a map for efficiency
-    a sample retrieval can include boxes that do not have their current locations recorded
-    export/edit/import? maybe
-    option of rejecting whole task
+diff btwn specs in notes/spec-comparison
+sample query- gets src and dest boxes in one projectdb-only query - but not storage details, these can be looked up after and cached in a map for efficiency
+a sample retrieval can include boxes that do not have their current locations recorded
+export/edit/import? maybe
+option of rejecting whole task
 ukes reminder-
 xe2-
 sits:vision-
 StoreUtil class -> namespace? hmm
 sorter combos - populate/implement-/
-populating LCDbBoxStore * store_record by LQuery contructor is inefficient?:
-    LCDbBoxStore::copyFields()
-        LQuery::readInt() // etc
-            ROSETTA &LQuery::getRecord( )
-            // actually seems to just pull the correct fields out of the current cursor, without running a new query, so ok
+populating LCDbBoxStore * store_record by LQuery contructor is inefficient?: no
+LCDbBoxStore::copyFields(); LQuery::readInt() // etc ROSETTA &LQuery::getRecord( ) // pulls the fields out of the current cursor, without new query, so ok
 retrasst objectives for next meeting >> workblog >> stf eml
 get rid of maxrows maximum-
 show rows - show all by default
 retrasst emails -> folder
+find destination boxes 1st-
+restructure DataRow etc to be more like/same as nick's GridEntry-
+Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position
+---todo---
+whsmiths food
+contact ucu about ay anyway
+---dealt with---
+splitter for memodebug-
+job title/description on chunking form-
+are we finding the destination boxes correctly? looks like it 
+---

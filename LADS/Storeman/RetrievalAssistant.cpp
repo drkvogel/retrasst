@@ -101,21 +101,18 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
     if (NULL == job) return;
     switch (job->getStatus()) {
-    case LCDbCryoJob::Status::NEW_JOB: // manage
+    case LCDbCryoJob::Status::NEW_JOB: // create plan
         switch (job->getJobType()) {
             case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
                 frmSamples->setJob(job);
-                //if (IDOK == frmSamples->ShowModal()) {
                 if (mrOk == frmSamples->ShowModal()) {
-                    // then make INPROGRESS?
                     job->setStatus(LCDbCryoJob::INPROGRESS);
                     job->saveRecord(LIMSDatabase::getCentralDb());
                 }
                 break;
-            case LCDbCryoJob::JobKind::BOX_RETRIEVAL: //cout.flush();
+            case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
                 frmBoxes->setJob(job);
                 if (mrOk == frmBoxes->ShowModal()) {
-                    // then make INPROGRESS?
                     job->setStatus(LCDbCryoJob::INPROGRESS);
                     job->saveRecord(LIMSDatabase::getCentralDb());
                 }

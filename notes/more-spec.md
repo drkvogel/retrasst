@@ -3,16 +3,13 @@
 StoreMan allows the user to create lists of boxes or cryovials to be retrieved for analysis (8.2) or disposal (7.2).
 Sample retrieval for analysis may specify two aliquots: the secondary can be used if the primary is not available.
 The retrieval assistant (8.3) guides a user through the retrieval process.
-The first stage, when the retrieval assistant is given a new list to work on,
-is to create a retrieval plan divided up into manageable chunks.
+The first stage, when the retrieval assistant is given a new list to work on, is to create a retrieval plan divided up into manageable chunks.
 
 ## Box retrieval
 
     c_retrieval_job.status = new job (0); job type = box retrieval (2) or disposal (3)
 
 Find where the boxes are currently stored:
-
----
 
     Select 
         b.external_name as box, 
@@ -37,23 +34,19 @@ Find where the boxes are currently stored:
         v.object_cid = storage_cid and 
         bs.retrieval_cid = :jobID; // e.g. -636363
 
----
-
  * List the name, current structure and expected location of each box.
  * The location should include site+position+name+layout, as it does in StoreMan’s storage browser.
  * Allow the user to divide up the list (if necessary; see below for more details).
  * Show each chunk in turn and allow the user to sort by location,
  * otherwise show the whole list and allow them to sort that.
  * Ask the user to save changes with the option of going back to re-order if necessary.
- * Insert a record into `c_box_retrieval` for each box in turn and update `c_retrieval_job`: set `status=in progress` (1)
+ * Insert a record into `c_box_retrieval` for each box in turn and update `c_retrieval_job`; set `status=in progress` (1)
 
 ## Sample retrieval
 
     c_retrieval_job.status = new job (0); job type = sample retrieval (4) or disposal (5)
 
 Find the samples to be retrieved:
-
----
 
     Select 
         cryovial_barcode, 
@@ -88,14 +81,10 @@ Find the samples to be retrieved:
         v.object_cid = storage_cid and 
         cs.retrieval_cid = :jobID;
 
----
-
  * At least half of these will be for the primary aliquot (i.e. `cryovial.aliquot_type_cid = c_retrieval_job.primary_aliquot`).
  * The others may be for the secondary aliquot.
  * Primary and secondary tubes may have the same barcode but should always come from specimen entries with the same source name.
  * Entries for the primary aliquot may have a destination box defined. You could find these using a left join:
-
----
 
     select
         ...
@@ -113,8 +102,6 @@ Find the samples to be retrieved:
     where
         s1.retrieval_cid = :jobID
 
----
-
  * If no destination boxes have been defined, ask for the box type and create suitable entries in box_name.
  * Piece this information together to create a list giving the destination box+position, cryovial barcode and current box+position+structure+location of the primary and secondary aliquots.
  * The user may want to export and/or import the list to specify the retrieval plan – this needs further thought.
@@ -129,8 +116,7 @@ Find the samples to be retrieved:
 
  * After division, show each chunk in turn and allow the user to sort by location, otherwise show the whole list and allow them to sort that.
  * Ask the user to save changes with the option of going back to re-order if necessary.
- * Insert an entry into `c_box_retrieval` for each destination box, recording the chunk it is in, 
-and a record into `l_cryovial_retrieval` for each cryovial, recording its position in the list.
+ * Insert into `c_box_retrieval` for each destination box, recording the chunk it is in, and into `l_cryovial_retrieval` for each cryovial, with its position in the list.
  * Update `c_retrieval_job`: set `status=in progress` (1)
 
 ## Other jobs

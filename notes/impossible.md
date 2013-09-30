@@ -1,15 +1,11 @@
 ﻿    chunking
     sgBoxesFixedCellClick
     sortChunk    
-    
 
-    
 chunk stringgridwrapper refactoring-
 
 template/breakpoint nonsense
-
-it (Cbuilder) seems to be optimizing things even though it's told not to;
-you can't set breakpoints in certain places
+    it (Cbuilder) seems to be optimizing things even though it's told not to; you can't set breakpoints in certain places
 
 
 
@@ -25,7 +21,7 @@ sort out add first chunk mess:
     pressing decr decrements the end of the current chunk
     changing values in the chunk stringgrid changes chunk parameters? (not in spec?)
 
-    
+
 ### chunk split    
     
 add chunk

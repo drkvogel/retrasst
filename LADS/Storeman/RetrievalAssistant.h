@@ -284,40 +284,40 @@ class Chunk { // not recorded in database
     StringGridWrapper< T > * sgw;
     int                 section;
     int                 start;          // 1-indexed
-    string              startDescrip;
+    string              startVial;
+    string              startBox;
     int                 end;
+    string              endVial;
+    string              endBox;
     string              endDescrip;
 public:
-    Chunk(StringGridWrapper< T > * w, int sc, int st, int e) : sgw(w), section(sc) {
-//        setEnd(end);
-//        setStart(st);
+    Chunk(StringGridWrapper< T > * w, int sc, int s, string sb, string sv, int e, string eb, string ev) :
+        sgw(w), section(sc), startBox(sb), startVial(sv), endBox(eb), endVial(ev) {
+        // setEnd(end); // setStart(st); // moved out to caller cause can't set breakpoints in template
     }
     // http://stackoverflow.com/questions/1568091/why-use-getters-and-setters
-    int     getSection() { return section; }
-    int     getStart() { return start; }
-    void    setStart(int s) {
-        if (s < 1 || s > end)
-            throw "invalid chunk start value";
-        start = s;
-    }
+    int     getSection()    { return section; }
+    int     getStart()      { return start; }
+    string  getStartBox()   { return startBox; }
+    string  getStartVial()  { return startVial; }
+    string  getEndBox()     { return endBox; }
+    string  getEndVial()    { return endVial; }
     int     getEnd() { return end; }
-    void    setEnd(int e) {
-        if (e > sgw->rowCount())
-            throw "invalid chunk end value";
-        end = e;
-    }
-    int     getSize() {
-        //OutputDebugString(L"I am here");
-        return end - start;
-    }
-
+    int     getSize() { return end - start; } //OutputDebugString(L"I am here");
+    void    setStart(int s) { if (s < 1 || s > end) throw "invalid chunk start value"; start = s; }
+    void    setStartBox(string s) { startBox = s; }
+    void    setStartVial(string v) { startVial = v; }
+    void    setEnd(int e) { if (e > sgw->rowCount()) throw "invalid chunk end value"; end = e; }
+    void    setEndBox(string s) { endBox = s; }
+    void    setEndVial(string v) { endVial = v; }
     T *     rowAt(int pos) {
         wstringstream oss; oss<<__FUNC__<<"start: "<<start<<", pos: "<<pos; OutputDebugString(oss.str().c_str());
         return sgw->rows->at((start-1)+(pos-1));
     }
 
+    // uninstantiated code in templates is not compiled
     void sort_asc(string colName) {
-        totalRows->sort_asc(colNameToInt(colName));  // not compiled when not used (because in template?)
+        totalRows->sort_asc(colNameToInt(colName));
     }
 
     void sort_dsc(string colName) {
@@ -328,12 +328,10 @@ public:
         sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
         sgw->cols[col].sortAsc = !sgw->cols[col].sortAsc; // toggle
     }
-
 //    incrStart();
 //    decrStart();
     incrEnd();
     decrEnd();
-
 };
 
 typedef std::vector< Chunk * > vecpChunk;

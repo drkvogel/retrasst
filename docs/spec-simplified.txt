@@ -1,51 +1,30 @@
-﻿xe4 - can build storeman on? install on laptop
+﻿
 
 ### meeting 2013-08-15 (big meeting room)
 
-secondary aliquots - separate, backup list after primary chunks/list - if primaries not found, mark secondaries as required and form new list
+ * secondary aliquots - separate, backup list after primary chunks/list - if primaries not found, mark secondaries as required and form new list
+ * auto chunk - ask destination box size - may be different from retrieval box size.
+ * excel-style x/y/z sort of all fields
+ * assign destination boxes before creating chunks - may be done by create list - discuss with nick
+ * meeting notes:
+    Create List
+     * Any aliquot type used by a project can be selected as the primary; the secondary cannot match the primary
+     * Creating a new sample retrieval list will always create new box name records and (provisionally) allocate cryovial positions
+     * A source file may be pre-sorted and may include box numbers and positions as well as the barcode
+     * The retrieval list can be re-sorted on screen but this will only affect the destination positions if the source was not pre-sorted
+     * Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position
+     * Rejected tasks can be modified (re-using existing box name records) or deleted
+     * Finding where all the cryovials are can take a long time; users must wait for the information to be available
+    Retrieval Assistant
+     * Cryogenics staff can reject a retrieval list if it does not have a retrieval plan
+     * As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box
+     * Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position
+     * If required, the secondary aliquots appear at the end of the retrieval plan for each chunk – they may never be needed
+     * chunking -  Allow the user to divide up the list 
+        ??? how to display   
+     * save changes with the option of going back to re-order if necessary.
 
-auto chunk - ask destination box size - may be different from retrieval box size.
-
-excel-style x/y/z sort of all fields
-
-assign destination boxes before creating chunks - may be done by create list - discuss with nick
-
-end meeting - here are notes:
-
-Create List
--          Any aliquot type used by a project can be selected as the primary; the secondary cannot match the primary
--          Creating a new sample retrieval list will always create new box name records and (provisionally) allocate cryovial positions
--          A  source file may be pre-sorted and may include box numbers and positions as well as the barcode
--          The retrieval list can be re-sorted on screen but this will only affect the destination positions if the source was not pre-sorted
--          Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position
--          Rejected tasks can be modified (re-using existing box name records) or deleted
--          Finding where all the cryovials are can take a long time; users must wait for the information to be available
-
-Retrieval Assistant
--          Cryogenics staff can reject a retrieval list if it does not have a retrieval plan
--          As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box
--          Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position
--          If required, the secondary aliquots appear at the end of the retrieval plan for each chunk – they may never be needed
-
----
-
-
- * sort by location,
- * location should include site+position+name+layout, as it does in StoreMan’s storage browser.
- 
-    Worminghall 1 [shelf]: Vanadium, 54_rack_MVE, A1, slot 1
- 
- * chunking -  Allow the user to divide up the list
- 
-    ??? how to display
-    
- * save changes with the option of going back to re-order if necessary.
- 
-294, 285   
-
-c2 fabric mix
-
-# spec simplified
+     # spec simplified
 
 Basically, the procedure has the same steps for both box retrieval/discard and for sample retrieval/discard. I have split these functions in to two forms, nonetheless.
 
@@ -59,17 +38,12 @@ Basically, the procedure has the same steps for both box retrieval/discard and f
 
 # box retrieval/discard
 
-1. Find where the boxes are currently stored:
-    List the name, current structure and expected location of each box. The location should include site+position+name+layout, as it does in StoreMan’s storage browser.
-
-3. Allow the user to divide up the list (if necessary; see below for more details).
-
+1. Find where the boxes are currently stored: List name, current structure and expected location of each box. location includes site+position+name+layout
+2. Allow the user to divide up the list (if necessary; see below for more details).
+3. ?
 4. Show each chunk in turn and allow the user to sort by location, otherwise show the whole list and allow them to sort that.
-
 5. Ask the user to save changes with the option of going back to re-order if necessary.
-
 6. Insert a record into c_box_retrieval for each box in turn
-
 7. Update c_retrieval_job: set status=in progress (1)
 
 # sample retrieval/discard
@@ -80,9 +54,7 @@ Basically, the procedure has the same steps for both box retrieval/discard and f
     Entries for the primary aliquot may have a destination box defined. You could find these using a left join:
     If no destination boxes have been defined, ask for the box type and create suitable entries in box_name.
     Piece this information together to create a list giving the destination box+position, cryovial barcode and current box+position+structure+location of the primary and secondary aliquots.
-
 2? The user may want to export and/or import the list to specify the retrieval plan – this needs further thought.
-
 3. Display the size of the job and ask user if they want to divide up the list.
     If they do:
         Ask them the maximum chunk size (default = 500 cryovials)
@@ -90,15 +62,18 @@ Basically, the procedure has the same steps for both box retrieval/discard and f
         Ask them to select the size of first chunk from a list – it must be a multiple of the box size (from 2) and no more than the maximum (from 1)
         Allocate the appropriate number of destination boxes to the first chunk
         Repeat steps (2) and (3) until every entry has been allocated to a chunk
-
 4. After division, show each chunk in turn and allow the user to sort by location, otherwise show the whole list and allow them to sort that.
-
 5. Ask the user to save changes with the option of going back to re-order if necessary.
-
 6. Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in, and a record into l_cryovial_retrieval for each cryovial, recording its position in the list.
-
 7. Update c_retrieval_job: set status=in progress (1)
 
 ###
 
+# done
+
 had to restore II_SYSTEM after installing ("Actian") Visual DBA 10.1.0
+xe4 - can build storeman on? install on laptop
+c2 fabric mix
+ * sort by location
+ * location should include site+position+name+layout, as it does in StoreMan’s storage browser. 
+    Worminghall 1 [shelf]: Vanadium, 54_rack_MVE, A1, slot 1 

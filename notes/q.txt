@@ -1,7 +1,6 @@
 ﻿fix comboSorter - broken window
  doesn't have descending option
 
- 
 what are we listing?
   sample retrieval
      samples
@@ -23,14 +22,5 @@ what about secondary aliquots?
 chunking
 search for fixme/todo/xxx
 
-reset: ctrl-f2
-run: f9
----todo---
-whsmiths food
-contact ucu about ay anyway
----dealt with---
-splitter for memodebug-
-job title/description on chunking form-
-are we finding the destination boxes correctly? looks like it 
----
+
 

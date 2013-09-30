@@ -28,8 +28,6 @@ Labs Doxygen: C:\Users\cbird\Projects\lims-generic\doxygen\html
     * That means the 'rows' of the StringGridWrapper should be set to be the rows of whichever chunk is currently selected?
     * At which point (which routine) should we do this? Something smells wrong about the current way chunks are handled.
     * Pragmatic - forget sorting for now, fire some tracer bullets - get some visual stuff up and database inserts going
-
-
  * Emails from Nick/Martin
     * Another minor feature to add to the retrieval assistant when you’re implementing the final part: when you’ve finished retrieving samples from a box, check if it’s empty.  That’s unlikely to be necessary for tasks I’ve created but anyone using Jonathan’s utility to rationalise tanks may end up throwing the old boxes away
     This means we’ll be demonstrating next week using the mirror system, just in case it makes any difference Nick (I'm happy for it to be split I f that makes more sense. Martin)
@@ -43,7 +41,6 @@ Labs Doxygen: C:\Users\cbird\Projects\lims-generic\doxygen\html
         * get nick to verify that ref boxes was ready ages ago and generic comms is in use
         * get rg to verify that stig is working and in use
         * tell all concerned that it is only because I am worried that ay is looking for ways to discredit me that I am doing this.
-        * I hate my boss. Can I move?
 
 # Done
 
@@ -54,7 +51,6 @@ copyLocation
     position vs rack_pos vs tank_pos?
         src_box_pos is dupe of store_record->getPosition()
 "An empty retrieval list" - null chunk!
-what is paul doing with lua?
 double-clicking a sample/box should mark the end of a chunk and create a new one
 i started the coldef thing because I put the aliquot column in and it threw all the sorters out
 
@@ -73,38 +69,14 @@ use typedef? use pointer to vector instead of reference
 now just passing function pointer to ColDef constructor is not right:
 E2034 Cannot convert 'bool(const SampleRow *,const SampleRow *)' to 'bool (*)(SampleRow * const *,SampleRow * const *)'
 notice ** double pointers - ah, because Sorter was specialized with SampleRow, and ColDef is being specialized with SampleRow *    
----
     
 # Problems
-
  * asc and desc funcs both need to be declared - couldn't one be a reverse of the other?
    * already removed from class spec - implementations in SampleRow now redundant-taken out
  * why are the sort funcs implemented in SampleRow anyway?
  * using enum as parameter to Sorter::sort rather than calling sort_asc/desc/toggle directly seems unnecessary
  * separate Sorter array means it can get out of sync with column definitions - group together in (e.g.) ColDef?
    * does Sorter being a template make this a problem? the type T is e.g. SampleRow for all columns
-   * 
-
-002000758 EDTA_BC SEARCH Buffy 7 / SEARCH buffy coat retrieval 330 Pos 8 (t_ldb1_ddb)
-  Position gives EAccessViolation and corrupt position, break on 
-		if (found != samples.end()) { // fill in box location from cache map
-            sample->site_name       = (*(found->second)).site_name; <-- here
-            sample->position        = (*(found->second)).position;
-            sample->vessel_name     = (*(found->second)).vessel_name; <-- or here
-(* == has locations)
-### throwing errors
-SEARCH May 2008
-SEARCH BC Aug 2009 : Aug 2009 SEARCH Buffy Coat retrieval
-* A cryovial retrieval for Chris
-SEARCH BC 2003 : 2003 SEARCH Buffy Coat retrieval
-
-### not throwing errors? 
-THRIVE Lp(a) baseline : THRIVE Lp(a) analysis (big!)
-SEARCH EDTA_1 Oct 2012 : Oct 2012 retrieval for myopathy biomarker
-bianca rocca (box retrieval)
-Retrieval_2415 : A job with a few THRIVE cryovial (no cryvials though?)
-* Retrieval_2418 : Another THRIVE sample retrieval
-
 must be thread-related? e.g. sample->store_record->getBoxID()?
 non-threaded version seems ok... something in worker thread must be doing something gui-related... one of the classes descended from a VCL class?
 void __fastcall LCDbCryoJobs::Renewal(TObject *)? timer in main thread though so should be ok
