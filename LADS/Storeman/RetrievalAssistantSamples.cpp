@@ -85,7 +85,8 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         if (mrOk != frmConfirm->ShowModal()) return;
         LQuery qc(LIMSDatabase::getCentralDb());
         map<int, const SampleRow *> boxes;
-        for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
+        LCDbID myLCDbID; int rj_box_cid;
+        for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) {
             Chunk< SampleRow > * chunk = *it;
             for (int i = 1; i < chunk->getSize(); i++) {
                 SampleRow *         sampleRow = chunk->rowAt(i);
@@ -94,25 +95,19 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                 map<int, const SampleRow *>::iterator found = boxes.find(sampleRow->store_record->getBoxID());
                 if (found != boxes.end()) {
                     // already added record //cached = (*(found->second));
-                } else {
-                    // add record
-        /*  retrieval_cid	c_retrieval_job	    The retrieval task this entry is part of
-            section	                            Which chunk of the retrieval plan this entry belongs to (0 = retrieve all boxes in parallel)
-            box_id          box_name	        The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
-            rj_box_cid                          Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
-            status                              0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
-            time_stamp                          When this record was inserted or updated */
+                } else { // add record
                     qc.setSQL(
                         "INSERT INTO c_box_retrieval"
                         " (retrieval_cid, section, box_id, rj_box_cid, status)"
                         " VALUES"
-                        " (:rtid, :sect, :bid, :rjbid, :stat)" // box_id, rj_box_cid - which is which?
+                        " (:rtid, :sect, :bid, :rjbid, :stat)"
                     );
+                    rj_box_cid = myLCDbID.claimNextID(qc); // SQL: "next value for c_id_sequence"
+                    qc.setParam("rjbid",rj_box_cid); // Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
                     qc.setParam("rtid", job->getID());
-                    qc.setParam("sect", chunk->getSection());
-                    qc.setParam("bid",  sampleRow->store_record->getBoxID());
-                    qc.setParam("rjbid",sampleRow->dest_box_id); //??
-                    qc.setParam("stat", LCDbBoxStore::Status::SLOT_ALLOCATED); //??
+                    qc.setParam("sect", chunk->getSection()); // 0 = retrieve all boxes in parallel
+                    qc.setParam("bid",  sampleRow->store_record->getBoxID()); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+                    qc.setParam("stat", LCDbBoxStore::Status::SLOT_ALLOCATED); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
                     qc.execSQL();
                     boxes[sampleRow->store_record->getBoxID()] = (sampleRow); // cache result
                 }
@@ -121,8 +116,8 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                     " (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, process_cid, time_stamp, status)"
                     " VALUES"
                     " (:rjid, :pos, :barc, :aliq, :pid, 'now', :st)"
-                ); //status?
-                qc.setParam("rjid", sampleRow->dest_box_id); //??
+                );
+                qc.setParam("rjid", rj_box_cid);
                 qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
                 qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
                 qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
@@ -289,7 +284,7 @@ void TfrmSamples::addChunk() {
 //            1, ((*(sgwVials->rows))[0]->src_box_name), ((*(sgwVials->rows))[0]->cryo_record->getSampleID()),
 //            (*(sgwVials->rows)).size(), ((*(sgwVials->rows))[(*(sgwVials->rows)).size()-1]->src_box_name), ((*(sgwVials->rows))[(*(sgwVials->rows)).size()-1]->cryo_record->getSampleID()),
             1,              vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(),
-            vials.size(),   vials[vials.size()-1]->src_box_name,   vials[vials.size()-1]->cryo_record->getBarcode()
+            vials.size(),   vials[vials.size() == 0 ? 0 : vials.size()-1]->src_box_name,   vials[vials.size() == 0 ? 0 : vials.size()-1]->cryo_record->getBarcode()
         ); // 1-indexed // size is calculated
         chunk->setEnd(vials.size());
         chunk->setStart(1);
@@ -301,7 +296,7 @@ void TfrmSamples::addChunk() {
         chunk = new Chunk< SampleRow >(
             sgwVials, chunks.size() + 1,
             currentChunk()->getSize()+1,    vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(), // first
-            vials.size(),                   vials[vials.size()-1]->src_box_name,   vials[vials.size()-1]->cryo_record->getBarcode() // last
+            vials.size(),                   vials[vials.size() == 0 ? 0 : vials.size()-1]->src_box_name,   vials[vials.size() == 0 ? 0 : vials.size()-1]->cryo_record->getBarcode() // last
         );
     }
     chunks.push_back(chunk);

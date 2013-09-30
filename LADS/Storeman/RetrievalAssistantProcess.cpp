@@ -44,8 +44,9 @@ void __fastcall TfrmProcess::FormDestroy(TObject *Sender) {
 }
 
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
-    loadRows();
-    showChunk();
+    //loadRows();
+    timerLoadPlan->Enabled = false;
+    //showChunk();
     panelLoading->Caption = loadingMessage;
 }
 
@@ -185,6 +186,11 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
    cs.retrieval_cid = -1015 */
 //}
 
+void __fastcall TfrmProcess::timerLoadPlanTimer(TObject *Sender) {
+    timerLoadPlan->Enabled = false;
+    loadRows();
+}
+
 void TfrmProcess::loadRows() {
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
@@ -193,20 +199,20 @@ void TfrmProcess::loadRows() {
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
     Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
     Enabled = false;
-    loadVialsWorkerThread = new LoadVialsWorkerThread();
-    loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
+    loadPlanWorkerThread = new LoadPlanWorkerThread();
+    loadPlanWorkerThread->OnTerminate = &loadPlanWorkerThreadTerminated;
 }
 
-__fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
+__fastcall LoadPlanWorkerThread::LoadPlanWorkerThread() : TThread(false) {
     FreeOnTerminate = true;
 }
 
-void __fastcall LoadVialsWorkerThread::updateStatus() { // can't use args for synced method, don't know why
+void __fastcall LoadPlanWorkerThread::updateStatus() { // can't use args for synced method, don't know why
     frmProcess->panelLoading->Caption = loadingMessage.c_str();
     frmProcess->panelLoading->Repaint();
 }
 
-void __fastcall LoadVialsWorkerThread::Execute() {
+void __fastcall LoadPlanWorkerThread::Execute() {
     delete_referenced< vector<SampleRow * > >(frmProcess->vials);
     ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
 
@@ -304,7 +310,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     //showChunks();
 }
 
-void __fastcall TfrmProcess::loadVialsWorkerThreadTerminated(TObject *Sender) {
+void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
@@ -314,3 +320,4 @@ void __fastcall TfrmProcess::loadVialsWorkerThreadTerminated(TObject *Sender) {
     //loadChunks();
     showChunks();
 }
+

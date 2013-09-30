@@ -13,18 +13,18 @@
 
 #define DEFAULT_NUMROWS 25
 
-class LoadVialsWorkerThread : public TThread {
+class LoadPlanWorkerThread : public TThread {
 protected:
     void __fastcall Execute();
 public:
-    __fastcall LoadVialsWorkerThread();
+    __fastcall LoadPlanWorkerThread();
     int             rowCount;
     string          loadingMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
 };
 
 class TfrmProcess : public TForm {
-    friend class LoadVialsWorkerThread;
+    friend class LoadPlanWorkerThread;
 __published:
     TGroupBox *List;
     TGroupBox *GroupBox2;
@@ -44,14 +44,16 @@ __published:
     TMemo *memoDebug;
     TPanel *panelLoading;
     TProgressBar *progressBottom;
+    TTimer *timerLoadPlan;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
     void __fastcall FormDestroy(TObject *Sender);
+    void __fastcall timerLoadPlanTimer(TObject *Sender);
 private:
-    LoadVialsWorkerThread * loadVialsWorkerThread;
-    void __fastcall loadVialsWorkerThreadTerminated(TObject *Sender);
+    LoadPlanWorkerThread * loadPlanWorkerThread;
+    void __fastcall loadPlanWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob * job;
     vector< Chunk< SampleRow > *>               chunks;
     vecpSampleRow                               vials;

@@ -190,4 +190,10 @@ object frmProcess: TfrmProcess
       OnClick = menuItemExitClick
     end
   end
+  object timerLoadPlan: TTimer
+    Enabled = False
+    OnTimer = timerLoadPlanTimer
+    Left = 368
+    Top = 16
+  end
 end
