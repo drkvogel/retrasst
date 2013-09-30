@@ -304,36 +304,27 @@ void TfrmSamples::addChunk() {
             vials.size(),                   vials[vials.size()-1]->src_box_name,   vials[vials.size()-1]->cryo_record->getBarcode() // last
         );
     }
-
-    // fixme make it the current chunk
-    sgChunks->Row = sgChunks->RowCount - 1;
     chunks.push_back(chunk);
     btnDelChunk->Enabled = true;
     showChunks();
+    sgChunks->Row = sgChunks->RowCount-1; // fixme make it the current chunk
 }
 
 void TfrmSamples::showChunks() {
-    if (0 == chunks.size()) { // must always have one chunk anyway
-        throw Exception("No chunks");
-    } else {
-        sgChunks->RowCount = chunks.size() + 1;
-        sgChunks->FixedRows = 1; // "Fixed row count must be LESS than row count"
-    }
+    if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
+    else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
+
     int row = 1;
     for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
         Chunk< SampleRow > * chunk = *it;
-/*    sgwChunks->addCol("section",  "Section",  50);
-    sgwChunks->addCol("start",    "Start",    80);
-    sgwChunks->addCol("startbox", "Box",      80);
-    sgwChunks->addCol("startvial","Vial",     150);
-    sgwChunks->addCol("end",      "End",      150);
-    sgwChunks->addCol("endbox",   "Box",      150);
-    sgwChunks->addCol("endvial",  "Vial",     150);
-    sgwChunks->addCol("size",     "Size",     80);*/
         sgChunks->Cells[sgwChunks->colNameToInt("section")]   [row] = chunk->getSection();
         sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStart();
-        sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEnd(); //end.c_str();
-        sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();//chunk->end - chunk->start;
+        sgChunks->Cells[sgwChunks->colNameToInt("startbox")]  [row] = chunk->getStartBox().c_str();
+        sgChunks->Cells[sgwChunks->colNameToInt("startvial")] [row] = chunk->getStartVial().c_str();
+        sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEnd();
+        sgChunks->Cells[sgwChunks->colNameToInt("endbox")]    [row] = chunk->getEndBox().c_str();
+        sgChunks->Cells[sgwChunks->colNameToInt("endvial")]   [row] = chunk->getEndVial().c_str();
+        sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
     showChunk();
@@ -350,21 +341,14 @@ Chunk< SampleRow > * TfrmSamples::currentChunk() {
 }
 
 void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
-    Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
-    Enabled = false;
+    Screen->Cursor = crSQLWait; Enabled = false;
 
-    if (NULL == chunk) { chunk = currentChunk(); } // default
-
-    if (chunk->getSize() <= 0) {
-        sgwVials->clear();
-    } else {
-        sgVials->RowCount = chunk->getSize(); //getSize() works, ie. returns debug value.
-        sgVials->FixedRows = 1;
-    }
+    if (NULL == chunk) { chunk = currentChunk(); }
+    if (chunk->getSize() <= 0) { sgwVials->clear(); }
+    else { sgVials->RowCount = chunk->getSize(); sgVials->FixedRows = 1; }
 
     for (int row = 1; row < chunk->getSize(); row++) {
-        SampleRow * sampleRow = chunk->rowAt(row); // does OutputDebugString work? yes, in Event Log tab.
-            // start + pos is probably wrong. it is being called. no debug symbols for templates though. way to enable this?
+        SampleRow *         sampleRow = chunk->rowAt(row);
         LPDbCryovial *      vial    = sampleRow->cryo_record;
         LPDbCryovialStore * store   = sampleRow->store_record;
         sgVials->Cells[sgwVials->colNameToInt("barcode")] [row] = sampleRow->cryovial_barcode.c_str();
@@ -381,9 +365,7 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->Cells[sgwVials->colNameToInt("destpos")] [row] = sampleRow->dest_cryo_pos;
         sgVials->Objects[0][row] = (TObject *)sampleRow;
     }
-
-    Screen->Cursor = crDefault;
-    Enabled = true;
+    Screen->Cursor = crDefault; Enabled = true;
 }
 
 void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {

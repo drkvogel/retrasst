@@ -60,6 +60,50 @@ void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
     }
 }
 
+void TfrmProcess::addChunk() {
+    Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
+    if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
+        chunk = new Chunk< SampleRow >(
+            sgwVials, chunks.size() + 1,
+            //vector< SampleRow * > * rows;
+            1,              vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(),
+            vials.size(),   vials[vials.size()-1]->src_box_name,   vials[vials.size()-1]->cryo_record->getBarcode()
+        ); // 1-indexed // size is calculated
+        chunk->setEnd(vials.size());
+        chunk->setStart(1);
+    } else {
+        chunk = new Chunk< SampleRow >(
+            sgwVials, chunks.size() + 1,
+            currentChunk()->getSize()+1,    vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(), // first
+            vials.size(),                   vials[vials.size()-1]->src_box_name,   vials[vials.size()-1]->cryo_record->getBarcode() // last
+        );
+    }
+    chunks.push_back(chunk);
+    showChunks();
+    sgChunks->Row = sgChunks->RowCount-1; // fixme make it the current chunk
+}
+
+void TfrmProcess::showChunks() {
+    if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
+    else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
+
+    int row = 1;
+    for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
+        Chunk< SampleRow > * chunk = *it;
+        sgChunks->Cells[sgwChunks->colNameToInt("section")]   [row] = chunk->getSection();
+        sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStart();
+        sgChunks->Cells[sgwChunks->colNameToInt("startbox")]  [row] = chunk->getStartBox().c_str();
+        sgChunks->Cells[sgwChunks->colNameToInt("startvial")] [row] = chunk->getStartVial().c_str();
+        sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEnd();
+        sgChunks->Cells[sgwChunks->colNameToInt("endbox")]    [row] = chunk->getEndBox().c_str();
+        sgChunks->Cells[sgwChunks->colNameToInt("endvial")]   [row] = chunk->getEndVial().c_str();
+        sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();
+        sgChunks->Objects[0][row] = (TObject *)chunk;
+    }
+    showChunk();
+}
+
+
 Chunk< SampleRow > * TfrmProcess::currentChunk() {
     if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
     Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][sgChunks->Row];
@@ -164,39 +208,50 @@ void __fastcall LoadVialsWorkerThread::updateStatus() { // can't use args for sy
 
 void __fastcall LoadVialsWorkerThread::Execute() {
     delete_referenced< vector<SampleRow * > >(frmProcess->vials);
-    ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)";
-    loadingMessage = oss.str().c_str(); //return;
+    ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
 
     rowCount = 0;
     LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
+
     qd.setSQL( // from spec 2013-09-11
         "SELECT"
-        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
-        "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
-            // LPDbCryovial::storeID( query.readInt( "record_id" ) ) <-- record_id comes from cryovial_store?
-        "  c.cryovial_barcode, t.external_name AS aliquot,"
-        "  b1.box_cid as source_id,"
-        "  b1.external_name as source_name,"
-        "  s1.cryovial_position as source_pos,"
-        "  s2.box_cid as dest_id,"
-        "  b2.external_name as dest_name,"
-        "  s2.cryovial_position as dest_pos"
+        " *"
         " FROM"
-        "  cryovial c, cryovial_store s1, box_name b1,"
-        "  cryovial_store s2, box_name b2,"
-        "  c_object_name t"
+        "   c_box_retrieval b, l_cryovial_retrieval c"
         " WHERE"
-        "  c.cryovial_id = s1.cryovial_id AND"
-        "  b1.box_cid = s1.box_cid AND"
-        "  s1.cryovial_id = s2.cryovial_id AND"
-        "  s2.status = 0 AND"
-        "  b2.box_cid = s2.box_cid AND"
-        "  t.object_cid = aliquot_type_cid AND"
-        "  s1.retrieval_cid = :jobID"
+        "   retrieval_cid = :rtid AND"
+        "   b.rj_box_cid = c.rj_box_cid "
         " ORDER BY"
-        "  cryovial_barcode"
-        );
-    qd.setParam("jobID", frmProcess->job->getID());
+        "   b.section, b.rj_box_cid, c.position"
+    );
+//    qd.setSQL( // from spec 2013-09-11
+//        "SELECT"
+//        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
+//        "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
+//            // LPDbCryovial::storeID( query.readInt( "record_id" ) ) <-- record_id comes from cryovial_store?
+//        "  c.cryovial_barcode, t.external_name AS aliquot,"
+//        "  b1.box_cid as source_id,"
+//        "  b1.external_name as source_name,"
+//        "  s1.cryovial_position as source_pos,"
+//        "  s2.box_cid as dest_id,"
+//        "  b2.external_name as dest_name,"
+//        "  s2.cryovial_position as dest_pos"
+//        " FROM"
+//        "  cryovial c, cryovial_store s1, box_name b1,"
+//        "  cryovial_store s2, box_name b2,"
+//        "  c_object_name t"
+//        " WHERE"
+//        "  c.cryovial_id = s1.cryovial_id AND"
+//        "  b1.box_cid = s1.box_cid AND"
+//        "  s1.cryovial_id = s2.cryovial_id AND"
+//        "  s2.status = 0 AND"
+//        "  b2.box_cid = s2.box_cid AND"
+//        "  t.object_cid = aliquot_type_cid AND"
+//        "  s1.retrieval_cid = :jobID"
+//        " ORDER BY"
+//        "  cryovial_barcode"
+//        );
+    qd.setParam("rtid", frmProcess->job->getID());
     loadingMessage = frmProcess->loadingMessage;
     qd.open();
     while (!qd.eof()) {
@@ -229,10 +284,10 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         try {
             map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
             if (found != samples.end()) { // fill in box location from cache map
-                sample->copyLocation(*(found->second)); //oss<<"(cached)";
+                sample->copyLocation(*(found->second));
             } else {
                 if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
-                    sample->copyLocation(result); //oss<<"(db)";
+                    sample->copyLocation(result);
                 } else {
                     sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
                 }
@@ -245,6 +300,8 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         loadingMessage = oss.str().c_str();
         Synchronize((TThreadMethod)&updateStatus);
 	}
+
+    //showChunks();
 }
 
 void __fastcall TfrmProcess::loadVialsWorkerThreadTerminated(TObject *Sender) {
@@ -253,9 +310,7 @@ void __fastcall TfrmProcess::loadVialsWorkerThreadTerminated(TObject *Sender) {
     Screen->Cursor = crDefault;
     Enabled = true;
     chunks.clear();
-    sgwChunks->clear();
-    //showChunks();
+    sgwChunks->clear(); //??
+    //loadChunks();
+    showChunks();
 }
-
-
-

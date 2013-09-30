@@ -57,9 +57,11 @@ private:
     vecpSampleRow                               vials;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
     StringGridWrapper<SampleRow> *              sgwVials;
+    void                                        showChunks();
     Chunk< SampleRow > *                        currentChunk();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     void                                        loadRows();
+    void                                        addChunk(); // code smell - should be part of loadRows?
     //void                                        showRows();
     void                                        process();
     //int maxRows;
