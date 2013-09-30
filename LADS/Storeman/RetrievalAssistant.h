@@ -190,13 +190,16 @@ typedef std::vector<SampleRow *> vecpSampleRow;
 Wrapper for TStringGrid, provides sorting functions. T is type of data in each row */
 template < class T >
 class StringGridWrapper {
+    TStringGrid *       sg;
+    map< string, int >  mapColNameToInt;
+    bool                initialised;
+public:
     class Col {
     public:
         Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false), vec(NULL), initialised(false) { }
         Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL) : name(n), title(t), width(w), sort_func_asc(f), sortAsc(false) {}
-        
-        string  sortDescription() { 
-            ostringstream oss; oss<<"Sort by "<<title<<" ascending"; return oss.str(); 
+        string  sortDescription() {
+            ostringstream oss; oss<<"Sort by "<<title<<" ascending"; return oss.str();
         }
         bool    (*sort_func_asc)(const T *, const T *); // ascending sort function
         string  name;           // internal identifier string
@@ -204,10 +207,6 @@ class StringGridWrapper {
         int     width;          // for StringGrid::ColWidths[]
         bool    sortAsc;        // sort toggle
     };
-    TStringGrid *       sg;
-    map< string, int >  mapColNameToInt;
-    bool                initialised;
-public:
     vector< T * > *     rows;
     vector< Col >       cols;
 
@@ -255,11 +254,10 @@ public:
         sort(rows->begin(), rows->end(), cols[col].sort_func_asc); // dot notation: vec.begin() also seems to work - how?
     }                                                              // it wasn't being compiled because dead code in a template
     void sort_dsc(int col, int start, int end) {
-        sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc);
-        //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
+        sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
     }
     void sort_asc(string colName, int start, int end) {
-        sort_asc(colNameToInt(colName));
+        sort_asc(colNameToInt(colName), start, end);
     }
     void sort_dsc(string colName, int start, int end) {
         sort_dsc(colNameToInt(colName));
@@ -297,14 +295,14 @@ public:
     }
     // http://stackoverflow.com/questions/1568091/why-use-getters-and-setters
     int     getSection()    { return section; }
-    int     getStart()      { return start; }
+    int     getStart()      { return start+1; }
     string  getStartBox()   { return startBox; }
     string  getStartVial()  { return startVial; }
     string  getEndBox()     { return endBox; }
     string  getEndVial()    { return endVial; }
-    int     getEnd() { return end; }
+    int     getEnd() { return end+1; }
     int     getSize() { return end - start; } //OutputDebugString(L"I am here");
-    void    setStart(int s) { if (s < 1 || s > end) throw "invalid chunk start value"; start = s; }
+    void    setStart(int s) { if (s < 1 || s > end) throw "invalid chunk start value"; start = s-1; }
     void    setStartBox(string s) { startBox = s; }
     void    setStartVial(string v) { startVial = v; }
     void    setEnd(int e) { if (e > sgw->rowCount()) throw "invalid chunk end value"; end = e; }
@@ -312,12 +310,12 @@ public:
     void    setEndVial(string v) { endVial = v; }
     T *     rowAt(int pos) {
         wstringstream oss; oss<<__FUNC__<<"start: "<<start<<", pos: "<<pos; OutputDebugString(oss.str().c_str());
-        return sgw->rows->at((start-1)+(pos-1));
+        return sgw->rows->at((start)+(pos-1));
     }
 
     // uninstantiated code in templates is not compiled
     void sort_asc(string colName) {
-        totalRows->sort_asc(colNameToInt(colName));
+        sgw->sort_asc(colName, start, end);
     }
 
     void sort_dsc(string colName) {
