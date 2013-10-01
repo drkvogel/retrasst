@@ -41,7 +41,7 @@ object frmAutoChunk: TfrmAutoChunk
     end
     object Label3: TLabel
       Left = 32
-      Top = 48
+      Top = 56
       Width = 96
       Height = 13
       Caption = 'Destination box size'
@@ -83,11 +83,12 @@ object frmAutoChunk: TfrmAutoChunk
     end
     object editDestBoxSize: TEdit
       Left = 146
-      Top = 45
+      Top = 53
       Width = 103
       Height = 21
       TabOrder = 4
       Text = '72'
+      OnChange = editMaxSizeChange
     end
     object btnAddAllChunks: TButton
       Left = 146
@@ -100,7 +101,7 @@ object frmAutoChunk: TfrmAutoChunk
     end
     object updownBoxSize: TUpDown
       Left = 251
-      Top = 45
+      Top = 53
       Width = 16
       Height = 21
       Associate = editDestBoxSize

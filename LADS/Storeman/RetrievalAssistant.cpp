@@ -106,8 +106,8 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
             case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
                 frmSamples->setJob(job);
                 if (mrOk == frmSamples->ShowModal()) {
-                    job->setStatus(LCDbCryoJob::INPROGRESS);
-                    job->saveRecord(LIMSDatabase::getCentralDb());
+//                    job->setStatus(LCDbCryoJob::INPROGRESS);
+//                    job->saveRecord(LIMSDatabase::getCentralDb());
                 }
                 break;
             case LCDbCryoJob::JobKind::BOX_RETRIEVAL:

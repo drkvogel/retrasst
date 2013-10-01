@@ -107,7 +107,8 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 		central.setSQL( "insert into c_retrieval_job (retrieval_cid, exercise_cid, external_name,"
 						" description, job_type, project_cid, primary_aliquot, secondary_aliquot,"
 						" process_cid, status, start_date, claimed_until, finish_date)"
-						" values (:myid, :exid, :nme, :dsc, :jt, :prj, :al1, :al2, :pid, :sts, :sdt, :cdt, :fdt)" );
+						//" values (:myid, :exid, :nme, :dsc, :jt, :prj, :al1, :al2, :pid, :sts, :sdt, :cdt, :fdt)" );
+                        " values (:myid, :exid, :nme, :dsc, :jt, :prj, :al1, :al2, :pid, :sts, :sdt, 'now', :fdt)" );
 		central.setParam( "nme", getName() );
 		central.setParam( "exid", exercise );
 		central.setParam( "dsc", getDescription() );
@@ -125,7 +126,9 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 
 		case INPROGRESS:
 			central.setParam( "sdt", XDATE( start_date ) );
-			central.setParam( "cdt", "date('now') + date('1 minute')" );
+			//central.setParam( "cdt", "date('now') + date('1 minute')" );
+            //central.setParam("cdt", "date('now') + date('1 minute')");
+            central.setParam("cdt", "now");
 			central.setParam( "fdt", "" );
 			break;
 

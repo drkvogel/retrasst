@@ -1,4 +1,7 @@
-﻿autochunk: goes over last vial
+﻿select * from c_permission where operator_cid = -31438
+#define 	LEASEE_STOREMAN		   100
+
+autochunk: goes over last vial
 chunks: put in db
 vials: select 1st row/scroll to top when new chunk created
 chunks: sizes are wrong - 1 too high
