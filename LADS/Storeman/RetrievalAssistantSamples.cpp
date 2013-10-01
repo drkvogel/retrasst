@@ -72,68 +72,7 @@ void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
 }
 
 void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) {
-    //Close();
     ModalResult = mrCancel;
-}
-
-void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
-    /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
-    and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
-    if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
-
-        std::set<int> projects; projects.insert(job->getProjectID());
-        frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
-        if (mrOk != frmConfirm->ShowModal())
-            return;
-
-        LQuery qc(LIMSDatabase::getCentralDb()); map<int, const SampleRow *> boxes; LCDbID myLCDbID; int rj_box_cid;
-
-        for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) {
-            Chunk< SampleRow > * chunk = *it;
-            for (int i = 1; i < chunk->getSize(); i++) {
-                SampleRow *         sampleRow = chunk->rowAt(i);
-                LPDbCryovial *      cryo  = sampleRow->cryo_record;
-                LPDbCryovialStore * store = sampleRow->store_record;
-
-                map<int, const SampleRow *>::iterator found = boxes.find(sampleRow->store_record->getBoxID());
-                if (found == boxes.end()) { // not added yet, add record and cache
-                    qc.setSQL(
-                        "INSERT INTO c_box_retrieval"
-                        " (retrieval_cid, section, box_id, rj_box_cid, status)"
-                        " VALUES"
-                        " (:rtid, :sect, :bid, :rjbid, :stat)"
-                    );
-                    rj_box_cid = myLCDbID.claimNextID(qc); // SQL: "next value for c_id_sequence"
-                    qc.setParam("rjbid",rj_box_cid); // Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
-                    qc.setParam("rtid", job->getID());
-                    qc.setParam("sect", chunk->getSection()); // 0 = retrieve all boxes in parallel
-                    qc.setParam("bid",  sampleRow->store_record->getBoxID()); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
-                    qc.setParam("stat", LCDbBoxStore::Status::SLOT_ALLOCATED); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
-                    qc.execSQL();
-                    boxes[sampleRow->store_record->getBoxID()] = (sampleRow); // cache result
-                }
-                qc.setSQL(
-                    "INSERT INTO l_cryovial_retrieval"
-                    " (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, process_cid, time_stamp, status)"
-                    " VALUES"
-                    " (:rjid, :pos, :barc, :aliq, :pid, 'now', :st)"
-                );
-                qc.setParam("rjid", rj_box_cid);
-                qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
-                qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
-                qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
-                const int pid = LCDbAuditTrail::getCurrent().getProcessID();
-                qc.setParam("pid",  pid);
-                qc.setParam("st",   LPDbCryovialStore::Status::ALLOCATED); //??
-                qc.execSQL();
-            }
-        }
-        btnSave->Enabled = false;
-        ModalResult = mrOk; // update c_retrieval_job (in progress)
-    } else { // start again
-        chunks.clear();
-        addChunk(); // start again
-    }
 }
 
 void __fastcall TfrmSamples::cbLogClick(TObject *Sender) {
@@ -201,6 +140,63 @@ void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
     }
 }
 
+void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
+    /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
+    and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
+    if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
+
+        std::set<int> projects; projects.insert(job->getProjectID());
+        frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
+        if (mrOk != frmConfirm->ShowModal()) return;
+
+        LQuery qc(LIMSDatabase::getCentralDb()); map<int, const SampleRow *> boxes; LCDbID myLCDbID; int rj_box_cid;
+
+        for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) {
+            Chunk< SampleRow > * chunk = *it;
+            for (int i = 1; i < chunk->getSize(); i++) {
+                SampleRow *         sampleRow = chunk->rowAt(i);
+                LPDbCryovial *      cryo  = sampleRow->cryo_record;
+                LPDbCryovialStore * store = sampleRow->store_record;
+
+                map<int, const SampleRow *>::iterator found = boxes.find(sampleRow->store_record->getBoxID());
+                if (found == boxes.end()) { // not added yet, add record and cache
+                    qc.setSQL(
+                        "INSERT INTO c_box_retrieval (retrieval_cid, section, box_id, rj_box_cid, status)"
+                        " VALUES (:rtid, :sect, :bid, :rjbid, :stat)"
+                    );
+                    rj_box_cid = myLCDbID.claimNextID(qc); // SQL: "next value for c_id_sequence"
+                    qc.setParam("rjbid",rj_box_cid); // Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
+                    qc.setParam("rtid", job->getID());
+                    qc.setParam("sect", chunk->getSection()); // 0 = retrieve all boxes in parallel
+                    qc.setParam("bid",  sampleRow->store_record->getBoxID()); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+                    qc.setParam("stat", LCDbBoxStore::Status::SLOT_ALLOCATED); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
+                    qc.execSQL();
+                    boxes[sampleRow->store_record->getBoxID()] = (sampleRow); // cache result
+                }
+                qc.setSQL(
+                    "INSERT INTO l_cryovial_retrieval"
+                    " (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, process_cid, time_stamp, status)"
+                    " VALUES"
+                    " (:rjid, :pos, :barc, :aliq, :pid, 'now', :st)"
+                );
+                qc.setParam("rjid", rj_box_cid);
+                qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
+                qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
+                qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
+                const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+                qc.setParam("pid",  pid);
+                qc.setParam("st",   LPDbCryovialStore::Status::ALLOCATED); //??
+                qc.execSQL();
+            }
+        }
+        btnSave->Enabled = false;
+        ModalResult = mrOk; // update c_retrieval_job (in progress)
+    } else { // start again
+        chunks.clear();
+        addChunk(); // start again
+    }
+}
+
 void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
     showChunk(); // default is 1st
 }
@@ -237,7 +233,6 @@ void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
         job->setStatus(LCDbCryoJob::Status::REJECTED);
         job->saveRecord(LIMSDatabase::getCentralDb());
-        //Close();
         ModalResult = mrCancel; //??? don't use modalresult
     }
 }
@@ -246,7 +241,7 @@ void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
     // mark chunk boundary //msgbox("chunk split");
-    addChunk();
+    addChunk(sgVials->Row); //??
     showChunks();
 }
 
@@ -269,7 +264,11 @@ void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
     if (chunks.size() == 1) btnDelChunk->Enabled = false;
 }
 
-void TfrmSamples::addChunk() {
+void TfrmSamples::addChunk(int start) {
+    
+    if (vials.size() == 0) throw "vials.size() == 0";
+    if (start > vials.size()) throw "start > vials.size()";
+    
     Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
         chunk = new Chunk< SampleRow >(
@@ -284,15 +283,14 @@ void TfrmSamples::addChunk() {
         // new chunk starting one after the end of the last one...
         // should be starting where you chose the division point, end of last one will always be end of list
         // with my current idiom, 'the division point' is the point you've chosen... in the current chunk
-                                                        // section num    // start                      // end
         int test1 = chunks.size() + 1;
         int test2 = currentChunk()->getSize()+1;
         int test5 = vials.size();
 
         chunk = new Chunk< SampleRow >(
             sgwVials, chunks.size() + 1,
-            currentChunk()->getSize()+1,    vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(), // first
-            vials.size(),                   vials[vials.size() == 0 ? 0 : vials.size()-1]->src_box_name,   vials[vials.size() == 0 ? 0 : vials.size()-1]->cryo_record->getBarcode() // last
+            start,          vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(), // first
+            vials.size(),   vials[vials.size() == 0 ? 0 : vials.size()-1]->src_box_name,   vials[vials.size() == 0 ? 0 : vials.size()-1]->cryo_record->getBarcode() // last
         );
     }
     chunks.push_back(chunk);
