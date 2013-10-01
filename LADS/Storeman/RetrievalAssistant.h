@@ -125,7 +125,7 @@ public:
     static bool sort_asc_destbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
     static bool sort_asc_site(const BoxRow *a, const BoxRow *b)       { return a->site_name.compare(b->site_name) < 0; }
     static bool sort_asc_vessname(const BoxRow *a, const BoxRow *b)   { return Util::numericCompare(a->vessel_name, b->vessel_name); }
-    static bool sort_asc_vesspos(const BoxRow *a, const BoxRow *b)   { return a->vessel_pos < b->vessel_pos; }
+    static bool sort_asc_vesspos(const BoxRow *a, const BoxRow *b)    { return a->vessel_pos < b->vessel_pos; }
     static bool sort_asc_shelf(const BoxRow *a, const BoxRow *b)      { return a->shelf_number < b->shelf_number; }
     static bool sort_asc_vessel(const BoxRow *a, const BoxRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
     static bool sort_asc_structure(const BoxRow *a, const BoxRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
@@ -148,7 +148,6 @@ public:
     LPDbCryovialStore * store_record;
     string              cryovial_barcode;
     string              aliquot_type_name; // not in LPDbCryovial
-    //int                 aliquot_type_cid; // getAliquotType()
     int                 dest_cryo_pos;      // cryovial_position
     ~SampleRow() { if (store_record) delete store_record; }
     SampleRow(  LPDbCryovial * cryo_rec,LPDbCryovialStore * store_rec,
@@ -196,8 +195,8 @@ class StringGridWrapper {
 public:
     class Col {
     public:
-        Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(false), vec(NULL), initialised(false) { }
-        Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL) : name(n), title(t), width(w), sort_func_asc(f), sortAsc(false) {}
+        Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(true), vec(NULL), initialised(false) { }
+        Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL) : name(n), title(t), width(w), sort_func_asc(f), sortAsc(true) {}
         string  sortDescription() {
             ostringstream oss; oss<<"Sort by "<<title<<" ascending"; return oss.str();
         }
@@ -289,28 +288,40 @@ class Chunk { // not recorded in database
     string              endBox;
     string              endDescrip;
 public:
-    Chunk(StringGridWrapper< T > * w, int sc, int s, string sb, string sv, int e, string eb, string ev) :
-        sgw(w), section(sc), startBox(sb), startVial(sv), endBox(eb), endVial(ev) {
+//    Chunk(StringGridWrapper< T > * w, int sc, int s, string sb, string sv, int e, string eb, string ev) :
+//        sgw(w), section(sc), start(s), startBox(sb), startVial(sv), end(e), endBox(eb), endVial(ev) {
+//        // setEnd(end); // setStart(st); // moved out to caller cause can't set breakpoints in template
+//    }
+    Chunk(StringGridWrapper< T > * w, int sc, int s, int e) :
+        sgw(w), section(sc), start(s), end(e) {
         // setEnd(end); // setStart(st); // moved out to caller cause can't set breakpoints in template
     }
     // http://stackoverflow.com/questions/1568091/why-use-getters-and-setters
     int     getSection()    { return section; }
-    int     getStart()      { return start+1; }
-    string  getStartBox()   { return startBox; }
-    string  getStartVial()  { return startVial; }
-    string  getEndBox()     { return endBox; }
-    string  getEndVial()    { return endVial; }
-    int     getEnd() { return end+1; }
-    int     getSize() { return end - start; } //OutputDebugString(L"I am here");
-    void    setStart(int s) { if (s < 1 || s > end) throw "invalid chunk start value"; start = s-1; }
+    int     getStart()      { return start; }
+    int     getStartPos()   { return start+1; } // 1-indexed, human-readable
+    string  getStartBox()   { return sgw->rows->at(start)->src_box_name; }
+    string  getStartVial()  { return sgw->rows->at(start)->cryo_record->getBarcode(); }
+    int     getEnd()        { return end; }
+    int     getEndPos()     { return end+1; }   // 1-indexed, human-readable
+    string  getEndBox()     { return sgw->rows->at(end)->src_box_name; }
+    string  getEndVial()    { return sgw->rows->at(end)->cryo_record->getBarcode(); }
+
+    int     getSize() { return end - start + 1; } //OutputDebugString(L"I am here");
+    void    setStart(int s) {
+        if (s < 0 || s > end) throw "invalid chunk start value";
+        start = s;
+        //setEndBox(sgw->rows->at(start)->src_box_name);
+        //setEndVial(sgw->rows->at(start)->cryo_record->getBarcode());
+    }
     void    setStartBox(string s) { startBox = s; }
     void    setStartVial(string v) { startVial = v; }
-    void    setEnd(int e) { if (e > sgw->rowCount()) throw "invalid chunk end value"; end = e; }
+    void    setEnd(int e) { if (e > sgw->rowCount()-1) throw "invalid chunk end value"; end = e; }
     void    setEndBox(string s) { endBox = s; }
     void    setEndVial(string v) { endVial = v; }
     T *     rowAt(int pos) {
         wstringstream oss; oss<<__FUNC__<<"start: "<<start<<", pos: "<<pos; OutputDebugString(oss.str().c_str());
-        return sgw->rows->at((start)+(pos-1));
+        return sgw->rows->at((start)+(pos));
     }
 
     // uninstantiated code in templates is not compiled

@@ -49,11 +49,12 @@ __fastcall TfrmLoginBase::TfrmLoginBase(TComponent* Owner) : TForm(Owner)
 	version -> Font -> Color = clRed;
 	version -> Caption = app + " **DEBUG**";
 #else
-	rgDatabase -> ItemIndex = LIMSDatabase::LIVE_DATA;		// db v2.7.1 - fail
+	//rgDatabase -> ItemIndex = LIMSDatabase::LIVE_DATA;		// db v2.7.1 - fail
 	version -> Font -> Color = clBlack;
 	version -> Caption = app + " **FINAL**";
 #endif
 	//rgDatabase -> ItemIndex = LIMSDatabase::TEST_DATA;
+    rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM; 	// db v2.7.3 - OK
 	Application -> OnException = AppException;
 }
 

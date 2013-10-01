@@ -23,14 +23,14 @@ void __fastcall TfrmAutoChunk::timerCalculateTimer(TObject *Sender) {
 
 void TfrmAutoChunk::calcSizes() { // calculate section sizes
     comboSectionSize->Clear();
-    //int box_size = editDestBoxSize->Text.ToIntDef(0); // Calculate slot/box (where c_box_size.box_size_cid = box_content.box_size_cid
-    int box_size = 123;
+    int box_size = editDestBoxSize->Text.ToIntDef(0); // Calculate slot/box (where c_box_size.box_size_cid = box_content.box_size_cid
+    //int box_size = 123;
         // now, as retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box
         // where does box_content come from?
-    int section_size = box_size * 2;
-    while (section_size <= editMaxSize->Text.ToIntDef(0)) {
-        comboSectionSize->Items->Add(String(section_size));
-        section_size += box_size;
+    int possibleChunkSize = box_size * 2; // smallest chunk
+    while (possibleChunkSize <= editMaxSize->Text.ToIntDef(0)) {
+        comboSectionSize->Items->Add(String(possibleChunkSize));
+        possibleChunkSize += box_size;
     }
     comboSectionSize->ItemIndex = comboSectionSize->Items->Count-1;
 }
@@ -52,7 +52,17 @@ Display the size of the job and ask user if they want to divide up the list.  If
 }
 
 void __fastcall TfrmAutoChunk::btnAddChunkClick(TObject *Sender) {
-    frmSamples->addChunk();
+    int selectedChunkSize = comboSectionSize->Items->Strings[comboSectionSize->ItemIndex].ToIntDef(0);
+    frmSamples->addChunk(selectedChunkSize);
+}
+
+void __fastcall TfrmAutoChunk::btnAddAllChunksClick(TObject *Sender) {
+    int selectedChunkSize = comboSectionSize->Items->Strings[comboSectionSize->ItemIndex].ToIntDef(0);
+    int numChunks = frmSamples->vials.size() % selectedChunkSize;
+    for (int i=0; i < numChunks; i++) {
+        if (!frmSamples->addChunk(selectedChunkSize))
+            break;;
+    }
 }
 
 

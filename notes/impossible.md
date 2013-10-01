@@ -1,13 +1,9 @@
-﻿    chunking
-    sgBoxesFixedCellClick
-    sortChunk    
-
-chunk stringgridwrapper refactoring-
-
-template/breakpoint nonsense
-    it (Cbuilder) seems to be optimizing things even though it's told not to; you can't set breakpoints in certain places
-
-
+﻿
+autochunk: goes over last vial
+chunks: put in db
+vials: select 1st row/scroll to top when new chunk created
+chunks: sizes are wrong - 1 too high? no, size calc is ok (0-indexed should be +1), something else wrong
+chunks: can go over end of vials - check
 
 
 sort out add first chunk mess:
@@ -21,33 +17,18 @@ sort out add first chunk mess:
     pressing decr decrements the end of the current chunk
     changing values in the chunk stringgrid changes chunk parameters? (not in spec?)
 
-
-### chunk split    
-    
-add chunk
-make it selected
-show chunks (ie. show contents of new chunk)
     
 ### reject list
 
-done
+# done
 
-### create list?
-
-what about it?
-
-get rid of samplechunk, boxchunk?    
+get rid of samplechunk, boxchunk?-
 
 ### how to organise list and chunks
     
-sgwVials
-    chunks[] // indexes to start/end of list
-    
+sgwVials: chunks[] // indexes to start/end of list
    or
-
-Chunk
-    * list? // pointer to *part* of vector...hmmm
-    * wrapper->sort
+Chunk * list? // pointer to *part* of vector...hmmm * wrapper->sort
     
 ### boilerplate    
     
@@ -68,3 +49,16 @@ Chunk
     }
     Screen->Cursor = crDefault;
 */
+
+### chunk split    
+    
+add chunk-
+make it selected-
+show chunks (ie. show contents of new chunk)-
+chunk stringgridwrapper refactoring-
+chunking
+sgBoxesFixedCellClick
+sortChunk    
+template/breakpoint nonsense
+it (Cbuilder) seems to be optimizing things even though it's told not to; you can't set breakpoints in certain places
+    templates can't be debugged and unused templated code is not compiled

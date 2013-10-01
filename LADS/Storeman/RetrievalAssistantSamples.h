@@ -82,12 +82,14 @@ __published:
     void __fastcall sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value);
     void __fastcall sgVialsDblClick(TObject *Sender);
     void __fastcall FormDestroy(TObject *Sender);
+    void __fastcall sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow);
+
 private:
     LoadVialsWorkerThread *     loadVialsWorkerThread;
     void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
     vector< Chunk< SampleRow > *>               chunks;
-    vecpSampleRow                               vials;      // all vials in job
+    //vecpSampleRow                               vials;      // all vials in job
     StringGridWrapper<SampleRow> *              sgwVials;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
     void                        addSorter();
@@ -100,10 +102,11 @@ private:
     void                        showChunk(Chunk< SampleRow > * chunk=NULL);
     const char *                loadingMessage;
 public:
+vecpSampleRow                               vials;      // all vials in job
     __fastcall                  TfrmSamples(TComponent* Owner);
     void                        debugLog(String s);
     void                        setJob(LCDbCryoJob * ajob) { job = ajob; };
-    void                        addChunk();
+    bool                        addChunk(unsigned int startrow);//, unsigned int size=0);
 };
 
 extern PACKAGE TfrmSamples *frmSamples;

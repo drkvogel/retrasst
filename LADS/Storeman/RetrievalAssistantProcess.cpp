@@ -64,20 +64,21 @@ void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
 void TfrmProcess::addChunk() {
     Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-        chunk = new Chunk< SampleRow >(
-            sgwVials, chunks.size() + 1,
-            //vector< SampleRow * > * rows;
-            1,              vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(),
-            vials.size(),   vials[vials.size()-1]->src_box_name,   vials[vials.size()-1]->cryo_record->getBarcode()
-        ); // 1-indexed // size is calculated
-        chunk->setEnd(vials.size());
-        chunk->setStart(1);
+//        chunk = new Chunk< SampleRow >(
+//            sgwVials, chunks.size() + 1, //vector< SampleRow * > * rows;
+//            1,              vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(),
+//            vials.size(),   vials[vials.size()-1]->src_box_name,   vials[vials.size()-1]->cryo_record->getBarcode()
+//        ); // 1-indexed // size is calculated
+        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 1, vials.size());
+        //chunk->setEnd(vials.size());
+        //chunk->setStart(1);
     } else {
-        chunk = new Chunk< SampleRow >(
-            sgwVials, chunks.size() + 1,
-            currentChunk()->getSize()+1,    vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(), // first
-            vials.size(),                   vials[vials.size()-1]->src_box_name,   vials[vials.size()-1]->cryo_record->getBarcode() // last
-        );
+//        chunk = new Chunk< SampleRow >(
+//            sgwVials, chunks.size() + 1,
+//            currentChunk()->getSize()+1,    vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(), // first
+//            vials.size(),                   vials[vials.size()-1]->src_box_name,   vials[vials.size()-1]->cryo_record->getBarcode() // last
+//        );
+        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, currentChunk()->getSize()+1, vials.size());
     }
     chunks.push_back(chunk);
     showChunks();

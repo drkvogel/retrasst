@@ -15,28 +15,32 @@ TfrmSamples *frmSamples;
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
-    sgwChunks->addCol("section",  "Section",  50);
-    sgwChunks->addCol("start",    "Start",    50);
-    sgwChunks->addCol("startbox", "Box",      210);
-    sgwChunks->addCol("startvial","Vial",     100);
-    sgwChunks->addCol("end",      "End",      50);
-    sgwChunks->addCol("endbox",   "Box",      210);
-    sgwChunks->addCol("endvial",  "Vial",     100);
-    sgwChunks->addCol("size",     "Size",     60);
+    // {87, 70, 304, 150, 66, 242, 160, 87, }
+    sgwChunks->addCol("section",  "Section",  87);
+    sgwChunks->addCol("start",    "Start",    70);
+    sgwChunks->addCol("startbox", "Box",      304);
+    sgwChunks->addCol("startvial","Vial",     150);
+    sgwChunks->addCol("end",      "End",      66);
+    sgwChunks->addCol("endbox",   "Box",      242);
+    sgwChunks->addCol("endvial",  "Vial",     160);
+    sgwChunks->addCol("size",     "Size",     87);
     sgwChunks->init();
 
+
+    //{102, 100, 192, 43, 137, 50, 130, 38, 46, 123, 40, 186, 37, }
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
     sgwVials->addCol("barcode",  "Barcode",          102,   SampleRow::sort_asc_barcode);
     sgwVials->addCol("aliquot",  "Aliquot",          100,   SampleRow::sort_asc_aliquot);
-    sgwVials->addCol("currbox",  "Current box",      275,   SampleRow::sort_asc_currbox);
+    sgwVials->addCol("currbox",  "Current box",      192,   SampleRow::sort_asc_currbox);
     sgwVials->addCol("currpos",  "Pos",              43,    SampleRow::sort_asc_currpos);
-    sgwVials->addCol("site",     "Site",             116,   SampleRow::sort_asc_site);
-    sgwVials->addCol("vesspos",  "Position",         50,    SampleRow::sort_asc_position);
-    sgwVials->addCol("shelf",    "Shelf",            100,   SampleRow::sort_asc_shelf);
-    sgwVials->addCol("vessel",   "Vessel",           43,    SampleRow::sort_asc_vessel);
-    sgwVials->addCol("struct",   "Structure",        121,   SampleRow::sort_asc_structure);
-    sgwVials->addCol("boxpos",   "Pos",              40,    SampleRow::sort_asc_slot);
-    sgwVials->addCol("destbox",  "Destination box",  213,   SampleRow::sort_asc_destbox);
+    sgwVials->addCol("site",     "Site",             137,   SampleRow::sort_asc_site);
+    sgwVials->addCol("vesspos",  "Pos",              50,    SampleRow::sort_asc_position);
+    sgwVials->addCol("vessel",   "Vessel",           130,   SampleRow::sort_asc_vessel);
+    sgwVials->addCol("shelf",    "Shelf",            38,   SampleRow::sort_asc_shelf);
+    sgwVials->addCol("structpos","Pos",              46,   SampleRow::sort_asc_shelf);
+    sgwVials->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure);
+    sgwVials->addCol("boxpos",   "Slot",             40,    SampleRow::sort_asc_slot);
+    sgwVials->addCol("destbox",  "Destination box",  186,   SampleRow::sort_asc_destbox);
     sgwVials->addCol("destpos",  "Pos",              37,    SampleRow::sort_asc_destpos);
     sgwVials->init();
 }
@@ -140,6 +144,12 @@ void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
     }
 }
 
+void __fastcall TfrmSamples::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
+    ostringstream oss; oss << __FUNC__;
+    oss<<sgwChunks->printColWidths()<<" clicked on col: "<<ACol<<".";
+    debugLog(oss.str().c_str());
+}
+
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
     and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
@@ -193,7 +203,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         ModalResult = mrOk; // update c_retrieval_job (in progress)
     } else { // start again
         chunks.clear();
-        addChunk(); // start again
+        addChunk(0); // start again
     }
 }
 
@@ -214,7 +224,9 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
-    ostringstream oss; oss << __FUNC__; oss<<sgwVials->printColWidths(); debugLog(oss.str().c_str());
+    ostringstream oss; oss << __FUNC__;
+    oss<<sgwVials->printColWidths()<<" sorting by col: "<<ACol<<".";
+    debugLog(oss.str().c_str());
     currentChunk()->sortToggle(ACol);
     showChunk();
 }
@@ -246,7 +258,8 @@ void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
-    addChunk();
+    if (sgVials->Row < 2) return;
+    addChunk(sgVials->Row);
 }
 
 void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
@@ -264,39 +277,34 @@ void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
     if (chunks.size() == 1) btnDelChunk->Enabled = false;
 }
 
-void TfrmSamples::addChunk(int start) {
-    
-    if (vials.size() == 0) throw "vials.size() == 0";
-    if (start > vials.size()) throw "start > vials.size()";
-    
-    Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
-    if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-        chunk = new Chunk< SampleRow >(
-            sgwVials, chunks.size() + 1,
-            //vector< SampleRow * > * rows; // sgwVials->rows // (*(sgwVials->rows))[0]->
-            1,              vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(),
-            vials.size(),   vials[vials.size() == 0 ? 0 : vials.size()-1]->src_box_name,   vials[vials.size() == 0 ? 0 : vials.size()-1]->cryo_record->getBarcode()
-        ); // 1-indexed // size is calculated
-        chunk->setEnd(vials.size());
-        chunk->setStart(1);
-    } else {
-        // new chunk starting one after the end of the last one...
-        // should be starting where you chose the division point, end of last one will always be end of list
-        // with my current idiom, 'the division point' is the point you've chosen... in the current chunk
-        int test1 = chunks.size() + 1;
-        int test2 = currentChunk()->getSize()+1;
-        int test5 = vials.size();
+bool TfrmSamples::addChunk(unsigned int offset) {//, unsigned int size) {
+/** Add a chunk starting at the specified row [of the specified size?]
+    offset: number of rows after beginning of previous chunk at which to cut off new chunk
+    return: is there any space for more? */
 
-        chunk = new Chunk< SampleRow >(
-            sgwVials, chunks.size() + 1,
-            start,          vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(), // first
-            vials.size(),   vials[vials.size() == 0 ? 0 : vials.size()-1]->src_box_name,   vials[vials.size() == 0 ? 0 : vials.size()-1]->cryo_record->getBarcode() // last
-        );
+    if (vials.size() == 0) return false; //throw "vials.size() == 0";
+    if (offset > vials.size()) return false; //throw "startrow > vials.size()";
+
+    Chunk< SampleRow > * chunk;
+    int test5 = vials.size();
+    int test1 = chunks.size() + 1;
+
+    if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
+        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 0, vials.size()-1); // 0-indexed // size is calculated
+    } else {
+        if (offset <= 0) return false; //??
+        int test2 = currentChunk()->getSize()+1; //make end of previous chunk start - 1
+        //currentChunk()->getStart()
+        if (currentChunk()->getStart() + offset > vials.size()) { // current last chunk is too small to be split at this offset
+            return false; // e.g. for auto-chunk to stop chunking
+        }
+        currentChunk()->setEnd(currentChunk()->getStart() + offset-1); // row above start of new chunk
+        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, currentChunk()->getStart()+offset, vials.size()-1);
     }
-    chunks.push_back(chunk);
-    btnDelChunk->Enabled = true;
+    chunks.push_back(chunk); btnDelChunk->Enabled = true;
     showChunks();
     sgChunks->Row = sgChunks->RowCount-1; // fixme make it the current chunk
+    sgwVials->clearSelection();
 }
 
 void TfrmSamples::showChunks() {
@@ -307,10 +315,10 @@ void TfrmSamples::showChunks() {
     for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
         Chunk< SampleRow > * chunk = *it;
         sgChunks->Cells[sgwChunks->colNameToInt("section")]   [row] = chunk->getSection();
-        sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStart();
+        sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStartPos();
         sgChunks->Cells[sgwChunks->colNameToInt("startbox")]  [row] = chunk->getStartBox().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("startvial")] [row] = chunk->getStartVial().c_str();
-        sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEnd();
+        sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEndPos();
         sgChunks->Cells[sgwChunks->colNameToInt("endbox")]    [row] = chunk->getEndBox().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("endvial")]   [row] = chunk->getEndVial().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();
@@ -340,18 +348,19 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
         SampleRow *         sampleRow = chunk->rowAt(row);
         LPDbCryovial *      vial    = sampleRow->cryo_record;
         LPDbCryovialStore * store   = sampleRow->store_record;
-        sgVials->Cells[sgwVials->colNameToInt("barcode")] [row] = sampleRow->cryovial_barcode.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("aliquot")] [row] = sampleRow->aliquot_type_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("currbox")] [row] = sampleRow->src_box_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("currpos")] [row] = sampleRow->store_record->getPosition();
-        sgVials->Cells[sgwVials->colNameToInt("site"   )] [row] = sampleRow->site_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("vesspos")] [row] = sampleRow->vessel_pos;
-        sgVials->Cells[sgwVials->colNameToInt("shelf"  )] [row] = sampleRow->structure_pos;
-        sgVials->Cells[sgwVials->colNameToInt("vessel" )] [row] = sampleRow->vessel_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("struct" )] [row] = sampleRow->structure_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("boxpos" )] [row] = sampleRow->box_pos;
-        sgVials->Cells[sgwVials->colNameToInt("destbox")] [row] = sampleRow->dest_box_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("destpos")] [row] = sampleRow->dest_cryo_pos;
+        sgVials->Cells[sgwVials->colNameToInt("barcode")]  [row] = sampleRow->cryovial_barcode.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [row] = sampleRow->aliquot_type_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("currbox")]  [row] = sampleRow->src_box_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("currpos")]  [row] = sampleRow->store_record->getPosition();
+        sgVials->Cells[sgwVials->colNameToInt("site"   )]  [row] = sampleRow->site_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("vesspos")]  [row] = sampleRow->vessel_pos;
+        sgVials->Cells[sgwVials->colNameToInt("vessel" )]  [row] = sampleRow->vessel_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("shelf"  )]  [row] = sampleRow->shelf_number;
+        sgVials->Cells[sgwVials->colNameToInt("structpos")][row] = sampleRow->structure_pos;
+        sgVials->Cells[sgwVials->colNameToInt("struct" )]  [row] = sampleRow->structure_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [row] = sampleRow->box_pos;
+        sgVials->Cells[sgwVials->colNameToInt("destbox")]  [row] = sampleRow->dest_box_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("destpos")]  [row] = sampleRow->dest_cryo_pos;
         sgVials->Objects[0][row] = (TObject *)sampleRow;
     }
     Screen->Cursor = crDefault; Enabled = true;
@@ -461,9 +470,8 @@ void __fastcall LoadVialsWorkerThread::updateStatus() { // can't use args for sy
 void __fastcall LoadVialsWorkerThread::Execute() {
     delete_referenced< vector<SampleRow * > >(frmSamples->vials);
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
-    loadingMessage = oss.str().c_str(); //return;
+    loadingMessage = oss.str().c_str();
 
-    rowCount = 0;
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
     qd.setSQL( // from spec 2013-09-11
         "SELECT"
@@ -494,7 +502,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         );
     qd.setParam("jobID", frmSamples->job->getID());
     loadingMessage = frmSamples->loadingMessage;
-    qd.open();
+    rowCount = 0; qd.open();
     while (!qd.eof()) {
         if (0 == rowCount % 10) {
             ostringstream oss; oss<<"Found "<<rowCount<<" vials";
@@ -552,8 +560,8 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {
         autoChunk();
     } else {
-        addChunk(); // default chunk
+        addChunk(0); // default chunk
     }
-    showChunks();
+    //showChunks();
 }
 

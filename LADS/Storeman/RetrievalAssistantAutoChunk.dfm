@@ -23,6 +23,8 @@ object frmAutoChunk: TfrmAutoChunk
     Align = alClient
     Caption = 'Auto chunk'
     TabOrder = 0
+    ExplicitLeft = -8
+    ExplicitTop = 16
     object Label1: TLabel
       Left = 32
       Top = 83
@@ -47,7 +49,7 @@ object frmAutoChunk: TfrmAutoChunk
     object editMaxSize: TEdit
       Left = 146
       Top = 80
-      Width = 121
+      Width = 103
       Height = 21
       TabOrder = 0
       Text = '500'
@@ -55,7 +57,7 @@ object frmAutoChunk: TfrmAutoChunk
     end
     object btnOK: TButton
       Left = 146
-      Top = 176
+      Top = 224
       Width = 75
       Height = 25
       Caption = 'Close'
@@ -73,19 +75,47 @@ object frmAutoChunk: TfrmAutoChunk
     object btnAddChunk: TButton
       Left = 146
       Top = 134
-      Width = 75
+      Width = 121
       Height = 25
-      Caption = 'Add Chunk'
+      Caption = 'Add 1 Chunk'
       TabOrder = 3
       OnClick = btnAddChunkClick
     end
     object editDestBoxSize: TEdit
       Left = 146
       Top = 45
-      Width = 121
+      Width = 103
       Height = 21
       TabOrder = 4
       Text = '72'
+    end
+    object btnAddAllChunks: TButton
+      Left = 146
+      Top = 165
+      Width = 121
+      Height = 25
+      Caption = 'Add All Chunks'
+      TabOrder = 5
+      OnClick = btnAddAllChunksClick
+    end
+    object updownBoxSize: TUpDown
+      Left = 251
+      Top = 45
+      Width = 16
+      Height = 21
+      Associate = editDestBoxSize
+      Position = 72
+      TabOrder = 6
+    end
+    object updownMaxSection: TUpDown
+      Left = 251
+      Top = 80
+      Width = 16
+      Height = 21
+      Associate = editMaxSize
+      Max = 5000
+      Position = 500
+      TabOrder = 7
     end
   end
   object timerCalculate: TTimer

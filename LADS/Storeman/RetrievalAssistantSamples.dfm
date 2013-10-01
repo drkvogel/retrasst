@@ -66,7 +66,7 @@ object frmSamples: TfrmSamples
         Caption = 'Add chunk'
         TabOrder = 0
         OnClick = btnAddChunkClick
-        ExplicitWidth = 82
+        ExplicitTop = 19
       end
       object btnDelChunk: TButton
         Left = 0
@@ -78,7 +78,6 @@ object frmSamples: TfrmSamples
         Enabled = False
         TabOrder = 1
         OnClick = btnDelChunkClick
-        ExplicitWidth = 82
       end
       object btnIncr: TButton
         Left = 0
@@ -89,7 +88,6 @@ object frmSamples: TfrmSamples
         Caption = '+'
         TabOrder = 2
         OnClick = btnIncrClick
-        ExplicitWidth = 82
       end
       object btnDecr: TButton
         Left = 0
@@ -100,7 +98,6 @@ object frmSamples: TfrmSamples
         Caption = '-'
         TabOrder = 3
         OnClick = btnDecrClick
-        ExplicitWidth = 82
       end
       object btnAutoChunk: TButton
         Left = 0
@@ -111,7 +108,6 @@ object frmSamples: TfrmSamples
         Caption = 'Auto-Chunk'
         TabOrder = 4
         OnClick = btnAutoChunkClick
-        ExplicitWidth = 82
       end
       object btnCancel: TButton
         Left = 0
@@ -122,7 +118,6 @@ object frmSamples: TfrmSamples
         Caption = 'Exit'
         TabOrder = 5
         OnClick = btnCancelClick
-        ExplicitWidth = 82
       end
       object btnSave: TButton
         Left = 0
@@ -133,7 +128,6 @@ object frmSamples: TfrmSamples
         Caption = 'Save'
         TabOrder = 6
         OnClick = btnSaveClick
-        ExplicitWidth = 82
       end
       object btnReject: TButton
         Left = 0
@@ -144,7 +138,6 @@ object frmSamples: TfrmSamples
         Caption = 'Reject List'
         TabOrder = 7
         OnClick = btnRejectClick
-        ExplicitWidth = 82
       end
       object cbLog: TCheckBox
         Left = 0
@@ -155,7 +148,6 @@ object frmSamples: TfrmSamples
         Caption = 'Show Log'
         TabOrder = 8
         OnClick = cbLogClick
-        ExplicitWidth = 82
       end
       object cbSnapToBoxes: TCheckBox
         Left = 0
@@ -165,7 +157,6 @@ object frmSamples: TfrmSamples
         Align = alTop
         Caption = 'Snap to boxes'
         TabOrder = 9
-        ExplicitWidth = 82
       end
     end
     object sgChunks: TStringGrid
@@ -176,13 +167,15 @@ object frmSamples: TfrmSamples
       Align = alClient
       DefaultDrawing = False
       FixedCols = 0
-      Options = [goFixedVertLine, goHorzLine, goRangeSelect, goColSizing, goAlwaysShowEditor, goThumbTracking]
+      Options = [goFixedVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goRowSelect, goThumbTracking, goFixedRowClick]
       TabOrder = 1
       OnClick = sgChunksClick
       OnDrawCell = sgChunksDrawCell
+      OnFixedCellClick = sgChunksFixedCellClick
       OnGetEditText = sgChunksGetEditText
       OnSetEditText = sgChunksSetEditText
-      ExplicitWidth = 798
+      ExplicitLeft = 3
+      ExplicitTop = 21
     end
   end
   object groupVials: TGroupBox

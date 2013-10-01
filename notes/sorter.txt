@@ -1,11 +1,19 @@
-﻿http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
+﻿autochunk: goes over last vial
+chunks: put in db
+vials: select 1st row/scroll to top when new chunk created
+chunks: sizes are wrong - 1 too high
+chunks: can go over end of vials - check
 
-drawcell border round selected chunk
+http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
+
+
 can only double click to split chunk on last chunk?
 
 sorting works again! OMG!
 sorting by shelf doesn't seem to do anything
 it is quite slow though...
+
+Atkins/Ruskin 1h35
 
 ### Cultural learnings of 2013-09-28
 
@@ -129,3 +137,7 @@ I have your new card so please pop in with the old one when you’re next passin
             // why can't derived members be initialised in constructor's initialization list?
             // because they can't - but you can delegate to the base class' constructor
             // http://stackoverflow.com/questions/17196495/initialise-protected-data-members-from-derived-class-constructor
+1st toggle sort seems to be descending-not any more
+sort by shelf not working? mismatch, sorted
+debuglog which col is being sorted-
+drawcell border round selected chunk-
