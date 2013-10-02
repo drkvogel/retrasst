@@ -46,16 +46,14 @@ where s.cryovial_id = c.cryovial_id
 and aliquot_type_cid = -31781 
 and cryovial_barcode like '112155%' -- 837 */
 
-drop sequence temp_box_position;
+--drop sequence temp_box_position;
 create sequence temp_box_position start with 11101;
 \p\g
 
 insert into cryovial_store (record_id, cryovial_id, box_cid, cryovial_position, time_stamp, status, note_exists)
 select -s.cryovial_id, s.cryovial_id, -(next value for temp_box_position)/100,  mod(next value for temp_box_position,100),'now',0,0
 from cryovial_store s, cryovial c 
-where s.cryovial_id = c.cryovial_id 
-and aliquot_type_cid = -31781 
-and cryovial_barcode like '112155%';
+where s.cryovial_id = c.cryovial_id and aliquot_type_cid = -31781 and cryovial_barcode like '112155%';
 \p\g
 
 /* to delete the above:

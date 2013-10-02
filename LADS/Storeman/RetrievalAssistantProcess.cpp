@@ -14,7 +14,6 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwChunks->addCol("size",     "Size",     200);
     sgwChunks->init();
 
-    //sgwVials = new StringGridWrapper<SampleRow>(sgRetrieval, &vials);
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
     sgwVials->addCol("barcode",  "Barcode",          102,   SampleRow::sort_asc_barcode);
     sgwVials->addCol("aliquot",  "Aliquot",          100,   SampleRow::sort_asc_aliquot);
@@ -44,9 +43,7 @@ void __fastcall TfrmProcess::FormDestroy(TObject *Sender) {
 }
 
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
-    //loadRows();
     timerLoadPlan->Enabled = false;
-    //showChunk();
     panelLoading->Caption = loadingMessage;
 }
 
@@ -64,20 +61,8 @@ void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
 void TfrmProcess::addChunk() {
     Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-//        chunk = new Chunk< SampleRow >(
-//            sgwVials, chunks.size() + 1, //vector< SampleRow * > * rows;
-//            1,              vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(),
-//            vials.size(),   vials[vials.size()-1]->src_box_name,   vials[vials.size()-1]->cryo_record->getBarcode()
-//        ); // 1-indexed // size is calculated
         chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 1, vials.size());
-        //chunk->setEnd(vials.size());
-        //chunk->setStart(1);
     } else {
-//        chunk = new Chunk< SampleRow >(
-//            sgwVials, chunks.size() + 1,
-//            currentChunk()->getSize()+1,    vials[0]->src_box_name,                vials[0]->cryo_record->getBarcode(), // first
-//            vials.size(),                   vials[vials.size()-1]->src_box_name,   vials[vials.size()-1]->cryo_record->getBarcode() // last
-//        );
         chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, currentChunk()->getSize()+1, vials.size());
     }
     chunks.push_back(chunk);
@@ -104,7 +89,6 @@ void TfrmProcess::showChunks() {
     }
     showChunk();
 }
-
 
 Chunk< SampleRow > * TfrmProcess::currentChunk() {
     if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
