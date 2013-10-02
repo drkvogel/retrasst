@@ -58,5 +58,16 @@ and aliquot_type_cid = -31781
 and cryovial_barcode like '112155%';
 \p\g
 
+/* to delete the above:
+
+delete from cryovial_store s
+where exists (
+ select 1 from cryovial c  
+ where s.cryovial_id = c.cryovial_id
+ and aliquot_type_cid = -31781 
+ and cryovial_barcode like '112155%'
+) 
+*/
+
 drop sequence temp_box_position;
 \p\g
