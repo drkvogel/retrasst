@@ -149,7 +149,7 @@ public:
     string              cryovial_barcode;
     string              aliquot_type_name; // not in LPDbCryovial
     int                 dest_cryo_pos;      // cryovial_position
-    ~SampleRow() { if (store_record) delete store_record; }
+    ~SampleRow() { if (store_record) delete store_record; if (cryo_record) delete cryo_record;}
     SampleRow(  LPDbCryovial * cryo_rec,LPDbCryovialStore * store_rec,
                 string barc, string aliq, string srcnm, int dstid, string dstnm, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
@@ -208,6 +208,7 @@ public:
     };
     vector< T * > *     rows;
     vector< Col >       cols;
+    ~StringGridWrapper() { /* delete cols */ }
 
     StringGridWrapper(TStringGrid * g, vector<T *> * v) : sg(g), rows(v), initialised(false) {}
     void init() {
@@ -224,7 +225,6 @@ public:
         cols.push_back(c);
     }
     void addCol(string n, string d, int w, bool (*f)(const T *, const T *)=NULL) {
-    //void addCol(std::string n, std::string d, int w, bool (*f)(const RetrievalRow *, const RetrievalRow *)=NULL) {
         addCol(StringGridWrapper< T >::Col(n, d, w, f));
     }
     int colNameToInt(string colName) {

@@ -1,3 +1,5 @@
+update c_operator set status = 1, valid_to = date('now') + date('2 years'), password_md5 = '' where operator_cid = -31438
+
 # Retrieval Assistant
 
 LPDbCryovials::getAliquotTypes // useful?
