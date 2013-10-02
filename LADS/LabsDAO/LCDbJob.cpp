@@ -127,7 +127,7 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 		case INPROGRESS:
 			central.setParam( "sdt", XDATE( start_date ) );
 			//central.setParam( "cdt", "date('now') + date('1 minute')" );
-            central.setParam("cdt", "date('now') + date('1 minute')"); // fixme:
+            //central.setParam("cdt", "date('now') + date('1 minute')"); // fixme:
 /*
 XDB error: IIAPI_ST_ERROR
 Info: ERROR '22008' 4308: bad character found in date/time string beginning with 'date('now') + date('1 minute')'.
@@ -136,7 +136,7 @@ E_US10D4_4308    bad character found in date/time string beginning with 'date('n
 On local Ingres version 10.0.0
 */
 
-            //central.setParam("cdt", "now");
+            central.setParam("cdt", "now");
 			central.setParam( "fdt", "" );
 			break;
 
