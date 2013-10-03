@@ -8,6 +8,7 @@
 #include "TfrmConfirm.h"
 #include "LCDbAuditTrail.h"
 #include "LPDbCryovialStore.h"
+#include "LPDbBoxes.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -150,6 +151,8 @@ void __fastcall TfrmSamples::sgChunksFixedCellClick(TObject *Sender, int ACol, i
     debugLog(oss.str().c_str());
 }
 
+/* delete from l_cryovial_retrieval; delete from c_box_retrieval -- as user lust */
+
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
     and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
@@ -157,15 +160,9 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
 
         std::set<int> projects; projects.insert(job->getProjectID());
         frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
-        //if (mrOk != frmConfirm->ShowModal()) return;
-        //select * from c_permission where operator_cid = -31438
-        //#define 	LEASEE_STOREMAN	100
-        //job->setStatus(LCDbCryoJob::INPROGRESS);
-        //job->saveRecord(LIMSDatabase::getCentralDb());
 
         Screen->Cursor = crSQLWait; Enabled = false;
         LQuery qc(LIMSDatabase::getCentralDb());
-        //map<int, const SampleRow *> boxes;
         map<int, int> boxes; // box_id to rj_box_id
         int rj_box_cid;
         for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) {
@@ -174,15 +171,6 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                 SampleRow *         sampleRow = chunk->rowAt(i);
                 LPDbCryovial *      cryo  = sampleRow->cryo_record;
                 LPDbCryovialStore * store = sampleRow->store_record;
-
-                /*
-                delete from l_cryovial_retrieval;
-                delete from c_box_retrieval
-                -- has to be done as lust
-                */
-
-
-                //map<int, const SampleRow *>::iterator found = boxes.find(sampleRow->store_record->getBoxID());
                 map<int, int>::iterator found = boxes.find(sampleRow->store_record->getBoxID());
                 if (found == boxes.end()) { // not added yet, add record and cache
                     qc.setSQL(
@@ -412,6 +400,15 @@ void __fastcall TfrmSamples::sgChunksGetEditText(TObject *Sender, int ACol, int 
 }
 
 void TfrmSamples::autoChunk() {
+    // box_name.box_type_cid -> box_content.box_size_cid -> c_box_size.box_capacity
+    //const LPDbBoxName *found = boxes.readRecord(pq, box.c_str());
+    //LPDbBoxNames::readRecord
+    // initialise box size with size of first box in first chunk
+    LPDbBoxNames boxes;
+    const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), chunks[0]->getStartRow()->store_record->getBoxID());
+    if (found == NULL) throw "box not found";
+    frmAutoChunk->box_size = found->getSize();
+
     frmAutoChunk->ShowModal();
 }
 

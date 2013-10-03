@@ -6,6 +6,9 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.ComCtrls.hpp>
+
+#define DEFAULT_BOX_SIZE 100
+
 class TfrmAutoChunk : public TForm
 {
 __published:	// IDE-managed Components
@@ -34,6 +37,7 @@ private:
     int section_size;
 public:
     __fastcall TfrmAutoChunk(TComponent* Owner);
+    int box_size;
 };
 extern PACKAGE TfrmAutoChunk *frmAutoChunk;
 #endif

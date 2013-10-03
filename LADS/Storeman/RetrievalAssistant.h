@@ -301,6 +301,7 @@ public:
     int     getSection()    { return section; }
     int     getStart()      { return start; }
     int     getStartPos()   { return start+1; } // 1-indexed, human-readable
+    T *     getStartRow()   { return sgw->rows->at(start); }
     string  getStartBox()   { return sgw->rows->at(start)->src_box_name; }
     string  getStartVial()  { return sgw->rows->at(start)->cryo_record->getBarcode(); }
     int     getEnd()        { return end; }

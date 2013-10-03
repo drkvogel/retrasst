@@ -20,7 +20,7 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("currbox",  "Current box",      275,   SampleRow::sort_asc_currbox);
     sgwVials->addCol("currpos",  "Pos",              43,    SampleRow::sort_asc_currpos);
     sgwVials->addCol("site",     "Site",             116,   SampleRow::sort_asc_site);
-    sgwVials->addCol("vesspos",  "Position",         50,    SampleRow::sort_asc_position);
+    sgwVials->addCol("vesspos",  "Position",         50,    SampleRow::sort_asc_vesspos);
     sgwVials->addCol("shelf",    "Shelf",            100,   SampleRow::sort_asc_shelf);
     sgwVials->addCol("vessel",   "Vessel",           43,    SampleRow::sort_asc_vessel);
     sgwVials->addCol("struct",   "Structure",        121,   SampleRow::sort_asc_structure);

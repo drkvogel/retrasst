@@ -134,6 +134,10 @@ Info: ERROR '22008' 4308: bad character found in date/time string beginning with
 E_US10D4_4308    bad character found in date/time string beginning with 'date('now') + date('1 minute')'.''.
 
 On local Ingres version 10.0.0
+
+The only other place I've found that uses date('') syntax in SQL is in LCDbCryoJob::claim(), where it's inline and not passed
+as a parameter.
+
 */
 
             central.setParam("cdt", "now");

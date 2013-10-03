@@ -16,8 +16,8 @@ update cryovial_store s from cryovial c set retrieval_cid = -363636 where s.cryo
 /* n.b. extra barcode field in box_name is filled in if target columns are specified
 if non-defaulted columns are not specified as targets, all column values must be given otherwise this error results:
 E_US0AD7 INSERT: number of target columns must equal the number of specified values.
-
     box_cid, box_type_cid, box_capacity, external_name, status, slot_cid, time_stamp, note_exists, process_cid [barcode] */
+    
 --insert into box_name (box_cid, box_type_cid, box_capacity, external_name, status, slot_cid, time_stamp, note_exists, process_cid) values ( -111, 101, 0, 'Example retrieval box 1',2,0,'now',0,0);
 --insert into box_name (box_cid, box_type_cid, box_capacity, external_name, status, slot_cid, time_stamp, note_exists, process_cid) values ( -112, 101, 0, 'Example retrieval box 2',2,0,'now',0,0);
 --insert into box_name (box_cid, box_type_cid, box_capacity, external_name, status, slot_cid, time_stamp, note_exists, process_cid) values ( -113, 101, 0, 'Example retrieval box 3',2,0,'now',0,0);

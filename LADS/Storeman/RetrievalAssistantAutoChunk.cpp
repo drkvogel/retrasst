@@ -6,7 +6,9 @@
 #pragma resource "*.dfm"
 TfrmAutoChunk *frmAutoChunk;
 
-__fastcall TfrmAutoChunk::TfrmAutoChunk(TComponent* Owner) : TForm(Owner) { }
+__fastcall TfrmAutoChunk::TfrmAutoChunk(TComponent* Owner) : TForm(Owner) {
+    box_size = DEFAULT_BOX_SIZE;
+}
 
 void __fastcall TfrmAutoChunk::btnCancelClick(TObject *Sender) { Close(); }
 
@@ -23,7 +25,7 @@ void __fastcall TfrmAutoChunk::timerCalculateTimer(TObject *Sender) {
 
 void TfrmAutoChunk::calcSizes() { // calculate section sizes
     comboSectionSize->Clear();
-    int box_size = editDestBoxSize->Text.ToIntDef(0); // Calculate slot/box (where c_box_size.box_size_cid = box_content.box_size_cid
+    box_size = editDestBoxSize->Text.ToIntDef(0); // Calculate slot/box (where c_box_size.box_size_cid = box_content.box_size_cid
     //int box_size = 123;
         // now, as retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box
         // where does box_content come from?
