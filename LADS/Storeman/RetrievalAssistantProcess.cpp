@@ -209,6 +209,23 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     }
     LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
     qd.setSQL( // from spec 2013-09-11
+/*Rosetta error: ROSETTA Error: member "dest_pos" not found
+Rosetta error: ROSETTA Error: member "dest_name" not found
+Rosetta error: ROSETTA Error: member "dest_id" not found
+Rosetta error: ROSETTA Error: member "source_name" not found
+Rosetta error: ROSETTA Error: member "aliquot" not found
+Rosetta error: ROSETTA Error: member "Cryovial_id" not found
+Rosetta error: ROSETTA Error: member "Note_Exists" not found
+Rosetta error: ROSETTA Error: member "cryovial_id" not found
+Rosetta error: ROSETTA Error: member "box_cid" not found
+Rosetta error: ROSETTA Error: member "cryovial_position" not found
+Rosetta error: ROSETTA Error: member "Cryovial_id" not found
+Rosetta error: ROSETTA Error: member "Note_Exists" not found
+Rosetta error: ROSETTA Error: member "box_cid" not found
+Rosetta error: ROSETTA Error: member "sample_id" not found
+Rosetta error: ROSETTA Error: member "record_id" not found
+Rosetta error: ROSETTA Error: member "cryovial_position" not found'.*/
+
         "SELECT"
         "   *"
         " FROM"
@@ -246,6 +263,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
 //        " ORDER BY"
 //        "  cryovial_barcode"
 //        );
+    int retrieval_cid = frmProcess->job->getID();
     qd.setParam("rtid", frmProcess->job->getID());
     loadingMessage = frmProcess->loadingMessage;
     qd.open();

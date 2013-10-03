@@ -1,6 +1,32 @@
 ﻿sql to delete plan
 
+still the mystery of the missing list:
 list I made with create list has no rows
+
+
+---------------------------
+Debugger Exception Notification
+---------------------------
+Project Storeman.exe raised exception class Exception with message 'Rosetta error: ROSETTA Error: member "dest_pos" not found
+Rosetta error: ROSETTA Error: member "dest_name" not found
+Rosetta error: ROSETTA Error: member "dest_id" not found
+Rosetta error: ROSETTA Error: member "source_name" not found
+Rosetta error: ROSETTA Error: member "aliquot" not found
+Rosetta error: ROSETTA Error: member "Cryovial_id" not found
+Rosetta error: ROSETTA Error: member "Note_Exists" not found
+Rosetta error: ROSETTA Error: member "cryovial_id" not found
+Rosetta error: ROSETTA Error: member "box_cid" not found
+Rosetta error: ROSETTA Error: member "cryovial_position" not found
+Rosetta error: ROSETTA Error: member "Cryovial_id" not found
+Rosetta error: ROSETTA Error: member "Note_Exists" not found
+Rosetta error: ROSETTA Error: member "box_cid" not found
+Rosetta error: ROSETTA Error: member "sample_id" not found
+Rosetta error: ROSETTA Error: member "record_id" not found
+Rosetta error: ROSETTA Error: member "cryovial_position" not found'.
+---------------------------
+Break   Continue   Help   
+---------------------------
+
   
   
 process: doesn't load chunks/rows
@@ -14,7 +40,7 @@ chunks: can go over end of vials - check
 can only double click to split chunk on last chunk?
 sorting slow
 
-
+N ҉ A ҉ M ҉ A ҉ S ҉ T ҉﻿ E 
 496 boxes
 3972 cryovials
 
