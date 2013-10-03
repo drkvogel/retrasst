@@ -52,9 +52,9 @@ __published:
     void __fastcall FormDestroy(TObject *Sender);
     void __fastcall timerLoadPlanTimer(TObject *Sender);
 private:
-    LoadPlanWorkerThread * loadPlanWorkerThread;
-    void __fastcall loadPlanWorkerThreadTerminated(TObject *Sender);
-    LCDbCryoJob * job;
+    LoadPlanWorkerThread *                      loadPlanWorkerThread;
+    void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);
+    LCDbCryoJob *                               job;
     vector< Chunk< SampleRow > *>               chunks;
     vecpSampleRow                               vials;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
@@ -63,13 +63,21 @@ private:
     Chunk< SampleRow > *                        currentChunk();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     void                                        loadRows();
-    void                                        addChunk(); // code smell - should be part of loadRows?
-    //void                                        showRows();
+    void                                        addChunk();
     void                                        process();
     //int maxRows;
-    const char *        loadingMessage;
+    const char *                                loadingMessage;
 public:
-    void setJob(LCDbCryoJob * ajob) { job = ajob; }
+    void setJob(LCDbCryoJob * ajob) {
+
+        int rowCount = 0;
+        if (NULL != this) {
+            if (NULL != this->job) {
+                this->job = this->job;
+            }
+        }
+        job = ajob;
+    }
     __fastcall TfrmProcess(TComponent* Owner);
 };
 

@@ -196,6 +196,7 @@ object frmProcess: TfrmProcess
   end
   object timerLoadPlan: TTimer
     Enabled = False
+    Interval = 500
     OnTimer = timerLoadPlanTimer
     Left = 368
     Top = 16

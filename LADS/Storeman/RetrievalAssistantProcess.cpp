@@ -1,7 +1,7 @@
 #include <vcl.h>
 #pragma hdrstop
-#include "RetrievalAssistantProcess.h"
 #include "StoreDAO.h"
+#include "RetrievalAssistantProcess.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 TfrmProcess *frmProcess;
@@ -43,7 +43,7 @@ void __fastcall TfrmProcess::FormDestroy(TObject *Sender) {
 }
 
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
-    timerLoadPlan->Enabled = false;
+    timerLoadPlan->Enabled = true;
     panelLoading->Caption = loadingMessage;
 }
 
@@ -202,11 +202,15 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
 
     rowCount = 0;
+    if (NULL != frmProcess) {
+        if (NULL != frmProcess->job) {
+            frmProcess->job = frmProcess->job;
+        }
+    }
     LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
-
     qd.setSQL( // from spec 2013-09-11
         "SELECT"
-        " *"
+        "   *"
         " FROM"
         "   c_box_retrieval b, l_cryovial_retrieval c"
         " WHERE"
@@ -272,26 +276,22 @@ void __fastcall LoadPlanWorkerThread::Execute() {
 	for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]";
-        try {
-            map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
-            if (found != samples.end()) { // fill in box location from cache map
-                sample->copyLocation(*(found->second));
+
+        map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
+        if (found != samples.end()) { // fill in box location from cache map
+            sample->copyLocation(*(found->second));
+        } else {
+            if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
+                sample->copyLocation(result);
             } else {
-                if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
-                    sample->copyLocation(result);
-                } else {
-                    sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
-                }
-                samples[sample->store_record->getBoxID()] = (*it); // cache result
+                sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
             }
-            oss<<sample->storage_str();
-        } catch (...) { // it used to crash occasionally
-            sample->setLocation("error!", 0, "error!", 0, 0, "error!", 0);
+            samples[sample->store_record->getBoxID()] = (*it); // cache result
         }
+        oss<<sample->storage_str();
         loadingMessage = oss.str().c_str();
         Synchronize((TThreadMethod)&updateStatus);
 	}
-
     //showChunks();
 }
 

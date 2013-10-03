@@ -1,6 +1,8 @@
 ﻿sql to delete plan
 
 list I made with create list has no rows
+  
+  
 process: doesn't load chunks/rows
 chunk: should add/change store records?
 autochunk: thread/wait pointer
@@ -11,6 +13,12 @@ chunks: sizes are wrong - 1 too high
 chunks: can go over end of vials - check
 can only double click to split chunk on last chunk?
 sorting slow
+
+
+496 boxes
+3972 cryovials
+
+sample - can be split into cryovials
 
 Atkins/Ruskin 1h35
 

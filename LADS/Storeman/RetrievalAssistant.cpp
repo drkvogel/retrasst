@@ -5,10 +5,12 @@
 #include "LCDbObject.h"
 #include "LCDbProject.h"
 #include "ReferredBoxes.h"
-#include "RetrievalProcess.h"
+//#include "RetrievalProcess.h"
 #include "RetrievalAssistantSamples.h"
 #include "RetrievalAssistantBoxes.h"
+#include "RetrievalAssistantProcess.h"
 #include "RetrievalAssistantProcessBoxes.h"
+//#include "RetrievalAssistantProcessBoxes.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
