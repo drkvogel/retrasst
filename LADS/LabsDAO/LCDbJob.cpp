@@ -126,20 +126,13 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 
 		case INPROGRESS:
 			central.setParam( "sdt", XDATE( start_date ) );
-			//central.setParam( "cdt", "date('now') + date('1 minute')" );
             //central.setParam("cdt", "date('now') + date('1 minute')"); // fixme:
-/*
-XDB error: IIAPI_ST_ERROR
+/* XDB error: IIAPI_ST_ERROR
 Info: ERROR '22008' 4308: bad character found in date/time string beginning with 'date('now') + date('1 minute')'.
-E_US10D4_4308    bad character found in date/time string beginning with 'date('now') + date('1 minute')'.''.
-
-On local Ingres version 10.0.0
+E_US10D4_4308    bad character found in date/time string beginning with 'date('now') + date('1 minute')'.''. (local Ingres version: 10.0.0)
 
 The only other place I've found that uses date('') syntax in SQL is in LCDbCryoJob::claim(), where it's inline and not passed
-as a parameter.
-
-*/
-
+as a parameter. */
             central.setParam("cdt", "now");
 			central.setParam( "fdt", "" );
 			break;

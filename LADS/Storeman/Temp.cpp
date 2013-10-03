@@ -7,6 +7,17 @@ TfrmTest *frmTest;
 
 __fastcall TfrmTest::TfrmTest(TComponent* Owner) : TForm(Owner) { }
 
+/* clSilver clMoneyGreen  clGray  clSkyBlue
+#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
+#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
+#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clGreen
+#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
+#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
+#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
+enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
+enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
+ */
+
 /*
 
 /**

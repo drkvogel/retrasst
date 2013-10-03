@@ -779,7 +779,7 @@ bool StoreDAO::addToRetrieval( int jobID, int cryovial_id, int proj_id, int box_
 	q2 << "INSERT INTO cryovial_store"
 		" (record_id, cryovial_id, box_cid, cryovial_position, time_stamp, status, note_exists, process_cid)"
 		" VALUES (next value for id_sequence, " << cryovial_id << ", " << box_cid << ", " << pos
-	   << ", 'now', 0"		// space allocated in new box
+	   << ", 'now', 0,"		// space allocated in new box
 	   << " 0, " << LCDbAuditTrail::getCurrent().getProcessID() << ")";
 	pQuery.setSQL( q2.str() );
 	return pQuery.execSQL();

@@ -40,16 +40,6 @@ void __fastcall TfrmRetrievalAssistant::cbBoxDiscardClick(TObject *Sender) { loa
 void __fastcall TfrmRetrievalAssistant::cbSampleDiscardClick(TObject *Sender) { loadJobs(); }
 
 void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-/* clSilver clMoneyGreen  clGray  clSkyBlue
-#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
-#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
-#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clGreen
-#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
-#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
-#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
-enum Status { NEW_JOB, INPROGRESS, DONE, DELETED = 99 };
-enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
- */
     LCDbCryoJob * job;
     TColor background = clWindow;
     if (0 == ARow)
@@ -156,6 +146,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
 
 void __fastcall TfrmRetrievalAssistant::FormClose(TObject *Sender, TCloseAction &Action) {
     delete_referenced<tdvecpJob>(vecJobs);
+    delete sgwJobs;
 }
 
 string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
@@ -194,7 +185,8 @@ string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { // c_o
 void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
 
 void TfrmRetrievalAssistant::init() {
-    //cbLog->Visible = RETRASSTDEBUG;
+    cbLog->Visible      = RETRASSTDEBUG;
+    memoDebug->Visible  = RETRASSTDEBUG;
 
     sgwJobs = new StringGridWrapper<LCDbCryoJob>(sgJobs, &vecJobs);
     sgwJobs->addCol("desc",     "Description",      359);
@@ -206,7 +198,6 @@ void TfrmRetrievalAssistant::init() {
     sgwJobs->addCol("reason",   "Reason",           177);
     sgwJobs->addCol("time",     "Timestamp",        127);
     sgwJobs->init();
-
     loadJobs();
 }
 

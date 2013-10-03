@@ -1,20 +1,16 @@
-﻿select * from c_permission where operator_cid = -31438
-#define 	LEASEE_STOREMAN		   100
+﻿sql to delete plan
 
+list I made with create list has no rows
+process: doesn't load chunks/rows
+chunk: should add/change store records?
+autochunk: thread/wait pointer
 autochunk: goes over last vial
-chunks: put in db
+chunks: put in db-
 vials: select 1st row/scroll to top when new chunk created
 chunks: sizes are wrong - 1 too high
 chunks: can go over end of vials - check
-
-http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
-
-
 can only double click to split chunk on last chunk?
-
-sorting works again! OMG!
-sorting by shelf doesn't seem to do anything
-it is quite slow though...
+sorting slow
 
 Atkins/Ruskin 1h35
 
@@ -52,6 +48,12 @@ Labs Doxygen: C:\Users\cbird\Projects\lims-generic\doxygen\html
         * get nick to verify that ref boxes was ready ages ago and generic comms is in use
         * get rg to verify that stig is working and in use
         * tell all concerned that it is only because I am worried that ay is looking for ways to discredit me that I am doing this.
+        
+---
+select * from c_permission where operator_cid = -31438
+#define 	LEASEE_STOREMAN		   100
+http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
+---
 
 # Done
 
@@ -64,8 +66,6 @@ copyLocation
 "An empty retrieval list" - null chunk!
 double-clicking a sample/box should mark the end of a chunk and create a new one
 i started the coldef thing because I put the aliquot column in and it threw all the sorters out
-
----
 sorters are not on correct columns; ColDef class is supposed to prevent this
 'sorting' a column where values are largely the same (e.g. dest box "Example retrieval box 9") results in almost random sorting
 things are 
@@ -144,3 +144,8 @@ I have your new card so please pop in with the old one when you’re next passin
 sort by shelf not working? mismatch, sorted
 debuglog which col is being sorted-
 drawcell border round selected chunk-
+chunks: display 1st and last sample id/boxname-
+dblclick: highlighted chunk is second-to last, not last-
+addchunk: new start and end are wrong (-ve) - were uninitialised
+sorting works again! OMG! sorting by shelf doesn't seem to do anything it is quite slow though...
+show log if in debug-

@@ -32,7 +32,7 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
 
 void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
-    //maxRows             = DEFAULT_NUMROWS;
+    memoDebug->Visible  = RETRASSTDEBUG;
     job                 = NULL;
     loadingMessage = "Loading retrieval list, please wait...";
 }
@@ -305,4 +305,5 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     //loadChunks();
     showChunks();
 }
+
 

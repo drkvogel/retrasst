@@ -96,6 +96,8 @@ object frmProcess: TfrmProcess
     Align = alBottom
     Caption = 'Sign Off'
     TabOrder = 1
+    ExplicitLeft = -8
+    ExplicitTop = 381
     DesignSize = (
       956
       77)
@@ -181,6 +183,8 @@ object frmProcess: TfrmProcess
     Align = alBottom
     TabOrder = 3
     Visible = False
+    ExplicitLeft = 8
+    ExplicitTop = 439
   end
   object mainMenuMain: TMainMenu
     Left = 512

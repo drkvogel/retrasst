@@ -27,22 +27,21 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwChunks->addCol("size",     "Size",     87);
     sgwChunks->init();
 
-
-    //{102, 100, 192, 43, 137, 50, 130, 38, 46, 123, 40, 186, 37, }
+    //{91, 90, 257, 31, 120, 28, 107, 31, 27, 123, 26, 267, 25, }
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
-    sgwVials->addCol("barcode",  "Barcode",          102,   SampleRow::sort_asc_barcode);
-    sgwVials->addCol("aliquot",  "Aliquot",          100,   SampleRow::sort_asc_aliquot);
-    sgwVials->addCol("currbox",  "Current box",      192,   SampleRow::sort_asc_currbox);
-    sgwVials->addCol("currpos",  "Pos",              43,    SampleRow::sort_asc_currpos);
-    sgwVials->addCol("site",     "Site",             137,   SampleRow::sort_asc_site);
-    sgwVials->addCol("vesspos",  "Pos",              50,    SampleRow::sort_asc_vesspos);
-    sgwVials->addCol("vessel",   "Vessel",           130,   SampleRow::sort_asc_vessel);
-    sgwVials->addCol("shelf",    "Shelf",            38,    SampleRow::sort_asc_shelf);
-    sgwVials->addCol("structpos","Pos",              46,    SampleRow::sort_asc_structpos);
+    sgwVials->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode);
+    sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot);
+    sgwVials->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox);
+    sgwVials->addCol("currpos",  "Pos",              31,    SampleRow::sort_asc_currpos);
+    sgwVials->addCol("site",     "Site",             120,   SampleRow::sort_asc_site);
+    sgwVials->addCol("vesspos",  "Pos",              28,    SampleRow::sort_asc_vesspos);
+    sgwVials->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel);
+    sgwVials->addCol("shelf",    "Shelf",            31,    SampleRow::sort_asc_shelf);
+    sgwVials->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos);
     sgwVials->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure);
-    sgwVials->addCol("boxpos",   "Slot",             40,    SampleRow::sort_asc_slot);
-    sgwVials->addCol("destbox",  "Destination box",  186,   SampleRow::sort_asc_destbox);
-    sgwVials->addCol("destpos",  "Pos",              37,    SampleRow::sort_asc_destpos);
+    sgwVials->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot);
+    sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox);
+    sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos);
     sgwVials->init();
 }
 
@@ -52,6 +51,7 @@ void TfrmSamples::debugLog(String s) {
 
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
+    memoDebug->Visible  = RETRASSTDEBUG;
     job                 = NULL;
     loadingMessage = "Loading samples, please wait...";
 }
@@ -125,7 +125,7 @@ void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
         if (NULL == row) {
             background = clWindow;
         } else {
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
         }
     }
     TCanvas * cnv = sgVials->Canvas;
@@ -160,7 +160,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
 
         std::set<int> projects; projects.insert(job->getProjectID());
         frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
-
+        //if (mrOk != frmConfirm->ShowModal()) return;
         Screen->Cursor = crSQLWait; Enabled = false;
         LQuery qc(LIMSDatabase::getCentralDb());
         map<int, int> boxes; // box_id to rj_box_id
@@ -173,35 +173,27 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                 LPDbCryovialStore * store = sampleRow->store_record;
                 map<int, int>::iterator found = boxes.find(sampleRow->store_record->getBoxID());
                 if (found == boxes.end()) { // not added yet, add record and cache
-                    qc.setSQL(
-                        "INSERT INTO c_box_retrieval (retrieval_cid, section, box_id, rj_box_cid, status)"
-                        " VALUES (:rtid, :sect, :bid, :rjbid, :stat)"
-                    );
-                    //rj_box_cid = myLCDbID.claimNextID(qc); // SQL: "next value for c_id_sequence"
-                    {
-                        //static
-                        LQuery qt(LIMSDatabase::getCentralDb());
-                        LCDbID myLCDbID;
-                        rj_box_cid = myLCDbID.claimNextID(qt);
-                    } // must go out of scope otherwise read locks db with "no mst..."
-                    //rj_box_cid = 1234; // SQL: "next value for c_id_sequence"
-
+                    { // must go out of scope otherwise read locks db with "no mst..."
+                        LQuery qt(LIMSDatabase::getCentralDb()); LCDbID myLCDbID;
+                        rj_box_cid = myLCDbID.claimNextID(qt); // SQL: "next value for c_id_sequence"
+                    }
                     int rtid = job->getID();
                     int sect = chunk->getSection();
                     int bid  = sampleRow->store_record->getBoxID();
                     int stat = LCDbBoxStore::Status::SLOT_ALLOCATED;
-
+                    qc.setSQL(
+                        "INSERT INTO c_box_retrieval (retrieval_cid, section, box_id, rj_box_cid, status)"
+                        " VALUES (:rtid, :sect, :bid, :rjbid, :stat)"
+                    );
                     qc.setParam("rtid", job->getID());
                     qc.setParam("rjbid",rj_box_cid); // Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
                     qc.setParam("sect", chunk->getSection()); // 0 = retrieve all boxes in parallel
                     qc.setParam("bid",  sampleRow->store_record->getBoxID()); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
                     qc.setParam("stat", LCDbBoxStore::Status::SLOT_ALLOCATED); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
                     qc.execSQL();
-                    //boxes[sampleRow->store_record->getBoxID()] = (sampleRow); // cache result
                     boxes[sampleRow->store_record->getBoxID()] = rj_box_cid; // cache result
                 } else {
                     rj_box_cid = found->second;
-                    //*(found->second)
                 }
                 qc.setSQL(
                     "INSERT INTO l_cryovial_retrieval"
@@ -223,7 +215,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         job->setStatus(LCDbCryoJob::INPROGRESS);
         job->saveRecord(LIMSDatabase::getCentralDb());
         Screen->Cursor = crDefault; Enabled = true;
-        ModalResult = mrOk; // update c_retrieval_job (in progress)
+        ModalResult = mrOk;
     } else { // start again
         chunks.clear();
         addChunk(0); // start again
@@ -404,10 +396,11 @@ void TfrmSamples::autoChunk() {
     //const LPDbBoxName *found = boxes.readRecord(pq, box.c_str());
     //LPDbBoxNames::readRecord
     // initialise box size with size of first box in first chunk
-    LPDbBoxNames boxes;
-    const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), chunks[0]->getStartRow()->store_record->getBoxID());
-    if (found == NULL) throw "box not found";
-    frmAutoChunk->box_size = found->getSize();
+//    LPDbBoxNames boxes;
+//    int box_id = chunks[0]->getStartRow()->store_record->getBoxID();
+//    const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
+//    if (found == NULL) throw "box not found";
+//    frmAutoChunk->box_size = found->getSize();
 
     frmAutoChunk->ShowModal();
 }
@@ -561,23 +554,20 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     map<int, const SampleRow *> samples; ROSETTA result; StoreDAO dao; int rowCount2 = 0;
 	for (vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
-        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]";
-        try {
-            map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
-            if (found != samples.end()) { // fill in box location from cache map
-                sample->copyLocation(*(found->second)); //oss<<"(cached)";
+        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]: ";
+
+        map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
+        if (found != samples.end()) { // fill in box location from cache map
+            sample->copyLocation(*(found->second)); oss<<"(cached)";
+        } else {
+            if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
+                sample->copyLocation(result); //oss<<"(db)";
             } else {
-                if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
-                    sample->copyLocation(result); //oss<<"(db)";
-                } else {
-                    sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
-                }
-                samples[sample->store_record->getBoxID()] = (*it); // cache result
+                sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
             }
-            oss<<sample->storage_str();
-        } catch (...) { // it used to crash occasionally
-            sample->setLocation("error!", 0, "error!", 0, 0, "error!", 0);
+            samples[sample->store_record->getBoxID()] = (*it); // cache result
         }
+        oss<<sample->storage_str();
         loadingMessage = oss.str().c_str();
         Synchronize((TThreadMethod)&updateStatus);
 	}
