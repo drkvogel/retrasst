@@ -5,7 +5,7 @@ vials: select 1st row/scroll to top when new chunk created
 chunks: sizes are wrong - 1 too high? no, size calc is ok (0-indexed should be +1), something else wrong
 chunks: can go over end of vials - check
 
-
+Atkins/Ruskin 1h35, 2h07
 sort out add first chunk mess:
     count the number of rows and put that as the end and size of the initial chunk
     double-clicking a row marks the start of a new chunk:
@@ -18,14 +18,11 @@ sort out add first chunk mess:
     changing values in the chunk stringgrid changes chunk parameters? (not in spec?)
 
     
-### reject list
+
 
 # done
 
-get rid of samplechunk, boxchunk?-
-
 ### how to organise list and chunks
-    
 sgwVials: chunks[] // indexes to start/end of list
    or
 Chunk * list? // pointer to *part* of vector...hmmm * wrapper->sort
@@ -62,3 +59,5 @@ sortChunk
 template/breakpoint nonsense
 it (Cbuilder) seems to be optimizing things even though it's told not to; you can't set breakpoints in certain places
     templates can't be debugged and unused templated code is not compiled
+reject list-
+get rid of samplechunk, boxchunk?-

@@ -1,8 +1,36 @@
 ﻿sql to delete plan
 
 still the mystery of the missing list:
-list I made with create list has no rows
+ list I made with create list has no rows
+ select * from c_retrieval_job
+ retrieval_cid 1223
 
+select * from cryovial_store where retrieval_cid = 1223
+gives one row and
+select * box_store where retrieval_cid = 1223
+gives none on t_ldb20
+then, if I run the query on the ddb, I get
+
+    E_LQ002E The 'rollback' query has been issued outside of a DBMS session (t_ldb20_ddb)
+
+and then when I go back to the project database:
+
+    E_LQ002E The 'prepare' query has been issued outside of a DBMS session (t_ldb20)
+    
+selecting from -1015 (select * from cryovial_store where retrieval_cid = -1015) gives lots of rows.
+
+job -1015 THRIVE Lp(a) baseline (496 boxes, 3972 cryovials)
+ select count(*) from c_box_retrieval where retrieval_cid = -1015: 496 boxes
+ select count(*) from l_cryovial_retrieval: 3972 cryovials
+
+I would like set this job back to its initial state, NEW_JOB and no plan. easy enough:
+    
+delete from l_cryovial_retrieval; 
+delete from c_box_retrieval;
+update c_retrieval_job set status = 0 where retrieval_cid = -1015
+ 
+ 
+ 
 
 ---------------------------
 Debugger Exception Notification
