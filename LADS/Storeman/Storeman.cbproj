@@ -5,7 +5,7 @@
 			<FrameworkType>VCL</FrameworkType>
 			<MainSource>StoreMan.cpp</MainSource>
 			<Base>True</Base>
-			<Config Condition="'$(Config)'==''">Debug</Config>
+			<Config Condition="'$(Config)'==''">Release</Config>
 			<Platform Condition="'$(Platform)'==''">Win32</Platform>
 			<TargetedPlatforms>1</TargetedPlatforms>
 			<AppType>Application</AppType>
@@ -141,8 +141,8 @@
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
 			<Defines>NDEBUG;$(Defines)</Defines>
-			<BCC_AllCodeguardOptions>false</BCC_AllCodeguardOptions>
-			<BCC_SourceDebuggingOn>false</BCC_SourceDebuggingOn>
+			<BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
+			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
 			<BCC_DebugLineNumbers>false</BCC_DebugLineNumbers>
 			<UsingDelphiRTL>false</UsingDelphiRTL>
 			<BCC_InstructionSet>5</BCC_InstructionSet>

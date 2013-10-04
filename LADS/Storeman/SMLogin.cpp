@@ -17,7 +17,7 @@ TfrmSMLogin *frmSMLogin;
 //---------------------------------------------------------------------------
 
 __fastcall TfrmSMLogin::TfrmSMLogin(TComponent* Owner) : TfrmLoginBase(Owner) {
-	//frmLoginBase->rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM; 	// db v2.7.3 - OK
+	frmLoginBase->rgDatabase -> ItemIndex = LIMSDatabase::LIVE_DATA; 	// db v2.7.3 - OK
 	//frmLoginBase->version -> Font -> Color = clRed;
 	//frmLoginBase->version -> Caption = app + " **DEBUG**";
 }
