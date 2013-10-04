@@ -70,6 +70,11 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     sgwVials->clear();
     timerLoadVials->Enabled = true;
 
+//	LIMSParams & params = LIMSParams::instance();
+//	if( params.openSection( "sorters", true ) )
+//		params.setValue( ",,,", categoryID );
+//	params.saveSize( this );
+
 //    	regKey = new TRegistry;
 //	openSection( "", false );
 //	buddyID = findValue( "Buddy ID", 0 );
@@ -430,7 +435,7 @@ void TfrmSamples::addSorter() {
     TComboBox * combo = new TComboBox(this);
     combo->Parent = groupSort; // new combo is last created, aligned to left
         // put in right order: take them all out, sort and put back in in reverse order?
-    combo->Width = 250;
+    combo->Width = 200;
     combo->Align = alLeft;
     combo->Style = csDropDown; // csDropDownList
     for (int i=0; i<sgwVials->colCount(); i++) {

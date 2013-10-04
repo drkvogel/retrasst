@@ -39,11 +39,11 @@ object frmBoxList: TfrmBoxList
     Left = 550
     Top = 15
     Width = 106
-    Height = 52
+    Height = 39
     Anchors = [akTop, akRight]
     Caption = 
-      'Click headings to sort, types to show/hide, names to select what' +
-      ' to print or export.'
+      'Click headings to sort, names to select, +/- for required analys' +
+      'es.'
     WordWrap = True
   end
   object cbProject: TComboBox
@@ -159,8 +159,8 @@ object frmBoxList: TfrmBoxList
     OnFixedCellClick = sgBoxNamesFixedCellClick
   end
   object sgBoxTypes: TStringGrid
-    Left = 8
-    Top = 41
+    Left = -8
+    Top = 85
     Width = 202
     Height = 353
     Hint = 'Click to sort or select'

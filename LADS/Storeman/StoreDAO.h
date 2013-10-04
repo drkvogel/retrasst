@@ -56,7 +56,7 @@ class StoreDAO
 		bool loadAnalysisHistory( const std::string & cryovial_barcode, int aliquot_type_id, int proj_id, std::vector<ROSETTA>& results );
 		void loadAliquotTypes( std::vector<ROSETTA>& results );
 
-		bool loadCryovials( const std::string & specimen, const std::string & cryovial, int primary, int secondary, int proj_id, std::vector<ROSETTA>& results );
+		bool loadCryovials( short source, const std::string & id, int primary, int secondary, int proj_id, std::vector<ROSETTA>& results );
 		bool findBox( int box_id, int proj_id, ROSETTA & result );
 		bool addToRetrieval( int jobID, int cryovial_id, int proj_id, int box_cid, short pos );
 };

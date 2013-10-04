@@ -101,7 +101,7 @@ object frmRetrieveMain: TfrmRetrieveMain
     Top = 8
     Width = 280
     Height = 52
-    Caption = 'Item type'
+    Caption = 'Source type'
     Columns = 3
     ItemIndex = 0
     Items.Strings = (
@@ -202,6 +202,7 @@ object frmRetrieveMain: TfrmRetrieveMain
     Width = 165
     Height = 21
     TabOrder = 14
+    OnChange = cbBoxTypeChange
     OnDropDown = cbBoxTypeDropDown
   end
   object OpenDialog1: TOpenDialog

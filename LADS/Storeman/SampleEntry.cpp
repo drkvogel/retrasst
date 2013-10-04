@@ -75,34 +75,23 @@ void __fastcall TfrmRetrieveMain::AddClick(TObject *Sender)
 
 	Screen->Cursor = crSQLWait;
 	StoreDAO dao;
+	short source = rgItemType->ItemIndex;
 	int primary = getAliquotTypeID( CmbAliquot1 ), secondary = getAliquotTypeID( CmbAliquot2 );
 	const LCDbProject & proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() );
 	for( int i = 0; i < idList->Count; i++ ) {
 		AnsiString id = idList->Strings[ i ];
-		std::string specimen, cryovial, box;
-		switch( rgItemType->ItemIndex ) {
-			case 0: //sample
-				specimen = id.c_str();
-				break;
-
-			case 1: //cryovial
-				cryovial = id.c_str();
-				break;
-
-			case 2: //box (query to be written)
-				box = id.c_str();
-				break;
-		}
-		std::vector< ROSETTA > results;
-		if( !dao.loadCryovials( specimen, cryovial, primary, secondary, proj.getID(), results ) ) {
-			String error = "No samples found for " + id;
-			Application->MessageBox( error.c_str(), NULL, MB_OK );
-		}
-		for( unsigned i = 0; i < results.size(); i ++ ) {
-			rows.push_back( GridEntry( results[i] ) );
+		if( !id.IsEmpty() ) {
+			std::vector<ROSETTA> results;
+			if( !dao.loadCryovials( source, id.c_str(), primary, secondary, proj.getID(), results ) ) {
+				String error = "No samples found for " + id;
+				Application->MessageBox( error.c_str(), NULL, MB_OK );
+			}
+			for( unsigned i = 0; i < results.size(); i ++ ) {
+				rows.push_back( GridEntry( results[i] ) );
+			}
+			drawGrid();
 		}
 		progress -> StepIt();
-		drawGrid();
 		Application -> ProcessMessages();
 	}
 	checkBoxTypes();
@@ -215,7 +204,6 @@ void __fastcall TfrmRetrieveMain::btnDestinationClick(TObject *Sender)
 		ge -> nid = box.getID();
 	}
 	drawGrid();
-	btnSaveList->Enabled = true;	///	fixme: needs to be calculated
 }
 
 //---------------------------------------------------------------------------
@@ -323,6 +311,7 @@ void __fastcall TfrmRetrieveMain::btnLocateClick(TObject *Sender)
 void __fastcall TfrmRetrieveMain::btnSaveListClick(TObject *Sender)
 {
 	//// fixme - check radIDType: could be box retrieval
+
 	frmNewJob -> init( LCDbCryoJob::SAMPLE_RETRIEVAL );
 
 	int primary = getAliquotTypeID( CmbAliquot1 ), secondary = getAliquotTypeID( CmbAliquot2 );
@@ -518,13 +507,16 @@ bool TfrmRetrieveMain::Sorter::operator() ( GER a, GER b ) const {
 
 void __fastcall TfrmRetrieveMain::btnNewContentClick(TObject *Sender)
 {
+	AnsiString projName = cbProject->Text;
+	const LCDbProject * pp = LCDbProjects::records().findByName( projName.c_str() );
 	if( frmNewBoxType -> ShowModal() == mrOk ) {
 		LPDbBoxType created = frmNewBoxType -> getDetails();
 		created.setUse( LPDbBoxType::ANALYSIS );
-		created.saveRecord( LIMSDatabase::getCentralDb() );
+		created.saveRecord( LIMSDatabase::getProjectDb( pp->getID() ) );
 		cbBoxType->Text = created.getName().c_str();
 		checkBoxTypes();
 	}
+	enableButtons();
 }
 
 //---------------------------------------------------------------------------
@@ -535,7 +527,10 @@ void TfrmRetrieveMain::enableButtons() {
 	bool proj = false, boxType = false;
 	if( pp != NULL ) {
 		if( !btName.IsEmpty() ) {
-			boxType = LPDbBoxTypes::records( pp->getID() ).find( btName.c_str() );
+			const LPDbBoxType * bt = LPDbBoxTypes::records( pp->getID() ).find( btName.c_str() );
+			if( bt != NULL ) {
+				boxType = true;
+            }
 		}
 		proj = true;
 	}
@@ -547,12 +542,19 @@ void TfrmRetrieveMain::enableButtons() {
 	cbBoxType->Enabled = proj;
 
 	btnAddFile->Enabled = proj;
-	btnAddRecords->Enabled = proj;
+	// fixme: btnAddRecords->Enabled = proj;
 	btnLocate->Enabled = proj && read;
 	btnNewContent->Enabled = proj;
 	btnDestination->Enabled = read && boxType;
-	btnSaveList->Enabled = read && boxType;
+	btnSaveList->Enabled = read && boxType;  	/// fixme - needs destination
 	btnClrSort->Enabled = sort;
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::cbBoxTypeChange(TObject *Sender)
+{
+	enableButtons();
 }
 
 //---------------------------------------------------------------------------

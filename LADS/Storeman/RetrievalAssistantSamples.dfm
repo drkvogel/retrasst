@@ -66,7 +66,6 @@ object frmSamples: TfrmSamples
         Caption = 'Add chunk'
         TabOrder = 0
         OnClick = btnAddChunkClick
-        ExplicitTop = 19
       end
       object btnDelChunk: TButton
         Left = 0
@@ -174,8 +173,6 @@ object frmSamples: TfrmSamples
       OnFixedCellClick = sgChunksFixedCellClick
       OnGetEditText = sgChunksGetEditText
       OnSetEditText = sgChunksSetEditText
-      ExplicitLeft = 3
-      ExplicitTop = 21
     end
   end
   object groupVials: TGroupBox

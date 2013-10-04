@@ -720,7 +720,7 @@ void StoreDAO::loadAliquotTypes( std::vector<ROSETTA>& results )
 
 //---------------------------------------------------------------------------
 
-bool StoreDAO::loadCryovials( const std::string & specimen, const std::string & cryovial, int primary, int secondary, int proj_id, std::vector<ROSETTA>& results )
+bool StoreDAO::loadCryovials( short source, const std::string & id, int primary, int secondary, int proj_id, std::vector<ROSETTA>& results )
 {
 	std::stringstream q;
 	q << "SELECT c.cryovial_id, c.aliquot_type_cid, c.cryovial_barcode, t.external_name as aliquot,"
@@ -729,13 +729,21 @@ bool StoreDAO::loadCryovials( const std::string & specimen, const std::string & 
 			" WHERE cs.status = 1 " 	// position confirmed
 			" AND cs.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id "
 			" AND b.box_cid = cs.box_cid AND c.aliquot_type_cid = t.object_cid";
+	switch( source ) {
+		case 0: //sample
+			q << " AND sp.barcode = '" << id << '\'';
+			break;
 
-	if( !specimen.empty() ) {
-		q << " AND sp.barcode = '" << specimen << '\'';
-	} else if( !cryovial.empty() ) {
-		q << " AND c.cryovial_barcode = '" << cryovial << '\'';
-	} else {
-		return false;		// to many records ???
+		case 1: //cryovial
+			q << " AND c.cryovial_barcode = '" << id << '\'';
+			break;
+
+		case 2: //box
+			q << " AND b.external_name = '" << id << '\'';
+			break;
+
+		default:
+			return false;		// to many records ???
     }
 
 	if( primary != 0 ) {

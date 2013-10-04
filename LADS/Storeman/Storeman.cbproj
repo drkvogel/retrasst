@@ -1,1017 +1,1007 @@
-﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-		<PropertyGroup>
-			<ProjectGuid>{EDFCB6C4-56EC-499A-B289-CAA12C62D92B}</ProjectGuid>
-			<ProjectVersion>14.6</ProjectVersion>
-			<FrameworkType>VCL</FrameworkType>
-			<MainSource>StoreMan.cpp</MainSource>
-			<Base>True</Base>
-			<Config Condition="'$(Config)'==''">Debug</Config>
-			<Platform Condition="'$(Platform)'==''">Win32</Platform>
-			<TargetedPlatforms>1</TargetedPlatforms>
-			<AppType>Application</AppType>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
-			<Base_Win32>true</Base_Win32>
-			<CfgParent>Base</CfgParent>
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
-			<Cfg_1>true</Cfg_1>
-			<CfgParent>Base</CfgParent>
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
-			<Cfg_1_Win32>true</Cfg_1_Win32>
-			<CfgParent>Cfg_1</CfgParent>
-			<Cfg_1>true</Cfg_1>
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
-			<Cfg_2>true</Cfg_2>
-			<CfgParent>Base</CfgParent>
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
-			<Cfg_2_Win32>true</Cfg_2_Win32>
-			<CfgParent>Cfg_2</CfgParent>
-			<Cfg_2>true</Cfg_2>
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Base)'!=''">
-			<VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-			<ShowGeneralMessages>true</ShowGeneralMessages>
-			<BCC_StringsInReadOnlyDataSeg>true</BCC_StringsInReadOnlyDataSeg>
-			<BCC_ShortEnum>true</BCC_ShortEnum>
-			<BCC_PCHCache>true</BCC_PCHCache>
-			<BCC_IntegerSizedEnums>false</BCC_IntegerSizedEnums>
-			<BCC_MergeDuplicateStrings>true</BCC_MergeDuplicateStrings>
-			<BCC_DataAlignment>DWord</BCC_DataAlignment>
-			<BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
-			<VerInfo_Debug>true</VerInfo_Debug>
-			<BCC_CPPCompileAlways>true</BCC_CPPCompileAlways>
-			<BCC_DisableOptimizations>true</BCC_DisableOptimizations>
-			<BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
-			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
-			<BCC_MonitorThis>true</BCC_MonitorThis>
-			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
-			<VerInfo_PreRelease>true</VerInfo_PreRelease>
-			<BCC_StackFrames>true</BCC_StackFrames>
-			<BCC_InstructionSet>5</BCC_InstructionSet>
-			<ILINK_wdpl>true</ILINK_wdpl>
-			<BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
-			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
-			<TASM_wpro>true</TASM_wpro>
-			<TASM_wicg>true</TASM_wicg>
-			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-			<VerInfo_Build>5</VerInfo_Build>
-			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.9.5;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
-			<VerInfo_MinorVer>2</VerInfo_MinorVer>
-			<VerInfo_Release>9</VerInfo_Release>
-			<VerInfo_Locale>2057</VerInfo_Locale>
-			<_TCHARMapping>wchar_t</_TCHARMapping>
-			<ProjectType>CppVCLApplication</ProjectType>
-			<ILINK_LibraryPath>..\..\jonathanpr\RetrievalLists\;..\..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
-			<PackageImports>rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;DBXInterBaseDriver;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;bindengine;CustomIPTransport;IndyCore;inet;inetdbxpress;dbexpress;IPIndyImpl;$(PackageImports)</PackageImports>
-			<Multithreaded>true</Multithreaded>
-			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-			<AllPackageLibs>rtl.lib;vcl.lib;dbrtl.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib;vcldb.lib;vclimg.lib;bdertl.lib;soaprtl.lib;xmlrtl.lib;inet.lib;dsnap.lib</AllPackageLibs>
-			<Icon_MainIcon>snowflake.ico</Icon_MainIcon>
-			<UsingDelphiRTL>true</UsingDelphiRTL>
-			<IncludePath>..\..\jonathanpr\RetrievalLists\;..\..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;$(II_SYSTEM)\ingres\files\;$(BDSINCLUDE);$(IncludePath)</IncludePath>
-			<DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
-			<DynamicRTL>true</DynamicRTL>
-			<UsePackages>true</UsePackages>
-			<IntermediateOutputDir>.\$(Platform)\$(Config)</IntermediateOutputDir>
-			<FinalOutputDir>.\$(Platform)\$(Config)</FinalOutputDir>
-			<BCC_wpar>false</BCC_wpar>
-			<BCC_ExtendedErrorInfo>true</BCC_ExtendedErrorInfo>
-			<ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\release\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Base_Win32)'!=''">
-			<ILINK_LibraryPath>C:\Users\nicholas\Documents\RAD Studio\Projects\paulst\Win32\Debug\;C:\Users\nicholas\Documents\RAD Studio\Projects\paulst\Win32\Release\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
-			<PackageImports>vcldbx;vclib;inetdbbde;ibxpress;vclimg;intrawebdb_120_160;vcldb;vclactnband;bindcompvcl;vclie;Intraweb_120_160;bcbsmp;vclribbon;VclSmp;vcl;CodeSiteExpressPkg;vclx;webdsnap;bdertl;adortl;bcbie;$(PackageImports)</PackageImports>
-			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-			<IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_1)'!=''">
-			<BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
-			<BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
-			<BCC_DisableOptimizations>true</BCC_DisableOptimizations>
-			<DCC_Optimize>false</DCC_Optimize>
-			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
-			<BCC_InlineFunctionExpansion>true</BCC_InlineFunctionExpansion>
-			<BCC_UseRegisterVariables>None</BCC_UseRegisterVariables>
-			<DCC_Define>DEBUG</DCC_Define>
-			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
-			<TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
-			<BCC_StackFrames>true</BCC_StackFrames>
-			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
-			<TASM_Debugging>Full</TASM_Debugging>
-			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
-			<ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.9.6;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
-			<VerInfo_Build>6</VerInfo_Build>
-			<LinkPackageStatics>soaprtl.lib;dsnap.lib</LinkPackageStatics>
-			<Defines>_DEBUG;$(Defines)</Defines>
-			<LinkPackageImports>rtl.bpi;vcl.bpi;dbrtl.bpi;IndyCore.bpi;IndySystem.bpi;IndyProtocols.bpi;vclx.bpi;vcldb.bpi;vclimg.bpi;bdertl.bpi;xmlrtl.bpi;inet.bpi</LinkPackageImports>
-			<BCC_MonitorThis>true</BCC_MonitorThis>
-			<BCC_InstructionSet>5</BCC_InstructionSet>
-			<BCC_InlineFunctionExpansion>true</BCC_InlineFunctionExpansion>
-			<BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
-			<BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_2)'!=''">
-			<VerInfo_Debug>false</VerInfo_Debug>
-			<ILINK_FullDebugInfo>false</ILINK_FullDebugInfo>
-			<BCC_SourceDebuggingOn>false</BCC_SourceDebuggingOn>
-			<UsingDelphiRTL>false</UsingDelphiRTL>
-			<UsePackages>false</UsePackages>
-			<BCC_OptimizeForSize>true</BCC_OptimizeForSize>
-			<DynamicRTL>false</DynamicRTL>
-			<BCC_DebugLineNumbers>false</BCC_DebugLineNumbers>
-			<BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
-			<BCC_AllCodeguardOptions>false</BCC_AllCodeguardOptions>
-			<TASM_Debugging>None</TASM_Debugging>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-			<Defines>NDEBUG;$(Defines)</Defines>
-			<BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
-			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
-			<BCC_DebugLineNumbers>false</BCC_DebugLineNumbers>
-			<UsingDelphiRTL>false</UsingDelphiRTL>
-			<BCC_InstructionSet>5</BCC_InstructionSet>
-			<UsePackages>false</UsePackages>
-			<BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
-			<DynamicRTL>false</DynamicRTL>
-			<LinkPackageStatics>rtl.lib;vcl.lib;dbrtl.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib;vcldb.lib;vclimg.lib;bdertl.lib;soaprtl.lib;xmlrtl.lib;inet.lib;dsnap.lib</LinkPackageStatics>
-		</PropertyGroup>
-		<ItemGroup>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\database.cpp">
-				<BuildOrder>105</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\mainDialog.cpp">
-				<Form>frmViewListMain</Form>
-				<DependentOn>..\..\jonathanpr\RetrievalLists\mainDialog.h</DependentOn>
-				<BuildOrder>98</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\mainListDialog.cpp">
-				<Form>listDialog</Form>
-				<DependentOn>..\..\jonathanpr\RetrievalLists\mainListDialog.h</DependentOn>
-				<BuildOrder>99</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\RetrievalList.cpp">
-				<DependentOn>..\..\jonathanpr\RetrievalLists\RetrievalList.h</DependentOn>
-				<BuildOrder>100</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.cpp">
-				<Form>cryovialHistoryDialog</Form>
-				<DependentOn>..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.h</DependentOn>
-				<BuildOrder>101</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\TResultNotesDialog.cpp">
-				<Form>ResultNotesDialog</Form>
-				<DependentOn>..\..\jonathanpr\RetrievalLists\TResultNotesDialog.h</DependentOn>
-				<BuildOrder>102</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\TResultsDialog.cpp">
-				<Form>ResultsDialog</Form>
-				<DependentOn>..\..\jonathanpr\RetrievalLists\TResultsDialog.h</DependentOn>
-				<BuildOrder>103</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\Utils.cpp">
-				<DependentOn>..\..\jonathanpr\RetrievalLists\Utils.h</DependentOn>
-				<BuildOrder>104</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\rosebase.cpp">
-				<DependentOn>..\CoreUtilities\rosebase.h</DependentOn>
-				<BuildOrder>5</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\rosetta.cpp">
-				<DependentOn>..\CoreUtilities\rosetta.h</DependentOn>
-				<BuildOrder>6</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\xB36Code.cpp">
-				<DependentOn>..\CoreUtilities\xB36Code.h</DependentOn>
-				<BuildOrder>4</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\xbinob.cpp">
-				<DependentOn>..\CoreUtilities\xbinob.h</DependentOn>
-				<BuildOrder>2</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\xdb.cpp">
-				<DependentOn>..\CoreUtilities\xdb.h</DependentOn>
-				<BuildOrder>9</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\xencode.cpp">
-				<BuildOrder>10</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\xerror.cpp">
-				<DependentOn>..\CoreUtilities\xerror.h</DependentOn>
-				<BuildOrder>3</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\xexec.cpp">
-				<DependentOn>..\CoreUtilities\xexec.h</DependentOn>
-				<BuildOrder>8</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\xMD5.cpp">
-				<BuildOrder>7</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\XMLFile.cpp">
-				<DependentOn>..\CoreUtilities\XMLFile.h</DependentOn>
-				<BuildOrder>1</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\xquery.cpp">
-				<DependentOn>..\CoreUtilities\xquery.h</DependentOn>
-				<BuildOrder>12</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\xsql.cpp">
-				<DependentOn>..\CoreUtilities\xsql.h</DependentOn>
-				<BuildOrder>11</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\CoreUtilities\xtime.cpp">
-				<DependentOn>..\CoreUtilities\xtime.h</DependentOn>
-				<BuildOrder>13</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LCDbAnalyser.cpp">
-				<DependentOn>..\LabsDAO\LCDbAnalyser.h</DependentOn>
-				<BuildOrder>25</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LCDbAuditTrail.cpp">
-				<DependentOn>..\LabsDAO\LCDbAuditTrail.h</DependentOn>
-				<BuildOrder>20</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LCDbJob.cpp">
-				<DependentOn>..\LabsDAO\LCDbJob.h</DependentOn>
-				<BuildOrder>28</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LCDbObject.cpp">
-				<DependentOn>..\LabsDAO\LCDbObject.h</DependentOn>
-				<BuildOrder>26</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LCDbOperator.cpp">
-				<DependentOn>..\LabsDAO\LCDbOperator.h</DependentOn>
-				<BuildOrder>21</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LCDbProject.cpp">
-				<DependentOn>..\LabsDAO\LCDbProject.h</DependentOn>
-				<BuildOrder>24</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LCDbRack.cpp">
-				<DependentOn>..\LabsDAO\LCDbRack.h</DependentOn>
-				<BuildOrder>32</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LCDbTankLayout.cpp">
-				<DependentOn>..\LabsDAO\LCDbTankLayout.h</DependentOn>
-				<BuildOrder>39</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LCDbTankMap.cpp">
-				<DependentOn>..\LabsDAO\LCDbTankMap.h</DependentOn>
-				<BuildOrder>33</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LDbBoxSize.cpp">
-				<DependentOn>..\LabsDAO\LDbBoxSize.h</DependentOn>
-				<BuildOrder>31</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LDbBoxStore.cpp">
-				<DependentOn>..\LabsDAO\LDbBoxStore.h</DependentOn>
-				<BuildOrder>30</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LDbBoxType.cpp">
-				<DependentOn>..\LabsDAO\LDbBoxType.h</DependentOn>
-				<BuildOrder>35</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LDbIdClasses.cpp">
-				<DependentOn>..\LabsDAO\LDbIdClasses.h</DependentOn>
-				<BuildOrder>22</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LDbNameBase.cpp">
-				<DependentOn>..\LabsDAO\LDbNameBase.h</DependentOn>
-				<BuildOrder>23</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LDbNotes.cpp">
-				<DependentOn>..\LabsDAO\LDbNotes.h</DependentOn>
-				<BuildOrder>29</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LDbSource.cpp">
-				<DependentOn>..\LabsDAO\LDbSource.h</DependentOn>
-				<BuildOrder>38</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LDbValid.cpp">
-				<DependentOn>..\LabsDAO\LDbValid.h</DependentOn>
-				<BuildOrder>36</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LPDbBoxes.cpp">
-				<DependentOn>..\LabsDAO\LPDbBoxes.h</DependentOn>
-				<BuildOrder>27</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LPDbCryovial.cpp">
-				<DependentOn>..\LabsDAO\LPDbCryovial.h</DependentOn>
-				<BuildOrder>37</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LPDbCryovialStore.cpp">
-				<DependentOn>..\LabsDAO\LPDbCryovialStore.h</DependentOn>
-				<BuildOrder>40</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LPDbDescriptor.cpp">
-				<DependentOn>..\LabsDAO\LPDbDescriptor.h</DependentOn>
-				<BuildOrder>19</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LPDbProfile.cpp">
-				<DependentOn>..\LabsDAO\LPDbProfile.h</DependentOn>
-				<BuildOrder>34</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsDAO\LPDbProfileMap.cpp">
-				<DependentOn>..\LabsDAO\LPDbProfileMap.h</DependentOn>
-				<BuildOrder>41</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsForms\dvSelector.cpp">
-				<Form>selectorFrame</Form>
-				<DesignClass>TFrame</DesignClass>
-				<DependentOn>..\LabsForms\dvSelector.h</DependentOn>
-				<BuildOrder>43</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsForms\TfrmAboutBox.cpp">
-				<Form>frmAboutBox</Form>
-				<DependentOn>..\LabsForms\TfrmAboutBox.h</DependentOn>
-				<BuildOrder>45</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsForms\TfrmConfirm.cpp">
-				<Form>frmConfirm</Form>
-				<DependentOn>..\LabsForms\TfrmConfirm.h</DependentOn>
-				<BuildOrder>44</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsForms\TfrmLoginBase.cpp">
-				<Form>frmLoginBase</Form>
-				<DependentOn>..\LabsForms\TfrmLoginBase.h</DependentOn>
-				<BuildOrder>42</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsForms\TfrmPassword.cpp">
-				<Form>frmPassword</Form>
-				<DependentOn>..\LabsForms\TfrmPassword.h</DependentOn>
-				<BuildOrder>46</BuildOrder>
-			</CppCompile>
-			<LibFiles Condition="'$(Platform)'=='Win32'" Include="..\LabsObjects\iiapi_bc.lib">
-				<BuildOrder>86</BuildOrder>
-				<IgnorePath>true</IgnorePath>
-			</LibFiles>
-			<CppCompile Include="..\LabsObjects\LIMSDatabase.cpp">
-				<DependentOn>..\LabsObjects\LIMSDatabase.h</DependentOn>
-				<BuildOrder>17</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsObjects\LIMSParams.cpp">
-				<DependentOn>..\LabsObjects\LIMSParams.h</DependentOn>
-				<BuildOrder>14</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsObjects\LQuery.cpp">
-				<DependentOn>..\LabsObjects\LQuery.h</DependentOn>
-				<BuildOrder>18</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsObjects\TestRange.cpp">
-				<DependentOn>..\LabsObjects\TestRange.h</DependentOn>
-				<BuildOrder>16</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\LabsObjects\ValueFields.cpp">
-				<DependentOn>..\LabsObjects\ValueFields.h</DependentOn>
-				<BuildOrder>15</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="AddSpecimens.cpp">
-				<Form>frmAddSpecimens</Form>
-				<DependentOn>AddSpecimens.h</DependentOn>
-				<BuildOrder>81</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="AnalyseSamples.cpp">
-				<Form>frmAnalyseSpecimens</Form>
-				<DependentOn>AnalyseSamples.h</DependentOn>
-				<BuildOrder>56</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="BoxSummary.cpp">
-				<DependentOn>BoxSummary.h</DependentOn>
-				<BuildOrder>59</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="BoxTransfer.cpp">
-				<Form>frmBoxList</Form>
-				<DependentOn>BoxTransfer.h</DependentOn>
-				<BuildOrder>61</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="BrowseSample.cpp">
-				<Form>frmBrowse</Form>
-				<DependentOn>BrowseSample.h</DependentOn>
-				<BuildOrder>62</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Configure.cpp">
-				<Form>frmConfigure</Form>
-				<DependentOn>Configure.h</DependentOn>
-				<BuildOrder>63</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="DiscardContext.cpp">
-				<DependentOn>DiscardContext.h</DependentOn>
-				<BuildOrder>65</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="DiscardDb.cpp">
-				<DependentOn>DiscardDb.h</DependentOn>
-				<BuildOrder>66</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="DiscardLogic.cpp">
-				<DependentOn>DiscardLogic.h</DependentOn>
-				<BuildOrder>67</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="DiscardMethod.cpp">
-				<Form>frmDiscardMethod</Form>
-				<DependentOn>DiscardMethod.h</DependentOn>
-				<BuildOrder>68</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="DiscardNote.cpp">
-				<Form>frmDiscardNote</Form>
-				<DependentOn>DiscardNote.h</DependentOn>
-				<BuildOrder>69</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="DiscardPrologue.cpp">
-				<Form>frmDiscardPrologue</Form>
-				<DependentOn>DiscardPrologue.h</DependentOn>
-				<BuildOrder>70</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="DiscardReason.cpp">
-				<Form>frmDiscardReason</Form>
-				<DependentOn>DiscardReason.h</DependentOn>
-				<BuildOrder>71</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="DiscardSamples.cpp">
-				<Form>frmDiscardSamples</Form>
-				<DependentOn>DiscardSamples.h</DependentOn>
-				<BuildOrder>72</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="DiscardSearch.cpp">
-				<Form>frmSearch</Form>
-				<DependentOn>DiscardSearch.h</DependentOn>
-				<BuildOrder>73</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="DiscardSef.cpp">
-				<DependentOn>DiscardSef.h</DependentOn>
-				<BuildOrder>74</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="DiscardUtil.cpp">
-				<DependentOn>DiscardUtil.h</DependentOn>
-				<BuildOrder>75</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="FindSample.cpp">
-				<Form>frmFind</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>FindSample.h</DependentOn>
-				<BuildOrder>82</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Inventory.cpp">
-				<DependentOn>Inventory.h</DependentOn>
-				<BuildOrder>76</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="MoveJobs.cpp">
-				<Form>frmSelectJob</Form>
-				<DependentOn>MoveJobs.h</DependentOn>
-				<BuildOrder>78</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="NewBoxType.cpp">
-				<Form>frmNewBoxType</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>NewBoxType.h</DependentOn>
-				<BuildOrder>97</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="NewExercise.cpp">
-				<Form>frmNewExercise</Form>
-				<DependentOn>NewExercise.h</DependentOn>
-				<BuildOrder>80</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="NewJob.cpp">
-				<Form>frmNewJob</Form>
-				<DependentOn>NewJob.h</DependentOn>
-				<BuildOrder>77</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="NewSection.cpp">
-				<Form>frmNewSection</Form>
-				<DependentOn>NewSection.h</DependentOn>
-				<BuildOrder>79</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="NewSite.cpp">
-				<Form>frmNewSite</Form>
-				<DependentOn>NewSite.h</DependentOn>
-				<BuildOrder>83</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="NewTank.cpp">
-				<Form>frmNewTank</Form>
-				<DependentOn>NewTank.h</DependentOn>
-				<BuildOrder>52</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="NewType.cpp">
-				<Form>frmNewStoreType</Form>
-				<DependentOn>NewType.h</DependentOn>
-				<BuildOrder>95</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="ReferredBoxes.cpp">
-				<Form>frmReferred</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>ReferredBoxes.h</DependentOn>
-				<BuildOrder>88</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="ReferredBoxesSummary.cpp">
-				<Form>frmReferredBoxesSummary</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>ReferredBoxesSummary.h</DependentOn>
-				<BuildOrder>87</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="RetrievalAssistant.cpp">
-				<Form>frmRetrievalAssistant</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>RetrievalAssistant.h</DependentOn>
-				<BuildOrder>89</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="RetrievalAssistantAutoChunk.cpp">
-				<Form>frmAutoChunk</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>RetrievalAssistantAutoChunk.h</DependentOn>
-				<BuildOrder>90</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="RetrievalAssistantBoxes.cpp">
-				<Form>frmBoxes</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>RetrievalAssistantBoxes.h</DependentOn>
-				<BuildOrder>91</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="RetrievalAssistantProcess.cpp">
-				<Form>frmProcess</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>RetrievalAssistantProcess.h</DependentOn>
-				<BuildOrder>92</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="RetrievalAssistantProcessBoxes.cpp">
-				<Form>frmProcessBoxes</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>RetrievalAssistantProcessBoxes.h</DependentOn>
-				<BuildOrder>106</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="RetrievalAssistantSamples.cpp">
-				<Form>frmSamples</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>RetrievalAssistantSamples.h</DependentOn>
-				<BuildOrder>94</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="RetrieveSamples.cpp">
-				<Form>frmRetrieved</Form>
-				<DependentOn>RetrieveSamples.h</DependentOn>
-				<BuildOrder>84</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="SampleEntry.cpp">
-				<Form>frmRetrieveMain</Form>
-				<DependentOn>SampleEntry.h</DependentOn>
-				<BuildOrder>53</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="SampleList.cpp">
-				<DependentOn>SampleList.h</DependentOn>
-				<BuildOrder>54</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="SampleMove.cpp">
-				<Form>frmMove</Form>
-				<DependentOn>SampleMove.h</DependentOn>
-				<BuildOrder>55</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="SelectSamples.cpp">
-				<Form>frmSelectBoxes</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>SelectSamples.h</DependentOn>
-				<BuildOrder>86</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="ShowSamples.cpp">
-				<Form>frmAliquotTypes</Form>
-				<DependentOn>ShowSamples.h</DependentOn>
-				<BuildOrder>57</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="SMLogin.cpp">
-				<Form>frmSMLogin</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>SMLogin.h</DependentOn>
-				<BuildOrder>93</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="StoreDAO.cpp">
-				<DependentOn>StoreDAO.h</DependentOn>
-				<BuildOrder>64</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Storemain.cpp">
-				<Form>frmStoremain</Form>
-				<DependentOn>Storemain.h</DependentOn>
-				<BuildOrder>85</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="StoreMan.cpp">
-				<BuildOrder>60</BuildOrder>
-			</CppCompile>
-			<ResFiles Include="StoreMan.res">
-				<BuildOrder>96</BuildOrder>
-			</ResFiles>
-			<CppCompile Include="StoreUtil.cpp">
-				<DependentOn>StoreUtil.h</DependentOn>
-				<BuildOrder>58</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\paulst\AcquireCriticalSection.cpp">
-				<DependentOn>..\..\paulst\AcquireCriticalSection.h</DependentOn>
-				<BuildOrder>47</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\paulst\CritSec.cpp">
-				<DependentOn>..\..\paulst\CritSec.h</DependentOn>
-				<BuildOrder>50</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\paulst\StrBuilder.cpp">
-				<DependentOn>..\..\paulst\StrBuilder.h</DependentOn>
-				<BuildOrder>48</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\paulst\Thread.cpp">
-				<DependentOn>..\..\paulst\Thread.h</DependentOn>
-				<BuildOrder>51</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\paulst\WorkerThread.cpp">
-				<DependentOn>..\..\paulst\WorkerThread.h</DependentOn>
-				<BuildOrder>49</BuildOrder>
-			</CppCompile>
-			<FormResources Include="FindSample.dfm"/>
-			<FormResources Include="DiscardReason.dfm"/>
-			<FormResources Include="DiscardSamples.dfm"/>
-			<FormResources Include="DiscardSearch.dfm"/>
-			<FormResources Include="NewJob.dfm"/>
-			<FormResources Include="NewSection.dfm"/>
-			<FormResources Include="NewSite.dfm"/>
-			<FormResources Include="MoveJobs.dfm"/>
-			<FormResources Include="NewBoxType.dfm"/>
-			<FormResources Include="NewExercise.dfm"/>
-			<FormResources Include="BoxTransfer.dfm"/>
-			<FormResources Include="BrowseSample.dfm"/>
-			<FormResources Include="AddSpecimens.dfm"/>
-			<FormResources Include="AnalyseSamples.dfm"/>
-			<FormResources Include="Configure.dfm"/>
-			<FormResources Include="DiscardMethod.dfm"/>
-			<FormResources Include="DiscardNote.dfm"/>
-			<FormResources Include="DiscardPrologue.dfm"/>
-			<FormResources Include="NewTank.dfm"/>
-			<FormResources Include="Storemain.dfm"/>
-			<FormResources Include="SelectSamples.dfm"/>
-			<FormResources Include="ShowSamples.dfm"/>
-			<FormResources Include="SMLogin.dfm"/>
-			<FormResources Include="RetrievalAssistant.dfm"/>
-			<FormResources Include="RetrievalAssistantAutoChunk.dfm"/>
-			<FormResources Include="RetrievalAssistantBoxes.dfm"/>
-			<FormResources Include="NewType.dfm"/>
-			<FormResources Include="ReferredBoxes.dfm"/>
-			<FormResources Include="ReferredBoxesSummary.dfm"/>
-			<FormResources Include="RetrievalAssistantProcess.dfm"/>
-			<FormResources Include="SampleEntry.dfm"/>
-			<FormResources Include="SampleMove.dfm"/>
-			<FormResources Include="RetrievalAssistantProcessBoxes.dfm"/>
-			<FormResources Include="RetrievalAssistantSamples.dfm"/>
-			<FormResources Include="RetrieveSamples.dfm"/>
-			<FormResources Include="..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.dfm"/>
-			<FormResources Include="..\..\jonathanpr\RetrievalLists\TResultNotesDialog.dfm"/>
-			<FormResources Include="..\..\jonathanpr\RetrievalLists\mainDialog.dfm"/>
-			<FormResources Include="..\..\jonathanpr\RetrievalLists\mainListDialog.dfm"/>
-			<FormResources Include="..\..\jonathanpr\RetrievalLists\TResultsDialog.dfm"/>
-			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
-			<FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
-			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
-			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
-			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
-			<BuildConfiguration Include="Release">
-				<Key>Cfg_2</Key>
-				<CfgParent>Base</CfgParent>
-			</BuildConfiguration>
-			<BuildConfiguration Include="Base">
-				<Key>Base</Key>
-			</BuildConfiguration>
-			<BuildConfiguration Include="Debug">
-				<Key>Cfg_1</Key>
-				<CfgParent>Base</CfgParent>
-			</BuildConfiguration>
-		</ItemGroup>
-		<ProjectExtensions>
-			<Borland.Personality>CPlusPlusBuilder.Personality.12</Borland.Personality>
-			<Borland.ProjectType>CppVCLApplication</Borland.ProjectType>
-			<BorlandProject>
-				<CPlusPlusBuilder.Personality>
-					<Source>
-						<Source Name="MainSource">StoreMan.cpp</Source>
-					</Source>
-					<VersionInfo>
-						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
-						<VersionInfo Name="AutoIncBuild">True</VersionInfo>
-						<VersionInfo Name="MajorVer">1</VersionInfo>
-						<VersionInfo Name="MinorVer">2</VersionInfo>
-						<VersionInfo Name="Release">8</VersionInfo>
-						<VersionInfo Name="Build">18</VersionInfo>
-						<VersionInfo Name="Debug">False</VersionInfo>
-						<VersionInfo Name="PreRelease">False</VersionInfo>
-						<VersionInfo Name="Special">False</VersionInfo>
-						<VersionInfo Name="Private">False</VersionInfo>
-						<VersionInfo Name="DLL">False</VersionInfo>
-						<VersionInfo Name="Locale">2057</VersionInfo>
-						<VersionInfo Name="CodePage">1252</VersionInfo>
-					</VersionInfo>
-					<VersionInfoKeys>
-						<VersionInfoKeys Name="CompanyName"/>
-						<VersionInfoKeys Name="FileDescription"/>
-						<VersionInfoKeys Name="FileVersion">1.2.8.18</VersionInfoKeys>
-						<VersionInfoKeys Name="InternalName"/>
-						<VersionInfoKeys Name="LegalCopyright"/>
-						<VersionInfoKeys Name="LegalTrademarks"/>
-						<VersionInfoKeys Name="OriginalFilename"/>
-						<VersionInfoKeys Name="ProductName"/>
-						<VersionInfoKeys Name="ProductVersion">1.2.8.7</VersionInfoKeys>
-						<VersionInfoKeys Name="Comments"/>
-						<VersionInfoKeys Name="CFBundleName"/>
-						<VersionInfoKeys Name="CFBundleDisplayName"/>
-						<VersionInfoKeys Name="UIDeviceFamily"/>
-						<VersionInfoKeys Name="CFBundleIdentifier"/>
-						<VersionInfoKeys Name="CFBundleVersion"/>
-						<VersionInfoKeys Name="CFBundlePackageType"/>
-						<VersionInfoKeys Name="CFBundleSignature"/>
-						<VersionInfoKeys Name="CFBundleAllowMixedLocalizations"/>
-						<VersionInfoKeys Name="UISupportedInterfaceOrientations"/>
-						<VersionInfoKeys Name="CFBundleExecutable"/>
-						<VersionInfoKeys Name="CFBundleResourceSpecification"/>
-						<VersionInfoKeys Name="LSRequiresIPhoneOS"/>
-						<VersionInfoKeys Name="CFBundleInfoDictionaryVersion"/>
-						<VersionInfoKeys Name="CFBundleDevelopmentRegion"/>
-					</VersionInfoKeys>
-					<ProjectProperties>
-						<ProjectProperties Name="AutoShowDeps">False</ProjectProperties>
-						<ProjectProperties Name="ManagePaths">True</ProjectProperties>
-						<ProjectProperties Name="VerifyPackages">True</ProjectProperties>
-					</ProjectProperties>
-					<Excluded_Packages>
-						<Excluded_Packages Name="C:\Program Files (x86)\FastReports\LibD16\dclfrxDB16.bpl">FastReport 4.0 DB Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclFMXtee9160.bpl">TeeChart Standard FMX Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx160.bpl">Embarcadero LiveBindings Components FireMonkey</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\bcboffice2k160.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\bcbofficexp160.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclfmxstd160.bpl">Embarcadero FMX Standard Components</Excluded_Packages>
-					</Excluded_Packages>
-				</CPlusPlusBuilder.Personality>
-				<Deployment>
-					<DeployFile Class="DependencyModule" Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'!='true'" LocalName="$(BDS)\bin\cc32130.dll">
-						<Platform Name="Win32"/>
-					</DeployFile>
-					<DeployFile Class="DependencyModule" Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'=='true'" LocalName="$(BDS)\bin\cc32130mt.dll">
-						<Platform Name="Win32"/>
-					</DeployFile>
-					<DeployFile Class="DependencyModule" Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'!='true'" LocalName="$(BDS)\bin64\cc64130.dll">
-						<Platform Name="Win64"/>
-					</DeployFile>
-					<DeployFile Class="DependencyModule" Condition="'$(UsingDelphiRTL)'=='true'" LocalName="$(BDS)\bin\borlndmm.dll">
-						<Platform Name="Win32"/>
-					</DeployFile>
-					<DeployFile Class="DependencyModule" Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'=='true'" LocalName="$(BDS)\bin64\cc64130mt.dll">
-						<Platform Name="Win64"/>
-					</DeployFile>
-					<DeployFile Class="DependencyModule" Condition="'$(DynamicRTL)'=='true'" LocalName="$(BDS)\Redist\osx32\libcgcrtl.dylib">
-						<Platform Name="OSX32"/>
-					</DeployFile>
-					<DeployFile Class="ProjectOutput" Configuration="Debug" LocalName=".\Win32\Debug\Storeman.exe">
-						<Platform Name="Win32"/>
-					</DeployFile>
-					<DeployFile Class="DependencyModule" Condition="'$(UsingDelphiRTL)'=='true'" LocalName="$(BDS)\bin64\borlndmm.dll">
-						<Platform Name="Win64"/>
-					</DeployFile>
-					<DeployFile Class="DebugSymbols" Configuration="Debug" LocalName=".\Win32\Debug\Storeman.tds">
-						<Platform Name="Win32">
-							<RemoteName>Storeman.tds</RemoteName>
-						</Platform>
-					</DeployFile>
-					<DeployFile Class="DependencyModule" Condition="'$(DynamicRTL)'=='true'" LocalName="$(BDS)\Redist\osx32\libcgstl.dylib">
-						<Platform Name="OSX32"/>
-					</DeployFile>
-					<DeployClass Name="DependencyPackage" Required="true">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-							<Extensions>.dylib</Extensions>
-						</Platform>
-						<Platform Name="Win32">
-							<Operation>0</Operation>
-							<Extensions>.bpl</Extensions>
-						</Platform>
-						<Platform Name="OSX32">
-							<RemoteDir>Contents\MacOS</RemoteDir>
-							<Operation>1</Operation>
-							<Extensions>.dylib</Extensions>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-							<Extensions>.dylib</Extensions>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="DependencyModule">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-							<Extensions>.dylib</Extensions>
-						</Platform>
-						<Platform Name="Win32">
-							<Operation>0</Operation>
-							<Extensions>.dll;.bpl</Extensions>
-						</Platform>
-						<Platform Name="OSX32">
-							<RemoteDir>Contents\MacOS</RemoteDir>
-							<Operation>1</Operation>
-							<Extensions>.dylib</Extensions>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-							<Extensions>.dylib</Extensions>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="iPad_Launch2048">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="ProjectOSXInfoPList">
-						<Platform Name="OSX32">
-							<RemoteDir>Contents</RemoteDir>
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="ProjectiOSDeviceInfoPList">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="ProjectiOSDeviceDebug">
-						<Platform Name="iOSDevice">
-							<RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="iPad_Launch1024">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="ProjectiOSResource">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="ProjectiOSSimulatorInfoPList">
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="ProjectOSXEntitlements">
-						<Platform Name="OSX32">
-							<RemoteDir>Contents</RemoteDir>
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="iPhone_Launch640">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="ProjectOSXResource">
-						<Platform Name="OSX32">
-							<RemoteDir>Contents\Resources</RemoteDir>
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="iPhone_Launch320">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="iPad_Launch768">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="ProjectOutput" Required="true">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="Win32">
-							<Operation>0</Operation>
-						</Platform>
-						<Platform Name="OSX32">
-							<RemoteDir>Contents\MacOS</RemoteDir>
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="ProjectiOSDeviceResourceRules">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="File">
-						<Platform Name="iOSDevice">
-							<Operation>0</Operation>
-						</Platform>
-						<Platform Name="Win32">
-							<Operation>0</Operation>
-						</Platform>
-						<Platform Name="OSX32">
-							<RemoteDir>Contents\MacOS</RemoteDir>
-							<Operation>0</Operation>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>0</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="DebugSymbols">
-						<Platform Name="OSX32">
-							<RemoteDir>Contents\MacOS</RemoteDir>
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="Win32">
-							<Operation>0</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="DependencyFramework">
-						<Platform Name="OSX32">
-							<RemoteDir>Contents\MacOS</RemoteDir>
-							<Operation>1</Operation>
-							<Extensions>.framework</Extensions>
-						</Platform>
-						<Platform Name="Win32">
-							<Operation>0</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="iPhone_Launch640x1136">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="ProjectiOSEntitlements">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="iPad_Launch1536">
-						<Platform Name="iOSDevice">
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-						</Platform>
-					</DeployClass>
-					<DeployClass Name="AdditionalDebugSymbols">
-						<Platform Name="OSX32">
-							<RemoteDir>Contents\MacOS</RemoteDir>
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="iOSSimulator">
-							<Operation>1</Operation>
-						</Platform>
-						<Platform Name="Win32">
-							<RemoteDir>Contents\MacOS</RemoteDir>
-							<Operation>0</Operation>
-						</Platform>
-					</DeployClass>
-					<ProjectRoot Name="$(PROJECTNAME).app" Platform="iOSDevice"/>
-					<ProjectRoot Name="$(PROJECTNAME)" Platform="Win32"/>
-					<ProjectRoot Name="$(PROJECTNAME).app" Platform="OSX32"/>
-					<ProjectRoot Name="$(PROJECTNAME).app" Platform="iOSSimulator"/>
-					<ProjectRoot Name="$(PROJECTNAME)" Platform="Win64"/>
-				</Deployment>
-				<Platforms>
-					<Platform value="Win32">True</Platform>
-				</Platforms>
-			</BorlandProject>
-			<ProjectFileVersion>12</ProjectFileVersion>
-		</ProjectExtensions>
-		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Cpp.Targets')" Project="$(BDS)\Bin\CodeGear.Cpp.Targets"/>
-		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
-		<Import Condition="Exists('$(MSBuildProjectName).deployproj')" Project="$(MSBuildProjectName).deployproj"/>
-	</Project>
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{EDFCB6C4-56EC-499A-B289-CAA12C62D92B}</ProjectGuid>
+        <ProjectVersion>14.6</ProjectVersion>
+        <FrameworkType>VCL</FrameworkType>
+        <MainSource>StoreMan.cpp</MainSource>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <TargetedPlatforms>1</TargetedPlatforms>
+        <AppType>Application</AppType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+        <Cfg_1_Win32>true</Cfg_1_Win32>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
+        <ShowGeneralMessages>true</ShowGeneralMessages>
+        <BCC_StringsInReadOnlyDataSeg>true</BCC_StringsInReadOnlyDataSeg>
+        <BCC_ShortEnum>true</BCC_ShortEnum>
+        <BCC_PCHCache>true</BCC_PCHCache>
+        <BCC_IntegerSizedEnums>false</BCC_IntegerSizedEnums>
+        <BCC_MergeDuplicateStrings>true</BCC_MergeDuplicateStrings>
+        <BCC_DataAlignment>DWord</BCC_DataAlignment>
+        <BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
+        <VerInfo_Debug>true</VerInfo_Debug>
+        <BCC_CPPCompileAlways>true</BCC_CPPCompileAlways>
+        <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
+        <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
+        <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+        <BCC_MonitorThis>true</BCC_MonitorThis>
+        <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+        <VerInfo_PreRelease>true</VerInfo_PreRelease>
+        <BCC_StackFrames>true</BCC_StackFrames>
+        <BCC_InstructionSet>5</BCC_InstructionSet>
+        <ILINK_wdpl>true</ILINK_wdpl>
+        <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
+        <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
+        <TASM_wpro>true</TASM_wpro>
+        <TASM_wicg>true</TASM_wicg>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Build>6</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.10.6;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
+        <VerInfo_MinorVer>2</VerInfo_MinorVer>
+        <VerInfo_Release>10</VerInfo_Release>
+        <VerInfo_Locale>2057</VerInfo_Locale>
+        <_TCHARMapping>wchar_t</_TCHARMapping>
+        <ProjectType>CppVCLApplication</ProjectType>
+        <ILINK_LibraryPath>..\..\jonathanpr\RetrievalLists\;..\..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <PackageImports>rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;DBXInterBaseDriver;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;bindengine;CustomIPTransport;IndyCore;inet;inetdbxpress;dbexpress;IPIndyImpl;$(PackageImports)</PackageImports>
+        <Multithreaded>true</Multithreaded>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
+        <AllPackageLibs>rtl.lib;vcl.lib;dbrtl.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib;vcldb.lib;vclimg.lib;bdertl.lib;soaprtl.lib;xmlrtl.lib;inet.lib;dsnap.lib</AllPackageLibs>
+        <Icon_MainIcon>snowflake.ico</Icon_MainIcon>
+        <UsingDelphiRTL>true</UsingDelphiRTL>
+        <IncludePath>..\..\jonathanpr\RetrievalLists\;..\..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;$(II_SYSTEM)\ingres\files\;$(BDSINCLUDE);$(IncludePath)</IncludePath>
+        <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
+        <DynamicRTL>true</DynamicRTL>
+        <UsePackages>true</UsePackages>
+        <IntermediateOutputDir>.\$(Platform)\$(Config)</IntermediateOutputDir>
+        <FinalOutputDir>.\$(Platform)\$(Config)</FinalOutputDir>
+        <BCC_wpar>false</BCC_wpar>
+        <BCC_ExtendedErrorInfo>true</BCC_ExtendedErrorInfo>
+        <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\release\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <ILINK_LibraryPath>C:\Users\nicholas\Documents\RAD Studio\Projects\paulst\Win32\Debug\;C:\Users\nicholas\Documents\RAD Studio\Projects\paulst\Win32\Release\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <PackageImports>vcldbx;vclib;inetdbbde;ibxpress;vclimg;intrawebdb_120_160;vcldb;vclactnband;bindcompvcl;vclie;Intraweb_120_160;bcbsmp;vclribbon;VclSmp;vcl;CodeSiteExpressPkg;vclx;webdsnap;bdertl;adortl;bcbie;$(PackageImports)</PackageImports>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
+        <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
+        <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+        <BCC_InlineFunctionExpansion>true</BCC_InlineFunctionExpansion>
+        <BCC_UseRegisterVariables>None</BCC_UseRegisterVariables>
+        <DCC_Define>DEBUG</DCC_Define>
+        <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
+        <TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
+        <BCC_StackFrames>true</BCC_StackFrames>
+        <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+        <TASM_Debugging>Full</TASM_Debugging>
+        <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+        <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.10.7;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
+        <VerInfo_Build>7</VerInfo_Build>
+        <LinkPackageStatics>soaprtl.lib;dsnap.lib</LinkPackageStatics>
+        <Defines>_DEBUG;$(Defines)</Defines>
+        <LinkPackageImports>rtl.bpi;vcl.bpi;dbrtl.bpi;IndyCore.bpi;IndySystem.bpi;IndyProtocols.bpi;vclx.bpi;vcldb.bpi;vclimg.bpi;bdertl.bpi;xmlrtl.bpi;inet.bpi</LinkPackageImports>
+        <BCC_AllCodeguardOptions>false</BCC_AllCodeguardOptions>
+        <BCC_MonitorThis>true</BCC_MonitorThis>
+        <BCC_InstructionSet>5</BCC_InstructionSet>
+        <BCC_InlineFunctionExpansion>true</BCC_InlineFunctionExpansion>
+        <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
+        <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <VerInfo_Debug>false</VerInfo_Debug>
+        <ILINK_FullDebugInfo>false</ILINK_FullDebugInfo>
+        <BCC_SourceDebuggingOn>false</BCC_SourceDebuggingOn>
+        <UsingDelphiRTL>false</UsingDelphiRTL>
+        <UsePackages>false</UsePackages>
+        <BCC_OptimizeForSize>true</BCC_OptimizeForSize>
+        <DynamicRTL>false</DynamicRTL>
+        <BCC_DebugLineNumbers>false</BCC_DebugLineNumbers>
+        <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
+        <BCC_AllCodeguardOptions>false</BCC_AllCodeguardOptions>
+        <TASM_Debugging>None</TASM_Debugging>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <Defines>NDEBUG;$(Defines)</Defines>
+        <BCC_AllCodeguardOptions>false</BCC_AllCodeguardOptions>
+        <BCC_SourceDebuggingOn>false</BCC_SourceDebuggingOn>
+        <BCC_DebugLineNumbers>false</BCC_DebugLineNumbers>
+        <UsingDelphiRTL>false</UsingDelphiRTL>
+        <BCC_InstructionSet>5</BCC_InstructionSet>
+        <UsePackages>false</UsePackages>
+        <BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
+        <DynamicRTL>false</DynamicRTL>
+        <LinkPackageStatics>rtl.lib;vcl.lib;dbrtl.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib;vcldb.lib;vclimg.lib;bdertl.lib;soaprtl.lib;xmlrtl.lib;inet.lib;dsnap.lib</LinkPackageStatics>
+    </PropertyGroup>
+    <ItemGroup>
+        <CppCompile Include="..\..\jonathanpr\RetrievalLists\database.cpp">
+            <BuildOrder>105</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\jonathanpr\RetrievalLists\mainDialog.cpp">
+            <Form>frmViewListMain</Form>
+            <DependentOn>..\..\jonathanpr\RetrievalLists\mainDialog.h</DependentOn>
+            <BuildOrder>98</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\jonathanpr\RetrievalLists\mainListDialog.cpp">
+            <Form>listDialog</Form>
+            <DependentOn>..\..\jonathanpr\RetrievalLists\mainListDialog.h</DependentOn>
+            <BuildOrder>99</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\jonathanpr\RetrievalLists\RetrievalList.cpp">
+            <DependentOn>..\..\jonathanpr\RetrievalLists\RetrievalList.h</DependentOn>
+            <BuildOrder>100</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.cpp">
+            <Form>cryovialHistoryDialog</Form>
+            <DependentOn>..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.h</DependentOn>
+            <BuildOrder>101</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\jonathanpr\RetrievalLists\TResultNotesDialog.cpp">
+            <Form>ResultNotesDialog</Form>
+            <DependentOn>..\..\jonathanpr\RetrievalLists\TResultNotesDialog.h</DependentOn>
+            <BuildOrder>102</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\jonathanpr\RetrievalLists\TResultsDialog.cpp">
+            <Form>ResultsDialog</Form>
+            <DependentOn>..\..\jonathanpr\RetrievalLists\TResultsDialog.h</DependentOn>
+            <BuildOrder>103</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\jonathanpr\RetrievalLists\Utils.cpp">
+            <DependentOn>..\..\jonathanpr\RetrievalLists\Utils.h</DependentOn>
+            <BuildOrder>104</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\rosebase.cpp">
+            <DependentOn>..\CoreUtilities\rosebase.h</DependentOn>
+            <BuildOrder>5</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\rosetta.cpp">
+            <DependentOn>..\CoreUtilities\rosetta.h</DependentOn>
+            <BuildOrder>6</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\xB36Code.cpp">
+            <DependentOn>..\CoreUtilities\xB36Code.h</DependentOn>
+            <BuildOrder>4</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\xbinob.cpp">
+            <DependentOn>..\CoreUtilities\xbinob.h</DependentOn>
+            <BuildOrder>2</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\xdb.cpp">
+            <DependentOn>..\CoreUtilities\xdb.h</DependentOn>
+            <BuildOrder>9</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\xencode.cpp">
+            <BuildOrder>10</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\xerror.cpp">
+            <DependentOn>..\CoreUtilities\xerror.h</DependentOn>
+            <BuildOrder>3</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\xexec.cpp">
+            <DependentOn>..\CoreUtilities\xexec.h</DependentOn>
+            <BuildOrder>8</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\xMD5.cpp">
+            <BuildOrder>7</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\XMLFile.cpp">
+            <DependentOn>..\CoreUtilities\XMLFile.h</DependentOn>
+            <BuildOrder>1</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\xquery.cpp">
+            <DependentOn>..\CoreUtilities\xquery.h</DependentOn>
+            <BuildOrder>12</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\xsql.cpp">
+            <DependentOn>..\CoreUtilities\xsql.h</DependentOn>
+            <BuildOrder>11</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\CoreUtilities\xtime.cpp">
+            <DependentOn>..\CoreUtilities\xtime.h</DependentOn>
+            <BuildOrder>13</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LCDbAnalyser.cpp">
+            <DependentOn>..\LabsDAO\LCDbAnalyser.h</DependentOn>
+            <BuildOrder>25</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LCDbAuditTrail.cpp">
+            <DependentOn>..\LabsDAO\LCDbAuditTrail.h</DependentOn>
+            <BuildOrder>20</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LCDbJob.cpp">
+            <DependentOn>..\LabsDAO\LCDbJob.h</DependentOn>
+            <BuildOrder>28</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LCDbObject.cpp">
+            <DependentOn>..\LabsDAO\LCDbObject.h</DependentOn>
+            <BuildOrder>26</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LCDbOperator.cpp">
+            <DependentOn>..\LabsDAO\LCDbOperator.h</DependentOn>
+            <BuildOrder>21</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LCDbProject.cpp">
+            <DependentOn>..\LabsDAO\LCDbProject.h</DependentOn>
+            <BuildOrder>24</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LCDbRack.cpp">
+            <DependentOn>..\LabsDAO\LCDbRack.h</DependentOn>
+            <BuildOrder>32</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LCDbTankLayout.cpp">
+            <DependentOn>..\LabsDAO\LCDbTankLayout.h</DependentOn>
+            <BuildOrder>39</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LCDbTankMap.cpp">
+            <DependentOn>..\LabsDAO\LCDbTankMap.h</DependentOn>
+            <BuildOrder>33</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LDbBoxSize.cpp">
+            <DependentOn>..\LabsDAO\LDbBoxSize.h</DependentOn>
+            <BuildOrder>31</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LDbBoxStore.cpp">
+            <DependentOn>..\LabsDAO\LDbBoxStore.h</DependentOn>
+            <BuildOrder>30</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LDbBoxType.cpp">
+            <DependentOn>..\LabsDAO\LDbBoxType.h</DependentOn>
+            <BuildOrder>35</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LDbIdClasses.cpp">
+            <DependentOn>..\LabsDAO\LDbIdClasses.h</DependentOn>
+            <BuildOrder>22</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LDbNameBase.cpp">
+            <DependentOn>..\LabsDAO\LDbNameBase.h</DependentOn>
+            <BuildOrder>23</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LDbNotes.cpp">
+            <DependentOn>..\LabsDAO\LDbNotes.h</DependentOn>
+            <BuildOrder>29</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LDbSource.cpp">
+            <DependentOn>..\LabsDAO\LDbSource.h</DependentOn>
+            <BuildOrder>38</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LDbValid.cpp">
+            <DependentOn>..\LabsDAO\LDbValid.h</DependentOn>
+            <BuildOrder>36</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LPDbBoxes.cpp">
+            <DependentOn>..\LabsDAO\LPDbBoxes.h</DependentOn>
+            <BuildOrder>27</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LPDbCryovial.cpp">
+            <DependentOn>..\LabsDAO\LPDbCryovial.h</DependentOn>
+            <BuildOrder>37</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LPDbCryovialStore.cpp">
+            <DependentOn>..\LabsDAO\LPDbCryovialStore.h</DependentOn>
+            <BuildOrder>40</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LPDbDescriptor.cpp">
+            <DependentOn>..\LabsDAO\LPDbDescriptor.h</DependentOn>
+            <BuildOrder>19</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LPDbProfile.cpp">
+            <DependentOn>..\LabsDAO\LPDbProfile.h</DependentOn>
+            <BuildOrder>34</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LPDbProfileMap.cpp">
+            <DependentOn>..\LabsDAO\LPDbProfileMap.h</DependentOn>
+            <BuildOrder>41</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsForms\dvSelector.cpp">
+            <Form>selectorFrame</Form>
+            <DesignClass>TFrame</DesignClass>
+            <DependentOn>..\LabsForms\dvSelector.h</DependentOn>
+            <BuildOrder>43</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsForms\TfrmAboutBox.cpp">
+            <Form>frmAboutBox</Form>
+            <DependentOn>..\LabsForms\TfrmAboutBox.h</DependentOn>
+            <BuildOrder>45</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsForms\TfrmConfirm.cpp">
+            <Form>frmConfirm</Form>
+            <DependentOn>..\LabsForms\TfrmConfirm.h</DependentOn>
+            <BuildOrder>44</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsForms\TfrmLoginBase.cpp">
+            <Form>frmLoginBase</Form>
+            <DependentOn>..\LabsForms\TfrmLoginBase.h</DependentOn>
+            <BuildOrder>42</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsForms\TfrmPassword.cpp">
+            <Form>frmPassword</Form>
+            <DependentOn>..\LabsForms\TfrmPassword.h</DependentOn>
+            <BuildOrder>46</BuildOrder>
+        </CppCompile>
+        <LibFiles Include="..\LabsObjects\iiapi_bc.lib" Condition="'$(Platform)'=='Win32'">
+            <BuildOrder>86</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
+        <CppCompile Include="..\LabsObjects\LIMSDatabase.cpp">
+            <DependentOn>..\LabsObjects\LIMSDatabase.h</DependentOn>
+            <BuildOrder>17</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsObjects\LIMSParams.cpp">
+            <DependentOn>..\LabsObjects\LIMSParams.h</DependentOn>
+            <BuildOrder>14</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsObjects\LQuery.cpp">
+            <DependentOn>..\LabsObjects\LQuery.h</DependentOn>
+            <BuildOrder>18</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsObjects\TestRange.cpp">
+            <DependentOn>..\LabsObjects\TestRange.h</DependentOn>
+            <BuildOrder>16</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsObjects\ValueFields.cpp">
+            <DependentOn>..\LabsObjects\ValueFields.h</DependentOn>
+            <BuildOrder>15</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="AddSpecimens.cpp">
+            <Form>frmAddSpecimens</Form>
+            <DependentOn>AddSpecimens.h</DependentOn>
+            <BuildOrder>81</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="AnalyseSamples.cpp">
+            <Form>frmAnalyseSpecimens</Form>
+            <DependentOn>AnalyseSamples.h</DependentOn>
+            <BuildOrder>56</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="BoxSummary.cpp">
+            <DependentOn>BoxSummary.h</DependentOn>
+            <BuildOrder>59</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="BoxTransfer.cpp">
+            <Form>frmBoxList</Form>
+            <DependentOn>BoxTransfer.h</DependentOn>
+            <BuildOrder>61</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="BrowseSample.cpp">
+            <Form>frmBrowse</Form>
+            <DependentOn>BrowseSample.h</DependentOn>
+            <BuildOrder>62</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Configure.cpp">
+            <Form>frmConfigure</Form>
+            <DependentOn>Configure.h</DependentOn>
+            <BuildOrder>63</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DiscardContext.cpp">
+            <DependentOn>DiscardContext.h</DependentOn>
+            <BuildOrder>65</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DiscardDb.cpp">
+            <DependentOn>DiscardDb.h</DependentOn>
+            <BuildOrder>66</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DiscardLogic.cpp">
+            <DependentOn>DiscardLogic.h</DependentOn>
+            <BuildOrder>67</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DiscardMethod.cpp">
+            <Form>frmDiscardMethod</Form>
+            <DependentOn>DiscardMethod.h</DependentOn>
+            <BuildOrder>68</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DiscardNote.cpp">
+            <Form>frmDiscardNote</Form>
+            <DependentOn>DiscardNote.h</DependentOn>
+            <BuildOrder>69</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DiscardPrologue.cpp">
+            <Form>frmDiscardPrologue</Form>
+            <DependentOn>DiscardPrologue.h</DependentOn>
+            <BuildOrder>70</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DiscardReason.cpp">
+            <Form>frmDiscardReason</Form>
+            <DependentOn>DiscardReason.h</DependentOn>
+            <BuildOrder>71</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DiscardSamples.cpp">
+            <Form>frmDiscardSamples</Form>
+            <DependentOn>DiscardSamples.h</DependentOn>
+            <BuildOrder>72</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DiscardSearch.cpp">
+            <Form>frmSearch</Form>
+            <DependentOn>DiscardSearch.h</DependentOn>
+            <BuildOrder>73</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DiscardSef.cpp">
+            <DependentOn>DiscardSef.h</DependentOn>
+            <BuildOrder>74</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DiscardUtil.cpp">
+            <DependentOn>DiscardUtil.h</DependentOn>
+            <BuildOrder>75</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="FindSample.cpp">
+            <Form>frmFind</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>FindSample.h</DependentOn>
+            <BuildOrder>82</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Inventory.cpp">
+            <DependentOn>Inventory.h</DependentOn>
+            <BuildOrder>76</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="MoveJobs.cpp">
+            <Form>frmSelectJob</Form>
+            <DependentOn>MoveJobs.h</DependentOn>
+            <BuildOrder>78</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="NewBoxType.cpp">
+            <Form>frmNewBoxType</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>NewBoxType.h</DependentOn>
+            <BuildOrder>97</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="NewExercise.cpp">
+            <Form>frmNewExercise</Form>
+            <DependentOn>NewExercise.h</DependentOn>
+            <BuildOrder>80</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="NewJob.cpp">
+            <Form>frmNewJob</Form>
+            <DependentOn>NewJob.h</DependentOn>
+            <BuildOrder>77</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="NewSection.cpp">
+            <Form>frmNewSection</Form>
+            <DependentOn>NewSection.h</DependentOn>
+            <BuildOrder>79</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="NewSite.cpp">
+            <Form>frmNewSite</Form>
+            <DependentOn>NewSite.h</DependentOn>
+            <BuildOrder>83</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="NewTank.cpp">
+            <Form>frmNewTank</Form>
+            <DependentOn>NewTank.h</DependentOn>
+            <BuildOrder>52</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="NewType.cpp">
+            <Form>frmNewStoreType</Form>
+            <DependentOn>NewType.h</DependentOn>
+            <BuildOrder>95</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="ReferredBoxes.cpp">
+            <Form>frmReferred</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>ReferredBoxes.h</DependentOn>
+            <BuildOrder>88</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="ReferredBoxesSummary.cpp">
+            <Form>frmReferredBoxesSummary</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>ReferredBoxesSummary.h</DependentOn>
+            <BuildOrder>87</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RetrievalAssistant.cpp">
+            <Form>frmRetrievalAssistant</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>RetrievalAssistant.h</DependentOn>
+            <BuildOrder>89</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RetrievalAssistantAutoChunk.cpp">
+            <Form>frmAutoChunk</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>RetrievalAssistantAutoChunk.h</DependentOn>
+            <BuildOrder>90</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RetrievalAssistantBoxes.cpp">
+            <Form>frmBoxes</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>RetrievalAssistantBoxes.h</DependentOn>
+            <BuildOrder>91</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RetrievalAssistantProcess.cpp">
+            <Form>frmProcess</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>RetrievalAssistantProcess.h</DependentOn>
+            <BuildOrder>92</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RetrievalAssistantSamples.cpp">
+            <Form>frmSamples</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>RetrievalAssistantSamples.h</DependentOn>
+            <BuildOrder>94</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RetrieveSamples.cpp">
+            <Form>frmRetrieved</Form>
+            <DependentOn>RetrieveSamples.h</DependentOn>
+            <BuildOrder>84</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="SampleEntry.cpp">
+            <Form>frmRetrieveMain</Form>
+            <DependentOn>SampleEntry.h</DependentOn>
+            <BuildOrder>53</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="SampleList.cpp">
+            <DependentOn>SampleList.h</DependentOn>
+            <BuildOrder>54</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="SampleMove.cpp">
+            <Form>frmMove</Form>
+            <DependentOn>SampleMove.h</DependentOn>
+            <BuildOrder>55</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="SelectSamples.cpp">
+            <Form>frmSelectBoxes</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>SelectSamples.h</DependentOn>
+            <BuildOrder>86</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="showsamples.cpp">
+            <Form>frmAliquotTypes</Form>
+            <DependentOn>ShowSamples.h</DependentOn>
+            <BuildOrder>57</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="SMLogin.cpp">
+            <Form>frmSMLogin</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>SMLogin.h</DependentOn>
+            <BuildOrder>93</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="StoreDAO.cpp">
+            <DependentOn>StoreDAO.h</DependentOn>
+            <BuildOrder>64</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Storemain.cpp">
+            <Form>frmStoremain</Form>
+            <DependentOn>Storemain.h</DependentOn>
+            <BuildOrder>85</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="StoreMan.cpp">
+            <BuildOrder>60</BuildOrder>
+        </CppCompile>
+        <ResFiles Include="StoreMan.res">
+            <BuildOrder>96</BuildOrder>
+        </ResFiles>
+        <CppCompile Include="StoreUtil.cpp">
+            <DependentOn>StoreUtil.h</DependentOn>
+            <BuildOrder>58</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\paulst\AcquireCriticalSection.cpp">
+            <DependentOn>..\..\paulst\AcquireCriticalSection.h</DependentOn>
+            <BuildOrder>47</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\paulst\CritSec.cpp">
+            <DependentOn>..\..\paulst\CritSec.h</DependentOn>
+            <BuildOrder>50</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\paulst\StrBuilder.cpp">
+            <DependentOn>..\..\paulst\StrBuilder.h</DependentOn>
+            <BuildOrder>48</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\paulst\Thread.cpp">
+            <DependentOn>..\..\paulst\Thread.h</DependentOn>
+            <BuildOrder>51</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\paulst\WorkerThread.cpp">
+            <DependentOn>..\..\paulst\WorkerThread.h</DependentOn>
+            <BuildOrder>49</BuildOrder>
+        </CppCompile>
+        <FormResources Include="DiscardSearch.dfm"/>
+        <FormResources Include="DiscardPrologue.dfm"/>
+        <FormResources Include="DiscardReason.dfm"/>
+        <FormResources Include="DiscardSamples.dfm"/>
+        <FormResources Include="FindSample.dfm"/>
+        <FormResources Include="NewExercise.dfm"/>
+        <FormResources Include="NewJob.dfm"/>
+        <FormResources Include="NewSection.dfm"/>
+        <FormResources Include="MoveJobs.dfm"/>
+        <FormResources Include="NewBoxType.dfm"/>
+        <FormResources Include="AnalyseSamples.dfm"/>
+        <FormResources Include="BoxTransfer.dfm"/>
+        <FormResources Include="AddSpecimens.dfm"/>
+        <FormResources Include="BrowseSample.dfm"/>
+        <FormResources Include="DiscardMethod.dfm"/>
+        <FormResources Include="DiscardNote.dfm"/>
+        <FormResources Include="Configure.dfm"/>
+        <FormResources Include="NewSite.dfm"/>
+        <FormResources Include="Storemain.dfm"/>
+        <FormResources Include="SelectSamples.dfm"/>
+        <FormResources Include="showsamples.dfm"/>
+        <FormResources Include="SMLogin.dfm"/>
+        <FormResources Include="ReferredBoxesSummary.dfm"/>
+        <FormResources Include="RetrievalAssistant.dfm"/>
+        <FormResources Include="RetrievalAssistantAutoChunk.dfm"/>
+        <FormResources Include="NewTank.dfm"/>
+        <FormResources Include="NewType.dfm"/>
+        <FormResources Include="ReferredBoxes.dfm"/>
+        <FormResources Include="RetrievalAssistantBoxes.dfm"/>
+        <FormResources Include="SampleEntry.dfm"/>
+        <FormResources Include="SampleMove.dfm"/>
+        <FormResources Include="RetrievalAssistantProcess.dfm"/>
+        <FormResources Include="RetrievalAssistantSamples.dfm"/>
+        <FormResources Include="RetrieveSamples.dfm"/>
+        <FormResources Include="..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.dfm"/>
+        <FormResources Include="..\..\jonathanpr\RetrievalLists\TResultNotesDialog.dfm"/>
+        <FormResources Include="..\..\jonathanpr\RetrievalLists\mainDialog.dfm"/>
+        <FormResources Include="..\..\jonathanpr\RetrievalLists\mainListDialog.dfm"/>
+        <FormResources Include="..\..\jonathanpr\RetrievalLists\TResultsDialog.dfm"/>
+        <FormResources Include="..\LabsForms\dvSelector.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>CPlusPlusBuilder.Personality.12</Borland.Personality>
+        <Borland.ProjectType>CppVCLApplication</Borland.ProjectType>
+        <BorlandProject>
+            <CPlusPlusBuilder.Personality>
+                <Source>
+                    <Source Name="MainSource">StoreMan.cpp</Source>
+                </Source>
+                <VersionInfo>
+                    <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+                    <VersionInfo Name="AutoIncBuild">True</VersionInfo>
+                    <VersionInfo Name="MajorVer">1</VersionInfo>
+                    <VersionInfo Name="MinorVer">2</VersionInfo>
+                    <VersionInfo Name="Release">8</VersionInfo>
+                    <VersionInfo Name="Build">22</VersionInfo>
+                    <VersionInfo Name="Debug">False</VersionInfo>
+                    <VersionInfo Name="PreRelease">False</VersionInfo>
+                    <VersionInfo Name="Special">False</VersionInfo>
+                    <VersionInfo Name="Private">False</VersionInfo>
+                    <VersionInfo Name="DLL">False</VersionInfo>
+                    <VersionInfo Name="Locale">2057</VersionInfo>
+                    <VersionInfo Name="CodePage">1252</VersionInfo>
+                </VersionInfo>
+                <VersionInfoKeys>
+                    <VersionInfoKeys Name="CompanyName"/>
+                    <VersionInfoKeys Name="FileDescription"/>
+                    <VersionInfoKeys Name="FileVersion">1.2.8.22</VersionInfoKeys>
+                    <VersionInfoKeys Name="InternalName"/>
+                    <VersionInfoKeys Name="LegalCopyright"/>
+                    <VersionInfoKeys Name="LegalTrademarks"/>
+                    <VersionInfoKeys Name="OriginalFilename"/>
+                    <VersionInfoKeys Name="ProductName"/>
+                    <VersionInfoKeys Name="ProductVersion">1.2.8.7</VersionInfoKeys>
+                    <VersionInfoKeys Name="Comments"/>
+                    <VersionInfoKeys Name="CFBundleName"/>
+                    <VersionInfoKeys Name="CFBundleDisplayName"/>
+                    <VersionInfoKeys Name="UIDeviceFamily"/>
+                    <VersionInfoKeys Name="CFBundleIdentifier"/>
+                    <VersionInfoKeys Name="CFBundleVersion"/>
+                    <VersionInfoKeys Name="CFBundlePackageType"/>
+                    <VersionInfoKeys Name="CFBundleSignature"/>
+                    <VersionInfoKeys Name="CFBundleAllowMixedLocalizations"/>
+                    <VersionInfoKeys Name="UISupportedInterfaceOrientations"/>
+                    <VersionInfoKeys Name="CFBundleExecutable"/>
+                    <VersionInfoKeys Name="CFBundleResourceSpecification"/>
+                    <VersionInfoKeys Name="LSRequiresIPhoneOS"/>
+                    <VersionInfoKeys Name="CFBundleInfoDictionaryVersion"/>
+                    <VersionInfoKeys Name="CFBundleDevelopmentRegion"/>
+                </VersionInfoKeys>
+                <ProjectProperties>
+                    <ProjectProperties Name="AutoShowDeps">False</ProjectProperties>
+                    <ProjectProperties Name="ManagePaths">True</ProjectProperties>
+                    <ProjectProperties Name="VerifyPackages">True</ProjectProperties>
+                </ProjectProperties>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k180.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp180.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
+            </CPlusPlusBuilder.Personality>
+            <Deployment>
+                <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'=='true'" LocalName="$(BDS)\bin\cc32130mt.dll" Class="DependencyModule">
+                    <Platform Name="Win32"/>
+                </DeployFile>
+                <DeployFile Condition="'$(UsingDelphiRTL)'=='true'" LocalName="$(BDS)\bin64\borlndmm.dll" Class="DependencyModule">
+                    <Platform Name="Win64"/>
+                </DeployFile>
+                <DeployFile LocalName=".\Win32\Debug\Storeman.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32"/>
+                </DeployFile>
+                <DeployFile Condition="'$(DynamicRTL)'=='true'" LocalName="$(BDS)\Redist\osx32\libcgcrtl.dylib" Class="DependencyModule">
+                    <Platform Name="OSX32"/>
+                </DeployFile>
+                <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'!='true'" LocalName="$(BDS)\bin\cc32130.dll" Class="DependencyModule">
+                    <Platform Name="Win32"/>
+                </DeployFile>
+                <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'=='true'" LocalName="$(BDS)\bin64\cc64130mt.dll" Class="DependencyModule">
+                    <Platform Name="Win64"/>
+                </DeployFile>
+                <DeployFile Condition="'$(UsingDelphiRTL)'=='true'" LocalName="$(BDS)\bin\borlndmm.dll" Class="DependencyModule">
+                    <Platform Name="Win32"/>
+                </DeployFile>
+                <DeployFile LocalName=".\Win32\Debug\Storeman.tds" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win32">
+                        <RemoteName>Storeman.tds</RemoteName>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'!='true'" LocalName="$(BDS)\bin64\cc64130.dll" Class="DependencyModule">
+                    <Platform Name="Win64"/>
+                </DeployFile>
+                <DeployFile Condition="'$(DynamicRTL)'=='true'" LocalName="$(BDS)\Redist\osx32\libcgstl.dylib" Class="DependencyModule">
+                    <Platform Name="OSX32"/>
+                </DeployFile>
+                <DeployClass Required="true" Name="DependencyPackage">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_Launch2048">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXInfoPList">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceInfoPList">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceDebug">
+                    <Platform Name="iOSDevice">
+                        <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_Launch1024">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSResource">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSSimulatorInfoPList">
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXEntitlements">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Launch640">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXResource">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\Resources</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Launch320">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_Launch768">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Required="true" Name="ProjectOutput">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="File">
+                    <Platform Name="iOSDevice">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>0</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="DebugSymbols">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="DependencyFramework">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                        <Extensions>.framework</Extensions>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPhone_Launch640x1136">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSEntitlements">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="iPad_Launch1536">
+                    <Platform Name="iOSDevice">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="AdditionalDebugSymbols">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Win32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
+                        <Operation>0</Operation>
+                    </Platform>
+                </DeployClass>
+                <ProjectRoot Platform="iOSDevice" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+            </Deployment>
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Condition="Exists('$(BDS)\Bin\CodeGear.Cpp.Targets')" Project="$(BDS)\Bin\CodeGear.Cpp.Targets"/>
+    <Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
+    <Import Condition="Exists('$(MSBuildProjectName).deployproj')" Project="$(MSBuildProjectName).deployproj"/>
+</Project>

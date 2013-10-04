@@ -5,6 +5,7 @@
 
 #include "SMLogin.h"
 #include "Storemain.h"
+#include "LIMSParams.h"
 
 //---------------------------------------------------------------------------
 
@@ -16,11 +17,12 @@ TfrmSMLogin *frmSMLogin;
 
 //---------------------------------------------------------------------------
 
-__fastcall TfrmSMLogin::TfrmSMLogin(TComponent* Owner) : TfrmLoginBase(Owner) {
-    // following crashes release build - order of form creation?
-	//frmLoginBase->rgDatabase -> ItemIndex = LIMSDatabase::LIVE_DATA; 	// db v2.7.3 - OK
-	//frmLoginBase->version -> Font -> Color = clRed;
-	//frmLoginBase->version -> Caption = app + " **DEBUG**";
+__fastcall TfrmSMLogin::TfrmSMLogin(TComponent* Owner) : TfrmLoginBase(Owner)
+{
+	std::string ver = LIMSParams::instance().getProgVersion();
+	String app = Application -> Title + " " + ver.c_str();
+	version -> Caption = app + " ** DEMO **";
+	rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM;
 }
 
 //---------------------------------------------------------------------------

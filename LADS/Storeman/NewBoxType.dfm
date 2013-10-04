@@ -2,7 +2,7 @@ object frmNewBoxType: TfrmNewBoxType
   Left = 0
   Top = 0
   Caption = 'Create New Box Type'
-  ClientHeight = 362
+  ClientHeight = 369
   ClientWidth = 358
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
@@ -93,6 +93,7 @@ object frmNewBoxType: TfrmNewBoxType
     Top = 149
     Width = 150
     Height = 21
+    Sorted = True
     TabOrder = 3
     OnDropDown = aliquotDropDown
   end
@@ -101,6 +102,7 @@ object frmNewBoxType: TfrmNewBoxType
     Top = 189
     Width = 150
     Height = 21
+    Sorted = True
     TabOrder = 4
     OnDropDown = aliquotDropDown
   end
@@ -109,6 +111,7 @@ object frmNewBoxType: TfrmNewBoxType
     Top = 229
     Width = 150
     Height = 21
+    Sorted = True
     TabOrder = 5
     OnDropDown = aliquotDropDown
   end
@@ -121,8 +124,8 @@ object frmNewBoxType: TfrmNewBoxType
     OnDropDown = cbFormDropDown
   end
   object BitBtn1: TBitBtn
-    Left = 77
-    Top = 312
+    Left = 72
+    Top = 316
     Width = 92
     Height = 34
     Caption = 'OK'
@@ -149,8 +152,8 @@ object frmNewBoxType: TfrmNewBoxType
     OnClick = BitBtn1Click
   end
   object BitBtn2: TBitBtn
-    Left = 192
-    Top = 312
+    Left = 194
+    Top = 316
     Width = 92
     Height = 34
     Kind = bkCancel

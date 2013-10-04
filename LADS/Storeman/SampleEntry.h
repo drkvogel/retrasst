@@ -68,6 +68,7 @@ __published:	// IDE-managed Components
 	void __fastcall btnClrSortClick(TObject *Sender);
 	void __fastcall btnNewContentClick(TObject *Sender);
 	void __fastcall cbBoxTypeDropDown(TObject *Sender);
+	void __fastcall cbBoxTypeChange(TObject *Sender);
 
 private:	// User declarations
 

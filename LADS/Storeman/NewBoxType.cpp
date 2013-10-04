@@ -81,6 +81,7 @@ LPDbBoxType TfrmNewBoxType::getDetails() {
 	if( size != NULL ) {
 		content.setSizeID( size->getID() );
 	}
+	return content;
 }
 
 //---------------------------------------------------------------------------
