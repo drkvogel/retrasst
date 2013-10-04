@@ -69,6 +69,12 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     sgwChunks->clear();
     sgwVials->clear();
     timerLoadVials->Enabled = true;
+
+//    	regKey = new TRegistry;
+//	openSection( "", false );
+//	buddyID = findValue( "Buddy ID", 0 );
+//    LIMSParams::openSection();
+
 }
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {

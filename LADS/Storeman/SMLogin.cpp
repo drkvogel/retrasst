@@ -17,7 +17,8 @@ TfrmSMLogin *frmSMLogin;
 //---------------------------------------------------------------------------
 
 __fastcall TfrmSMLogin::TfrmSMLogin(TComponent* Owner) : TfrmLoginBase(Owner) {
-	frmLoginBase->rgDatabase -> ItemIndex = LIMSDatabase::LIVE_DATA; 	// db v2.7.3 - OK
+    // following crashes release build - order of form creation?
+	//frmLoginBase->rgDatabase -> ItemIndex = LIMSDatabase::LIVE_DATA; 	// db v2.7.3 - OK
 	//frmLoginBase->version -> Font -> Color = clRed;
 	//frmLoginBase->version -> Caption = app + " **DEBUG**";
 }
