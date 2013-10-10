@@ -251,10 +251,14 @@ public:
         sg->Cells[0][1] = "No results.";
     }
     void sort_asc(int col, int start, int end) {
-        sort(rows->begin(), rows->end(), cols[col].sort_func_asc); // dot notation: vec.begin() also seems to work - how?
-    }                                                              // it wasn't being compiled because dead code in a template
+        //sort(rows->begin(), rows->end(), cols[col].sort_func_asc);
+        // should use stable_sort anyway?
+        //sort(rows->at(start), rows->at(end), cols[col].sort_func_asc);
+        sort(rows->begin()+start+1, rows->begin()+end+1, cols[col].sort_func_asc);
+        //sort(rows->begin()+start, rows->begin()+end, cols[col].sort_func_asc);
+    }
     void sort_dsc(int col, int start, int end) {
-        sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
+        sort(rows->rbegin()+start+1, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
     }
     void sort_asc(string colName, int start, int end) {
         sort_asc(colNameToInt(colName), start, end);
@@ -266,17 +270,10 @@ public:
         cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
     }
     void sort_toggle(string colName, int start, int end) {
-        sort_toggle(colNameToInt(colName));
+        sort_toggle(colNameToInt(colName), start, end);
     }
 };
 
-// http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates
-//export
-//inline
-// attempts to move definition of Chunk() to .cpp in order to try to set breakpoints which disappear at runtime when
-// I set them in the header. none worked. it seems templated methods must be defined in the header.
-// why my breakpoints, which I need to find out why the program is crashing, are disappearing, I do not know.
-// I'm going home.
 template < class T >
 class Chunk { // not recorded in database
     StringGridWrapper< T > * sgw;

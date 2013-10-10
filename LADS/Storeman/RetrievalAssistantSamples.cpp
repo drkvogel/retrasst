@@ -50,8 +50,9 @@ void TfrmSamples::debugLog(String s) {
 }
 
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
+    cbLog->Checked      = RETRASSTDEBUG;
     cbLog->Visible      = RETRASSTDEBUG;
-    memoDebug->Visible  = RETRASSTDEBUG;
+    memoDebug->Visible  = cbLog->Checked;
     job                 = NULL;
     loadingMessage = "Loading samples, please wait...";
 }
@@ -408,7 +409,8 @@ void TfrmSamples::autoChunk() {
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true));
     LPDbBoxNames boxes;
 
-    int box_id = chunks[0]->getStartRow()->store_record->getBoxID();
+    //int box_id = chunks[0]->getStartRow()->store_record->getBoxID();
+    int box_id = vials[0]->store_record->getBoxID();
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL)
         throw "box not found";

@@ -30,6 +30,7 @@ public:
 
 class TfrmSamples : public TForm {
     friend class LoadVialsWorkerThread;
+    //friend class TfrmAutoChunk;
 __published:
     TSplitter *Splitter1;
     TGroupBox *groupList;
@@ -85,28 +86,27 @@ __published:
     void __fastcall sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow);
 
 private:
-    LoadVialsWorkerThread *     loadVialsWorkerThread;
-    void __fastcall             loadVialsWorkerThreadTerminated(TObject *Sender);
+    LoadVialsWorkerThread *                     loadVialsWorkerThread;
+    void __fastcall                             loadVialsWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
     vector< Chunk< SampleRow > *>               chunks;
-    //vecpSampleRow                               vials;      // all vials in job
     StringGridWrapper<SampleRow> *              sgwVials;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
-    void                        addSorter();
-    void                        removeSorter();
-    void                        applySort();
-    void                        autoChunk();
-    Chunk< SampleRow > *        currentChunk();
-    void                        showChunks();
-    void                        loadRows();
-    void                        showChunk(Chunk< SampleRow > * chunk=NULL);
-    const char *                loadingMessage;
+    void                                        addSorter();
+    void                                        removeSorter();
+    void                                        applySort();
+    void                                        autoChunk();
+    Chunk< SampleRow > *                        currentChunk();
+    void                                        showChunks();
+    void                                        loadRows();
+    void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
+    const char *                                loadingMessage;
 public:
-vecpSampleRow                               vials;      // all vials in job
-    __fastcall                  TfrmSamples(TComponent* Owner);
-    void                        debugLog(String s);
-    void                        setJob(LCDbCryoJob * ajob) { job = ajob; };
-    bool                        addChunk(unsigned int startrow);//, unsigned int size=0);
+    vecpSampleRow                               vials;      // all vials in job - why public??
+    __fastcall                                  TfrmSamples(TComponent* Owner);
+    void                                        debugLog(String s);
+    void                                        setJob(LCDbCryoJob * ajob) { job = ajob; };
+    bool                                        addChunk(unsigned int startrow);//, unsigned int size=0);
 };
 
 extern PACKAGE TfrmSamples *frmSamples;

@@ -7,7 +7,32 @@
 
 ## todo
 
- * auto-chunk: get dest box size from job
+ * auto-chunk: get dest box size from job-
+ 
+ * crash on "do you want to chunk" now, as list not loaded yet?
+     list is loaded, but no chunks yet. fixed.
+ 
+ * sorting chunk sorts everything, not the chunk. this is wrong.
+ 
+ sgVialsFixedCellClick
+ currentChunk()->sortToggle(ACol);
+ Chunk::sortToggle()
+    sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
+ StringGridWrapper::sort_asc(string colName, int start, int end)
+    sort_asc(colNameToInt(colName), start, end);
+    sort_asc(int col, int start, int end)
+        sort(rows->begin(), rows->end(), cols[col].sort_func_asc); <-- wrong!
+        sort(rows->begin()+start, rows->begin()+end, cols[col].sort_func_asc); <-- should be
+not quite, sorting a chunk without affecting rest sometimes, but not others...
+because didn't change sort_dsc in the same way
+but that produces an access violation... can you do rend()+x? no, of course not, it's rbegin()+x you want
+but that doesn't seem to do anything!
+nope, they're still messin' with one another.. sorter still assigned to previously selected chunk? currentChunk() not right?
+
+and the sort was off by one - including one from previous chunk and missing last of current chunk, so I added 1 to start and end - should I have?
+ 
+ 
+ * existing chunk +/-
  * boxes form doesn't work properly - turn the handle (but not for demo)
 
 
@@ -21,6 +46,16 @@
  * update from cvs-
    
 ecig
+
+// dot notation: vec.begin() also seems to work - how?
+// it wasn't being compiled because dead code in a template// http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates
+//export
+//inline
+// attempts to move definition of Chunk() to .cpp in order to try to set breakpoints which disappear at runtime when
+// I set them in the header. none worked. it seems templated methods must be defined in the header.
+// why my breakpoints, which I need to find out why the program is crashing, are disappearing, I do not know.
+// I'm going home.
+
 
 storage sync build
 
