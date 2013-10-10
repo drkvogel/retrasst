@@ -1,20 +1,24 @@
-﻿"cryovial job for chris" looks empty
+﻿### example jobs
+
+"cryovial job for chris" looks empty
 "1751 THRIVE cryovials -few" - empty
 "1743 THRIVE boxes -few (EDTA1 & EDTA2)" - ok, but why named 'boxes'?
 "THRIVE Lp(a) baseline analysis" - ok
-boxes form doesn't work properly
-use tube_position instead of cryovial_position
 
-end of process - option to discard any empty boxes left over
+## todo
 
- * storage sync not worth attempting to rebuild
- * bodge should be ok and not something I have to worry about
- * other than search/replacing my code to use tube_position rather than cryovial position
+ * auto-chunk: get dest box size from job
+ * boxes form doesn't work properly - turn the handle (but not for demo)
+
+
+ * storage sync not worth attempting to rebuild-
+ * bodge should be ok and not something I have to worry about-
+ * other than search/replacing my code to use tube_position rather than cryovial position-
  * new requirement is to check at the end of processing each chunk (pt II) if any source boxes are now empty, in which case they might want to discard them rather than put them back
  * something to bear in mind for processing when it eventually goes live is that the database might not reflect reality perfectly - vials might be missing or swapped etc.
    won't come up till live testing, but worth thinking about at this stage of development
- * demo possible; email martin. make sure there are sufficient example jobs - e.g. "1743 THRIVE boxes - few (EDTA1 & EDTA2)"
- * update from cvs
+ * demo possible; email martin. make sure there are sufficient example jobs - e.g. "1743 THRIVE boxes - few (EDTA1 & EDTA2)"-
+ * update from cvs-
    
 ecig
 

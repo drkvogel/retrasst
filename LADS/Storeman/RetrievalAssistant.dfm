@@ -29,7 +29,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Left = 2
       Top = 15
       Width = 654
-      Height = 409
+      Height = 388
       Margins.Bottom = 10
       Align = alClient
       BevelInner = bvNone
@@ -42,7 +42,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       OnClick = sgJobsClick
       OnDblClick = sgJobsDblClick
       OnDrawCell = sgJobsDrawCell
-      ExplicitLeft = 3
+      ExplicitHeight = 409
       ColWidths = (
         196
         64
@@ -56,10 +56,11 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Left = 656
       Top = 15
       Width = 113
-      Height = 409
+      Height = 388
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitHeight = 409
       object groupStatusCheck: TGroupBox
         Left = 0
         Top = 0
@@ -192,34 +193,56 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       end
       object btnExit: TButton
         Left = 0
-        Top = 368
+        Top = 347
         Width = 113
         Height = 41
         Align = alBottom
         Caption = 'Exit'
         TabOrder = 2
         OnClick = btnExitClick
+        ExplicitTop = 368
       end
       object cbLog: TCheckBox
         Left = 0
-        Top = 351
+        Top = 330
         Width = 113
         Height = 17
         Align = alBottom
         Caption = 'Show Log'
         TabOrder = 3
         OnClick = cbLogClick
+        ExplicitTop = 351
       end
     end
-    object memoDebug: TMemo
+    object panelDebug: TPanel
       Left = 2
-      Top = 424
+      Top = 403
       Width = 767
-      Height = 78
+      Height = 99
       Align = alBottom
-      ScrollBars = ssVertical
+      Caption = 'panelDebug'
       TabOrder = 2
-      Visible = False
+      ExplicitLeft = 1
+      ExplicitTop = 409
+      object memoDebug: TMemo
+        Left = 1
+        Top = 1
+        Width = 616
+        Height = 97
+        Align = alLeft
+        ScrollBars = ssVertical
+        TabOrder = 0
+        Visible = False
+      end
+      object btnResetJobs: TButton
+        Left = 660
+        Top = 13
+        Width = 75
+        Height = 25
+        Caption = 'Reset Jobs'
+        TabOrder = 1
+        OnClick = btnResetJobsClick
+      end
     end
   end
   object Timer1: TTimer

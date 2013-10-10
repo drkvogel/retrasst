@@ -17,7 +17,7 @@
 TfrmRetrievalAssistant *frmRetrievalAssistant;
 __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
 
-void __fastcall TfrmRetrievalAssistant::cbLogClick(TObject *Sender) { memoDebug->Visible = cbLog->Checked; }
+void __fastcall TfrmRetrievalAssistant::cbLogClick(TObject *Sender) { panelDebug->Visible = cbLog->Checked; }
 
 void __fastcall TfrmRetrievalAssistant::btnExitClick(TObject *Sender) { Close(); }
 
@@ -188,7 +188,7 @@ void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
 
 void TfrmRetrievalAssistant::init() {
     cbLog->Visible      = RETRASSTDEBUG;
-    memoDebug->Visible  = RETRASSTDEBUG;
+    panelDebug->Visible  = RETRASSTDEBUG;
 
     sgwJobs = new StringGridWrapper<LCDbCryoJob>(sgJobs, &vecJobs);
     sgwJobs->addCol("desc",     "Description",      359);
@@ -248,3 +248,16 @@ void TfrmRetrievalAssistant::showJobs() {
         sgJobs->Objects[0][row] = (TObject *)job;
     }
 }
+
+void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
+/** for debugging: set all retrieval jobs back to their initial states */
+    LQuery qc(LIMSDatabase::getCentralDb());
+    qc.setSQL("delete from l_cryovial_retrieval");
+    qc.execSQL();
+    qc.setSQL("delete from c_box_retrieval");
+    qc.execSQL();
+    qc.setSQL("update c_retrieval_job set status = 0");
+    qc.execSQL();
+}
+
+

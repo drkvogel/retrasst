@@ -383,9 +383,11 @@ __published:
     TCheckBox *cbSampleDiscard;
     TButton *btnExit;
     TCheckBox *cbLog;
-    TMemo *memoDebug;
     TTimer *Timer1;
     TCheckBox *cbRejected;
+    TPanel *panelDebug;
+    TMemo *memoDebug;
+    TButton *btnResetJobs;
     void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall cbNewJobClick(TObject *Sender);
     void __fastcall cbInProgressClick(TObject *Sender);
@@ -402,6 +404,7 @@ __published:
     void __fastcall sgJobsClick(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall cbRejectedClick(TObject *Sender);
+    void __fastcall btnResetJobsClick(TObject *Sender);
 private:
     void                    debugLog(String s);
     tdvecpJob               vecJobs;
