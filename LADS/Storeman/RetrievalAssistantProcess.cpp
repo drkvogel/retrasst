@@ -149,7 +149,7 @@ For a cryovial retrieval, the retrieval plan will be:
 Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position
 */
 /* SELECT
-   cs.Cryovial_id, cs.Note_Exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.cryovial_position,
+   cs.Cryovial_id, cs.Note_Exists, cs.retrieval_cid, cs.box_cid, cs.status, cs.tube_position,
    cryovial_barcode, t.external_name AS aliquot, b.external_name AS box,
    s.external_name AS site, m.position, v.external_full AS vessel,
    shelf_number, r.external_name AS rack, bs.slot_position
@@ -218,13 +218,13 @@ Rosetta error: ROSETTA Error: member "Cryovial_id" not found
 Rosetta error: ROSETTA Error: member "Note_Exists" not found
 Rosetta error: ROSETTA Error: member "cryovial_id" not found
 Rosetta error: ROSETTA Error: member "box_cid" not found
-Rosetta error: ROSETTA Error: member "cryovial_position" not found
+Rosetta error: ROSETTA Error: member "tube_position" not found
 Rosetta error: ROSETTA Error: member "Cryovial_id" not found
 Rosetta error: ROSETTA Error: member "Note_Exists" not found
 Rosetta error: ROSETTA Error: member "box_cid" not found
 Rosetta error: ROSETTA Error: member "sample_id" not found
 Rosetta error: ROSETTA Error: member "record_id" not found
-Rosetta error: ROSETTA Error: member "cryovial_position" not found'.*/
+Rosetta error: ROSETTA Error: member "tube_position" not found'.*/
 
         "SELECT"
         "   *"
@@ -238,16 +238,16 @@ Rosetta error: ROSETTA Error: member "cryovial_position" not found'.*/
     );
 //    qd.setSQL( // from spec 2013-09-11
 //        "SELECT"
-//        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
+//        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
 //        "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
 //            // LPDbCryovial::storeID( query.readInt( "record_id" ) ) <-- record_id comes from cryovial_store?
 //        "  c.cryovial_barcode, t.external_name AS aliquot,"
 //        "  b1.box_cid as source_id,"
 //        "  b1.external_name as source_name,"
-//        "  s1.cryovial_position as source_pos,"
+//        "  s1.tube_position as source_pos,"
 //        "  s2.box_cid as dest_id,"
 //        "  b2.external_name as dest_name,"
-//        "  s2.cryovial_position as dest_pos"
+//        "  s2.tube_position as dest_pos"
 //        " FROM"
 //        "  cryovial c, cryovial_store s1, box_name b1,"
 //        "  cryovial_store s2, box_name b2,"

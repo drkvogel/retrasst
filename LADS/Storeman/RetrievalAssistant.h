@@ -148,7 +148,7 @@ public:
     LPDbCryovialStore * store_record;
     string              cryovial_barcode;
     string              aliquot_type_name; // not in LPDbCryovial
-    int                 dest_cryo_pos;      // cryovial_position
+    int                 dest_cryo_pos;      // cryovial_position/tube_position
     ~SampleRow() { if (store_record) delete store_record; if (cryo_record) delete cryo_record;}
     SampleRow(  LPDbCryovial * cryo_rec,LPDbCryovialStore * store_rec,
                 string barc, string aliq, string srcnm, int dstid, string dstnm, int dstps,
