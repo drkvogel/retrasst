@@ -220,7 +220,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Width = 767
       Height = 99
       Align = alBottom
-      Caption = 'panelDebug'
       TabOrder = 2
       ExplicitLeft = 1
       ExplicitTop = 409
@@ -232,7 +231,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Align = alLeft
         ScrollBars = ssVertical
         TabOrder = 0
-        Visible = False
       end
       object btnResetJobs: TButton
         Left = 660

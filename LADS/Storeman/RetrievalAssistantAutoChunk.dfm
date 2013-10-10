@@ -23,8 +23,6 @@ object frmAutoChunk: TfrmAutoChunk
     Align = alClient
     Caption = 'Auto chunk'
     TabOrder = 0
-    ExplicitLeft = -8
-    ExplicitTop = 16
     object Label1: TLabel
       Left = 32
       Top = 83
@@ -100,7 +98,7 @@ object frmAutoChunk: TfrmAutoChunk
       OnClick = btnAddAllChunksClick
     end
     object updownBoxSize: TUpDown
-      Left = 251
+      Left = 249
       Top = 53
       Width = 16
       Height = 21
@@ -109,7 +107,7 @@ object frmAutoChunk: TfrmAutoChunk
       TabOrder = 6
     end
     object updownMaxSection: TUpDown
-      Left = 251
+      Left = 249
       Top = 80
       Width = 16
       Height = 21

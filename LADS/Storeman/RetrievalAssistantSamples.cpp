@@ -403,16 +403,16 @@ void __fastcall TfrmSamples::sgChunksGetEditText(TObject *Sender, int ACol, int 
 }
 
 void TfrmSamples::autoChunk() {
-    // box_name.box_type_cid -> box_content.box_size_cid -> c_box_size.box_capacity
-    //const LPDbBoxName *found = boxes.readRecord(pq, box.c_str());
-    //LPDbBoxNames::readRecord
-    // initialise box size with size of first box in first chunk
-//    LPDbBoxNames boxes;
-//    int box_id = chunks[0]->getStartRow()->store_record->getBoxID();
-//    const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
-//    if (found == NULL) throw "box not found";
-//    frmAutoChunk->box_size = found->getSize();
+/** initialise box size with size of first box in first chunk
+    box_name.box_type_cid -> box_content.box_size_cid -> c_box_size.box_capacity */
+    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true));
+    LPDbBoxNames boxes;
 
+    int box_id = chunks[0]->getStartRow()->store_record->getBoxID();
+    const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
+    if (found == NULL)
+        throw "box not found";
+    frmAutoChunk->setBoxSize(found->getSize());
     frmAutoChunk->ShowModal();
 }
 

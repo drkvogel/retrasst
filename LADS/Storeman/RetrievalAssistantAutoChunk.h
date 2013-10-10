@@ -35,9 +35,10 @@ __published:	// IDE-managed Components
 private:
     void calcSizes();
     int section_size;
+    int box_size;
 public:
     __fastcall TfrmAutoChunk(TComponent* Owner);
-    int box_size;
+    void setBoxSize(int size);
 };
 extern PACKAGE TfrmAutoChunk *frmAutoChunk;
 #endif

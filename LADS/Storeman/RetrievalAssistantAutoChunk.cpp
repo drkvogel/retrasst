@@ -10,33 +10,6 @@ __fastcall TfrmAutoChunk::TfrmAutoChunk(TComponent* Owner) : TForm(Owner) {
     box_size = DEFAULT_BOX_SIZE;
 }
 
-void __fastcall TfrmAutoChunk::btnCancelClick(TObject *Sender) { Close(); }
-
-void __fastcall TfrmAutoChunk::btnOKClick(TObject *Sender) { Close(); }
-
-void __fastcall TfrmAutoChunk::editMaxSizeChange(TObject *Sender) {
-    timerCalculate->Enabled = true;
-}
-
-void __fastcall TfrmAutoChunk::timerCalculateTimer(TObject *Sender) {
-    timerCalculate->Enabled = false;
-    calcSizes();
-}
-
-void TfrmAutoChunk::calcSizes() { // calculate section sizes
-    comboSectionSize->Clear();
-    box_size = editDestBoxSize->Text.ToIntDef(0); // Calculate slot/box (where c_box_size.box_size_cid = box_content.box_size_cid
-    //int box_size = 123;
-        // now, as retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box
-        // where does box_content come from?
-    int possibleChunkSize = box_size * 2; // smallest chunk
-    while (possibleChunkSize <= editMaxSize->Text.ToIntDef(0)) {
-        comboSectionSize->Items->Add(String(possibleChunkSize));
-        possibleChunkSize += box_size;
-    }
-    comboSectionSize->ItemIndex = comboSectionSize->Items->Count-1;
-}
-
 void __fastcall TfrmAutoChunk::FormShow(TObject *Sender) {
 /*
 box_content.box_type_cid
@@ -49,8 +22,43 @@ Display the size of the job and ask user if they want to divide up the list.  If
 4.	Allocate the appropriate number of destination boxes to the first section
 5.	Repeat steps (2) and (3) until every entry has been allocated to a section
 */
+    editDestBoxSize->Text = box_size;
+    //timerCalculate->Enabled = false;
+    //calcSizes();
+}
+
+void __fastcall TfrmAutoChunk::btnCancelClick(TObject *Sender) { Close(); }
+
+void __fastcall TfrmAutoChunk::btnOKClick(TObject *Sender) { Close(); }
+
+void __fastcall TfrmAutoChunk::editMaxSizeChange(TObject *Sender) { // or dest box size
+    timerCalculate->Enabled = true;
+}
+
+void __fastcall TfrmAutoChunk::timerCalculateTimer(TObject *Sender) {
     timerCalculate->Enabled = false;
+    box_size = editDestBoxSize->Text.ToIntDef(0);
     calcSizes();
+}
+
+void TfrmAutoChunk::setBoxSize(int size) {
+    box_size = size;
+    //editDestBoxSize->Text = box_size = size;
+    //editDestBoxSize->Text = size;
+    //Paint();
+}
+
+void TfrmAutoChunk::calcSizes() {
+/** calculate possible chunk (section) sizes
+slot/box (where c_box_size.box_size_cid = box_content.box_size_cid) (where does box_content come from?)
+As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box */
+    comboSectionSize->Clear();
+    int possibleChunkSize = box_size * 2; // smallest chunk
+    while (possibleChunkSize <= editMaxSize->Text.ToIntDef(0)) {
+        comboSectionSize->Items->Add(String(possibleChunkSize));
+        possibleChunkSize += box_size;
+    }
+    comboSectionSize->ItemIndex = comboSectionSize->Items->Count-1;
 }
 
 void __fastcall TfrmAutoChunk::btnAddChunkClick(TObject *Sender) {
