@@ -809,12 +809,11 @@ Section::Section( const ROSETTA &data ) {
 
 std::auto_ptr< ROSETTA >Section::getProperties( ) {
 	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
-	// r->setInt( "tank_cid", tank_cid );
-	// r->setInt( "map_cid", map_cid );
-	// r->setInt( "position", position );
 	r->setInt( "first_structure", first );
 	r->setInt( "last_structure", last );
-	r->setInt( "structure_size", rackSize );
+	if( rackSize > 0 ) {
+		r->setInt( "structure_size", rackSize );
+	}
 	return r;
 }
 
@@ -1209,24 +1208,27 @@ void Box::populate( ) {
 
 	StoreDAO dao;
 	std::vector< ROSETTA >results;
-	dao.loadSamples( id, project_cid, results );
 
 	// list cryovials in the box, ignoring empty spaces
-	childCount = 0;
+	dao.loadSamples( id, project_cid, results );
 	for( std::vector< ROSETTA >::const_iterator bi = results.begin(); bi != results.end(); bi ++ ) {
 		Sample * next = new Sample( *bi );
 		next->setParent( this );
 		partlist.push_back( next );
-		childCount ++;
 	}
-	sortChildren( );
+	childCount = partlist.size();
+	sortChildren();
 
 	const LPDbBoxType * type = LPDbBoxTypes::records( project_cid ).findByID( box_type_id );
 	if( type != NULL ) {
 		const LCDbBoxSize * size = LCDbBoxSizes::records().findByID( type->getSizeID() );
 		if( size != NULL ) {
 			capacity = size -> getCapacity();
-			emptySlots = capacity - childCount;
+			if( childCount == 0 ) {
+				emptySlots = -1;	// no cryovial records, e.g. KADOORIE
+			} else {
+				emptySlots = capacity - childCount;
+			}
 		}
 	}
 
@@ -1254,10 +1256,10 @@ bool Box::canMove() const {
 IPart::Availability Box::availability( ) const {
 	if( status != LCDbBoxStore::SLOT_CONFIRMED || retrieval_cid != 0 ) {
 		return UNAVAILABLE;
+	} else if( emptySlots < 1 ) {
+		return IS_FULL;
 	} else if( childCount == 0 ) {
 		return IS_EMPTY;
-	} else if( emptySlots == 0 ) {
-		return IS_FULL;
 	} else {
 		return PART_FULL;
 	}
