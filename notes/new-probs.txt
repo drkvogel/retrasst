@@ -28,9 +28,12 @@ because didn't change sort_dsc in the same way
 but that produces an access violation... can you do rend()+x? no, of course not, it's rbegin()+x you want
 but that doesn't seem to do anything!
 nope, they're still messin' with one another.. sorter still assigned to previously selected chunk? currentChunk() not right?
+  the column toggle value would still be in the Col object no matter what chunk is selected
+  it is, I think, sorting the last shown chunk on first click
 
 and the sort was off by one - including one from previous chunk and missing last of current chunk, so I added 1 to start and end - should I have?
  
+ * delete current chunk (e.g. from middle of chunk list)
  
  * existing chunk +/-
  * boxes form doesn't work properly - turn the handle (but not for demo)
@@ -55,7 +58,8 @@ ecig
 // I set them in the header. none worked. it seems templated methods must be defined in the header.
 // why my breakpoints, which I need to find out why the program is crashing, are disappearing, I do not know.
 // I'm going home.
-
+    // setEnd(end); // setStart(st); // moved out to caller cause can't set breakpoints in template
+    // http://stackoverflow.com/questions/1568091/why-use-getters-and-setters
 
 storage sync build
 

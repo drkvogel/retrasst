@@ -186,7 +186,6 @@ public:
 typedef std::vector<SampleRow *> vecpSampleRow;
 
 /** StringGridWrapper
-
 Wrapper for TStringGrid, provides sorting functions. T is type of data in each row */
 template < class T >
 class StringGridWrapper {
@@ -251,11 +250,7 @@ public:
         sg->Cells[0][1] = "No results.";
     }
     void sort_asc(int col, int start, int end) {
-        //sort(rows->begin(), rows->end(), cols[col].sort_func_asc);
-        // should use stable_sort anyway?
-        //sort(rows->at(start), rows->at(end), cols[col].sort_func_asc);
-        sort(rows->begin()+start+1, rows->begin()+end+1, cols[col].sort_func_asc);
-        //sort(rows->begin()+start, rows->begin()+end, cols[col].sort_func_asc);
+        sort(rows->begin()+start+1, rows->begin()+end+1, cols[col].sort_func_asc); // should use stable_sort?
     }
     void sort_dsc(int col, int start, int end) {
         sort(rows->rbegin()+start+1, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
@@ -286,15 +281,8 @@ class Chunk { // not recorded in database
     string              endBox;
     string              endDescrip;
 public:
-//    Chunk(StringGridWrapper< T > * w, int sc, int s, string sb, string sv, int e, string eb, string ev) :
-//        sgw(w), section(sc), start(s), startBox(sb), startVial(sv), end(e), endBox(eb), endVial(ev) {
-//        // setEnd(end); // setStart(st); // moved out to caller cause can't set breakpoints in template
-//    }
-    Chunk(StringGridWrapper< T > * w, int sc, int s, int e) :
-        sgw(w), section(sc), start(s), end(e) {
-        // setEnd(end); // setStart(st); // moved out to caller cause can't set breakpoints in template
-    }
-    // http://stackoverflow.com/questions/1568091/why-use-getters-and-setters
+    Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e) { }
+
     int     getSection()    { return section; }
     int     getStart()      { return start; }
     int     getStartPos()   { return start+1; } // 1-indexed, human-readable
@@ -305,14 +293,8 @@ public:
     int     getEndPos()     { return end+1; }   // 1-indexed, human-readable
     string  getEndBox()     { return sgw->rows->at(end)->src_box_name; }
     string  getEndVial()    { return sgw->rows->at(end)->cryo_record->getBarcode(); }
-
     int     getSize() { return end - start + 1; } //OutputDebugString(L"I am here");
-    void    setStart(int s) {
-        if (s < 0 || s > end) throw "invalid chunk start value";
-        start = s;
-        //setEndBox(sgw->rows->at(start)->src_box_name);
-        //setEndVial(sgw->rows->at(start)->cryo_record->getBarcode());
-    }
+    void    setStart(int s) { if (s < 0 || s > end) throw "invalid chunk start value"; start = s; }
     void    setStartBox(string s) { startBox = s; }
     void    setStartVial(string v) { startVial = v; }
     void    setEnd(int e) { if (e > sgw->rowCount()-1) throw "invalid chunk end value"; end = e; }

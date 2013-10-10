@@ -192,14 +192,15 @@ void TfrmRetrievalAssistant::init() {
     panelDebug->Visible = cbLog->Checked;
 
     sgwJobs = new StringGridWrapper<LCDbCryoJob>(sgJobs, &vecJobs);
-    sgwJobs->addCol("desc",     "Description",      359);
+    //{331, 105, 88, 117, 134, 103, 163, 111, }
+    sgwJobs->addCol("desc",     "Description",      331);
     sgwJobs->addCol("type",     "Job type",         105);
     sgwJobs->addCol("status",   "Status",           88);
-    sgwJobs->addCol("primary",  "Primary Aliquot",  88);
+    sgwJobs->addCol("primary",  "Primary Aliquot",  117);
     sgwJobs->addCol("secondary","Secondary Aliquot",134);
     sgwJobs->addCol("project",  "Project",          103);
-    sgwJobs->addCol("reason",   "Reason",           177);
-    sgwJobs->addCol("time",     "Timestamp",        127);
+    sgwJobs->addCol("reason",   "Reason",           163);
+    sgwJobs->addCol("time",     "Timestamp",        111);
     sgwJobs->init();
     loadJobs();
 }

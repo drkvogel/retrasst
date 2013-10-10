@@ -16,7 +16,6 @@ TfrmSamples *frmSamples;
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
-    // {87, 70, 304, 150, 66, 242, 160, 87, }
     sgwChunks->addCol("section",  "Section",  87);
     sgwChunks->addCol("start",    "Start",    70);
     sgwChunks->addCol("startbox", "Box",      304);
@@ -27,7 +26,6 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwChunks->addCol("size",     "Size",     87);
     sgwChunks->init();
 
-    //{91, 90, 257, 31, 120, 28, 107, 31, 27, 123, 26, 267, 25, }
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
     sgwVials->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode);
     sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot);
@@ -172,7 +170,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
 
         std::set<int> projects; projects.insert(job->getProjectID());
         frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
-        //if (mrOk != frmConfirm->ShowModal()) return;
+        if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) return;
         Screen->Cursor = crSQLWait; Enabled = false;
         LQuery qc(LIMSDatabase::getCentralDb());
         map<int, int> boxes; // box_id to rj_box_id
@@ -404,13 +402,11 @@ void __fastcall TfrmSamples::sgChunksGetEditText(TObject *Sender, int ACol, int 
 }
 
 void TfrmSamples::autoChunk() {
-/** initialise box size with size of first box in first chunk
+/** initialise box size with size of first box in list
     box_name.box_type_cid -> box_content.box_size_cid -> c_box_size.box_capacity */
-    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true));
-    LPDbBoxNames boxes;
+    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
 
-    //int box_id = chunks[0]->getStartRow()->store_record->getBoxID();
-    int box_id = vials[0]->store_record->getBoxID();
+    int box_id = vials[0]->store_record->getBoxID(); // look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL)
         throw "box not found";
