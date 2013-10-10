@@ -1,7 +1,6 @@
 #ifndef APIH
 #define APIH
 
-#include "AbstractConnectionFactory.h"
 #include <System.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/variant.hpp>
@@ -18,13 +17,98 @@ namespace paulst
     class Properties;
 };
 
-namespace paulstdb
-{
-    class DBConnection;
-};
-
 namespace valc
 {
+
+// Forward declarations
+class AnalysisActivitySnapshot;
+class UserAdvisor;
+
+/*
+    An opaque pointer to a loaded Snapshot. A Snapshot is a model of sample analysis activity for a particular analyser.
+
+    Refer to method 'Load' (below) regarding the loading of a Snapshot instance.
+*/
+class SnapshotPtr
+{
+public:
+    SnapshotPtr( AnalysisActivitySnapshot* p = NULL )
+        : m_ptr(p)
+    {
+    }
+
+    SnapshotPtr( const SnapshotPtr& p )
+        :
+        m_ptr(p.m_ptr)
+    {
+    }
+
+    SnapshotPtr& operator=( const SnapshotPtr& p )
+    {
+        m_ptr = p.m_ptr;
+        return *this;
+    }
+
+    AnalysisActivitySnapshot* operator->() 
+    {
+        return m_ptr;
+    }
+
+    const AnalysisActivitySnapshot* operator->() const
+    {
+        return m_ptr;
+    }
+
+private:
+    AnalysisActivitySnapshot* m_ptr;
+};
+
+/*
+    The application context must be initialised before a Snapshot can be loaded.
+
+    It is an error to attempt to initialise the application context if it has already 
+    been initialised.
+
+    Parameters:
+
+        localMachineID  - the ID of the local analyser
+        user            - the ID of the user
+        configString    - configuration. Load config.txt into a string. e.g. (in paulst/StrUtil.h) loadContentsOf("config.txt")
+        log             - a logging service
+
+    Example of how to create an instance of LoggingService:
+
+        paulst::LoggingService* log = new paulst::LoggingService( new paulst::ConsoleWriter() );
+*/
+void InitialiseApplicationContext( 
+    int                                     localMachineID, 
+    int                                     user, 
+    const std::string&                      config, /* Refer to paulst::Config re. format of this string */
+    paulst::LoggingService*                 log ); 
+
+/*
+    Loads a Snapshot.
+
+    Loading of Snapshots is one-at-a-time.  To reload, Unload and then Load.
+
+    UserAdvisor, if supplied, is a callback for warnings relating to the loading process.
+*/
+SnapshotPtr Load( 
+    UserAdvisor* userAdvisor = NULL ); 
+
+/*
+    Unloads a loaded Snapshot.
+
+    The SnapshotPtr is no longer safe to use.
+*/
+void Unload( SnapshotPtr s );
+
+/*
+    Applications should call this method to release system resources prior to termination. 
+*/
+void DeleteApplicationContext();
+
+
 
 /*
     A pair of iterators describing the start and end of a sequence of items (of any sort).
@@ -59,27 +143,6 @@ struct Range : public std::pair<Iter, Iter>
     }
 };
 
-
-/*
-    Factory method for obtaining a new DBConnection instance.
-
-    It is the caller's responsibility to delete the returned instance 
-    when they are done with it.
-
-    Example value for connectionString:
-        dsn=paulst_brat_64;db=paulst_test
-    In the preceding example, 'paulst_test' is the name of the database and 
-    'paulst_brat_64' is the name of a 64bit ODBC datasource.
-
-    Example value for sessionReadLockSetting:
-        set lockmode session where readlock = nolock
-*/
-class DBConnectionFactory : public paulstdb::AbstractConnectionFactory
-{
-public:
-    DBConnectionFactory();
-    paulstdb::DBConnection* createConnection( const std::string& connectionString, const std::string& sessionReadLockSetting = "" );
-};
 
 /*
     Represents a sample-run, i.e. an instance of a sample 
@@ -301,15 +364,13 @@ public:
         A thread updates the database following the loading of a snapshot.
         This thread doesn't run automatically, but only when this method is called.
         Parameters:
-            - the connection on which updates should be performed
-                (might be the same as the connection used to load the snapshot).
             - an implementation of DBUpdateExceptionHandlingPolicy
                 (e.g. to show a message to the user). Note that callbacks on
                 this policy will be asynchronous, from a background thread.
             - whether the method should block until all updates have been performed, or allow 
                 updates to continue in the background
     */
-    virtual void runPendingDatabaseUpdates( paulstdb::DBConnection* c, DBUpdateExceptionHandlingPolicy* p, bool block ) = 0;
+    virtual void runPendingDatabaseUpdates( DBUpdateExceptionHandlingPolicy* p, bool block ) = 0;
     /*
         How to test that a TestResult is associated with a particular LocalRun? 
         The only way to find out is to use this method, supplying the runID of the LocalRun
@@ -346,7 +407,6 @@ private:
     AnalysisActivitySnapshot& operator=( const AnalysisActivitySnapshot& );
 };
 
-
 class BuddyDatabase;
 class Projects;
 class ResultIndex;
@@ -372,40 +432,6 @@ public:
 private:
     UserAdvisor( const UserAdvisor& );
     UserAdvisor& operator=( const UserAdvisor& );
-};
-
-/*
-    Factory method for obtaining an instance of AnalysisActivitySnapshot.
-
-    The caller must delete the returned instance when they no longer need it.
-*/
-class SnapshotFactory
-{
-public:
-    /*
-    Parameters:
-        localMachineID the ID of the local analyser
-        user            the ID of the user
-        c               connection for querying the central database (for worklist entries, results, sample-runs...)
-        log             a logging service
-        configString    configuration. Load config.txt into a string. e.g. (in paulst/StrUtil.h) loadContentsOf("config.txt")
-        userAdvisor     an implementation of UserAdvisor, to receive warnings for display to the user. Can be NULL.
-
-    Use DBConnectionFactory to create an instance of DBConnection. Deleting connection before obtaining an instance of
-    AnalysisActivitySnapshot will result in unpredictable behaviour.
-
-    Deleting the log instance before deleting the obtained instance of AnalysisActivitySnapshot will result in 
-    unpredictable behaviour.
-
-    Example of how to create an instance of LoggingService:
-
-        paulst::LoggingService* log = new paulst::LoggingService( new paulst::ConsoleWriter() );
-
-    */
-    static AnalysisActivitySnapshot* load( int localMachineID, int user, paulstdb::DBConnection* c, paulst::LoggingService* log,
-    const std::string& configString, UserAdvisor* userAdvisor );
-private:
-    SnapshotFactory();
 };
 
 /*

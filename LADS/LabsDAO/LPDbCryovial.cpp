@@ -34,10 +34,16 @@ LPDbCryovial::LPDbCryovial( const LQuery & query )
    typeID( query.readInt( "aliquot_type_cid" ) ),
    boxID( query.readInt( "box_cid" ) ),
    status( query.readInt( "status" ) ),
-   position( query.readInt( "cryovial_position" ) ),
    LDbNoteCount( query.readInt( "Note_Exists" ) ),
    retrievalID( query.readInt( "retrieval_cid" ) )
-{}
+{
+	if( query.fieldExists( "tube_position" ) ) {
+		position = query.readInt( "tube_position" );
+	} else {
+		position = query.readInt( "cryovial_position" );
+	}
+
+}
 
 //---------------------------------------------------------------------------
 //	Record the current cryovial in the database, ready to be allocated
@@ -78,8 +84,7 @@ bool LPDbCryovial::saveRecord( LQuery query )
 
 std::string LPDbCryovials::selectFields()
 {
-	return "select c.Cryovial_id, c.Cryovial_Barcode, c.sample_id, c.aliquot_type_cid,"
-		  " s.record_id, s.box_cid, s.status, s.cryovial_position, s.Note_Exists, s.retrieval_cid"
+	return "select Cryovial_Barcode, Sample_id, Aliquot_type_cid, s.*"
 		  " from cryovial c, cryovial_store s"
 		  " where c.cryovial_id = s.cryovial_id and c.status in (0,1) and s.status in (0,1)";
 }
@@ -100,7 +105,7 @@ const LPDbCryovial * LPDbCryovials::readRecord( LQuery pQuery, const std::string
 
 const LPDbCryovial * LPDbCryovials::readRecord( LQuery pQuery, int box, short pos )
 {
-	pQuery.setSQL( selectFields() + " and s.box_cid = :bid and s.cryovial_position = :pos" );
+	pQuery.setSQL( selectFields() + " and s.box_cid = :bid and s.tube_position = :pos" );
 	pQuery.setParam( "bid", box );
 	pQuery.setParam( "pos", pos );
 	return pQuery.open() ? insert( LPDbCryovial( pQuery ) ) : NULL;

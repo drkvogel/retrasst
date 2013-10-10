@@ -17,6 +17,7 @@ class lua_State;
 namespace paulstdb
 {
     class AbstractConnectionFactory;
+    class LoggingService;
 }
 
 namespace valc
@@ -27,6 +28,10 @@ class RuleLoader
 public:
     RuleLoader();
     virtual ~RuleLoader();
+    /*
+        Implementations must handle the possibility that their implementation of 
+        'loadRulesFor' may get called simultaneously on different threads.
+    */
     virtual std::string loadRulesFor( const std::string& ruleName ) = 0;
 private:
     RuleLoader( const RuleLoader& );
@@ -69,7 +74,8 @@ void lua_pushUncontrolledResult( lua_State* L, const UncontrolledResult& r );
 class Rules
 {
 public:
-    Rules( const std::string& script, ConnectionFactory cf, void* connectionState, RuleLoader* rl );
+    Rules( const std::string& script, ConnectionFactory cf, void* connectionState, RuleLoader* rl,
+        paulst::LoggingService* l );
     ~Rules();
     RuleResults applyTo( const UncontrolledResult& r );
 private:
@@ -77,6 +83,7 @@ private:
     ConnectionFactory   m_connectionFactory;
     void*               m_connectionState;
     lua_State*          L;
+    paulst::LoggingService* m_log;
 
     Rules( const Rules& );
     Rules& operator=( const Rules& );
@@ -101,6 +108,10 @@ class RulesConfig
 public:
     RulesConfig();
     virtual ~RulesConfig();
+    /*
+        Implementations of this method are invoked one-at-a-time,
+        i.e. in series, not in parallel.
+    */
     virtual std::string getRuleNameFor( int test, int machine ) = 0;
 private:
     RulesConfig( const RulesConfig& );
@@ -112,8 +123,10 @@ class RulesCache
 public:
     RulesCache();
     ~RulesCache();
+    void  clear();
     Rules* getRulesFor      ( int test, int machine );
     void setConnectionCache ( ConnectionCache* cc );
+    void setLog             ( paulst::LoggingService* l );
     void setRulesConfig     ( RulesConfig* c );
     void setRuleLoader      ( RuleLoader* l );
 private:
@@ -123,6 +136,7 @@ private:
     RuleLoader*         m_ruleLoader;
     Cache               m_cache;
     ConnectionCache*    m_connectionCache;
+    paulst::LoggingService* m_log;
 
     RulesCache( const RulesCache& );
     RulesCache& operator=( const RulesCache& );
@@ -148,6 +162,7 @@ class RuleEngine
 public:
     RuleEngine( int maxThreads = 10, int errorResultCode = 999 );
     ~RuleEngine();
+    void clearRulesCache();
     int  getErrorResultCode() const;
     void queue( const UncontrolledResult& r );
     /*
@@ -157,6 +172,7 @@ public:
     */
     void setConnectionFactory( paulstdb::AbstractConnectionFactory* conFac );
     void setErrorResultCode( int errorCode );
+    void setLog( paulst::LoggingService* l );
     void setRuleLoader( RuleLoader* l );
     void setRulesConfig( RulesConfig* c );
     void setResultPublisher( RuleResultPublisher* p );

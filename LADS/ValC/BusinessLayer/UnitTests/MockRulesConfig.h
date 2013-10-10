@@ -6,6 +6,7 @@
 #include "Require.h"
 #include "RuleEngine.h"
 #include <string>
+#include "StrUtil.h"
 
 class MockRulesConfig : public valc::RulesConfig
 {
@@ -13,22 +14,19 @@ private:
 	typedef std::map< std::string, std::string > RuleNames;
 	RuleNames m_ruleNames;
 
-	std::string makeKey( int test, int machine )
-	{
-		char buffer[1024];
-		std::sprintf( buffer, "%d:%d", test, machine );
-		return buffer;
-	}
 
 public:
     void addMapping( int test, int machine, const std::string& ruleName )
 	{
-		m_ruleNames.insert( std::make_pair( makeKey( test, machine ), ruleName ) );
+		const std::string key = paulst::format( "%d %d", test, machine );
+
+		m_ruleNames.insert( std::make_pair( key, ruleName ) );
     }
 
     std::string getRuleNameFor( int test, int machine ) 
-    { 
-		RuleNames::const_iterator i = m_ruleNames.find( makeKey( test, machine ) );
+	{
+		const std::string key = paulst::format( "%d %d", test, machine );
+		RuleNames::const_iterator i = m_ruleNames.find( key );
         require( i != m_ruleNames.end() );
         return i->second;
     }

@@ -8,14 +8,11 @@
 #include <memory>
 #include "TestNames.h"
 
-namespace paulstdb
-{
-    class DBConnection;
-}
 
 namespace valc
 {
 
+class ApplicationContext;
 class BuddyDatabase;
 class DBUpdateConsumer;
 class DBUpdateSchedule;
@@ -33,11 +30,12 @@ class AnalysisActivitySnapshotImpl : public AnalysisActivitySnapshot
 {
 public:
     AnalysisActivitySnapshotImpl( const ClusterIDs* clusterIDs, const Projects* p, const BuddyDatabase* bdb, 
-        paulst::LoggingService* log, const ResultDirectory* rd, 
+        const ResultDirectory* rd, 
         const WorklistDirectory* wd, const TestNames* tns, DBUpdateSchedule* dbUpdateSchedule,
-        SampleRunIDResolutionService* sampleRunIDResolutionService );
+        SampleRunIDResolutionService* sampleRunIDResolutionService,
+        ApplicationContext* appContext );
     bool                            compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID )    const;
-    void                            runPendingDatabaseUpdates( paulstdb::DBConnection* c, DBUpdateExceptionHandlingPolicy* p, bool block );
+    void                            runPendingDatabaseUpdates( DBUpdateExceptionHandlingPolicy* p, bool block );
     LocalEntryIterator              localBegin() const;
     LocalEntryIterator              localEnd()   const;
     QueuedSampleIterator            queueBegin() const;
@@ -54,6 +52,7 @@ private:
     typedef boost::scoped_ptr<const TestNames>              TestNamesPtr;
     typedef boost::scoped_ptr<DBUpdateSchedule>             DBUpdateSchedulePtr;
     typedef boost::scoped_ptr<SampleRunIDResolutionService> SampleRunIDResolutionServicePtr;
+    ApplicationContext*             m_appContext;
     std::auto_ptr<DBUpdateConsumer> m_dbUpdateConsumer;
     BuddyDatabasePtr                m_buddyDatabase;
     ClusterIDsPtr                   m_clusterIDs;

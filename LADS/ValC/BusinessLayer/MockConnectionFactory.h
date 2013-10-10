@@ -1,6 +1,8 @@
 #ifndef MOCKCONNECTIONFACTORYH
 #define MOCKCONNECTIONFACTORYH
 
+#include "AbstractConnectionFactory.h"
+
 namespace valc
 {
 
@@ -21,33 +23,29 @@ An example:
 "-1015160,STICS,ldb26,\n"
 
 */
-class MockConnectionFactory
+class MockConnectionFactory : public paulstdb::AbstractConnectionFactory
 {
 public:
     MockConnectionFactory();
-    MockConnection* createConnection();
-    void setClusters        ( const std::string& serializedClusters );
-    void setBuddyDB         ( const std::string& serializedBuddyDB );
-    void setNonLocalResults ( const std::string& nonLocalResults );
-    void setProjects        ( const std::string& serializedProjects );
-    void setTestNames       ( const std::string& serializedTestNames );
+    paulstdb::DBConnection* createConnection( const std::string& connectionString, const std::string& sessionReadLockSetting );
+    static void reset();
     /* Example sql:
     
      select first 2 wl.record_no, machine_cid, barcode, test_cid, group_id, category_id, sample_id, project_cid,profile_id, profile_name,
      time_stamp, ts_sequence, status, diluent, buddy_result_id
      from valc_worklist
     */
-    void setWorklist( const std::string& serializedWorklist );
+    static std::string clusters,
+                projects,
+                worklist,
+                buddyDB,
+                testNames,
+                nonLocalResults;
 private:
-    std::string m_clusters,
-                m_projects,
-                m_worklist,
-                m_buddyDB,
-                m_testNames,
-                m_nonLocalResults;
 
     MockConnectionFactory( const MockConnectionFactory& );
     MockConnectionFactory& operator=( const MockConnectionFactory& );
+
 };
 
 };

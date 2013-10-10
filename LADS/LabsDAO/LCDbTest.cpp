@@ -34,16 +34,8 @@ LCDbTest::LCDbTest( const LQuery & query )
 			 query.readString( "external_full" ) ),
    LDbValid( query.readDateTime( "valid_from" ),
 			 query.readDateTime( "valid_to" ),
-			 query.readInt( "status" ) ),
-   limits( query.readDouble( "default_lower_limit" ),
-		   query.readDouble( "default_upper_limit" ) )
+			 query.readInt( "status" ) )
 {
-	if( (query.fieldExists( "min_datapoints" ) && query.readInt( "min_datapoints" ) != REQUIRED_DATA_POINTS)
-	 || (query.fieldExists( "max_datapoints" ) && query.readInt( "max_datapoints" ) != REQUIRED_DATA_POINTS) )
-	{
-		throw Exception( strcat("Invalid result definition for " , getName().c_str()) );
-	}
-
 	if( query.fieldExists( "data_type" ) )
 		dataType = query.readInt( "data_type" );
 	else
@@ -56,6 +48,12 @@ LCDbTest::LCDbTest( const LQuery & query )
 		precision = query.readInt( "precision" );
 	else
 		precision = 2;
+
+	std::string limit = query.readString( "default_lower_limit" );
+	double dll = String( limit.c_str() ).ToDouble();
+	limit = query.readString( "default_upper_limit" );
+	double dul = String( limit.c_str() ).ToDouble();
+	limits = std::pair< double, double >( dll, dul );
 }
 
 //---------------------------------------------------------------------------
@@ -205,8 +203,8 @@ void LCDbTest::saveMachine( LQuery query, MachineDef definition )
 	query.setParam( "prr", definition.getProtocol() );
 
 	std::pair< TDate, TDate > dates = definition.getValidDates();
-	query.setParam( "sdt", dates.first );
-	query.setParam( "edt", dates.second );
+	query.setParam( "sdt", XDATE( dates.first ) );
+	query.setParam( "edt", XDATE( dates.second ) );
 	query.setParam( "sts", definition.isActive() ? RECORD_IN_USE : DELETED );
 	if( query.execSQL() > 0 )
 	{
@@ -260,8 +258,8 @@ bool LCDbTest::CalcDef::saveRecord( LQuery query, short part, int testID )
 	query.setParam( "sid", sourceTest );
 	query.setParam( "mul", multiple );
 	std::pair< TDate, TDate > dates = getValidDates();
-	query.setParam( "sdt", dates.first );
-	query.setParam( "edt", dates.second );
+	query.setParam( "sdt", XDATE( dates.first ) );
+	query.setParam( "edt", XDATE( dates.second ) );
 	query.setParam( "sts", status );
 	return (query.execSQL() == 1);
 }
@@ -290,8 +288,8 @@ bool LCDbTest::saveRecord( LQuery query )
 
 	query.setParam( "sts", status );
 	std::pair< TDate, TDate > dates = getValidDates();
-	query.setParam( "from", dates.first );
-	query.setParam( "to", dates.second );
+	query.setParam( "from", XDATE( dates.first ) );
+	query.setParam( "to", XDATE( dates.second ) );
 
 	if( isActive() )
 		status = (machineDefs.empty() ? 0 : ANALYSED) | (calculations.empty() ? 0 :	CALCULATED);
@@ -301,7 +299,7 @@ bool LCDbTest::saveRecord( LQuery query )
 	query.setParam( "sty", sampleType );
 	query.setParam( "prc", precision );
 
-	std::pair< String, String > range = limits.asStrings();
+	std::pair< std::string, std::string > range = limits.asStrings();
 	query.setParam( "low", range.first );
 	query.setParam( "upl", range.second );
 	if( query.execSQL() != 1 )
@@ -371,9 +369,9 @@ bool LCDbTest::isConfigured( int buddyID ) const
 // 	Find common test name for given protocol on the given analysers
 //---------------------------------------------------------------------------
 
-String LCDbTest::findTestCode( const std::set< int > & machines, short protocol ) const
+std::string LCDbTest::findTestCode( const std::set< int > & machines, short protocol ) const
 {
-	std::set< String > codes;
+	std::set< std::string > codes;
 	for( Range< LCDbTest::MachineDef > mi = getCodes(); mi.isValid(); ++ mi )
 		if( mi -> getProtocol() == protocol && machines.count( mi -> getMachineID() ) != 0 )
 			codes.insert( mi -> getCode() );
@@ -388,7 +386,7 @@ String LCDbTest::findTestCode( const std::set< int > & machines, short protocol 
 //	Find test from the given test machine name and (optional) fluid code
 //---------------------------------------------------------------------------
 
-int LCDbTests::findTestID( int buddyID, const String & testCode, const String & fluidCode ) const
+int LCDbTests::findTestID( int buddyID, const std::string & testCode, const std::string & fluidCode ) const
 {
 	const LCDbAnalysers & machines = LCDbAnalysers::records();
 	const std::set< int > allIDs = machines.getMachineIDs( buddyID );
@@ -396,7 +394,7 @@ int LCDbTests::findTestID( int buddyID, const String & testCode, const String & 
 	for( const_iterator ti = begin(); ti != end(); ++ ti ) {
 		for( Range< LCDbTest::MachineDef > mi = ti -> getCodes(); mi.isValid(); ++ mi )	{
 			if( mi -> getCode() == testCode && allIDs.count( mi -> getMachineID() ) != 0 ) {
-				if( fluidCode.IsEmpty() || mi -> getSampleType().IsEmpty()
+				if( fluidCode.empty() || mi -> getSampleType().empty()
 				 || fluidCode == mi -> getSampleType() ) {
 					tests.insert( ti -> getID() );
 				}
@@ -410,9 +408,9 @@ int LCDbTests::findTestID( int buddyID, const String & testCode, const String & 
 // 	Check the given tests all use the same sample type; return it
 //---------------------------------------------------------------------------
 
-String LCDbTests::findSampleType( int buddyID, std::set< int > testIDs ) const
+std::string LCDbTests::findSampleType( int buddyID, std::set< int > testIDs ) const
 {
-	std::set< String > fluids;
+	std::set< std::string > fluids;
 	while( !testIDs.empty() ) {
 		std::set< int >::iterator next = testIDs.begin();
 		const LCDbTest * test = findByID( *next );

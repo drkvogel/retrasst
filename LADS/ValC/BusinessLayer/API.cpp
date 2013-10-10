@@ -2,11 +2,12 @@
 #include "AllocateLocalResultsToWorklistEntries.h"
 #include "AnalysisActivitySnapshotImpl.h"
 #include "API.h"
+#include "ApplicationContext.h"
 #include <boost/lexical_cast.hpp>
 #include "BuddyDatabase.h"
 #include "ClusterIDs.h"
 #include "Config.h"
-#include "DBConnectionADO.h"
+#include "DBConnectionFactory.h"
 #include "DBUpdateSchedule.h"
 #include "ExceptionalDataHandlerImpl.h"
 #include <iterator>
@@ -19,10 +20,12 @@
 #include "LoadWorklistEntries.h"
 #include "LoggingService.h"
 #include <memory>
+#include "MockConnectionFactory.h"
 #include "Projects.h"
 #include "Require.h"
 #include "ResultIndex.h"
 #include "SampleRunIDResolutionService.h"
+#include "StrUtil.h"
 #include "Task.h"
 #include "TestNames.h"
 #include "TestResultIteratorImpl.h"
@@ -33,19 +36,55 @@
 #include "WorklistEntryIteratorImpl.h"
 
 
-#define LOGPATH "C:\\temp\\valc.log"
-
 namespace valc
 {
 
-DBConnectionFactory::DBConnectionFactory()
+
+ 
+ApplicationContext* applicationContext = NULL;
+
+void InitialiseApplicationContext( int localMachineID, int user, const std::string& config, paulst::LoggingService* log )
 {
+    if ( applicationContext )
+    {
+        throw Exception( L"Application context already initialised." );
+    }
+    else
+    {
+        std::auto_ptr<ApplicationContext> ac( new ApplicationContext() );
+        ac->localMachineID = localMachineID;
+        ac->user = user;
+        ac->config = new paulst::Config( config );
+        std::string connectionFactoryType = ac->getProperty("ConnectionFactoryType");
+        paulst::trim( connectionFactoryType );
+        if ( connectionFactoryType == "ADO" )
+        {
+            ac->connectionFactory = new paulstdb::DBConnectionFactory();
+        }
+        else if ( connectionFactoryType == "Mock" )
+        {
+            ac->connectionFactory = new valc::MockConnectionFactory();
+        }
+        else
+        {
+            throw Exception( L"ConnectionFactoryType (in config) is not valid.  Valid values are 'ADO' or 'Mock'." );
+        }
+        ac->log = log;
+        applicationContext = ac.release();
+    }
+        
 }
 
-paulstdb::DBConnection* DBConnectionFactory::createConnection( const std::string& connectionString, 
-    const std::string& sessionReadLockSetting )
+void DeleteApplicationContext()
 {
-    return new paulstdb::DBConnectionADO( connectionString, sessionReadLockSetting );
+    try
+    {
+        delete applicationContext;
+    }
+    catch( ... )
+    {
+    }
+    applicationContext = NULL;
 }
 
 void wait( HANDLE* array, int howMany, ThreadExceptionMsgs* exceptionMsgs )
@@ -59,9 +98,25 @@ void wait( HANDLE* array, int howMany, ThreadExceptionMsgs* exceptionMsgs )
 	exceptionMsgs->throwFirst();
 }
 
-AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, paulstdb::DBConnection* con, paulst::LoggingService* log, 
-    const std::string& configString, UserAdvisor* userAdvisor )
+SnapshotPtr Load( UserAdvisor* userAdvisor )
 {
+    if ( applicationContext == NULL )
+    {
+        throw Exception( L"Application context has not been initialised." );
+    }
+
+    if ( applicationContext->snapshot )
+    {
+        throw Exception( L"Snapshot already loaded." );
+    }
+
+    std::auto_ptr<paulstdb::DBConnection> dbConnection( applicationContext->connectionFactory->createConnection(
+        applicationContext->getProperty("ForceReloadConnectionString"),
+        applicationContext->getProperty("ForceReloadSessionReadLockSetting") ) );
+
+    paulstdb::DBConnection* con            = dbConnection.get();
+    paulst::LoggingService* log            = applicationContext->log;
+    int                 localMachineID     = applicationContext->localMachineID;
 	ResultIndex*        resultIndex        = new ResultIndex();
 	WorklistEntries*    worklistEntries    = new WorklistEntries();
 	ClusterIDs*         clusterIDs         = new ClusterIDs();
@@ -70,10 +125,11 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, p
 	BuddyDatabase*      buddyDatabase      = NULL;
     DBUpdateSchedule*   dbUpdateSchedule   = new DBUpdateSchedule();
     std::auto_ptr<SampleRunIDResolutionService> sampleRunIDResolutionService(new SampleRunIDResolutionService());
-    paulst::Config      config(configString);
 	ThreadExceptionMsgs threadExceptionMsgs;
-    ExceptionalDataHandlerImpl exceptionalDataHandler(config.get("ExceptionalDataHandler"), userAdvisor, log);
+    ExceptionalDataHandlerImpl exceptionalDataHandler(
+        applicationContext->getProperty("ExceptionalDataHandler"), userAdvisor, log);
 	HANDLE hArray[3];
+
 
 	ThreadTask<LoadProjects>   loadProjectsTask  ( new LoadProjects  ( projects,   log, con ), 					&threadExceptionMsgs );
 	ThreadTask<LoadClusterIDs> loadClusterIDsTask( new LoadClusterIDs( clusterIDs, log, con, localMachineID ), 	&threadExceptionMsgs );
@@ -88,14 +144,16 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, p
 	// Task for loading LOCAL analysis activity and LOCAL results
 	ThreadTask<LoadBuddyDatabase> loadBuddyDatabaseTask(
 		new LoadBuddyDatabase( localMachineID, con, log, resultIndex, projects, &buddyDatabase, dbUpdateSchedule, 
-            sampleRunIDResolutionService.get(), config.get("LoadBuddyDatabase"), config.get("BuddyDatabaseInclusionRule"),
+            sampleRunIDResolutionService.get(), applicationContext->getProperty("LoadBuddyDatabase"), 
+            applicationContext->getProperty("BuddyDatabaseInclusionRule"),
             &exceptionalDataHandler ),
 		&threadExceptionMsgs );
 
     // Task for loading LOCAL and CLUSTER worklist entries
 	ThreadTask<LoadWorklistEntries> loadWorklistEntriesTask(
-		new LoadWorklistEntries( worklistEntries, con, log, resultIndex, config.get( "LoadWorklistEntries" ), 
-            config.get( "LoadWorklistRelations" ), config.get("WorklistInclusionRule"), &exceptionalDataHandler ),
+		new LoadWorklistEntries( worklistEntries, con, log, resultIndex, applicationContext->getProperty( "LoadWorklistEntries" ), 
+            applicationContext->getProperty( "LoadWorklistRelations" ), 
+            applicationContext->getProperty("WorklistInclusionRule"), &exceptionalDataHandler ),
 		&threadExceptionMsgs );
 
 	hArray[0] = loadBuddyDatabaseTask  .start();
@@ -121,15 +179,15 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, p
                                                 log, 
                                                 worklistEntries, 
                                                 resultIndex,
-                                                config.get("RefTempTableName"),
-                                                config.get("LoadReferencedWorklistEntries"),
-                                                config.get("LoadReferencedWorklistRelations"),
+                                                applicationContext->getProperty("RefTempTableName"),
+                                                applicationContext->getProperty("LoadReferencedWorklistEntries"),
+                                                applicationContext->getProperty("LoadReferencedWorklistRelations"),
                                                 &exceptionalDataHandler ),
 		&threadExceptionMsgs );
 
     // Task for loading non-local results for worklist entries loaded by LoadWorklistEntries (above).
     ThreadTask<LoadNonLocalResults> loadNonLocalResults( 
-        new LoadNonLocalResults( projects, con, log, resultIndex, config.get("LoadNonLocalResults"), &exceptionalDataHandler ),
+        new LoadNonLocalResults( projects, con, log, resultIndex, applicationContext->getProperty("LoadNonLocalResults"), &exceptionalDataHandler ),
         &threadExceptionMsgs );
 
 	hArray[0] = loadReferencedWorklistEntries        .start();
@@ -139,8 +197,19 @@ AnalysisActivitySnapshot* SnapshotFactory::load( int localMachineID, int user, p
 
     resultIndex->removeReferencesToResultsNotLoaded();
 
-    return new AnalysisActivitySnapshotImpl( clusterIDs, projects, buddyDatabase, log, resultIndex, worklistEntries, testNames,
-        dbUpdateSchedule, sampleRunIDResolutionService.release() );
+    applicationContext->snapshot = new AnalysisActivitySnapshotImpl( clusterIDs, projects, buddyDatabase, resultIndex, worklistEntries, testNames,
+        dbUpdateSchedule, sampleRunIDResolutionService.release(), applicationContext );
+
+    return SnapshotPtr( applicationContext->snapshot );
+}
+
+void Unload( SnapshotPtr s )
+{
+    if ( applicationContext->snapshot )
+    {
+        delete applicationContext->snapshot;
+        applicationContext->snapshot = NULL;
+    }
 }
 
 DBUpdateExceptionHandlingPolicy::DBUpdateExceptionHandlingPolicy()

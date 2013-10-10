@@ -27,9 +27,13 @@ LPDbCryovialStore::LPDbCryovialStore( const LQuery & query )
    retrievalID( query.readInt( "retrieval_cid" ) ),
    boxID( query.readInt( "box_cid" ) ),
    status( query.readInt( "status" ) ),
-   position( query.readInt( "cryovial_position" ) ),
    cryovialID( query.readInt( "cryovial_id" ) )
 {
+	if( query.fieldExists( "tube_position" ) ) {
+		position = query.readInt( "tube_position" );
+	} else {
+		position = query.readInt( "cryovial_position" );
+	}
 	volume = query.fieldExists( "sample_volume" ) ? query.readDouble( "sample_volume" ) : -1;
 }
 
@@ -96,7 +100,7 @@ bool LPDbCryovialStore::saveRecord( LQuery query )
 	if( !saved ) {
 		claimNextID( query );
 		query.setSQL( "insert into cryovial_store (record_id, cryovial_id, box_cid,"
-					 " cryovial_position, time_stamp, status, note_exists, process_cid, retrieval_cid)"
+					 " tube_position, time_stamp, status, note_exists, process_cid, retrieval_cid)"
 					 " values ( :rid, :cid, :bid, :pos, 'now', :sts, 0, :pid, :jcid )" );
 		query.setParam( "cid", getID() );
 		query.setParam( "bid", boxID );

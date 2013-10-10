@@ -50,7 +50,7 @@ public:
 			return isLeaf ? NULL : getNode( linksTo );
 		}
 
-		String getDescription() const;
+		std::string getDescription() const;
 	};
 
 	typedef Range< Link > Links;

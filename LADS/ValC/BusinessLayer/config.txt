@@ -1,3 +1,16 @@
+ConnectionFactoryType:
+ADO
+
+ForceReloadConnectionString:
+dsn=paulst_brat_64;db=paulst_test2
+
+ForceReloadSessionReadLockSetting:
+set lockmode session where readlock = nolock
+
+DBUpdateConnectionString:
+dsn=paulst_brat_64;db=paulst_test2
+
+
 LoadBuddyDatabase:
     SELECT bd.buddy_sample_id, bd.barcode, bd.date_analysed,       
     bd.database_name, bd.alpha_sample_id, bd.machine_cid,         

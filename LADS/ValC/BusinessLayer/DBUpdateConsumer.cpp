@@ -1,20 +1,22 @@
+#include "AbstractConnectionFactory.h"
+#include "API.h"
+#include "ApplicationContext.h"
 #include "DBUpdateConsumer.h"
 #include "DBUpdateSchedule.h"
 #include "DBUpdateTask.h"
+#include "LoggingService.h"
 #include <SysUtils.hpp>
 
 namespace valc
 {
 
 DBUpdateConsumer::DBUpdateConsumer( 
-    paulstdb::DBConnection* connection, 
-    paulst::LoggingService* log,
-    SampleRunIDResolutionService* s,
-    DBUpdateSchedule* updateSchedule,
-    DBUpdateExceptionHandlingPolicy* exceptionCallback )
+    ApplicationContext*                 appContext,
+    SampleRunIDResolutionService*       s,
+    DBUpdateSchedule*                   updateSchedule,
+    DBUpdateExceptionHandlingPolicy*    exceptionCallback )
     :
-    m_connection                    ( connection        ),
-    m_log                           ( log               ),
+    m_appContext                    ( appContext        ),
     m_sampleRunIDResolutionService  ( s                 ),
     m_updateSchedule                ( updateSchedule    ),
     m_exceptionCallback             ( exceptionCallback ),
@@ -26,6 +28,10 @@ void DBUpdateConsumer::run( const paulst::Event* stopSignal )
 {
     try
     {
+        const std::string connectionString = m_appContext->getProperty( "DBUpdateConnectionString" );
+
+        std::auto_ptr<paulstdb::DBConnection> connection( m_appContext->connectionFactory->createConnection( connectionString, "" ) );
+
         while ( WAIT_TIMEOUT == stopSignal->wait(10) )
         {
             if ( m_updateSchedule->noMoreUpdates() )
@@ -34,11 +40,12 @@ void DBUpdateConsumer::run( const paulst::Event* stopSignal )
             }
 
             std::auto_ptr<DBUpdateTask> t( m_updateSchedule->front() );
+
             m_updateSchedule->pop_front();
 
-            t->setConnection                    ( m_connection );
+            t->setConnection                    ( connection.get() );
             t->setExceptionHandlingPolicy       ( m_exceptionCallback );
-            t->setLog                           ( m_log );
+            t->setLog                           ( m_appContext->log );
             t->setSampleRunIDResolutionService  ( m_sampleRunIDResolutionService );
 
             const bool continueWithNext = t->execute();
@@ -49,9 +56,16 @@ void DBUpdateConsumer::run( const paulst::Event* stopSignal )
             }
         }
     }
+    catch( const Exception& e )
+    {
+        m_exceptionCallback->handleException( AnsiString( e.Message.c_str() ).c_str() );
+    }
     catch( ... )
     {
+        m_exceptionCallback->handleException( "Unspecified Exception handled by DBUpdateConsumer." );
     }
+
+    m_appContext->log->log( "DBUpdate consumer thread terminating..." );
 }
 
 void DBUpdateConsumer::waitFor()

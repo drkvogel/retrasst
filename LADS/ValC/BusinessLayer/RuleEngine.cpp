@@ -1,4 +1,5 @@
 #include "AcquireCriticalSection.h"
+#include "LoggingService.h"
 #include "LuaInclude.h"
 #include "LuaDB.h"
 #include "LuaUtil.h"
@@ -112,11 +113,66 @@ int loadRuleScript( lua_State* L )
     return 1;
 }
 
-Rules::Rules( const std::string& script, ConnectionFactory cf, void* connectionState, RuleLoader* ruleLoader )
+int luaSleep( lua_State* L )
+{
+    try
+    {
+        if ( lua_isnumber( L, -1 ) )
+        {
+            int msecs = lua_tointeger( L, -1 );
+            Sleep(msecs);
+        }
+    }
+    catch( const Exception& e )
+    {
+        lua_pushstring( L, AnsiString( e.Message.c_str() ).c_str() );
+        lua_error( L );
+    }
+    catch( ... )
+    {
+        lua_pushstring( L, "Unspecified exception in loadRuleScript" );
+        lua_error( L );
+    }
+
+    return 0;
+}
+
+int luaLogger( lua_State* L )
+{
+    try
+    {
+        std::string msg = lua_tostring( L, -1 );
+
+        int index = lua_upvalueindex( 1 );
+
+        paulst::LoggingService* logger = (paulst::LoggingService*) lua_touserdata( L, index );
+
+        require ( logger );
+
+        logger->log( msg );
+    }
+    catch( const Exception& e )
+    {
+        lua_pushstring( L, AnsiString( e.Message.c_str() ).c_str() );
+        lua_error( L );
+    }
+    catch( ... )
+    {
+        lua_pushstring( L, "Unspecified exception in loadRuleScript" );
+        lua_error( L );
+    }
+
+    return 0;
+}
+
+
+Rules::Rules( const std::string& script, ConnectionFactory cf, void* connectionState, RuleLoader* ruleLoader,
+    paulst::LoggingService* log )
     : 
     L( lua_open() ),
     m_connectionFactory( cf ),
-    m_connectionState( connectionState )
+    m_connectionState( connectionState ),
+    m_log(log)
 {
     luaL_openlibs( L );
 
@@ -124,6 +180,8 @@ Rules::Rules( const std::string& script, ConnectionFactory cf, void* connectionS
 
     try
     {
+        require( log );
+
         LuaDB luaDB( L, m_connectionFactory, m_connectionState );
 
         if ( luaL_dostring( L, script.c_str() ) )
@@ -137,7 +195,13 @@ Rules::Rules( const std::string& script, ConnectionFactory cf, void* connectionS
 
         lua_pushcclosure( L, loadRuleScript, 1 );
 
-        if ( lua_pcall( L, 1, 0, 0 ) )
+        lua_pushlightuserdata( L, log );
+
+        lua_pushcclosure( L, luaLogger, 1 );
+
+        lua_pushcfunction( L, luaSleep );
+
+        if ( lua_pcall( L, 3, 0, 0 ) )
         {
             throw LuaError();
         }
@@ -146,7 +210,7 @@ Rules::Rules( const std::string& script, ConnectionFactory cf, void* connectionS
     {
         std::string errorMsg(  lua_tostring( L, -1 ) );
         lua_close(L);
-        throw Exception( UnicodeString( errorMsg.c_str() ) );
+        throw Exception( UnicodeString( errorMsg.c_str() )  + UnicodeString( script.c_str() ) );
     }
 }
 
@@ -201,6 +265,9 @@ RuleResults Rules::applyTo( const UncontrolledResult& r )
     paulst::AcquireCriticalSection a(m_critSec);
 
     {
+        if ( m_log )
+            m_log->logFormatted("Applying rules to result %d", r.resultID );
+
         LuaDB luaDB( L, m_connectionFactory, m_connectionState );
 
         lua_getglobal( L, "applyRules" );
@@ -248,6 +315,9 @@ RuleResults Rules::applyTo( const UncontrolledResult& r )
             lua_pop( L, 1 );
         }
 
+        if ( m_log )
+            m_log->logFormatted( "Obtained %d after applying rules to result %d", summaryResultCode, r.resultID );
+
         return RuleResults( rawResults.begin(), rawResults.end(), summaryResultCode, summaryMsg );
     }
 }
@@ -289,16 +359,29 @@ RulesCache::RulesCache()
     :
     m_rulesConfig(0),
     m_ruleLoader(0),
-    m_connectionCache(0)
+    m_connectionCache(0),
+    m_log(0)
 {
 }
 
 RulesCache::~RulesCache()
 {
-    for ( Cache::const_iterator i = m_cache.begin(); i != m_cache.end(); ++i )
+    clear();
+}
+
+void RulesCache::clear()
+{
+    paulst::AcquireCriticalSection a(m_critSec);
+    
     {
-        Rules* rules = i->second;
-        delete rules;
+
+        for ( Cache::const_iterator i = m_cache.begin(); i != m_cache.end(); ++i )
+        {
+            Rules* rules = i->second;
+            delete rules;
+        }
+
+        m_cache.clear();
     }
 }
 
@@ -329,13 +412,19 @@ Rules* RulesCache::getRulesFor( int test, int machine )
 
 Rules* RulesCache::load( const std::string& ruleName )
 {
+    m_log->logFormatted( "Loading script for rule '\%s'", ruleName.c_str() );
     std::string script = m_ruleLoader->loadRulesFor( ruleName );
-    return new Rules( script, obtainConnectionFromCache, m_connectionCache, m_ruleLoader );
+    return new Rules( script, obtainConnectionFromCache, m_connectionCache, m_ruleLoader, m_log );
 }
 
 void RulesCache::setConnectionCache( ConnectionCache* cc )
 {
     m_connectionCache = cc;
+}
+
+void RulesCache::setLog( paulst::LoggingService* log )
+{
+    m_log = log;
 }
 
 void RulesCache::setRulesConfig( RulesConfig* c )
@@ -417,6 +506,11 @@ RuleEngine::~RuleEngine()
     DestroyThreadpoolEnvironment( &m_threadPoolCallbackEnv );
 }
 
+void RuleEngine::clearRulesCache()
+{
+    m_rulesCache.clear();
+}
+
 int RuleEngine::getErrorResultCode() const
 {
     return m_errorResultCode;
@@ -451,6 +545,11 @@ void RuleEngine::setConnectionFactory( paulstdb::AbstractConnectionFactory* conF
 void RuleEngine::setErrorResultCode( int errorResultCode )
 {
     m_errorResultCode = errorResultCode;
+}
+
+void RuleEngine::setLog( paulst::LoggingService* l )
+{
+    m_rulesCache.setLog( l );
 }
 
 void RuleEngine::setRulesConfig( RulesConfig* c )

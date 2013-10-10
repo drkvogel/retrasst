@@ -5,6 +5,10 @@ namespace valc
 
 MockConfig::MockConfig()
 {
+    addProperty( "DBUpdateConnectionString"         , "Doesn't matter" );
+    addProperty( "ConnectionFactoryType"            , "Mock" );
+    addProperty( "ForceReloadConnectionString"      , "Owt" );
+    addProperty( "ForceReloadSessionReadLockSetting", "" );
     addProperty( "LoadWorklistEntries"              , "LoadWorklistEntries" );
     addProperty( "LoadWorklistRelations"            , "LoadWorklistRelations" );
     addProperty( "RefTempTableName"                 , "Q109Temp" );

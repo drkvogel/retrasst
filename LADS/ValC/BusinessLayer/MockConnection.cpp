@@ -1,14 +1,18 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 #include "MockConnection.h"
+#include "MockConnectionFactory.h"
 #include "StringBackedCursor.h"
 #include "StrUtil.h"
 
 namespace valc
 {
 
+std::vector< std::string> MockConnection::m_updateStmts;
+
 MockConnection::MockConnection()
 {
+    m_updateStmts.clear();
 }
 
 void MockConnection::close()
@@ -21,28 +25,28 @@ paulstdb::Cursor* MockConnection::executeQuery( const std::string& sql )
 
     if ( paulst::ifind( "c_project", sql ) )
     {
-        str = m_projects;
+        str = MockConnectionFactory::projects;
     }
     else if ( paulst::ifind( "c_cluster_machine", sql ) )
     {
-        str = m_clusters;
+        str = MockConnectionFactory::clusters;
     }
     else if ( paulst::ifind( "LoadWorklistEntries", sql ) )// Assuming MockConfig
     {
-        str = m_worklist;
+        str = MockConnectionFactory::worklist;
     }
     else if ( paulst::ifind( "LoadBuddyDatabase", sql ) )// Assuming MockConfig
     {
-        str = m_buddyDB;
+        str = MockConnectionFactory::buddyDB;
     }
     else if ( paulst::ifind( "LoadNonLocalResults", sql ) )// Assuming MockConfig
     {
-        str = m_nonLocalResults;
+        str = MockConnectionFactory::nonLocalResults;
     }
     else if ( paulst::ifind( "c_test", sql ) )
     {
         // query for test names
-        str = m_testNames;
+        str = MockConnectionFactory::testNames;
     }
     else if ( paulst::ifind( "sample_run_id.nextval", sql ) )
     {
@@ -57,47 +61,17 @@ void MockConnection::executeStmt ( const std::string& sql )
     m_updateStmts.push_back( sql );
 }
 
-void MockConnection::setBuddyDB( const std::string& buddyDB )
-{
-    m_buddyDB = buddyDB;
-}
-
-void MockConnection::setClusters( const std::string& clusters )
-{
-    m_clusters = clusters;
-}
-
-void MockConnection::setNonLocalResults( const std::string& nonLocalResults )
-{
-    m_nonLocalResults = nonLocalResults;
-}
-
-void MockConnection::setProjects( const std::string& projects )
-{
-    m_projects = projects;
-}
-
-void MockConnection::setTestNames( const std::string& testNames )
-{
-    m_testNames = testNames;
-}
-
-void MockConnection::setWorklist( const std::string& worklist )
-{
-    m_worklist = worklist;
-}
-
-int MockConnection::totalNewResult2WorklistLinks() const
+int MockConnection::totalNewResult2WorklistLinks()
 {
     return std::count_if( m_updateStmts.begin(), m_updateStmts.end(), boost::bind( paulst::ifind, "set cbw_record_no", _1 ) );
 }
 
-int MockConnection::totalNewSampleRuns() const
+int MockConnection::totalNewSampleRuns()
 {
     return std::count_if( m_updateStmts.begin(), m_updateStmts.end(), boost::bind( paulst::ifind, "into sample_run", _1 ) );
 }
 
-int MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() const
+int MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase()
 {
     return std::count_if( m_updateStmts.begin(), m_updateStmts.end(), boost::bind( paulst::ifind, "set sample_run_id", _1 ) );
 }

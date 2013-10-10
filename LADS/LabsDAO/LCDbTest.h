@@ -9,6 +9,8 @@
 #include "LDbNameBase.h"
 #include "LDbValid.h"
 #include "LDbCacheBase.h"
+#include "LDbRange.h"
+#include "LIMSDatabase.h"
 #include "TestRange.h"
 
 //---------------------------------------------------------------------------
@@ -107,7 +109,7 @@ public:
 	void addMachineDef( const LQuery & defs );
 	const MachineDef * findMachineDef( int buddyID ) const;
 	bool isConfigured( int machineID ) const;
-	String findTestCode( const std::set< int > & machines, short protocol ) const;
+	std::string findTestCode( const std::set< int > & machines, short protocol ) const;
 
 	void saveMachine( LQuery query, MachineDef definition );
 	bool deleteMachine( LQuery query, int machineCID );
@@ -120,19 +122,17 @@ private:
 
 //---------------------------------------------------------------------------
 
-class LCDbTests : public LDbCache< LCDbTest >, public LDbSingleton< LCDbTests >
+class LCDbTests : public LDbCache< LCDbTest >, public LCDbSingleton< LCDbTests >
 {
 
 public:
 
-	bool read( LQuery central, bool readAll );
-
+	bool read( LQuery central, bool readAll = true );
+	int findTestID( int buddyID, const std::string & testCode, const std::string & fluidCode = "" ) const;
+	std::string findSampleType( int buddyID, std::set< int > testIDs ) const;
 	const LCDbTest * findByName( const std::string & externalName ) const {
 		return findMatch( LDbNames::LCMatcher( externalName ) );
 	}
-
-	int findTestID( int buddyID, const String & testCode, const String & fluidCode = "" ) const;
-	String findSampleType( int buddyID, std::set< int > testIDs ) const;
 };
 
 //---------------------------------------------------------------------------

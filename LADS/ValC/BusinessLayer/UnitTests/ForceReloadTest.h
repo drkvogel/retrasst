@@ -13,16 +13,12 @@
 #include "MockConnection.h"
 #include "MockConnectionFactory.h"
 #include "MockConfig.h"
+#include "NoLogging.h"
 #include <set>
 #include "StrUtil.h"
 #include <tut.h>
 #include <vector>
 
-class NoLogging : public paulst::Writer
-{
-public:
-    void write( const std::string& msg ) {}
-};
 
 /*
 These tests use MockConnectionFactory.
@@ -133,33 +129,34 @@ namespace tut
         static const int LOCAL_MACHINE_ID = -1019349;
         static const int USER_ID          = 1234;
 
-        valc::AnalysisActivitySnapshot* s;
+        valc::SnapshotPtr s;
         paulst::LoggingService*         log;
         valc::MockConfig                config;
         UserWarnings                    userWarnings;
 
-        ForceReloadTestFixture( paulstdb::DBConnection* c = 0 )
-            : log(0), s(0)
+        ForceReloadTestFixture( bool initialise = false )
+            : log(0)
         {
-            if ( c )
+            if ( initialise )
             {
-                init( c );
+                init();
             }
         }
 
-        void init( paulstdb::DBConnection* c )
+        void init()
         {
             log = new paulst::LoggingService( new NoLogging() );
-            s   = valc::SnapshotFactory::load( LOCAL_MACHINE_ID, USER_ID, c, log, config.toString(), &userWarnings );
+            valc::InitialiseApplicationContext( LOCAL_MACHINE_ID, USER_ID, config.toString(), log );
+            s   = valc::Load( &userWarnings );
         }
         
         ~ForceReloadTestFixture()
         {
-            delete s;
+            valc::DeleteApplicationContext();
             delete log;
         }
 
-        valc::AnalysisActivitySnapshot* operator->() const
+        valc::SnapshotPtr operator->() const
         {
             return s;
         }
@@ -184,11 +181,7 @@ namespace tut
 
 		using namespace valc;
 
-		MockConnectionFactory connectionFactory;
-
-		boost::scoped_ptr<paulstdb::DBConnection> connection( connectionFactory.createConnection() );
-
-        ForceReloadTestFixture s( connection.get() );
+        ForceReloadTestFixture s(true);
 
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
 		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 0 );
@@ -203,20 +196,18 @@ namespace tut
 
 		using namespace valc;
 
-		MockConnectionFactory connectionFactory;
+        MockConnectionFactory::reset();
 
-		connectionFactory.setClusters( "-1019430,\n" );
-		connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
-		connectionFactory.setWorklist(
+		MockConnectionFactory::clusters = "-1019430,\n";
+		MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
+		MockConnectionFactory::worklist = 
 //rec  machine  barcode   test     group     c sample project p prof                  timestamp           seq s dil   result
 "24110,-1019430,118502164,-1031390,-12744865,0,417128,-832455,0,EDTA_1 analysis other,21-06-2013 11:07:57,39,Q,0.000,0,\n"
 "24111,-1019430,118502164,-1031389,-12744865,0,417128,-832455,0,EDTA_1 analysis other,21-06-2013 11:07:57,34,Q,0.000,0,\n"
 "24112,-1019430,118502164,-1031388,-12744865,0,417128,-832455,0,EDTA_1 analysis other,21-06-2013 11:07:57,35,Q,0.000,0,\n"
-			);
+			;
 
-		boost::scoped_ptr<paulstdb::DBConnection> connection( connectionFactory.createConnection() );
-
-        ForceReloadTestFixture s( connection.get() );
+        ForceReloadTestFixture s(true);
 
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 1 );
 		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 0 );
@@ -238,11 +229,11 @@ namespace tut
 
 		using namespace valc;
 
-		MockConnectionFactory connectionFactory;
+        MockConnectionFactory::reset();
 
-		connectionFactory.setClusters( "-1019430,\n" );
-		connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
-		connectionFactory.setWorklist(
+		MockConnectionFactory::clusters = "-1019430,\n";
+		MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
+		MockConnectionFactory::worklist =
 //rec  machine  barcode   test     group     c sample project p prof                  timestamp           seq s dil   result
 "-36832,-1019430,118507097,-1031384,-12750391,0,195199,-832455,0,EDTA_1 analysis other,27-06-2013 10:56:14,11,Q,0.000,0,\n"
 "-36831,-1019430,118507097,-1031385,-12750391,0,195199,-832455,0,EDTA_1 analysis other,27-06-2013 10:56:14,19,Q,0.000,0,\n"
@@ -257,28 +248,25 @@ namespace tut
 // Note that the last 2 have zero for buddy_result_id
 //
 // the buddy_sample_id for buddy_result_id 882429 is: 882290
-			);
-		connectionFactory.setBuddyDB(
+			;
+		MockConnectionFactory::buddyDB =
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
 "882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
 "882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
 "882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
 "882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n"
-			);
+			;
 
-
-		boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
-
-        ForceReloadTestFixture s( connection.get() );
+        ForceReloadTestFixture s( true );
 
         const bool blockTillNoPendingUpdates = true;
         ExceptionListener exceptionListener;
 
-        s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
+        s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
 
         ensure( exceptionListener.noExceptions() );
-        ensure( "Expected 1 new sample-run", 1 == connection->totalNewSampleRuns() );
-        const int actualUpdatesOfSampleRunID = connection->totalUpdatesForSampleRunIDOnBuddyDatabase();
+        ensure( "Expected 1 new sample-run", 1 == MockConnection::totalNewSampleRuns() );
+        const int actualUpdatesOfSampleRunID = MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase();
         ensure_equals( actualUpdatesOfSampleRunID, 1 );
 
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 1 );
@@ -309,33 +297,30 @@ namespace tut
 
 		using namespace valc;
 
-		MockConnectionFactory connectionFactory;
+		MockConnectionFactory::reset();
 
-		connectionFactory.setClusters( "-1019430,\n" );
-		connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
-		connectionFactory.setWorklist(
+		MockConnectionFactory::clusters = "-1019430,\n";
+		MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
+		MockConnectionFactory::worklist =
 //rec  machine  barcode   test     group     c sample project p prof                  timestamp           seq s dil   result
 "-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
-			);
-		connectionFactory.setBuddyDB(
+			;
+		MockConnectionFactory::buddyDB =
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,res ,a,date analysed      ,restx,update when      ,cbw
 "882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.8 ,0,27-06-2013 11:57:47,1.8,27-06-2013 10:57:49,-36845,,,,,,\n"
 "882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882432,-1031390,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36845,,,,,,\n"
-			);
+			;
 
-
-		boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
-
-        ForceReloadTestFixture s( connection.get() );
+        ForceReloadTestFixture s( true );
 
         const bool blockTillNoPendingUpdates = true;
         ExceptionListener exceptionListener;
 
-        s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
+        s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
 
         ensure( exceptionListener.noExceptions() );
-        ensure( 1 == connection->totalNewSampleRuns() );
-        ensure( 1 == connection->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+        ensure( 1 == MockConnection::totalNewSampleRuns() );
+        ensure( 1 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
 		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
@@ -375,8 +360,9 @@ namespace tut
 
 		using namespace valc;
 
-		MockConnectionFactory connectionFactory;
-		connectionFactory.setTestNames(
+		MockConnectionFactory::reset();
+
+		MockConnectionFactory::testNames =
 			"-12711493,A1c-IFmc,\n"
 			"-12703509,CD40ccv,\n"
 			"-12703493,CD40cm,\n"
@@ -384,12 +370,9 @@ namespace tut
 			"-12703329,CD40scv,\n"
 			"-12703327,CD40sm,\n"
 			"-12703115,BNPccv,\n"
-			"-12703113,BNPcm,\n");
+			"-12703113,BNPcm,\n";
 
-
-		boost::scoped_ptr<paulstdb::DBConnection> connection( connectionFactory.createConnection() );
-
-        ForceReloadTestFixture s( connection.get() );
+        ForceReloadTestFixture s( true );
 
 		ensure( s->getTestName(-12711493) == "A1c-IFmc" );
 		ensure( s->getTestName(-12703329) == "CD40scv" );
@@ -404,15 +387,15 @@ namespace tut
 
         using namespace valc;
 
-        MockConnectionFactory connectionFactory;
+        MockConnectionFactory::reset();
 
-        connectionFactory.setClusters( "-1019430,\n" );
-        connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
-        connectionFactory.setWorklist(
+        MockConnectionFactory::clusters = "-1019430,\n";
+        MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
+        MockConnectionFactory::worklist =
 //rec  machine  barcode   test     group      c sample project p prof                  timestamp           seq s dil  result
 "-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
 "-36846,-1019430,118507091,-1031391,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
-            );
+            ;
 
         std::string tests[2] = {
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,res ,a,date analysed      ,restx,update when      ,cbw
@@ -424,25 +407,23 @@ namespace tut
         std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,",
                                          ",,,,,," };
 
-        connectionFactory.setBuddyDB(
+        MockConnectionFactory::buddyDB =
             tests[0] + sampleRunData[0] + "\n" +
             tests[1] + sampleRunData[1] + "\n"
-            );
-
-        boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
+            ;
 
 		try
 		{
-            ForceReloadTestFixture s( connection.get() );
+            ForceReloadTestFixture s( true );
 
             const bool blockTillNoPendingUpdates = true;
             ExceptionListener exceptionListener;
 
-            s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
+            s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
 
             ensure( exceptionListener.noExceptions() );
-            ensure( 0 == connection->totalNewSampleRuns() );
-            ensure( 1 == connection->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+            ensure( 0 == MockConnection::totalNewSampleRuns() );
+            ensure( 1 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
 			ensure( std::distance( s->queueBegin(), s->queueEnd() ) == 0 );
 			unsigned int numSampleRuns = std::distance( s->localBegin(), s->localEnd() );
@@ -478,15 +459,15 @@ namespace tut
 
         using namespace valc;
 
-        MockConnectionFactory connectionFactory;
+        MockConnectionFactory::reset();
 
-        connectionFactory.setClusters( "-1019430,\n" );
-        connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
-        connectionFactory.setWorklist(
+        MockConnectionFactory::clusters = "-1019430,\n";
+        MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
+        MockConnectionFactory::worklist =
 //rec  machine  barcode   test     group      c sample project p prof                  timestamp           seq s dil  result
 "-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
 "-36846,-1019430,118507091,-1031391,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
-            );
+            ;
 
         std::string tests[2] = {
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,res ,a,date analysed      ,restx,update when      ,cbw
@@ -498,25 +479,23 @@ namespace tut
         std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y,",
                                          ",,,,,," };
 
-        connectionFactory.setBuddyDB(
+        MockConnectionFactory::buddyDB =
             tests[0] + sampleRunData[0] + "\n" +
             tests[1] + sampleRunData[1] + "\n"
-            );
-
-        boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
+            ;
 
 		try
 		{
-            ForceReloadTestFixture s( connection.get() );
+            ForceReloadTestFixture s( true );
 
             const bool blockTillNoPendingUpdates = true;
             ExceptionListener exceptionListener;
 
-            s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
+            s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
 
             ensure( exceptionListener.noExceptions() );
-            ensure( 1 == connection->totalNewSampleRuns() );
-            ensure( 1 == connection->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+            ensure( 1 == MockConnection::totalNewSampleRuns() );
+            ensure( 1 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
 			ensure( std::distance( s->queueBegin(), s->queueEnd() ) == 0U );
 			unsigned int numSampleRuns = std::distance( s->localBegin(), s->localEnd() );
@@ -550,15 +529,15 @@ namespace tut
 
         using namespace valc;
 
-        MockConnectionFactory connectionFactory;
+        MockConnectionFactory::reset();
 
-        connectionFactory.setClusters( "-1019430,\n" );
-        connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
-        connectionFactory.setWorklist(
+        MockConnectionFactory::clusters = "-1019430,\n";
+        MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
+        MockConnectionFactory::worklist =
 //rec  machine  barcode   test     group      c sample project p prof                  timestamp           seq s dil  result
 "-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
 "-36846,-1019430,118507091,-1031391,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
-            );
+            ;
 
         std::string tests[2] = {
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,res ,a,date analysed      ,restx,update when      ,cbw
@@ -570,25 +549,23 @@ namespace tut
         std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y,",
                                          "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y," };
 
-        connectionFactory.setBuddyDB(
+        MockConnectionFactory::buddyDB =
             tests[0] + sampleRunData[0] + "\n" +
             tests[1] + sampleRunData[1] + "\n"
-            );
-
-        boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
+            ;
 
 		try
 		{
-            ForceReloadTestFixture s( connection.get() );
+            ForceReloadTestFixture s( true );
 
             const bool blockTillNoPendingUpdates = true;
             ExceptionListener exceptionListener;
 
-            s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
+            s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
 
             ensure( exceptionListener.noExceptions() );
-            ensure( 0 == connection->totalNewSampleRuns() );
-            ensure( 0 == connection->totalUpdatesForSampleRunIDOnBuddyDatabase() );
+            ensure( 0 == MockConnection::totalNewSampleRuns() );
+            ensure( 0 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
             ensure( 1 == std::distance( s->localBegin(), s->localEnd() ) );
             BuddyDatabaseEntries buddyDatabaseEntries = s->listBuddyDatabaseEntriesFor( "12" );
@@ -637,19 +614,17 @@ namespace tut
         {
             for ( int iteration = 0; iteration <2; ++iteration )
             {
-                MockConnectionFactory connectionFactory;
+                MockConnectionFactory::reset();
 
-                connectionFactory.setClusters( "-1019430,\n" );
-                connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
-                connectionFactory.setWorklist( worklist );
-                connectionFactory.setBuddyDB( buddyDB );
-
-                boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
+                MockConnectionFactory::clusters = "-1019430,\n";
+                MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
+                MockConnectionFactory::worklist = worklist;
+                MockConnectionFactory::buddyDB  = buddyDB;
 
                 ForceReloadTestFixture s;
                 s.config.edit( "BuddyDatabaseInclusionRule", inclusionRule[iteration] );
 
-                s.init( connection.get() );
+                s.init(); 
 
                 ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
                 ensure_equals( std::distance( s->localBegin(), s->localEnd() ), expectedLocalEntries[iteration] );
@@ -673,26 +648,24 @@ namespace tut
 
 		using namespace valc;
 
-        MockConnectionFactory connectionFactory;
+        MockConnectionFactory::reset();
 
-		connectionFactory.setClusters( "-1019430,\n" );
-		connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
-		connectionFactory.setWorklist(
+		MockConnectionFactory::clusters = "-1019430,\n";
+		MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
+		MockConnectionFactory::worklist =
 //rec  machine  barcode   test     group     c sample project p prof                  timestamp           seq s dil   result
 "-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,882431,\n"
 "-36847,-1019430,118507091,-1031388,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,12,C,0.000,882429,\n"
-			);
-		connectionFactory.setBuddyDB(
+			;
+		MockConnectionFactory::buddyDB =
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
 "992431,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
-			);
-        connectionFactory.setNonLocalResults(
+			;
+        MockConnectionFactory::nonLocalResults =
 //barcode, machine ,sample,dbname,result_id,test_id , res_value, act_flg,date_analysed      , res_text, update_when        ,rec_no,project
-"118507091,-1019329,432560,REVEAL,882429   ,-1031388, 2.9      ,0       ,27-06-2013 11:57:47,2.9      , 27-06-2013 11:57:47,-36847,-832455,\n");  
+"118507091,-1019329,432560,REVEAL,882429   ,-1031388, 2.9      ,0       ,27-06-2013 11:57:47,2.9      , 27-06-2013 11:57:47,-36847,-832455,\n";  
 
-		boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
-
-        ForceReloadTestFixture s( connection.get() );
+        ForceReloadTestFixture s( true );
 
         ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
         ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
@@ -726,19 +699,17 @@ namespace tut
 
 		using namespace valc;
 
-		MockConnectionFactory connectionFactory;
+		MockConnectionFactory::reset();
 
-		connectionFactory.setClusters( "-1019430,\n" );
-		connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
+		MockConnectionFactory::clusters = "-1019430,\n";
+		MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
         // Data same as for test 2, but project ID is zero
-		connectionFactory.setWorklist(
+		MockConnectionFactory::worklist =
 //rec  machine  barcode   test     group     c sample project p prof           timestamp           seq s dil   result
 "24110,-1019430,118502164,-1031390,-12744865,0,417128,0,0,EDTA_1 analysis other,21-06-2013 11:07:57,39,Q,0.000,0,\n"
 "24111,-1019430,118502164,-1031389,-12744865,0,417128,0,0,EDTA_1 analysis other,21-06-2013 11:07:57,34,Q,0.000,0,\n"
 "24112,-1019430,118502164,-1031388,-12744865,0,417128,0,0,EDTA_1 analysis other,21-06-2013 11:07:57,35,Q,0.000,0,\n"
-			);
-
-		boost::scoped_ptr<paulstdb::DBConnection> connection( connectionFactory.createConnection() );
+			;
 
         ForceReloadTestFixture s;
 
@@ -748,7 +719,7 @@ namespace tut
 " function notifyBuddyDatabaseEntryIgnored() return true, true end\n"
 " function notifyWorklistEntryIgnored     () return true, true end\n"
             );
-        s.init( connection.get() );
+        s.init();
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
 		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 0 );
         ensure_equals( s.userWarnings.messages.size(), 3 );
@@ -797,20 +768,18 @@ namespace tut
 
         for ( int i = 0; i < 3; ++i )
         {
-            MockConnectionFactory connectionFactory;
+            MockConnectionFactory::reset();
 
-            connectionFactory.setClusters( CLUSTERS );
-            connectionFactory.setProjects( PROJECTS );
-            connectionFactory.setWorklist( WORKLIST );
-            connectionFactory.setBuddyDB( BUDDYDB );
-
-            boost::scoped_ptr<paulstdb::DBConnection> connection( connectionFactory.createConnection() );
+            MockConnectionFactory::clusters = CLUSTERS;
+            MockConnectionFactory::projects = PROJECTS;
+            MockConnectionFactory::worklist = WORKLIST;
+            MockConnectionFactory::buddyDB  = BUDDYDB;
 
             ForceReloadTestFixture s;
 
             s.config.edit( "ExceptionalDataHandler", exceptionalDataHandlers[i] );
 
-            s.init( connection.get() );
+            s.init();
 
             ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
             ensure_equals( std::distance( s->localBegin(), s->localEnd() ), i == 2 ? 1 : 0 );
@@ -846,14 +815,12 @@ namespace tut
 
         for ( int i = 0; i < 2; ++i )
         {
-            MockConnectionFactory connectionFactory;
+            MockConnectionFactory::reset();
 
-            connectionFactory.setClusters( CLUSTERS );
-            connectionFactory.setProjects( PROJECTS );
-            connectionFactory.setWorklist( WORKLIST );
-            connectionFactory.setBuddyDB ( BUDDYDB  );
-
-            boost::scoped_ptr<paulstdb::DBConnection> connection( connectionFactory.createConnection() );
+            MockConnectionFactory::clusters = CLUSTERS;
+            MockConnectionFactory::projects = PROJECTS;
+            MockConnectionFactory::worklist = WORKLIST;
+            MockConnectionFactory::buddyDB  = BUDDYDB;
 
             ForceReloadTestFixture s;
 
@@ -861,7 +828,7 @@ namespace tut
             std::sprintf( buffer, exceptionalDataHandler, i ? "true" : "false" );
             s.config.edit( "ExceptionalDataHandler", buffer );
 
-            s.init( connection.get() );
+            s.init();
 
             ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
             ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
@@ -896,16 +863,14 @@ namespace tut
 "882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
 "882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n";
 
-        MockConnectionFactory connectionFactory;
+        MockConnectionFactory::reset();
 
-        connectionFactory.setClusters( CLUSTERS );
-        connectionFactory.setProjects( PROJECTS );
-        connectionFactory.setWorklist( WORKLIST );
-        connectionFactory.setBuddyDB ( BUDDYDB  );
+        MockConnectionFactory::clusters = CLUSTERS;
+        MockConnectionFactory::projects = PROJECTS;
+        MockConnectionFactory::worklist = WORKLIST;
+        MockConnectionFactory::buddyDB  = BUDDYDB;
 
-        boost::scoped_ptr<valc::MockConnection> connection( connectionFactory.createConnection() );
-
-        ForceReloadTestFixture s( connection.get() );
+        ForceReloadTestFixture s( true );
 
         ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
         ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
@@ -913,14 +878,13 @@ namespace tut
         const bool blockTillNoPendingUpdates = true;
         ExceptionListener exceptionListener;
 
-        s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
+        s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
 
         ensure( exceptionListener.noExceptions() );
         ensure_equals( "There should be no warnings.", s.userWarnings.messages.size(), 0 );
-        ensure_equals( "4 rows in buddy_result_float should have been updated.", connection->totalNewResult2WorklistLinks(), 4 );
+        ensure_equals( "4 rows in buddy_result_float should have been updated.", MockConnection::totalNewResult2WorklistLinks(), 4 );
 
     }
-
 };
 
 #endif

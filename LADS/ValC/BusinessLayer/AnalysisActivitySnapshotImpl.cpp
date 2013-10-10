@@ -1,4 +1,5 @@
 #include "AnalysisActivitySnapshotImpl.h"
+#include "ApplicationContext.h"
 #include <boost/foreach.hpp>
 #include "BuddyDatabase.h"
 #include "DBUpdateConsumer.h"
@@ -14,19 +15,21 @@ namespace valc
 {
 
 AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl( 
-    const ClusterIDs* clusterIDs, const Projects* p, const BuddyDatabase* bdb, paulst::LoggingService* log, 
+    const ClusterIDs* clusterIDs, const Projects* p, const BuddyDatabase* bdb, 
     const ResultDirectory* rd, const WorklistDirectory* wd, const TestNames* tns, DBUpdateSchedule* dbUpdateSchedule,
-    SampleRunIDResolutionService* sampleRunIDResolutionService )
+    SampleRunIDResolutionService* sampleRunIDResolutionService,
+    ApplicationContext* appContext )
     : 
     m_buddyDatabase     ( bdb ),
     m_clusterIDs        ( clusterIDs ),
-    m_log               ( log),
+    m_log               ( appContext->log),
     m_projects          ( p ),
     m_resultDirectory   ( rd ),
     m_worklistDirectory ( wd ),
     m_testNames         ( tns ),
     m_dbUpdateSchedule  ( dbUpdateSchedule ),
-    m_sampleRunIDResolutionService( sampleRunIDResolutionService )
+    m_sampleRunIDResolutionService( sampleRunIDResolutionService ),
+    m_appContext( appContext )
 {
     BOOST_FOREACH( const SampleRun& sr, *m_buddyDatabase )
     {
@@ -48,11 +51,11 @@ BuddyDatabaseEntries AnalysisActivitySnapshotImpl::listBuddyDatabaseEntriesFor( 
     return m_buddyDatabase->listBuddyDatabaseEntriesFor( sampleRunID );
 }
 
-void AnalysisActivitySnapshotImpl::runPendingDatabaseUpdates( paulstdb::DBConnection* c, DBUpdateExceptionHandlingPolicy* exceptionCallback, 
+void AnalysisActivitySnapshotImpl::runPendingDatabaseUpdates( DBUpdateExceptionHandlingPolicy* exceptionCallback, 
     bool block )
 {
     m_dbUpdateConsumer.reset( 
-        new DBUpdateConsumer( c, m_log, m_sampleRunIDResolutionService.get(), m_dbUpdateSchedule.get(), exceptionCallback ) );
+        new DBUpdateConsumer( m_appContext, m_sampleRunIDResolutionService.get(), m_dbUpdateSchedule.get(), exceptionCallback ) );
 
     if ( block )
     {

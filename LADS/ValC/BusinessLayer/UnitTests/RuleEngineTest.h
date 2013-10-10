@@ -1,16 +1,23 @@
 #ifndef QCRULEENGINETESTH
 #define QCRULEENGINETESTH
 
+#include "AcquireCriticalSection.h"
 #include <algorithm>
 #include "API.h"
+#include "ConsoleWriter.h"
+#include "CritSec.h"
 #include <cstdio>
 #include <iterator>
 #include <iostream>
+#include "LoggingService.h"
 #include <map>
 #include "MockRuleEngineConnectionFactory.h"
 #include "MockRuleLoader.h"
 #include "MockRulesConfig.h"
+#include "NoLogging.h"
 #include "RuleEngine.h"
+#include <set>
+#include "StrUtil.h"
 #include <SysUtils.hpp>
 #include <tut.h>
 
@@ -48,7 +55,6 @@ bool equivalentRuleResults( const valc::RuleResult& r1, const valc::RuleResult& 
     return serialize( r1 ) == serialize( r2 );
 }
 
-
 namespace tut
 {
 	class RuleEngineTestFixture : public valc::RuleResultPublisher
@@ -56,6 +62,7 @@ namespace tut
     private:
         typedef std::map< int, valc::RuleResults > ResultMap;
         ResultMap resultMap;
+        paulst::CritSec m_critSec;
 
     public:
 
@@ -63,9 +70,15 @@ namespace tut
         MockRulesConfig rulesConfig;
         MockRuleEngineConnectionFactory connectionFactory;
         valc::RuleEngine ruleEngine;
+        std::vector< int > resultSequence;
+        paulst::LoggingService log;
        
-        RuleEngineTestFixture()
+        RuleEngineTestFixture(int numThreads = 10, int errorResultCode = 999, bool logging = false )
+            : 
+            ruleEngine(numThreads, errorResultCode ), 
+            log( logging ? (paulst::Writer*) new paulst::ConsoleWriter() : (paulst::Writer*)new NoLogging() )
         {
+            ruleEngine.setLog( &log );
             ruleEngine.setRulesConfig( &rulesConfig );
             ruleEngine.setRuleLoader( &ruleLoader );
             ruleEngine.setResultPublisher( this );
@@ -86,7 +99,11 @@ namespace tut
 
         void publish( const valc::RuleResults& results, int forResult ) 
         { 
-            resultMap.insert( std::make_pair( forResult, results ) ); 
+            paulst::AcquireCriticalSection a(m_critSec);
+            {
+                resultMap[forResult] = results;
+                resultSequence.push_back( forResult );
+            }
         }
 
         void setConnectionCounter( int* opened, int* closed )
@@ -95,7 +112,7 @@ namespace tut
         }
     };
 
-    typedef test_group<RuleEngineTestFixture, 5> RuleEngineTestGroup;
+    typedef test_group<RuleEngineTestFixture, 8> RuleEngineTestGroup;
 	RuleEngineTestGroup testGroupRuleEngine( "RuleEngine tests");
 	typedef RuleEngineTestGroup::object testRuleEngine;
 
@@ -372,11 +389,10 @@ namespace tut
 	template<>
 	void testRuleEngine::test<5>()
 	{
-		set_test_name("Rule loading");
+		set_test_name("Rule loading - the simplest case");
 
 		using namespace valc;
 
-		RuleEngineTestFixture testFixture;
         
         const std::string configRuleScript(
                 " loadedRules = {}                                  \n"
@@ -412,6 +428,7 @@ namespace tut
                 " return { resultCode = context.mean, rule = 'this here rule', msg = 'success' } "
             );
 
+		RuleEngineTestFixture testFixture;
         testFixture.ruleLoader.addRule( "configRule", configRuleScript );
         testFixture.ruleLoader.addRule( "someRule"  , someRule );
         testFixture.rulesConfig.addMapping( 2, 8, "configRule" );
@@ -446,6 +463,248 @@ namespace tut
             ensure( ansiStr.c_str(), false );
         }
 	}
+
+    template<>
+	template<>
+	void testRuleEngine::test<6>()
+	{
+		set_test_name("Rule loading - multiple (different) tests");
+
+		using namespace valc;
+
+		RuleEngineTestFixture testFixture;
+  
+        const int NUM_RESULTS = 50;
+        int testIDs[NUM_RESULTS];
+
+        const char* configScriptTemplate  =
+                    " local log                                         \n"
+                    " local sleep                                       \n"
+                    "                                                   \n"
+                    " function onLoad(loadFunc, logFunc, sleepFunc)     \n"
+                    "   log = logFunc                                   \n"
+                    "   sleep = sleepFunc                               \n"
+                    "   log( 'onLoad:' .. \%d )                         \n"
+                    " end                                               \n"
+                    "                                                   \n"
+                    " function applyRules( qc )                         \n"
+                    "   log( 'applyRules:' .. \%d )                     \n"
+                    "   math.randomseed( qc.resultID )                  \n"
+                    "   local myRand = math.random()                    \n"
+                    "   if ( myRand > 0.5 ) then                        \n"
+                    "      log('Sleeping: ' .. qc.resultID)             \n"
+                    "      sleep(20)                                    \n"
+                    "   end                                             \n"
+                    "   return {}, '\%s', \%d                           \n"
+                    " end                                               \n";
+
+        for ( int testID = 1; testID <= NUM_RESULTS; ++testID )
+        {
+            const std::string configName = paulst::format( "configRuleForTest%d", testID );
+            char config[1024];
+            ensure( std::sprintf( config, configScriptTemplate, testID, testID, configName.c_str(), testID ) );
+            testFixture.rulesConfig.addMapping( testID, 8/*machineID*/, configName );
+            testFixture.ruleLoader.addRule( configName, config );
+        }
+
+        UncontrolledResult result;
+        result.testID = 2;
+        result.resultID = 6;
+        result.machineID = 8;
+        result.projectID = 4;
+        result.resultValue = 27.8;
+        result.resultText = "dog";
+        result.barcode = "chicken";
+        result.dateAnalysed = TDateTime( 1998, 10, 30, 14, 33, 5, 10 );
+
+        testFixture.log.logFormatted( "Queuing %d results", NUM_RESULTS );
+
+        for ( int testID = 1; testID <= NUM_RESULTS; ++testID )
+        {
+            result.testID = result.resultID = testID;
+            testFixture.ruleEngine.queue( result );
+        }
+
+        testFixture.log.log( "Waiting till all done..." );
+
+        testFixture.ruleEngine.waitForQueued();
+
+        testFixture.log.log( "Evaluating quality..." );
+
+        for ( int testID = 1; testID <= NUM_RESULTS; ++testID )
+        {
+            const int resultID = testID;
+            RuleResults ruleResults = testFixture.getResultFor( resultID );
+            ensure_equals( ruleResults.getSummaryMsg(), paulst::format( "configRuleForTest%d", testID ) );
+            ensure_equals( ruleResults.getSummaryResultCode(), testID );
+        }
+
+        // Because of random Sleep patterns (refer to 'applyRules' implementation above), 
+        // rule results should not have come through in the same sequence as they were queued.
+        ensure_equals( testFixture.resultSequence.size(), NUM_RESULTS );
+        std::vector<int> resultSequenceCopy = testFixture.resultSequence;
+        ensure_equals( resultSequenceCopy.size(), NUM_RESULTS );
+        std::sort( resultSequenceCopy.begin(), resultSequenceCopy.end() );
+        ensure_not( equal( resultSequenceCopy.begin(), resultSequenceCopy.end(), testFixture.resultSequence.begin() ) );
+    }
+
+    template<>
+	template<>
+	void testRuleEngine::test<7>()
+	{
+		set_test_name("Rule caching");
+
+		using namespace valc;
+
+        UncontrolledResult result;
+        result.testID = 2;
+        result.resultID = 6;
+        result.machineID = 8;
+        result.projectID = 4;
+        result.resultValue = 27.8;
+        result.resultText = "dog";
+        result.barcode = "chicken";
+        result.dateAnalysed = TDateTime( 1998, 10, 30, 14, 33, 5, 10 );
+
+		RuleEngineTestFixture testFixture;
+
+        const char* configScript =
+            " local rule                                        \n"
+            "                                                   \n"
+            " function onLoad(loadFunc)                         \n"
+            "   local script = loadFunc('myRule')               \n"
+            "   rule = load(script)                             \n"
+            " end                                               \n"
+            "                                                   \n"
+            " function applyRules( qc )                         \n"
+            "   local result = rule( qc )                       \n"
+            "   return { result }, result.msg, result.resultCode\n"
+            " end                                               \n";
+
+        std::string ruleVersions[2] = {
+            " return { resultCode = 29, rule = 'my rule', msg = 'Bob' } ",
+            " return { resultCode = 72, rule = 'my rule', msg = 'Jim' } "} ;
+
+        testFixture.ruleLoader.addRule( "configRule", configScript );
+        testFixture.rulesConfig.addMapping( 2, 8, "configRule" );
+
+        for ( int i = 0; i < 2; ++i )
+        {
+            testFixture.ruleLoader.addRule( "myRule", ruleVersions[i] );
+
+            try
+            {
+                testFixture.ruleEngine.queue( result );
+                testFixture.ruleEngine.waitForQueued();
+                
+                ensure_equals( testFixture.countResults(), 1U );
+                RuleResults ruleResults = testFixture.getResultFor( 6 );
+                ensure_equals( ruleResults.getSummaryMsg(), std::string("Bob" ) );
+                ensure_equals( ruleResults.getSummaryResultCode(), 29 );
+            }
+            catch( const Exception& e )
+            {
+                AnsiString ansiStr( e.Message.c_str() );
+                ensure( ansiStr.c_str(), false );
+            }
+        }
+
+        testFixture.ruleEngine.clearRulesCache();
+
+        ensure_equals( testFixture.ruleLoader.loadRulesFor( "myRule" ), ruleVersions[1] );
+
+        try
+        {
+            testFixture.ruleEngine.queue( result );
+            testFixture.ruleEngine.waitForQueued();
+            
+            ensure_equals( testFixture.countResults(), 1U );
+            RuleResults ruleResults = testFixture.getResultFor( 6 );
+            ensure_equals( ruleResults.getSummaryMsg(), std::string("Jim" ) );
+            ensure_equals( ruleResults.getSummaryResultCode(), 72 );
+        }
+        catch( const Exception& e )
+        {
+            AnsiString ansiStr( e.Message.c_str() );
+            ensure( ansiStr.c_str(), false );
+        }
+
+
+    }
+
+    template<>
+	template<>
+	void testRuleEngine::test<8>()
+	{
+		set_test_name("Multi-rule");
+
+		using namespace valc;
+
+        UncontrolledResult result;
+        result.testID = 2;
+        result.resultID = 6;
+        result.machineID = 8;
+        result.projectID = 4;
+        result.resultValue = 27.8;
+        result.resultText = "dog";
+        result.barcode = "chicken";
+        result.dateAnalysed = TDateTime( 1998, 10, 30, 14, 33, 5, 10 );
+
+        const char* configScript =
+            " rules = {}                                        \n"
+            " ruleNames = { 'a', 'b', 'c', 'd' }                \n"
+            " context = {}                                      \n"
+            "                                                   \n"
+            " function onLoad(loadFunc)                         \n"
+            "   for i, ruleName in ipairs(ruleNames) do         \n"
+            "      local script = loadFunc(ruleName)            \n"
+            "      rules[ruleName] = load(script)               \n"
+            "   end                                             \n"
+            " end                                               \n"
+            "                                                   \n"
+            " function applyRules( qc )                         \n"
+            "   local results = {}                              \n"
+            "   context.qc = qc                                 \n"
+            "   context.resultCode = 0                          \n"
+            "   context.msg = ''                                \n"
+            "   for name, rule in pairs(rules) do               \n"
+            "     local result = rule()                         \n"
+            "     table.insert( results, result )               \n"
+            "   end                                             \n"
+            "                                                   \n"
+            "   return results, context.msg, context.resultCode \n"
+            " end                                               \n";
+
+        const char* rule =
+            " context.resultCode = context.resultCode + 1       \n"
+            " context.msg        = context.msg .. 'x'           \n"
+            " return { resultCode = 2, rule = '?', msg = '!' }  \n";
+
+		RuleEngineTestFixture testFixture( 10, 999, true );
+        testFixture.ruleLoader.addRule( "configRule", configScript );
+        testFixture.ruleLoader.addRule( "a", rule );
+        testFixture.ruleLoader.addRule( "b", rule );
+        testFixture.ruleLoader.addRule( "c", rule );
+        testFixture.ruleLoader.addRule( "d", rule );
+        testFixture.rulesConfig.addMapping( 2, 8, "configRule" );
+        
+        try
+        {
+            testFixture.ruleEngine.queue( result );
+            testFixture.ruleEngine.waitForQueued();
+            
+            ensure_equals( testFixture.countResults(), 1U );
+            RuleResults ruleResults = testFixture.getResultFor( 6 );
+            ensure_equals( ruleResults.getSummaryMsg(), std::string("xxxx") );
+            ensure_equals( ruleResults.getSummaryResultCode(), 4 );
+            ensure_equals( std::distance( ruleResults.begin(), ruleResults.end() ), 4U );
+        }
+        catch( const Exception& e )
+        {
+            AnsiString ansiStr( e.Message.c_str() );
+            ensure( ansiStr.c_str(), false );
+        }
+    }
 
 };
 

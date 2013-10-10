@@ -4,50 +4,25 @@
 namespace valc
 {
 
+std::string MockConnectionFactory::clusters;
+std::string MockConnectionFactory::projects;
+std::string MockConnectionFactory::worklist;
+std::string MockConnectionFactory::buddyDB;
+std::string MockConnectionFactory::testNames;
+std::string MockConnectionFactory::nonLocalResults;
+
 MockConnectionFactory::MockConnectionFactory()
 {
 }
 
-MockConnection* MockConnectionFactory::createConnection()
+paulstdb::DBConnection* MockConnectionFactory::createConnection( const std::string& connectionString, const std::string& sessionReadLockSetting )
 {
-    MockConnection* mc = new MockConnection();
-    mc->setBuddyDB          ( m_buddyDB   );
-    mc->setClusters         ( m_clusters  );
-    mc->setNonLocalResults  ( m_nonLocalResults );
-    mc->setProjects         ( m_projects  );
-    mc->setTestNames        ( m_testNames );
-    mc->setWorklist         ( m_worklist  );
-    return mc;
+    return new MockConnection();
 }
 
-void MockConnectionFactory::setBuddyDB( const std::string& buddyDB )
+void MockConnectionFactory::reset()
 {
-    m_buddyDB = buddyDB;
-}
-
-void MockConnectionFactory::setClusters( const std::string& clusters )
-{
-    m_clusters = clusters;
-}
-
-void MockConnectionFactory::setNonLocalResults( const std::string& nonLocalResults )
-{
-    m_nonLocalResults = nonLocalResults;
-}
-
-void MockConnectionFactory::setProjects( const std::string& projects )
-{
-    m_projects = projects;
-}
-
-void MockConnectionFactory::setTestNames( const std::string& testNames )
-{
-    m_testNames = testNames;
-}
-
-void MockConnectionFactory::setWorklist( const std::string& worklist )
-{
-    m_worklist = worklist;
+    projects = worklist = buddyDB = testNames = nonLocalResults = "";
 }
 
 }

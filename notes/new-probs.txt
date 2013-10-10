@@ -1,0 +1,40 @@
+﻿"cryovial job for chris" looks empty
+"1751 THRIVE cryovials -few" - empty
+"1743 THRIVE boxes -few (EDTA1 & EDTA2)" - ok, but why named 'boxes'?
+"THRIVE Lp(a) baseline analysis" - ok
+boxes form doesn't work properly
+use tube_position instead of cryovial_position
+
+end of process - option to discard any empty boxes left over
+
+ * storage sync not worth attempting to rebuild
+ * bodge should be ok and not something I have to worry about
+ * other than search/replacing my code to use tube_position rather than cryovial position
+ * new requirement is to check at the end of processing each chunk (pt II) if any source boxes are now empty, in which case they might want to discard them rather than put them back
+ * something to bear in mind for processing when it eventually goes live is that the database might not reflect reality perfectly - vials might be missing or swapped etc.
+   won't come up till live testing, but worth thinking about at this stage of development
+ * demo possible; email martin. make sure there are sufficient example jobs - e.g. "1743 THRIVE boxes - few (EDTA1 & EDTA2)"
+ * update from cvs
+   
+ecig
+
+storage sync build
+
+ss:
+vcl not found!
+[BCC32 Warning] W8123 Path 'c:\program files (x86)\embarcadero\rad studio\9.0\include\vcl' not found - path ignored in option '-I'
+$(BDSINCLUDE)\windows\vcl;..\LabsForms\;..\CoreUtilities\;..\LabsLeasing\;..\LabsDAO\;..\LabsObjects\;..\LabsDAO;..\CoreUtilities;..\LabsObjects;..\LabsLeasing;..\LabsForms
+$(BDS)\lib\debug;$(BDS)\lib\psdk;..\LabsForms\;..\CoreUtilities\;..\LabsLeasing\;..\LabsDAO\;..\LabsObjects\;$(BDS)\lib\obj;$(BDS)\lib;..\LabsDAO;..\CoreUtilities;..\LabsObjects;..\LabsLeasing;..\LabsForms
+lcdbaudittrail.cpp both at head 1.46, but SS one fails on got wchar_t
+_TCHAR maps to <blank> - fixed
+pulled from cvs
+[BCC32 Error] LSDbBox.cpp(18): E2283 Use . or -> to call 'LCDbAuditTrail::getProcessID()'
+LCDbTest.h 1.46 ("Convertion (sic) to XE4 code")
+
+what did I pull out of CVS?
+
+retrasst:
+$(BDSINCLUDE)\windows\vcl;..\..\jonathanpr\RetrievalLists\;..\..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;$(II_SYSTEM)\ingres\files\;$(BDSINCLUDE)
+
+_TCHAR maps to wchar_t
+LCDbTest.h 1.47

@@ -18,6 +18,9 @@
         <Projects Include="..\..\paulst\db\paulstdb.cbproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="..\..\scurtis\valc-gui-1\valc-gui.cbproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -71,14 +74,23 @@
     <Target Name="paulstdb:Make">
         <MSBuild Projects="..\..\paulst\db\paulstdb.cbproj" Targets="Make"/>
     </Target>
+    <Target Name="valc-gui">
+        <MSBuild Projects="..\..\scurtis\valc-gui-1\valc-gui.cbproj"/>
+    </Target>
+    <Target Name="valc-gui:Clean">
+        <MSBuild Projects="..\..\scurtis\valc-gui-1\valc-gui.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="valc-gui:Make">
+        <MSBuild Projects="..\..\scurtis\valc-gui-1\valc-gui.cbproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="FRT;paulst;UnitTests;BusinessLayerFM;paulstdb"/>
+        <CallTarget Targets="FRT;paulst;UnitTests;BusinessLayerFM;paulstdb;valc-gui"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="FRT:Clean;paulst:Clean;UnitTests:Clean;BusinessLayerFM:Clean;paulstdb:Clean"/>
+        <CallTarget Targets="FRT:Clean;paulst:Clean;UnitTests:Clean;BusinessLayerFM:Clean;paulstdb:Clean;valc-gui:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="FRT:Make;paulst:Make;UnitTests:Make;BusinessLayerFM:Make;paulstdb:Make"/>
+        <CallTarget Targets="FRT:Make;paulst:Make;UnitTests:Make;BusinessLayerFM:Make;paulstdb:Make;valc-gui:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

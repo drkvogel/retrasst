@@ -179,9 +179,10 @@ bool LPDbBoxNames::readFilled( LQuery pq )
 bool LPDbBoxName::create( const LPDbBoxType & type, LQuery query )
 {
 	const LCDbProject & proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() );
+	saved = false;
 	unsigned code = abs( claimNextID( query ) );
 	char buff[ 64 ];
-	std::sprintf( buff, "%s%.6u", proj.getStudyCode().c_str(), code );
+	std::sprintf( buff, "%s%0.6u", proj.getStudyCode().c_str(), code );
 	barcode = buff;
 	AnsiString projName = proj.getName().c_str();
 	AnsiString typeName = type.getName().c_str();
@@ -334,7 +335,7 @@ bool LPDbBoxName::matchesGroup( LQuery pQuery )
 				" and t2.box_set_link = t1.box_set_link and n2.box_type_cid = t2.box_type_cid"
 				" and s2.box_cid = n2.box_cid and c2.cryovial_id = s2.cryovial_id"
 				" and c1.cryovial_barcode = c2.cryovial_barcode"
-				" and s1.cryovial_position <> s2.cryovial_position" );
+				" and s1.cryovial_position <> s2.cryovial_position" ); 	// or tube_position
 	pQuery.setParam( "bid", getID() );
 	return pQuery.open() == 1 && pQuery.readInt( 0 ) == 0;
 }

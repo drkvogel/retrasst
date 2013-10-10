@@ -5,6 +5,7 @@
 //      14 June 2005	Split out profile tree as LIMSProfileMap object
 //      16 March 2006	Store child nodes as an (unsorted) vector
 //      21 Feb. 2007	Sort columns by descriptor ID rather than children
+//
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
@@ -27,7 +28,7 @@ unsigned LIMSProfileMap::nextNode;
 
 LIMSProfileMap * LIMSProfileMap::getNode( unsigned index )
 {
-	static const MAX_NODES = 65;
+	static const MAX_NODES = 1000;
 	static LIMSProfileMap nodes[ MAX_NODES ];
 	if( index >= MAX_NODES )
 		throw Exception( "Profile map has too many nodes" );
@@ -126,7 +127,7 @@ int LIMSProfileMap::nextShared( RecIter start, RecIter end )
 //  Create external name associated with this link's descriptor value
 //---------------------------------------------------------------------------
 
-String LIMSProfileMap::Link::getDescription() const
+std::string LIMSProfileMap::Link::getDescription() const
 {
 	const LPDbDescriptor * descrip = LPDbDescriptors::records().findByValueID( getID() );
 	if( descrip != NULL )
@@ -135,7 +136,9 @@ String LIMSProfileMap::Link::getDescription() const
 		if( found != NULL )
 			return descrip -> getName() + ": " + found -> getName();
 	}
-	throw Exception( "Descriptor value " + String( getID() ) + " not found" );
+	char buff[ 50 ];
+	std::sprintf( buff, "Descriptor value %d not found", getID() );
+	throw Exception( buff );
 }
 
 //---------------------------------------------------------------------------

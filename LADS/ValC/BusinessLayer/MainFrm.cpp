@@ -53,15 +53,15 @@ void __fastcall TMainForm::onShow(TObject *Sender)
 
 		static const int LOCAL_MACHINE_ID = -1019349;
 		static const int USER_ID          = 1234;
-		MockConnectionFactory connectionFactory;
+		MockConnectionFactory::reset();
 
-		connectionFactory.setClusters( "-1019430,\n" );
-		connectionFactory.setProjects( "-832455,reveal,ldb25,\n" );
-		connectionFactory.setWorklist(
+		MockConnectionFactory::clusters = "-1019430,\n";
+		MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
+		MockConnectionFactory::worklist =
  //rec  machine  barcode   test     group      c sample project p prof                  timestamp           seq s dil  result
  "-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
  "-36846,-1019430,118507091,-1031391,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
-			 );
+			 ;
 
 		std::string tests[2] = {
  //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,res ,a,date analysed      ,restx,update when      ,cbw
@@ -73,34 +73,30 @@ void __fastcall TMainForm::onShow(TObject *Sender)
 		std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,",
 								  ",,,,,," };
 
-		connectionFactory.setBuddyDB(
+		MockConnectionFactory::buddyDB =
 			tests[0] + sampleRunData[0] + "\n" +
 			tests[1] + sampleRunData[1] + "\n"
-		);
-
-		boost::scoped_ptr<valc::MockConnection> connection(
-			connectionFactory.createConnection() );
+		;
 
 		boost::scoped_ptr<paulst::LoggingService> log(
 			new paulst::LoggingService( new TMemoLogger(output) ) );
 
 		MockConfig config;
 
-		boost::scoped_ptr<AnalysisActivitySnapshot> s(
-			SnapshotFactory::load(
-				LOCAL_MACHINE_ID, USER_ID, connection.get(), log.get(),
-				config.toString(),
-				&m_warningsListener ) );
+        InitialiseApplicationContext( LOCAL_MACHINE_ID, USER_ID, config.toString(), log.get() );
+        SnapshotPtr s = Load( &m_warningsListener );
 
 		const bool blockTillNoPendingUpdates = true;
 		ExceptionHandlingPolicy exceptionListener;
 
-		s->runPendingDatabaseUpdates( connection.get(), &exceptionListener, blockTillNoPendingUpdates );
+		s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
 	}
 	catch( const Exception& e )
 	{
 		ShowMessage( e.Message );
 	}
+
+    valc::DeleteApplicationContext();
 }
 //---------------------------------------------------------------------------
 void TMainForm::addWarning( const std::string& warning )

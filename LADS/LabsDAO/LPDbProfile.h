@@ -27,6 +27,7 @@ public:
 	 : test( testID ), analyser( buddyID ), trigger( 0 ), local( false )
 	{}
 
+	int getTestID() const { return test; }
 	int getAnalyserID() const { return analyser; }
 	void setAnalyserID( int buddyID ) { analyser = buddyID; }
 

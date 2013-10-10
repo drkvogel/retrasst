@@ -16,6 +16,7 @@ namespace paulstdb
 namespace valc
 {
 
+class ApplicationContext;
 class DBUpdateExceptionHandlingPolicy;
 class DBUpdateSchedule;
 class SampleRunIDResolutionService;
@@ -24,16 +25,14 @@ class DBUpdateConsumer : public paulst::Runnable
 {
 public:
     DBUpdateConsumer( 
-        paulstdb::DBConnection* connection, 
-        paulst::LoggingService* log,
-        SampleRunIDResolutionService* s,
-        DBUpdateSchedule* updateSchedule,
-        DBUpdateExceptionHandlingPolicy* exceptionCallback );
+        ApplicationContext*                 appContext,
+        SampleRunIDResolutionService*       s,
+        DBUpdateSchedule*                   updateSchedule,
+        DBUpdateExceptionHandlingPolicy*    exceptionCallback );
     void run( const paulst::Event* stopSignal );
     void waitFor();
 private:
-    paulstdb::DBConnection*             m_connection;
-    paulst::LoggingService*             m_log;
+    ApplicationContext*                 m_appContext;
     SampleRunIDResolutionService*       m_sampleRunIDResolutionService;
     DBUpdateSchedule*                   m_updateSchedule;
     DBUpdateExceptionHandlingPolicy*    m_exceptionCallback;

@@ -27,7 +27,9 @@
 #include "StrUtil.h"
 #include <vector>
 
-const char* connectionString = "dsn=paulst_brat_64;db=paulst_test2";
+//const char* connectionString = "dsn=paulst_brat_64;db=paulst_test2";
+
+const int USER_ID = 9789;
 
 const std::string configFile = "J:\\cvs\\LADS\\ValC\\BusinessLayer\\config.txt";
 
@@ -41,12 +43,12 @@ static bool dbErrorCallback( const std::string object, const int instance,
 class CountingVisitor : public boost::static_visitor<>
 {
 private:
-    const valc::AnalysisActivitySnapshot* snapshot;
+    const valc::SnapshotPtr snapshot;
 
 public:
     int localRuns, delimiters, worklistEntries;
 
-    CountingVisitor(const valc::AnalysisActivitySnapshot* s) : localRuns(0), delimiters(0), worklistEntries(0), snapshot(s) {}
+    CountingVisitor(valc::SnapshotPtr s) : localRuns(0), delimiters(0), worklistEntries(0), snapshot(s) {}
 
     void operator()( const valc::LocalRun& r ) 
 	{
@@ -114,12 +116,12 @@ std::string describe( valc::Range< valc::WorklistEntryIterator >& worklistEntrie
 class PrintingVisitor : public boost::static_visitor<>
 {
 private:
-    const valc::AnalysisActivitySnapshot* snapshot;
+    const valc::SnapshotPtr snapshot;
     paulst::LoggingService* log;
 
 public:
 
-    PrintingVisitor(const valc::AnalysisActivitySnapshot* s, paulst::LoggingService* l) : snapshot(s), log(l) {}
+    PrintingVisitor(valc::SnapshotPtr s, paulst::LoggingService* l) : snapshot(s), log(l) {}
 
     void operator()( const valc::LocalRun& r ) 
 	{
@@ -169,7 +171,7 @@ private:
     std::string m_msg;
 };
 
-void print( const valc::QueuedSample& qs, const valc::AnalysisActivitySnapshot* snapshot, paulst::LoggingService* log )
+void print( const valc::QueuedSample& qs, valc::SnapshotPtr snapshot, paulst::LoggingService* log )
 {
     using namespace valc;
 
@@ -238,18 +240,19 @@ int _tmain(int argc, _TCHAR* argv[])
         int localMachineID = std::atoi( argv[1] );
 
 		const std::string configString = paulst::loadContentsOf( configFile );
-        valc::DBConnectionFactory connectionFactory;
-		boost::scoped_ptr<paulstdb::DBConnection> connection(
-			connectionFactory.createConnection( connectionString, "set lockmode session where readlock = nolock" ) );
-        
-	    std::auto_ptr<paulst::LoggingService> log( new paulst::LoggingService( new paulst::ConsoleWriter() ) );
-        log->log( configString );
-        QueuedWarnings warnings;
-        boost::scoped_ptr<valc::AnalysisActivitySnapshot> s( valc::SnapshotFactory::load( localMachineID, 1234, connection.get(), log.get(),
-            configString, &warnings ) );
 
-        CountingVisitor counts (s.get());
-        PrintingVisitor printer(s.get(), log.get());
+	    std::auto_ptr<paulst::LoggingService> log( new paulst::LoggingService( new paulst::ConsoleWriter() ) );
+
+        log->log( configString );
+
+        valc::InitialiseApplicationContext( localMachineID, USER_ID, configString, log.get() );
+
+        QueuedWarnings warnings;
+
+        valc::SnapshotPtr s = valc::Load( &warnings );
+
+        CountingVisitor counts (s);
+        PrintingVisitor printer(s, log.get());
 
         log->log("LOCAL ENTRIES");
 
@@ -263,7 +266,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
         for ( valc::QueuedSampleIterator i = s->queueBegin(); i != s->queueEnd(); ++i )
         {
-            print( *i, s.get(), log.get() );
+            print( *i, s, log.get() );
         }
 
         log->log( std::string() << "local runs: " << counts.localRuns <<
@@ -309,6 +312,7 @@ int _tmain(int argc, _TCHAR* argv[])
         std::cerr << "Unknown exception.\n";
     }
 
+    valc::DeleteApplicationContext();
 	return 0;
 }
 

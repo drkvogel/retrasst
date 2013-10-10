@@ -42,8 +42,11 @@ LCDbProject::LCDbProject( const LQuery & query  )
 			query.readInt( "database_minor_version" ),
 			query.readInt( "database_minor_phase" ) )
 {
-	if( query.fieldExists( "study_code" ) )
+	if( query.fieldExists( "study_code" ) ) {
 		code = query.readString( "study_code" );
+		AnsiString asCode = code.c_str();
+		code = asCode.Trim().UpperCase().c_str();
+	}
 	if( code.empty() || code == "." )
 		code = getName().substr( 0, 2 );
 

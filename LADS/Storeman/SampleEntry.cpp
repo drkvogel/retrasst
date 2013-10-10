@@ -350,11 +350,14 @@ GridEntry::GridEntry( const ROSETTA & row )
   cid(row.getInt("cryovial_id")),cryovial(row.getString("cryovial_barcode")),
   aid(row.getInt("aliquot_type_cid")),aliquot(row.getString("aliquot")),
   oid(row.getInt("box_cid")), old_box(row.getString("box_name")),
-  old_pos(row.getInt("cryovial_position")),
   shelf( 0 ), location( 0 ), rack_pos( 0 ), slot( 0 ), nid( 0 ), new_pos( 0 )
 {
 	static unsigned nextRecord = 1;
 	record_number = nextRecord ++;
+	old_pos = row.getIntDefault("tube_position", -1);
+	if( old_pos < 1 ) {
+		old_pos = row.getIntDefault("cryovial_position", -1);
+	}
 }
 
 //---------------------------------------------------------------------------

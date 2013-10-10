@@ -61,7 +61,6 @@ void IPart::addToList( IPart *part ) {
 	partlist.push_back( part );
 	childCount = partlist.size( );
 	part->setParent( this );
-	sortChildren( );
 }
 
 void IPart::remove( int row ) {
@@ -1220,6 +1219,7 @@ void Box::populate( ) {
 		partlist.push_back( next );
 		childCount ++;
 	}
+	sortChildren( );
 
 	const LPDbBoxType * type = LPDbBoxTypes::records( project_cid ).findByID( box_type_id );
 	if( type != NULL ) {
@@ -1361,8 +1361,11 @@ Sample::Sample( int p_id, std::string p_name ) : IPart( p_id, p_name ) {
 
 Sample::Sample( const ROSETTA &data ) {
 	id = data.getIntDefault( "cryovial_id", 0 );
-	position = data.getIntDefault( "cryovial_position", -1 );
-
+	if( data.isInt( "tube_position" ) ) {
+		position = data.getInt( "tube_position" );
+	} else {
+		position = data.getIntDefault( "cryovial_position", -1 );
+	}
 	if( data.isTime( "time_stamp" ) ) {
 		stamp = data.getTime( "time_stamp" );
 	}
@@ -1409,7 +1412,14 @@ void Sample::populate( ) {
 	for( std::vector< ROSETTA >::const_iterator hi = results.begin( ); hi != results.end( ); ++hi ) {
 		TDateTime when = hi->getTime( "time_stamp" ).outputTDateTime();
 		std::stringstream detail;
-		detail << hi->getString( "box_name" ) << ", position " << hi->getInt( "cryovial_position" );
+		detail << hi->getString( "box_name" );
+		int position = hi->getIntDefault( "tube_position", -1 );
+		if( position < 1 ) {
+			position = hi->getIntDefault( "cryovial_position", -1 );
+		}
+		if( position >= 1 ) {
+			detail << ", position " << position;
+		}
 		float volume = hi->getRealDefault( "sample_volume", -1 );
 		if( volume >= 0 ) {
             detail << ": " << volume << "ml";

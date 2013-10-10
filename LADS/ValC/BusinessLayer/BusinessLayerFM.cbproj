@@ -62,10 +62,10 @@
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <Icon_MainIcon>$(BDS)\bin\cbuilder_PROJECTICON.ico</Icon_MainIcon>
         <Multithreaded>true</Multithreaded>
-        <IncludePath>..\..\..\paulst\db\;..\..\..\paulst\;UnitTests\;..\..\LUA\lua-5.2.2\src;..\..\..\paulst\db;$(IncludePath)</IncludePath>
+        <IncludePath>..\..\..\paulst\luadb\;..\..\..\paulst\db\;..\..\..\paulst\;UnitTests\;..\..\LUA\lua-5.2.2\src;..\..\..\paulst\db;$(IncludePath)</IncludePath>
         <_TCHARMapping>wchar_t</_TCHARMapping>
         <AllPackageLibs>rtl.lib;fmx.lib;vcl.lib</AllPackageLibs>
-        <ILINK_LibraryPath>..\..\..\paulst\db\;..\..\..\paulst\;UnitTests\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>..\..\..\paulst\luadb\;..\..\..\paulst\db\;..\..\..\paulst\;UnitTests\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <ProjectType>FmxGuiApplication</ProjectType>
         <Icns_MainIcns>$(BDS)\bin\cbuilder_PROJECTICNS.icns</Icns_MainIcns>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
@@ -406,6 +406,10 @@
             <DependentOn>..\..\..\paulst\db\DBConnectionADO.h</DependentOn>
             <BuildOrder>71</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\..\..\paulst\db\DBConnectionFactory.cpp">
+            <DependentOn>..\..\..\paulst\db\DBConnectionFactory.h</DependentOn>
+            <BuildOrder>81</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\..\..\paulst\db\StringBackedCursor.cpp">
             <DependentOn>..\..\..\paulst\db\StringBackedCursor.h</DependentOn>
             <BuildOrder>70</BuildOrder>
@@ -420,6 +424,10 @@
         <CppCompile Include="..\..\..\paulst\LoggingService.cpp">
             <DependentOn>..\..\..\paulst\LoggingService.h</DependentOn>
             <BuildOrder>24</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\luadb\LuaDB.cpp">
+            <DependentOn>..\..\..\paulst\luadb\LuaDB.h</DependentOn>
+            <BuildOrder>80</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\paulst\Properties.cpp">
             <DependentOn>..\..\..\paulst\Properties.h</DependentOn>

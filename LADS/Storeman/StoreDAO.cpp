@@ -627,13 +627,11 @@ void StoreDAO::loadSamples( int box_id, int proj_id, std::vector<ROSETTA>& resul
 		source_field = "external_name";
 	}
 	results.clear();
-	std::string q = "SELECT s.cryovial_position, s.box_cid, s.time_stamp,"
-			" c.sample_id, c.cryovial_id, c.cryovial_barcode, c.aliquot_type_cid,"
+	std::string q = "SELECT s.*, c.sample_id, cryovial_barcode, aliquot_type_cid,"
 			" sp.barcode as source_barcode, sp." + source_field + " as source_name"
 			" FROM cryovial_store s, cryovial c, specimen sp "
 			" WHERE s.box_cid = :bid AND s.status = :css "
-			" AND s.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id "
-			" ORDER BY s.cryovial_position";
+			" AND s.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id";
 	LQuery pQuery( LIMSDatabase::getProjectDb( proj_id ) );
 	pQuery.setSQL( q );
 	pQuery.setParam( "bid", box_id );
@@ -724,7 +722,7 @@ bool StoreDAO::loadCryovials( short source, const std::string & id, int primary,
 {
 	std::stringstream q;
 	q << "SELECT c.cryovial_id, c.aliquot_type_cid, c.cryovial_barcode, t.external_name as aliquot,"
-			" c.sample_id, sp.barcode, cs.box_cid, b.external_name as box_name, cs.cryovial_position"
+			" c.sample_id, sp.barcode, cs.box_cid, b.external_name as box_name, cs.tube_position"
 			" FROM cryovial_store cs, cryovial c, specimen sp, box_name b, c_object_name t"
 			" WHERE cs.status = 1 " 	// position confirmed
 			" AND cs.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id "
@@ -785,7 +783,7 @@ bool StoreDAO::addToRetrieval( int jobID, int cryovial_id, int proj_id, int box_
 	}
 	std::stringstream q2;
 	q2 << "INSERT INTO cryovial_store"
-		" (record_id, cryovial_id, box_cid, cryovial_position, time_stamp, status, note_exists, process_cid)"
+		" (record_id, cryovial_id, box_cid, tube_position, time_stamp, status, note_exists, process_cid)"
 		" VALUES (next value for id_sequence, " << cryovial_id << ", " << box_cid << ", " << pos
 	   << ", 'now', 0,"		// space allocated in new box
 	   << " 0, " << LCDbAuditTrail::getCurrent().getProcessID() << ")";
