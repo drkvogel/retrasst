@@ -6,6 +6,8 @@
 
 //---------------------------------------------------------------------------
 
+
+
 USEFORM("DiscardSearch.cpp", frmSearch);
 USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
 USEFORM("DiscardReason.cpp", frmDiscardReason);
@@ -26,8 +28,8 @@ USEFORM("Configure.cpp", frmConfigure);
 USEFORM("NewSite.cpp", frmNewSite);
 USEFORM("Storemain.cpp", frmStoremain);
 USEFORM("SelectSamples.cpp", frmSelectBoxes);
-USEFORM("ShowSamples.cpp", frmAliquotTypes);
-
+USEFORM("showsamples.cpp", frmAliquotTypes);
+USEFORM("SMLogin.cpp", frmSMLogin);
 USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
 USEFORM("RetrievalAssistant.cpp", frmRetrievalAssistant);
 USEFORM("RetrievalAssistantAutoChunk.cpp", frmAutoChunk);
@@ -51,7 +53,6 @@ USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
 USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
 USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
 USEFORM("RetrievalAssistantProcessBoxes.cpp", frmProcessBoxes);
-USEFORM("SMLogin.cpp", frmSMLogin);
 //---------------------------------------------------------------------------
 WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
@@ -96,6 +97,7 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmReferred), &frmReferred);
          Application->CreateForm(__classid(TfrmNewStoreType), &frmNewStoreType);
          Application->CreateForm(__classid(TfrmNewBoxType), &frmNewBoxType);
+         Application->CreateForm(__classid(TfrmProcessBoxes), &frmProcessBoxes);
          Application->CreateForm(__classid(TfrmProcessBoxes), &frmProcessBoxes);
          Application->Run();
 	}
