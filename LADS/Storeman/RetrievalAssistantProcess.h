@@ -51,6 +51,7 @@ __published:
     void __fastcall cbLogClick(TObject *Sender);
     void __fastcall FormDestroy(TObject *Sender);
     void __fastcall timerLoadPlanTimer(TObject *Sender);
+    void __fastcall btnAcceptClick(TObject *Sender);
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);

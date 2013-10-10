@@ -133,8 +133,14 @@ void TfrmProcess::process() {
  * As each sample is retrieved its barcode should be scanned, if the scanned barcode matches that on the list
 the destination location should be displayed and the next ID/location should be displayed (REQ 8.3.9)
  * if the ID’s do not match a warning should be displayed and re-entry of the barcode required (REQ 8.3.10).
+     what if it's the wrong sample, or it's missing? handle this
  * When working through the list the previous five successfully entered ID’s should always be visible (REQ 8.3.11).
  * The option to exit the process saving progress should be offered, with an “are you sure?” message in case of accidental selection (REQ 8.3.12).
+
+extra:
+ * if, at the end of processing a chunk, there are any source boxes which have become empty, the user may want to discard them instead of replacing them.
+   if so, provide an option to discard these empty boxes, recording it in the database
+
 
  destination box+position, cryovial barcode and current box+position+structure+location of the primary and secondary aliquots.
 */
@@ -322,6 +328,11 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     sgwChunks->clear(); //??
     //loadChunks();
     showChunks();
+}
+
+
+void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
+    // check correct vial; could be missing, swapped etc
 }
 
 
