@@ -406,7 +406,8 @@ void TfrmSamples::autoChunk() {
     box_name.box_type_cid -> box_content.box_size_cid -> c_box_size.box_capacity */
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
 
-    int box_id = vials[0]->store_record->getBoxID(); // look at base list, chunk might not have been created
+    //int box_id = vials[0]->store_record->getBoxID(); // look at base list, chunk might not have been created
+    int box_id = vials[0]->dest_box_id;//->getBoxID(); // look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL)
         throw "box not found";

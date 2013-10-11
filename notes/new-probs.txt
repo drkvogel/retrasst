@@ -5,9 +5,45 @@
 "1743 THRIVE boxes -few (EDTA1 & EDTA2)" - ok, but why named 'boxes'?
 "THRIVE Lp(a) baseline analysis" - ok
 
+weekly plan of meetups etc
+yoga
+practical philosophy
+film club
+
+
+bands - database, ads
+bro:
+not having a car is cramping my style!
+explain eis
+camaraderie
+vice mix
+
+peak
+alina # if i'd have gone out with her and then met someone else, it wouldn't be fair on her... that's the reason
+django django -> phone
+txt mm
+jen
+
+plan to get my mojo back
+contact lara, mars (4cod sesh?)
+leon - new songs, open mics, gently does it
+lorna - find a mkIII lorna - say thankyou absolutely munted but think I got away with it. funny looking at pictures of jerry and mel
+ i miss dobbs! and abby
+clungeplan - speed dating?
+flat much better with heating on!
+
 ## todo
+ * is sorting chunks working properly?
+ * longer descriptions for sorters (e.g. several called pos)
+ * fixed row count error from clicking pos too muth
+ * get rid of add, del, +/- - auto chunk and dbl-click is enough flexibility
+ * auto-chunk prompt - silly because list might not be sorted at correctly at this point.
+    remind to hit auto-chunk or manually chunk by double-clicking on rows
+ not sure what the point of anything is... gins, sert and drinking a lot made me a lot better last night... really, i need to go full speed on teachplus, gigmaster, 
+ lnnh (last night never happened) for android, paunchplan
 
  * auto-chunk: get dest box size from job-
+    - is it getting the dest size or src size?- dest now
  
  * crash on "do you want to chunk" now, as list not loaded yet?
      list is loaded, but no chunks yet. fixed.
