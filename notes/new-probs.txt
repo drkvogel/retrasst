@@ -5,33 +5,6 @@
 "1743 THRIVE boxes -few (EDTA1 & EDTA2)" - ok, but why named 'boxes'?
 "THRIVE Lp(a) baseline analysis" - ok
 
-weekly plan of meetups etc
-yoga
-practical philosophy
-film club
-
-
-bands - database, ads
-bro:
-not having a car is cramping my style!
-explain eis
-camaraderie
-vice mix
-
-peak
-alina # if i'd have gone out with her and then met someone else, it wouldn't be fair on her... that's the reason
-django django -> phone
-txt mm
-jen
-
-plan to get my mojo back
-contact lara, mars (4cod sesh?)
-leon - new songs, open mics, gently does it
-lorna - find a mkIII lorna - say thankyou absolutely munted but think I got away with it. funny looking at pictures of jerry and mel
- i miss dobbs! and abby
-clungeplan - speed dating?
-flat much better with heating on!
-
 ## todo
  * is sorting chunks working properly?
  * longer descriptions for sorters (e.g. several called pos)
