@@ -192,7 +192,6 @@ void TfrmRetrievalAssistant::init() {
     panelDebug->Visible = cbLog->Checked;
 
     sgwJobs = new StringGridWrapper<LCDbCryoJob>(sgJobs, &vecJobs);
-    //{331, 105, 88, 117, 134, 103, 163, 111, }
     sgwJobs->addCol("desc",     "Description",      331);
     sgwJobs->addCol("type",     "Job type",         105);
     sgwJobs->addCol("status",   "Status",           88);
