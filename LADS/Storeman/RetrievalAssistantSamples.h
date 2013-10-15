@@ -30,6 +30,7 @@ public:
 
 class TfrmSamples : public TForm {
     friend class LoadVialsWorkerThread;
+    friend class TfrmAutoChunk;
     //friend class TfrmAutoChunk;
 __published:
     TSplitter *Splitter1;
@@ -84,6 +85,7 @@ private:
     LoadVialsWorkerThread *                     loadVialsWorkerThread;
     void __fastcall                             loadVialsWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
+    vecpSampleRow                               vials;
     vector< Chunk< SampleRow > *>               chunks;
     StringGridWrapper<SampleRow> *              sgwVials;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
@@ -91,6 +93,7 @@ private:
     void                                        removeSorter();
     void                                        applySort();
     void                                        rejectList();
+    bool                                        addChunk(unsigned int startrow);
     void                                        autoChunk();
     Chunk< SampleRow > *                        currentChunk();
     void                                        showChunks();
@@ -98,11 +101,9 @@ private:
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     const char *                                loadingMessage;
 public:
-    vecpSampleRow                               vials;      // all vials in job - why public??
     __fastcall                                  TfrmSamples(TComponent* Owner);
     void                                        debugLog(String s);
     void                                        setJob(LCDbCryoJob * ajob) { job = ajob; };
-    bool                                        addChunk(unsigned int startrow);//, unsigned int size=0);
 };
 
 extern PACKAGE TfrmSamples *frmSamples;

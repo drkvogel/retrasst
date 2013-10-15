@@ -315,9 +315,11 @@ bool TfrmSamples::addChunk(unsigned int offset) {//, unsigned int size) {
     offset: number of rows after beginning of previous chunk at which to cut off new chunk
     return: is there any space for more? */
     if (vials.size() == 0) return false; //throw "vials.size() == 0"; // not an error strictly; not by my program anyway!
-    if (offset > vials.size()) throw "invalid offset"; // that would be an error
+    //if (offset > vials.size()) throw "invalid offset"; // that would be an error
     int numvials  = vials.size();
     int numchunks = chunks.size();
+
+    //bool reached_end = false;
 
     Chunk< SampleRow > * curchunk, * newchunk;
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
@@ -326,16 +328,16 @@ bool TfrmSamples::addChunk(unsigned int offset) {//, unsigned int size) {
         if (offset <= 0) throw "invalid offset"; // ok only for first chunk
         curchunk = currentChunk();
         int currentchunksize = curchunk->getSize(); // no chunks until first added
-        if (curchunk->getStart() + offset > vials.size()) { // current last chunk is too small to be split at this offset
+        if (curchunk->getStart()+offset > vials.size()) { // current last chunk is too small to be split at this offset
+            //newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStart()+offset, vials.size()-1);
             return false; // e.g. for auto-chunk to stop chunking
+            //reached_end = true; // e.g. for auto-chunk to stop chunking
         }
         curchunk->setEnd(curchunk->getStart()+offset-1); // row above start of new chunk
         newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStart()+offset, vials.size()-1);
     }
     chunks.push_back(newchunk);
-    //showChunks();
-//    sgChunks->Row = sgChunks->RowCount-1; // make it the current chunk
-//    sgwVials->clearSelection();
+    //return reached_end;
     return true;
 }
 

@@ -63,7 +63,11 @@ As retrieval lists will always specify destination boxes, chunk size can be base
 
 void __fastcall TfrmAutoChunk::btnAddChunkClick(TObject *Sender) {
     int selectedChunkSize = comboSectionSize->Items->Strings[comboSectionSize->ItemIndex].ToIntDef(0);
-    frmSamples->addChunk(selectedChunkSize);
+    if (frmSamples->addChunk(selectedChunkSize)) {
+        frmSamples->showChunks();
+    } else {
+        msgbox("Chosen chunk size is too big for current list");
+    }
 }
 
 void __fastcall TfrmAutoChunk::btnAddAllChunksClick(TObject *Sender) {
@@ -72,8 +76,9 @@ void __fastcall TfrmAutoChunk::btnAddAllChunksClick(TObject *Sender) {
     int numChunks = frmSamples->vials.size() % selectedChunkSize;
     for (int i=0; i < numChunks; i++) {
         if (!frmSamples->addChunk(selectedChunkSize))
-            break;;
+            break;
     }
+    frmSamples->showChunks();
     Screen->Cursor = crDefault; Enabled = true;
     Close();
 }
