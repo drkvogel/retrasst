@@ -134,7 +134,8 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
         }
         break;
     default:
-        throw Exception("Unknown status");
+        msgbox("Cannot process a job with this status"); return;
+        //throw Exception("Unknown status");
     }
 }
 
@@ -208,7 +209,7 @@ void TfrmRetrievalAssistant::loadJobs() {
     Screen->Cursor = crSQLWait;
     LQuery qc(LIMSDatabase::getCentralDb());
     jobs = LCDbCryoJobs::records();
-	jobs.read( LIMSDatabase::getCentralDb(), LCDbCryoJob::UNKNOWN, true); // $2 true: readall
+	jobs.read(LIMSDatabase::getCentralDb(), LCDbCryoJob::UNKNOWN, true); // $2 true: readall
 	delete_referenced<tdvecpJob>(vecJobs);
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {
         if (!jr->isAvailable()) continue;

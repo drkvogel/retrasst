@@ -23,10 +23,71 @@
  ORDER BY
   cryovial_barcode
   
+job id: 2013
+project: -149662 { dev_hps2-thrive, t_ldbb20 }
+t_ldbb20: select * from cryovial_store where retrieval_cid = 2013
+  - give one record. whole query below gives none.
 
+        SELECT
+          s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position,
+          s1.record_id, c.sample_id, c.aliquot_type_cid,  
+          c.cryovial_barcode, t.external_name AS aliquot,
+          b1.box_cid as source_id,
+          b1.external_name as source_name,
+          s1.tube_position as source_pos,
+          s2.box_cid as dest_id,
+          b2.external_name as dest_name,
+          s2.tube_position as dest_pos
+         FROM
+          cryovial c, cryovial_store s1, box_name b1,
+          cryovial_store s2, box_name b2,
+          c_object_name t
+         WHERE
+          c.cryovial_id = s1.cryovial_id AND
+          b1.box_cid = s1.box_cid AND
+          s1.cryovial_id = s2.cryovial_id AND
+          s2.status = 0 AND
+          b2.box_cid = s2.box_cid AND
+          t.object_cid = aliquot_type_cid AND
+          s1.retrieval_cid = :jobID
+         ORDER BY
+          cryovial_barcode
+  
+  
 select * from cryovial_store where retrieval_cid = 1223
 
+select * from c_retrieval_job
 
+SELECT * FROM c_box_retrieval b, l_cryovial_retrieval c 
+WHERE retrieval_cid = -1015 AND b.rj_box_cid = c.rj_box_cid ORDER BY b.section, b.rj_box_cid, c.position
+
+/*select count(*) from cryovial_store s, cryovial c where s.cryovial_id = c.cryovial_id and aliquot_type_cid = -31781 and cryovial_barcode like '112155%'*/
+select * from cryovial_store where retrieval_cid = 1223
+
+SELECT
+  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position, 
+  s1.record_id, c.sample_id, c.aliquot_type_cid,  
+  c.cryovial_barcode, t.external_name AS aliquot,
+  b1.box_cid as source_id,
+  b1.external_name as source_name,
+  s1.cryovial_position as source_pos,
+  s2.box_cid as dest_id,
+  b2.external_name as dest_name,
+  s2.cryovial_position as dest_pos
+ FROM
+  cryovial c, cryovial_store s1, box_name b1,
+  cryovial_store s2, box_name b2,
+  c_object_name t
+ WHERE
+  c.cryovial_id = s1.cryovial_id AND
+  b1.box_cid = s1.box_cid AND
+  s1.cryovial_id = s2.cryovial_id AND
+  s2.status = 0 AND
+  b2.box_cid = s2.box_cid AND
+  t.object_cid = aliquot_type_cid AND
+  s1.retrieval_cid =1223 
+ ORDER BY
+  cryovial_barcode
 
 
 /* -- ?

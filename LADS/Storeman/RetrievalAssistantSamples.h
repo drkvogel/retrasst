@@ -90,6 +90,7 @@ private:
     void                                        addSorter();
     void                                        removeSorter();
     void                                        applySort();
+    void                                        rejectList();
     void                                        autoChunk();
     Chunk< SampleRow > *                        currentChunk();
     void                                        showChunks();

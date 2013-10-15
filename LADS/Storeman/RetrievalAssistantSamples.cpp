@@ -268,11 +268,15 @@ void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
     loadRows(); // so that gui can be updated
 }
 
+void TfrmSamples::rejectList() { // could be abstracted
+    job->setStatus(LCDbCryoJob::Status::REJECTED);
+    job->saveRecord(LIMSDatabase::getCentralDb());
+    ModalResult = mrCancel; //??? don't use modalresult
+}
+
 void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
-        job->setStatus(LCDbCryoJob::Status::REJECTED);
-        job->saveRecord(LIMSDatabase::getCentralDb());
-        ModalResult = mrCancel; //??? don't use modalresult
+        rejectList();
     }
 }
 
@@ -338,8 +342,20 @@ bool TfrmSamples::addChunk(unsigned int offset) {//, unsigned int size) {
 }
 
 void TfrmSamples::showChunks() {
-    if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
-    else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
+    if (0 == chunks.size()) { // must always have one chunk anyway
+        if (RETRASSTDEBUG) {
+            if (IDYES == Application->MessageBox(L"This list is empty. Do you want to reject it?", L"Question", MB_YESNO)) {
+                rejectList();
+            } // option not to reject for testing purposes
+        } else {
+            Application->MessageBox(L"This list is empty. It will now be rejected", L"Info", MB_OK); // don't want to enable save of empty list
+            rejectList(); // don't want to risk data corruption on live system
+        } //throw Exception("No chunks");
+        return; //??
+    } else {
+        sgChunks->RowCount = chunks.size() + 1;
+        sgChunks->FixedRows = 1; // "Fixed row count must be LESS than row count"
+    }
 
     int row = 1;
     for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
@@ -440,7 +456,7 @@ void TfrmSamples::addSorter() {
     TComboBox * combo = new TComboBox(this);
     combo->Parent = groupSort; // new combo is last created, aligned to left
         // put in right order: take them all out, sort and put back in in reverse order?
-    combo->Width = 220;
+    combo->Width = 180;
     combo->Align = alLeft;
     combo->Style = csDropDown; // csDropDownList
     for (int i=0; i<sgwVials->colCount(); i++) {
