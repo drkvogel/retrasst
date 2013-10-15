@@ -8,10 +8,14 @@ TfrmProcess *frmProcess;
 
 __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
-    sgwChunks->addCol("section",  "Section",  200);
-    sgwChunks->addCol("start",    "Start",    200);
-    sgwChunks->addCol("end",      "End",      200);
-    sgwChunks->addCol("size",     "Size",     200);
+    sgwChunks->addCol("section",  "Section",  87);
+    sgwChunks->addCol("start",    "Start",    70);
+    sgwChunks->addCol("startbox", "Box",      304);
+    sgwChunks->addCol("startvial","Vial",     150);
+    sgwChunks->addCol("end",      "End",      66);
+    sgwChunks->addCol("endbox",   "Box",      242);
+    sgwChunks->addCol("endvial",  "Vial",     160);
+    sgwChunks->addCol("size",     "Size",     87);
     sgwChunks->init();
 
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);

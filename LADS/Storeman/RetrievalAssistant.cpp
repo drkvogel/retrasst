@@ -5,12 +5,10 @@
 #include "LCDbObject.h"
 #include "LCDbProject.h"
 #include "ReferredBoxes.h"
-//#include "RetrievalProcess.h"
 #include "RetrievalAssistantSamples.h"
 #include "RetrievalAssistantBoxes.h"
 #include "RetrievalAssistantProcess.h"
 #include "RetrievalAssistantProcessBoxes.h"
-//#include "RetrievalAssistantProcessBoxes.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -191,9 +189,8 @@ void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
 void TfrmRetrievalAssistant::init() {
     cbLog->Checked      = RETRASSTDEBUG;
     cbLog->Visible      = RETRASSTDEBUG;
-    panelDebug->Visible = cbLog->Checked;
-// {265, 95, 82, 105, 126, 103, 149, 75, 74, 75, };
-// {312, 95, 82, 84, 94, 103, 155, 74, 74, 74, };
+	panelDebug->Visible = cbLog->Checked;
+
     sgwJobs = new StringGridWrapper<LCDbCryoJob>(sgJobs, &vecJobs);
     sgwJobs->addCol("desc",     "Description",      312);
     sgwJobs->addCol("type",     "Job type",         95);
@@ -202,7 +199,7 @@ void TfrmRetrievalAssistant::init() {
     sgwJobs->addCol("secondary","Secondary Aliquot",94);
     sgwJobs->addCol("project",  "Project",          103);
     sgwJobs->addCol("reason",   "Reason",           155);
-    //sgwJobs->addCol("time",     "Timestamp",        111);
+	//sgwJobs->addCol("time",     "Timestamp",        111);
     sgwJobs->addCol("start",    "Started",          74);
     sgwJobs->addCol("finish",   "Finished",         74);
     sgwJobs->addCol("claimed",  "Claimed until",    74);
@@ -264,10 +261,9 @@ void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
     qc.setSQL("delete from l_cryovial_retrieval");
     qc.execSQL();
     qc.setSQL("delete from c_box_retrieval");
-    qc.execSQL();
-    // NEW_JOB, INPROGRESS, DONE
-    qc.setSQL("update c_retrieval_job set status = :new where status = :old");
-    qc.setParam("new", LCDbCryoJob::NEW_JOB);
+	qc.execSQL();
+	qc.setSQL("update c_retrieval_job set status = :new where status = :old");
+	qc.setParam("new", LCDbCryoJob::NEW_JOB); // NEW_JOB, INPROGRESS, DONE
     qc.setParam("old", LCDbCryoJob::INPROGRESS);
     qc.execSQL();
 }
