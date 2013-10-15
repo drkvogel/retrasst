@@ -103,23 +103,26 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         end
         object cbDeleted: TCheckBox
           Left = 2
-          Top = 66
+          Top = 83
           Width = 109
           Height = 17
           Align = alTop
           Caption = 'Deleted'
           TabOrder = 3
           OnClick = cbDeletedClick
+          ExplicitLeft = 3
+          ExplicitTop = 90
         end
         object cbRejected: TCheckBox
           Left = 2
-          Top = 83
+          Top = 66
           Width = 109
           Height = 17
           Align = alTop
           Caption = 'Rejected'
           TabOrder = 4
           OnClick = cbRejectedClick
+          ExplicitTop = 83
         end
       end
       object groupRetrievalTypeCheck: TGroupBox

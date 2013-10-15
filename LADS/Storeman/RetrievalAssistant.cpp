@@ -161,14 +161,15 @@ string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
     }
 }
 
-string TfrmRetrievalAssistant::getAliquotDescription(int primary_aliquot_cid) { // c_object_name 6: aliquot type?
+// one for StoreUtil.h?
+string TfrmRetrievalAssistant::getAliquotDescription(int aliquot_cid) { // c_object_name 6: aliquot type?
     ostringstream oss;
-    if (0 == primary_aliquot_cid) return "Aliquot not specified";
+    if (0 == aliquot_cid) return "Not specified";
     try {
-        const LCDbObject * primary_aliquot = LCDbObjects::records().findByID(primary_aliquot_cid);
-        oss << primary_aliquot->getName().c_str();
+        const LCDbObject * aliquot = LCDbObjects::records().findByID(aliquot_cid);
+        oss << aliquot->getName().c_str();
     } catch (...) {
-        oss << "Aliquot ID "<<primary_aliquot_cid<<" not found";
+        oss << "ID "<<aliquot_cid<<" not found";
     }
     return oss.str();
 }
@@ -191,16 +192,20 @@ void TfrmRetrievalAssistant::init() {
     cbLog->Checked      = RETRASSTDEBUG;
     cbLog->Visible      = RETRASSTDEBUG;
     panelDebug->Visible = cbLog->Checked;
-
+// {265, 95, 82, 105, 126, 103, 149, 75, 74, 75, };
+// {312, 95, 82, 84, 94, 103, 155, 74, 74, 74, };
     sgwJobs = new StringGridWrapper<LCDbCryoJob>(sgJobs, &vecJobs);
-    sgwJobs->addCol("desc",     "Description",      331);
-    sgwJobs->addCol("type",     "Job type",         105);
-    sgwJobs->addCol("status",   "Status",           88);
-    sgwJobs->addCol("primary",  "Primary Aliquot",  117);
-    sgwJobs->addCol("secondary","Secondary Aliquot",134);
+    sgwJobs->addCol("desc",     "Description",      312);
+    sgwJobs->addCol("type",     "Job type",         95);
+    sgwJobs->addCol("status",   "Status",           82);
+    sgwJobs->addCol("primary",  "Primary Aliquot",  84);
+    sgwJobs->addCol("secondary","Secondary Aliquot",94);
     sgwJobs->addCol("project",  "Project",          103);
-    sgwJobs->addCol("reason",   "Reason",           163);
-    sgwJobs->addCol("time",     "Timestamp",        111);
+    sgwJobs->addCol("reason",   "Reason",           155);
+    //sgwJobs->addCol("time",     "Timestamp",        111);
+    sgwJobs->addCol("start",    "Started",          74);
+    sgwJobs->addCol("finish",   "Finished",         74);
+    sgwJobs->addCol("claimed",  "Claimed until",    74);
     sgwJobs->init();
     loadJobs();
 }
@@ -246,7 +251,9 @@ void TfrmRetrievalAssistant::showJobs() {
         sgJobs->Cells[sgwJobs->colNameToInt("secondary")][row] = getAliquotDescription(job->getSecondaryAliquot()).c_str(); // int
         sgJobs->Cells[sgwJobs->colNameToInt("project")]  [row] = getProjectDescription(job->getProjectID()).c_str();
         sgJobs->Cells[sgwJobs->colNameToInt("reason")]   [row] = job->getReason().c_str();
-        sgJobs->Cells[sgwJobs->colNameToInt("time")]     [row] = job->getTimeStamp().DateTimeString();
+        sgJobs->Cells[sgwJobs->colNameToInt("start")]    [row] = job->getStartDate().DateTimeString();
+        sgJobs->Cells[sgwJobs->colNameToInt("finish")]   [row] = job->getFinishDate().DateTimeString();
+        sgJobs->Cells[sgwJobs->colNameToInt("claimed")]  [row] = job->getClaimedUntil().DateTimeString();
         sgJobs->Objects[0][row] = (TObject *)job;
     }
 }

@@ -284,7 +284,7 @@ void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
     // mark chunk boundary //msgbox("chunk split");
-    addChunk(sgVials->Row); //??
+    addChunk(sgVials->Row-1); // allowing for fixed header row
     showChunks();
 }
 
