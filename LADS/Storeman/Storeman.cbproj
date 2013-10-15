@@ -633,38 +633,39 @@
 				<DependentOn>..\..\paulst\WorkerThread.h</DependentOn>
 				<BuildOrder>49</BuildOrder>
 			</CppCompile>
-			<FormResources Include="DiscardSearch.dfm"/>
-			<FormResources Include="DiscardPrologue.dfm"/>
+			<FormResources Include="FindSample.dfm"/>
 			<FormResources Include="DiscardReason.dfm"/>
 			<FormResources Include="DiscardSamples.dfm"/>
-			<FormResources Include="FindSample.dfm"/>
-			<FormResources Include="NewExercise.dfm"/>
+			<FormResources Include="DiscardSearch.dfm"/>
 			<FormResources Include="NewJob.dfm"/>
 			<FormResources Include="NewSection.dfm"/>
+			<FormResources Include="NewSite.dfm"/>
 			<FormResources Include="MoveJobs.dfm"/>
 			<FormResources Include="NewBoxType.dfm"/>
-			<FormResources Include="AnalyseSamples.dfm"/>
+			<FormResources Include="NewExercise.dfm"/>
 			<FormResources Include="BoxTransfer.dfm"/>
-			<FormResources Include="AddSpecimens.dfm"/>
 			<FormResources Include="BrowseSample.dfm"/>
+			<FormResources Include="AddSpecimens.dfm"/>
+			<FormResources Include="AnalyseSamples.dfm"/>
+			<FormResources Include="Configure.dfm"/>
 			<FormResources Include="DiscardMethod.dfm"/>
 			<FormResources Include="DiscardNote.dfm"/>
-			<FormResources Include="Configure.dfm"/>
-			<FormResources Include="NewSite.dfm"/>
+			<FormResources Include="DiscardPrologue.dfm"/>
+			<FormResources Include="NewTank.dfm"/>
 			<FormResources Include="Storemain.dfm"/>
 			<FormResources Include="SelectSamples.dfm"/>
 			<FormResources Include="showsamples.dfm"/>
 			<FormResources Include="SMLogin.dfm"/>
-			<FormResources Include="ReferredBoxesSummary.dfm"/>
 			<FormResources Include="RetrievalAssistant.dfm"/>
 			<FormResources Include="RetrievalAssistantAutoChunk.dfm"/>
-			<FormResources Include="NewTank.dfm"/>
+			<FormResources Include="RetrievalAssistantBoxes.dfm"/>
 			<FormResources Include="NewType.dfm"/>
 			<FormResources Include="ReferredBoxes.dfm"/>
-			<FormResources Include="RetrievalAssistantBoxes.dfm"/>
+			<FormResources Include="ReferredBoxesSummary.dfm"/>
+			<FormResources Include="RetrievalAssistantProcess.dfm"/>
 			<FormResources Include="SampleEntry.dfm"/>
 			<FormResources Include="SampleMove.dfm"/>
-			<FormResources Include="RetrievalAssistantProcess.dfm"/>
+			<FormResources Include="RetrievalAssistantProcessBoxes.dfm"/>
 			<FormResources Include="RetrievalAssistantSamples.dfm"/>
 			<FormResources Include="RetrieveSamples.dfm"/>
 			<FormResources Include="..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.dfm"/>
@@ -677,7 +678,6 @@
 			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
-			<FormResources Include="RetrievalAssistantProcessBoxes.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -1004,6 +1004,7 @@
 				<Platforms>
 					<Platform value="Win32">True</Platform>
 				</Platforms>
+				<ModelSupport>False</ModelSupport>
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>
 		</ProjectExtensions>
