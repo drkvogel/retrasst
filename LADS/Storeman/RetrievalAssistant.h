@@ -196,13 +196,14 @@ public:
     class Col {
     public:
         Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(true), vec(NULL), initialised(false) { }
-        Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL) : name(n), title(t), width(w), sort_func_asc(f), sortAsc(true) {}
+        Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL, string d="") : name(n), title(t), width(w), sort_func_asc(f), descrip(d), sortAsc(true) {}
         string  sortDescription() {
             ostringstream oss; oss<<"Sort by "<<title<<" ascending"; return oss.str();
         }
         bool    (*sort_func_asc)(const T *, const T *); // ascending sort function
         string  name;           // internal identifier string
         string  title;          // text to display in stringgrid header
+        string  descrip;        // longer description e.g. to avoid ambiguity between cols with similar titles
         int     width;          // for StringGrid::ColWidths[]
         bool    sortAsc;        // sort toggle
     };

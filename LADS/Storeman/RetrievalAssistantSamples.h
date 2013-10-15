@@ -35,10 +35,6 @@ __published:
     TSplitter *Splitter1;
     TGroupBox *groupList;
     TPanel *Panel2;
-    TButton *btnAddChunk;
-    TButton *btnDelChunk;
-    TButton *btnIncr;
-    TButton *btnDecr;
     TStringGrid *sgChunks;
     TGroupBox *groupVials;
     TStringGrid *sgVials;
@@ -57,14 +53,13 @@ __published:
     TButton *btnApplySort;
     TSplitter *splitterDebug;
     TMemo *memoDebug;
-    TCheckBox *cbSnapToBoxes;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall btnSaveClick(TObject *Sender);
     void __fastcall btnAddChunkClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
-    void __fastcall btnDelChunkClick(TObject *Sender);
+    //void __fastcall btnDelChunkClick(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
     void __fastcall btnAutoChunkClick(TObject *Sender);
     void __fastcall btnIncrClick(TObject *Sender);

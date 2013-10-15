@@ -42,7 +42,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       OnClick = sgJobsClick
       OnDblClick = sgJobsDblClick
       OnDrawCell = sgJobsDrawCell
-      ExplicitHeight = 409
       ColWidths = (
         196
         64
@@ -60,7 +59,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 409
       object groupStatusCheck: TGroupBox
         Left = 0
         Top = 0
@@ -200,7 +198,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Caption = 'Exit'
         TabOrder = 2
         OnClick = btnExitClick
-        ExplicitTop = 368
       end
       object cbLog: TCheckBox
         Left = 0
@@ -211,7 +208,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Caption = 'Show Log'
         TabOrder = 3
         OnClick = cbLogClick
-        ExplicitTop = 351
       end
     end
     object panelDebug: TPanel
@@ -221,8 +217,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Height = 99
       Align = alBottom
       TabOrder = 2
-      ExplicitLeft = 1
-      ExplicitTop = 409
       object memoDebug: TMemo
         Left = 1
         Top = 1

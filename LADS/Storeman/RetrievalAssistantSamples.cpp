@@ -252,8 +252,10 @@ void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, in
     ostringstream oss; oss << __FUNC__;
     oss<<sgwVials->printColWidths()<<" sorting by col: "<<ACol<<".";
     debugLog(oss.str().c_str());
+    Enabled = false;
     currentChunk()->sortToggle(ACol);
     showChunk();
+    Enabled = true;
 }
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
@@ -287,20 +289,22 @@ void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
     addChunk(sgVials->Row);
 }
 
-void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
-    ostringstream oss; oss << __FUNC__; oss<<chunks.size();
-    if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
-        oss<<" before delete: "<<chunks.size();
-        delete chunks.back();
-        oss<<" before pop: "<<chunks.size();
-        chunks.pop_back();
-        oss<<" after pop: "<<chunks.size();
-        debugLog(oss.str().c_str());
-        (*(chunks.end()))->setEnd(vials.size());
-        showChunks();
-    }
-    if (chunks.size() == 1) btnDelChunk->Enabled = false;
-}
+// obsolete
+//void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
+//    ostringstream oss; oss << __FUNC__; oss<<chunks.size();
+//    if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
+//        oss<<" before delete: "<<chunks.size();
+//        delete chunks.back();
+//        oss<<" before pop: "<<chunks.size();
+//        chunks.pop_back();
+//        oss<<" after pop: "<<chunks.size();
+//        debugLog(oss.str().c_str());
+//        (*(chunks.end()))->setEnd(vials.size());
+//        showChunks();
+//    }
+//    if (chunks.size() == 1) btnDelChunk->Enabled = false;
+//}
+
 
 bool TfrmSamples::addChunk(unsigned int offset) {//, unsigned int size) {
 /** Add a chunk starting at the specified row [of the specified size?]
@@ -326,7 +330,7 @@ bool TfrmSamples::addChunk(unsigned int offset) {//, unsigned int size) {
         currentChunk()->setEnd(currentChunk()->getStart() + offset-1); // row above start of new chunk
         chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, currentChunk()->getStart()+offset, vials.size()-1);
     }
-    chunks.push_back(chunk); btnDelChunk->Enabled = true;
+    chunks.push_back(chunk); //btnDelChunk->Enabled = true;
     showChunks();
     sgChunks->Row = sgChunks->RowCount-1; // fixme make it the current chunk
     sgwVials->clearSelection();
@@ -597,4 +601,5 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     }
     //showChunks();
 }
+
 

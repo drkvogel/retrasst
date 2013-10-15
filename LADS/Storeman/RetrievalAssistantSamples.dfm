@@ -57,47 +57,6 @@ object frmSamples: TfrmSamples
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
-      object btnAddChunk: TButton
-        Left = 0
-        Top = 25
-        Width = 90
-        Height = 25
-        Align = alTop
-        Caption = 'Add chunk'
-        TabOrder = 0
-        OnClick = btnAddChunkClick
-      end
-      object btnDelChunk: TButton
-        Left = 0
-        Top = 50
-        Width = 90
-        Height = 25
-        Align = alTop
-        Caption = 'Del chunk'
-        Enabled = False
-        TabOrder = 1
-        OnClick = btnDelChunkClick
-      end
-      object btnIncr: TButton
-        Left = 0
-        Top = 75
-        Width = 90
-        Height = 25
-        Align = alTop
-        Caption = '+'
-        TabOrder = 2
-        OnClick = btnIncrClick
-      end
-      object btnDecr: TButton
-        Left = 0
-        Top = 100
-        Width = 90
-        Height = 25
-        Align = alTop
-        Caption = '-'
-        TabOrder = 3
-        OnClick = btnDecrClick
-      end
       object btnAutoChunk: TButton
         Left = 0
         Top = 0
@@ -105,7 +64,7 @@ object frmSamples: TfrmSamples
         Height = 25
         Align = alTop
         Caption = 'Auto-Chunk'
-        TabOrder = 4
+        TabOrder = 0
         OnClick = btnAutoChunkClick
       end
       object btnCancel: TButton
@@ -115,7 +74,7 @@ object frmSamples: TfrmSamples
         Height = 25
         Align = alBottom
         Caption = 'Exit'
-        TabOrder = 5
+        TabOrder = 1
         OnClick = btnCancelClick
       end
       object btnSave: TButton
@@ -125,7 +84,7 @@ object frmSamples: TfrmSamples
         Height = 25
         Align = alBottom
         Caption = 'Save'
-        TabOrder = 6
+        TabOrder = 2
         OnClick = btnSaveClick
       end
       object btnReject: TButton
@@ -135,27 +94,19 @@ object frmSamples: TfrmSamples
         Height = 25
         Align = alBottom
         Caption = 'Reject List'
-        TabOrder = 7
+        TabOrder = 3
         OnClick = btnRejectClick
       end
       object cbLog: TCheckBox
         Left = 0
-        Top = 142
+        Top = 25
         Width = 90
         Height = 17
         Align = alTop
         Caption = 'Show Log'
-        TabOrder = 8
+        TabOrder = 4
         OnClick = cbLogClick
-      end
-      object cbSnapToBoxes: TCheckBox
-        Left = 0
-        Top = 125
-        Width = 90
-        Height = 17
-        Align = alTop
-        Caption = 'Snap to boxes'
-        TabOrder = 9
+        ExplicitTop = 142
       end
     end
     object sgChunks: TStringGrid
