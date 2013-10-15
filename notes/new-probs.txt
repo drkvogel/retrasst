@@ -12,8 +12,6 @@
  * get rid of add, del, +/- - auto chunk and dbl-click is enough flexibility
  * auto-chunk prompt - silly because list might not be sorted at correctly at this point.
     remind to hit auto-chunk or manually chunk by double-clicking on rows
- not sure what the point of anything is... gins, sert and drinking a lot made me a lot better last night... really, i need to go full speed on teachplus, gigmaster, 
- lnnh (last night never happened) for android, paunchplan
 
  * auto-chunk: get dest box size from job-
     - is it getting the dest size or src size?- dest now
