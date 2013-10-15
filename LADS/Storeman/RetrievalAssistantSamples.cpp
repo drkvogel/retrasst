@@ -310,34 +310,27 @@ void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
 //    }
 //    if (chunks.size() == 1) btnDelChunk->Enabled = false;
 //}
-bool TfrmSamples::addChunk(unsigned int offset) {//, unsigned int size) {
-/** Add a chunk starting at the specified row [of the specified size?]
+bool TfrmSamples::addChunk(unsigned int offset) {
+/** Add chunk starting at specified row [of the specified size?]
     offset: number of rows after beginning of previous chunk at which to cut off new chunk
     return: is there any space for more? */
     if (vials.size() == 0) return false; //throw "vials.size() == 0"; // not an error strictly; not by my program anyway!
-    //if (offset > vials.size()) throw "invalid offset"; // that would be an error
-    int numvials  = vials.size();
-    int numchunks = chunks.size();
-
-    //bool reached_end = false;
+    int numvials  = vials.size(); int numchunks = chunks.size();
 
     Chunk< SampleRow > * curchunk, * newchunk;
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
         newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, 0, vials.size()-1); // 0-indexed // size is calculated
     } else {
-        if (offset <= 0) throw "invalid offset"; // ok only for first chunk
+        if (offset <= 0 || offset > vials.size()) throw "invalid offset"; // ok only for first chunk
         curchunk = currentChunk();
         int currentchunksize = curchunk->getSize(); // no chunks until first added
         if (curchunk->getStart()+offset > vials.size()) { // current last chunk is too small to be split at this offset
-            //newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStart()+offset, vials.size()-1);
             return false; // e.g. for auto-chunk to stop chunking
-            //reached_end = true; // e.g. for auto-chunk to stop chunking
         }
         curchunk->setEnd(curchunk->getStart()+offset-1); // row above start of new chunk
         newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStart()+offset, vials.size()-1);
     }
     chunks.push_back(newchunk);
-    //return reached_end;
     return true;
 }
 
