@@ -196,9 +196,10 @@ public:
     class Col {
     public:
         Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(true), vec(NULL), initialised(false) { }
-        Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL, string d="") : name(n), title(t), width(w), sort_func_asc(f), descrip(d), sortAsc(true) {}
+        Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL, string d="")
+            : name(n), title(t), width(w), sort_func_asc(f), descrip(d), sortAsc(true) {}
         string  sortDescription() {
-            ostringstream oss; oss<<"Sort by "<<title<<" ascending"; return oss.str();
+            ostringstream oss; oss<<"Sort by "<<(descrip.length() > 0 ? descrip : title)<<" ascending"; return oss.str();
         }
         bool    (*sort_func_asc)(const T *, const T *); // ascending sort function
         string  name;           // internal identifier string
@@ -225,8 +226,8 @@ public:
         mapColNameToInt[c.name] = cols.size();
         cols.push_back(c);
     }
-    void addCol(string n, string d, int w, bool (*f)(const T *, const T *)=NULL) {
-        addCol(StringGridWrapper< T >::Col(n, d, w, f));
+    void addCol(string n, string t, int w, bool (*f)(const T *, const T *)=NULL, string d="") {
+        addCol(StringGridWrapper< T >::Col(n, t, w, f, d));
     }
     int colNameToInt(string colName) {
         if (mapColNameToInt.find(colName) == mapColNameToInt.end()) throw "column name not found";

@@ -27,19 +27,19 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwChunks->init();
 
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
-    sgwVials->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode);
-    sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot);
-    sgwVials->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox);
-    sgwVials->addCol("currpos",  "Pos",              31,    SampleRow::sort_asc_currpos);
-    sgwVials->addCol("site",     "Site",             120,   SampleRow::sort_asc_site);
-    sgwVials->addCol("vesspos",  "Pos",              28,    SampleRow::sort_asc_vesspos);
-    sgwVials->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel);
-    sgwVials->addCol("shelf",    "Shelf",            31,    SampleRow::sort_asc_shelf);
-    sgwVials->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos);
-    sgwVials->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure);
-    sgwVials->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot);
-    sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox);
-    sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos);
+    sgwVials->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode,    "barcode");
+    sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
+    sgwVials->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
+    sgwVials->addCol("currpos",  "Pos",              31,    SampleRow::sort_asc_currpos,    "source box position");
+    sgwVials->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
+    sgwVials->addCol("vesspos",  "Pos",              28,    SampleRow::sort_asc_vesspos,    "vessel position");
+    sgwVials->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel,     "vessel name");
+    sgwVials->addCol("shelf",    "Shelf",            31,    SampleRow::sort_asc_shelf,      "shelf number");
+    sgwVials->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos,  "structure position");
+    sgwVials->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure,  "structure name");
+    sgwVials->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot,       "slot");
+    sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "destination box name");
+    sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "destination box postion");
     sgwVials->init();
 }
 
@@ -393,6 +393,8 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->Cells[sgwVials->colNameToInt("destpos")]  [row] = sampleRow->dest_cryo_pos;
         sgVials->Objects[0][row] = (TObject *)sampleRow;
     }
+    sgVials->Row = 1;
+
     Screen->Cursor = crDefault; Enabled = true;
 }
 
@@ -438,7 +440,7 @@ void TfrmSamples::addSorter() {
     TComboBox * combo = new TComboBox(this);
     combo->Parent = groupSort; // new combo is last created, aligned to left
         // put in right order: take them all out, sort and put back in in reverse order?
-    combo->Width = 200;
+    combo->Width = 220;
     combo->Align = alLeft;
     combo->Style = csDropDown; // csDropDownList
     for (int i=0; i<sgwVials->colCount(); i++) {
@@ -594,12 +596,14 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     Enabled = true;
     chunks.clear();
     sgwChunks->clear();
-    if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {
-        autoChunk();
-    } else {
-        addChunk(0); // default chunk
-    }
-    //showChunks();
+    Application->MessageBox(L"Press 'Auto-Chunk to automatically create chunks for this list, or double click on a row to manually create chunks", L"Info", MB_OK);
+//    if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {
+//        autoChunk();
+//    } else {
+//        addChunk(0); // default chunk
+//    }
+    addChunk(0); // default chunk
+    showChunks();
 }
 
 

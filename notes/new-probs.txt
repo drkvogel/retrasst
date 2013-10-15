@@ -1,25 +1,27 @@
 ﻿### example jobs
 
-"cryovial job for chris" looks empty
-"1751 THRIVE cryovials -few" - empty
-"1743 THRIVE boxes -few (EDTA1 & EDTA2)" - ok, but why named 'boxes'?
-"THRIVE Lp(a) baseline analysis" - ok
+box retrieval for chris: looks empty
+cryovial job for chris: empty
+1751 THRIVE cryovials -few: empty
+1223 THRIVE few cryovials: empty
+STICS troponin analysis: empty
+THRIVE Lp(a) Sep 2013 - THRIVE samples for a combined HPS/THRIVE retrieval: empty
+HPS Lp(a) Sep 2013 - HPS samples for a combined HPS/THRIVE retrieval: empty
+
+THRIVE Lp(a) baseline analysis: ok but ~4000 samples, slow to load
+1743 THRIVE boxes -few (EDTA1 & EDTA2): ok (though why named 'boxes'?)
 
 ## todo
  * is sorting chunks working properly?
- * longer descriptions for sorters (e.g. several called pos)
- * fixed row count error from clicking pos too muth
- * get rid of add, del, +/- - auto chunk and dbl-click is enough flexibility
- * auto-chunk prompt - silly because list might not be sorted at correctly at this point.
-    remind to hit auto-chunk or manually chunk by double-clicking on rows
-
- * auto-chunk: get dest box size from job-
-    - is it getting the dest size or src size?- dest now
- 
- * crash on "do you want to chunk" now, as list not loaded yet?
-     list is loaded, but no chunks yet. fixed.
- 
  * sorting chunk sorts everything, not the chunk. this is wrong.
+ 
+--- 
+ * auto-chunk prompt - silly because list might not be sorted at correctly at this point. remind to hit auto-chunk or manually chunk by double-clicking on rows
+ * get rid of add, del, +/- - auto chunk and dbl-click is enough flexibility
+ * fixed row count error from clicking pos too much- Enabled = false
+ * longer descriptions for sorters (e.g. several called pos)- 
+ * auto-chunk: get dest box size from job- is it getting the dest size or src size?- dest now
+ * crash on "do you want to chunk" now, as list not loaded yet? list is loaded, but no chunks yet. fixed.
  
  sgVialsFixedCellClick
  currentChunk()->sortToggle(ACol);
@@ -41,11 +43,9 @@ nope, they're still messin' with one another.. sorter still assigned to previous
 and the sort was off by one - including one from previous chunk and missing last of current chunk, so I added 1 to start and end - should I have?
  
  * delete current chunk (e.g. from middle of chunk list)
- 
  * existing chunk +/-
  * boxes form doesn't work properly - turn the handle (but not for demo)
-
-
+ 
  * storage sync not worth attempting to rebuild-
  * bodge should be ok and not something I have to worry about-
  * other than search/replacing my code to use tube_position rather than cryovial position-

@@ -257,7 +257,10 @@ void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
     qc.execSQL();
     qc.setSQL("delete from c_box_retrieval");
     qc.execSQL();
-    qc.setSQL("update c_retrieval_job set status = 0");
+    // NEW_JOB, INPROGRESS, DONE
+    qc.setSQL("update c_retrieval_job set status = :new where status = :old");
+    qc.setParam("new", LCDbCryoJob::NEW_JOB);
+    qc.setParam("old", LCDbCryoJob::INPROGRESS);
     qc.execSQL();
 }
 
