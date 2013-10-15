@@ -38,8 +38,8 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos,  "structure position");
     sgwVials->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure,  "structure name");
     sgwVials->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot,       "slot");
-    sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "destination box name");
-    sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "destination box postion");
+    sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
+    sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
     sgwVials->init();
 }
 
@@ -167,10 +167,10 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
     and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
-
         std::set<int> projects; projects.insert(job->getProjectID());
         frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
         if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) return;
+
         Screen->Cursor = crSQLWait; Enabled = false;
         LQuery qc(LIMSDatabase::getCentralDb());
         map<int, int> boxes; // box_id to rj_box_id
@@ -229,6 +229,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     } else { // start again
         chunks.clear();
         addChunk(0); // start again
+        showChunks();
     }
 }
 
@@ -291,6 +292,7 @@ void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
 void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
     if (sgVials->Row < 2) return;
     addChunk(sgVials->Row);
+    showChunks();
 }
 
 // obsolete
@@ -308,36 +310,32 @@ void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
 //    }
 //    if (chunks.size() == 1) btnDelChunk->Enabled = false;
 //}
-
-
 bool TfrmSamples::addChunk(unsigned int offset) {//, unsigned int size) {
 /** Add a chunk starting at the specified row [of the specified size?]
     offset: number of rows after beginning of previous chunk at which to cut off new chunk
     return: is there any space for more? */
+    if (vials.size() == 0) return false; //throw "vials.size() == 0"; // not an error strictly; not by my program anyway!
+    if (offset > vials.size()) throw "invalid offset"; // that would be an error
+    int numvials  = vials.size();
+    int numchunks = chunks.size();
 
-    if (vials.size() == 0) return false; //throw "vials.size() == 0";
-    if (offset > vials.size()) return false; //throw "startrow > vials.size()";
-
-    Chunk< SampleRow > * chunk;
-    int test5 = vials.size();
-    int test1 = chunks.size() + 1;
-
+    Chunk< SampleRow > * curchunk, * newchunk;
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 0, vials.size()-1); // 0-indexed // size is calculated
+        newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, 0, vials.size()-1); // 0-indexed // size is calculated
     } else {
-        if (offset <= 0) return false; //??
-        int test2 = currentChunk()->getSize()+1; //make end of previous chunk start - 1
-        //currentChunk()->getStart()
-        if (currentChunk()->getStart() + offset > vials.size()) { // current last chunk is too small to be split at this offset
+        if (offset <= 0) throw "invalid offset"; // ok only for first chunk
+        curchunk = currentChunk();
+        int currentchunksize = curchunk->getSize(); // no chunks until first added
+        if (curchunk->getStart() + offset > vials.size()) { // current last chunk is too small to be split at this offset
             return false; // e.g. for auto-chunk to stop chunking
         }
-        currentChunk()->setEnd(currentChunk()->getStart() + offset-1); // row above start of new chunk
-        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, currentChunk()->getStart()+offset, vials.size()-1);
+        curchunk->setEnd(curchunk->getStart()+offset-1); // row above start of new chunk
+        newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStart()+offset, vials.size()-1);
     }
-    chunks.push_back(chunk); //btnDelChunk->Enabled = true;
-    showChunks();
-    sgChunks->Row = sgChunks->RowCount-1; // fixme make it the current chunk
-    sgwVials->clearSelection();
+    chunks.push_back(newchunk);
+    //showChunks();
+//    sgChunks->Row = sgChunks->RowCount-1; // make it the current chunk
+//    sgwVials->clearSelection();
     return true;
 }
 
@@ -350,8 +348,8 @@ void TfrmSamples::showChunks() {
         } else {
             Application->MessageBox(L"This list is empty. It will now be rejected", L"Info", MB_OK); // don't want to enable save of empty list
             rejectList(); // don't want to risk data corruption on live system
-        } //throw Exception("No chunks");
-        return; //??
+        }
+        return;
     } else {
         sgChunks->RowCount = chunks.size() + 1;
         sgChunks->FixedRows = 1; // "Fixed row count must be LESS than row count"
@@ -371,6 +369,8 @@ void TfrmSamples::showChunks() {
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
     showChunk();
+    sgChunks->Row = sgChunks->RowCount-1; // make it the current chunk
+    sgwVials->clearSelection();
 }
 
 Chunk< SampleRow > * TfrmSamples::currentChunk() {
@@ -388,29 +388,29 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
 
     if (NULL == chunk) { chunk = currentChunk(); }
     if (chunk->getSize() <= 0) { sgwVials->clear(); }
-    else { sgVials->RowCount = chunk->getSize(); sgVials->FixedRows = 1; }
+    else { sgVials->RowCount = chunk->getSize()+1; sgVials->FixedRows = 1; }
 
-    for (int row = 1; row < chunk->getSize(); row++) {
+    for (int row=0; row < chunk->getSize(); row++) {
         SampleRow *         sampleRow = chunk->rowAt(row);
         LPDbCryovial *      vial    = sampleRow->cryo_record;
         LPDbCryovialStore * store   = sampleRow->store_record;
-        sgVials->Cells[sgwVials->colNameToInt("barcode")]  [row] = sampleRow->cryovial_barcode.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [row] = sampleRow->aliquot_type_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("currbox")]  [row] = sampleRow->src_box_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("currpos")]  [row] = sampleRow->store_record->getPosition();
-        sgVials->Cells[sgwVials->colNameToInt("site"   )]  [row] = sampleRow->site_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("vesspos")]  [row] = sampleRow->vessel_pos;
-        sgVials->Cells[sgwVials->colNameToInt("vessel" )]  [row] = sampleRow->vessel_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("shelf"  )]  [row] = sampleRow->shelf_number;
-        sgVials->Cells[sgwVials->colNameToInt("structpos")][row] = sampleRow->structure_pos;
-        sgVials->Cells[sgwVials->colNameToInt("struct" )]  [row] = sampleRow->structure_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [row] = sampleRow->box_pos;
-        sgVials->Cells[sgwVials->colNameToInt("destbox")]  [row] = sampleRow->dest_box_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("destpos")]  [row] = sampleRow->dest_cryo_pos;
-        sgVials->Objects[0][row] = (TObject *)sampleRow;
+        int rw = row+1; // for stringgrid
+        sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
+        sgVials->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("vesspos")]  [rw] = sampleRow->vessel_pos;
+        sgVials->Cells[sgwVials->colNameToInt("vessel" )]  [rw] = sampleRow->vessel_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("shelf"  )]  [rw] = sampleRow->shelf_number;
+        sgVials->Cells[sgwVials->colNameToInt("structpos")][rw] = sampleRow->structure_pos;
+        sgVials->Cells[sgwVials->colNameToInt("struct" )]  [rw] = sampleRow->structure_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
+        sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
+        sgVials->Objects[0][rw] = (TObject *)sampleRow;
     }
     sgVials->Row = 1;
-
     Screen->Cursor = crDefault; Enabled = true;
 }
 
@@ -454,15 +454,15 @@ void __fastcall TfrmSamples::btnApplySortClick(TObject *Sender) {
 void TfrmSamples::addSorter() {
     ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
     TComboBox * combo = new TComboBox(this);
-    combo->Parent = groupSort; // new combo is last created, aligned to left
-        // put in right order: take them all out, sort and put back in in reverse order?
-    combo->Width = 180;
-    combo->Align = alLeft;
-    combo->Style = csDropDown; // csDropDownList
+    combo->Parent = groupSort; // new combo is last created, aligned to left. put in right order: take them all out, sort and put back in in reverse order?
+    combo->Width = 170;
+    combo->Align = alRight; // bodge
+    combo->Align = alLeft;  // now the new combo is last (rightmost) in the list, rather than first (leftmost)
+    combo->Style = csDropDownList; // csDropDownList
     for (int i=0; i<sgwVials->colCount(); i++) {
         combo->AddItem(sgwVials->cols[i].sortDescription().c_str(), (TObject *)&sgwVials->cols[i]);
     }
-    //combo->OnChange = &comboSortOnChange;
+    combo->ItemIndex = 0;
 }
 
 void TfrmSamples::removeSorter() {
@@ -480,23 +480,23 @@ void TfrmSamples::removeSorter() {
 }
 
 void TfrmSamples::applySort() { // loop through sorters and apply each selected sort
-    ostringstream oss; oss<<__FUNC__<<groupSort->ControlCount<<" controls"<<endl; debugLog(oss.str().c_str());
+    //ostringstream oss; oss<<__FUNC__<<groupSort->ControlCount<<" controls"<<endl; debugLog(oss.str().c_str());
     Chunk< SampleRow > * chunk = currentChunk();
     bool changed = false;
-    for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box // controls are in creation order, ie. buttons first from design, and last added combo is last
+    //for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box // controls are in creation order, ie. buttons first from design, and last added combo is last
+    for (int i=0; i<groupSort->ControlCount; i++) { // not in reverse order any more
         TControl * control = groupSort->Controls[i];
         TComboBox * combo = dynamic_cast<TComboBox *>(control);
         if (combo != NULL) {
             if (-1 != combo->ItemIndex) {
-                changed = true;
-                debugLog("sorting: ");
-                debugLog(combo->Items->Strings[combo->ItemIndex].c_str());
                 StringGridWrapper< SampleRow >::Col * col = (StringGridWrapper< SampleRow >::Col *)combo->Items->Objects[combo->ItemIndex];
-                debugLog(col->sortDescription().c_str());
+                ostringstream ss; ss<<"sorting by: "<<col->sortDescription().c_str(); debugLog(ss.str().c_str());
+                //debugLog(combo->Items->Strings[combo->ItemIndex].c_str()); debugLog();
                 chunk->sort_asc(col->name);
+                changed = true;
             }
         } else {
-            debugLog("not a combo box, finish sorting."); break;
+            debugLog("not a combo box"); //break;
         }
     }
     if (changed) showChunk();
