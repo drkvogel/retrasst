@@ -32,7 +32,7 @@ object frmSamples: TfrmSamples
   end
   object splitterDebug: TSplitter
     Left = 0
-    Top = 524
+    Top = 525
     Width = 884
     Height = 3
     Cursor = crVSplit
@@ -106,7 +106,6 @@ object frmSamples: TfrmSamples
         Caption = 'Show Log'
         TabOrder = 4
         OnClick = cbLogClick
-        ExplicitTop = 142
       end
     end
     object sgChunks: TStringGrid
@@ -130,15 +129,16 @@ object frmSamples: TfrmSamples
     Left = 0
     Top = 316
     Width = 884
-    Height = 208
+    Height = 209
     Align = alClient
     Caption = 'Vials in chunk'
     TabOrder = 1
+    ExplicitHeight = 208
     object sgVials: TStringGrid
       Left = 2
       Top = 15
       Width = 880
-      Height = 191
+      Height = 192
       Align = alClient
       DefaultDrawing = False
       FixedCols = 0
@@ -148,6 +148,7 @@ object frmSamples: TfrmSamples
       OnDblClick = sgVialsDblClick
       OnDrawCell = sgVialsDrawCell
       OnFixedCellClick = sgVialsFixedCellClick
+      ExplicitHeight = 191
     end
     object panelLoading: TPanel
       Left = 176
@@ -215,15 +216,42 @@ object frmSamples: TfrmSamples
       end
     end
   end
-  object memoDebug: TMemo
+  object panelDebug: TPanel
     Left = 0
-    Top = 527
+    Top = 528
     Width = 884
-    Height = 99
+    Height = 98
     Align = alBottom
-    ScrollBars = ssVertical
     TabOrder = 3
     Visible = False
+    ExplicitLeft = -2
+    ExplicitTop = 549
+    object Splitter2: TSplitter
+      Left = 345
+      Top = 1
+      Height = 96
+      ExplicitLeft = 549
+    end
+    object memoDebug: TMemo
+      Left = 1
+      Top = 1
+      Width = 344
+      Height = 96
+      Align = alLeft
+      ScrollBars = ssVertical
+      TabOrder = 0
+    end
+    object sgDebug: TStringGrid
+      Left = 348
+      Top = 1
+      Width = 535
+      Height = 96
+      Align = alClient
+      FixedCols = 0
+      TabOrder = 1
+      ExplicitLeft = 351
+      ExplicitTop = 3
+    end
   end
   object timerLoadVials: TTimer
     Enabled = False

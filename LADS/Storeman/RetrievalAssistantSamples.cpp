@@ -41,6 +41,23 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
     sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
     sgwVials->init();
+
+    sgwDebug = new StringGridWrapper<SampleRow>(sgDebug, &vials);
+    sgwDebug->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode,    "barcode");
+    sgwDebug->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
+    sgwDebug->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
+    sgwDebug->addCol("currpos",  "Pos",              31,    SampleRow::sort_asc_currpos,    "source box position");
+    sgwDebug->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
+    sgwDebug->addCol("vesspos",  "Pos",              28,    SampleRow::sort_asc_vesspos,    "vessel position");
+    sgwDebug->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel,     "vessel name");
+    sgwDebug->addCol("shelf",    "Shelf",            31,    SampleRow::sort_asc_shelf,      "shelf number");
+    sgwDebug->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos,  "structure position");
+    sgwDebug->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure,  "structure name");
+    sgwDebug->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot,       "slot");
+    sgwDebug->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
+    sgwDebug->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
+    sgwDebug->init();
+
 }
 
 void TfrmSamples::debugLog(String s) {
@@ -50,7 +67,8 @@ void TfrmSamples::debugLog(String s) {
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Checked      = RETRASSTDEBUG;
     cbLog->Visible      = RETRASSTDEBUG;
-    memoDebug->Visible  = cbLog->Checked;
+    //memoDebug->Visible  = cbLog->Checked;
+    panelDebug->Visible  = cbLog->Checked;
     job                 = NULL;
     loadingMessage = "Loading samples, please wait...";
 }
@@ -91,7 +109,7 @@ void __fastcall TfrmSamples::btnCancelClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::cbLogClick(TObject *Sender) {
-    memoDebug->Visible = cbLog->Checked;
+    panelDebug->Visible = cbLog->Checked;
     splitterDebug->Visible  = cbLog->Checked;
 }
 
@@ -382,9 +400,18 @@ Chunk< SampleRow > * TfrmSamples::currentChunk() {
 void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
     Screen->Cursor = crSQLWait; Enabled = false;
 
-    if (NULL == chunk) { chunk = currentChunk(); }
-    if (chunk->getSize() <= 0) { sgwVials->clear(); }
-    else { sgVials->RowCount = chunk->getSize()+1; sgVials->FixedRows = 1; }
+    debugLog("showChunk");
+
+    if (NULL == chunk) {
+        chunk = currentChunk();
+    }
+
+    if (chunk->getSize() <= 0) { //?? error surely
+        sgwVials->clear();
+    } else {
+        sgVials->RowCount = chunk->getSize()+1;
+        sgVials->FixedRows = 1;
+    }
 
     for (int row=0; row < chunk->getSize(); row++) {
         SampleRow *         sampleRow = chunk->rowAt(row);
@@ -407,6 +434,33 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->Objects[0][rw] = (TObject *)sampleRow;
     }
     sgVials->Row = 1;
+
+    // sgDebug - all vials
+    if (RETRASSTDEBUG) {
+        sgDebug->RowCount = vials.size()+1;
+        sgDebug->FixedRows = 1;
+        for (int row=0; row < vials.size(); row++) {
+            SampleRow *         sampleRow = vials[row];
+            LPDbCryovial *      vial    = sampleRow->cryo_record;
+            LPDbCryovialStore * store   = sampleRow->store_record;
+            int rw = row+1; // for stringgrid
+            sgDebug->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
+            sgDebug->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
+            sgDebug->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
+            sgDebug->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
+            sgDebug->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
+            sgDebug->Cells[sgwVials->colNameToInt("vesspos")]  [rw] = sampleRow->vessel_pos;
+            sgDebug->Cells[sgwVials->colNameToInt("vessel" )]  [rw] = sampleRow->vessel_name.c_str();
+            sgDebug->Cells[sgwVials->colNameToInt("shelf"  )]  [rw] = sampleRow->shelf_number;
+            sgDebug->Cells[sgwVials->colNameToInt("structpos")][rw] = sampleRow->structure_pos;
+            sgDebug->Cells[sgwVials->colNameToInt("struct" )]  [rw] = sampleRow->structure_name.c_str();
+            sgDebug->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
+            sgDebug->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
+            sgDebug->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
+            sgDebug->Objects[0][rw] = (TObject *)sampleRow;
+        }
+    }
+
     Screen->Cursor = crDefault; Enabled = true;
 }
 
@@ -617,5 +671,6 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     addChunk(0); // default chunk
     showChunks();
 }
+
 
 

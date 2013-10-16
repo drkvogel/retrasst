@@ -53,7 +53,10 @@ __published:
     TButton *btnAddSort;
     TButton *btnApplySort;
     TSplitter *splitterDebug;
+    TPanel *panelDebug;
     TMemo *memoDebug;
+    TStringGrid *sgDebug;
+    TSplitter *Splitter2;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
@@ -88,6 +91,7 @@ private:
     vecpSampleRow                               vials;
     vector< Chunk< SampleRow > *>               chunks;
     StringGridWrapper<SampleRow> *              sgwVials;
+    StringGridWrapper<SampleRow> *              sgwDebug;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
     void                                        addSorter();
     void                                        removeSorter();
