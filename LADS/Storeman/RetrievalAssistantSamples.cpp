@@ -285,6 +285,7 @@ void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
 
 void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
     // mark chunk boundary //msgbox("chunk split");
+    if (sgVials->Row <= 1) return; // header or silly chunk
     addChunk(sgVials->Row-1); // allowing for fixed header row
     showChunks();
 }
@@ -607,7 +608,7 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     Enabled = true;
     chunks.clear();
     sgwChunks->clear();
-    Application->MessageBox(L"Press 'Auto-Chunk to automatically create chunks for this list, or double click on a row to manually create chunks", L"Info", MB_OK);
+    Application->MessageBox(L"Press 'Auto-Chunk' to automatically create chunks for this list, or double click on a row to manually create chunks", L"Info", MB_OK);
 //    if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {
 //        autoChunk();
 //    } else {

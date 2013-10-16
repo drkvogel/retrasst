@@ -157,7 +157,7 @@ public:
                 cryo_record(cryo_rec), store_record(store_rec), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps) {
     }
 
-    static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) > 0; }
+    static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
     static bool sort_asc_aliquot(const SampleRow *a, const SampleRow *b)    { return a->aliquot_type_name.compare(b->aliquot_type_name); }
     static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
     static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
@@ -253,19 +253,24 @@ public:
         sg->Cells[0][1] = "No results.";
     }
     void sort_asc(int col, int start, int end) {
-        sort(rows->begin()+start+1, rows->begin()+end+1, cols[col].sort_func_asc); // should use stable_sort?
+        //sort(rows->begin()+start+1, rows->begin()+end+1, cols[col].sort_func_asc); // should use stable_sort?
+        stable_sort(rows->begin()+start, rows->begin()+end+1, cols[col].sort_func_asc); // should use stable_sort?
     }
     void sort_dsc(int col, int start, int end) {
-        sort(rows->rbegin()+start+1, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
+        //sort(rows->rbegin()+start+1, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
+        stable_sort(rows->rbegin()+start, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
     }
     void sort_asc(string colName, int start, int end) {
         sort_asc(colNameToInt(colName), start, end);
     }
     void sort_dsc(string colName, int start, int end) {
-        sort_dsc(colNameToInt(colName));
+        sort_dsc(colNameToInt(colName), start, end);
     }
     void sort_toggle(int col, int start, int end) {
-        cols[col].sortAsc ? sort_asc(col) : sort_dsc(col); cols[col].sortAsc = !cols[col].sortAsc;
+//        sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
+//        sgw->cols[col].sortAsc = !sgw->cols[col].sortAsc; // toggle
+        cols[col].sortAsc ? sort_asc(col, start, end) : sort_dsc(col, start, end);
+        cols[col].sortAsc = !cols[col].sortAsc;
     }
     void sort_toggle(string colName, int start, int end) {
         sort_toggle(colNameToInt(colName), start, end);
@@ -314,17 +319,19 @@ public:
     }
 
     void sort_dsc(string colName) {
-        totalRows->sort_dsc(colNameToInt(colName));
+        //totalRows->sort_dsc(colNameToInt(colName));
+        sgw->sort_dsc(colName, start, end);
     }
 
     void sortToggle(int col) {
-        sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
-        sgw->cols[col].sortAsc = !sgw->cols[col].sortAsc; // toggle
+        sgw->sort_toggle(col, start, end);
     }
-//    incrStart();
-//    decrStart();
-    incrEnd();
-    decrEnd();
+
+    void sortToggle(string colName) {
+//        sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
+//        sgw->cols[col].sortAsc = !sgw->cols[col].sortAsc; // toggle
+        sgw->sort_toggle(colName, start, end);
+    }
 };
 
 typedef std::vector< Chunk * > vecpChunk;
