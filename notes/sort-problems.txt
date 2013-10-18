@@ -1,0 +1,15 @@
+﻿rowAt - replace?
+
+sgDebug is not using rowAt - should be real contents of vector.
+
+
+Chunk::, SGW:: debugLog
+
+sort arguments correct?
+
+maybe 
+
+1) Not descending sort on chunks except last
+ 
+ * Is it calling SGW::sort_dsc? yes
+   start: 0, end: 2
