@@ -1,7 +1,5 @@
 ﻿sql to delete plan
 
-nick's smlogin bodge to stop it attempting live database?
-
 still the mystery of the missing list:
  list I made with create list has no rows
  select * from c_retrieval_job

@@ -17,9 +17,6 @@ sort out add first chunk mess:
     pressing decr decrements the end of the current chunk
     changing values in the chunk stringgrid changes chunk parameters? (not in spec?)
 
-    
-
-
 # done
 
 ### how to organise list and chunks

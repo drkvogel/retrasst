@@ -248,6 +248,7 @@ object frmSamples: TfrmSamples
       Height = 96
       Align = alClient
       FixedCols = 0
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
       TabOrder = 1
       ExplicitLeft = 351
       ExplicitTop = 3

@@ -263,18 +263,22 @@ public:
     void sort_asc(string colName, int start, int end) {
         sort_asc(colNameToInt(colName), start, end);
     }
-    void sort_dsc(string colName, int start, int end) {
-        sort_dsc(colNameToInt(colName), start, end);
-    }
+//    void sort_dsc(string colName, int start, int end) {
+//        sort_dsc(colNameToInt(colName), start, end);
+//    }
     void sort_toggle(int col, int start, int end) {
 //        sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
 //        sgw->cols[col].sortAsc = !sgw->cols[col].sortAsc; // toggle
+        wstringstream oss; oss << __FUNC__; oss<<"sorting "<<rows->size()<<" rows: start:"<<start<<", end: "<<end; //debugLog(oss.str().c_str());
+        //OutputDebugString(L"I am here");
+        //OutputDebugString(oss.str().c_str());
+        frmSamples->debugLog(oss.str().c_str());
         cols[col].sortAsc ? sort_asc(col, start, end) : sort_dsc(col, start, end);
         cols[col].sortAsc = !cols[col].sortAsc;
     }
-    void sort_toggle(string colName, int start, int end) {
-        sort_toggle(colNameToInt(colName), start, end);
-    }
+//    void sort_toggle(string colName, int start, int end) {
+//        sort_toggle(colNameToInt(colName), start, end);
+//    }
 };
 
 template < class T >
@@ -309,7 +313,7 @@ public:
     void    setEndBox(string s) { endBox = s; }
     void    setEndVial(string v) { endVial = v; }
     T *     rowAt(int pos) {
-        wstringstream oss; oss<<__FUNC__<<"start: "<<start<<", pos: "<<pos; OutputDebugString(oss.str().c_str());
+        //wstringstream oss; oss<<__FUNC__<<"start: "<<start<<", pos: "<<pos; OutputDebugString(oss.str().c_str());
         return sgw->rows->at((start)+(pos));
     }
 

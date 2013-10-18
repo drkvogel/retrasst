@@ -43,16 +43,17 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwVials->init();
 
     sgwDebug = new StringGridWrapper<SampleRow>(sgDebug, &vials);
+    sgwDebug->addCol("rownum",   "Row",              21,    SampleRow::sort_asc_barcode,    "row");
     sgwDebug->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode,    "barcode");
-    sgwDebug->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
+    //sgwDebug->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
     sgwDebug->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
     sgwDebug->addCol("currpos",  "Pos",              31,    SampleRow::sort_asc_currpos,    "source box position");
-    sgwDebug->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
-    sgwDebug->addCol("vesspos",  "Pos",              28,    SampleRow::sort_asc_vesspos,    "vessel position");
-    sgwDebug->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel,     "vessel name");
-    sgwDebug->addCol("shelf",    "Shelf",            31,    SampleRow::sort_asc_shelf,      "shelf number");
-    sgwDebug->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos,  "structure position");
-    sgwDebug->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure,  "structure name");
+//    sgwDebug->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
+//    sgwDebug->addCol("vesspos",  "Pos",              28,    SampleRow::sort_asc_vesspos,    "vessel position");
+//    sgwDebug->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel,     "vessel name");
+//    sgwDebug->addCol("shelf",    "Shelf",            31,    SampleRow::sort_asc_shelf,      "shelf number");
+//    sgwDebug->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos,  "structure position");
+//    sgwDebug->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure,  "structure name");
     sgwDebug->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot,       "slot");
     sgwDebug->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
     sgwDebug->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
@@ -268,9 +269,7 @@ void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
-    ostringstream oss; oss << __FUNC__;
-    oss<<sgwVials->printColWidths()<<" sorting by col: "<<ACol<<".";
-    debugLog(oss.str().c_str());
+    //ostringstream oss; oss << __FUNC__; oss<<sgwVials->printColWidths()<<" sorting by col: "<<ACol<<"."; debugLog(oss.str().c_str());
     Enabled = false;
     currentChunk()->sortToggle(ACol);
     showChunk();
@@ -444,19 +443,20 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
             LPDbCryovial *      vial    = sampleRow->cryo_record;
             LPDbCryovialStore * store   = sampleRow->store_record;
             int rw = row+1; // for stringgrid
-            sgDebug->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
-            sgDebug->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
-            sgDebug->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
-            sgDebug->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
-            sgDebug->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
-            sgDebug->Cells[sgwVials->colNameToInt("vesspos")]  [rw] = sampleRow->vessel_pos;
-            sgDebug->Cells[sgwVials->colNameToInt("vessel" )]  [rw] = sampleRow->vessel_name.c_str();
-            sgDebug->Cells[sgwVials->colNameToInt("shelf"  )]  [rw] = sampleRow->shelf_number;
-            sgDebug->Cells[sgwVials->colNameToInt("structpos")][rw] = sampleRow->structure_pos;
-            sgDebug->Cells[sgwVials->colNameToInt("struct" )]  [rw] = sampleRow->structure_name.c_str();
-            sgDebug->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
-            sgDebug->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
-            sgDebug->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
+            sgDebug->Cells[sgwDebug->colNameToInt("rownum")]   [rw] = row;
+            sgDebug->Cells[sgwDebug->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
+            //sgDebug->Cells[sgwDebug->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
+            sgDebug->Cells[sgwDebug->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
+            sgDebug->Cells[sgwDebug->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
+//            sgDebug->Cells[sgwDebug->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
+//            sgDebug->Cells[sgwDebug->colNameToInt("vesspos")]  [rw] = sampleRow->vessel_pos;
+//            sgDebug->Cells[sgwDebug->colNameToInt("vessel" )]  [rw] = sampleRow->vessel_name.c_str();
+//            sgDebug->Cells[sgwDebug->colNameToInt("shelf"  )]  [rw] = sampleRow->shelf_number;
+//            sgDebug->Cells[sgwDebug->colNameToInt("structpos")][rw] = sampleRow->structure_pos;
+//            sgDebug->Cells[sgwDebug->colNameToInt("struct" )]  [rw] = sampleRow->structure_name.c_str();
+            sgDebug->Cells[sgwDebug->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
+            sgDebug->Cells[sgwDebug->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
+            sgDebug->Cells[sgwDebug->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
             sgDebug->Objects[0][rw] = (TObject *)sampleRow;
         }
     }
