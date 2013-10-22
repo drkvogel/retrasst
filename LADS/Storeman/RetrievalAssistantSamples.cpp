@@ -58,7 +58,6 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwDebug->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
     sgwDebug->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
     sgwDebug->init();
-
 }
 
 void TfrmSamples::debugLog(String s) {
@@ -77,6 +76,7 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
 void __fastcall TfrmSamples::FormDestroy(TObject *Sender) {
     delete sgwChunks;
     delete sgwVials;
+    delete sgwDebug;
 }
 
 void __fastcall TfrmSamples::FormShow(TObject *Sender) {

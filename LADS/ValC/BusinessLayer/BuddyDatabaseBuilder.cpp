@@ -7,12 +7,15 @@
 #include "Cursor.h"
 #include "DBUpdateSchedule.h"
 #include "ExceptionalDataHandler.h"
+#include "LoggingService.h"
 #include "Projects.h"
 #include "Require.h"
 #include "ResultIndex.h"
+#include "RuleEngineContainer.h"
 #include "SampleRun.h"
 #include <sstream>
 #include "StringBuilder.h"
+#include "StrUtil.h"
 #include <SysUtils.hpp>
 #include "TestResultImpl.h"
 
@@ -31,7 +34,9 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     BuddySampleIDKeyedOnSampleRunID*    buddySampleIDKeyedOnSampleRunID,
     BuddyDatabaseEntryIndex*            buddyDatabaseEntryIndex,
     const std::string&                  inclusionRule,
-    ExceptionalDataHandler*             exceptionalDataHandler
+    ExceptionalDataHandler*             exceptionalDataHandler,
+    RuleEngineContainer*                ruleEngine,
+    paulst::LoggingService*             log
  )
     :
     m_projects                          ( p ),
@@ -43,7 +48,9 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     m_buddySampleIDKeyedOnSampleRunID   ( buddySampleIDKeyedOnSampleRunID ),
     m_buddyDatabaseEntryIndex           ( buddyDatabaseEntryIndex ),
     m_inclusionRule                     ( inclusionRule ),
-    m_exceptionalDataHandler            ( exceptionalDataHandler )
+    m_exceptionalDataHandler            ( exceptionalDataHandler ),
+    m_ruleEngine                        ( ruleEngine ),
+    m_log                               ( log )
 {
 }
 
@@ -126,33 +133,33 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
             break;
         }
 
+        int projectID = 0;
+
+        if ( m_projects->canFindProjectIDForDatabase( databaseName ) )
+        {
+            projectID = m_projects->findProjectIDForDatabase( databaseName );
+        }
+        else if ( m_exceptionalDataHandler )
+        {
+            if ( m_exceptionalDataHandler->canProvideProjectIDFor( barcode ) )
+            {
+                projectID = m_exceptionalDataHandler->getProjectIDFor( barcode );
+            }
+        }
+
+        if ( 0 == projectID )
+        {
+            carryOn = m_exceptionalDataHandler->notifyBuddyDatabaseEntryIgnored( buddySampleID, "No Project ID" );
+            break;
+        }
+
         if ( isQC() )
         {
-            sampleDescriptor = barcode << "/" << machineID;
+            sampleDescriptor = paulst::format( "\%s/\%d", barcode.c_str(),  machineID );
         }
         else
         {
-            int projectID = 0;
-
-            if ( m_projects->canFindProjectIDForDatabase( databaseName ) )
-            {
-                projectID = m_projects->findProjectIDForDatabase( databaseName );
-            }
-            else if ( m_exceptionalDataHandler )
-            {
-                if ( m_exceptionalDataHandler->canProvideProjectIDFor( barcode ) )
-                {
-                    projectID = m_exceptionalDataHandler->getProjectIDFor( barcode );
-                }
-            }
-
-            if ( 0 == projectID )
-            {
-                carryOn = m_exceptionalDataHandler->notifyBuddyDatabaseEntryIgnored( buddySampleID, "No Project ID" );
-                break;
-            }
-
-            sampleDescriptor = std::string() << alphaSampleID << "/" << projectID;
+            sampleDescriptor = paulst::format( "\%d/\%d", alphaSampleID, projectID );
         }
 
         std::string sampleRunID      = hasSampleRun ? paulst::toString(srID) : sampleDescriptor;
@@ -179,6 +186,25 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
             if ( resWorklistID )
             {
                 m_resultIndex->allocateResultToWorklistEntry( resID, resWorklistID );
+            }
+
+            UncontrolledResult r;
+            r.testID = resTestID;
+            r.resultID = resID;
+            r.machineID = machineID;
+            r.resultValue = resValue;
+            r.resultText = resText;
+            r.barcode = barcode;
+            r.projectID = projectID;
+            r.dateAnalysed = resDateAnalysed;
+
+            if ( m_ruleEngine->queue( r ) )
+            {
+                m_log->logFormatted( "Queued result \%d with Rule Engine.", r.resultID );
+            }
+            else
+            {
+                m_log->logFormatted( "Result \%d not queued with Rule Engine.", r.resultID );
             }
         }
     }

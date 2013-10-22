@@ -2,11 +2,24 @@
 #define MOCKCONNECTIONFACTORYH
 
 #include "AbstractConnectionFactory.h"
+#include <string>
+#include "StringBackedCursor.h"
 
 namespace valc
 {
 
 class MockConnection;
+
+struct SerializedRecordset
+{
+    std::string data;
+    paulstdb::FieldParsingStrategy fieldParsingStrategy;
+
+    SerializedRecordset( const std::string& dataString, paulstdb::FieldParsingStrategy fps = paulstdb::parseCSV );
+    SerializedRecordset( const char* dataString  = "", paulstdb::FieldParsingStrategy fps = paulstdb::parseCSV );
+    SerializedRecordset( const SerializedRecordset& other );
+    SerializedRecordset& operator=( const SerializedRecordset& other );
+};
 
 /*
 ConnectionFactory from which can be obtained connections which run 
@@ -35,12 +48,14 @@ public:
      time_stamp, ts_sequence, status, diluent, buddy_result_id
      from valc_worklist
     */
-    static std::string clusters,
+    static SerializedRecordset clusters,
                 projects,
                 worklist,
                 buddyDB,
                 testNames,
-                nonLocalResults;
+                nonLocalResults,
+                ruleConfig,
+                rules;
 private:
 
     MockConnectionFactory( const MockConnectionFactory& );

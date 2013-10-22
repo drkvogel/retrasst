@@ -7,6 +7,7 @@
 #include "Projects.h"
 #include "QueueBuilderParams.h"
 #include "QueuedSamplesBuilderFunction.h"
+#include "ResultAttributes.h"
 #include "ResultDirectory.h"
 #include "SampleRunIDResolutionService.h"
 #include "WorklistDirectory.h"
@@ -29,7 +30,8 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
     m_testNames         ( tns ),
     m_dbUpdateSchedule  ( dbUpdateSchedule ),
     m_sampleRunIDResolutionService( sampleRunIDResolutionService ),
-    m_appContext( appContext )
+    m_appContext( appContext ),
+    m_resultAttributes( appContext->resultAttributes )
 {
     BOOST_FOREACH( const SampleRun& sr, *m_buddyDatabase )
     {
@@ -45,6 +47,15 @@ bool AnalysisActivitySnapshotImpl::compareSampleRunIDs( const std::string& oneRu
     return m_sampleRunIDResolutionService->compareSampleRunIDs( oneRunID, anotherRunID );
 }
 
+RuleResults AnalysisActivitySnapshotImpl::getRuleResults( int forResultID ) const
+{
+    return m_resultAttributes->getRuleResults( forResultID );
+}
+
+bool AnalysisActivitySnapshotImpl::hasRuleResults( int forResultID ) const
+{
+    return m_resultAttributes->hasRuleResults( forResultID );
+}
 
 BuddyDatabaseEntries AnalysisActivitySnapshotImpl::listBuddyDatabaseEntriesFor( const std::string& sampleRunID )   const
 {

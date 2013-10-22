@@ -1,12 +1,10 @@
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
-#pragma hdrstop
 #include <tchar.h>
+#pragma hdrstop
 
 //---------------------------------------------------------------------------
-
-
 
 USEFORM("DiscardSearch.cpp", frmSearch);
 USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
@@ -53,7 +51,9 @@ USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
 USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
 USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
 USEFORM("RetrievalAssistantProcessBoxes.cpp", frmProcessBoxes);
+
 //---------------------------------------------------------------------------
+
 WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
 	try

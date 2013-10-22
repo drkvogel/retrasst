@@ -166,6 +166,10 @@ int luaLogger( lua_State* L )
 }
 
 
+/*
+    Construction of rules is one-at-a-time because they are instantiated by RulesCache::Load, which is invoked in the 
+    context of a critical section.
+*/
 Rules::Rules( const std::string& script, ConnectionFactory cf, void* connectionState, RuleLoader* ruleLoader,
     paulst::LoggingService* log )
     : 
@@ -210,6 +214,7 @@ Rules::Rules( const std::string& script, ConnectionFactory cf, void* connectionS
     {
         std::string errorMsg(  lua_tostring( L, -1 ) );
         lua_close(L);
+        m_log->logFormatted( "Error: \%s", errorMsg.c_str() );
         throw Exception( UnicodeString( errorMsg.c_str() )  + UnicodeString( script.c_str() ) );
     }
 }
@@ -262,6 +267,9 @@ void lua_pushUncontrolledResult( lua_State* L, const UncontrolledResult& r )
 
 RuleResults Rules::applyTo( const UncontrolledResult& r )
 {
+    if ( m_log )
+        m_log->logFormatted("Waiting to apply rules to result %d", r.resultID );
+
     paulst::AcquireCriticalSection a(m_critSec);
 
     {
@@ -550,6 +558,7 @@ void RuleEngine::setErrorResultCode( int errorResultCode )
 void RuleEngine::setLog( paulst::LoggingService* l )
 {
     m_rulesCache.setLog( l );
+    m_log = l;
 }
 
 void RuleEngine::setRulesConfig( RulesConfig* c )

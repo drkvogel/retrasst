@@ -25,7 +25,8 @@ LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, paulstdb::DBConnection
     SampleRunIDResolutionService* sampleRunIDResolutionService,
     const std::string& sql,
     const std::string& inclusionRule,
-    ExceptionalDataHandler* exceptionalDataHandler )
+    ExceptionalDataHandler* exceptionalDataHandler,
+    RuleEngineContainer* ruleEngine )
     :
     m_localMachineID( localMachineID ),
     m_projects( projects ),
@@ -37,7 +38,8 @@ LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, paulstdb::DBConnection
     m_sampleRunIDResolutionService( sampleRunIDResolutionService ),
     m_sql( sql ),
     m_inclusionRule( inclusionRule ),
-    m_exceptionalDataHandler( exceptionalDataHandler )
+    m_exceptionalDataHandler( exceptionalDataHandler ),
+    m_ruleEngine( ruleEngine )
 {
 }
 
@@ -98,7 +100,8 @@ void LoadBuddyDatabase::execute()
                                                                           ( new BuddySampleIDKeyedOnSampleRunID(m_sampleRunIDResolutionService));
 
     BuddyDatabaseBuilder builder(m_projects, m_resultIndex, sampleRuns.get(), candidateSampleRuns.get(), m_sampleRunIDResolutionService,
-        m_dbUpdateSchedule, buddySampleIDKeyedOnSampleRunID.get(), buddyDatabaseEntryIndex.get(), m_inclusionRule, m_exceptionalDataHandler );
+        m_dbUpdateSchedule, buddySampleIDKeyedOnSampleRunID.get(), buddyDatabaseEntryIndex.get(), m_inclusionRule, m_exceptionalDataHandler,
+        m_ruleEngine, m_log );
 
     for ( std::auto_ptr<paulstdb::Cursor> cursor( m_con->executeQuery( m_sql ) ); 
             ( ! cursor->endOfRecordSet() ) && builder.accept( cursor.get() ); cursor->next() );

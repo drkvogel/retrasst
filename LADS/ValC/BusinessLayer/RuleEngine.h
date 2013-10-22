@@ -14,10 +14,14 @@
 
 class lua_State;
 
+namespace paulst
+{
+    class LoggingService;
+}
+
 namespace paulstdb
 {
     class AbstractConnectionFactory;
-    class LoggingService;
 }
 
 namespace valc
@@ -113,6 +117,7 @@ public:
         i.e. in series, not in parallel.
     */
     virtual std::string getRuleNameFor( int test, int machine ) = 0;
+    virtual bool        isConfigured( const UncontrolledResult& r ) = 0;
 private:
     RulesConfig( const RulesConfig& );
     RulesConfig& operator=( const RulesConfig& );
@@ -209,6 +214,7 @@ private:
     ThreadTaskContext       m_threadTaskContext;
     ConnectionCache         m_connectionCache;
     int                     m_errorResultCode;
+    paulst::LoggingService* m_log;
 
     RuleEngine( const RuleEngine& );
     RuleEngine& operator=( const RuleEngine& );

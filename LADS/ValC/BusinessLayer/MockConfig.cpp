@@ -5,7 +5,13 @@ namespace valc
 
 MockConfig::MockConfig()
 {
-    addProperty( "DBUpdateConnectionString"         , "Doesn't matter" );
+    addProperty( "LoadRules"                        , "LoadRules" );
+    addProperty( "LoadRuleConfig"                   , "LoadRuleConfig" );
+	addProperty( "InitialisationTimeoutSecs", "10" );
+	addProperty( "QCRuleConfigConnectionSessionReadLockSetting", "Owt" );
+	addProperty( "QCRuleConfigConnectionString"     , "Owt" );
+	addProperty( "RuleEngineErrorCode"              , "999" );
+	addProperty( "DBUpdateConnectionString"         , "Doesn't matter" );
     addProperty( "ConnectionFactoryType"            , "Mock" );
     addProperty( "ForceReloadConnectionString"      , "Owt" );
     addProperty( "ForceReloadSessionReadLockSetting", "" );
