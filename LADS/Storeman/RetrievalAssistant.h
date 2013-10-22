@@ -158,6 +158,7 @@ public:
     }
 
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
+    //static bool sort_dsc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
     static bool sort_asc_aliquot(const SampleRow *a, const SampleRow *b)    { return a->aliquot_type_name.compare(b->aliquot_type_name); }
     static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
     static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
@@ -199,10 +200,10 @@ public:
         Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL, string d="")
             : name(n), title(t), width(w), sort_func_asc(f), descrip(d), sortAsc(true) {}
         string  sortDescription() {
-            //ostringstream oss; oss<<"Sort by "<<(descrip.length() > 0 ? descrip : title)<<" ascending"; return oss.str();
             ostringstream oss; oss<<(descrip.length() > 0 ? descrip : title)<<" ascending"; return oss.str();
         }
         bool    (*sort_func_asc)(const T *, const T *); // ascending sort function
+        bool    (*sort_func_dsc)(const T *, const T *); //{ return (!sort_func_asc()); } // descending sort function
         string  name;           // internal identifier string
         string  title;          // text to display in stringgrid header
         string  descrip;        // longer description e.g. to avoid ambiguity between cols with similar titles
@@ -254,11 +255,16 @@ public:
     }
     void sort_asc(int col, int start, int end) {
         //sort(rows->begin()+start+1, rows->begin()+end+1, cols[col].sort_func_asc); // should use stable_sort?
+        frmSamples->debugLog("ascending");
         stable_sort(rows->begin()+start, rows->begin()+end+1, cols[col].sort_func_asc); // should use stable_sort?
     }
     void sort_dsc(int col, int start, int end) {
         //sort(rows->rbegin()+start+1, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
-        stable_sort(rows->rbegin()+start, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
+        //stable_sort(rows->rbegin()+start, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
+        //stable_sort(rows->rbegin()+start, rows->rbegin()+end+1, not2(cols[col].sort_func_asc)); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
+        frmSamples->debugLog("descending");
+        //stable_sort(rows->rbegin(), rows->rbegin()+end-start+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
+        stable_sort(rows->rend()-end-1, rows->rend()-start, cols[col].sort_func_asc); // start+1?
     }
     void sort_asc(string colName, int start, int end) {
         sort_asc(colNameToInt(colName), start, end);
@@ -347,8 +353,8 @@ typedef std::vector< Chunk * > vecpChunk;
 //};
 
 static const char * jobStatusString(short status) {
-    static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Deleted" };
-    return status < LCDbCryoJob::Status::DELETED ? jobStatusStrings[status] : "Invalid";
+    static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Rejected", "Deleted" };
+    return status < LCDbCryoJob::Status::NUM_STATUSES ? jobStatusStrings[status] : "Invalid";
 };
 
 static const char * jobTypeString(short status) {

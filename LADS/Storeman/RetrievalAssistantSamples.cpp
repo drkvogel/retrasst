@@ -398,12 +398,9 @@ Chunk< SampleRow > * TfrmSamples::currentChunk() {
 
 void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
     Screen->Cursor = crSQLWait; Enabled = false;
-
     debugLog("showChunk");
 
-    if (NULL == chunk) {
-        chunk = currentChunk();
-    }
+    if (NULL == chunk) { chunk = currentChunk(); }
 
     if (chunk->getSize() <= 0) { //?? error surely
         sgwVials->clear();
