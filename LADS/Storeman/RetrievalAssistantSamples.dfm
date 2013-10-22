@@ -208,7 +208,7 @@ object frmSamples: TfrmSamples
         Width = 57
         Height = 24
         Align = alRight
-        Caption = 'Apply'
+        Caption = 'Sort'
         TabOrder = 2
         OnClick = btnApplySortClick
       end

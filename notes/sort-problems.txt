@@ -8,7 +8,6 @@
     
     rows->rend()-end+1, rows->rend()-start // 2 off bottom
     
-    
  * partial sort of last chunk - solved? rows->rbegin(), rows->rbegin()+end-start+1
     * if only one chunk asc/dsc sort works correctly (sorts all rows)
     * two chunks: one of 3 vials and one of rest:
@@ -21,28 +20,24 @@
       ... and reverse sort doesn't work on the other chunks...
       perhaps on other chunks, the iterator positions mean it finishes immediately..
       one thing is certain...: reverse sort is not working properly!      
-        
-        
-        
-        
-        
-        
+       
  * Is it calling SGW::sort_dsc? yes    start: 0, end: 2
  * sort arguments correct?
  * rowAt
  * Chunk::, SGW:: debugLog
  * sgDebug is not using rowAt - should be real contents of vector?
- 
-either:
- 
- * find out how to use reverse_iterator properly
- 
- * define sort_func_dsc for each column
- 
+
+either: 
+ * find out how to use reverse_iterator properly- 
+ * define sort_func_dsc for each column?
  * find some template/trick that will allow me to receive the opposite of sort_func_asc
- 
     std::logical_not<bool>()?
     not2
-    
+    negate
  * how does create list do it?
     frmRetrieveMain: SampleEntry.cpp
+    
+## New
+
+ * what happens if you double click in a chunk in the middle of other chunks?
+ * which way round should the sorters be done?
