@@ -115,6 +115,7 @@
 			<ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.10.7;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
 			<VerInfo_Build>7</VerInfo_Build>
 			<LinkPackageStatics>soaprtl.lib;dsnap.lib</LinkPackageStatics>
@@ -122,11 +123,11 @@
 			<LinkPackageImports>rtl.bpi;vcl.bpi;dbrtl.bpi;IndyCore.bpi;IndySystem.bpi;IndyProtocols.bpi;vclx.bpi;vcldb.bpi;vclimg.bpi;bdertl.bpi;xmlrtl.bpi;inet.bpi</LinkPackageImports>
 			<BCC_MonitorThis>true</BCC_MonitorThis>
 			<BCC_InstructionSet>5</BCC_InstructionSet>
-			<BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
 			<BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
 			<BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
 			<VerInfo_Debug>false</VerInfo_Debug>
 			<ILINK_FullDebugInfo>false</ILINK_FullDebugInfo>
 			<BCC_SourceDebuggingOn>false</BCC_SourceDebuggingOn>
@@ -1007,7 +1008,6 @@
 				<Platforms>
 					<Platform value="Win32">True</Platform>
 				</Platforms>
-				<ModelSupport>False</ModelSupport>
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>
 		</ProjectExtensions>

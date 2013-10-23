@@ -6,6 +6,11 @@
 #include <string>
 #include <System.hpp>
 
+namespace paulst
+{
+    class LoggingService;
+}
+
 namespace paulstdb
 {
     class Cursor;
@@ -22,6 +27,7 @@ class DBUpdateSchedule;
 class ExceptionalDataHandler;
 class Projects;
 class ResultIndex;
+class RuleEngineContainer;
 class SampleRunIDResolutionService;
 class TestResultImpl;
 
@@ -53,7 +59,9 @@ public:
         BuddySampleIDKeyedOnSampleRunID*    buddySampleIDKeyedOnSampleRunID,
         BuddyDatabaseEntryIndex*            buddyDatabaseEntryIndex,
         const std::string&                  inclusionRule,
-        ExceptionalDataHandler*             exceptionalDataHandler
+        ExceptionalDataHandler*             exceptionalDataHandler,
+        RuleEngineContainer*                ruleEngine,
+        paulst::LoggingService*             log
         );
     bool accept( paulstdb::Cursor* c );
 private:
@@ -74,6 +82,8 @@ private:
     BuddyDatabaseEntryIndex*            m_buddyDatabaseEntryIndex;
     InclusionRule                       m_inclusionRule;
     ExceptionalDataHandler*             m_exceptionalDataHandler;
+    RuleEngineContainer*                m_ruleEngine;
+    paulst::LoggingService*             m_log;
 
     BuddyDatabaseBuilder( const BuddyDatabaseBuilder& );
     BuddyDatabaseBuilder& operator=( const BuddyDatabaseBuilder& );

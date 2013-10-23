@@ -3,6 +3,7 @@
 #include "AnalysisActivitySnapshotImpl.h"
 #include "API.h"
 #include "ApplicationContext.h"
+#include "AsyncInitialisationMonitor.h"
 #include <boost/lexical_cast.hpp>
 #include "BuddyDatabase.h"
 #include "ClusterIDs.h"
@@ -10,6 +11,7 @@
 #include "DBConnectionFactory.h"
 #include "DBUpdateSchedule.h"
 #include "ExceptionalDataHandlerImpl.h"
+#include "ExceptionUtil.h"
 #include <iterator>
 #include "LoadBuddyDatabase.h"
 #include "LoadClusterIDs.h"
@@ -23,8 +25,11 @@
 #include "MockConnectionFactory.h"
 #include "Projects.h"
 #include "Require.h"
+#include "ResultAttributes.h"
 #include "ResultIndex.h"
+#include "RuleEngineContainer.h"
 #include "SampleRunIDResolutionService.h"
+#include "STEF.h"
 #include "StrUtil.h"
 #include "Task.h"
 #include "TestNames.h"
@@ -70,7 +75,17 @@ void InitialiseApplicationContext( int localMachineID, int user, const std::stri
             throw Exception( L"ConnectionFactoryType (in config) is not valid.  Valid values are 'ADO' or 'Mock'." );
         }
         ac->log = log;
+        ac->asyncInitialisationMonitor = new AsyncInitialisationMonitor();
+        ac->asyncInitialisationTaskList = new stef::SerialTaskExecutionFramework( ac->asyncInitialisationMonitor );
+        ac->resultAttributes = new ResultAttributes();
+        ac->ruleEngineContainer = new RuleEngineContainer( 
+            ac->asyncInitialisationTaskList,
+            ac->config,
+            ac->connectionFactory,
+            ac->log,
+            ac->resultAttributes );
         applicationContext = ac.release();
+        applicationContext->asyncInitialisationTaskList->start();
     }
         
 }
@@ -110,6 +125,25 @@ SnapshotPtr Load( UserAdvisor* userAdvisor )
         throw Exception( L"Snapshot already loaded." );
     }
 
+    DWORD waitResult = applicationContext->asyncInitialisationTaskList->wait( 
+        paulst::toInt(applicationContext->getProperty("InitialisationTimeoutSecs")) * 1000 );
+
+    if ( waitResult != WAIT_OBJECT_0 )
+    {
+        throw Exception( L"Initialisation timeout. Try increasing value of InitialisationTimeoutSecs in config." );
+    }
+
+    std::pair< AsyncInitialisationMonitor::exception_msg_iterator, AsyncInitialisationMonitor::exception_msg_iterator > 
+        initialisationExceptionMsgs = applicationContext->asyncInitialisationMonitor->exceptionMessages();
+
+    if ( initialisationExceptionMsgs.first != initialisationExceptionMsgs.second )
+    {
+        paulst::exception( "Initialisation error. \%s", initialisationExceptionMsgs.first->c_str() );
+    }
+
+    // Don't want rules using cached stats.
+    applicationContext->ruleEngineContainer->clearRulesCache();
+    
     std::auto_ptr<paulstdb::DBConnection> dbConnection( applicationContext->connectionFactory->createConnection(
         applicationContext->getProperty("ForceReloadConnectionString"),
         applicationContext->getProperty("ForceReloadSessionReadLockSetting") ) );
@@ -146,7 +180,8 @@ SnapshotPtr Load( UserAdvisor* userAdvisor )
 		new LoadBuddyDatabase( localMachineID, con, log, resultIndex, projects, &buddyDatabase, dbUpdateSchedule, 
             sampleRunIDResolutionService.get(), applicationContext->getProperty("LoadBuddyDatabase"), 
             applicationContext->getProperty("BuddyDatabaseInclusionRule"),
-            &exceptionalDataHandler ),
+            &exceptionalDataHandler,
+            applicationContext->ruleEngineContainer ),
 		&threadExceptionMsgs );
 
     // Task for loading LOCAL and CLUSTER worklist entries
@@ -196,6 +231,8 @@ SnapshotPtr Load( UserAdvisor* userAdvisor )
 	wait( hArray, 2, &threadExceptionMsgs );
 
     resultIndex->removeReferencesToResultsNotLoaded();
+
+    applicationContext->ruleEngineContainer->waitForQueued();
 
     applicationContext->snapshot = new AnalysisActivitySnapshotImpl( clusterIDs, projects, buddyDatabase, resultIndex, worklistEntries, testNames,
         dbUpdateSchedule, sampleRunIDResolutionService.release(), applicationContext );

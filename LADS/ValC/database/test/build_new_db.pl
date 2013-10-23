@@ -13,6 +13,9 @@ my %tables = (
     c_worklist_relation => "create_table_c_worklist_relation.sql",
     sample_run          => "../create_table_sample_run.sql",
     valc_worklist       => "create_table_valc_worklist.sql",
+    qc_rule             => "create_table_qc_rule.sql",
+    qc_rule_config      => "create_table_qc_rule_config.sql",
+    c_object_name       => "create_table_c_oject_name.sql",
 );
 
 my %sequences = (

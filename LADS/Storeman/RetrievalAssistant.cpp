@@ -231,11 +231,8 @@ void TfrmRetrievalAssistant::loadJobs() {
         LCDbCryoJob * job = new LCDbCryoJob(); *job = *jr;
         vecJobs.push_back(job);
     }
-    showJobs();
+    //showJobs();
     Screen->Cursor = crDefault;
-}
-
-void TfrmRetrievalAssistant::showJobs() {
     sgJobs->RowCount = vecJobs.size() + 1;
     tdvecpJob::const_iterator it;
     int row = 1;
@@ -257,6 +254,8 @@ void TfrmRetrievalAssistant::showJobs() {
 
 void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
 /** for debugging: set all retrieval jobs back to their initial states */
+    ostringstream oss; oss<<__FUNC__<<": reset jobs"; debugLog(oss.str().c_str());
+
     LQuery qc(LIMSDatabase::getCentralDb());
     qc.setSQL("delete from l_cryovial_retrieval");
     qc.execSQL();
@@ -266,6 +265,7 @@ void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
 	qc.setParam("new", LCDbCryoJob::NEW_JOB); // NEW_JOB, INPROGRESS, DONE
     qc.setParam("old", LCDbCryoJob::INPROGRESS);
     qc.execSQL();
+    loadJobs();
 }
 
 

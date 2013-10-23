@@ -292,16 +292,35 @@ struct BuddyDatabaseEntry
 
 typedef std::vector<BuddyDatabaseEntry> BuddyDatabaseEntries;
 
+/*
+    A TestResult can be subjected to Rules in order to assess their reliability/validity.
+
+    RuleResult describes the outcome for a single Rule.
+*/
 struct RuleResult
 {
+    /* Regarding legitimate values for resultCode, refer to RuleResults below. */
     int         resultCode;
+    /* The name of the rule */
     std::string rule;
     std::string msg;
 };
 
+/*
+    A TestResult can be subjected to Rules in order to assess their reliability/validity.
+
+    RuleResults encapsulates the outcome of the application of such Rules for a particular TestResult.
+
+    Because an individual TestResult can have multiple Rules applied to it, RuleResults is an aggregation of RuleResult instances.
+*/
 class RuleResults
 {
 public:
+    static const int RESULT_CODE_FAIL       = 0;
+    static const int RESULT_CODE_PASS       = 1;
+    static const int RESULT_CODE_BORDERLINE = 2;
+    static const int RESULT_CODE_ERROR      = 3;
+
     typedef std::vector<RuleResult> RuleResultCollection;
     typedef RuleResultCollection::const_iterator const_iterator;
 
@@ -309,8 +328,11 @@ public:
     RuleResults( const_iterator begin, const_iterator end, int summaryResultCode, const std::string& summaryMsg );
     RuleResults( const RuleResults& );
     RuleResults& operator=( const RuleResults& );
+    /* Returns an iterator to the first RuleResult in the sequence.  */
     const_iterator  begin() const;
+    /* Returns an iterator marking the end of the RuleResult sequence.  */
     const_iterator  end() const;
+    /* Returns one of the RESULT_CODE constants listed above. */
     int             getSummaryResultCode() const;
     std::string     getSummaryMsg() const;
 private:
@@ -382,6 +404,10 @@ public:
     virtual LocalEntryIterator              localEnd()                                                      const = 0;
     virtual QueuedSampleIterator            queueBegin()                                                    const = 0;
     virtual QueuedSampleIterator            queueEnd()                                                      const = 0;
+
+    /* Returns the RuleResults for the specified result.  See hasRuleResults below. */
+    virtual RuleResults                     getRuleResults( int resultID )                                  const = 0;
+
     /*
         Returns a pair of iterators that describe the set 
         of worklist entries that are associated with 
@@ -393,6 +419,10 @@ public:
         Implementatin uses a cache and is therefore efficient and cheap.
     */
     virtual std::string                     getTestName( int testID )                                       const = 0;
+    
+    /* Returns true if Rules have been applied to the specified result.  */
+    virtual bool                            hasRuleResults( int resultID )                                  const = 0;
+    
     /*
         A diagnostic method for identifying the rows in buddy_database that are associated with 
         the specified sample-run.
@@ -402,6 +432,7 @@ public:
         In such cases, it would be useful to know more.
     */
     virtual BuddyDatabaseEntries            listBuddyDatabaseEntriesFor( const std::string& sampleRunID )   const = 0;
+
 private:
     AnalysisActivitySnapshot( const AnalysisActivitySnapshot& );
     AnalysisActivitySnapshot& operator=( const AnalysisActivitySnapshot& );

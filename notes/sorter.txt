@@ -35,7 +35,8 @@ update c_retrieval_job set status = 0 where retrieval_cid = -1015
 ---------------------------
 Debugger Exception Notification
 ---------------------------
-Project Storeman.exe raised exception class Exception with message 'Rosetta error: ROSETTA Error: member "dest_pos" not found
+Project Storeman.exe raised exception class Exception with message '
+Rosetta error: ROSETTA Error: member "dest_pos" not found
 Rosetta error: ROSETTA Error: member "dest_name" not found
 Rosetta error: ROSETTA Error: member "dest_id" not found
 Rosetta error: ROSETTA Error: member "source_name" not found

@@ -14,10 +14,18 @@ namespace paulstdb
     class AbstractConnectionFactory;
 }
 
+namespace stef
+{
+    class SerialTaskExecutionFramework;
+}
+
 namespace valc
 {
 
 class AnalysisActivitySnapshot;
+class AsyncInitialisationMonitor;
+class ResultAttributes;
+class RuleEngineContainer;
 
 
 struct ApplicationContext
@@ -28,6 +36,10 @@ struct ApplicationContext
     paulst::Config*                         config;
     paulst::LoggingService*                 log;
     paulstdb::AbstractConnectionFactory*    connectionFactory;
+    AsyncInitialisationMonitor*             asyncInitialisationMonitor;
+    stef::SerialTaskExecutionFramework*     asyncInitialisationTaskList;
+    ResultAttributes*                       resultAttributes;
+    RuleEngineContainer*                    ruleEngineContainer;
 
     ApplicationContext();
     ~ApplicationContext();

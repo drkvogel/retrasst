@@ -4,7 +4,7 @@
         <ProjectVersion>14.6</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Console</AppType>
@@ -60,13 +60,13 @@
         <VerInfo_Locale>2057</VerInfo_Locale>
         <Manifest_File>None</Manifest_File>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <ILINK_LibraryPath>..\..\..\paulst\db\;..\BusinessLayer\;..\..\..\paulst\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>..\..\..\paulst\luadb\;..\..\..\paulst\stef\;..\..\..\paulst\db\;..\BusinessLayer\;..\..\..\paulst\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <UsingDelphiRTL>true</UsingDelphiRTL>
         <PackageImports>bindcompfmx;fmx;rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;inetdb;DBXInterBaseDriver;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;soaprtl;bindengine;dsnap;IndyCore;fmxase;inet;fmxobj;inetdbxpress;fmxdae;dbexpress;$(PackageImports)</PackageImports>
         <Multithreaded>true</Multithreaded>
         <_TCHARMapping>wchar_t</_TCHARMapping>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <IncludePath>..\..\..\paulst\db\;..\..\..\paulst\;..\BusinessLayer\;..\..\LUA\lua-5.2.2\src;$(IncludePath)</IncludePath>
+        <IncludePath>..\..\..\paulst\luadb\;..\..\..\paulst\stef\;..\..\..\paulst\db\;..\..\..\paulst\;..\BusinessLayer\;..\..\LUA\lua-5.2.2\src;$(IncludePath)</IncludePath>
         <ProjectType>CppConsoleApplication</ProjectType>
         <AllPackageLibs>rtl.lib;vcl.lib</AllPackageLibs>
         <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
@@ -121,6 +121,7 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <Debugger_RunParams>-1019429</Debugger_RunParams>
         <_TCHARMapping>char</_TCHARMapping>
         <LinkPackageImports>rtl.bpi;vcl.bpi</LinkPackageImports>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -133,6 +134,7 @@
         <Defines>NDEBUG;$(Defines)</Defines>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <Debugger_RunParams>-1019429</Debugger_RunParams>
         <LinkPackageStatics>rtl.lib;vcl.lib</LinkPackageStatics>
         <_TCHARMapping>char</_TCHARMapping>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -161,6 +163,10 @@
             <DependentOn>..\BusinessLayer\ApplicationContext.h</DependentOn>
             <BuildOrder>70</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\BusinessLayer\AsyncInitialisationMonitor.cpp">
+            <DependentOn>..\BusinessLayer\AsyncInitialisationMonitor.h</DependentOn>
+            <BuildOrder>76</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\BusinessLayer\BuddyDatabase.cpp">
             <DependentOn>..\BusinessLayer\BuddyDatabase.h</DependentOn>
             <BuildOrder>6</BuildOrder>
@@ -184,6 +190,14 @@
         <CppCompile Include="..\BusinessLayer\CursorBackedWorklistRelationsDataSource.cpp">
             <DependentOn>..\BusinessLayer\CursorBackedWorklistRelationsDataSource.h</DependentOn>
             <BuildOrder>10</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\CursorConsumer.cpp">
+            <DependentOn>..\BusinessLayer\CursorConsumer.h</DependentOn>
+            <BuildOrder>77</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\DBQueryTask.cpp">
+            <DependentOn>..\BusinessLayer\DBQueryTask.h</DependentOn>
+            <BuildOrder>78</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\BusinessLayer\DBUpdateConsumer.cpp">
             <DependentOn>..\BusinessLayer\DBUpdateConsumer.h</DependentOn>
@@ -272,12 +286,40 @@
             <DependentOn>..\BusinessLayer\QueuedSamplesBuilderFunction.h</DependentOn>
             <BuildOrder>23</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\BusinessLayer\ResultAttributes.cpp">
+            <DependentOn>..\BusinessLayer\ResultAttributes.h</DependentOn>
+            <BuildOrder>79</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\BusinessLayer\ResultDirectory.cpp">
             <DependentOn>..\BusinessLayer\ResultDirectory.h</DependentOn>
             <BuildOrder>24</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\BusinessLayer\ResultIndex.cpp">
             <BuildOrder>25</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\RuleEngine.cpp">
+            <DependentOn>..\BusinessLayer\RuleEngine.h</DependentOn>
+            <BuildOrder>86</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\RuleEngineContainer.cpp">
+            <DependentOn>..\BusinessLayer\RuleEngineContainer.h</DependentOn>
+            <BuildOrder>80</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\RuleLoaderInitialiser.cpp">
+            <DependentOn>..\BusinessLayer\RuleLoaderInitialiser.h</DependentOn>
+            <BuildOrder>81</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\RuleLoaderUsingMap.cpp">
+            <DependentOn>..\BusinessLayer\RuleLoaderUsingMap.h</DependentOn>
+            <BuildOrder>82</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\RulesConfigInitialiser.cpp">
+            <DependentOn>..\BusinessLayer\RulesConfigInitialiser.h</DependentOn>
+            <BuildOrder>83</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\RulesConfigUsingMap.cpp">
+            <DependentOn>..\BusinessLayer\RulesConfigUsingMap.h</DependentOn>
+            <BuildOrder>84</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\BusinessLayer\SampleRun.cpp">
             <DependentOn>..\BusinessLayer\SampleRun.h</DependentOn>
@@ -377,6 +419,10 @@
             <DependentOn>..\..\..\paulst\db\StringBackedCursor.h</DependentOn>
             <BuildOrder>61</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\..\..\paulst\ExceptionUtil.cpp">
+            <DependentOn>..\..\..\paulst\ExceptionUtil.h</DependentOn>
+            <BuildOrder>71</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\..\..\paulst\FileWriterC.cpp">
             <BuildOrder>49</BuildOrder>
         </CppCompile>
@@ -388,9 +434,29 @@
             <DependentOn>..\..\..\paulst\LoggingService.h</DependentOn>
             <BuildOrder>47</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\..\..\paulst\luadb\LuaDB.cpp">
+            <DependentOn>..\..\..\paulst\luadb\LuaDB.h</DependentOn>
+            <BuildOrder>85</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\..\..\paulst\Properties.cpp">
             <DependentOn>..\..\..\paulst\Properties.h</DependentOn>
             <BuildOrder>46</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\stef\ExecutionCallback.cpp">
+            <DependentOn>..\..\..\paulst\stef\ExecutionCallback.h</DependentOn>
+            <BuildOrder>75</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\stef\STEF.cpp">
+            <DependentOn>..\..\..\paulst\stef\STEF.h</DependentOn>
+            <BuildOrder>74</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\stef\Task.cpp">
+            <DependentOn>..\..\..\paulst\stef\Task.h</DependentOn>
+            <BuildOrder>73</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\stef\TaskQueue.cpp">
+            <DependentOn>..\..\..\paulst\stef\TaskQueue.h</DependentOn>
+            <BuildOrder>72</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\paulst\StrBuilder.cpp">
             <DependentOn>..\..\..\paulst\StrBuilder.h</DependentOn>

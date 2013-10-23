@@ -62,10 +62,10 @@
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <Icon_MainIcon>$(BDS)\bin\cbuilder_PROJECTICON.ico</Icon_MainIcon>
         <Multithreaded>true</Multithreaded>
-        <IncludePath>..\..\..\paulst\luadb\;..\..\..\paulst\db\;..\..\..\paulst\;UnitTests\;..\..\LUA\lua-5.2.2\src;..\..\..\paulst\db;$(IncludePath)</IncludePath>
+        <IncludePath>..\..\..\paulst\stef\;..\..\..\paulst\luadb\;..\..\..\paulst\db\;..\..\..\paulst\;UnitTests\;..\..\LUA\lua-5.2.2\src;..\..\..\paulst\db;$(IncludePath)</IncludePath>
         <_TCHARMapping>wchar_t</_TCHARMapping>
         <AllPackageLibs>rtl.lib;fmx.lib;vcl.lib</AllPackageLibs>
-        <ILINK_LibraryPath>..\..\..\paulst\luadb\;..\..\..\paulst\db\;..\..\..\paulst\;UnitTests\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_LibraryPath>..\..\..\paulst\stef\;..\..\..\paulst\luadb\;..\..\..\paulst\db\;..\..\..\paulst\;UnitTests\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <ProjectType>FmxGuiApplication</ProjectType>
         <Icns_MainIcns>$(BDS)\bin\cbuilder_PROJECTICNS.icns</Icns_MainIcns>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
@@ -155,6 +155,14 @@
             <DependentOn>API.h</DependentOn>
             <BuildOrder>5</BuildOrder>
         </CppCompile>
+        <CppCompile Include="ApplicationContext.cpp">
+            <DependentOn>ApplicationContext.h</DependentOn>
+            <BuildOrder>96</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="AsyncInitialisationMonitor.cpp">
+            <DependentOn>AsyncInitialisationMonitor.h</DependentOn>
+            <BuildOrder>82</BuildOrder>
+        </CppCompile>
         <CppCompile Include="BuddyDatabase.cpp">
             <DependentOn>BuddyDatabase.h</DependentOn>
             <BuildOrder>6</BuildOrder>
@@ -188,6 +196,14 @@
         <CppCompile Include="CursorBackedWorklistRelationsDataSource.cpp">
             <DependentOn>CursorBackedWorklistRelationsDataSource.h</DependentOn>
             <BuildOrder>32</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="CursorConsumer.cpp">
+            <DependentOn>CursorConsumer.h</DependentOn>
+            <BuildOrder>83</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DBQueryTask.cpp">
+            <DependentOn>DBQueryTask.h</DependentOn>
+            <BuildOrder>84</BuildOrder>
         </CppCompile>
         <CppCompile Include="DBUpdateConsumer.cpp">
             <DependentOn>DBUpdateConsumer.h</DependentOn>
@@ -296,6 +312,10 @@
             <DependentOn>QueuedSamplesBuilderFunction.h</DependentOn>
             <BuildOrder>50</BuildOrder>
         </CppCompile>
+        <CppCompile Include="ResultAttributes.cpp">
+            <DependentOn>ResultAttributes.h</DependentOn>
+            <BuildOrder>85</BuildOrder>
+        </CppCompile>
         <CppCompile Include="ResultDirectory.cpp">
             <DependentOn>ResultDirectory.h</DependentOn>
             <BuildOrder>51</BuildOrder>
@@ -306,6 +326,26 @@
         <CppCompile Include="RuleEngine.cpp">
             <DependentOn>RuleEngine.h</DependentOn>
             <BuildOrder>69</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RuleEngineContainer.cpp">
+            <DependentOn>RuleEngineContainer.h</DependentOn>
+            <BuildOrder>86</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RuleLoaderInitialiser.cpp">
+            <DependentOn>RuleLoaderInitialiser.h</DependentOn>
+            <BuildOrder>87</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RuleLoaderUsingMap.cpp">
+            <DependentOn>RuleLoaderUsingMap.h</DependentOn>
+            <BuildOrder>88</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RulesConfigInitialiser.cpp">
+            <DependentOn>RulesConfigInitialiser.h</DependentOn>
+            <BuildOrder>89</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RulesConfigUsingMap.cpp">
+            <DependentOn>RulesConfigUsingMap.h</DependentOn>
+            <BuildOrder>90</BuildOrder>
         </CppCompile>
         <CppCompile Include="SampleRun.cpp">
             <DependentOn>SampleRun.h</DependentOn>
@@ -414,6 +454,10 @@
             <DependentOn>..\..\..\paulst\db\StringBackedCursor.h</DependentOn>
             <BuildOrder>70</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\..\..\paulst\ExceptionUtil.cpp">
+            <DependentOn>..\..\..\paulst\ExceptionUtil.h</DependentOn>
+            <BuildOrder>95</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\..\..\paulst\FileWriterC.cpp">
             <BuildOrder>26</BuildOrder>
         </CppCompile>
@@ -432,6 +476,22 @@
         <CppCompile Include="..\..\..\paulst\Properties.cpp">
             <DependentOn>..\..\..\paulst\Properties.h</DependentOn>
             <BuildOrder>23</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\stef\ExecutionCallback.cpp">
+            <DependentOn>..\..\..\paulst\stef\ExecutionCallback.h</DependentOn>
+            <BuildOrder>94</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\stef\STEF.cpp">
+            <DependentOn>..\..\..\paulst\stef\STEF.h</DependentOn>
+            <BuildOrder>93</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\stef\Task.cpp">
+            <DependentOn>..\..\..\paulst\stef\Task.h</DependentOn>
+            <BuildOrder>92</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\stef\TaskQueue.cpp">
+            <DependentOn>..\..\..\paulst\stef\TaskQueue.h</DependentOn>
+            <BuildOrder>91</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\paulst\StrBuilder.cpp">
             <DependentOn>..\..\..\paulst\StrBuilder.h</DependentOn>

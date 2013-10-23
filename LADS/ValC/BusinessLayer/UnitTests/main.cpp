@@ -19,6 +19,7 @@
 #include "RuleEngineTest.h"
 #include "SampleRunIDResolutionServiceTest.h"
 
+
 void pause()
 {
 	std::puts( "[enter] to quit...\n" );

@@ -362,8 +362,11 @@ bool ROSETTA::rename( const std::string from, const std::string to )
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 						/* RETURN NAME OF A PAIR */
 std::string ROSETTA::getName( const int index ) const
-{	return( ( index >= 0 && index < (int) pairs.size() )
-		? pairs[index]->id : std::string("") );
+{	if( index >= 0 && index < (int) pairs.size() ) {
+		return pairs[index]->id;
+	} else {
+		return "";
+	}
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 						/* RETURN TYPE OF A PAIR */

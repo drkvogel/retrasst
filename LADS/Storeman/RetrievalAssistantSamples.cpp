@@ -58,7 +58,6 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwDebug->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
     sgwDebug->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
     sgwDebug->init();
-
 }
 
 void TfrmSamples::debugLog(String s) {
@@ -77,6 +76,7 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
 void __fastcall TfrmSamples::FormDestroy(TObject *Sender) {
     delete sgwChunks;
     delete sgwVials;
+    delete sgwDebug;
 }
 
 void __fastcall TfrmSamples::FormShow(TObject *Sender) {
@@ -398,12 +398,9 @@ Chunk< SampleRow > * TfrmSamples::currentChunk() {
 
 void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
     Screen->Cursor = crSQLWait; Enabled = false;
-
     debugLog("showChunk");
 
-    if (NULL == chunk) {
-        chunk = currentChunk();
-    }
+    if (NULL == chunk) { chunk = currentChunk(); }
 
     if (chunk->getSize() <= 0) { //?? error surely
         sgwVials->clear();
@@ -533,8 +530,8 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
     //ostringstream oss; oss<<__FUNC__<<groupSort->ControlCount<<" controls"<<endl; debugLog(oss.str().c_str());
     Chunk< SampleRow > * chunk = currentChunk();
     bool changed = false;
-    //for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box // controls are in creation order, ie. buttons first from design, and last added combo is last
-    for (int i=0; i<groupSort->ControlCount; i++) { // not in reverse order any more
+    for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box // controls are in creation order, ie. buttons first from design, and last added combo is last
+    //for (int i=0; i<groupSort->ControlCount; i++) { // not in reverse order any more
         TControl * control = groupSort->Controls[i];
         TComboBox * combo = dynamic_cast<TComboBox *>(control);
         if (combo != NULL) {
@@ -617,6 +614,10 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             loadingMessage = oss.str().c_str();
             Synchronize((TThreadMethod)&updateStatus);
         }
+
+        //srand(time(NULL));
+        //randomStatus ? (rand() % range + base
+
         SampleRow * row = new SampleRow(
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
@@ -671,6 +672,4 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     addChunk(0); // default chunk
     showChunks();
 }
-
-
 

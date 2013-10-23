@@ -68,8 +68,7 @@ __fastcall TfrmStoremain::TfrmStoremain(TComponent* Owner)
 void __fastcall TfrmStoremain::FormShow(TObject *Sender)
 {
 	updateStatus = STOPPED;
-    //if (!RETRASSTDEBUG)
-    timer -> Enabled = true;
+	timer -> Enabled = true;
 }
 
 //---------------------------------------------------------------------------

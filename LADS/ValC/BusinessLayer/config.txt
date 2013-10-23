@@ -1,3 +1,29 @@
+
+LoadRules:
+    select con.external_full , qr.script   
+    from                                   
+    c_object_name con, qc_rule qr          
+    where con.object_cid = qr.rule_cid     
+    and qr.status = 1                      
+
+LoadRuleConfig:
+    select test_cid, machine_cid, con.external_full   
+    from c_object_name con, qc_rule_config qrc        
+    where con.object_cid = qrc.rule_cid               
+    and qrc.status = 1                                
+
+InitialisationTimeoutSecs:
+5
+
+RuleEngineErrorCode:
+999
+
+QCRuleConfigConnectionString:
+dsn=paulst_brat_64;db=paulst_test2
+
+QCRuleConfigConnectionSessionReadLockSetting:
+set lockmode session where readlock = nolock
+
 ConnectionFactoryType:
 ADO
 

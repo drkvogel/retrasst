@@ -21,39 +21,47 @@ void MockConnection::close()
 
 paulstdb::Cursor* MockConnection::executeQuery( const std::string& sql )
 {
-    std::string str;
+    SerializedRecordset sr;
 
     if ( paulst::ifind( "c_project", sql ) )
     {
-        str = MockConnectionFactory::projects;
+        sr = MockConnectionFactory::projects;
     }
     else if ( paulst::ifind( "c_cluster_machine", sql ) )
     {
-        str = MockConnectionFactory::clusters;
+        sr = MockConnectionFactory::clusters;
     }
     else if ( paulst::ifind( "LoadWorklistEntries", sql ) )// Assuming MockConfig
     {
-        str = MockConnectionFactory::worklist;
+        sr = MockConnectionFactory::worklist;
     }
     else if ( paulst::ifind( "LoadBuddyDatabase", sql ) )// Assuming MockConfig
     {
-        str = MockConnectionFactory::buddyDB;
+        sr = MockConnectionFactory::buddyDB;
     }
     else if ( paulst::ifind( "LoadNonLocalResults", sql ) )// Assuming MockConfig
     {
-        str = MockConnectionFactory::nonLocalResults;
+        sr = MockConnectionFactory::nonLocalResults;
     }
     else if ( paulst::ifind( "c_test", sql ) )
     {
         // query for test names
-        str = MockConnectionFactory::testNames;
+        sr = MockConnectionFactory::testNames;
     }
     else if ( paulst::ifind( "sample_run_id.nextval", sql ) )
     {
-        str = "1,\n";
+        sr = "1,\n";
+    }
+    else if ( paulst::ifind( "LoadRules", sql ) )
+    {
+        sr = MockConnectionFactory::rules;
+    }
+    else if ( paulst::ifind( "LoadRuleConfig", sql ) )
+    {
+        sr = MockConnectionFactory::ruleConfig;
     }
 
-    return new paulstdb::StringBackedCursor( str );
+    return new paulstdb::StringBackedCursor( sr.data, sr.fieldParsingStrategy );
 }
 
 void MockConnection::executeStmt ( const std::string& sql )

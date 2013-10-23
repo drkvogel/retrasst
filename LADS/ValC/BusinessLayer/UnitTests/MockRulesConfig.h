@@ -30,6 +30,12 @@ public:
         require( i != m_ruleNames.end() );
         return i->second;
     }
+
+    bool isConfigured( const valc::UncontrolledResult& r )
+    {
+		const std::string key = paulst::format( "%d %d", r.testID, r.machineID );
+        return m_ruleNames.count( key );
+    }
 };
 
 

@@ -116,7 +116,7 @@ object frmSamples: TfrmSamples
       Align = alClient
       DefaultDrawing = False
       FixedCols = 0
-      Options = [goFixedVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goRowSelect, goThumbTracking, goFixedRowClick]
+      Options = [goFixedVertLine, goHorzLine, goColSizing, goEditing, goRowSelect, goThumbTracking, goFixedRowClick]
       TabOrder = 1
       OnClick = sgChunksClick
       OnDrawCell = sgChunksDrawCell
@@ -133,7 +133,6 @@ object frmSamples: TfrmSamples
     Align = alClient
     Caption = 'Vials in chunk'
     TabOrder = 1
-    ExplicitHeight = 208
     object sgVials: TStringGrid
       Left = 2
       Top = 15
@@ -142,13 +141,12 @@ object frmSamples: TfrmSamples
       Align = alClient
       DefaultDrawing = False
       FixedCols = 0
-      Options = [goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect, goFixedRowClick]
+      Options = [goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect, goFixedRowClick]
       TabOrder = 0
       OnClick = sgVialsClick
       OnDblClick = sgVialsDblClick
       OnDrawCell = sgVialsDrawCell
       OnFixedCellClick = sgVialsFixedCellClick
-      ExplicitHeight = 191
     end
     object panelLoading: TPanel
       Left = 176
@@ -210,7 +208,7 @@ object frmSamples: TfrmSamples
         Width = 57
         Height = 24
         Align = alRight
-        Caption = 'Apply'
+        Caption = 'Sort'
         TabOrder = 2
         OnClick = btnApplySortClick
       end
@@ -224,8 +222,6 @@ object frmSamples: TfrmSamples
     Align = alBottom
     TabOrder = 3
     Visible = False
-    ExplicitLeft = -2
-    ExplicitTop = 549
     object Splitter2: TSplitter
       Left = 345
       Top = 1
@@ -250,8 +246,6 @@ object frmSamples: TfrmSamples
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
       TabOrder = 1
-      ExplicitLeft = 351
-      ExplicitTop = 3
     end
   end
   object timerLoadVials: TTimer

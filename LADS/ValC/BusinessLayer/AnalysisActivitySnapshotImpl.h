@@ -17,6 +17,7 @@ class BuddyDatabase;
 class DBUpdateConsumer;
 class DBUpdateSchedule;
 class Projects;
+class ResultAttributes;
 class ResultDirectory;
 class SampleRunIDResolutionService;
 class WorklistDirectory;
@@ -35,7 +36,8 @@ public:
         SampleRunIDResolutionService* sampleRunIDResolutionService,
         ApplicationContext* appContext );
     bool                            compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID )    const;
-    void                            runPendingDatabaseUpdates( DBUpdateExceptionHandlingPolicy* p, bool block );
+    RuleResults                     getRuleResults( int forResultID ) const;
+    bool                            hasRuleResults( int forResultID ) const;
     LocalEntryIterator              localBegin() const;
     LocalEntryIterator              localEnd()   const;
     QueuedSampleIterator            queueBegin() const;
@@ -43,6 +45,7 @@ public:
     std::string                     getTestName( int testID ) const;
     Range<WorklistEntryIterator>    getWorklistEntries( const std::string& sampleDescriptor ) const;
     BuddyDatabaseEntries            listBuddyDatabaseEntriesFor( const std::string& sampleRunID )   const;
+    void                            runPendingDatabaseUpdates( DBUpdateExceptionHandlingPolicy* p, bool block );
 private:
     typedef boost::scoped_ptr<const Projects>               ProjectsPtr;
     typedef boost::scoped_ptr<const BuddyDatabase>          BuddyDatabasePtr;
@@ -65,6 +68,7 @@ private:
     QueuedSamples                   m_queuedSamples;
     paulst::LoggingService*         m_log;
     SampleRunIDResolutionServicePtr m_sampleRunIDResolutionService;
+    ResultAttributes*               m_resultAttributes;
 };
 
 };

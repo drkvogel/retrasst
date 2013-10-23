@@ -29,7 +29,6 @@ __fastcall TfrmSMLogin::TfrmSMLogin(TComponent* Owner) : TfrmLoginBase(Owner)
 
 void TfrmSMLogin::runProgram( const std::string & title )
 {
-    //frmLoginBase->rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM; 	// db v2.7.3 - OK
 	frmStoremain -> Caption = title.c_str();
 	frmStoremain -> ShowModal();
 }
