@@ -530,8 +530,8 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
     //ostringstream oss; oss<<__FUNC__<<groupSort->ControlCount<<" controls"<<endl; debugLog(oss.str().c_str());
     Chunk< SampleRow > * chunk = currentChunk();
     bool changed = false;
-    //for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box // controls are in creation order, ie. buttons first from design, and last added combo is last
-    for (int i=0; i<groupSort->ControlCount; i++) { // not in reverse order any more
+    for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box // controls are in creation order, ie. buttons first from design, and last added combo is last
+    //for (int i=0; i<groupSort->ControlCount; i++) { // not in reverse order any more
         TControl * control = groupSort->Controls[i];
         TComboBox * combo = dynamic_cast<TComboBox *>(control);
         if (combo != NULL) {
@@ -614,6 +614,10 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             loadingMessage = oss.str().c_str();
             Synchronize((TThreadMethod)&updateStatus);
         }
+
+        //srand(time(NULL));
+        //randomStatus ? (rand() % range + base
+
         SampleRow * row = new SampleRow(
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
@@ -668,6 +672,4 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     addChunk(0); // default chunk
     showChunks();
 }
-
-
 

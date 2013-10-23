@@ -41,3 +41,6 @@ either:
 
  * what happens if you double click in a chunk in the middle of other chunks?
  * which way round should the sorters be done?
+    prevent it
+    
+    white october mail?
