@@ -213,7 +213,8 @@ public:
     vector< Col >       cols;
     ~StringGridWrapper() { /* delete cols */ }
 
-    StringGridWrapper(TStringGrid * g, vector<T *> * v) : sg(g), rows(v), initialised(false) {}
+	StringGridWrapper(TStringGrid * g, vector<T *> * v) : sg(g), rows(v), initialised(false) {}
+
     void init() {
         sg->ColCount = cols.size(); // was setupStringGrid
         for (int i=0; i<cols.size(); i++) {
@@ -221,61 +222,73 @@ public:
             sg->ColWidths[i]    = cols[i].width;
         }
         initialised = true;
-    }
-    void addCol(Col c) {
-        if (initialised) throw "Already initialised";
-        mapColNameToInt[c.name] = cols.size();
-        cols.push_back(c);
-    }
-    void addCol(string n, string t, int w, bool (*f)(const T *, const T *)=NULL, string d="") {
-        addCol(StringGridWrapper< T >::Col(n, t, w, f, d));
-    }
+	}
+
+	void addCol(Col c) {
+		if (initialised) throw "Already initialised";
+		mapColNameToInt[c.name] = cols.size();
+		cols.push_back(c);
+	}
+
+	void addCol(string n, string t, int w, bool (*f)(const T *, const T *)=NULL, string d="") {
+		addCol(StringGridWrapper< T >::Col(n, t, w, f, d));
+	}
+
     int colNameToInt(string colName) {
         if (mapColNameToInt.find(colName) == mapColNameToInt.end()) throw "column name not found";
         return mapColNameToInt[colName];
-    }
-    int colCount() { return cols.size(); }
-    int rowCount() { return rows->size(); }
-    string printColWidths() {
-        ostringstream oss; oss << sg->Name.c_str() << ": {";
-        for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; }
-        oss << "};"; return oss.str();
-    }
-    void clearSelection() {
-        TGridRect myRect;
-        myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
-        sg->Selection = myRect;
-    }
-    void clear() {
-        clearSelection();
-        sg->FixedRows = 0; sg->RowCount = 0; sg->RowCount = 2; sg->FixedRows = 1;
-        for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
-        sg->Cells[0][1] = "No results.";
-    }
-    void sort_asc(int col, int start, int end) {
-        //sort(rows->begin()+start+1, rows->begin()+end+1, cols[col].sort_func_asc); // should use stable_sort?
-        stable_sort(rows->begin()+start, rows->begin()+end+1, cols[col].sort_func_asc); // should use stable_sort?
-    }
-    void sort_dsc(int col, int start, int end) {
-        //sort(rows->rbegin()+start+1, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
-        stable_sort(rows->rbegin()+start, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
-    }
-    void sort_asc(string colName, int start, int end) {
-        sort_asc(colNameToInt(colName), start, end);
-    }
+	}
+
+	int colCount() { return cols.size(); }
+
+	int rowCount() { return rows->size(); }
+
+	string printColWidths() {
+		ostringstream oss; oss << sg->Name.c_str() << ": {"; for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; } oss << "};"; return oss.str();
+	}
+
+	void clearSelection() {
+		TGridRect myRect;
+		myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
+		sg->Selection = myRect;
+	}
+
+	void clear() {
+		clearSelection();
+		sg->FixedRows = 0; sg->RowCount = 0; sg->RowCount = 2; sg->FixedRows = 1;
+		for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
+		sg->Cells[0][1] = "No results.";
+	}
+
+	void sort_asc(int col, int start, int end) {
+		//sort(rows->begin()+start+1, rows->begin()+end+1, cols[col].sort_func_asc); // should use stable_sort?
+		stable_sort(rows->begin()+start, rows->begin()+end+1, cols[col].sort_func_asc); // should use stable_sort?
+	}
+
+	void sort_dsc(int col, int start, int end) {
+		//sort(rows->rbegin()+start+1, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
+		stable_sort(rows->rbegin()+start, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
+	}
+
+	void sort_asc(string colName, int start, int end) {
+		sort_asc(colNameToInt(colName), start, end);
+	}
+
 //    void sort_dsc(string colName, int start, int end) {
 //        sort_dsc(colNameToInt(colName), start, end);
 //    }
-    void sort_toggle(int col, int start, int end) {
+
+	void sort_toggle(int col, int start, int end) {
 //        sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
 //        sgw->cols[col].sortAsc = !sgw->cols[col].sortAsc; // toggle
-        wstringstream oss; oss << __FUNC__; oss<<"sorting "<<rows->size()<<" rows: start:"<<start<<", end: "<<end; //debugLog(oss.str().c_str());
-        //OutputDebugString(L"I am here");
-        //OutputDebugString(oss.str().c_str());
-        frmSamples->debugLog(oss.str().c_str());
-        cols[col].sortAsc ? sort_asc(col, start, end) : sort_dsc(col, start, end);
-        cols[col].sortAsc = !cols[col].sortAsc;
-    }
+		wstringstream oss; oss << __FUNC__; oss<<"sorting "<<rows->size()<<" rows: start:"<<start<<", end: "<<end; //debugLog(oss.str().c_str());
+		//OutputDebugString(L"I am here");
+		//OutputDebugString(oss.str().c_str());
+		frmSamples->debugLog(oss.str().c_str());
+		cols[col].sortAsc ? sort_asc(col, start, end) : sort_dsc(col, start, end);
+		cols[col].sortAsc = !cols[col].sortAsc;
+	}
+
 //    void sort_toggle(string colName, int start, int end) {
 //        sort_toggle(colNameToInt(colName), start, end);
 //    }
@@ -283,11 +296,11 @@ public:
 
 template < class T >
 class Chunk { // not recorded in database
-    StringGridWrapper< T > * sgw;
-    int                 section;
-    int                 start;          // 1-indexed
-    string              startVial;
-    string              startBox;
+	StringGridWrapper< T > * sgw;
+	int                 section;
+	int                 start;          // 1-indexed
+	string              startVial;
+	string              startBox;
     int                 end;
     string              endVial;
     string              endBox;
@@ -312,8 +325,9 @@ public:
     void    setEnd(int e) { if (e > sgw->rowCount()-1) throw "invalid chunk end value"; end = e; }
     void    setEndBox(string s) { endBox = s; }
     void    setEndVial(string v) { endVial = v; }
-    T *     rowAt(int pos) {
-        //wstringstream oss; oss<<__FUNC__<<"start: "<<start<<", pos: "<<pos; OutputDebugString(oss.str().c_str());
+
+	T *     rowAt(int pos) {
+		//wstringstream oss; oss<<__FUNC__<<"start: "<<start<<", pos: "<<pos; OutputDebugString(oss.str().c_str());
         return sgw->rows->at((start)+(pos));
     }
 
