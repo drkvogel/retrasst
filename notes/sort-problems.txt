@@ -8,6 +8,8 @@
     
     rows->rend()-end+1, rows->rend()-start // 2 off bottom
     
+    stable_sort(rows->rend()-end-1, rows->rend()-start, cols[col].sort_func_asc); // correct
+    
  * partial sort of last chunk - solved? rows->rbegin(), rows->rbegin()+end-start+1
     * if only one chunk asc/dsc sort works correctly (sorts all rows)
     * two chunks: one of 3 vials and one of rest:
@@ -23,9 +25,9 @@
        
  * Is it calling SGW::sort_dsc? yes    start: 0, end: 2
  * sort arguments correct?
- * rowAt
+ * rowAt?
  * Chunk::, SGW:: debugLog
- * sgDebug is not using rowAt - should be real contents of vector?
+ * sgDebug is not using rowAt - should be real contents of vector? -no
 
 either: 
  * find out how to use reverse_iterator properly- 

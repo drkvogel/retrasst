@@ -410,7 +410,7 @@ private:
     LCDbCryoJobs            jobs;
     StringGridWrapper<LCDbCryoJob> *  sgwJobs;
     void                    loadJobs();
-    void                    showJobs();
+    //void                    showJobs();
     string             getExerciseDescription(int exercise_cid);
     string             getProjectDescription(int project_cid);
     string             getAliquotDescription(int primary_aliquot);
