@@ -23,6 +23,8 @@ object frmAutoChunk: TfrmAutoChunk
     Align = alClient
     Caption = 'Auto chunk'
     TabOrder = 0
+    ExplicitLeft = -8
+    ExplicitTop = -8
     object Label1: TLabel
       Left = 32
       Top = 83

@@ -175,6 +175,9 @@ SnapshotPtr Load( UserAdvisor* userAdvisor )
 
 	wait( hArray, 3, &threadExceptionMsgs );
 
+    // Clear previously obtained RuleResults
+    applicationContext->resultAttributes->clearRuleResults();
+
 	// Task for loading LOCAL analysis activity and LOCAL results
 	ThreadTask<LoadBuddyDatabase> loadBuddyDatabaseTask(
 		new LoadBuddyDatabase( localMachineID, con, log, resultIndex, projects, &buddyDatabase, dbUpdateSchedule, 

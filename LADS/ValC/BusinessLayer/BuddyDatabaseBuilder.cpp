@@ -121,7 +121,7 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
         m_inclusionRule.init();
         m_inclusionRule.addParam( barcode );
         m_inclusionRule.addParam( databaseName );
-        m_inclusionRule.addParam( hasResult ? std::string(1, resActionFlag) : std::string("NO_RESULT") );
+        m_inclusionRule.addParam( std::string(1, resActionFlag) );
         m_inclusionRule.addParam( std::string( 1, srFAOLevelOne ) );
         
         m_inclusionRule.run();
@@ -197,14 +197,11 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
             r.barcode = barcode;
             r.projectID = projectID;
             r.dateAnalysed = resDateAnalysed;
+            r.actionFlag = resActionFlag;
 
             if ( m_ruleEngine->queue( r ) )
             {
                 m_log->logFormatted( "Queued result \%d with Rule Engine.", r.resultID );
-            }
-            else
-            {
-                m_log->logFormatted( "Result \%d not queued with Rule Engine.", r.resultID );
             }
         }
     }

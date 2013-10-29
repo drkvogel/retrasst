@@ -316,10 +316,11 @@ struct RuleResult
 class RuleResults
 {
 public:
-    static const int RESULT_CODE_FAIL       = 0;
-    static const int RESULT_CODE_PASS       = 1;
-    static const int RESULT_CODE_BORDERLINE = 2;
-    static const int RESULT_CODE_ERROR      = 3;
+    static const int RESULT_CODE_FAIL               = 0;
+    static const int RESULT_CODE_PASS               = 1;
+    static const int RESULT_CODE_BORDERLINE         = 2;
+    static const int RESULT_CODE_ERROR              = 3;
+    static const int RESULT_CODE_NO_RULES_APPLIED   = 4;
 
     typedef std::vector<RuleResult> RuleResultCollection;
     typedef RuleResultCollection::const_iterator const_iterator;

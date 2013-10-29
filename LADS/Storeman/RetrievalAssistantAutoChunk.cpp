@@ -53,7 +53,7 @@ void TfrmAutoChunk::calcSizes() {
 slot/box (where c_box_size.box_size_cid = box_content.box_size_cid) (where does box_content come from?)
 As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box */
     comboSectionSize->Clear();
-    int possibleChunkSize = box_size * 2; // smallest chunk
+    int possibleChunkSize = box_size; // * 2; // smallest chunk
     while (possibleChunkSize <= editMaxSize->Text.ToIntDef(0)) {
         comboSectionSize->Items->Add(String(possibleChunkSize));
         possibleChunkSize += box_size;
@@ -68,6 +68,7 @@ void __fastcall TfrmAutoChunk::btnAddChunkClick(TObject *Sender) {
     } else {
         msgbox("Chosen chunk size is too big for current list");
     }
+    //this->Focused = true;
 }
 
 void __fastcall TfrmAutoChunk::btnAddAllChunksClick(TObject *Sender) {
@@ -78,6 +79,7 @@ void __fastcall TfrmAutoChunk::btnAddAllChunksClick(TObject *Sender) {
     int numChunks = ceil(result);
     //int numChunks = ceil(frmSamples->vials.size() / selectedChunkSize);
     for (int i=0; i < numChunks; i++) {
+        frmSamples->showChunks();
         if (!frmSamples->addChunk(selectedChunkSize))
             break;
     }

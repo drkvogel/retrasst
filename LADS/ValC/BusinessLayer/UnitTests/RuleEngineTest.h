@@ -13,9 +13,9 @@
 #include <map>
 #include "MockRuleEngineConnectionFactory.h"
 #include "MockRuleLoader.h"
-#include "MockRulesConfig.h"
 #include "NoLogging.h"
 #include "RuleEngine.h"
+#include "RulesConfigUsingMap.h"
 #include <set>
 #include "StrUtil.h"
 #include <SysUtils.hpp>
@@ -67,7 +67,7 @@ namespace tut
     public:
 
         MockRuleLoader ruleLoader;
-        MockRulesConfig rulesConfig;
+        valc::RulesConfigUsingMap rulesConfig;
         MockRuleEngineConnectionFactory connectionFactory;
         valc::RuleEngine ruleEngine;
         std::vector< int > resultSequence;
@@ -136,6 +136,7 @@ namespace tut
                 "   assert( qc.projectID  == 4 )            \n"
                 "   assert( qc.resultText == 'dog' )        \n"
                 "   assert( qc.barcode    == 'chicken' )    \n"
+                "   assert( qc.actionFlag == '?' )          \n"
                 "   assert( qc.dateAnalysed.year  == 1998 ) \n"
                 "   assert( qc.dateAnalysed.month == 10 )   \n"
                 "   assert( qc.dateAnalysed.day   == 30 )   \n"
@@ -153,7 +154,7 @@ namespace tut
 
 		RuleEngineTestFixture testFixture;
         testFixture.ruleLoader.addRule( "myRule", ruleScript );
-        testFixture.rulesConfig.addMapping( 2, 8, "myRule" );
+        testFixture.rulesConfig.specify( "myRule", 2, 8, 4 );
 
         UncontrolledResult result;
         result.testID = 2;
@@ -244,7 +245,7 @@ namespace tut
 		    RuleEngineTestFixture testFixture;
 			testFixture.setConnectionCounter(&connectionsOpened, &connectionsClosed);
 			testFixture.ruleLoader.addRule( "myRule", ruleScript );
-            testFixture.rulesConfig.addMapping( 2, 8, "myRule" );
+            testFixture.rulesConfig.specify( "myRule", 2, 8, 4 );
 
             try
             {
@@ -316,7 +317,7 @@ namespace tut
 
 		RuleEngineTestFixture testFixture;
         testFixture.ruleLoader.addRule( "myRule", ruleScript );
-        testFixture.rulesConfig.addMapping( 2, 8, "myRule" );
+        testFixture.rulesConfig.specify( "myRule", 2, 8, 4 );
         testFixture.ruleEngine.setErrorResultCode( ERROR_CODE );
 
         UncontrolledResult result;
@@ -431,7 +432,7 @@ namespace tut
 		RuleEngineTestFixture testFixture;
         testFixture.ruleLoader.addRule( "configRule", configRuleScript );
         testFixture.ruleLoader.addRule( "someRule"  , someRule );
-        testFixture.rulesConfig.addMapping( 2, 8, "configRule" );
+        testFixture.rulesConfig.specify( "configRule", 2, 8, 4 );
 
         UncontrolledResult result;
         result.testID = 2;
@@ -503,7 +504,7 @@ namespace tut
             const std::string configName = paulst::format( "configRuleForTest%d", testID );
             char config[1024];
             ensure( std::sprintf( config, configScriptTemplate, testID, testID, configName.c_str(), testID ) );
-            testFixture.rulesConfig.addMapping( testID, 8/*machineID*/, configName );
+            testFixture.rulesConfig.specify( configName, testID, 8/*machineID*/, 4/*projectID*/ );
             testFixture.ruleLoader.addRule( configName, config );
         }
 
@@ -586,7 +587,7 @@ namespace tut
             " return { resultCode = 72, rule = 'my rule', msg = 'Jim' } "} ;
 
         testFixture.ruleLoader.addRule( "configRule", configScript );
-        testFixture.rulesConfig.addMapping( 2, 8, "configRule" );
+        testFixture.rulesConfig.specify( "configRule", 2, 8, 4 );
 
         for ( int i = 0; i < 2; ++i )
         {
@@ -686,7 +687,7 @@ namespace tut
         testFixture.ruleLoader.addRule( "b", rule );
         testFixture.ruleLoader.addRule( "c", rule );
         testFixture.ruleLoader.addRule( "d", rule );
-        testFixture.rulesConfig.addMapping( 2, 8, "configRule" );
+        testFixture.rulesConfig.specify( "configRule", 2, 8, 4 );
         
         try
         {

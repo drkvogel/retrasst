@@ -58,11 +58,6 @@ bool RuleEngineContainer::queue( const UncontrolledResult& r )
 
     do
     {
-        if ( m_resultAttributes->hasRuleResults( r.resultID ) )
-        {
-            break;
-        }
-
         if ( ! m_rulesConfig.isConfigured( r ) )
         {
             break;

@@ -60,14 +60,15 @@ private:
 
 struct UncontrolledResult
 {
-    int         testID;
-    int         resultID;
-    int         machineID;
-    double      resultValue;
-    std::string resultText;
-    std::string barcode;
-    int         projectID;
-    TDateTime   dateAnalysed;
+    int         testID;             /* default: 0 */
+    int         resultID;           /* default: 0 */
+    int         machineID;          /* default: 0 */
+    double      resultValue;        /* default: 0 */
+    std::string resultText;         /* default: '' */
+    std::string barcode;            /* default: '' */
+    int         projectID;          /* default: 0 */
+    TDateTime   dateAnalysed;       /* default: 1977 */
+    char        actionFlag;         /* default: '?' */
 
     UncontrolledResult();
 };
@@ -116,7 +117,7 @@ public:
         Implementations of this method are invoked one-at-a-time,
         i.e. in series, not in parallel.
     */
-    virtual std::string getRuleNameFor( int test, int machine ) = 0;
+    virtual std::string getRuleNameFor( int test, int machine, int project ) = 0;
     virtual bool        isConfigured( const UncontrolledResult& r ) = 0;
 private:
     RulesConfig( const RulesConfig& );
@@ -129,7 +130,7 @@ public:
     RulesCache();
     ~RulesCache();
     void  clear();
-    Rules* getRulesFor      ( int test, int machine );
+    Rules* getRulesFor      ( int test, int machine, int project );
     void setConnectionCache ( ConnectionCache* cc );
     void setLog             ( paulst::LoggingService* l );
     void setRulesConfig     ( RulesConfig* c );
@@ -195,7 +196,7 @@ public:
         ThreadTaskContext( RuleEngine* qcre );
         UncontrolledResult  nextQueuedResult();
         int                 getErrorResultCode() const;
-        Rules*              getRulesFor( int test, int machine );
+        Rules*              getRulesFor( int test, int machine, int project );
         void                publishResults( const RuleResults& r, int forResult );
         void                reportException( const Exception& e );
         void                reportUnspecifiedException();
@@ -218,7 +219,7 @@ private:
 
     RuleEngine( const RuleEngine& );
     RuleEngine& operator=( const RuleEngine& );
-    Rules*              getRulesFor( int test, int machine );
+    Rules*              getRulesFor( int test, int machine, int project );
     UncontrolledResult  nextQueuedResult();
     void                publishResults( const RuleResults& r, int forResult );
     void                reportException( const Exception& e );

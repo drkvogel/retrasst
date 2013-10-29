@@ -31,6 +31,8 @@ const bool RETRASSTDEBUG =
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
 #define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
 
+#define DEFAULT_BOX_SIZE 100
+
 void msgbox(char * main, char * title="Info") {
     Application->MessageBoxW(String(main).w_str(), String(title).w_str(), MB_OK);
 }

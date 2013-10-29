@@ -7,7 +7,7 @@
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.ComCtrls.hpp>
 
-#define DEFAULT_BOX_SIZE 100
+//#define DEFAULT_BOX_SIZE 100
 
 class TfrmAutoChunk : public TForm
 {

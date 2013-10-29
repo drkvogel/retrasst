@@ -40,7 +40,7 @@ void runTask( PTP_CALLBACK_INSTANCE instance, void* context, PTP_WORK work )
 
     try
     {
-        Rules* rules = c->getRulesFor( uncontrolledResult.testID, uncontrolledResult.machineID );
+        Rules* rules = c->getRulesFor( uncontrolledResult.testID, uncontrolledResult.machineID, uncontrolledResult.projectID );
         results  = rules->applyTo( uncontrolledResult );
     }
     catch( const Exception& e )
@@ -81,7 +81,8 @@ UncontrolledResult::UncontrolledResult()
     machineID(0),
     resultValue(0),
     projectID(0),
-    dateAnalysed(1977, 1, 1, 1, 1, 1, 1)
+    dateAnalysed(1977, 1, 1, 1, 1, 1, 1),
+    actionFlag('?')
 {
 }
 
@@ -226,6 +227,10 @@ Rules::~Rules()
 
 void lua_pushUncontrolledResult( lua_State* L, const UncontrolledResult& r )
 {
+    char actionFlag[2];
+    actionFlag[0] = r.actionFlag;
+    actionFlag[1] = '\0';
+
     lua_newtable( L );
     lua_pushinteger( L,    r.testID  );
     lua_setfield   ( L, -2, "testID" );
@@ -241,6 +246,8 @@ void lua_pushUncontrolledResult( lua_State* L, const UncontrolledResult& r )
     lua_setfield   ( L, -2, "resultText" );
     lua_pushstring ( L,    r.barcode.c_str() );
     lua_setfield   ( L, -2, "barcode" );
+    lua_pushstring ( L,    actionFlag );
+    lua_setfield   ( L, -2, "actionFlag" );
     
     unsigned short year, month, day, hour, min, sec, msec;
 
@@ -393,14 +400,14 @@ void RulesCache::clear()
     }
 }
 
-Rules* RulesCache::getRulesFor( int test, int machine )
+Rules* RulesCache::getRulesFor( int test, int machine, int project )
 {
     paulst::AcquireCriticalSection a(m_critSec);
     
     {
         Rules* rules = 0;
 
-        std::string ruleName = m_rulesConfig->getRuleNameFor( test, machine );
+        std::string ruleName = m_rulesConfig->getRuleNameFor( test, machine, project );
 
         Cache::const_iterator i = m_cache.find( ruleName );
 
@@ -524,9 +531,9 @@ int RuleEngine::getErrorResultCode() const
     return m_errorResultCode;
 }
 
-Rules* RuleEngine::getRulesFor( int test, int machine )
+Rules* RuleEngine::getRulesFor( int test, int machine, int project )
 {
-    return m_rulesCache.getRulesFor( test, machine );
+    return m_rulesCache.getRulesFor( test, machine, project );
 }
 
 UncontrolledResult RuleEngine::nextQueuedResult()
@@ -612,9 +619,9 @@ UncontrolledResult RuleEngine::ThreadTaskContext::nextQueuedResult()
     return m_ruleEngine->nextQueuedResult();
 }
 
-Rules* RuleEngine::ThreadTaskContext::getRulesFor( int test, int machine )
+Rules* RuleEngine::ThreadTaskContext::getRulesFor( int test, int machine, int project )
 {
-    return m_ruleEngine->getRulesFor( test, machine );
+    return m_ruleEngine->getRulesFor( test, machine, project );
 }
 
 void RuleEngine::ThreadTaskContext::publishResults( const RuleResults& r, int forResult )
