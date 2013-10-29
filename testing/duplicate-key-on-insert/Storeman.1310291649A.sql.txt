@@ -1,0 +1,115 @@
+<query database="t_ldbc" when="2013-10-29t16:49:42">INSERT into c_audit_trail (message_date, process_cid, operator_cid, message_type, machine_cid, database_name, program_name, details) values (&apos;now&apos;, :pID, :oID, :mType, :mID, :udbn, :uPName, :uMessage)
+<param name="pID">2877</param>
+<param name="oID">0</param>
+<param name="mType">1</param>
+<param name="mID">-1108607</param>
+<param name="udbn">t_ldbc</param>
+<param name="uPName">Storage Management v1.2.10.7</param>
+<param name="uMessage">** Program started **</param>
+<records when="2013-10-29t16:49:42">1</records>
+</query>
+<query database="t_ldbc" when="2013-10-29t16:49:43">INSERT into c_audit_trail (message_date, process_cid, operator_cid, message_type, machine_cid, database_name, program_name, details) values (&apos;now&apos;, :pID, :oID, :mType, :mID, :udbn, :uPName, :uMessage)
+<param name="pID">2878</param>
+<param name="oID">-31438</param>
+<param name="mType">3</param>
+<param name="mID">-1108607</param>
+<param name="udbn">t_ldbc</param>
+<param name="uPName">Storage Management v1.2.10.7</param>
+<param name="uMessage">** Operator logging in **</param>
+<records when="2013-10-29t16:49:43">1</records>
+</query>
+<query database="test_ldbc" when="2013-10-29t16:50:17">INSERT into c_audit_trail (message_date, process_cid, operator_cid, message_type, machine_cid, database_name, program_name, details) values (&apos;now&apos;, :pID, :oID, :mType, :mID, :udbn, :uPName, :uMessage)
+<param name="pID">1623</param>
+<param name="oID">0</param>
+<param name="mType">1</param>
+<param name="mID">-1108607</param>
+<param name="udbn">test_ldbc</param>
+<param name="uPName">Storage Management v1.2.10.7</param>
+<param name="uMessage">** Program started **</param>
+<records when="2013-10-29t16:50:17">1</records>
+</query>
+<query database="test_ldbc" when="2013-10-29t16:50:18">INSERT into c_audit_trail (message_date, process_cid, operator_cid, message_type, machine_cid, database_name, program_name, details) values (&apos;now&apos;, :pID, :oID, :mType, :mID, :udbn, :uPName, :uMessage)
+<param name="pID">1624</param>
+<param name="oID">-31438</param>
+<param name="mType">3</param>
+<param name="mID">-1108607</param>
+<param name="udbn">test_ldbc</param>
+<param name="uPName">Storage Management v1.2.10.7</param>
+<param name="uMessage">** Operator logging in **</param>
+<records when="2013-10-29t16:50:18">1</records>
+</query>
+<query database="test_ldbc" when="2013-10-29t16:50:57">INSERT into c_audit_trail (message_date, process_cid, operator_cid, message_type, machine_cid, database_name, program_name, details) values (&apos;now&apos;, :pID, :oID, :mType, :mID, :udbn, :uPName, :uMessage)
+<param name="pID">1624</param>
+<param name="oID">-31438</param>
+<param name="mType">6</param>
+<param name="mID">-1108607</param>
+<param name="udbn">test_ldb19</param>
+<param name="uPName">Storage Management v1.2.10.7</param>
+<param name="uMessage">null chunk</param>
+<records when="2013-10-29t16:50:57">1</records>
+</query>
+<query database="test_ldbc" when="2013-10-29t16:52:34">INSERT into c_audit_trail (message_date, process_cid, operator_cid, message_type, machine_cid, database_name, program_name, details) values (&apos;now&apos;, :pID, :oID, :mType, :mID, :udbn, :uPName, :uMessage)
+<param name="pID">1625</param>
+<param name="oID">-31438</param>
+<param name="mType">3</param>
+<param name="mID">-1108607</param>
+<param name="udbn">test_ldb20</param>
+<param name="uPName">Storage Management v1.2.10.7</param>
+<param name="uMessage">** Program started **</param>
+<records when="2013-10-29t16:52:34">1</records>
+</query>
+<query database="test_ldbc" when="2013-10-29t16:52:52">INSERT INTO c_box_retrieval (rj_box_cid, retrieval_cid, box_id, project_cid, section, status) VALUES (:rjbid, :rtid, :bxid, :prid, :sect, :stat)
+<param name="rjbid">1626</param>
+<param name="rtid">-1015</param>
+<param name="bxid">301735</param>
+<param name="prid">-149813</param>
+<param name="sect">1</param>
+<param name="stat">5</param>
+<records when="2013-10-29t16:52:53">1</records>
+</query>
+<query database="test_ldbc" when="2013-10-29t16:52:53">INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status) VALUES (:rjid, :pos, :barc, :aliq, :slot, :pid, &apos;now&apos;, :st)
+<param name="rjid">1626</param>
+<param name="pos">89</param>
+<param name="barc">112000226</param>
+<param name="aliq">-31782</param>
+<param name="slot">4</param>
+<param name="pid">1625</param>
+<param name="st">0</param>
+<records when="2013-10-29t16:52:53">1</records>
+</query>
+<query database="test_ldbc" when="2013-10-29t16:52:53">INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status) VALUES (:rjid, :pos, :barc, :aliq, :slot, :pid, &apos;now&apos;, :st)
+<param name="rjid">1626</param>
+<param name="pos">83</param>
+<param name="barc">112000234</param>
+<param name="aliq">-31782</param>
+<param name="slot">4</param>
+<param name="pid">1625</param>
+<param name="st">0</param>
+<records when="2013-10-29t16:52:53">1</records>
+</query>
+<query database="test_ldbc" when="2013-10-29t16:52:54">INSERT INTO c_box_retrieval (rj_box_cid, retrieval_cid, box_id, project_cid, section, status) VALUES (:rjbid, :rtid, :bxid, :prid, :sect, :stat)
+<param name="rjbid">1627</param>
+<param name="rtid">-1015</param>
+<param name="bxid">304797</param>
+<param name="prid">-149813</param>
+<param name="sect">1</param>
+<param name="stat">5</param>
+<error when="2013-10-29t16:52:54">XDB error: IIAPI_ST_ERRORInfo: ERROR &apos;23501&apos; 4500: Duplicate key on INSERT detected.
+ svr_id_error     = 34361345
+ svr_local error  = 4500
+ svr_id_server    = 2810
+ svr_server_type  = 0
+ svr_severity     = IIAPI_SVR_DEFAULT ( 0x0 )
+	: &apos;Tue Oct 29 16:52:54 2013 E_US1194_4500	Duplicate key on INSERT detected.&apos;</error>
+</query>
+<query database="test_ldbc" when="2013-10-29t16:52:59">INSERT into c_audit_trail (message_date, process_cid, operator_cid, message_type, machine_cid, database_name, program_name, details) values (&apos;now&apos;, :pID, :oID, :mType, :mID, :udbn, :uPName, :uMessage)
+<param name="pID">1625</param>
+<param name="oID">-31438</param>
+<param name="mType">6</param>
+<param name="mID">-1108607</param>
+<param name="udbn">test_ldb20</param>
+<param name="uPName">Storage Management v1.2.10.7</param>
+<param name="uMessage">XDB error: IIAPI_ST_ERRORInfo: ERROR &apos;23501&apos; 4500: Duplicate key on INSERT detected.; svr_id_error = 34361345; svr_local error = 4500; svr_id_server = 2810; svr_server_type = 0; svr_severity = IIAPI_SVR_DEFAULT ( 0x0 ); : &apos;Tue Oct 29 16:52:54 2013 E_US1194_4500 Duplicate key on INSERT detected.&apos;</param>
+<error when="2013-10-29t16:52:59">XDB error: IIAPI_ST_FAILUREInfo: ERROR &apos;25000&apos; 13172740: The requested operation cannot be performed with active queries.
+XDB error: IIAPI_ST_FAILUREInfo: ERROR &apos;25000&apos; 13172739: The requested operation cannot be performed with active transactions.</error>
+</query>

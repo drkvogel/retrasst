@@ -1,0 +1,24 @@
+﻿<query database="test_ldbc" when="2013-10-29t16:52:54">INSERT INTO c_box_retrieval (rj_box_cid, retrieval_cid, box_id, project_cid, section, status) VALUES (:rjbid, :rtid, :bxid, :prid, :sect, :stat)
+<param name="rjbid">1627</param>
+<param name="rtid">-1015</param>
+<param name="bxid">304797</param>
+<param name="prid">-149813</param>
+<param name="sect">1</param>
+<param name="stat">5</param>
+<error when="2013-10-29t16:52:54">XDB error: IIAPI_ST_ERRORInfo: ERROR &apos;23501&apos; 4500: Duplicate key on INSERT detected.
+ svr_id_error     = 34361345
+ svr_local error  = 4500
+ svr_id_server    = 2810
+ svr_server_type  = 0
+ svr_severity     = IIAPI_SVR_DEFAULT ( 0x0 )
+	: &apos;Tue Oct 29 16:52:54 2013 E_US1194_4500	Duplicate key on INSERT detected.&apos;</error>
+</query>
+
+INSERT INTO c_box_retrieval
+keyed on rj_box_cid
+
+prid -149813 (test_THRIVE)
+
+insert into c_box_retrieval (rj_box_cid, retrieval_cid, box_id, project_cid, section, status) values (1627, -1015, 304797, -149813, 1, 5) -- fails in vdba
+
+select * from c_box_retrieval where rj_box_cid = 1627 -- returns no rows
