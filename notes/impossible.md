@@ -1,6 +1,9 @@
-﻿
-autochunk: goes over last vial
-chunks: put in db
+﻿autochunk not working
+
+
+
+
+
 vials: select 1st row/scroll to top when new chunk created
 chunks: sizes are wrong - 1 too high? no, size calc is ok (0-indexed should be +1), something else wrong
 chunks: can go over end of vials - check
@@ -45,7 +48,8 @@ Chunk * list? // pointer to *part* of vector...hmmm * wrapper->sort
 */
 
 ### chunk split    
-    
+autochunk: goes over last vial-
+chunks: put in db-
 add chunk-
 make it selected-
 show chunks (ie. show contents of new chunk)-

@@ -449,12 +449,6 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
             //sgDebug->Cells[sgwDebug->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
-//            sgDebug->Cells[sgwDebug->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
-//            sgDebug->Cells[sgwDebug->colNameToInt("vesspos")]  [rw] = sampleRow->vessel_pos;
-//            sgDebug->Cells[sgwDebug->colNameToInt("vessel" )]  [rw] = sampleRow->vessel_name.c_str();
-//            sgDebug->Cells[sgwDebug->colNameToInt("shelf"  )]  [rw] = sampleRow->shelf_number;
-//            sgDebug->Cells[sgwDebug->colNameToInt("structpos")][rw] = sampleRow->structure_pos;
-//            sgDebug->Cells[sgwDebug->colNameToInt("struct" )]  [rw] = sampleRow->structure_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
             sgDebug->Cells[sgwDebug->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
@@ -517,8 +511,6 @@ void TfrmSamples::addSorter() {
 }
 
 void TfrmSamples::removeSorter() {
-    //for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box
-    //for (int i=0; i<groupSort->ControlCount; i++) { // controls are in creation order, ie. buttons first from design, and last added combo is last
     TComponent * component = groupSort->Controls[groupSort->ControlCount-1];
     TComboBox * combo = dynamic_cast<TComboBox *>(component);
     if (combo != NULL) {
@@ -534,8 +526,7 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
     //ostringstream oss; oss<<__FUNC__<<groupSort->ControlCount<<" controls"<<endl; debugLog(oss.str().c_str());
     Chunk< SampleRow > * chunk = currentChunk();
     bool changed = false;
-    for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box // controls are in creation order, ie. buttons first from design, and last added combo is last
-    //for (int i=0; i<groupSort->ControlCount; i++) { // not in reverse order any more
+    for (int i=groupSort->ControlCount-1; i>=0; i--) { // controls are in creation order, ie. buttons first from design, last added combo is last
         TControl * control = groupSort->Controls[i];
         TComboBox * combo = dynamic_cast<TComboBox *>(control);
         if (combo != NULL) {
@@ -668,12 +659,22 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     chunks.clear();
     sgwChunks->clear();
     Application->MessageBox(L"Press 'Auto-Chunk' to automatically create chunks for this list, or double click on a row to manually create chunks", L"Info", MB_OK);
-//    if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {
-//        autoChunk();
-//    } else {
-//        addChunk(0); // default chunk
-//    }
     addChunk(0); // default chunk
     showChunks();
+}
+
+void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
+    ostringstream oss; oss << __FUNC__;
+    if (chunks.size() > 1 && (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO))) {
+        oss<<" before delete: "<<chunks.size();
+        delete chunks.back();
+        oss<<" before pop: "<<chunks.size();
+        chunks.pop_back();
+        oss<<" after pop: "<<chunks.size();
+        debugLog(oss.str().c_str());
+        (*(chunks.end()-1))->setEnd(vials.size()-1);
+        showChunks();
+    }
+    //if (chunks.size() == 1) btnDelChunk->Enabled = false;
 }
 

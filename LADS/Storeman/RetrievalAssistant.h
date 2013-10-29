@@ -315,7 +315,11 @@ public:
     void    setStart(int s) { if (s < 0 || s > end) throw "invalid chunk start value"; start = s; }
     void    setStartBox(string s) { startBox = s; }
     void    setStartVial(string v) { startVial = v; }
-    void    setEnd(int e) { if (e > sgw->rowCount()-1) throw "invalid chunk end value"; end = e; }
+    void    setEnd(int e) {
+        if (e > sgw->rowCount()-1)
+            throw "invalid chunk end value";
+        end = e;
+    }
     void    setEndBox(string s) { endBox = s; }
     void    setEndVial(string v) { endVial = v; }
     T *     rowAt(int pos) {

@@ -73,7 +73,10 @@ void __fastcall TfrmAutoChunk::btnAddChunkClick(TObject *Sender) {
 void __fastcall TfrmAutoChunk::btnAddAllChunksClick(TObject *Sender) {
     Screen->Cursor = crSQLWait; Enabled = false;
     int selectedChunkSize = comboSectionSize->Items->Strings[comboSectionSize->ItemIndex].ToIntDef(0);
-    int numChunks = frmSamples->vials.size() % selectedChunkSize;
+    //int numChunks = frmSamples->vials.size() % selectedChunkSize;
+    float result = float(frmSamples->vials.size()) / float(selectedChunkSize);
+    int numChunks = ceil(result);
+    //int numChunks = ceil(frmSamples->vials.size() / selectedChunkSize);
     for (int i=0; i < numChunks; i++) {
         if (!frmSamples->addChunk(selectedChunkSize))
             break;

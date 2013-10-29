@@ -99,13 +99,26 @@ object frmSamples: TfrmSamples
       end
       object cbLog: TCheckBox
         Left = 0
-        Top = 25
+        Top = 50
         Width = 90
         Height = 17
         Align = alTop
         Caption = 'Show Log'
         TabOrder = 4
         OnClick = cbLogClick
+        ExplicitTop = 25
+      end
+      object btnDelChunk: TButton
+        Left = 0
+        Top = 25
+        Width = 90
+        Height = 25
+        Align = alTop
+        Caption = 'Delete last'
+        TabOrder = 5
+        OnClick = btnDelChunkClick
+        ExplicitLeft = 6
+        ExplicitTop = 17
       end
     end
     object sgChunks: TStringGrid

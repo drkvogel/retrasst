@@ -57,6 +57,7 @@ __published:
     TMemo *memoDebug;
     TStringGrid *sgDebug;
     TSplitter *Splitter2;
+    TButton *btnDelChunk;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
@@ -83,6 +84,7 @@ __published:
     void __fastcall sgVialsDblClick(TObject *Sender);
     void __fastcall FormDestroy(TObject *Sender);
     void __fastcall sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow);
+    void __fastcall btnDelChunkClick(TObject *Sender);
 
 private:
     LoadVialsWorkerThread *                     loadVialsWorkerThread;
