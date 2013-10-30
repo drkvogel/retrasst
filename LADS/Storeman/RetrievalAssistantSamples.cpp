@@ -642,7 +642,8 @@ void __fastcall LoadVialsWorkerThread::Execute() {
 
         map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
         if (found != samples.end()) { // fill in box location from cache map
-            sample->copyLocation(*(found->second)); oss<<"(cached)";
+            sample->copyLocation(*(found->second));
+            oss<<sample->storage_str(); oss<<" (cached)";
         } else {
             if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
                 sample->copyLocation(result); //oss<<"(db)";
@@ -650,8 +651,8 @@ void __fastcall LoadVialsWorkerThread::Execute() {
                 sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
             }
             samples[sample->store_record->getBoxID()] = (*it); // cache result
+            oss<<sample->storage_str(); oss<<"         ";
         }
-        oss<<sample->storage_str();
         loadingMessage = oss.str().c_str();
         Synchronize((TThreadMethod)&updateStatus);
 	}
@@ -664,7 +665,8 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     Enabled = true;
     chunks.clear();
     sgwChunks->clear();
-    Application->MessageBox(L"Press 'Auto-Chunk' to automatically create chunks for this list, or double click on a row to manually create chunks", L"Info", MB_OK);
+    //Application->MessageBox(L"Press 'Auto-Chunk' to automatically create chunks for this list, or double click on a row to manually create chunks", L"Info", MB_OK);
+    Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
 
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
     int box_id = vials[0]->dest_box_id;//->getBoxID(); // look at base list, chunk might not have been created

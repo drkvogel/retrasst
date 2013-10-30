@@ -185,6 +185,7 @@ object frmSamples: TfrmSamples
         Alignment = taCenter
         AutoSize = False
         Caption = 'Max section size'
+        GlowSize = 8
         Transparent = True
       end
       object Label2: TLabel

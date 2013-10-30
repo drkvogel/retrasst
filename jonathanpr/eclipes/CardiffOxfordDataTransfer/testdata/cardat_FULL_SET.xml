@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<carfile outputId="34128" timeFileGenerated="2012-11-15T15:09:21" numSections="2">
+
+
+
+ <section partid="800000000" sessionid="150000" sectionid="1" dateStarted_hm01="2012-11-03T10:05:04" dateCompleted="2012-11-03T10:10:06" checkMD5="4479004566039e92b2dedd2649f74e6a">
+   <qidresp qid="inputmethod_hm01" resp="3"/>
+  </section>
+
+ <section partid="800000000" sessionid="150000" sectionid="2" dateStarted_hm02="2012-11-03T10:05:04" dateCompleted="2012-11-03T10:10:06" checkMD5="77524a90cadfb68e44eba940d5d0287d">
+   <qidresp qid="downhearted_hm02" resp="1"/>
+   <qidresp qid="dumps_hm02" resp="2"/>
+   <qidresp qid="happy_hm02" resp="3"/>
+   <qidresp qid="nerv_hm02" resp="4"/>
+   <qidresp qid="calm_hm02" resp="5"/>
+  </section>
+
+<section partid="800000000" sessionid="150000" sectionid="3" dateStarted_hm03="2012-11-03T10:05:04" dateCompleted="2012-11-03T10:10:06" checkMD5="f137a974feea14b45bb7e19d2ee03a16">
+   <qidresp qid="abandon_hm03" resp="1"/>
+   <qidresp qid="buttonf_1_0_1_hm03" resp="1"/>
+   <qidresp qid="buttonn_1_0_1_hm03" resp="1"/>
+   <qidresp qid="demoelapsed_hm03" resp="1"/>
+   <qidresp qid="elapsed_1_0_1_hm03" resp="1"/>
+   <qidresp qid="leftimg_1_0_1_hm03" resp="1"/>
+   <qidresp qid="mean_hm03" resp="1"/>
+   <qidresp qid="rightimg_1_0_1_hm03" resp="1"/>
+   <qidresp qid="selectted_1_0_1_hm03" resp="FALSE"/>
+   <qidresp qid="testelapsed_hm03" resp="1"/>
+   <qidresp qid="totelapsed_hm03" resp="1"/>
+  </section>
+
+  <section partid="800000000" sessionid="150000" sectionid="4" dateStarted_hm04="2012-11-03T10:05:04" dateCompleted="2012-11-03T10:10:06" checkMD5="25c8299fef8ca9e24cc61afb64a01613">
+   <qidresp qid="abandon_hm04" resp="1"/>
+   <qidresp qid="attempted_hm04" resp="222"/>
+   <qidresp qid="commentelapsed_hm04" resp="232"/>
+   <qidresp qid="elapsed_1_3_1_hm04" resp="233"/>
+   <qidresp qid="expected_1_1_1_hm04" resp="22"/>
+   <qidresp qid="introelapsed_hm04" resp="3434"/>
+   <qidresp qid="practiceelapsed_hm04" resp="3434"/>
+   <qidresp qid="qname_1_5_1_hm04" resp="practice"/>
+   <qidresp qid="score_hm04" resp="2"/>
+   <qidresp qid="selected_1_1_1_hm04" resp="12"/>
+   <qidresp qid="testelapsed_hm04" resp="23"/>
+   <qidresp qid="totelapsed_hm04" resp="2323"/>
+   <qidresp qid="trialtype_1_6_1_hm04" resp="L"/>
+  </section>
+
+  <section partid="800000000" sessionid="150000" sectionid="5" dateStarted_hm04="2012-11-03T10:05:04" dateCompleted="2012-11-03T10:10:06" checkMD5="78abc6e5d4512706d71202b0b76d8d1b">
+   <qidresp qid="abandon_hm04" resp="1"/>
+   <qidresp qid="abandon_hm05" resp="1"/>
+   <qidresp qid="elapsed_1_1_1_hm05" resp="23"/>  
+   <qidresp qid="expected_1_1_1_hm05" resp="1"/>  
+   <qidresp qid="introelapsed_hm05" resp="1"/>         
+   <qidresp qid="match_1_1_1_hm05" resp="1"/>     
+   <qidresp qid="part_1_1_1_hm05" resp="B"/> 
+   <qidresp qid="partaelapsed_hm05" resp="1"/>
+   <qidresp qid="partaerrors_hm05" resp="1"/>
+   <qidresp qid="partbelapsed_hm05" resp="1"/>
+   <qidresp qid="partberrors_hm05" resp="1"/>
+   <qidresp qid="practiceaelapsed_hm05" resp="1"/>
+   <qidresp qid="practiceaerrors_hm05" resp="1"/>
+   <qidresp qid="practicebelapsed_hm05" resp="1"/>
+   <qidresp qid="practiceberrors_hm05" resp="1"/>
+   <qidresp qid="selected_1_1_1_hm05" resp="1"/> 
+   <qidresp qid="totelapsed_hm05" resp="1"/>
+  </section>
+
+ <section partid="800000000" sessionid="150000" sectionid="6" dateStarted_hm05="2012-11-03T09:05:04" dateCompleted="2012-11-03T09:10:06" checkMD5="8154dea91c80454d26c213ace432474e">
+   <qidresp qid="abandon_hm06" resp="1"/>
+   <qidresp qid="digits_hm06" resp="456"/>
+   <qidresp qid="elapsed_0_0_0_hm06" resp="13323"/>
+   <qidresp qid="elapsed_0_0_1_hm06" resp="113"/>
+   <qidresp qid="elapsed_0_0_2_hm06" resp="132223"/>
+   <qidresp qid="elapsed_1_0_0_hm06" resp="135323"/>
+   <qidresp qid="elapsed_1_1_9_hm06" resp="1353"/>
+   <qidresp qid="expected_0_0_0_hm06" resp="103"/>
+   <qidresp qid="expected_0_1_1_hm06" resp="23"/>
+   <qidresp qid="expected_0_2_0_hm06" resp="143"/>
+   <qidresp qid="expected_1_3_8_hm06" resp="163"/>
+   <qidresp qid="expected_1_3_9_hm06" resp="173"/>
+   <qidresp qid="instrelapsed_hm06" resp="8765"/>
+   <qidresp qid="levels_hm06" resp="100"/>
+   <qidresp qid="liveelapsed_hm06" resp="888"/>
+   <qidresp qid="pracelapsed_hm06" resp="999"/>
+   <qidresp qid="rsi_0_3_7_hm06" resp="188"/>
+   <qidresp qid="rsi_0_4_6_hm06" resp="288"/>
+   <qidresp qid="rsi_0_5_5_hm06" resp="888"/>
+   <qidresp qid="score_hm06" resp="888"/>
+   <qidresp qid="selected_1_0_0_hm06" resp="0"/>
+   <qidresp qid="selected_0_0_0_hm06" resp="1"/>
+   <qidresp qid="selected_1_0_4_hm06" resp="33"/>
+   <qidresp qid="selected_0_0_5_hm06" resp="444"/>
+   <qidresp qid="startrow_hm06" resp="1"/>
+   <qidresp qid="symbol_0_1_0_hm06" resp="111"/>
+   <qidresp qid="symbol_0_2_0_hm06" resp="121"/>
+   <qidresp qid="symbol_0_3_0_hm06" resp="131"/>
+   <qidresp qid="symbol_0_4_0_hm06" resp="141"/>
+   <qidresp qid="symbol_0_5_0_hm06" resp="151"/>
+   <qidresp qid="totelapsed_hm06" resp="99999"/>
+   <qidresp qid="trialtype_0_0_0_hm06" resp="L"/>
+   <qidresp qid="trialtype_0_1_3_hm06" resp="P"/>
+   <qidresp qid="trialtype_0_1_5_hm06" resp="P"/>
+   <qidresp qid="valid_0_1_0_hm06" resp="1"/>
+   <qidresp qid="valid_0_2_1_hm06" resp="1"/>
+   <qidresp qid="valid_0_2_5_hm06" resp="0"/>
+   <qidresp qid="valid_0_3_6_hm06" resp="0"/>
+   <qidresp qid="valid_0_4_7_hm06" resp="0"/>
+   <qidresp qid="valid_0_5_8_hm06" resp="1"/>
+   <qidresp qid="valid_0_6_9_hm06" resp="1"/>
+  </section>
+
+ <section partid="800000000" sessionid="150000" sectionid="7" dateStarted_hm05="2012-11-03T09:05:04" dateCompleted="2012-11-03T09:10:06" checkMD5="187592bc02aa483fc8e81f9d1c9f3cbd">
+   <qidresp qid="abandon_hm07" resp="1"/>
+   <qidresp qid="cols0_hm07" resp="1"/>
+   <qidresp qid="cols1_hm07" resp="1"/>
+   <qidresp qid="cols2_hm07" resp="1"/>
+   <qidresp qid="durlev0_hm07" resp="1"/>
+   <qidresp qid="durlev1_hm07" resp="1"/>
+   <qidresp qid="durlev2_hm07" resp="1"/>
+   <qidresp qid="elapdemo_hm07" resp="1"/>
+   <qidresp qid="elaplev0_hm07" resp="1"/>
+   <qidresp qid="elaplev1_hm07" resp="1"/>
+   <qidresp qid="elaplev2_hm07" resp="1"/>
+   <qidresp qid="firstcolumn_*_*_*_hm07" resp="1"/>
+   <qidresp qid="firstelap_*_*_*_hm07" resp="1"/>
+   <qidresp qid="firstimg_*_*_*_hm07" resp="1"/>
+   <qidresp qid="firstrow_*_*_*_hm07" resp="1"/>
+   <qidresp qid="match0_hm07" resp="1"/>
+   <qidresp qid="match1_hm07" resp="1"/>
+   <qidresp qid="match2_hm07" resp="1"/>
+   <qidresp qid="miss0_hm07" resp="1"/>
+   <qidresp qid="miss1_hm07" resp="1"/>
+   <qidresp qid="miss2_hm07" resp="1"/>
+   <qidresp qid="rows0_hm07" resp="1"/>
+   <qidresp qid="rows1_hm07" resp="1"/>
+   <qidresp qid="rows2_hm07" resp="1"/>
+   <qidresp qid="secondcolumn_*_*_*_hm07" resp="1"/>
+   <qidresp qid="secondelap_*_*_*_hm07" resp="1"/>
+   <qidresp qid="secondimg_*_*_*_hm07" resp="1"/>
+   <qidresp qid="secondrow_*_*_*_hm07" resp="1"/>
+   <qidresp qid="totelapsed_hm07" resp="1"/>
+  </section>
+
+ <section partid="800000000" sessionid="150000" sectionid="8" dateStarted_hm05="2012-11-03T09:05:04" dateCompleted="2012-11-03T09:10:06" checkMD5="bb53e8be01d25aca6168e92675020c84">
+   <qidresp qid="abandon_hm08" resp="1"/>
+   <qidresp qid="blankelap_1_0_0_hm08" resp="1"/>
+   <qidresp qid="digitstream_1_0_0_hm08" resp="1"/>
+   <qidresp qid="enterelap_1_0_0_hm08" resp="1"/>
+   <qidresp qid="input_1_0_0_hm08" resp="1"/>
+   <qidresp qid="inputelap_1_0_0_hm08" resp="1"/>
+   <qidresp qid="introelapsed_hm08" resp="1"/>
+   <qidresp qid="match_1_0_0_hm08" resp="1"/>
+   <qidresp qid="maxdigits_hm08" resp="1"/>
+   <qidresp qid="pauseelap_1_0_0_hm08" resp="1"/>
+   <qidresp qid="rounds_hm08" resp="1"/>
+   <qidresp qid="showelap_1_0_0_hm08" resp="1"/>
+   <qidresp qid="stimulus_1_0_0_hm08" resp="1"/>
+   <qidresp qid="timedout_1_0_0_hm08" resp="1"/>
+   <qidresp qid="totelapsed_hm08" resp="1"/>
+
+  </section>
+
+</carfile>

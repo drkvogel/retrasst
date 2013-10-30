@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<carfile outputId="34128" timeFileGenerated="2012-11-15T15:09:21" numSections="3">
+  <section partid="123" sessionid="101" sectionid="4" dateStarted_hm05="2012-11-03T09:45:44" dateCompleted="2012-11-03T09:49:06" checkMD5="640e3d0d8877dc94c6390ee75b8811c2">
+      <qidresp qid="abandon_hm04" resp="2" />
+      <qidresp qid="attempted_hm04" resp="4" />
+      <qidresp qid="commentelapsed_hm04" resp="2434" />
+      <qidresp qid="score_hm04" resp="4" />
+      <qidresp qid="introelapsed_hm04" resp="43243" />
+      <qidresp qid="trialtype_1_1_1_hm04" resp="P" />
+  </section>
+  <section partid="123" sessionid="201" sectionid="5" dateStarted_hm05="2012-11-03T09:05:04" dateCompleted="2012-11-03T09:45:06" checkMD5="a445fd6432e2c2fceedefc093b1df529">
+    <qidresp qid="abandon_hm05" resp="1" />
+      <qidresp qid="elapsed_1_1_1_hm05" resp="3500" />
+      <qidresp qid="elapsed_1_2_1_hm05" resp="3430" />
+      <qidresp qid="elapsed_1_2_2_hm05" resp="3523" />
+      <qidresp qid="elapsed_1_1_2_hm05" resp="3500" />      
+      <qidresp qid="elapsed_1_1_2_hm05" resp="3500" />
+      <qidresp qid="elapsed_1_1_3_hm05" resp="3500" />
+      <qidresp qid="elapsed_1_1_4_hm05" resp="3500" />
+      <qidresp qid="elapsed_1_1_5_hm05" resp="3500" />
+      <qidresp qid="introelapsed_hm05" resp="20328" />
+      <qidresp qid="partaelapsed _hm05" resp="2" />        
+	  <qidresp qid="practiceaerrors_hm05" resp="3" />
+      <qidresp qid="selected_1_1_1_hm05" resp="1" />       
+	  <qidresp qid="selected_3_1_2_hm05" resp="A" />
+  </section>
+  <section partid="123" sessionid="301" sectionid="1" dateStarted_hm05="2012-11-03T09:55:04" dateCompleted="2012-11-03T09:55:06" checkMD5="640e3d0d8877dc94c6390ee75b8811c2">
+	  <qidresp qid="inputmethod_hm01" resp="3" />
+	  <qidresp qid="pointer_hm01" resp="1" />
+  </section>
+  <section partid="123" sessionid="701" sectionid="2" dateStarted_hm05="2012-11-03T09:55:04" dateCompleted="2012-11-03T09:55:06" checkMD5="640e3d0d8877dc94c6390ee75b8811c2">
+	  <qidresp qid="downhearted_hm02" resp="3" />
+	  <qidresp qid="dumps_hm02" resp="5" />
+	  <qidresp qid="happy_hm02" resp="0" />
+	  <qidresp qid="nerv_hm02" resp="2" />
+	  <qidresp qid="calm_hm02" resp="4" />
+  </section>
+  <section partid="123" sessionid="701" sectionid="3" dateStarted_hm05="2012-11-03T09:55:04" dateCompleted="2012-11-03T09:55:06" checkMD5="640e3d0d8877dc94c6390ee75b8811c2">
+	  <qidresp qid="abandon_hm03" resp="0" />
+	  <qidresp qid="selected_1_1_1_hm03" resp="TRUE" />
+	  <qidresp qid="selected_1_2_1_hm03" resp="False" 
+	  <qidresp qid="demoelapsed_hm03" resp="234324" />
+	  <qidresp qid="totelapsed_hm03" resp="432444" />
+  </section> 
+  <section partid="007" sessionid="700" sectionid="3" dateStarted_hm05="2012-11-03T09:55:04" dateCompleted="2012-11-03T09:55:06" checkMD5="500768c00f6adad45c354539baadea11">
+	  <qidresp qid="abandon_hm03" resp="0" />
+	  <qidresp qid="selected_1_1_1_hm03" resp="TRUE" />
+	  <qidresp qid="selected_1_2_1_hm03" resp="FALSE" />
+	  <qidresp qid="demoelapsed_hm03" resp="234324" />
+	  <qidresp qid="totelapsed_hm03" resp="432444" />
+  </section> 
+</carfile>

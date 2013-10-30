@@ -76,7 +76,7 @@ void Utils::SortStringGrid(TStringGrid *GenStrGrid, int ThatCol)
 	for (int i = 0;i<MyList->Count;i++)
 	{
 		MyString = MyList->Strings[i];
-		ThePosition = Pos(TheSeparator, MyString);
+		ThePosition = MyString.Pos(TheSeparator);
 
 		TempString = MyString.SubString(ThePosition + 1,MyString.Length() - ThePosition);
 		MyList->Strings[i] = TempString;

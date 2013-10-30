@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:element name="carfile" type="carfileType"/>
+
+<xsd:complexType name="carfileType">
+    <xsd:sequence>
+        <xsd:element name="section" type="sectiontype"/>
+    </xsd:sequence>
+    <xsd:attribute name="outputId" type="xsd:string" use="required"/>
+    <xsd:attribute name="timeFileGenerated" type="xsd:dateTime" use="required"/>
+    <xsd:attribute name="numSections" type="xsd:positiveInteger"/>
+</xsd:complexType>
+
+<xsd:complexType name="sectiontype">
+	<xsd:sequence>
+	    <xsd:element name="qidresp" minOccurs="1" maxOccurs="unbounded"/>
+ 	</xsd:sequence>
+      	<xsd:attribute name="partid" type="xsd:string" use="required"/>
+      	<xsd:attribute name="sessionid" type="xsd:string" use="required"/>
+       	<xsd:attribute name="sectionid" type="xsd:positiveInteger" use="required"/>
+      	<xsd:attribute name="dateStarted_hm01" type="xsd:dateTime"/>	  
+      	<xsd:attribute name="dateStarted_hm02" type="xsd:dateTime"/>	  
+      	<xsd:attribute name="dateStarted_hm03" type="xsd:dateTime"/>	  
+      	<xsd:attribute name="dateStarted_hm04" type="xsd:dateTime"/>	  
+      	<xsd:attribute name="dateStarted_hm05" type="xsd:dateTime"/>	  
+      	<xsd:attribute name="dateStarted_hm06" type="xsd:dateTime"/>	  
+      	<xsd:attribute name="dateStarted_hm07" type="xsd:dateTime"/>	  
+      	<xsd:attribute name="dateStarted_hm08" type="xsd:dateTime"/>	  
+      	<xsd:attribute name="dateCompleted" type="xsd:dateTime" use="required"/>
+      	<xsd:attribute name="checkMD5" type="xsd:string" use="required"/>
+</xsd:complexType>
+</xsd:schema> 
