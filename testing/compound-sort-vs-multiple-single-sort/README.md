@@ -23,5 +23,5 @@ SELECT Country, City, CustomerID  FROM (
 With this data set, the two queries give the same result. Need to try with bigger data sets to confirm whether they are equivalent beyond reasonable doubt, or find someone who can confirm whether they are mathematically equivalent.
 
 Sharon says they are.
-q
-One for Stackoverflow and the programmers list, methinks!
+
+One for Stackoverflow and the programmers list, methinks! - done: http://stackoverflow.com/questions/19712267/is-sort-a-b-c-equivalent-to-sort-c-sort-b-sort-a

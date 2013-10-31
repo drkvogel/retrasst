@@ -76,11 +76,7 @@ __published:
     void __fastcall btnSaveClick(TObject *Sender);
     void __fastcall btnAddChunkClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
-    //void __fastcall btnDelChunkClick(TObject *Sender);
     void __fastcall btnCancelClick(TObject *Sender);
-    void __fastcall btnAutoChunkClick(TObject *Sender);
-    void __fastcall btnIncrClick(TObject *Sender);
-    void __fastcall btnDecrClick(TObject *Sender);
     void __fastcall sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow);
     void __fastcall sgVialsClick(TObject *Sender);
     void __fastcall timerLoadVialsTimer(TObject *Sender);
@@ -98,10 +94,8 @@ __published:
     void __fastcall sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow);
     void __fastcall btnDelChunkClick(TObject *Sender);
     void __fastcall editDestBoxSizeChange(TObject *Sender);
-    //void __fastcall editMaxSizeChange(TObject *Sender);
     void __fastcall btnAddAllChunksClick(TObject *Sender);
     void __fastcall timerCalculateTimer(TObject *Sender);
-
 private:
     LoadVialsWorkerThread *                     loadVialsWorkerThread;
     void __fastcall                             loadVialsWorkerThreadTerminated(TObject *Sender);

@@ -149,7 +149,7 @@ public:
     LPDbCryovial *      cryo_record;
     LPDbCryovialStore * store_record;
     string              cryovial_barcode;
-    string              aliquot_type_name; // not in LPDbCryovial
+    string              aliquot_type_name;  // not in LPDbCryovial
     int                 dest_cryo_pos;      // cryovial_position/tube_position
     ~SampleRow() { if (store_record) delete store_record; if (cryo_record) delete cryo_record;}
     SampleRow(  LPDbCryovial * cryo_rec,LPDbCryovialStore * store_rec,
@@ -160,7 +160,6 @@ public:
     }
 
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
-    //static bool sort_dsc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
     static bool sort_asc_aliquot(const SampleRow *a, const SampleRow *b)    { return a->aliquot_type_name.compare(b->aliquot_type_name); }
     static bool sort_asc_currbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->src_box_name, b->src_box_name); }
     static bool sort_asc_currpos(const SampleRow *a, const SampleRow *b)    { return a->store_record->getPosition() < b->store_record->getPosition(); }
@@ -176,7 +175,7 @@ public:
 
     string str() {
         ostringstream oss; oss<<__FUNC__
-            <<"id: "<<(store_record->getID())<<", " //	LPDbCryovi alStore: cryovialID, boxID, retrievalID, status, position// <<"status: "<<(store_record->getStatus())<<", " // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position //<<"barcode: "<<store_record->getBarcode() //<<"sampleID"<<cryo_record->getSampleID() //<<"aliquot type ID"<<cryo_record->getAliquotType()
+            <<"id: "<<(store_record->getID())<<", " //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position// <<"status: "<<(store_record->getStatus())<<", " // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position //<<"barcode: "<<store_record->getBarcode() //<<"sampleID"<<cryo_record->getSampleID() //<<"aliquot type ID"<<cryo_record->getAliquotType()
             <<"status"<<store_record->getStatus()<<", "
             <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquot_type_name<<", "
             <<"src: {"<<store_record->getBoxID()<<", "<<src_box_name<<"["<<store_record->getPosition()<<"]}, "
@@ -256,17 +255,12 @@ public:
         sg->Cells[0][1] = "No results.";
     }
     void sort_asc(int col, int start, int end) {
-        //sort(rows->begin()+start+1, rows->begin()+end+1, cols[col].sort_func_asc); // should use stable_sort?
         frmSamples->debugLog("ascending");
-        stable_sort(rows->begin()+start, rows->begin()+end+1, cols[col].sort_func_asc); // should use stable_sort?
+        stable_sort(rows->begin()+start, rows->begin()+end+1, cols[col].sort_func_asc);
     }
     void sort_dsc(int col, int start, int end) {
-        //sort(rows->rbegin()+start+1, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
-        //stable_sort(rows->rbegin()+start, rows->rbegin()+end+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
-        //stable_sort(rows->rbegin()+start, rows->rbegin()+end+1, not2(cols[col].sort_func_asc)); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
         frmSamples->debugLog("descending");
-        //stable_sort(rows->rbegin(), rows->rbegin()+end-start+1, cols[col].sort_func_asc); //std::partial_sort(rows->rbegin(), rows->rend(), cols[col].sort_func_asc); // NOT partial_sort!
-        stable_sort(rows->rend()-end-1, rows->rend()-start, cols[col].sort_func_asc); // start+1?
+        stable_sort(rows->rend()-end-1, rows->rend()-start, cols[col].sort_func_asc);
     }
     void sort_asc(string colName, int start, int end) {
         sort_asc(colNameToInt(colName), start, end);
@@ -275,14 +269,11 @@ public:
 //        sort_dsc(colNameToInt(colName), start, end);
 //    }
     void sort_toggle(int col, int start, int end) {
-//        sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
-//        sgw->cols[col].sortAsc = !sgw->cols[col].sortAsc; // toggle
-        wstringstream oss; oss << __FUNC__; oss<<"sorting "<<rows->size()<<" rows: start:"<<start<<", end: "<<end; //debugLog(oss.str().c_str());
-        //OutputDebugString(L"I am here");
-        //OutputDebugString(oss.str().c_str());
-        frmSamples->debugLog(oss.str().c_str());
+        //wstringstream oss; oss << __FUNC__; oss<<"sorting "<<rows->size()<<" rows: start:"<<start<<", end: "<<end; //debugLog(oss.str().c_str());
+        //OutputDebugString(L"test"); //OutputDebugString(oss.str().c_str());
+        //frmSamples->debugLog(oss.str().c_str());
         cols[col].sortAsc ? sort_asc(col, start, end) : sort_dsc(col, start, end);
-        cols[col].sortAsc = !cols[col].sortAsc;
+        cols[col].sortAsc = !cols[col].sortAsc; // toggle
     }
 //    void sort_toggle(string colName, int start, int end) {
 //        sort_toggle(colNameToInt(colName), start, end);
@@ -293,7 +284,7 @@ template < class T >
 class Chunk { // not recorded in database
     StringGridWrapper< T > * sgw;
     int                 section;
-    int                 start;          // 1-indexed
+    int                 start;
     string              startVial;
     string              startBox;
     int                 end;
@@ -302,7 +293,6 @@ class Chunk { // not recorded in database
     string              endDescrip;
 public:
     Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e) { }
-
     int     getSection()    { return section; }
     int     getStart()      { return start; }
     int     getStartPos()   { return start+1; } // 1-indexed, human-readable
@@ -313,8 +303,12 @@ public:
     int     getEndPos()     { return end+1; }   // 1-indexed, human-readable
     string  getEndBox()     { return sgw->rows->at(end)->src_box_name; }
     string  getEndVial()    { return sgw->rows->at(end)->cryo_record->getBarcode(); }
-    int     getSize() { return end - start + 1; } //OutputDebugString(L"I am here");
-    void    setStart(int s) { if (s < 0 || s > end) throw "invalid chunk start value"; start = s; }
+    int     getSize()       { return end - start + 1; } //OutputDebugString(L"test");
+    void    setStart(int s) {
+        if (s < 0 || s > end)
+            throw "invalid chunk start value";
+        start = s;
+    }
     void    setStartBox(string s) { startBox = s; }
     void    setStartVial(string v) { startVial = v; }
     void    setEnd(int e) {
@@ -324,30 +318,11 @@ public:
     }
     void    setEndBox(string s) { endBox = s; }
     void    setEndVial(string v) { endVial = v; }
-    T *     rowAt(int pos) {
-        //wstringstream oss; oss<<__FUNC__<<"start: "<<start<<", pos: "<<pos; OutputDebugString(oss.str().c_str());
-        return sgw->rows->at((start)+(pos));
-    }
-
-    // uninstantiated code in templates is not compiled
-    void sort_asc(string colName) {
-        sgw->sort_asc(colName, start, end);
-    }
-
-    void sort_dsc(string colName) {
-        //totalRows->sort_dsc(colNameToInt(colName));
-        sgw->sort_dsc(colName, start, end);
-    }
-
-    void sortToggle(int col) {
-        sgw->sort_toggle(col, start, end);
-    }
-
-    void sortToggle(string colName) {
-//        sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
-//        sgw->cols[col].sortAsc = !sgw->cols[col].sortAsc; // toggle
-        sgw->sort_toggle(colName, start, end);
-    }
+    T *     rowAt(int pos) { return sgw->rows->at((start)+(pos)); }
+    void sort_asc(string colName) { sgw->sort_asc(colName, start, end); }
+    void sort_dsc(string colName) { sgw->sort_dsc(colName, start, end); }
+    void sortToggle(int col) { sgw->sort_toggle(col, start, end); }
+    void sortToggle(string colName) { sgw->sort_toggle(colName, start, end); } // n.b. uninstantiated code in templates is not compiled
 };
 
 typedef std::vector< Chunk * > vecpChunk;
@@ -416,7 +391,6 @@ private:
     LCDbCryoJobs            jobs;
     StringGridWrapper<LCDbCryoJob> *  sgwJobs;
     void                    loadJobs();
-    //void                    showJobs();
     string             getExerciseDescription(int exercise_cid);
     string             getProjectDescription(int project_cid);
     string             getAliquotDescription(int primary_aliquot);

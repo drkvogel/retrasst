@@ -68,10 +68,8 @@ void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Checked      = RETRASSTDEBUG;
     cbLog->Visible      = RETRASSTDEBUG;
     panelDebug->Visible = cbLog->Checked;
-
     box_size            = DEFAULT_BOX_SIZE;
     job                 = NULL;
-
     loadingMessage = "Loading samples, please wait...";
 }
 
@@ -183,8 +181,6 @@ void __fastcall TfrmSamples::sgChunksFixedCellClick(TObject *Sender, int ACol, i
     debugLog(oss.str().c_str());
 }
 
-/* delete from l_cryovial_retrieval; delete from c_box_retrieval -- as user lust */
-
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
     and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
@@ -254,25 +250,13 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         ModalResult = mrOk;
     } else { // start again
         chunks.clear();
-        addChunk(0); // start again
+        addChunk(0);
         showChunks();
     }
 }
 
 void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
     showChunk(); // default is 1st
-}
-
-void __fastcall TfrmSamples::btnAutoChunkClick(TObject *Sender) {
-    autoChunk();
-}
-
-void __fastcall TfrmSamples::btnIncrClick(TObject *Sender) {
-    // increase end of current chunk
-}
-
-void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
-    // decrease end of current chunk
 }
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
@@ -434,8 +418,7 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
     }
     sgVials->Row = 1;
 
-    // sgDebug - all vials
-    if (RETRASSTDEBUG) {
+    if (RETRASSTDEBUG) { // sgDebug - all vials
         sgDebug->RowCount = vials.size()+1;
         sgDebug->FixedRows = 1;
         for (int row=0; row < vials.size(); row++) {
@@ -665,7 +648,6 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     Enabled = true;
     chunks.clear();
     sgwChunks->clear();
-    //Application->MessageBox(L"Press 'Auto-Chunk' to automatically create chunks for this list, or double click on a row to manually create chunks", L"Info", MB_OK);
     Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
 
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
@@ -692,7 +674,6 @@ void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
         (*(chunks.end()-1))->setEnd(vials.size()-1);
         showChunks();
     }
-    //if (chunks.size() == 1) btnDelChunk->Enabled = false;
 }
 
 void __fastcall TfrmSamples::editDestBoxSizeChange(TObject *Sender) {
