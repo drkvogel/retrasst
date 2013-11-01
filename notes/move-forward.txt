@@ -5,4 +5,49 @@
  * consolidate notes (move to separate windows and compare)
  * select for process samples - 'no chunks' - in testing/q2.sql
  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 fact remains I work a lot better when AY is not there - why can this not be addressed somehow?

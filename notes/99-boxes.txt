@@ -1,0 +1,40 @@
+﻿SELECT v.external_full as vessel_name, shelf_number, r.position as rack_pos,
+r.external_name as structure, slot_position, m.position as tank_pos, l.external_name as site_name
+FROM box_store bs, c_rack_number r, c_tank_map m, c_object_name v, c_object_name l 
+WHERE box_cid = :bid AND bs.status in (1, 2, 6) 		
+AND bs.rack_cid = r.rack_cid AND r.tank_cid = m.tank_cid AND m.storage_cid = v.object_cid
+AND m.location_cid = l.object_cid AND m.status=0
+
+t_ldbc20_ddb
+
+box 6450 - no storage when bs.status in (1, 2, 6) - status is 99
+
+In general, yes - you can set almost any status to 99 to correct an error.  You'd normally find a replacement record, though.
+
+In this task, there seem to be 835 cryovials taken from 9 boxes, all with status 4, so they all *should* have valid box_store records.  I can't quite tell what happened to box 6450 but I can tell you that a certain 
+cbird changed the box_store status from 6 at around half past 3 on Wednesday (30th Oct - 131030) .  I'd take it up with him!
+
+grep box_store *131030*.txt # no results - not my program what done it!
+
+select * from archive_box_store where box_cid = 6450 # shows changed from status 6 at 30/10/2013 15:33:47
+
+looks like program was idle at this time:
+
+<query database="test_ldbc" when="2013-10-30t15:30:49">SELECT * from l_box_arrival WHERE status &lt;&gt; 99 AND status &lt;&gt; 4 ORDER BY status DESC, box_name ASC
+<records when="2013-10-30t15:30:49">0</records>
+</query>
+<query database="test_ldbc" when="2013-10-30t15:33:52">SELECT * from l_box_arrival WHERE status &lt;&gt; 99 AND status &lt;&gt; 4 ORDER BY status DESC, box_name ASC
+<records when="2013-10-30t15:33:52">0</records>
+</query>
+
+Looking at the cryovial_store records for that box, it should be empty once the retrieval task has completed.  I'd doubt they'd put an empty box away so I'd expect box_store.status = 3 (removed) and box_name.status = 8 (destroyed)
+
+
+I can't tell you what the query was, but I can tell you the effect of it. At that time you ran many queries which all look similar to ...
+
+Begin   : Transaction Id 00004d6c779e76d0 30-Oct-2013 15:33:47.31           Username cbird
+  Update/Replace : Transaction Id 00004d6c779e76d0 Id (781,0)               Table [box_store,lust]
+    Old:    <1128|2193361|-739462|7|6|26-mar-2012 09:17:51||0|0>
+    New:    <1128|2193361|-739462|7|99|26-mar-2012 09:17:51||0|0>
+  Insert/Append  : Transaction Id 00004d6c779e76d0 Id (780,0)           Table [archive_box_store,lust]
+    Record: <1128|2193361|-739462|7|6|26-mar-2012 09:17:51||0|0|U|30-oct-2013 15:33:47|cbird>

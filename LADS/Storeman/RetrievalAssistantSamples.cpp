@@ -80,7 +80,7 @@ void __fastcall TfrmSamples::FormDestroy(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormShow(TObject *Sender) {
-    ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription();
+    ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
     Caption = oss.str().c_str();
     btnSave->Enabled = true;
     chunks.clear();
@@ -621,7 +621,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     map<int, const SampleRow *> samples; ROSETTA result; StoreDAO dao; int rowCount2 = 0;
 	for (vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
-        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]: ";
+        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
 
         map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
         if (found != samples.end()) { // fill in box location from cache map
