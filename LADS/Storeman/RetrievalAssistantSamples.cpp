@@ -205,6 +205,8 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                         LQuery qt(LIMSDatabase::getCentralDb()); LCDbID myLCDbID;
                         rj_box_cid = myLCDbID.claimNextID(qt); // SQL: "next value for c_id_sequence"
                     }
+
+                    // debug
                     int rtid = job->getID();
                     int sect = chunk->getSection();
                     int bid  = sampleRow->store_record->getBoxID();
@@ -216,7 +218,8 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                     );
                     qc.setParam("rjbid",rj_box_cid); // Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
                     qc.setParam("rtid", job->getID());
-                    qc.setParam("bxid",  sampleRow->store_record->getBoxID()); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+                    // following should be dest box - is it? should be dest_box_id?
+                    qc.setParam("bxid", sampleRow->store_record->getBoxID()); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
                     qc.setParam("prid", job->getProjectID());
                     qc.setParam("sect", chunk->getSection()); // 0 = retrieve all boxes in parallel
                     qc.setParam("stat", LCDbBoxStore::Status::SLOT_ALLOCATED); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted

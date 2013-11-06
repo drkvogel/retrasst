@@ -268,7 +268,7 @@ Rosetta error: ROSETTA Error: member "tube_position" not found'.*/
 //        "  s1.cryovial_id = s2.cryovial_id AND"
 //        "  s2.status = 0 AND"
 //        "  b2.box_cid = s2.box_cid AND"
-//        "  t.object_cid = aliquot_type_cid AND"
+//        "  t.object_cid = c.aliquot_type_cid AND"
 //        "  s1.retrieval_cid = :jobID"
 //        " ORDER BY"
 //        "  cryovial_barcode"
