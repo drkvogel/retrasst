@@ -5,6 +5,11 @@
 namespace valc
 {
 
+void ResultAttributes::clearRuleResults()
+{
+    m_ruleDerivedAttributes.clear();
+}
+
 /*
     Notice that there is no critical section for this method.  That is 
     because it is not expected that attempts will be made to 
@@ -24,11 +29,7 @@ RuleResults ResultAttributes::getRuleResults( int forResult ) const
 
 bool ResultAttributes::hasRuleResults( int forResult ) const
 {
-    paulst::AcquireCriticalSection a(m_critSec);
-
-    {
-        return m_ruleDerivedAttributes.count(forResult);
-    }
+    return m_ruleDerivedAttributes.count(forResult);
 }
 
 

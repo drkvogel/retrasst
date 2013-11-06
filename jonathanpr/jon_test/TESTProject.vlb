@@ -1,0 +1,12 @@
+﻿[Label1]
+Coordinates=121,10,53,58
+
+[]
+Coordinates=184,10,70,58
+
+[EventCombo]
+Coordinates=10,10,101,124
+
+[StringGrid]
+Coordinates=264,10,73,58
+

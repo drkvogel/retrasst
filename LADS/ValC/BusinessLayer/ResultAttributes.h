@@ -11,6 +11,7 @@ namespace valc
 class ResultAttributes : public RuleResultPublisher
 {
 public:
+    void clearRuleResults();
     RuleResults getRuleResults( int forResult ) const;
     bool hasRuleResults( int forResult ) const;
     void publish( const RuleResults& results, int forResult );

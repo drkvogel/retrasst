@@ -79,7 +79,6 @@ s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
   b2.external_name as dest_name,
   s2.tube_position as dest_pos   
    
-   
 SELECT
   br.rj_box_cid as dest_box, br.section as chunk,
   s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position, 

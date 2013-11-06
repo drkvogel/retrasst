@@ -18,8 +18,9 @@ void RulesConfigInitialiser::consume( paulstdb::Cursor* c )
     {
         const int         test     = paulstdb::read<int>        ( *c, 0 );
         const int         machine  = paulstdb::read<int>        ( *c, 1 );
-        const std::string ruleName = paulstdb::read<std::string>( *c, 2 );
-        m_rulesConfig->specify( ruleName, test, machine );
+        const int         project  = paulstdb::read<int>        ( *c, 2 );
+        const std::string ruleName = paulstdb::read<std::string>( *c, 3 );
+        m_rulesConfig->specify( ruleName, test, machine, project );
         c->next();
     }
 }

@@ -936,10 +936,10 @@ namespace tut
         
 
         MockConnectionFactory::ruleConfig = 
-               "-1031390,-1019349,configRule,\n" 
-               "-1031388,-1019349,configRule,\n" 
-               "-1031389,-1019349,configRule,\n" 
-               "-1031386,-1019349,configRule,\n" ;
+               "-1031390,-1019349,-1234,configRule,\n" 
+               "-1031388,-1019349,-1234,configRule,\n" 
+               "-1031389,-1019349,-1234,configRule,\n" 
+               "-1031386,-1019349,-1234,configRule,\n" ;
 
 
         MockConnectionFactory::rules = SerializedRecordset( 
@@ -1006,7 +1006,7 @@ namespace tut
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n";
         
 
-        MockConnectionFactory::ruleConfig = "-1031390,-1019349,configRule,\n" ; // Note: different test id from above.
+        MockConnectionFactory::ruleConfig = "-1031390,-1019349,-1234,configRule,\n" ; // Note: different test id from above.
 
 
         MockConnectionFactory::rules = SerializedRecordset( 
@@ -1073,10 +1073,10 @@ namespace tut
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n";
 
         MockConnectionFactory::ruleConfig = 
-               "-1031390,-1019349,configRule1,\n" 
-               "-1031388,-1019349,configRule2,\n" 
-               "-1031389,-1019349,configRule3,\n" 
-               "-1031386,-1019349,configRule4,\n" ;
+               "-1031390,-1019349,-1234,configRule1,\n" 
+               "-1031388,-1019349,-1234,configRule2,\n" 
+               "-1031389,-1019349,-1234,configRule3,\n" 
+               "-1031386,-1019349,-1234,configRule4,\n" ;
 
         const char* ruleConfigTemplate =
                 "configRule\%d|                                     "

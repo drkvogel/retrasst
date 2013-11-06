@@ -188,7 +188,8 @@ void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
 
 void TfrmRetrievalAssistant::init() {
     cbLog->Checked      = RETRASSTDEBUG;
-    cbLog->Visible      = RETRASSTDEBUG;
+    //cbLog->Visible      = RETRASSTDEBUG;
+    cbLog->Visible      = true;
 	panelDebug->Visible = cbLog->Checked;
 
     sgwJobs = new StringGridWrapper<LCDbCryoJob>(sgJobs, &vecJobs);

@@ -1,51 +1,26 @@
-﻿### example jobs
+﻿## todo
 
-box retrieval for chris: looks empty
-cryovial job for chris: empty
-1751 THRIVE cryovials -few: empty
-1223 THRIVE few cryovials: empty
-STICS troponin analysis: empty
-THRIVE Lp(a) Sep 2013 - THRIVE samples for a combined HPS/THRIVE retrieval: empty
-HPS Lp(a) Sep 2013 - HPS samples for a combined HPS/THRIVE retrieval: empty
-
-THRIVE Lp(a) baseline analysis: ok but ~4000 samples, slow to load
-1743 THRIVE boxes -few (EDTA1 & EDTA2): ok (though why named 'boxes'?)
-
-## todo
- * is sorting chunks working properly?
- * sorting chunk sorts everything, not the chunk. this is wrong.
  
 --- 
+ * is sorting chunks working properly?
+ * sorting chunk sorts everything, not the chunk. this is wrong.
  * auto-chunk prompt - silly because list might not be sorted at correctly at this point. remind to hit auto-chunk or manually chunk by double-clicking on rows
  * get rid of add, del, +/- - auto chunk and dbl-click is enough flexibility
  * fixed row count error from clicking pos too much- Enabled = false
  * longer descriptions for sorters (e.g. several called pos)- 
  * auto-chunk: get dest box size from job- is it getting the dest size or src size?- dest now
  * crash on "do you want to chunk" now, as list not loaded yet? list is loaded, but no chunks yet. fixed.
- 
- sgVialsFixedCellClick
- currentChunk()->sortToggle(ACol);
- Chunk::sortToggle()
-    sgw->cols[col].sortAsc ? sgw->sort_asc(col, start, end) : sgw->sort_dsc(col, start, end);
- StringGridWrapper::sort_asc(string colName, int start, int end)
-    sort_asc(colNameToInt(colName), start, end);
-    sort_asc(int col, int start, int end)
-        sort(rows->begin(), rows->end(), cols[col].sort_func_asc); <-- wrong!
-        sort(rows->begin()+start, rows->begin()+end, cols[col].sort_func_asc); <-- should be
-not quite, sorting a chunk without affecting rest sometimes, but not others...
-because didn't change sort_dsc in the same way
-but that produces an access violation... can you do rend()+x? no, of course not, it's rbegin()+x you want
-but that doesn't seem to do anything!
-nope, they're still messin' with one another.. sorter still assigned to previously selected chunk? currentChunk() not right?
-  the column toggle value would still be in the Col object no matter what chunk is selected
-  it is, I think, sorting the last shown chunk on first click
-
-and the sort was off by one - including one from previous chunk and missing last of current chunk, so I added 1 to start and end - should I have?
- 
+ * not quite, sorting a chunk without affecting rest sometimes, but not others...
+ * because didn't change sort_dsc in the same way
+ * but that produces an access violation... can you do rend()+x? no, of course not, it's rbegin()+x you want
+ * but that doesn't seem to do anything!
+ * nope, they're still messin' with one another.. sorter still assigned to previously selected chunk? currentChunk() not right?
+ * the column toggle value would still be in the Col object no matter what chunk is selected
+ * it is, I think, sorting the last shown chunk on first click
+ * and the sort was off by one - including one from previous chunk and missing last of current chunk, so I added 1 to start and end - should I have?
  * delete current chunk (e.g. from middle of chunk list)
  * existing chunk +/-
  * boxes form doesn't work properly - turn the handle (but not for demo)
- 
  * storage sync not worth attempting to rebuild-
  * bodge should be ok and not something I have to worry about-
  * other than search/replacing my code to use tube_position rather than cryovial position-
@@ -54,8 +29,6 @@ and the sort was off by one - including one from previous chunk and missing last
    won't come up till live testing, but worth thinking about at this stage of development
  * demo possible; email martin. make sure there are sufficient example jobs - e.g. "1743 THRIVE boxes - few (EDTA1 & EDTA2)"-
  * update from cvs-
-   
-ecig
 
 // dot notation: vec.begin() also seems to work - how?
 // it wasn't being compiled because dead code in a template// http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates

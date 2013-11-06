@@ -111,6 +111,7 @@ void __fastcall TfrmLoginBase::initialise(TObject *)
 	userList -> Enabled = (userList -> Items -> Count != 0);
 	ebPassword -> Clear();
 	ebPassword -> Enabled = userList -> Enabled;
+	auditTrail.start();
     userList->ItemIndex = 5;
     ebPassword->Text = "albatross";
 }

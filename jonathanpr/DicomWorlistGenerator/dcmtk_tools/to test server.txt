@@ -1,0 +1,19 @@
+To simulate a modality request do the following.
+
+in dos box:
+
+findscu.exe -v --call <aetitie> <ipaddress> <port> <worklistquery file>
+
+<AE title> - Name of a modality - AETitle
+<ipaddress> - ipaddress where wlmscpfs is running - localhost
+<port> - port of the server - CONST_PORT
+<worklistquery file> - Dicom query reqest for information
+
+------------------------------------------------------------------------------------------------
+
+for example code:
+findscu.exe -v --call Scanner1 localhost 8673 wklistqry.dcm
+
+
+
+The query 'wklistqry.dcm' is a dicom file which defines what the modality is looking for and what information it requires. The file 'wlistqry.dump' is the raw definition file, before it is converted into a dicom format file with 'dump2dcm.exe'.

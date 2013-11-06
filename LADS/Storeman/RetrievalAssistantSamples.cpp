@@ -67,8 +67,8 @@ void TfrmSamples::debugLog(String s) {
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Checked      = RETRASSTDEBUG;
     cbLog->Visible      = RETRASSTDEBUG;
-    //memoDebug->Visible  = cbLog->Checked;
-    panelDebug->Visible  = cbLog->Checked;
+    panelDebug->Visible = cbLog->Checked;
+    box_size            = DEFAULT_BOX_SIZE;
     job                 = NULL;
     loadingMessage = "Loading samples, please wait...";
 }
@@ -80,13 +80,14 @@ void __fastcall TfrmSamples::FormDestroy(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormShow(TObject *Sender) {
-    ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription();
+    ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
     Caption = oss.str().c_str();
     btnSave->Enabled = true;
     chunks.clear();
     sgwChunks->clear();
     sgwVials->clear();
     timerLoadVials->Enabled = true;
+    editDestBoxSize->Text = box_size;
 
 //	LIMSParams & params = LIMSParams::instance();
 //	if( params.openSection( "sorters", true ) )
@@ -180,8 +181,6 @@ void __fastcall TfrmSamples::sgChunksFixedCellClick(TObject *Sender, int ACol, i
     debugLog(oss.str().c_str());
 }
 
-/* delete from l_cryovial_retrieval; delete from c_box_retrieval -- as user lust */
-
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
     and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
@@ -251,25 +250,13 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         ModalResult = mrOk;
     } else { // start again
         chunks.clear();
-        addChunk(0); // start again
+        addChunk(0);
         showChunks();
     }
 }
 
 void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
     showChunk(); // default is 1st
-}
-
-void __fastcall TfrmSamples::btnAutoChunkClick(TObject *Sender) {
-    autoChunk();
-}
-
-void __fastcall TfrmSamples::btnIncrClick(TObject *Sender) {
-    // increase end of current chunk
-}
-
-void __fastcall TfrmSamples::btnDecrClick(TObject *Sender) {
-    // decrease end of current chunk
 }
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
@@ -312,26 +299,18 @@ void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
-    if (sgVials->Row < 2) return;
-    addChunk(sgVials->Row);
-    showChunks();
+    int selectedChunkSize = comboSectionSize->Items->Strings[comboSectionSize->ItemIndex].ToIntDef(0);
+    if (frmSamples->addChunk(selectedChunkSize)) {
+        frmSamples->showChunks();
+    } else {
+        msgbox("Chosen chunk size is too big for current list");
+    }
+
+//    if (sgVials->Row < 2) return;
+//    addChunk(sgVials->Row);
+//    showChunks();
 }
 
-// obsolete
-//void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
-//    ostringstream oss; oss << __FUNC__; oss<<chunks.size();
-//    if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
-//        oss<<" before delete: "<<chunks.size();
-//        delete chunks.back();
-//        oss<<" before pop: "<<chunks.size();
-//        chunks.pop_back();
-//        oss<<" after pop: "<<chunks.size();
-//        debugLog(oss.str().c_str());
-//        (*(chunks.end()))->setEnd(vials.size());
-//        showChunks();
-//    }
-//    if (chunks.size() == 1) btnDelChunk->Enabled = false;
-//}
 bool TfrmSamples::addChunk(unsigned int offset) {
 /** Add chunk starting at specified row [of the specified size?]
     offset: number of rows after beginning of previous chunk at which to cut off new chunk
@@ -353,6 +332,10 @@ bool TfrmSamples::addChunk(unsigned int offset) {
         newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStart()+offset, vials.size()-1);
     }
     chunks.push_back(newchunk);
+    if (frmAutoChunk->Visible) {
+        frmAutoChunk->BringToFront();
+        FocusControl(frmAutoChunk);
+    }
     return true;
 }
 
@@ -435,8 +418,7 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
     }
     sgVials->Row = 1;
 
-    // sgDebug - all vials
-    if (RETRASSTDEBUG) {
+    if (RETRASSTDEBUG) { // sgDebug - all vials
         sgDebug->RowCount = vials.size()+1;
         sgDebug->FixedRows = 1;
         for (int row=0; row < vials.size(); row++) {
@@ -449,12 +431,6 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
             //sgDebug->Cells[sgwDebug->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
-//            sgDebug->Cells[sgwDebug->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
-//            sgDebug->Cells[sgwDebug->colNameToInt("vesspos")]  [rw] = sampleRow->vessel_pos;
-//            sgDebug->Cells[sgwDebug->colNameToInt("vessel" )]  [rw] = sampleRow->vessel_name.c_str();
-//            sgDebug->Cells[sgwDebug->colNameToInt("shelf"  )]  [rw] = sampleRow->shelf_number;
-//            sgDebug->Cells[sgwDebug->colNameToInt("structpos")][rw] = sampleRow->structure_pos;
-//            sgDebug->Cells[sgwDebug->colNameToInt("struct" )]  [rw] = sampleRow->structure_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
             sgDebug->Cells[sgwDebug->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
@@ -485,7 +461,14 @@ void TfrmSamples::autoChunk() {
     if (found == NULL)
         throw "box not found";
     frmAutoChunk->setBoxSize(found->getSize());
+    frmAutoChunk->Visible = false; // http://www.delphipages.com/forum/showthread.php?t=69616
+    //Enabled = false;
     frmAutoChunk->ShowModal();
+    //frmAutoChunk->Visible = false;
+    //Enabled = true;
+
+    //frmAutoChunk->Show();
+    //Enabled = true;
 }
 
 //-------------- sorters --------------
@@ -517,8 +500,6 @@ void TfrmSamples::addSorter() {
 }
 
 void TfrmSamples::removeSorter() {
-    //for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box
-    //for (int i=0; i<groupSort->ControlCount; i++) { // controls are in creation order, ie. buttons first from design, and last added combo is last
     TComponent * component = groupSort->Controls[groupSort->ControlCount-1];
     TComboBox * combo = dynamic_cast<TComboBox *>(component);
     if (combo != NULL) {
@@ -534,8 +515,7 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
     //ostringstream oss; oss<<__FUNC__<<groupSort->ControlCount<<" controls"<<endl; debugLog(oss.str().c_str());
     Chunk< SampleRow > * chunk = currentChunk();
     bool changed = false;
-    for (int i=groupSort->ControlCount-1; i>=0; i--) { // work backwards through controls to find last combo box // controls are in creation order, ie. buttons first from design, and last added combo is last
-    //for (int i=0; i<groupSort->ControlCount; i++) { // not in reverse order any more
+    for (int i=groupSort->ControlCount-1; i>=0; i--) { // controls are in creation order, ie. buttons first from design, last added combo is last
         TControl * control = groupSort->Controls[i];
         TComboBox * combo = dynamic_cast<TComboBox *>(control);
         if (combo != NULL) {
@@ -641,11 +621,12 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     map<int, const SampleRow *> samples; ROSETTA result; StoreDAO dao; int rowCount2 = 0;
 	for (vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
-        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]: ";
+        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
 
         map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
         if (found != samples.end()) { // fill in box location from cache map
-            sample->copyLocation(*(found->second)); oss<<"(cached)";
+            sample->copyLocation(*(found->second));
+            oss<<sample->storage_str(); oss<<" (cached)";
         } else {
             if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
                 sample->copyLocation(result); //oss<<"(db)";
@@ -653,8 +634,8 @@ void __fastcall LoadVialsWorkerThread::Execute() {
                 sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
             }
             samples[sample->store_record->getBoxID()] = (*it); // cache result
+            oss<<sample->storage_str(); oss<<"         ";
         }
-        oss<<sample->storage_str();
         loadingMessage = oss.str().c_str();
         Synchronize((TThreadMethod)&updateStatus);
 	}
@@ -667,13 +648,71 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     Enabled = true;
     chunks.clear();
     sgwChunks->clear();
-    Application->MessageBox(L"Press 'Auto-Chunk' to automatically create chunks for this list, or double click on a row to manually create chunks", L"Info", MB_OK);
-//    if (IDYES == Application->MessageBox(L"Do you want to automatically create chunks for this list?", L"Question", MB_YESNO)) {
-//        autoChunk();
-//    } else {
-//        addChunk(0); // default chunk
-//    }
+    Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
+
+    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
+    int box_id = vials[0]->dest_box_id;//->getBoxID(); // look at base list, chunk might not have been created
+    const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
+    if (found == NULL)
+        throw "box not found";
+    box_size = found->getSize();
+    editDestBoxSize->Text = box_size;
+
     addChunk(0); // default chunk
     showChunks();
+}
+
+void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
+    ostringstream oss; oss << __FUNC__;
+    if (chunks.size() > 1 && (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO))) {
+        oss<<" before delete: "<<chunks.size();
+        delete chunks.back();
+        oss<<" before pop: "<<chunks.size();
+        chunks.pop_back();
+        oss<<" after pop: "<<chunks.size();
+        debugLog(oss.str().c_str());
+        (*(chunks.end()-1))->setEnd(vials.size()-1);
+        showChunks();
+    }
+}
+
+void __fastcall TfrmSamples::editDestBoxSizeChange(TObject *Sender) {
+    timerCalculate->Enabled = true;
+}
+
+void __fastcall TfrmSamples::btnAddAllChunksClick(TObject *Sender) {
+    Screen->Cursor = crSQLWait; Enabled = false;
+
+    int selectedChunkSize = comboSectionSize->Items->Strings[comboSectionSize->ItemIndex].ToIntDef(0);
+    float result = float(frmSamples->vials.size()) / float(selectedChunkSize);
+    int numChunks = ceil(result);
+
+    for (int i=0; i < numChunks; i++) {
+        showChunks();
+        if (!addChunk(selectedChunkSize))
+            break;
+    }
+    showChunks();
+
+    Screen->Cursor = crDefault; Enabled = true;
+}
+
+void __fastcall TfrmSamples::timerCalculateTimer(TObject *Sender) {
+    timerCalculate->Enabled = false;
+    box_size = editDestBoxSize->Text.ToIntDef(0);
+    calcSizes();
+}
+
+void TfrmSamples::calcSizes() {
+/** calculate possible chunk (section) sizes
+slot/box (where c_box_size.box_size_cid = box_content.box_size_cid) (where does box_content come from?)
+As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box */
+    comboSectionSize->Clear();
+    int possibleChunkSize = box_size; // * 2; // smallest chunk
+    while (possibleChunkSize <= editMaxSize->Text.ToIntDef(0)) {
+        comboSectionSize->Items->Add(String(possibleChunkSize));
+        possibleChunkSize += box_size;
+    }
+    comboSectionSize->ItemIndex = comboSectionSize->Items->Count-1;
 }
 

@@ -1,0 +1,17 @@
+#
+# Worklist query
+#
+(0010,0010) PN []                                       # PatientName
+(0010,0020) LO []                                       # PatientID
+(0010,0030) DA []                                       # DOB
+(0010,0040) CS []                                       # sex
+#(0010,1020) DS []                                       # size
+(0010,1030) DS []                                       # weight
+(0040,0100) SQ                                          # ScheduledProcedureStepSequence
+  (fffe,e000) na                                          # Item
+    (0008,0060) CS []                                       # Modality
+    (0040,0001) AE []                                    # ScheduledStationAETitle
+    (0040,0002) DA []                                    #date
+ #   (0040,0003) TM []                                    #time
+   (fffe,e00d) na (ItemDelimitationItem for re-encoding)   # ItemDelimitationItem
+(fffe,e0dd) na (SequenceDelimitationItem for re-encod.) # SequenceDelimitationItem

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<carfile outputId="34128" timeFileGenerated="2012-11-15T15:09:21" numSections="3">
+
+  <section partid="NoData" sessionid="101" sectionid="4" dateStarted_hm05="2012-11-03T09:45:44" dateCompleted="2012-11-03T09:49:06" checkMD5="c36389426ac89a2fa013a8e49984b629">
+  </section>
+
+  <section partid="nosessionid" sectionid="4" dateStarted_hm05="2012-11-03T09:45:44" dateCompleted="2012-11-03T09:49:06" checkMD5="2f57a1a46b8f03492887337dbae9b2cc">
+      <qidresp qid="elapsed_1_1_1_hm05" resp="3500" />
+ </section>
+
+  <section partid="nosectionid" sessionid="201" dateStarted_hm05="2012-11-03T09:05:04" dateCompleted="2012-11-03T09:45:06" checkMD5="59bf7886bb85c9764a8b17caa022b9ca">
+    <qidresp qid="elapsed_1_1_1_hm05" resp="3500" />
+  </section>
+
+  <section partid="dataStartedNotDate" sessionid="201" sectionid="5" dateStarted_hm05="nodate" dateCompleted="2012-11-03T09:45:06" checkMD5="881de246bfc37fff29a96f4e787628e4">
+    <qidresp qid="elapsed_1_1_1_hm05" resp="3500" />
+  </section>
+
+  <section partid="nodataStarted" sessionid="201" sectionid="5" dateCompleted="2012-11-03T09:45:06" checkMD5="3d86d24f42096847c9444c3bafc6e145">
+    <qidresp qid="elapsed_1_1_1_hm05" resp="3500" />
+  </section>
+
+  <section partid="nomd5" sectionid="4" dateStarted_hm05="2012-11-03T09:45:44" dateCompleted="2012-11-03T09:49:06">
+      <qidresp qid="elapsed_1_1_1_hm05" resp="3500" />
+ </section>
+
+
+  <section partid="OK" sessionid="201" sectionid="5" dateStarted_hm05="2012-11-03T09:05:04" dateCompleted="2012-11-03T09:45:06" checkMD5="c8b2339b68748f4ed2ddd6d31ccbc4bc">
+    <qidresp qid="elapsed_1_1_1_hm05" resp="3500" />
+  </section>
+
+</carfile>
