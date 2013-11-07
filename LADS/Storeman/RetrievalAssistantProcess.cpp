@@ -237,42 +237,25 @@ Rosetta error: ROSETTA Error: member "record_id" not found
 Rosetta error: ROSETTA Error: member "tube_position" not found'.*/
 
         "SELECT"
-        "   *"
+        "    s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
+        "    s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
+        "    cbr.rj_box_cid, cbr.box_id as dest_id, cbr.section as chunk, lcr.position as dest_pos, b1.external_name as dest_name,"
+        "    cbr.status as box_status, lcr.slot_number as cryo_slot, lcr.status as cryo_status,"
+        "    s1.box_cid as dest_id," //???
+        "    c.cryovial_barcode"//, s1.tube_position as source_pos"
         " FROM"
-        "   c_box_retrieval b, l_cryovial_retrieval c"
+        "    c_box_retrieval cbr, l_cryovial_retrieval lcr,"
+        "    cryovial c, cryovial_store s1, box_name b1"
         " WHERE"
-        "   retrieval_cid = :rtid AND"
-        "   b.rj_box_cid = c.rj_box_cid "
+        "    cbr.retrieval_cid = :rtid AND"
+        "    cbr.rj_box_cid = lcr.rj_box_cid AND"
+        "    lcr.cryovial_barcode =  c.cryovial_barcode AND lcr.aliquot_type_cid = c.aliquot_type_cid AND"
+        "    c.cryovial_id = s1.cryovial_id AND"
+        "    s1.status = 2 AND"
+        "    b1.box_cid = s1.box_cid"
         " ORDER BY"
-        "   b.section, b.rj_box_cid, c.position"
+        "    chunk, cbr.rj_box_cid, lcr.position"
     );
-//    qd.setSQL( // from spec 2013-09-11
-//        "SELECT"
-//        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
-//        "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
-//            // LPDbCryovial::storeID( query.readInt( "record_id" ) ) <-- record_id comes from cryovial_store?
-//        "  c.cryovial_barcode, t.external_name AS aliquot,"
-//        "  b1.box_cid as source_id,"
-//        "  b1.external_name as source_name,"
-//        "  s1.tube_position as source_pos,"
-//        "  s2.box_cid as dest_id,"
-//        "  b2.external_name as dest_name,"
-//        "  s2.tube_position as dest_pos"
-//        " FROM"
-//        "  cryovial c, cryovial_store s1, box_name b1,"
-//        "  cryovial_store s2, box_name b2,"
-//        "  c_object_name t"
-//        " WHERE"
-//        "  c.cryovial_id = s1.cryovial_id AND"
-//        "  b1.box_cid = s1.box_cid AND"
-//        "  s1.cryovial_id = s2.cryovial_id AND"
-//        "  s2.status = 0 AND"
-//        "  b2.box_cid = s2.box_cid AND"
-//        "  t.object_cid = c.aliquot_type_cid AND"
-//        "  s1.retrieval_cid = :jobID"
-//        " ORDER BY"
-//        "  cryovial_barcode"
-//        );
     int retrieval_cid = frmProcess->job->getID();
     qd.setParam("rtid", frmProcess->job->getID());
     loadingMessage = frmProcess->loadingMessage;
@@ -287,8 +270,8 @@ Rosetta error: ROSETTA Error: member "tube_position" not found'.*/
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
             qd.readString(  "cryovial_barcode"),
-            qd.readString(  "aliquot"),
-            qd.readString(  "source_name"),
+            "", //qd.readString(  "aliquot"),
+            "", //qd.readString(  "source_name"),
             qd.readInt(     "dest_id"),
             qd.readString(  "dest_name"),
             qd.readInt(     "dest_pos"),

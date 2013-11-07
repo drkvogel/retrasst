@@ -71,9 +71,9 @@ object frmProcess: TfrmProcess
       end
     end
     object panelLoading: TPanel
-      Left = 328
+      Left = 248
       Top = 64
-      Width = 273
+      Width = 521
       Height = 127
       Caption = 'Loading retrieval list, please wait...'
       TabOrder = 2
@@ -81,10 +81,11 @@ object frmProcess: TfrmProcess
       object progressBottom: TProgressBar
         Left = 1
         Top = 109
-        Width = 271
+        Width = 519
         Height = 17
         Align = alBottom
         TabOrder = 0
+        ExplicitWidth = 271
       end
     end
   end
