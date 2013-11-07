@@ -62,18 +62,6 @@ void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
     }
 }
 
-void TfrmProcess::addChunk() {
-    Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
-    if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 1, vials.size());
-    } else {
-        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, currentChunk()->getSize()+1, vials.size());
-    }
-    chunks.push_back(chunk);
-    showChunks();
-    sgChunks->Row = sgChunks->RowCount-1; // fixme make it the current chunk
-}
-
 void TfrmProcess::showChunks() {
     if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
     else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
@@ -257,7 +245,7 @@ Rosetta error: ROSETTA Error: member "tube_position" not found'.*/
         "    chunk, cbr.rj_box_cid, lcr.position"
     );
     int retrieval_cid = frmProcess->job->getID();
-    qd.setParam("rtid", frmProcess->job->getID());
+    qd.setParam("rtid", retrieval_cid);
     loadingMessage = frmProcess->loadingMessage;
     qd.open();
     while (!qd.eof()) {
@@ -313,9 +301,43 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     Enabled = true;
     chunks.clear();
     sgwChunks->clear(); //??
-    //loadChunks();
+    addChunks(); // create chunks based on c_box_retrieval.section, order by l_cryovial_retrieval.position
     showChunks();
 }
+
+void TfrmProcess::addChunks() {
+    if (vials.size() == 0) throw "vials.size() == 0"; // not an error strictly; not by my program anyway!
+    int numvials = vials.size(); int numchunks = chunks.size();
+
+    for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) {
+        Chunk< SampleRow > * curchunk, * newchunk;
+        if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
+            newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, 0, vials.size()-1); // 0-indexed // size is calculated
+        } else {
+            //if (offset <= 0 || offset > vials.size()) throw "invalid offset"; // ok only for first chunk
+            curchunk = currentChunk();
+            int currentchunksize = curchunk->getSize(); // no chunks until first added
+            //if (curchunk->getStart()+offset > vials.size()) { // current last chunk is too small to be split at this offset
+                //return false; // e.g. for auto-chunk to stop chunking
+            //}
+            //curchunk->setEnd(curchunk->getStart()+offset-1); // row above start of new chunk
+            //newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStart()+offset, vials.size()-1);
+        }
+        chunks.push_back(newchunk);
+    }
+}
+
+//void TfrmProcess::addChunk() {
+//    Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
+//    if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
+//        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 1, vials.size());
+//    } else {
+//        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, currentChunk()->getSize()+1, vials.size());
+//    }
+//    chunks.push_back(chunk);
+//    showChunks();
+//    sgChunks->Row = sgChunks->RowCount-1; // fixme make it the current chunk
+//}
 
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
     // check correct vial; could be missing, swapped etc

@@ -64,7 +64,8 @@ private:
     Chunk< SampleRow > *                        currentChunk();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     void                                        loadRows();
-    void                                        addChunk();
+    //void                                        addChunk();
+    void                                        addChunks();
     void                                        process();
     //int maxRows;
     const char *                                loadingMessage;
