@@ -191,15 +191,18 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
 
         Screen->Cursor = crSQLWait; Enabled = false;
         LQuery qc(LIMSDatabase::getCentralDb());
-        map<int, int> boxes; // box_id to rj_box_id
-        int rj_box_cid;
+
         for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) {
+            map<int, int> boxes; // box_id to rj_box_id, per chunk
+            int rj_box_cid;
+
             Chunk< SampleRow > * chunk = *it;
             for (int i = 1; i < chunk->getSize(); i++) {
                 SampleRow *         sampleRow = chunk->rowAt(i);
                 LPDbCryovial *      cryo  = sampleRow->cryo_record;
                 LPDbCryovialStore * store = sampleRow->store_record;
-                map<int, int>::iterator found = boxes.find(sampleRow->store_record->getBoxID());
+                //map<int, int>::iterator found = boxes.find(sampleRow->store_record->getBoxID());
+                map<int, int>::iterator found = boxes.find(sampleRow->dest_box_id);
                 if (found == boxes.end()) { // not added yet, add record and cache
                     { // must go out of scope otherwise read locks db with "no mst..."
                         LQuery qt(LIMSDatabase::getCentralDb()); LCDbID myLCDbID;
@@ -219,12 +222,14 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                     qc.setParam("rjbid",rj_box_cid); // Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
                     qc.setParam("rtid", job->getID());
                     // following should be dest box - is it? should be dest_box_id?
-                    qc.setParam("bxid", sampleRow->store_record->getBoxID()); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+                    //qc.setParam("bxid", sampleRow->store_record->getBoxID()); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+                    qc.setParam("bxid", sampleRow->dest_box_id); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
                     qc.setParam("prid", job->getProjectID());
                     qc.setParam("sect", chunk->getSection()); // 0 = retrieve all boxes in parallel
                     qc.setParam("stat", LCDbBoxStore::Status::SLOT_ALLOCATED); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
                     qc.execSQL();
-                    boxes[sampleRow->store_record->getBoxID()] = rj_box_cid; // cache result
+                    //boxes[sampleRow->store_record->getBoxID()] = rj_box_cid; // cache result
+                    boxes[sampleRow->dest_box_id] = rj_box_cid; // cache result
                 } else {
                     rj_box_cid = found->second;
                 }
@@ -236,7 +241,8 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                     " (:rjid, :pos, :barc, :aliq, :slot, :pid, 'now', :st)"
                 );
                 qc.setParam("rjid", rj_box_cid);
-                qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
+                //qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
+                qc.setParam("pos",  sampleRow->dest_cryo_pos); //??
                 qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
                 qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
                 qc.setParam("slot", sampleRow->box_pos); //??? // rename box_pos to dest_pos?
@@ -469,7 +475,6 @@ void TfrmSamples::autoChunk() {
     frmAutoChunk->ShowModal();
     //frmAutoChunk->Visible = false;
     //Enabled = true;
-
     //frmAutoChunk->Show();
     //Enabled = true;
 }
@@ -515,7 +520,6 @@ void TfrmSamples::removeSorter() {
 }
 
 void TfrmSamples::applySort() { // loop through sorters and apply each selected sort
-    //ostringstream oss; oss<<__FUNC__<<groupSort->ControlCount<<" controls"<<endl; debugLog(oss.str().c_str());
     Chunk< SampleRow > * chunk = currentChunk();
     bool changed = false;
     for (int i=groupSort->ControlCount-1; i>=0; i--) { // controls are in creation order, ie. buttons first from design, last added combo is last
@@ -601,10 +605,6 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             loadingMessage = oss.str().c_str();
             Synchronize((TThreadMethod)&updateStatus);
         }
-
-        //srand(time(NULL));
-        //randomStatus ? (rand() % range + base
-
         SampleRow * row = new SampleRow(
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
@@ -625,14 +625,13 @@ void __fastcall LoadVialsWorkerThread::Execute() {
 	for (vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
-
         map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
         if (found != samples.end()) { // fill in box location from cache map
             sample->copyLocation(*(found->second));
             oss<<sample->storage_str(); oss<<" (cached)";
         } else {
             if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
-                sample->copyLocation(result); //oss<<"(db)";
+                sample->copyLocation(result);
             } else {
                 sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
             }
@@ -652,7 +651,6 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     chunks.clear();
     sgwChunks->clear();
     Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
-
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
     int box_id = vials[0]->dest_box_id;//->getBoxID(); // look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
@@ -660,7 +658,6 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
         throw "box not found";
     box_size = found->getSize();
     editDestBoxSize->Text = box_size;
-
     addChunk(0); // default chunk
     showChunks();
 }
@@ -685,18 +682,15 @@ void __fastcall TfrmSamples::editDestBoxSizeChange(TObject *Sender) {
 
 void __fastcall TfrmSamples::btnAddAllChunksClick(TObject *Sender) {
     Screen->Cursor = crSQLWait; Enabled = false;
-
     int selectedChunkSize = comboSectionSize->Items->Strings[comboSectionSize->ItemIndex].ToIntDef(0);
     float result = float(frmSamples->vials.size()) / float(selectedChunkSize);
     int numChunks = ceil(result);
-
     for (int i=0; i < numChunks; i++) {
         showChunks();
         if (!addChunk(selectedChunkSize))
             break;
     }
     showChunks();
-
     Screen->Cursor = crDefault; Enabled = true;
 }
 
@@ -711,7 +705,7 @@ void TfrmSamples::calcSizes() {
 slot/box (where c_box_size.box_size_cid = box_content.box_size_cid) (where does box_content come from?)
 As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box */
     comboSectionSize->Clear();
-    int possibleChunkSize = box_size; // * 2; // smallest chunk
+    int possibleChunkSize = box_size; // smallest chunk
     while (possibleChunkSize <= editMaxSize->Text.ToIntDef(0)) {
         comboSectionSize->Items->Add(String(possibleChunkSize));
         possibleChunkSize += box_size;

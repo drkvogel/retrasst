@@ -82,7 +82,7 @@ s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
 -- $ sql vnode_vlab::t_ldb20_ddb/star # 'star' (distributed) database
 /*run the query in Terminal monitor first?
 
-Preceed the query with:
+Precede the query with:
 Set qep;
 Set optimizeonly;
 \p\g

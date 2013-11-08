@@ -45,6 +45,7 @@ __published:
     TPanel *panelLoading;
     TProgressBar *progressBottom;
     TTimer *timerLoadPlan;
+    TSplitter *Splitter1;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
@@ -64,20 +65,19 @@ private:
     Chunk< SampleRow > *                        currentChunk();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     void                                        loadRows();
-    //void                                        addChunk();
+    void                                        addChunk(int row);
     void                                        addChunks();
     void                                        process();
     //int maxRows;
     const char *                                loadingMessage;
 public:
     void setJob(LCDbCryoJob * ajob) {
-
-        int rowCount = 0;
-        if (NULL != this) {
-            if (NULL != this->job) {
-                this->job = this->job;
-            }
-        }
+        //int rowCount = 0;
+//        if (NULL != this) {
+//            if (NULL != this->job) {
+//                this->job = this->job;
+//            }
+//        }
         job = ajob;
     }
     __fastcall TfrmProcess(TComponent* Owner);
