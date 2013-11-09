@@ -62,18 +62,6 @@ void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
     }
 }
 
-void TfrmProcess::addChunk() {
-    Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
-    if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, 1, vials.size());
-    } else {
-        chunk = new Chunk< SampleRow >(sgwVials, chunks.size() + 1, currentChunk()->getSize()+1, vials.size());
-    }
-    chunks.push_back(chunk);
-    showChunks();
-    sgChunks->Row = sgChunks->RowCount-1; // fixme make it the current chunk
-}
-
 void TfrmProcess::showChunks() {
     if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
     else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
@@ -210,13 +198,8 @@ void __fastcall LoadPlanWorkerThread::updateStatus() { // can't use args for syn
 void __fastcall LoadPlanWorkerThread::Execute() {
     delete_referenced< vector<SampleRow * > >(frmProcess->vials);
     ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
+    if (NULL != frmProcess && NULL != frmProcess->job) { frmProcess->job = frmProcess->job; } else { throw "wtf?"; }
 
-    rowCount = 0;
-    if (NULL != frmProcess) {
-        if (NULL != frmProcess->job) {
-            frmProcess->job = frmProcess->job;
-        }
-    }
     LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
     qd.setSQL( // from spec 2013-09-11
 /*Rosetta error: ROSETTA Error: member "dest_pos" not found
@@ -236,48 +219,61 @@ Rosetta error: ROSETTA Error: member "sample_id" not found
 Rosetta error: ROSETTA Error: member "record_id" not found
 Rosetta error: ROSETTA Error: member "tube_position" not found'.*/
 
-        "SELECT"
-        "   *"
-        " FROM"
-        "   c_box_retrieval b, l_cryovial_retrieval c"
-        " WHERE"
-        "   retrieval_cid = :rtid AND"
-        "   b.rj_box_cid = c.rj_box_cid "
-        " ORDER BY"
-        "   b.section, b.rj_box_cid, c.position"
-    );
-//    qd.setSQL( // from spec 2013-09-11
 //        "SELECT"
-//        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
-//        "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
-//            // LPDbCryovial::storeID( query.readInt( "record_id" ) ) <-- record_id comes from cryovial_store?
-//        "  c.cryovial_barcode, t.external_name AS aliquot,"
-//        "  b1.box_cid as source_id,"
-//        "  b1.external_name as source_name,"
-//        "  s1.tube_position as source_pos,"
-//        "  s2.box_cid as dest_id,"
-//        "  b2.external_name as dest_name,"
-//        "  s2.tube_position as dest_pos"
+//        "    s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
+//        "    s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
+//        "    cbr.rj_box_cid, cbr.box_id as dest_id, cbr.section as chunk, lcr.position as dest_pos, b1.external_name as dest_name,"
+//        "    cbr.status as box_status, lcr.slot_number as cryo_slot, lcr.status as cryo_status,"
+//        "    s1.box_cid as dest_id," //???
+//        "    c.cryovial_barcode"//, s1.tube_position as source_pos"
 //        " FROM"
-//        "  cryovial c, cryovial_store s1, box_name b1,"
-//        "  cryovial_store s2, box_name b2,"
-//        "  c_object_name t"
+//        "    c_box_retrieval cbr, l_cryovial_retrieval lcr, cryovial c, cryovial_store s1, box_name b1, box_name b2"
 //        " WHERE"
-//        "  c.cryovial_id = s1.cryovial_id AND"
-//        "  b1.box_cid = s1.box_cid AND"
-//        "  s1.cryovial_id = s2.cryovial_id AND"
-//        "  s2.status = 0 AND"
-//        "  b2.box_cid = s2.box_cid AND"
-//        "  t.object_cid = aliquot_type_cid AND"
-//        "  s1.retrieval_cid = :jobID"
+//        "    cbr.retrieval_cid = :rtid AND"
+//        "    cbr.rj_box_cid = lcr.rj_box_cid AND"
+//        "    lcr.cryovial_barcode = c.cryovial_barcode AND lcr.aliquot_type_cid = c.aliquot_type_cid AND"
+//        "    c.cryovial_id = s1.cryovial_id AND"
+//
+//        "    s1.status = 2 AND"
+//        "    b1.box_cid = s1.box_cid"
 //        " ORDER BY"
-//        "  cryovial_barcode"
-//        );
+//        "    chunk, cbr.rj_box_cid, lcr.position"
+
+        " SELECT"
+        "    s1.retrieval_cid,cbr.section as chunk, cbr.rj_box_cid, lcr.position as dest_pos, cbr.status as cbr_status,"
+        "    s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
+        "    s1.record_id, c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists as cryovial_note,"
+        "    s1.box_cid, b1.external_name as source_box, s1.status, s1.tube_position, s1.note_exists as cs_note,"
+        "    cbr.box_id as dest_id, b2.external_name as dest_name, s2.tube_position as slot_number, s2.status as dest_status"
+        " FROM"
+        "    c_box_retrieval cbr, l_cryovial_retrieval lcr, cryovial c, cryovial_store s1, box_name b1, cryovial_store s2, box_name b2"
+        " WHERE"
+        "    cbr.retrieval_cid = :rtid AND"
+        "    s1.retrieval_cid = cbr.retrieval_cid AND"
+        "    lcr.rj_box_cid = cbr.rj_box_cid AND"
+        "    lcr. cryovial_barcode = c.cryovial_barcode AND lcr.aliquot_type_cid = c.aliquot_type_cid AND"
+        "    b2.box_cid = cbr.box_id AND"
+        "    c.cryovial_id = s1.cryovial_id AND"
+        "    c.cryovial_id = s2.cryovial_id AND"
+        "    b1.box_cid = s1.box_cid AND"
+        "    s2.box_cid = b2.box_cid"
+        " ORDER BY"
+        "    s1.retrieval_cid,chunk, cbr.rj_box_cid, lcr.position"
+    );
+    rowCount = 0; // class variable needed for synchronise
     int retrieval_cid = frmProcess->job->getID();
-    qd.setParam("rtid", frmProcess->job->getID());
+    qd.setParam("rtid", retrieval_cid);
     loadingMessage = frmProcess->loadingMessage;
     qd.open();
+    int curchunk = 1, chunk = 0;
     while (!qd.eof()) {
+        chunk = qd.readInt("chunk");
+        wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
+        if (chunk > curchunk) {
+            frmProcess->addChunk(rowCount);
+            curchunk = chunk;
+        }
+
         if (0 == rowCount % 10) {
             ostringstream oss; oss<<"Found "<<rowCount<<" vials";
             loadingMessage = oss.str().c_str();
@@ -287,8 +283,8 @@ Rosetta error: ROSETTA Error: member "tube_position" not found'.*/
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
             qd.readString(  "cryovial_barcode"),
-            qd.readString(  "aliquot"),
-            qd.readString(  "source_name"),
+            "", //qd.readString(  "aliquot"),
+            "", //qd.readString(  "source_name"),
             qd.readInt(     "dest_id"),
             qd.readString(  "dest_name"),
             qd.readInt(     "dest_pos"),
@@ -304,7 +300,6 @@ Rosetta error: ROSETTA Error: member "tube_position" not found'.*/
 	for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]";
-
         map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
         if (found != samples.end()) { // fill in box location from cache map
             sample->copyLocation(*(found->second));
@@ -327,11 +322,39 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
-    Enabled = true;
-    chunks.clear();
-    sgwChunks->clear(); //??
-    //loadChunks();
+    //chunks.clear();
+    //sgwChunks->clear(); //??
+    //addChunks(); // create chunks based on c_box_retrieval.section, order by l_cryovial_retrieval.position
     showChunks();
+    Enabled = true;
+}
+
+void TfrmProcess::addChunks() {
+    if (vials.size() == 0) throw "vials.size() == 0";
+    int numvials = vials.size(); int numchunks = chunks.size();
+
+    for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) {
+        Chunk< SampleRow > * curchunk, * newchunk;
+        if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
+            newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, 0, vials.size()-1); // 0-indexed // size is calculated
+        } else {
+            //if (offset <= 0 || offset > vials.size()) throw "invalid offset"; // ok only for first chunk
+            curchunk = currentChunk();
+            int currentchunksize = curchunk->getSize(); // no chunks until first added
+            //if (curchunk->getStart()+offset > vials.size()) { // current last chunk is too small to be split at this offset
+                //return false; // e.g. for auto-chunk to stop chunking
+            //}
+            //curchunk->setEnd(curchunk->getStart()+offset-1); // row above start of new chunk
+            //newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStart()+offset, vials.size()-1);
+        }
+        chunks.push_back(newchunk);
+    }
+}
+
+void TfrmProcess::addChunk(int row) {
+    Chunk< SampleRow > * chunk;// = new Chunk< SampleRow >;
+    chunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, 1, row);
+    chunks.push_back(chunk);
 }
 
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {

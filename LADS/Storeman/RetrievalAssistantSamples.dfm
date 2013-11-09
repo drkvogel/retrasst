@@ -90,10 +90,6 @@ object frmSamples: TfrmSamples
       Align = alClient
       Caption = 'Chunks'
       TabOrder = 0
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 884
-      ExplicitHeight = 153
       object Panel2: TPanel
         Left = 790
         Top = 15
@@ -102,7 +98,6 @@ object frmSamples: TfrmSamples
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitHeight = 136
         object btnCancel: TButton
           Left = 0
           Top = 50
@@ -112,7 +107,6 @@ object frmSamples: TfrmSamples
           Caption = 'Exit'
           TabOrder = 0
           OnClick = btnCancelClick
-          ExplicitTop = 111
         end
         object btnSave: TButton
           Left = 0
@@ -123,8 +117,6 @@ object frmSamples: TfrmSamples
           Caption = 'Save'
           TabOrder = 1
           OnClick = btnSaveClick
-          ExplicitLeft = 6
-          ExplicitTop = 0
         end
         object btnReject: TButton
           Left = 0
@@ -135,7 +127,6 @@ object frmSamples: TfrmSamples
           Caption = 'Reject List'
           TabOrder = 2
           OnClick = btnRejectClick
-          ExplicitTop = -15
         end
         object cbLog: TCheckBox
           Left = 0
@@ -146,8 +137,6 @@ object frmSamples: TfrmSamples
           Caption = 'Show Log'
           TabOrder = 3
           OnClick = cbLogClick
-          ExplicitLeft = 24
-          ExplicitTop = 120
         end
       end
       object sgChunks: TStringGrid
@@ -165,7 +154,6 @@ object frmSamples: TfrmSamples
         OnFixedCellClick = sgChunksFixedCellClick
         OnGetEditText = sgChunksGetEditText
         OnSetEditText = sgChunksSetEditText
-        ExplicitHeight = 136
       end
     end
     object groupAutoChunk: TGroupBox
@@ -257,7 +245,7 @@ object frmSamples: TfrmSamples
       end
       object updownBoxSize: TUpDown
         AlignWithMargins = True
-        Left = 148
+        Left = 149
         Top = 14
         Width = 17
         Height = 21
@@ -267,10 +255,10 @@ object frmSamples: TfrmSamples
         TabOrder = 5
       end
       object updownMaxSection: TUpDown
-        Left = 305
+        Left = 306
         Top = 14
         Width = 16
-        Height = 22
+        Height = 21
         Associate = editMaxSize
         Max = 5000
         Position = 500
@@ -285,8 +273,6 @@ object frmSamples: TfrmSamples
         Caption = 'Delete last'
         TabOrder = 7
         OnClick = btnDelChunkClick
-        ExplicitLeft = 797
-        ExplicitTop = 14
       end
     end
   end
@@ -297,8 +283,6 @@ object frmSamples: TfrmSamples
     Height = 252
     Align = alClient
     TabOrder = 2
-    ExplicitTop = 336
-    ExplicitHeight = 189
     object groupVials: TGroupBox
       Left = 1
       Top = 42
@@ -307,10 +291,6 @@ object frmSamples: TfrmSamples
       Align = alClient
       Caption = 'Vials in chunk'
       TabOrder = 0
-      ExplicitLeft = 0
-      ExplicitTop = 314
-      ExplicitWidth = 884
-      ExplicitHeight = 170
       object sgVials: TStringGrid
         Left = 2
         Top = 15
@@ -326,7 +306,6 @@ object frmSamples: TfrmSamples
         OnDblClick = sgVialsDblClick
         OnDrawCell = sgVialsDrawCell
         OnFixedCellClick = sgVialsFixedCellClick
-        ExplicitHeight = 82
       end
       object panelLoading: TPanel
         Left = 176
@@ -354,9 +333,6 @@ object frmSamples: TfrmSamples
       Align = alTop
       Caption = 'Sort'
       TabOrder = 1
-      ExplicitLeft = 0
-      ExplicitTop = 214
-      ExplicitWidth = 884
       object btnDelSort: TButton
         Left = 798
         Top = 15

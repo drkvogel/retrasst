@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sql [
+<!ENTITY file0 SYSTEM 'C:\Users\timw\AppData\Roaming\CTSU_CP\Storeman xtra xtra\Storeman xtra xtra.1310250904B.sql.txt' >
+]>
+<sql>
+&file0;
+</sql>

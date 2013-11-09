@@ -14,7 +14,7 @@ LADS/CoulterComms/
 #LADS/GenericComms/
 #LADS/HPLCComms/
 #LADS/IDS-iSYS/
-#LADS/LUA/
+LADS/LUA/lua-5.2.2
 #LADS/LabsDAO/test.cpp
 LADS/MenariniComms/
 LADS/Nephelometer/

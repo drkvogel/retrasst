@@ -18,31 +18,44 @@ object frmProcess: TfrmProcess
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object List: TGroupBox
+  object Splitter1: TSplitter
     Left = 0
     Top = 105
     Width = 956
-    Height = 250
+    Height = 10
+    Cursor = crVSplit
+    Align = alTop
+    Beveled = True
+  end
+  object List: TGroupBox
+    Left = 0
+    Top = 115
+    Width = 956
+    Height = 240
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
+    ExplicitTop = 105
+    ExplicitHeight = 250
     object sgVials: TStringGrid
       Left = 2
       Top = 15
       Width = 952
-      Height = 147
+      Height = 137
       Align = alClient
       FixedCols = 0
       TabOrder = 0
+      ExplicitHeight = 147
     end
     object GroupBox3: TGroupBox
       Left = 2
-      Top = 162
+      Top = 152
       Width = 952
       Height = 86
       Align = alBottom
       Caption = 'Details'
       TabOrder = 1
+      ExplicitTop = 162
       object Label3: TLabel
         Left = 70
         Top = 52
@@ -71,9 +84,9 @@ object frmProcess: TfrmProcess
       end
     end
     object panelLoading: TPanel
-      Left = 328
+      Left = 248
       Top = 64
-      Width = 273
+      Width = 521
       Height = 127
       Caption = 'Loading retrieval list, please wait...'
       TabOrder = 2
@@ -81,10 +94,11 @@ object frmProcess: TfrmProcess
       object progressBottom: TProgressBar
         Left = 1
         Top = 109
-        Width = 271
+        Width = 519
         Height = 17
         Align = alBottom
         TabOrder = 0
+        ExplicitWidth = 271
       end
     end
   end

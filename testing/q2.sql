@@ -78,36 +78,84 @@ s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
   s2.box_cid as dest_id,
   b2.external_name as dest_name,
   s2.tube_position as dest_pos   
+  
+-- $ sql vnode_vlab::t_ldb20_ddb/star # 'star' (distributed) database
+/*run the query in Terminal monitor first?
+
+Precede the query with:
+Set qep;
+Set optimizeonly;
+\p\g
+...your query ...
+\p\g
+
+If you do this you'll see a query plan produced. The query will not be executed.
+*/
+
+SELECT
+    cbr.rj_box_cid, 
+    cbr.box_id as dest_box, 
+    cbr.section as chunk,
+    cbr.status as box_status,
+    lcr.slot_number as cryo_slot,
+    lcr.status as cryo_status,
+    s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position, 
+    s1.record_id, c.sample_id, c.aliquot_type_cid,  
+    c.cryovial_barcode, t.external_name AS aliquot,
+    s1.tube_position as source_pos
+FROM  
+    c_box_retrieval cbr, l_cryovial_retrieval lcr,
+    cryovial c, cryovial_store s1, box_name b1, 
+    c_object_name t
+WHERE    
+    cbr.retrieval_cid = 2018 AND
+    cbr.rj_box_cid = lcr.rj_box_cid AND
+    lcr.cryovial_barcode =  c.cryovial_barcode AND lcr.aliquot_type_cid = c.aliquot_type_cid AND
+    c.cryovial_id = s1.cryovial_id AND
+    s1.status = 2 AND
+    b1.box_cid = s1.box_cid AND
+    t.object_cid = c.aliquot_type_cid
+ORDER BY
+    cbr.section, cbr.rj_box_cid, lcr.position 
+
    
 SELECT
-  br.rj_box_cid as dest_box, br.section as chunk,
-  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position, 
-  s1.record_id, c.sample_id, c.aliquot_type_cid,  
-  c.cryovial_barcode, t.external_name AS aliquot,
-  b1.box_cid as source_id,
-  b1.external_name as source_name,
-  s1.tube_position as source_pos,
+    --cbr.rj_box_cid as dest_box, 
+    cbr.box_id as dest_box, 
+    cbr.section as chunk,
+    cbr.status as box_status,
+    --lcr.position as cryo_pos,
+    lcr.slot_position as cryo_slot,
+    lcr.status as cryo_status,
+    s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position, 
+    s1.record_id, c.sample_id, c.aliquot_type_cid,  
+    c.cryovial_barcode, t.external_name AS aliquot,
+  --b1.box_cid as source_id,
+  --b1.external_name as source_name,
+    s1.tube_position as source_pos
   --s2.box_cid as dest_id,
   --b2.external_name as dest_name,
   --s2.tube_position as dest_pos
 FROM  
-  cryovial c, cryovial_store s1, box_name b1,
-  c_box_retrieval br, l_cryovial_retrieval cr,
-  --cryovial_store s2, box_name b2,
-  c_object_name t
-WHERE
-    -- don't have cryovial_id in l_cryovial_retrieval - join on barcode and aliquot_type
-  --c.cryovial_id = s1.cryovial_id AND
-  b1.box_cid = s1.box_cid AND
+    c_box_retrieval cbr, l_cryovial_retrieval lcr,
+    cryovial c, cryovial_store s1, box_name b1, 
+    --box_store bs1  
+    --cryovial_store s2, box_name b2,
+    c_object_name t -- for aliquot
+WHERE    
+    cbr.retrieval_cid = 2018 AND
+    cbr.rj_box_cid = lcr.rj_box_cid AND
+    lcr.cryovial_barcode =  c.cryovial_barcode AND lcr.aliquot_type_cid = c.aliquot_type_cid AND -- don't have cryovial_id in l_cryovial_retrieval - join on barcode and aliquot_type
+    c.cryovial_id = s1.cryovial_id AND
+    s1.status = 2 -- removal expected
+    b1.box_cid = s1.box_cid AND
   --s1.cryovial_id = s2.cryovial_id AND
-  s2.status = 0 AND
-  b2.box_cid = s2.box_cid AND
-  t.object_cid = aliquot_type_cid AND
-  br.rj_box_cid = cr.rj_box_cid AND
-  br.retrieval_cid = 2018
+  --s2.status = 0 AND
+  --b2.box_cid = s2.box_cid AND
+    t.object_cid = aliquot_type_cid AND
+    --cbr.status != 99 AND lcr.status != 99 -- shouldn't be opened if 99'd
 ORDER BY
-  -- br.section, br.rj_box_cid, cr.position    
-  chunk
+    cbr.section, cbr.rj_box_cid, lcr.position    
    
 -- TfrmSamples
    
