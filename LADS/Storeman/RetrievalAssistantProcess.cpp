@@ -50,6 +50,9 @@ void __fastcall TfrmProcess::FormDestroy(TObject *Sender) {
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     timerLoadPlan->Enabled = true;
     panelLoading->Caption = loadingMessage;
+    chunks.clear();
+    sgwChunks->clear();
+    sgwVials->clear();
 }
 
 void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
@@ -451,6 +454,7 @@ void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
     // check correct vial; could be missing, swapped etc
 }
 
-
-
+void __fastcall TfrmProcess::btnExitClick(TObject *Sender) {
+    // exit, saving progress if any
+}
 

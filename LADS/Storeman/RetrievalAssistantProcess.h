@@ -46,6 +46,7 @@ __published:
     TGroupBox *GroupBox3;
     TLabel *Label3;
     TLabel *Label2;
+    TButton *btnExit;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
@@ -59,6 +60,7 @@ __published:
           TGridDrawState State);
     void __fastcall sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
           TGridDrawState State);
+    void __fastcall btnExitClick(TObject *Sender);
 
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;

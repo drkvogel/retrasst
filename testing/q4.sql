@@ -21,49 +21,22 @@
     
  -- firstly, the number of vials in each chunk is wrong by 1 too few. as dest_pos = 1, 6, 11, etc is missing, it looks like the first one in each chunk
  -- fixed that: i=1, what was I thinking of (from when things were 1-indexed), 
- 
  -- but otherwise, the query looks correct - the vials are missing from the l_cryovial_retrieval, so the plan was incorrect
- 
  -- pos 1 is still not shown, and the chunks are a sum of all preceding chunks - showChunk is now nearly identical to that in frmSamples, so may be error earlier
- 
  -- plan shown by: select * from c_box_retrieval cbr, l_cryovial_retrieval lcr where cbr.rj_box_cid = lcr.rj_box_cid
- 
- -- 'sections' (chunks) go 1, 2, 3...
- 
- -- Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e) { }
- 
- -- and the end of the last chunk wasn't set - now done outside thread, no, inside thread using friend
- 
+ -- 'sections' (chunks) go 1, 2, 3... 
+ -- Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e) { } 
+ -- and the end of the last chunk wasn't set - now done outside thread, no, inside thread using friend 
  -- now: chunks don't display box, 
     -- source_box
     -- aliquot_type_cid
     -- LPDbCryovials::getAliquotTypes returns set of ali types
-    -- getAliquotDescription
- 
+    -- getAliquotDescription 
  -- and list doesn't display aliquot, current box - now it does, with std::string Util::getAliquotDescription(int aliquot_cid)
- 
-/*
 
  -- no enums for statuses of c_box/l_cryovial_retrieval - is it time for LCDbRetrieval?
  -- no status for chunk as such - just contents (box, vials) of entries of job. cbr records have status=5? LCDbBoxStore::Status::SLOT_ALLOCATED - wrong!
  -- should be 0: new record - not enummed anywhere
-c_box_retrieval
-    box_id          # The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
-    retrieval_cid   # The retrieval task this entry is part of
-    retrieval_type  # obsolete
-    section         # Which chunk of the retrieval plan this entry belongs to (0 = retrieve all boxes)
-    position        # The position of this entry in that chunk (may be 0 for sample retrieval, i.e. use l_cryovial_retrieval position)
-    box_name        # obsolete
-    rj_box_cid      # Unique ID for this retrieval list entry (what does rj stand for?)
-    status          # 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
 
-l_cryovial_retrieval
-    rj_box_cid      # record id of c_box_retrieval entry for the box the sample should be placed into?
-    position        # Where this sample appears in the current chunk of the retrieval plan
-    cryovial_barcode# The barcode on the sample
-    aliquot_type_cid# The aliquot type (cryovial_barcode + aliquot_type_cid should uniquely identify the cryovial within the project)
-    slot_number     # The expected position of the cryovial in the destination box (if two records suggest the same position in the same box, the first should be the primary aliquot; the second will be ignored if the first is found)
-    process_cid     # Who stored it, which program etc.
-    status          # 0: expected; 1: ignored, 2: collected; 3: not found; 99: record deleted */ 
  
  
