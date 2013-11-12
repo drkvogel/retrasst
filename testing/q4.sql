@@ -45,7 +45,8 @@
 /*
 
  -- no enums for statuses of c_box/l_cryovial_retrieval - is it time for LCDbRetrieval?
- -- no status for chunk as such - just contents (box, vials) of entries of job. cbr records have status=5?
+ -- no status for chunk as such - just contents (box, vials) of entries of job. cbr records have status=5? LCDbBoxStore::Status::SLOT_ALLOCATED - wrong!
+ -- should be 0: new record - not enummed anywhere
 c_box_retrieval
     box_id          # The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
     retrieval_cid   # The retrieval task this entry is part of
