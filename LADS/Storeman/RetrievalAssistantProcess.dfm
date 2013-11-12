@@ -31,7 +31,7 @@ object frmProcess: TfrmProcess
     Left = 0
     Top = 115
     Width = 956
-    Height = 240
+    Height = 154
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
@@ -43,45 +43,13 @@ object frmProcess: TfrmProcess
       Width = 952
       Height = 137
       Align = alClient
+      DefaultDrawing = False
       FixedCols = 0
       TabOrder = 0
-      ExplicitHeight = 147
-    end
-    object GroupBox3: TGroupBox
-      Left = 2
-      Top = 152
-      Width = 952
-      Height = 86
-      Align = alBottom
-      Caption = 'Details'
-      TabOrder = 1
-      ExplicitTop = 162
-      object Label3: TLabel
-        Left = 70
-        Top = 52
-        Width = 105
-        Height = 25
-        Caption = 'Sample ID:'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -21
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-      end
-      object Label2: TLabel
-        Left = 12
-        Top = 21
-        Width = 163
-        Height = 25
-        Caption = 'Storage Location:'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -21
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-      end
+      OnDrawCell = sgVialsDrawCell
+      ExplicitLeft = 1
+      ExplicitTop = 11
+      ExplicitHeight = 223
     end
     object panelLoading: TPanel
       Left = 248
@@ -89,7 +57,7 @@ object frmProcess: TfrmProcess
       Width = 521
       Height = 127
       Caption = 'Loading retrieval list, please wait...'
-      TabOrder = 2
+      TabOrder = 1
       Visible = False
       object progressBottom: TProgressBar
         Left = 1
@@ -104,12 +72,13 @@ object frmProcess: TfrmProcess
   end
   object GroupBox2: TGroupBox
     Left = 0
-    Top = 355
+    Top = 405
     Width = 956
     Height = 77
     Align = alBottom
     Caption = 'Sign Off'
     TabOrder = 1
+    ExplicitTop = 355
     DesignSize = (
       956
       77)
@@ -183,19 +152,63 @@ object frmProcess: TfrmProcess
       Width = 952
       Height = 88
       Align = alClient
+      DefaultDrawing = False
       FixedCols = 0
       ScrollBars = ssVertical
       TabOrder = 0
+      OnClick = sgChunksClick
+      OnDrawCell = sgChunksDrawCell
+      OnFixedCellClick = sgChunksFixedCellClick
     end
   end
   object memoDebug: TMemo
     Left = 0
-    Top = 432
+    Top = 269
     Width = 956
     Height = 50
     Align = alBottom
     TabOrder = 3
     Visible = False
+    ExplicitLeft = 8
+    ExplicitTop = 234
+  end
+  object GroupBox3: TGroupBox
+    Left = 0
+    Top = 319
+    Width = 956
+    Height = 86
+    Align = alBottom
+    Caption = 'Details'
+    TabOrder = 4
+    ExplicitLeft = 3
+    ExplicitTop = 148
+    ExplicitWidth = 952
+    object Label3: TLabel
+      Left = 70
+      Top = 52
+      Width = 105
+      Height = 25
+      Caption = 'Sample ID:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -21
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label2: TLabel
+      Left = 12
+      Top = 21
+      Width = 163
+      Height = 25
+      Caption = 'Storage Location:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -21
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
   end
   object mainMenuMain: TMainMenu
     Left = 512

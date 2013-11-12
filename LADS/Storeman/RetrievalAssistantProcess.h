@@ -32,9 +32,6 @@ __published:
     TButton *btnSkip;
     TEdit *editBarcode;
     TLabel *Label1;
-    TGroupBox *GroupBox3;
-    TLabel *Label3;
-    TLabel *Label2;
     TMainMenu *mainMenuMain;
     TMenuItem *menuItemExit;
     TGroupBox *Chunks;
@@ -46,6 +43,9 @@ __published:
     TProgressBar *progressBottom;
     TTimer *timerLoadPlan;
     TSplitter *Splitter1;
+    TGroupBox *GroupBox3;
+    TLabel *Label3;
+    TLabel *Label2;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
@@ -53,6 +53,13 @@ __published:
     void __fastcall FormDestroy(TObject *Sender);
     void __fastcall timerLoadPlanTimer(TObject *Sender);
     void __fastcall btnAcceptClick(TObject *Sender);
+    void __fastcall sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow);
+    void __fastcall sgChunksClick(TObject *Sender);
+    void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
+          TGridDrawState State);
+    void __fastcall sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
+          TGridDrawState State);
+
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);

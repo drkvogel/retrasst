@@ -62,6 +62,76 @@ void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
     }
 }
 
+void __fastcall TfrmProcess::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
+    ostringstream oss; oss << __FUNC__;
+    oss<<sgwChunks->printColWidths()<<" clicked on col: "<<ACol<<".";
+    //debugLog(oss.str().c_str());
+}
+
+void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
+    showChunk();
+}
+
+void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+    TColor background = clWindow;
+    if (0 == ARow) {
+        background = clBtnFace;
+    } else {
+        Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][ARow];
+        background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
+        if (NULL == chunk) {
+            background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        } else {
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+        }
+    }
+    TCanvas * cnv = sgChunks->Canvas;
+	cnv->Brush->Color = background;
+	cnv->FillRect(Rect);
+    if (State.Contains(gdSelected)) {
+        TFontStyles oldFontStyle = cnv->Font->Style;
+        TPenStyle oldPenStyle = cnv->Pen->Style;
+        cnv->Pen->Style     = psDot;
+        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
+        cnv->Font->Style    = TFontStyles() << fsBold;
+    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
+        cnv->Pen->Style     = oldPenStyle;
+        cnv->Font->Style    = oldFontStyle;
+	} else {
+        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgChunks->Cells[ACol][ARow]);
+    }
+}
+
+void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+    TColor background = clWindow;
+    if (0 == ARow) {
+        background = clBtnFace;
+    } else {
+        SampleRow * row = (SampleRow *)sgVials->Objects[0][ARow];
+        background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
+        if (NULL == row) {
+            background = clWindow;
+        } else {
+            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
+        }
+    }
+    TCanvas * cnv = sgVials->Canvas;
+	cnv->Brush->Color = background;
+	cnv->FillRect(Rect);
+    if (State.Contains(gdSelected)) {
+        TFontStyles oldFontStyle = cnv->Font->Style;
+        TPenStyle oldPenStyle = cnv->Pen->Style;
+        cnv->Pen->Style     = psDot;
+        cnv->Rectangle(Rect.Left+1, Rect.Top+1, Rect.Right-1, Rect.Bottom-1);
+        cnv->Font->Style    = TFontStyles() << fsBold;
+    	cnv->TextOut(Rect.Left+5, Rect.Top+5, sgVials->Cells[ACol][ARow]);
+        cnv->Pen->Style     = oldPenStyle;
+        cnv->Font->Style    = oldFontStyle;
+	} else {
+        cnv->TextOut(Rect.Left+5, Rect.Top+5, sgVials->Cells[ACol][ARow]);
+    }
+}
+
 void TfrmProcess::showChunks() {
     if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
     else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
@@ -360,5 +430,7 @@ void TfrmProcess::addChunk(int row) {
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
     // check correct vial; could be missing, swapped etc
 }
+
+
 
 
