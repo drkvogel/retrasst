@@ -120,6 +120,8 @@ public:
 
 		static LQuery projectQuery( int proj_id = 0, bool ddb = false );
         static bool numericCompare(const std::string a, const std::string b);
+
+        static std::string getAliquotDescription(int aliquot_cid);
 };
 
 //---------------------------------------------------------------------------

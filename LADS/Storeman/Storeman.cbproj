@@ -267,6 +267,10 @@
 				<DependentOn>..\LabsDAO\LCDbRack.h</DependentOn>
 				<BuildOrder>32</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LCDbRetrieval.cpp">
+				<DependentOn>..\LabsDAO\LCDbRetrieval.h</DependentOn>
+				<BuildOrder>107</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="..\LabsDAO\LCDbTankLayout.cpp">
 				<DependentOn>..\LabsDAO\LCDbTankLayout.h</DependentOn>
 				<BuildOrder>39</BuildOrder>

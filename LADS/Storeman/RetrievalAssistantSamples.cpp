@@ -9,6 +9,7 @@
 #include "LCDbAuditTrail.h"
 #include "LPDbCryovialStore.h"
 #include "LPDbBoxes.h"
+#include "LCDbRetrieval.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -226,7 +227,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                     qc.setParam("bxid", sampleRow->dest_box_id); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
                     qc.setParam("prid", job->getProjectID());
                     qc.setParam("sect", chunk->getSection()); // 0 = retrieve all boxes in parallel
-                    qc.setParam("stat", LCDbBoxStore::Status::SLOT_ALLOCATED); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
+                    qc.setParam("stat", LCDbBoxRetrieval::Status::NEW); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
                     qc.execSQL();
                     //boxes[sampleRow->store_record->getBoxID()] = rj_box_cid; // cache result
                     boxes[sampleRow->dest_box_id] = rj_box_cid; // cache result
@@ -248,7 +249,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                 qc.setParam("slot", sampleRow->box_pos); //??? // rename box_pos to dest_pos?
                 const int pid = LCDbAuditTrail::getCurrent().getProcessID();
                 qc.setParam("pid",  pid);
-                qc.setParam("st",   LPDbCryovialStore::Status::ALLOCATED); //??
+                qc.setParam("st",   LCDbCryovialRetrieval::Status::EXPECTED); //??
                 qc.execSQL();
             }
         }

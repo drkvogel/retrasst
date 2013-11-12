@@ -291,6 +291,7 @@ class Chunk { // not recorded in database
     string              endVial;
     string              endBox;
     string              endDescrip;
+    enum Status { NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES } status;
 public:
     Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e) { }
     int     getSection()    { return section; }

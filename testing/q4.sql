@@ -34,4 +34,35 @@
  
  -- and the end of the last chunk wasn't set - now done outside thread, no, inside thread using friend
  
- -- now: chunks don't display box, and list doesn't display aliquot, current box
+ -- now: chunks don't display box, 
+    -- source_box
+    -- aliquot_type_cid
+    -- LPDbCryovials::getAliquotTypes returns set of ali types
+    -- getAliquotDescription
+ 
+ -- and list doesn't display aliquot, current box - now it does, with std::string Util::getAliquotDescription(int aliquot_cid)
+ 
+/*
+
+ -- no enums for statuses of c_box/l_cryovial_retrieval - is it time for LCDbRetrieval?
+ -- no status for chunk as such - just contents (box, vials) of entries of job. cbr records have status=5?
+c_box_retrieval
+    box_id          # The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+    retrieval_cid   # The retrieval task this entry is part of
+    retrieval_type  # obsolete
+    section         # Which chunk of the retrieval plan this entry belongs to (0 = retrieve all boxes)
+    position        # The position of this entry in that chunk (may be 0 for sample retrieval, i.e. use l_cryovial_retrieval position)
+    box_name        # obsolete
+    rj_box_cid      # Unique ID for this retrieval list entry (what does rj stand for?)
+    status          # 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
+
+l_cryovial_retrieval
+    rj_box_cid      # record id of c_box_retrieval entry for the box the sample should be placed into?
+    position        # Where this sample appears in the current chunk of the retrieval plan
+    cryovial_barcode# The barcode on the sample
+    aliquot_type_cid# The aliquot type (cryovial_barcode + aliquot_type_cid should uniquely identify the cryovial within the project)
+    slot_number     # The expected position of the cryovial in the destination box (if two records suggest the same position in the same box, the first should be the primary aliquot; the second will be ignored if the first is found)
+    process_cid     # Who stored it, which program etc.
+    status          # 0: expected; 1: ignored, 2: collected; 3: not found; 99: record deleted */ 
+ 
+ 
