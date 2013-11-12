@@ -197,7 +197,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             int rj_box_cid;
 
             Chunk< SampleRow > * chunk = *it;
-            for (int i = 1; i < chunk->getSize(); i++) {
+            for (int i = 0; i < chunk->getSize(); i++) {
                 SampleRow *         sampleRow = chunk->rowAt(i);
                 LPDbCryovial *      cryo  = sampleRow->cryo_record;
                 LPDbCryovialStore * store = sampleRow->store_record;
