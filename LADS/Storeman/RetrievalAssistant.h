@@ -306,6 +306,7 @@ class Chunk { // not recorded in database
     string              endVial;
     string              endBox;
     string              endDescrip;
+    enum Status { NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES } status;
 public:
     Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e) { }
     int     getSection()    { return section; }
@@ -401,15 +402,15 @@ __published:
     void __fastcall cbRejectedClick(TObject *Sender);
     void __fastcall btnResetJobsClick(TObject *Sender);
 private:
-    void                    debugLog(String s);
-    tdvecpJob               vecJobs;
-    LCDbCryoJobs            jobs;
     StringGridWrapper<LCDbCryoJob> *  sgwJobs;
-    void                    loadJobs();
+    void               loadJobs();
+    tdvecpJob          vecJobs;
+    LCDbCryoJobs       jobs;
     string             getExerciseDescription(int exercise_cid);
     string             getProjectDescription(int project_cid);
     string             getAliquotDescription(int primary_aliquot);
     string             getAuditInfo(int process_cid);
+    void               debugLog(String s);
 public:
     __fastcall TfrmRetrievalAssistant(TComponent* Owner);
     void init();

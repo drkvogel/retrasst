@@ -9,6 +9,7 @@
 #include "LCDbAuditTrail.h"
 #include "LPDbCryovialStore.h"
 #include "LPDbBoxes.h"
+#include "LCDbRetrieval.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -80,6 +81,7 @@ void __fastcall TfrmSamples::FormDestroy(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormShow(TObject *Sender) {
+    Enabled = false;
     ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
     Caption = oss.str().c_str();
     btnSave->Enabled = true;
@@ -197,7 +199,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             int rj_box_cid;
 
             Chunk< SampleRow > * chunk = *it;
-            for (int i = 1; i < chunk->getSize(); i++) {
+            for (int i = 0; i < chunk->getSize(); i++) {
                 SampleRow *         sampleRow = chunk->rowAt(i);
                 LPDbCryovial *      cryo  = sampleRow->cryo_record;
                 LPDbCryovialStore * store = sampleRow->store_record;
@@ -226,7 +228,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                     qc.setParam("bxid", sampleRow->dest_box_id); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
                     qc.setParam("prid", job->getProjectID());
                     qc.setParam("sect", chunk->getSection()); // 0 = retrieve all boxes in parallel
-                    qc.setParam("stat", LCDbBoxStore::Status::SLOT_ALLOCATED); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
+                    qc.setParam("stat", LCDbBoxRetrieval::Status::NEW); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
                     qc.execSQL();
                     //boxes[sampleRow->store_record->getBoxID()] = rj_box_cid; // cache result
                     boxes[sampleRow->dest_box_id] = rj_box_cid; // cache result
@@ -248,7 +250,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                 qc.setParam("slot", sampleRow->box_pos); //??? // rename box_pos to dest_pos?
                 const int pid = LCDbAuditTrail::getCurrent().getProcessID();
                 qc.setParam("pid",  pid);
-                qc.setParam("st",   LPDbCryovialStore::Status::ALLOCATED); //??
+                qc.setParam("st",   LCDbCryovialRetrieval::Status::EXPECTED); //??
                 qc.execSQL();
             }
         }
@@ -271,6 +273,7 @@ void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     //ostringstream oss; oss << __FUNC__; oss<<sgwVials->printColWidths()<<" sorting by col: "<<ACol<<"."; debugLog(oss.str().c_str());
     Enabled = false;
+    if (chunks.size() == 0) return; // fix bug where double-click on main screen leaks through to this form on show
     currentChunk()->sortToggle(ACol);
     showChunk();
     Enabled = true;
@@ -331,7 +334,10 @@ bool TfrmSamples::addChunk(unsigned int offset) {
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
         newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, 0, vials.size()-1); // 0-indexed // size is calculated
     } else {
-        if (offset <= 0 || offset > vials.size()) throw "invalid offset"; // ok only for first chunk
+        if (offset <= 0 || offset > vials.size()) {
+            Application->MessageBox(L"Invalid chunk size", L"Info", MB_OK);
+            return false;
+        } //throw "invalid offset"; // ok only for first chunk
         curchunk = currentChunk();
         int currentchunksize = curchunk->getSize(); // no chunks until first added
         if (curchunk->getStart()+offset > vials.size()) { // current last chunk is too small to be split at this offset
@@ -654,12 +660,16 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
     int box_id = vials[0]->dest_box_id;//->getBoxID(); // look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
-    if (found == NULL)
-        throw "box not found";
+    if (found == NULL) {
+        Enabled = true;
+        Application->MessageBox(L"Box not found, exiting", L"Error", MB_YESNO);
+        Close();
+    } //throw "box not found";
     box_size = found->getSize();
     editDestBoxSize->Text = box_size;
     addChunk(0); // default chunk
     showChunks();
+    Enabled = true;
 }
 
 void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {

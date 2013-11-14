@@ -154,6 +154,8 @@ object frmSamples: TfrmSamples
         OnFixedCellClick = sgChunksFixedCellClick
         OnGetEditText = sgChunksGetEditText
         OnSetEditText = sgChunksSetEditText
+        ExplicitLeft = -4
+        ExplicitTop = 11
       end
     end
     object groupAutoChunk: TGroupBox

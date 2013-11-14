@@ -334,3 +334,15 @@ bool Util::numericCompare(const std::string a, const std::string b) {
     return diff == 0 ? local.justNumerics(a) < local.justNumerics(b) : diff < 0;
 }
 
+std::string Util::getAliquotDescription(int aliquot_cid) { // c_object_name 6: aliquot type
+    std::ostringstream oss;
+    if (0 == aliquot_cid) return "Not specified";
+    try {
+        const LCDbObject * aliquot = LCDbObjects::records().findByID(aliquot_cid);
+        oss << aliquot->getName().c_str();
+    } catch (...) {
+        oss << "ID "<<aliquot_cid<<" not found";
+    }
+    return oss.str();
+}
+

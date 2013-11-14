@@ -23,7 +23,7 @@ ORDER BY
  -- reset jobs and recreated plan - now 27 rows.... I thought there were 28?
 
  -- Nick's query
- 
+ -- Hackery of the highest order
  -- I have reorganised your query slightly and added a second box_name:
 
 SELECT
@@ -65,6 +65,8 @@ SELECT
     s1.retrieval_cid,chunk, cbr.rj_box_cid
 
   -- but there's obviously something wrong - it ends up with the source and destination boxes being the same in t_ldb20_ddb   
+  
+  -- (me) now one too few vials in each chunk
   
   -- mine
   SELECT

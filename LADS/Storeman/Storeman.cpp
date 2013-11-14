@@ -6,38 +6,41 @@
 
 //---------------------------------------------------------------------------
 
-USEFORM("DiscardSearch.cpp", frmSearch);
-USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
+
+
+USEFORM("FindSample.cpp", frmFind);
 USEFORM("DiscardReason.cpp", frmDiscardReason);
 USEFORM("DiscardSamples.cpp", frmDiscardSamples);
-USEFORM("FindSample.cpp", frmFind);
-USEFORM("NewExercise.cpp", frmNewExercise);
+USEFORM("DiscardSearch.cpp", frmSearch);
 USEFORM("NewJob.cpp", frmNewJob);
 USEFORM("NewSection.cpp", frmNewSection);
+USEFORM("NewSite.cpp", frmNewSite);
 USEFORM("MoveJobs.cpp", frmSelectJob);
 USEFORM("NewBoxType.cpp", frmNewBoxType);
-USEFORM("AnalyseSamples.cpp", frmAnalyseSpecimens);
+USEFORM("NewExercise.cpp", frmNewExercise);
 USEFORM("BoxTransfer.cpp", frmBoxList);
-USEFORM("AddSpecimens.cpp", frmAddSpecimens);
 USEFORM("BrowseSample.cpp", frmBrowse);
+USEFORM("AddSpecimens.cpp", frmAddSpecimens);
+USEFORM("AnalyseSamples.cpp", frmAnalyseSpecimens);
+USEFORM("Configure.cpp", frmConfigure);
 USEFORM("DiscardMethod.cpp", frmDiscardMethod);
 USEFORM("DiscardNote.cpp", frmDiscardNote);
-USEFORM("Configure.cpp", frmConfigure);
-USEFORM("NewSite.cpp", frmNewSite);
+USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
+USEFORM("NewTank.cpp", frmNewTank);
 USEFORM("Storemain.cpp", frmStoremain);
 USEFORM("SelectSamples.cpp", frmSelectBoxes);
 USEFORM("showsamples.cpp", frmAliquotTypes);
 USEFORM("SMLogin.cpp", frmSMLogin);
-USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
 USEFORM("RetrievalAssistant.cpp", frmRetrievalAssistant);
 USEFORM("RetrievalAssistantAutoChunk.cpp", frmAutoChunk);
-USEFORM("NewTank.cpp", frmNewTank);
+USEFORM("RetrievalAssistantBoxes.cpp", frmBoxes);
 USEFORM("NewType.cpp", frmNewStoreType);
 USEFORM("ReferredBoxes.cpp", frmReferred);
-USEFORM("RetrievalAssistantBoxes.cpp", frmBoxes);
+USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
+USEFORM("RetrievalAssistantProcess.cpp", frmProcess);
 USEFORM("SampleEntry.cpp", frmRetrieveMain);
 USEFORM("SampleMove.cpp", frmMove);
-USEFORM("RetrievalAssistantProcess.cpp", frmProcess);
+USEFORM("RetrievalAssistantProcessBoxes.cpp", frmProcessBoxes);
 USEFORM("RetrievalAssistantSamples.cpp", frmSamples);
 USEFORM("RetrieveSamples.cpp", frmRetrieved);
 USEFORM("..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.cpp", cryovialHistoryDialog);
@@ -50,10 +53,7 @@ USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
 USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
 USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
 USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
-USEFORM("RetrievalAssistantProcessBoxes.cpp", frmProcessBoxes);
-
 //---------------------------------------------------------------------------
-
 WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
 	try
