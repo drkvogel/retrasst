@@ -48,6 +48,7 @@ object frmProcess: TfrmProcess
       Align = alClient
       DefaultDrawing = False
       FixedCols = 0
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect]
       TabOrder = 0
       OnDrawCell = sgVialsDrawCell
       ExplicitLeft = 1
@@ -173,6 +174,7 @@ object frmProcess: TfrmProcess
       Align = alClient
       DefaultDrawing = False
       FixedCols = 0
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect]
       ScrollBars = ssVertical
       TabOrder = 0
       OnClick = sgChunksClick
