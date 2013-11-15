@@ -154,9 +154,9 @@ object frmProcess: TfrmProcess
       ExplicitLeft = 879
     end
     object editBarcode: TEdit
-      Left = 192
+      Left = 159
       Top = 16
-      Width = 278
+      Width = 311
       Height = 53
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -165,6 +165,7 @@ object frmProcess: TfrmProcess
       Font.Style = []
       ParentFont = False
       TabOrder = 2
+      OnChange = editBarcodeChange
     end
     object cbLog: TCheckBox
       Left = 514
@@ -235,12 +236,14 @@ object frmProcess: TfrmProcess
     Align = alBottom
     Caption = 'Details'
     TabOrder = 3
+    ExplicitLeft = -8
+    ExplicitTop = 402
     object Label3: TLabel
-      Left = 70
-      Top = 76
-      Width = 105
+      Left = 49
+      Top = 20
+      Width = 29
       Height = 25
-      Caption = 'Sample ID:'
+      Caption = 'ID:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -21
@@ -249,11 +252,11 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object Label2: TLabel
-      Left = 12
-      Top = 29
-      Width = 163
+      Left = 340
+      Top = 19
+      Width = 84
       Height = 25
-      Caption = 'Storage Location:'
+      Caption = 'Location:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -21
@@ -262,27 +265,27 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object labelStorage: TLabel
-      Left = 192
-      Top = 29
-      Width = 131
-      Height = 29
+      Left = 339
+      Top = 43
+      Width = 198
+      Height = 45
       Caption = 'labelStorage'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -24
+      Font.Height = -37
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
     end
     object labelSampleID: TLabel
-      Left = 192
-      Top = 76
-      Width = 170
-      Height = 33
+      Left = 49
+      Top = 43
+      Width = 253
+      Height = 48
       Caption = 'labelSampleID'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -27
+      Font.Height = -40
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
@@ -302,5 +305,11 @@ object frmProcess: TfrmProcess
     OnTimer = timerLoadPlanTimer
     Left = 368
     Top = 16
+  end
+  object timerBarcode: TTimer
+    Enabled = False
+    OnTimer = timerBarcodeTimer
+    Left = 376
+    Top = 552
   end
 end

@@ -156,11 +156,11 @@ public:
     string              aliquot_type_name;  // not in LPDbCryovial
     int                 dest_cryo_pos;      // cryovial_position/tube_position
     ~SampleRow() { if (store_record) delete store_record; if (cryo_record) delete cryo_record;}
-    SampleRow(  LPDbCryovial * cryo_rec,LPDbCryovialStore * store_rec,
+    SampleRow(  LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
                 string barc, string aliq, string srcnm, int dstid, string dstnm, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
                 RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps),
-                cryo_record(cryo_rec), store_record(store_rec), retrieval_record(NULL), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps) {
+                cryo_record(cryo_rec), store_record(store_rec), retrieval_record(retrieval_rec), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps) {
     }
 
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }

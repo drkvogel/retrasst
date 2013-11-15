@@ -9,6 +9,7 @@ TfrmProcess *frmProcess;
 __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  87);
+    sgwChunks->addCol("status",   "Status",   91);
     sgwChunks->addCol("start",    "Start",    70);
     sgwChunks->addCol("startbox", "Box",      304);
     sgwChunks->addCol("startvial","Vial",     150);
@@ -19,19 +20,20 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwChunks->init();
 
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
-    sgwVials->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode,    "barcode");
-    sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
-    sgwVials->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
-    sgwVials->addCol("currpos",  "Pos",              31,    SampleRow::sort_asc_currpos,    "source box position");
-    sgwVials->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
-    sgwVials->addCol("vesspos",  "Pos",              28,    SampleRow::sort_asc_vesspos,    "vessel position");
-    sgwVials->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel,     "vessel name");
-    sgwVials->addCol("shelf",    "Shelf",            31,    SampleRow::sort_asc_shelf,      "shelf number");
-    sgwVials->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos,  "structure position");
-    sgwVials->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure,  "structure name");
-    sgwVials->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot,       "slot");
-    sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
-    sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
+    sgwVials->addCol("barcode",  "Barcode",          91);
+    sgwVials->addCol("status",   "Status",           91);
+    sgwVials->addCol("aliquot",  "Aliquot",          90);
+    sgwVials->addCol("currbox",  "Current box",      257);
+    sgwVials->addCol("currpos",  "Pos",              31);
+    sgwVials->addCol("site",     "Site",             120);
+    sgwVials->addCol("vesspos",  "Pos",              28);
+    sgwVials->addCol("vessel",   "Vessel",           107);
+    sgwVials->addCol("shelf",    "Shelf",            31);
+    sgwVials->addCol("structpos","Pos",              27);
+    sgwVials->addCol("struct",   "Structure",        123);
+    sgwVials->addCol("boxpos",   "Slot",             26);
+    sgwVials->addCol("destbox",  "Destination box",  267);
+    sgwVials->addCol("destpos",  "Pos",              25);
     sgwVials->init();
 }
 
@@ -269,7 +271,10 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
     qd.setSQL( // from spec 2013-09-11
         " SELECT"
-        "    s1.retrieval_cid,cbr.section as chunk, cbr.rj_box_cid, lcr.position as dest_pos, cbr.status as cbr_status,"
+        //"    s1.retrieval_cid,cbr.section as chunk, cbr.rj_box_cid, lcr.position as dest_pos, cbr.status as cbr_status,"
+        "    s1.retrieval_cid, cbr.section as chunk, cbr.rj_box_cid, cbr.status as cbr_status,"
+        "    lcr.position as dest_pos, lcr.slot_number as lcr_slot, lcr.process_cid as lcr_procid, lcr.status as lcr_status,"
+
         "    s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
         "    s1.record_id, c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists as cryovial_note,"
         "    s1.box_cid, b1.external_name as src_box, s1.status, s1.tube_position, s1.note_exists as cs_note,"
@@ -312,7 +317,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         SampleRow * row = new SampleRow(
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
-            // new LCDbCryovialRetrieval(qd), // fixme
+            new LCDbCryovialRetrieval(qd), // fixme
             qd.readString(  "cryovial_barcode"),
             Util::getAliquotDescription(qd.readInt("aliquot_type_cid")),
             qd.readString(  "src_box"),
@@ -388,9 +393,30 @@ void TfrmProcess::addChunk(int row) {
 // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
 
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
+
+    accept(editBarcode->Text);
+//    // check correct vial; could be missing, swapped etc
+//    SampleRow * sample = currentChunk()->rowAt(currentChunk()->getCurrentRow());
+//    if (editBarcode->Text == sample->cryovial_barcode.c_str()) {
+//        // save
+//        sample->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
+//        Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
+//        nextRow();
+//    } else {
+//        //IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)
+//        Application->MessageBox(L"Barcode not matched", L"Info", MB_OK);
+//    }
+}
+
+void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) {
+    editBarcode->Text = currentChunk()->rowAt(currentChunk()->getCurrentRow())->cryovial_barcode.c_str();
+    btnAcceptClick(this);
+}
+
+void TfrmProcess::accept(String barcode) {
     // check correct vial; could be missing, swapped etc
     SampleRow * sample = currentChunk()->rowAt(currentChunk()->getCurrentRow());
-    if (editBarcode->Text == sample->cryovial_barcode.c_str()) {
+    if (barcode == sample->cryovial_barcode.c_str()) {
         // save
         sample->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
         Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
@@ -399,11 +425,6 @@ void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
         //IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)
         Application->MessageBox(L"Barcode not matched", L"Info", MB_OK);
     }
-}
-
-void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) {
-    editBarcode->Text = currentChunk()->rowAt(currentChunk()->getCurrentRow())->cryovial_barcode.c_str();
-    btnAcceptClick(this);
 }
 
 void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
@@ -456,6 +477,7 @@ void TfrmProcess::nextRow() {
             Application->MessageBox(L"Save job?", L"Info", MB_OK);
         }
     }
+    editBarcode->Clear();
 }
 
 void TfrmProcess::exit() {
@@ -466,3 +488,15 @@ void TfrmProcess::exit() {
         Close();
     }
 }
+
+void __fastcall TfrmProcess::editBarcodeChange(TObject *Sender) {
+    if (editBarcode->Text.IsEmpty()) return;
+    timerBarcode->Enabled = false; // reset
+    timerBarcode->Enabled = true;
+}
+
+void __fastcall TfrmProcess::timerBarcodeTimer(TObject *Sender) {
+    timerBarcode->Enabled = false;
+    accept(editBarcode->Text);
+}
+

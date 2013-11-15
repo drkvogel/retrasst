@@ -52,6 +52,7 @@ __published:
     TMemo *memoDebug;
     TButton *btnSimAccept;
     TButton *btnNotFound;
+    TTimer *timerBarcode;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
@@ -67,6 +68,8 @@ __published:
     void __fastcall btnSkipClick(TObject *Sender);
     void __fastcall btnSimAcceptClick(TObject *Sender);
     void __fastcall btnNotFoundClick(TObject *Sender);
+    void __fastcall editBarcodeChange(TObject *Sender);
+    void __fastcall timerBarcodeTimer(TObject *Sender);
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);
@@ -85,6 +88,7 @@ private:
     void                                        process();
     void                                        showCurrentRow();
     void                                        showRowDetails(SampleRow * sample);
+    void                                        accept(String barcode);
     void                                        nextRow();
     void                                        exit();
     //int                                         currentRow;
