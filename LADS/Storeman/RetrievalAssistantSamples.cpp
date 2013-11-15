@@ -614,6 +614,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         SampleRow * row = new SampleRow(
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
+            NULL,
             qd.readString(  "cryovial_barcode"),
             qd.readString(  "aliquot"),
             qd.readString(  "source_name"),

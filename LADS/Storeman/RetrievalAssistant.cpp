@@ -9,6 +9,7 @@
 #include "RetrievalAssistantBoxes.h"
 #include "RetrievalAssistantProcess.h"
 #include "RetrievalAssistantProcessBoxes.h"
+
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 

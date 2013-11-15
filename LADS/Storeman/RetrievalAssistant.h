@@ -14,6 +14,7 @@
 #include "LPDbCryovialStore.h"
 #include "LPDbCryovial.h"
 #include "LDbBoxStore.h"
+#include "LCDbRetrieval.h"
 
 using namespace std;
 
@@ -30,6 +31,8 @@ const bool RETRASSTDEBUG =
 #define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
 #define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
+
+//#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
 
 #define DEFAULT_BOX_SIZE 100
 
@@ -146,17 +149,18 @@ typedef std::vector<pBoxRow> vecpBoxRow;
 
 class SampleRow : public RetrievalRow {
 public:
-    LPDbCryovial *      cryo_record;
-    LPDbCryovialStore * store_record;
+    LPDbCryovial *          cryo_record;
+    LPDbCryovialStore *     store_record;
+    LCDbCryovialRetrieval * retrieval_record;
     string              cryovial_barcode;
     string              aliquot_type_name;  // not in LPDbCryovial
     int                 dest_cryo_pos;      // cryovial_position/tube_position
     ~SampleRow() { if (store_record) delete store_record; if (cryo_record) delete cryo_record;}
-    SampleRow(  LPDbCryovial * cryo_rec,LPDbCryovialStore * store_rec,
+    SampleRow(  LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
                 string barc, string aliq, string srcnm, int dstid, string dstnm, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
                 RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps),
-                cryo_record(cryo_rec), store_record(store_rec), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps) {
+                cryo_record(cryo_rec), store_record(store_rec), retrieval_record(retrieval_rec), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps) {
     }
 
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
@@ -306,9 +310,11 @@ class Chunk { // not recorded in database
     string              endVial;
     string              endBox;
     string              endDescrip;
-    enum Status { NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES } status;
+    // NEW|PART_PROCESSED|COMPLETED
+    int                 currentRowIdx;
 public:
-    Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e) { }
+    Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e), currentRowIdx(0) { }
+    enum Status { NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES } status;
     int     getSection()    { return section; }
     int     getStart()      { return start; }
     int     getStartPos()   { return start+1; } // 1-indexed, human-readable
@@ -319,6 +325,7 @@ public:
     int     getEndPos()     { return end+1; }   // 1-indexed, human-readable
     string  getEndBox()     { return sgw->rows->at(end)->src_box_name; }
     string  getEndVial()    { return sgw->rows->at(end)->cryo_record->getBarcode(); }
+    int     getCurrentRow() { return currentRowIdx; }
     int     getSize()       { return end - start + 1; } //OutputDebugString(L"test");
     void    setStart(int s) {
         if (s < 0 || s > end)
@@ -334,7 +341,12 @@ public:
     }
     void    setEndBox(string s) { endBox = s; }
     void    setEndVial(string v) { endVial = v; }
-    T *     rowAt(int pos) { return sgw->rows->at((start)+(pos)); }
+    void    setCurrentRow(int row) { currentRowIdx = row; }
+    T *     currentRow() { return rowAt(currentRowIdx); }
+    T *     rowAt(int pos) {
+        if (pos > getSize())
+            throw "out of range";
+        return sgw->rows->at((start)+(pos)); }
     void sort_asc(string colName) { sgw->sort_asc(colName, start, end); }
     void sort_dsc(string colName) { sgw->sort_dsc(colName, start, end); }
     void sortToggle(int col) { sgw->sort_toggle(col, start, end); }

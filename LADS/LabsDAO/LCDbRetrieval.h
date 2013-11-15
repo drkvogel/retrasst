@@ -6,7 +6,7 @@
 #include "LDbValid.h"
 #include "LDbCacheBase.h"
 
-class LCDbBoxRetrieval : public LCDbID, public LDbNames
+class LCDbBoxRetrieval : public LCDbID//, public LDbNames
 {
     int rj_box_cid, retrieval_cid, box_id, project_cid, section;
     enum Status { NEW, PART_FILLED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES } status;
@@ -28,11 +28,26 @@ public:
 	}
 };
 
-class LCDbCryovialRetrieval : public LCDbID, public LDbNames
+class LCDbCryovialRetrieval : public LCDbID//, public LDbNames
 {
     int rj_box_cid, position, aliquot_type_cid, slot_number, process_cid;
-    enum Status { EXPECTED, IGNORED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES } status;
+    int status;
     TDateTime time_stamp;
+public:
+    LCDbCryovialRetrieval(const LQuery & query);
+    enum Status { EXPECTED, IGNORED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
+    int getStatus() { return status; }
+    void setStatus(int s) { status = s; }
+    int getRJId() { return rj_box_cid; }
+    void setRJId(int i) { rj_box_cid = i; }
+    int getPosition() { return position; }
+    void setPosition(int i) { position = i; }
+    int getAliType() { return aliquot_type_cid; }
+    void setAliType(int i) { aliquot_type_cid = i; }
+    int getSlot() { return slot_number; }
+    void setSlot(int i) { slot_number = i; }
+    int getProcId() { return process_cid; }
+    void setProcId(int i) { process_cid = i; }
 };
 
 class LCDbCryovialRetrievals : public LDbCache< LCDbCryovialRetrieval >, public LCDbSingleton< LCDbCryovialRetrieval >

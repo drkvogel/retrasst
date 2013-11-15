@@ -33,7 +33,7 @@ object frmProcess: TfrmProcess
     Left = 0
     Top = 183
     Width = 948
-    Height = 219
+    Height = 225
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
@@ -44,9 +44,10 @@ object frmProcess: TfrmProcess
       Left = 2
       Top = 15
       Width = 944
-      Height = 202
+      Height = 121
       Align = alClient
       DefaultDrawing = False
+      Enabled = False
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect]
       TabOrder = 0
@@ -72,6 +73,35 @@ object frmProcess: TfrmProcess
         Align = alBottom
         TabOrder = 0
         ExplicitWidth = 271
+      end
+    end
+    object panelDebug: TPanel
+      Left = 2
+      Top = 136
+      Width = 944
+      Height = 87
+      Align = alBottom
+      BevelEdges = []
+      Caption = 'panelDebug'
+      TabOrder = 2
+      object memoDebug: TMemo
+        Left = 1
+        Top = 1
+        Width = 664
+        Height = 85
+        Align = alLeft
+        TabOrder = 0
+        ExplicitLeft = 0
+        ExplicitTop = -2
+      end
+      object btnSimAccept: TButton
+        Left = 736
+        Top = 8
+        Width = 75
+        Height = 25
+        Caption = 'Sim Accept'
+        TabOrder = 1
+        OnClick = btnSimAcceptClick
       end
     end
   end
@@ -102,7 +132,7 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object btnAccept: TButton
-      Left = 721
+      Left = 646
       Top = 15
       Width = 75
       Height = 60
@@ -113,19 +143,20 @@ object frmProcess: TfrmProcess
       ExplicitLeft = 804
     end
     object btnSkip: TButton
-      Left = 796
+      Left = 721
       Top = 15
       Width = 75
       Height = 60
       Align = alRight
       Caption = 'Skip'
       TabOrder = 1
+      OnClick = btnSkipClick
       ExplicitLeft = 879
     end
     object editBarcode: TEdit
-      Left = 192
+      Left = 159
       Top = 16
-      Width = 278
+      Width = 311
       Height = 53
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -134,9 +165,10 @@ object frmProcess: TfrmProcess
       Font.Style = []
       ParentFont = False
       TabOrder = 2
+      OnChange = editBarcodeChange
     end
     object cbLog: TCheckBox
-      Left = 618
+      Left = 514
       Top = 46
       Width = 64
       Height = 17
@@ -156,6 +188,18 @@ object frmProcess: TfrmProcess
       OnClick = btnExitClick
       ExplicitLeft = 905
       ExplicitTop = 14
+    end
+    object btnNotFound: TButton
+      Left = 796
+      Top = 15
+      Width = 75
+      Height = 60
+      Align = alRight
+      Caption = 'Not Found'
+      TabOrder = 5
+      OnClick = btnNotFoundClick
+      ExplicitLeft = 802
+      ExplicitTop = 23
     end
   end
   object Chunks: TGroupBox
@@ -184,35 +228,22 @@ object frmProcess: TfrmProcess
       ExplicitHeight = 88
     end
   end
-  object memoDebug: TMemo
-    Left = 0
-    Top = 402
-    Width = 948
-    Height = 50
-    Align = alBottom
-    TabOrder = 3
-    Visible = False
-    ExplicitLeft = 8
-    ExplicitTop = 234
-    ExplicitWidth = 956
-  end
   object GroupBox3: TGroupBox
     Left = 0
-    Top = 452
+    Top = 408
     Width = 948
-    Height = 86
+    Height = 130
     Align = alBottom
     Caption = 'Details'
-    TabOrder = 4
-    ExplicitLeft = 3
-    ExplicitTop = 148
-    ExplicitWidth = 952
+    TabOrder = 3
+    ExplicitLeft = -8
+    ExplicitTop = 402
     object Label3: TLabel
-      Left = 70
-      Top = 52
-      Width = 105
+      Left = 49
+      Top = 20
+      Width = 29
       Height = 25
-      Caption = 'Sample ID:'
+      Caption = 'ID:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -21
@@ -221,14 +252,40 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object Label2: TLabel
-      Left = 12
-      Top = 21
-      Width = 163
+      Left = 340
+      Top = 19
+      Width = 84
       Height = 25
-      Caption = 'Storage Location:'
+      Caption = 'Location:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -21
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object labelStorage: TLabel
+      Left = 339
+      Top = 43
+      Width = 198
+      Height = 45
+      Caption = 'labelStorage'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -37
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object labelSampleID: TLabel
+      Left = 49
+      Top = 43
+      Width = 253
+      Height = 48
+      Caption = 'labelSampleID'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -40
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
@@ -248,5 +305,11 @@ object frmProcess: TfrmProcess
     OnTimer = timerLoadPlanTimer
     Left = 368
     Top = 16
+  end
+  object timerBarcode: TTimer
+    Enabled = False
+    OnTimer = timerBarcodeTimer
+    Left = 376
+    Top = 552
   end
 end
