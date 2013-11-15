@@ -47,6 +47,8 @@ __published:
     TLabel *Label3;
     TLabel *Label2;
     TButton *btnExit;
+    TLabel *labelStorage;
+    TLabel *labelSampleID;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
@@ -61,6 +63,7 @@ __published:
     void __fastcall sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
           TGridDrawState State);
     void __fastcall btnExitClick(TObject *Sender);
+    void __fastcall btnSkipClick(TObject *Sender);
 
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
@@ -75,18 +78,17 @@ private:
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     void                                        loadRows();
     void                                        addChunk(int row);
-    void                                        addChunks();
+    //void                                        addChunks();
     void                                        process();
+    void                                        showRow(SampleRow * sample);
+    void                                        nextRow();
+    void                                        exit();
+    //int                                         currentRow;
+    //int                                         currentChunk;
     //int maxRows;
     const char *                                loadingMessage;
 public:
     void setJob(LCDbCryoJob * ajob) {
-        //int rowCount = 0;
-//        if (NULL != this) {
-//            if (NULL != this->job) {
-//                this->job = this->job;
-//            }
-//        }
         job = ajob;
     }
     __fastcall TfrmProcess(TComponent* Owner);

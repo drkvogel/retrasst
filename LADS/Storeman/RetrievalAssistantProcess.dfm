@@ -47,6 +47,7 @@ object frmProcess: TfrmProcess
       Height = 202
       Align = alClient
       DefaultDrawing = False
+      Enabled = False
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect]
       TabOrder = 0
@@ -120,6 +121,7 @@ object frmProcess: TfrmProcess
       Align = alRight
       Caption = 'Skip'
       TabOrder = 1
+      OnClick = btnSkipClick
       ExplicitLeft = 879
     end
     object editBarcode: TEdit
@@ -226,6 +228,32 @@ object frmProcess: TfrmProcess
       Width = 163
       Height = 25
       Caption = 'Storage Location:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -21
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object labelStorage: TLabel
+      Left = 189
+      Top = 21
+      Width = 116
+      Height = 25
+      Caption = 'labelStorage'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -21
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object labelSampleID: TLabel
+      Left = 189
+      Top = 52
+      Width = 135
+      Height = 25
+      Caption = 'labelSampleID'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -21

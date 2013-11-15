@@ -292,8 +292,9 @@ class Chunk { // not recorded in database
     string              endBox;
     string              endDescrip;
     enum Status { NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES } status;
+    int                 currentRow;
 public:
-    Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e) { }
+    Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e), currentRow(0) { }
     int     getSection()    { return section; }
     int     getStart()      { return start; }
     int     getStartPos()   { return start+1; } // 1-indexed, human-readable
@@ -304,6 +305,7 @@ public:
     int     getEndPos()     { return end+1; }   // 1-indexed, human-readable
     string  getEndBox()     { return sgw->rows->at(end)->src_box_name; }
     string  getEndVial()    { return sgw->rows->at(end)->cryo_record->getBarcode(); }
+    int     getCurrentRow() { return currentRow; }
     int     getSize()       { return end - start + 1; } //OutputDebugString(L"test");
     void    setStart(int s) {
         if (s < 0 || s > end)
@@ -319,7 +321,11 @@ public:
     }
     void    setEndBox(string s) { endBox = s; }
     void    setEndVial(string v) { endVial = v; }
-    T *     rowAt(int pos) { return sgw->rows->at((start)+(pos)); }
+    void    setCurrentRow(int row) { currentRow = row; }
+    T *     rowAt(int pos) {
+        if (pos > getSize())
+            throw "out of range";
+        return sgw->rows->at((start)+(pos)); }
     void sort_asc(string colName) { sgw->sort_asc(colName, start, end); }
     void sort_dsc(string colName) { sgw->sort_dsc(colName, start, end); }
     void sortToggle(int col) { sgw->sort_toggle(col, start, end); }
