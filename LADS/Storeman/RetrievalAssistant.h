@@ -14,6 +14,7 @@
 #include "LPDbCryovialStore.h"
 #include "LPDbCryovial.h"
 #include "LDbBoxStore.h"
+#include "LCDbRetrieval.h"
 
 using namespace std;
 
@@ -148,8 +149,9 @@ typedef std::vector<pBoxRow> vecpBoxRow;
 
 class SampleRow : public RetrievalRow {
 public:
-    LPDbCryovial *      cryo_record;
-    LPDbCryovialStore * store_record;
+    LPDbCryovial *          cryo_record;
+    LPDbCryovialStore *     store_record;
+    LCDbCryovialRetrieval * retrieval_record;
     string              cryovial_barcode;
     string              aliquot_type_name;  // not in LPDbCryovial
     int                 dest_cryo_pos;      // cryovial_position/tube_position
@@ -158,7 +160,7 @@ public:
                 string barc, string aliq, string srcnm, int dstid, string dstnm, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
                 RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps),
-                cryo_record(cryo_rec), store_record(store_rec), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps) {
+                cryo_record(cryo_rec), store_record(store_rec), retrieval_record(NULL), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps) {
     }
 
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
@@ -294,10 +296,10 @@ class Chunk { // not recorded in database
     string              endBox;
     string              endDescrip;
     // NEW|PART_PROCESSED|COMPLETED
-    enum Status { NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES } status;
     int                 currentRowIdx;
 public:
     Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e), currentRowIdx(0) { }
+    enum Status { NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES } status;
     int     getSection()    { return section; }
     int     getStart()      { return start; }
     int     getStartPos()   { return start+1; } // 1-indexed, human-readable

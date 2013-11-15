@@ -69,6 +69,10 @@ void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
     exit();
 }
 
+void __fastcall TfrmProcess::btnExitClick(TObject *Sender) {
+    exit();
+}
+
 void __fastcall TfrmProcess::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
     ostringstream oss; oss << __FUNC__;
     oss<<sgwChunks->printColWidths()<<" clicked on col: "<<ACol<<".";
@@ -308,6 +312,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         SampleRow * row = new SampleRow(
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
+            // new LCDbCryovialRetrieval(qd), // fixme
             qd.readString(  "cryovial_barcode"),
             Util::getAliquotDescription(qd.readInt("aliquot_type_cid")),
             qd.readString(  "src_box"),
@@ -368,27 +373,6 @@ void TfrmProcess::showRowDetails(SampleRow * sample) {
     //sgVials->Row = currentChunk()->getCurrentRow();
 }
 
-//void TfrmProcess::addChunks() {
-//    if (vials.size() == 0) throw "vials.size() == 0";
-//    int numvials = vials.size(); int numchunks = chunks.size();
-//
-//    for (vecpSampleRow::const_iterator it = vials.begin(); it != vials.end(); it++) {
-//        Chunk< SampleRow > * curchunk, * newchunk;
-//        if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-//            newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, 0, vials.size()-1); // 0-indexed // size is calculated
-//        } else {
-//            //if (offset <= 0 || offset > vials.size()) throw "invalid offset"; // ok only for first chunk
-//            curchunk = currentChunk();
-//            int currentchunksize = curchunk->getSize(); // no chunks until first added
-//            //if (curchunk->getStart()+offset > vials.size()) { // current last chunk is too small to be split at this offset
-//                //return false; // e.g. for auto-chunk to stop chunking
-//            //}
-//            //curchunk->setEnd(curchunk->getStart()+offset-1); // row above start of new chunk
-//            //newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStart()+offset, vials.size()-1);
-//        }
-//        chunks.push_back(newchunk);
-//    }
-//}
 void TfrmProcess::addChunk(int row) {
     Chunk< SampleRow > * newchunk;
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
@@ -401,13 +385,14 @@ void TfrmProcess::addChunk(int row) {
 }
 
 // LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
-
 // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
 
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
     // check correct vial; could be missing, swapped etc
-    if (editBarcode->Text == currentChunk()->rowAt(currentChunk()->getCurrentRow())->cryovial_barcode.c_str()) {
+    SampleRow * sample = currentChunk()->rowAt(currentChunk()->getCurrentRow());
+    if (editBarcode->Text == sample->cryovial_barcode.c_str()) {
         // save
+        sample->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
         Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
         nextRow();
     } else {
@@ -416,10 +401,9 @@ void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
     }
 }
 
-void __fastcall TfrmProcess::btnExitClick(TObject *Sender) {
-    // exit, saving progress if any
-    exit();
-    //IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)
+void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) {
+    editBarcode->Text = currentChunk()->rowAt(currentChunk()->getCurrentRow())->cryovial_barcode.c_str();
+    btnAcceptClick(this);
 }
 
 void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
@@ -427,10 +411,39 @@ void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
     nextRow();
 }
 
+void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
+    Application->MessageBox(L"Save not found row", L"Info", MB_OK);
+    nextRow();
+}
+
+Chunk< SampleRow >::Status TfrmProcess::chunkStatus(Chunk< SampleRow > * chunk) {
+    bool complete = true;
+    bool not_started = true;
+    for (int i=0; i<chunk->getSize(); i++) {
+        int status = chunk->rowAt(i)->retrieval_record->getStatus();
+        switch (status) {
+            case LCDbCryovialRetrieval::EXPECTED:
+                complete = false; break;
+            case LCDbCryovialRetrieval::IGNORED:
+            case LCDbCryovialRetrieval::COLLECTED:
+            case LCDbCryovialRetrieval::NOT_FOUND:
+                not_started = false; break;
+            default:
+                throw "unexpected LCDbCryovialRetrieval status";
+        }
+    }
+    if (complete) {
+        return Chunk< SampleRow >::DONE;
+    } else if (not_started) {
+        return Chunk< SampleRow >::NOT_STARTED;
+    } else {
+        return Chunk< SampleRow >::INPROGRESS;
+    }
+}
+
 void TfrmProcess::nextRow() {
     if (currentChunk()->getCurrentRow() < currentChunk()->getSize()-1) {
         currentChunk()->setCurrentRow(currentChunk()->getCurrentRow()+1); //???
-        //showRowDetails(currentChunk()->currentRow());
         showCurrentRow();
     } else { // skipped last row
         Application->MessageBox(L"Save chunk", L"Info", MB_OK);
@@ -448,16 +461,8 @@ void TfrmProcess::nextRow() {
 void TfrmProcess::exit() {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
         // save stuff
-        Application->MessageBox(L"Save stuff", L"Info", MB_OK);
+        Application->MessageBox(L"Save completed boxes", L"Info", MB_OK);
+        // how to update boxes? check at save and exit that all vials in a box have been saved?
         Close();
     }
 }
-
-// how to update boxes? check at save and exit that all vials in a box have been saved?
-
-void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) {
-    editBarcode->Text = currentChunk()->rowAt(currentChunk()->getCurrentRow())->cryovial_barcode.c_str();
-    btnAcceptClick(this);
-}
-
-

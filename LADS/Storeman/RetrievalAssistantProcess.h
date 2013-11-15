@@ -51,6 +51,7 @@ __published:
     TPanel *panelDebug;
     TMemo *memoDebug;
     TButton *btnSimAccept;
+    TButton *btnNotFound;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
@@ -65,6 +66,7 @@ __published:
     void __fastcall btnExitClick(TObject *Sender);
     void __fastcall btnSkipClick(TObject *Sender);
     void __fastcall btnSimAcceptClick(TObject *Sender);
+    void __fastcall btnNotFoundClick(TObject *Sender);
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);
@@ -76,6 +78,7 @@ private:
     void                                        showChunks();
     Chunk< SampleRow > *                        currentChunk();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
+    Chunk< SampleRow >::Status                  chunkStatus(Chunk< SampleRow > * chunk);
     void                                        loadRows();
     void                                        addChunk(int row);
     //void                                        addChunks();

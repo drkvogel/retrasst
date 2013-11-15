@@ -132,7 +132,7 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object btnAccept: TButton
-      Left = 721
+      Left = 646
       Top = 15
       Width = 75
       Height = 60
@@ -143,7 +143,7 @@ object frmProcess: TfrmProcess
       ExplicitLeft = 804
     end
     object btnSkip: TButton
-      Left = 796
+      Left = 721
       Top = 15
       Width = 75
       Height = 60
@@ -167,7 +167,7 @@ object frmProcess: TfrmProcess
       TabOrder = 2
     end
     object cbLog: TCheckBox
-      Left = 618
+      Left = 514
       Top = 46
       Width = 64
       Height = 17
@@ -187,6 +187,18 @@ object frmProcess: TfrmProcess
       OnClick = btnExitClick
       ExplicitLeft = 905
       ExplicitTop = 14
+    end
+    object btnNotFound: TButton
+      Left = 796
+      Top = 15
+      Width = 75
+      Height = 60
+      Align = alRight
+      Caption = 'Not Found'
+      TabOrder = 5
+      OnClick = btnNotFoundClick
+      ExplicitLeft = 802
+      ExplicitTop = 23
     end
   end
   object Chunks: TGroupBox
