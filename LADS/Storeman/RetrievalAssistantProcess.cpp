@@ -37,7 +37,8 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
 
 void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
-    memoDebug->Visible  = RETRASSTDEBUG;
+    cbLog->Checked      = RETRASSTDEBUG;
+    panelDebug->Visible = cbLog->Checked;
     job                 = NULL;
     loadingMessage = "Loading retrieval list, please wait...";
 }
@@ -60,7 +61,8 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
 }
 
 void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
-    memoDebug->Visible = cbLog->Checked;
+    panelDebug->Visible = cbLog->Checked;
+    //splitterDebug->Visible  = cbLog->Checked;
 }
 
 void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
@@ -452,3 +454,10 @@ void TfrmProcess::exit() {
 }
 
 // how to update boxes? check at save and exit that all vials in a box have been saved?
+
+void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) {
+    editBarcode->Text = currentChunk()->rowAt(currentChunk()->getCurrentRow())->cryovial_barcode.c_str();
+    btnAcceptClick(this);
+}
+
+

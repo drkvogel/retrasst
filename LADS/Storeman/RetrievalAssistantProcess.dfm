@@ -33,7 +33,7 @@ object frmProcess: TfrmProcess
     Left = 0
     Top = 183
     Width = 948
-    Height = 175
+    Height = 225
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
@@ -44,7 +44,7 @@ object frmProcess: TfrmProcess
       Left = 2
       Top = 15
       Width = 944
-      Height = 158
+      Height = 121
       Align = alClient
       DefaultDrawing = False
       Enabled = False
@@ -73,6 +73,35 @@ object frmProcess: TfrmProcess
         Align = alBottom
         TabOrder = 0
         ExplicitWidth = 271
+      end
+    end
+    object panelDebug: TPanel
+      Left = 2
+      Top = 136
+      Width = 944
+      Height = 87
+      Align = alBottom
+      BevelEdges = []
+      Caption = 'panelDebug'
+      TabOrder = 2
+      object memoDebug: TMemo
+        Left = 1
+        Top = 1
+        Width = 664
+        Height = 85
+        Align = alLeft
+        TabOrder = 0
+        ExplicitLeft = 0
+        ExplicitTop = -2
+      end
+      object btnSimAccept: TButton
+        Left = 736
+        Top = 8
+        Width = 75
+        Height = 25
+        Caption = 'Sim Accept'
+        TabOrder = 1
+        OnClick = btnSimAcceptClick
       end
     end
   end
@@ -186,18 +215,6 @@ object frmProcess: TfrmProcess
       ExplicitHeight = 88
     end
   end
-  object memoDebug: TMemo
-    Left = 0
-    Top = 358
-    Width = 948
-    Height = 50
-    Align = alBottom
-    TabOrder = 3
-    Visible = False
-    ExplicitLeft = 8
-    ExplicitTop = 234
-    ExplicitWidth = 956
-  end
   object GroupBox3: TGroupBox
     Left = 0
     Top = 408
@@ -205,7 +222,7 @@ object frmProcess: TfrmProcess
     Height = 130
     Align = alBottom
     Caption = 'Details'
-    TabOrder = 4
+    TabOrder = 3
     object Label3: TLabel
       Left = 70
       Top = 76

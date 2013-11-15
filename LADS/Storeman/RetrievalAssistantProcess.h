@@ -38,7 +38,6 @@ __published:
     TStringGrid *sgChunks;
     TStringGrid *sgVials;
     TCheckBox *cbLog;
-    TMemo *memoDebug;
     TPanel *panelLoading;
     TProgressBar *progressBottom;
     TTimer *timerLoadPlan;
@@ -49,6 +48,9 @@ __published:
     TButton *btnExit;
     TLabel *labelStorage;
     TLabel *labelSampleID;
+    TPanel *panelDebug;
+    TMemo *memoDebug;
+    TButton *btnSimAccept;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
@@ -62,6 +64,7 @@ __published:
     void __fastcall sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall btnExitClick(TObject *Sender);
     void __fastcall btnSkipClick(TObject *Sender);
+    void __fastcall btnSimAcceptClick(TObject *Sender);
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);
