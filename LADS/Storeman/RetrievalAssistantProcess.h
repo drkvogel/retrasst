@@ -58,13 +58,10 @@ __published:
     void __fastcall btnAcceptClick(TObject *Sender);
     void __fastcall sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow);
     void __fastcall sgChunksClick(TObject *Sender);
-    void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
-          TGridDrawState State);
-    void __fastcall sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect,
-          TGridDrawState State);
+    void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
+    void __fastcall sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall btnExitClick(TObject *Sender);
     void __fastcall btnSkipClick(TObject *Sender);
-
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);
@@ -80,7 +77,8 @@ private:
     void                                        addChunk(int row);
     //void                                        addChunks();
     void                                        process();
-    void                                        showRow(SampleRow * sample);
+    void                                        showCurrentRow();
+    void                                        showRowDetails(SampleRow * sample);
     void                                        nextRow();
     void                                        exit();
     //int                                         currentRow;
@@ -88,9 +86,7 @@ private:
     //int maxRows;
     const char *                                loadingMessage;
 public:
-    void setJob(LCDbCryoJob * ajob) {
-        job = ajob;
-    }
+    void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);
 };
 

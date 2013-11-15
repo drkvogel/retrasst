@@ -33,7 +33,7 @@ object frmProcess: TfrmProcess
     Left = 0
     Top = 183
     Width = 948
-    Height = 219
+    Height = 175
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
@@ -44,7 +44,7 @@ object frmProcess: TfrmProcess
       Left = 2
       Top = 15
       Width = 944
-      Height = 202
+      Height = 158
       Align = alClient
       DefaultDrawing = False
       Enabled = False
@@ -188,7 +188,7 @@ object frmProcess: TfrmProcess
   end
   object memoDebug: TMemo
     Left = 0
-    Top = 402
+    Top = 358
     Width = 948
     Height = 50
     Align = alBottom
@@ -200,18 +200,15 @@ object frmProcess: TfrmProcess
   end
   object GroupBox3: TGroupBox
     Left = 0
-    Top = 452
+    Top = 408
     Width = 948
-    Height = 86
+    Height = 130
     Align = alBottom
     Caption = 'Details'
     TabOrder = 4
-    ExplicitLeft = 3
-    ExplicitTop = 148
-    ExplicitWidth = 952
     object Label3: TLabel
       Left = 70
-      Top = 52
+      Top = 76
       Width = 105
       Height = 25
       Caption = 'Sample ID:'
@@ -224,7 +221,7 @@ object frmProcess: TfrmProcess
     end
     object Label2: TLabel
       Left = 12
-      Top = 21
+      Top = 29
       Width = 163
       Height = 25
       Caption = 'Storage Location:'
@@ -236,27 +233,27 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object labelStorage: TLabel
-      Left = 189
-      Top = 21
-      Width = 116
-      Height = 25
+      Left = 192
+      Top = 29
+      Width = 131
+      Height = 29
       Caption = 'labelStorage'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -21
+      Font.Height = -24
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
     end
     object labelSampleID: TLabel
-      Left = 189
-      Top = 52
-      Width = 135
-      Height = 25
+      Left = 192
+      Top = 76
+      Width = 170
+      Height = 33
       Caption = 'labelSampleID'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -21
+      Font.Height = -27
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False

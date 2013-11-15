@@ -1,0 +1,19 @@
+﻿select * from c_box_retrieval where rj_box_cid = 2057
+
+select * from c_box_retrieval cbr, l_cryovial_retrieval lcr where cbr.rj_box_cid = lcr.rj_box_cid
+
+
+ * show storage location
+ * show sample ID (barcode)?
+ * if identical barcode entered into signoff box
+    * mark signed off
+    * refresh - different colour for signed off
+    
+    move to montpelier or somewhere
+    
+ when loading chunks, boxes, vials, pay attention to their state (
+    // Chunk? Must be calculated? NEW|PART_PROCESSED|COMPLETED
+        // NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED
+    // LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
+    // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
+ ) and colour accordingly

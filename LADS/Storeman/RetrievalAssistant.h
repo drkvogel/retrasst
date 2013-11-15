@@ -31,6 +31,8 @@ const bool RETRASSTDEBUG =
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
 #define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
 
+//#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
+
 #define DEFAULT_BOX_SIZE 100
 
 void msgbox(char * main, char * title="Info") {
@@ -291,10 +293,11 @@ class Chunk { // not recorded in database
     string              endVial;
     string              endBox;
     string              endDescrip;
+    // NEW|PART_PROCESSED|COMPLETED
     enum Status { NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES } status;
-    int                 currentRow;
+    int                 currentRowIdx;
 public:
-    Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e), currentRow(0) { }
+    Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e), currentRowIdx(0) { }
     int     getSection()    { return section; }
     int     getStart()      { return start; }
     int     getStartPos()   { return start+1; } // 1-indexed, human-readable
@@ -305,7 +308,7 @@ public:
     int     getEndPos()     { return end+1; }   // 1-indexed, human-readable
     string  getEndBox()     { return sgw->rows->at(end)->src_box_name; }
     string  getEndVial()    { return sgw->rows->at(end)->cryo_record->getBarcode(); }
-    int     getCurrentRow() { return currentRow; }
+    int     getCurrentRow() { return currentRowIdx; }
     int     getSize()       { return end - start + 1; } //OutputDebugString(L"test");
     void    setStart(int s) {
         if (s < 0 || s > end)
@@ -321,7 +324,8 @@ public:
     }
     void    setEndBox(string s) { endBox = s; }
     void    setEndVial(string v) { endVial = v; }
-    void    setCurrentRow(int row) { currentRow = row; }
+    void    setCurrentRow(int row) { currentRowIdx = row; }
+    T *     currentRow() { return rowAt(currentRowIdx); }
     T *     rowAt(int pos) {
         if (pos > getSize())
             throw "out of range";

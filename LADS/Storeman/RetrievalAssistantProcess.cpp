@@ -196,6 +196,8 @@ void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->Objects[0][rw] = (TObject *)sampleRow;
     }
     sgVials->Row = 1;
+    //showRowDetails(sampleRow);
+    showCurrentRow();
     Screen->Cursor = crDefault; Enabled = true;
 }
 
@@ -348,13 +350,20 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     //SampleRow * sample = currentChunk()->rowAt(0);
     currentChunk()->setCurrentRow(0);
     //currentChunk = 0;
-    showRow(currentChunk()->rowAt(currentChunk()->getCurrentRow()));
+    showCurrentRow();
     Enabled = true;
 }
 
-void TfrmProcess::showRow(SampleRow * sample) {
+void TfrmProcess::showCurrentRow() {
+    SampleRow * row = currentChunk()->rowAt(currentChunk()->getCurrentRow());
+    showRowDetails(row);
+    sgVials->Row = currentChunk()->getCurrentRow()+1; // causes double header row!
+}
+
+void TfrmProcess::showRowDetails(SampleRow * sample) {
     labelStorage->Caption   = sample->storage_str().c_str();//"loading...";
     labelSampleID->Caption  = sample->cryovial_barcode.c_str();//"loading...";
+    //sgVials->Row = currentChunk()->getCurrentRow();
 }
 
 //void TfrmProcess::addChunks() {
@@ -389,6 +398,10 @@ void TfrmProcess::addChunk(int row) {
     chunks.push_back(newchunk);
 }
 
+// LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
+
+// LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
+
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
     // check correct vial; could be missing, swapped etc
     if (editBarcode->Text == currentChunk()->rowAt(currentChunk()->getCurrentRow())->cryovial_barcode.c_str()) {
@@ -415,14 +428,17 @@ void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
 void TfrmProcess::nextRow() {
     if (currentChunk()->getCurrentRow() < currentChunk()->getSize()-1) {
         currentChunk()->setCurrentRow(currentChunk()->getCurrentRow()+1); //???
-        showRow(currentChunk()->rowAt(currentChunk()->getCurrentRow()));
+        //showRowDetails(currentChunk()->currentRow());
+        showCurrentRow();
     } else { // skipped last row
         Application->MessageBox(L"Save chunk", L"Info", MB_OK);
-        //showChunk
-        if (sgChunks->Row < sgChunks->RowCount) {
-            sgChunks->Row++;
+
+        if (sgChunks->Row < sgChunks->RowCount) { // if (sgChunks->Row == chunks.size()) {
+            sgChunks->Row++; // next chunk
         } else {
-            Application->MessageBox(L"Are all chunks completed?", L"Info", MB_OK);
+            // at the end - save?
+            //Application->MessageBox(L"Are all chunks completed?", L"Info", MB_OK);
+            Application->MessageBox(L"Save job?", L"Info", MB_OK);
         }
     }
 }
@@ -435,3 +451,4 @@ void TfrmProcess::exit() {
     }
 }
 
+// how to update boxes? check at save and exit that all vials in a box have been saved?
