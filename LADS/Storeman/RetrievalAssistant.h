@@ -26,13 +26,16 @@ const bool RETRASSTDEBUG =
 #endif
 
 #define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
-#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
+#define RETRIEVAL_ASSISTANT_NEW_COLOUR          clMoneyGreen
 #define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
 #define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
+#define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR    clFuchsia
+#define RETRIEVAL_ASSISTANT_IGNORED_COLOUR      clGray
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
-#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
+#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clPurple
 
-//#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
+// LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
+// LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND|DELETED
 
 #define DEFAULT_BOX_SIZE 100
 
@@ -155,7 +158,11 @@ public:
     string              cryovial_barcode;
     string              aliquot_type_name;  // not in LPDbCryovial
     int                 dest_cryo_pos;      // cryovial_position/tube_position
-    ~SampleRow() { if (store_record) delete store_record; if (cryo_record) delete cryo_record;}
+    ~SampleRow() {
+        if (store_record) delete store_record;
+        if (cryo_record) delete cryo_record;
+        if (retrieval_record) delete retrieval_record;
+    }
     SampleRow(  LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
                 string barc, string aliq, string srcnm, int dstid, string dstnm, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
@@ -295,11 +302,35 @@ class Chunk { // not recorded in database
     string              endVial;
     string              endBox;
     string              endDescrip;
-    // NEW|PART_PROCESSED|COMPLETED
     int                 currentRowIdx;
 public:
     Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e), currentRowIdx(0) { }
-    enum Status { NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES } status;
+    enum Status { NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES };// status;
+    //int     getStatus();
+    int getStatus() { // http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates
+        bool complete = true;
+        bool not_started = true;
+        for (int i=0; i<getSize(); i++) {
+            int status = rowAt(i)->retrieval_record->getStatus();
+            switch (status) {
+                case LCDbCryovialRetrieval::EXPECTED:
+                    complete = false; break;
+                case LCDbCryovialRetrieval::IGNORED:
+                case LCDbCryovialRetrieval::COLLECTED:
+                case LCDbCryovialRetrieval::NOT_FOUND:
+                    not_started = false; break;
+                default:
+                    throw "unexpected LCDbCryovialRetrieval status";
+            }
+        }
+        if (complete) {
+            return DONE;
+        } else if (not_started) {
+            return NOT_STARTED;
+        } else {
+            return INPROGRESS;
+        }
+    }
     int     getSection()    { return section; }
     int     getStart()      { return start; }
     int     getStartPos()   { return start+1; } // 1-indexed, human-readable

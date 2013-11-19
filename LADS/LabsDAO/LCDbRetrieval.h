@@ -8,9 +8,23 @@
 
 class LCDbBoxRetrieval : public LCDbID//, public LDbNames
 {
-    int rj_box_cid, retrieval_cid, box_id, project_cid, section;
-    enum Status { NEW, PART_FILLED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES } status;
+    int rj_box_cid, retrieval_cid, box_id, project_cid, section, status;
     TDateTime time_stamp;
+public:
+    LCDbBoxRetrieval(const LQuery & query);
+    enum Status { NEW, PART_FILLED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
+    int getRJId() { return retrieval_cid; }
+    void setRJId(int i) { retrieval_cid = i; }
+    int getRJBId() { return rj_box_cid; }
+    void setRJBId(int i) { rj_box_cid = i; }
+    int getBoxID() { return box_id; }
+    void setBoxID(int i) { box_id = i; }
+    int getProjId() { return project_cid; }
+    void setProjId(int i) { project_cid = i; }
+    int getSection() { return section; }
+    void setSection(int i) { section = i; }
+    int getStatus() { return status; }
+    void setStatus(int s) { status = s; }
 };
 
 class LCDbBoxRetrievals : public LDbCache< LCDbBoxRetrieval >, public LCDbSingleton< LCDbBoxRetrieval >
@@ -38,8 +52,8 @@ public:
     enum Status { EXPECTED, IGNORED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
     int getStatus() { return status; }
     void setStatus(int s) { status = s; }
-    int getRJId() { return rj_box_cid; }
-    void setRJId(int i) { rj_box_cid = i; }
+    int getRJBId() { return rj_box_cid; }
+    void setRJBId(int i) { rj_box_cid = i; }
     int getPosition() { return position; }
     void setPosition(int i) { position = i; }
     int getAliType() { return aliquot_type_cid; }

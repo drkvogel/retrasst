@@ -52,7 +52,6 @@ __published:
     TMemo *memoDebug;
     TButton *btnSimAccept;
     TButton *btnNotFound;
-    TTimer *timerBarcode;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
@@ -68,8 +67,6 @@ __published:
     void __fastcall btnSkipClick(TObject *Sender);
     void __fastcall btnSimAcceptClick(TObject *Sender);
     void __fastcall btnNotFoundClick(TObject *Sender);
-    void __fastcall editBarcodeChange(TObject *Sender);
-    void __fastcall timerBarcodeTimer(TObject *Sender);
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);
@@ -81,7 +78,7 @@ private:
     void                                        showChunks();
     Chunk< SampleRow > *                        currentChunk();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
-    Chunk< SampleRow >::Status                  chunkStatus(Chunk< SampleRow > * chunk);
+    //Chunk< SampleRow >::Status                  chunkStatus(Chunk< SampleRow > * chunk);
     void                                        loadRows();
     void                                        addChunk(int row);
     //void                                        addChunks();
@@ -95,6 +92,7 @@ private:
     //int                                         currentChunk;
     //int maxRows;
     const char *                                loadingMessage;
+    void                                        debugLog(String s);
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);

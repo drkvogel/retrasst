@@ -37,9 +37,6 @@ object frmProcess: TfrmProcess
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
-    ExplicitTop = 105
-    ExplicitWidth = 956
-    ExplicitHeight = 250
     object sgVials: TStringGrid
       Left = 2
       Top = 15
@@ -52,10 +49,6 @@ object frmProcess: TfrmProcess
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect]
       TabOrder = 0
       OnDrawCell = sgVialsDrawCell
-      ExplicitLeft = 1
-      ExplicitTop = 11
-      ExplicitWidth = 952
-      ExplicitHeight = 223
     end
     object panelLoading: TPanel
       Left = 248
@@ -72,7 +65,6 @@ object frmProcess: TfrmProcess
         Height = 17
         Align = alBottom
         TabOrder = 0
-        ExplicitWidth = 271
       end
     end
     object panelDebug: TPanel
@@ -91,8 +83,6 @@ object frmProcess: TfrmProcess
         Height = 85
         Align = alLeft
         TabOrder = 0
-        ExplicitLeft = 0
-        ExplicitTop = -2
       end
       object btnSimAccept: TButton
         Left = 736
@@ -113,8 +103,6 @@ object frmProcess: TfrmProcess
     Align = alBottom
     Caption = 'Sign Off'
     TabOrder = 1
-    ExplicitTop = 355
-    ExplicitWidth = 956
     DesignSize = (
       948
       77)
@@ -140,7 +128,6 @@ object frmProcess: TfrmProcess
       Caption = 'Accept'
       TabOrder = 0
       OnClick = btnAcceptClick
-      ExplicitLeft = 804
     end
     object btnSkip: TButton
       Left = 721
@@ -151,7 +138,6 @@ object frmProcess: TfrmProcess
       Caption = 'Skip'
       TabOrder = 1
       OnClick = btnSkipClick
-      ExplicitLeft = 879
     end
     object editBarcode: TEdit
       Left = 159
@@ -165,7 +151,6 @@ object frmProcess: TfrmProcess
       Font.Style = []
       ParentFont = False
       TabOrder = 2
-      OnChange = editBarcodeChange
     end
     object cbLog: TCheckBox
       Left = 514
@@ -186,8 +171,6 @@ object frmProcess: TfrmProcess
       Caption = 'Exit'
       TabOrder = 4
       OnClick = btnExitClick
-      ExplicitLeft = 905
-      ExplicitTop = 14
     end
     object btnNotFound: TButton
       Left = 796
@@ -198,8 +181,6 @@ object frmProcess: TfrmProcess
       Caption = 'Not Found'
       TabOrder = 5
       OnClick = btnNotFoundClick
-      ExplicitLeft = 802
-      ExplicitTop = 23
     end
   end
   object Chunks: TGroupBox
@@ -224,8 +205,6 @@ object frmProcess: TfrmProcess
       OnClick = sgChunksClick
       OnDrawCell = sgChunksDrawCell
       OnFixedCellClick = sgChunksFixedCellClick
-      ExplicitWidth = 952
-      ExplicitHeight = 88
     end
   end
   object GroupBox3: TGroupBox
@@ -236,8 +215,6 @@ object frmProcess: TfrmProcess
     Align = alBottom
     Caption = 'Details'
     TabOrder = 3
-    ExplicitLeft = -8
-    ExplicitTop = 402
     object Label3: TLabel
       Left = 49
       Top = 20
@@ -305,11 +282,5 @@ object frmProcess: TfrmProcess
     OnTimer = timerLoadPlanTimer
     Left = 368
     Top = 16
-  end
-  object timerBarcode: TTimer
-    Enabled = False
-    OnTimer = timerBarcodeTimer
-    Left = 376
-    Top = 552
   end
 end

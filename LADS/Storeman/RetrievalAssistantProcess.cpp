@@ -4,6 +4,7 @@
 #include "RetrievalAssistantProcess.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
+
 TfrmProcess *frmProcess;
 
 __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
@@ -43,6 +44,10 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     panelDebug->Visible = cbLog->Checked;
     job                 = NULL;
     loadingMessage = "Loading retrieval list, please wait...";
+}
+
+void TfrmProcess::debugLog(String s) {
+    memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
 }
 
 void __fastcall TfrmProcess::FormDestroy(TObject *Sender) {
@@ -85,17 +90,39 @@ void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
     showChunk();
 }
 
+/*#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR  clActiveCaption
+#define RETRIEVAL_ASSISTANT_NEW_COLOUR          clMoneyGreen
+#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
+#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
+#define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR    clFuchsia
+#define RETRIEVAL_ASSISTANT_IGNORED_COLOUR      clGray
+#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
+#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clPurple*/
+
 void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-    TColor background = clWindow;
+    TColor background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
     if (0 == ARow) {
         background = clBtnFace;
     } else {
         Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][ARow];
-        background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
+
         if (NULL == chunk) {
-            background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = clWindow; /// whilst loading
         } else {
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            int status = chunk->getStatus();  //chunkStatus(chunk);
+            switch (status) {
+                case Chunk< SampleRow >::NOT_STARTED:
+                    background = RETRIEVAL_ASSISTANT_NEW_COLOUR; break;
+                case Chunk< SampleRow >::INPROGRESS:
+                    background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR; break;
+                case Chunk< SampleRow >::DONE:
+                    background = RETRIEVAL_ASSISTANT_DONE_COLOUR; break;
+                case Chunk< SampleRow >::REJECTED:
+                    background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
+                case Chunk< SampleRow >::DELETED:
+                default:
+                    background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; break;
+            }
         }
     }
     TCanvas * cnv = sgChunks->Canvas;
@@ -116,16 +143,28 @@ void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
 }
 
 void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-    TColor background = clWindow;
+    TColor background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; //clWindow;
     if (0 == ARow) {
         background = clBtnFace;
     } else {
         SampleRow * row = (SampleRow *)sgVials->Objects[0][ARow];
-        background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == row) {
-            background = clWindow;
+            background = clWindow; /// whilst loading //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
+            int status = row->retrieval_record->getStatus();
+            switch (status) {
+                case LCDbBoxRetrieval::NEW:
+                    background = RETRIEVAL_ASSISTANT_NEW_COLOUR; break;
+                case LCDbBoxRetrieval::PART_FILLED:
+                    background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR; break;
+                case LCDbBoxRetrieval::COLLECTED:
+                    background = RETRIEVAL_ASSISTANT_DONE_COLOUR; break;
+                case LCDbBoxRetrieval::NOT_FOUND:
+                    background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR; break;
+                case LCDbBoxRetrieval::DELETED:
+                default:
+                    background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            }
         }
     }
     TCanvas * cnv = sgVials->Canvas;
@@ -146,7 +185,7 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
 }
 
 void TfrmProcess::showChunks() {
-    sgwChunks->clear();
+    //sgwChunks->clear();
     if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
     else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
     int row = 1;
@@ -419,7 +458,8 @@ void TfrmProcess::accept(String barcode) {
     if (barcode == sample->cryovial_barcode.c_str()) {
         // save
         sample->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
-        Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
+        //Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
+        debugLog("Save accepted row");
         nextRow();
     } else {
         //IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)
@@ -428,49 +468,52 @@ void TfrmProcess::accept(String barcode) {
 }
 
 void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
-    Application->MessageBox(L"Save skipped row", L"Info", MB_OK);
+    //Application->MessageBox(L"Save skipped row", L"Info", MB_OK);
+    debugLog("Save skipped row");
     nextRow();
 }
 
 void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
-    Application->MessageBox(L"Save not found row", L"Info", MB_OK);
+    //Application->MessageBox(L"Save not found row", L"Info", MB_OK);
+    debugLog("Save not found row");
     nextRow();
 }
 
-Chunk< SampleRow >::Status TfrmProcess::chunkStatus(Chunk< SampleRow > * chunk) {
-    bool complete = true;
-    bool not_started = true;
-    for (int i=0; i<chunk->getSize(); i++) {
-        int status = chunk->rowAt(i)->retrieval_record->getStatus();
-        switch (status) {
-            case LCDbCryovialRetrieval::EXPECTED:
-                complete = false; break;
-            case LCDbCryovialRetrieval::IGNORED:
-            case LCDbCryovialRetrieval::COLLECTED:
-            case LCDbCryovialRetrieval::NOT_FOUND:
-                not_started = false; break;
-            default:
-                throw "unexpected LCDbCryovialRetrieval status";
-        }
-    }
-    if (complete) {
-        return Chunk< SampleRow >::DONE;
-    } else if (not_started) {
-        return Chunk< SampleRow >::NOT_STARTED;
-    } else {
-        return Chunk< SampleRow >::INPROGRESS;
-    }
-}
+//Chunk< SampleRow >::Status TfrmProcess::chunkStatus(Chunk< SampleRow > * chunk) {
+//    bool complete = true;
+//    bool not_started = true;
+//    for (int i=0; i<chunk->getSize(); i++) {
+//        int status = chunk->rowAt(i)->retrieval_record->getStatus();
+//        switch (status) {
+//            case LCDbCryovialRetrieval::EXPECTED:
+//                complete = false; break;
+//            case LCDbCryovialRetrieval::IGNORED:
+//            case LCDbCryovialRetrieval::COLLECTED:
+//            case LCDbCryovialRetrieval::NOT_FOUND:
+//                not_started = false; break;
+//            default:
+//                throw "unexpected LCDbCryovialRetrieval status";
+//        }
+//    }
+//    if (complete) {
+//        return Chunk< SampleRow >::DONE;
+//    } else if (not_started) {
+//        return Chunk< SampleRow >::NOT_STARTED;
+//    } else {
+//        return Chunk< SampleRow >::INPROGRESS;
+//    }
+//}
 
 void TfrmProcess::nextRow() {
     if (currentChunk()->getCurrentRow() < currentChunk()->getSize()-1) {
         currentChunk()->setCurrentRow(currentChunk()->getCurrentRow()+1); //???
         showCurrentRow();
     } else { // skipped last row
-        Application->MessageBox(L"Save chunk", L"Info", MB_OK);
+        //Application->MessageBox(L"Save chunk", L"Info", MB_OK);
+        debugLog("Save chunk");
 
         if (sgChunks->Row < sgChunks->RowCount) { // if (sgChunks->Row == chunks.size()) {
-            sgChunks->Row++; // next chunk
+            sgChunks->Row = sgChunks->Row+1; // next chunk
         } else {
             // at the end - save?
             //Application->MessageBox(L"Are all chunks completed?", L"Info", MB_OK);
@@ -478,6 +521,7 @@ void TfrmProcess::nextRow() {
         }
     }
     editBarcode->Clear();
+    showChunks();
 }
 
 void TfrmProcess::exit() {
@@ -488,15 +532,3 @@ void TfrmProcess::exit() {
         Close();
     }
 }
-
-void __fastcall TfrmProcess::editBarcodeChange(TObject *Sender) {
-    if (editBarcode->Text.IsEmpty()) return;
-    timerBarcode->Enabled = false; // reset
-    timerBarcode->Enabled = true;
-}
-
-void __fastcall TfrmProcess::timerBarcodeTimer(TObject *Sender) {
-    timerBarcode->Enabled = false;
-    accept(editBarcode->Text);
-}
-
