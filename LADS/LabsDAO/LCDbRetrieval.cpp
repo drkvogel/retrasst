@@ -2,6 +2,14 @@
 #include "LCDbRetrieval.h"
 #pragma package(smart_init)
 
+LCDbBoxRetrieval::LCDbBoxRetrieval(const LQuery & query) {
+    //statusStrings = {"NEW", "PART_FILLED, COLLECTED, NOT_FOUND, DELETED"};
+}
+
+const char * LCDbBoxRetrieval::statusString(int st) {
+    static const char * statusStrings[] = { "Expected", "In progress", "Completed", "Not found", "Deleted" };
+    return st < LCDbBoxRetrieval::Status::NUM_STATUSES ? statusStrings[st] : "Invalid";
+};
 
 LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query)
  :
@@ -14,5 +22,12 @@ LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query)
    process_cid(query.readInt("lcr_procid")),
    status(query.readInt("lcr_status"))
 {
-    //???
+    //statusStrings[] = {"NEW, PART_FILLED, COLLECTED, NOT_FOUND, DELETED"};
 }
+
+const char * LCDbCryovialRetrieval::statusString(int st) {
+    // EXPECTED, IGNORED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
+    static const char * statusStrings[] = { "Expected", "Ignored", "Collected", "Not found", "Deleted" };
+    return st < LCDbCryovialRetrieval::Status::NUM_STATUSES ? statusStrings[st] : "Invalid";
+};
+

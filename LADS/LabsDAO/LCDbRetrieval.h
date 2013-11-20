@@ -1,6 +1,7 @@
 #ifndef LCDbRetrievalH
 #define LCDbRetrievalH
 
+#include <sstream>
 #include "LDbIdClasses.h"
 #include "LDbNameBase.h"
 #include "LDbValid.h"
@@ -10,6 +11,7 @@ class LCDbBoxRetrieval : public LCDbID//, public LDbNames
 {
     int rj_box_cid, retrieval_cid, box_id, project_cid, section, status;
     TDateTime time_stamp;
+    //static const char * statusStrings[];
 public:
     LCDbBoxRetrieval(const LQuery & query);
     enum Status { NEW, PART_FILLED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
@@ -25,6 +27,8 @@ public:
     void setSection(int i) { section = i; }
     int getStatus() { return status; }
     void setStatus(int s) { status = s; }
+    static const char * statusString(int i); // cannot use status without an object
+    //std::string statusString() { return statusStrings[status]; }
 };
 
 class LCDbBoxRetrievals : public LDbCache< LCDbBoxRetrieval >, public LCDbSingleton< LCDbBoxRetrieval >
@@ -50,6 +54,7 @@ class LCDbCryovialRetrieval : public LCDbID//, public LDbNames
 public:
     LCDbCryovialRetrieval(const LQuery & query);
     enum Status { EXPECTED, IGNORED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
+    static const char * statusString(int st);
     int getStatus() { return status; }
     void setStatus(int s) { status = s; }
     int getRJBId() { return rj_box_cid; }

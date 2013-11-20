@@ -303,10 +303,22 @@ class Chunk { // not recorded in database
     string              endBox;
     string              endDescrip;
     int                 currentRowIdx;
+    //char *              statusString[] = {"NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED"};
 public:
     Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e), currentRowIdx(0) { }
-    enum Status { NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES };// status;
-    //int     getStatus();
+    enum Status { NOT_STARTED, INPROGRESS, DONE, /*REJECTED, DELETED = 99,*/ NUM_STATUSES };// status;
+    string statusString() {
+        switch (getStatus()) {
+            case NOT_STARTED:
+                return "Not started";
+            case INPROGRESS:
+                return "In progress";
+            case DONE:
+                return "Completed";
+            default:
+                throw "unknown status";
+        }
+    }
     int getStatus() { // http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates
         bool complete = true;
         bool not_started = true;

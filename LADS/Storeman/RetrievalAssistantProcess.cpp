@@ -105,7 +105,6 @@ void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
         background = clBtnFace;
     } else {
         Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][ARow];
-
         if (NULL == chunk) {
             background = clWindow; /// whilst loading
         } else {
@@ -117,9 +116,9 @@ void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
                     background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR; break;
                 case Chunk< SampleRow >::DONE:
                     background = RETRIEVAL_ASSISTANT_DONE_COLOUR; break;
-                case Chunk< SampleRow >::REJECTED:
-                    background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
-                case Chunk< SampleRow >::DELETED:
+//                case Chunk< SampleRow >::REJECTED:
+//                    background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
+//                case Chunk< SampleRow >::DELETED:
                 default:
                     background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; break;
             }
@@ -143,7 +142,7 @@ void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
 }
 
 void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-    TColor background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; //clWindow;
+    TColor background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
     if (0 == ARow) {
         background = clBtnFace;
     } else {
@@ -185,13 +184,13 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
 }
 
 void TfrmProcess::showChunks() {
-    //sgwChunks->clear();
     if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
     else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
     int row = 1;
     for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
         Chunk< SampleRow > * chunk = *it;
         sgChunks->Cells[sgwChunks->colNameToInt("section")]   [row] = chunk->getSection();
+        sgChunks->Cells[sgwChunks->colNameToInt("status")]    [row] = chunk->statusString().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStart();
         sgChunks->Cells[sgwChunks->colNameToInt("startbox")]  [row] = chunk->getStartBox().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("startvial")] [row] = chunk->getStartVial().c_str();
@@ -228,6 +227,7 @@ void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
         LPDbCryovialStore * store   = sampleRow->store_record;
         int rw = row+1; // for stringgrid
         sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = sampleRow->retrieval_record->statusString(sampleRow->retrieval_record->getStatus());
         sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
@@ -455,6 +455,18 @@ void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) {
 void TfrmProcess::accept(String barcode) {
     // check correct vial; could be missing, swapped etc
     SampleRow * sample = currentChunk()->rowAt(currentChunk()->getCurrentRow());
+    switch (sample->retrieval_record->getStatus()) {
+        case LCDbCryovialRetrieval::EXPECTED:
+        case LCDbCryovialRetrieval::IGNORED:
+            break; // ok, carry on
+        case LCDbCryovialRetrieval::COLLECTED:
+            msgbox("Already collected"); return;
+        case LCDbCryovialRetrieval::NOT_FOUND:
+            //msgbox("");
+            if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) {
+                return;
+            }
+    }
     if (barcode == sample->cryovial_barcode.c_str()) {
         // save
         sample->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
@@ -479,44 +491,18 @@ void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
     nextRow();
 }
 
-//Chunk< SampleRow >::Status TfrmProcess::chunkStatus(Chunk< SampleRow > * chunk) {
-//    bool complete = true;
-//    bool not_started = true;
-//    for (int i=0; i<chunk->getSize(); i++) {
-//        int status = chunk->rowAt(i)->retrieval_record->getStatus();
-//        switch (status) {
-//            case LCDbCryovialRetrieval::EXPECTED:
-//                complete = false; break;
-//            case LCDbCryovialRetrieval::IGNORED:
-//            case LCDbCryovialRetrieval::COLLECTED:
-//            case LCDbCryovialRetrieval::NOT_FOUND:
-//                not_started = false; break;
-//            default:
-//                throw "unexpected LCDbCryovialRetrieval status";
-//        }
-//    }
-//    if (complete) {
-//        return Chunk< SampleRow >::DONE;
-//    } else if (not_started) {
-//        return Chunk< SampleRow >::NOT_STARTED;
-//    } else {
-//        return Chunk< SampleRow >::INPROGRESS;
-//    }
-//}
-
 void TfrmProcess::nextRow() {
     if (currentChunk()->getCurrentRow() < currentChunk()->getSize()-1) {
         currentChunk()->setCurrentRow(currentChunk()->getCurrentRow()+1); //???
         showCurrentRow();
     } else { // skipped last row
-        //Application->MessageBox(L"Save chunk", L"Info", MB_OK);
-        debugLog("Save chunk");
-
-        if (sgChunks->Row < sgChunks->RowCount) { // if (sgChunks->Row == chunks.size()) {
+        debugLog("Save chunk"); // no, don't save - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
+        if (currentChunk()->getSection() < chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk
         } else {
             // at the end - save?
             //Application->MessageBox(L"Are all chunks completed?", L"Info", MB_OK);
+            Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
             Application->MessageBox(L"Save job?", L"Info", MB_OK);
         }
     }
