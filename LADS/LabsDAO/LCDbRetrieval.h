@@ -53,6 +53,7 @@ class LCDbCryovialRetrieval : public LCDbID//, public LDbNames
     TDateTime time_stamp;
 public:
     LCDbCryovialRetrieval(const LQuery & query);
+    bool saveRecord(LQuery query);
     enum Status { EXPECTED, IGNORED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
     static const char * statusString(int st);
     int getStatus() { return status; }

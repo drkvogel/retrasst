@@ -67,6 +67,7 @@ __published:
     void __fastcall btnSkipClick(TObject *Sender);
     void __fastcall btnSimAcceptClick(TObject *Sender);
     void __fastcall btnNotFoundClick(TObject *Sender);
+    void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);
@@ -77,6 +78,7 @@ private:
     StringGridWrapper<SampleRow> *              sgwVials;
     void                                        showChunks();
     Chunk< SampleRow > *                        currentChunk();
+    SampleRow *                                 currentSample();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     //Chunk< SampleRow >::Status                  chunkStatus(Chunk< SampleRow > * chunk);
     void                                        loadRows();

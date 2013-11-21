@@ -104,7 +104,7 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
-    delete_referenced< vector <SampleRow * > >(frmSamples->vials);
+    delete_referenced< vector <SampleRow * > >(vials);
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
 }
 

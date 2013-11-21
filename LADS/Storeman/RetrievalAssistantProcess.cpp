@@ -46,13 +46,18 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     loadingMessage = "Loading retrieval list, please wait...";
 }
 
-void TfrmProcess::debugLog(String s) {
-    memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
+void __fastcall TfrmProcess::FormClose(TObject *Sender, TCloseAction &Action) {
+    delete_referenced< vector <SampleRow * > >(vials);
+    delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
 }
 
 void __fastcall TfrmProcess::FormDestroy(TObject *Sender) {
     delete sgwChunks;
     delete sgwVials;
+}
+
+void TfrmProcess::debugLog(String s) {
+    memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
 }
 
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
@@ -152,15 +157,15 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
         } else {
             int status = row->retrieval_record->getStatus();
             switch (status) {
-                case LCDbBoxRetrieval::NEW:
+                case LCDbCryovialRetrieval::EXPECTED:
                     background = RETRIEVAL_ASSISTANT_NEW_COLOUR; break;
-                case LCDbBoxRetrieval::PART_FILLED:
-                    background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR; break;
-                case LCDbBoxRetrieval::COLLECTED:
+                case LCDbCryovialRetrieval::IGNORED:
+                    background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
+                case LCDbCryovialRetrieval::COLLECTED:
                     background = RETRIEVAL_ASSISTANT_DONE_COLOUR; break;
-                case LCDbBoxRetrieval::NOT_FOUND:
+                case LCDbCryovialRetrieval::NOT_FOUND:
                     background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR; break;
-                case LCDbBoxRetrieval::DELETED:
+                //case LCDbCryovialRetrieval::DELETED:
                 default:
                     background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
             }
@@ -243,7 +248,6 @@ void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->Objects[0][rw] = (TObject *)sampleRow;
     }
     sgVials->Row = 1;
-    //showRowDetails(sampleRow);
     showCurrentRow();
     Screen->Cursor = crDefault; Enabled = true;
 }
@@ -279,6 +283,8 @@ void TfrmProcess::loadRows() {
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
     Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
+    wstringstream oss; oss<<"loadRows started at "<<Now().CurrentDateTime().DateTimeString().c_str();
+    debugLog(oss.str().c_str());
     Enabled = false;
     loadPlanWorkerThread = new LoadPlanWorkerThread();
     loadPlanWorkerThread->OnTerminate = &loadPlanWorkerThreadTerminated;
@@ -294,51 +300,97 @@ void __fastcall LoadPlanWorkerThread::updateStatus() { // can't use args for syn
 }
 
 void __fastcall LoadPlanWorkerThread::Execute() {
-/** load retrieval plan
+    /** load retrieval plan
+    For a box retrieval, the retrieval plan will be given by: Select * from c_box_retrieval b order by b.section, b.rj_box_cid
+    For a cryovial retrieval, the retrieval plan will be: Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
 
-For a box retrieval, the retrieval plan will be given by
-Select * from c_box_retrieval b order by b.section, b.rj_box_cid
+    delete_referenced< vector<SampleRow * > >(frmProcess->vials); frmProcess->chunks.clear();
 
-For a cryovial retrieval, the retrieval plan will be:
-Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position
-*/
-    delete_referenced< vector<SampleRow * > >(frmProcess->vials);
-    frmProcess->chunks.clear();
     ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
     if (NULL != frmProcess && NULL != frmProcess->job) { frmProcess->job = frmProcess->job; } else { throw "wtf?"; }
+    loadingMessage = frmProcess->loadingMessage;
+
+
+    //LQuery qc(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
+//    LQuery qc(LIMSDatabase::getCentralDb());  // attempt to split up query - not sure if good idea
+//    qc.setSQL(
+//        "SELECT cbr.rj_box_cid, cbr.retrieval_cid, cbr.section chunk, cbr.status cbr_status, cbr.box_id,"
+//        " lcr.position dest_pos, lcr.slot_number lcr_slot, lcr.process_cid lcr_procid, lcr.status lcr_status,"
+//        " lcr.cryovial_barcode, lcr.aliquot_type_cid"
+//        " FROM c_box_retrieval cbr, l_cryovial_retrieval lcr"
+//        " WHERE cbr.retrieval_cid = :rtid AND lcr.rj_box_cid=cbr.rj_box_cid");
+#define TEMP_TABLE_NAME "retrieval_assistant_temp"
 
     LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
-    qd.setSQL( // from spec 2013-09-11
-        " SELECT"
-        //"    s1.retrieval_cid,cbr.section as chunk, cbr.rj_box_cid, lcr.position as dest_pos, cbr.status as cbr_status,"
-        "    s1.retrieval_cid, cbr.section as chunk, cbr.rj_box_cid, cbr.status as cbr_status,"
-        "    lcr.position as dest_pos, lcr.slot_number as lcr_slot, lcr.process_cid as lcr_procid, lcr.status as lcr_status,"
+//    qd.setSQL( // from spec 2013-09-11 // takes ages (25mins+) with cbr.retrieval_cid=-1015 (~4000 samples):
+//        " SELECT"
+//        "    s1.retrieval_cid, cbr.section as chunk, cbr.rj_box_cid, cbr.status as cbr_status,"
+//        "    lcr.position as dest_pos, lcr.slot_number as lcr_slot, lcr.process_cid as lcr_procid, lcr.status as lcr_status,"
+//        "    s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
+//        "    s1.record_id, c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists as cryovial_note,"
+//        "    s1.box_cid, b1.external_name as src_box, s1.status, s1.tube_position, s1.note_exists as cs_note,"
+//        "    cbr.box_id as dest_id, b2.external_name as dest_name, s2.tube_position as slot_number, s2.status as dest_status"
+//        " FROM"
+//        "    c_box_retrieval cbr, l_cryovial_retrieval lcr, cryovial c, cryovial_store s1, box_name b1, cryovial_store s2, box_name b2"
+//        " WHERE"
+//        "    cbr.retrieval_cid = :rtid AND"
+//        "    s1.retrieval_cid = cbr.retrieval_cid AND"
+//        "    lcr.rj_box_cid = cbr.rj_box_cid AND"
+//        "    lcr. cryovial_barcode = c.cryovial_barcode AND lcr.aliquot_type_cid = c.aliquot_type_cid AND"
+//        "    b2.box_cid = cbr.box_id AND"
+//        "    c.cryovial_id = s1.cryovial_id AND"
+//        "    c.cryovial_id = s2.cryovial_id AND"
+//        "    b1.box_cid = s1.box_cid AND"
+//        "    s2.box_cid = b2.box_cid"
+//        " ORDER BY"
+//        "    s1.retrieval_cid,chunk, cbr.rj_box_cid, lcr.position"
+//    );
 
-        "    s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
-        "    s1.record_id, c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists as cryovial_note,"
-        "    s1.box_cid, b1.external_name as src_box, s1.status, s1.tube_position, s1.note_exists as cs_note,"
-        "    cbr.box_id as dest_id, b2.external_name as dest_name, s2.tube_position as slot_number, s2.status as dest_status"
-        " FROM"
-        "    c_box_retrieval cbr, l_cryovial_retrieval lcr, cryovial c, cryovial_store s1, box_name b1, cryovial_store s2, box_name b2,"
-        "    c_object_name t"
-        " WHERE"
-        "    cbr.retrieval_cid = :rtid AND"
-        "    s1.retrieval_cid = cbr.retrieval_cid AND"
-        "    lcr.rj_box_cid = cbr.rj_box_cid AND"
-        "    lcr. cryovial_barcode = c.cryovial_barcode AND lcr.aliquot_type_cid = c.aliquot_type_cid AND"
-        "    b2.box_cid = cbr.box_id AND"
-        "    t.object_cid = c.aliquot_type_cid AND"
-        "    c.cryovial_id = s1.cryovial_id AND"
-        "    c.cryovial_id = s2.cryovial_id AND"
-        "    b1.box_cid = s1.box_cid AND"
-        "    s2.box_cid = b2.box_cid"
-        " ORDER BY"
-        "    s1.retrieval_cid,chunk, cbr.rj_box_cid, lcr.position"
-    );
-    rowCount = 0; // class variable needed for synchronise
+    qd.setSQL("DROP TABLE IF EXISTS "TEMP_TABLE_NAME);
+    qd.execSQL();
+
+    qd.setSQL(
+        //"CREATE TABLE my_extra_table AS\n"
+        "CREATE TABLE "TEMP_TABLE_NAME" AS"
+        "   SELECT"
+        "       cbr.rj_box_cid, cbr.retrieval_cid, cbr.section AS chunk, cbr.status AS cbr_status, cbr.box_id,"
+        "       lcr.position AS dest_pos, lcr.slot_number AS lcr_slot, lcr.process_cid AS lcr_procid, lcr.status AS lcr_status,"
+        "       lcr.cryovial_barcode, lcr.aliquot_type_cid"
+        "   FROM"
+        "       c_box_retrieval cbr, l_cryovial_retrieval lcr"
+        "   WHERE"
+        "       cbr.retrieval_cid = :rtid"
+        "   AND"
+        "       lcr.rj_box_cid = cbr.rj_box_cid");
     int retrieval_cid = frmProcess->job->getID();
     qd.setParam("rtid", retrieval_cid);
-    loadingMessage = frmProcess->loadingMessage;
+    qd.execSQL();
+
+    //qd.setSQL("COMMIT"); qd.execSQL();
+
+    qd.setSQL(
+        " SELECT"
+        "     s1.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status,"
+        "     s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position,"
+        "     s1.record_id, c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
+        "     s1.box_cid, b1.external_name AS src_box, s1.status, s1.tube_position, s1.note_exists AS cs_note,"
+        "     g.box_id AS dest_id, b2.external_name AS dest_name, s2.tube_position AS slot_number, s2.status AS dest_status"
+        " FROM "
+        //"     my_extra_table g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
+        TEMP_TABLE_NAME" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
+        " WHERE"
+        "     c.cryovial_barcode = g.cryovial_barcode"
+        "     AND c.aliquot_type_cid = g.aliquot_type_cid"
+        "     AND s1.cryovial_id = c.cryovial_id"
+        "     AND s1.retrieval_cid = g.retrieval_cid"
+        "     AND b2.box_cid = g.box_id"
+        "     AND b1.box_cid = s1.box_cid"
+        "     AND s2.cryovial_id = c.cryovial_id"
+        "     AND b2.box_cid = s2.box_cid"
+        " ORDER BY"
+        "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos"
+    );
+    rowCount = 0; // class variable needed for synchronise
     qd.open();
     int curchunk = 0, chunk = 0;
     while (!qd.eof()) {
@@ -368,6 +420,10 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         qd.next();
         rowCount++;
     }
+    //qd.setSQL("DROP my_extra_table"); qd.execSQL();
+    qd.setSQL("DROP "TEMP_TABLE_NAME);
+    qd.execSQL();
+
     frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
 
     // find locations of source boxes
@@ -397,12 +453,12 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
-    showChunks();
-    //SampleRow * sample = currentChunk()->rowAt(0);
-    currentChunk()->setCurrentRow(0);
-    //currentChunk = 0;
+    showChunks(); //SampleRow * sample = currentChunk()->rowAt(0);
+    currentChunk()->setCurrentRow(0); //currentChunk = 0;
     showCurrentRow();
     Enabled = true;
+    wstringstream oss; oss<<"loadRows finished at "<<Now().CurrentDateTime().DateTimeString().c_str();
+    debugLog(oss.str().c_str());
 }
 
 void TfrmProcess::showCurrentRow() {
@@ -432,19 +488,7 @@ void TfrmProcess::addChunk(int row) {
 // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
 
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
-
     accept(editBarcode->Text);
-//    // check correct vial; could be missing, swapped etc
-//    SampleRow * sample = currentChunk()->rowAt(currentChunk()->getCurrentRow());
-//    if (editBarcode->Text == sample->cryovial_barcode.c_str()) {
-//        // save
-//        sample->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
-//        Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
-//        nextRow();
-//    } else {
-//        //IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)
-//        Application->MessageBox(L"Barcode not matched", L"Info", MB_OK);
-//    }
 }
 
 void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) {
@@ -454,7 +498,8 @@ void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) {
 
 void TfrmProcess::accept(String barcode) {
     // check correct vial; could be missing, swapped etc
-    SampleRow * sample = currentChunk()->rowAt(currentChunk()->getCurrentRow());
+    //SampleRow * sample = currentChunk()->rowAt(currentChunk()->getCurrentRow());
+    SampleRow * sample = currentSample();
     switch (sample->retrieval_record->getStatus()) {
         case LCDbCryovialRetrieval::EXPECTED:
         case LCDbCryovialRetrieval::IGNORED:
@@ -467,43 +512,50 @@ void TfrmProcess::accept(String barcode) {
                 return;
             }
     }
-    if (barcode == sample->cryovial_barcode.c_str()) {
-        // save
+    if (barcode == sample->cryovial_barcode.c_str()) { // save
         sample->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
-        //Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
-        debugLog("Save accepted row");
+        debugLog("Save accepted row"); //Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
         nextRow();
     } else {
-        //IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)
         Application->MessageBox(L"Barcode not matched", L"Info", MB_OK);
     }
 }
 
 void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
-    //Application->MessageBox(L"Save skipped row", L"Info", MB_OK);
-    debugLog("Save skipped row");
+    debugLog("Save skipped row"); //Application->MessageBox(L"Save skipped row", L"Info", MB_OK);
+    currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
     nextRow();
 }
 
 void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
-    //Application->MessageBox(L"Save not found row", L"Info", MB_OK);
-    debugLog("Save not found row");
+    debugLog("Save not found row"); //Application->MessageBox(L"Save not found row", L"Info", MB_OK);
+    currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
     nextRow();
 }
 
+SampleRow * TfrmProcess::currentSample() {
+    Chunk< SampleRow > * chunk = currentChunk();
+    int current = chunk->getCurrentRow();
+    SampleRow * sample = chunk->rowAt(current);
+    return sample;
+}
+
 void TfrmProcess::nextRow() {
-    if (currentChunk()->getCurrentRow() < currentChunk()->getSize()-1) {
-        currentChunk()->setCurrentRow(currentChunk()->getCurrentRow()+1); //???
+    Chunk< SampleRow > * chunk = currentChunk();
+    int current = chunk->getCurrentRow();
+    SampleRow * sample = chunk->rowAt(current);
+
+    //sample->retrieval_record->saveRecord(LIMSDatabase::getProjectDb());
+    if (current < chunk->getSize()-1) {
+        chunk->setCurrentRow(current+1); //???
         showCurrentRow();
     } else { // skipped last row
         debugLog("Save chunk"); // no, don't save - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
-        if (currentChunk()->getSection() < chunks.size()) {
+        if (chunk->getSection() < chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk
         } else {
-            // at the end - save?
-            //Application->MessageBox(L"Are all chunks completed?", L"Info", MB_OK);
+            if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
             Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
-            Application->MessageBox(L"Save job?", L"Info", MB_OK);
         }
     }
     editBarcode->Clear();

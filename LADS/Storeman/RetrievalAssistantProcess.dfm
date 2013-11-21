@@ -13,6 +13,7 @@ object frmProcess: TfrmProcess
   Menu = mainMenuMain
   OldCreateOrder = False
   WindowState = wsMaximized
+  OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow

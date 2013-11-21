@@ -152,7 +152,7 @@ typedef std::vector<pBoxRow> vecpBoxRow;
 
 class SampleRow : public RetrievalRow {
 public:
-    LPDbCryovial *          cryo_record;
+    LPDbCryovial *          cryo_record; // auto_ptr for these?
     LPDbCryovialStore *     store_record;
     LCDbCryovialRetrieval * retrieval_record;
     string              cryovial_barcode;
@@ -161,7 +161,8 @@ public:
     ~SampleRow() {
         if (store_record) delete store_record;
         if (cryo_record) delete cryo_record;
-        if (retrieval_record) delete retrieval_record;
+        //if (retrieval_record) delete retrieval_record;
+        delete retrieval_record;
     }
     SampleRow(  LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
                 string barc, string aliq, string srcnm, int dstid, string dstnm, int dstps,
