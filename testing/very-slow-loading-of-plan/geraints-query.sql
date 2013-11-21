@@ -41,7 +41,7 @@ DROP my_extra_table;
 -- after (peak) 8s      failed with exceptions below
 --  s/row       0.28    n/a
 --  increase    3.5     n/a
--- after (off)  5s      
+-- after (off)  5s      failed
 --  s/row       0.17    (255s/4m15s?)
 --  increase    6       n/a
 

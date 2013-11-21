@@ -217,7 +217,7 @@ object frmProcess: TfrmProcess
     Caption = 'Details'
     TabOrder = 3
     object Label3: TLabel
-      Left = 49
+      Left = 14
       Top = 20
       Width = 29
       Height = 25
@@ -229,25 +229,25 @@ object frmProcess: TfrmProcess
       Font.Style = []
       ParentFont = False
     end
-    object Label2: TLabel
-      Left = 340
+    object labelStorage: TLabel
+      Left = 303
       Top = 19
-      Width = 84
-      Height = 25
-      Caption = 'Location:'
+      Width = 167
+      Height = 37
+      Caption = 'labelStorage'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -21
+      Font.Height = -31
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
     end
-    object labelStorage: TLabel
-      Left = 339
-      Top = 43
-      Width = 198
+    object labelSampleID: TLabel
+      Left = 14
+      Top = 50
+      Width = 231
       Height = 45
-      Caption = 'labelStorage'
+      Caption = 'labelSampleID'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -37
@@ -255,15 +255,41 @@ object frmProcess: TfrmProcess
       Font.Style = []
       ParentFont = False
     end
-    object labelSampleID: TLabel
-      Left = 49
-      Top = 43
-      Width = 253
-      Height = 48
-      Caption = 'labelSampleID'
+    object Label2: TLabel
+      Left = 251
+      Top = 19
+      Width = 38
+      Height = 25
+      Caption = 'Loc:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -40
+      Font.Height = -21
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label4: TLabel
+      Left = 251
+      Top = 83
+      Width = 48
+      Height = 25
+      Caption = 'Dest:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -21
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object labelDestbox: TLabel
+      Left = 305
+      Top = 73
+      Width = 173
+      Height = 37
+      Caption = 'labelDestbox'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -31
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False

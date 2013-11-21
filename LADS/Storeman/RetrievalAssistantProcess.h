@@ -44,7 +44,6 @@ __published:
     TSplitter *Splitter1;
     TGroupBox *GroupBox3;
     TLabel *Label3;
-    TLabel *Label2;
     TButton *btnExit;
     TLabel *labelStorage;
     TLabel *labelSampleID;
@@ -52,6 +51,9 @@ __published:
     TMemo *memoDebug;
     TButton *btnSimAccept;
     TButton *btnNotFound;
+    TLabel *Label2;
+    TLabel *Label4;
+    TLabel *labelDestbox;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);

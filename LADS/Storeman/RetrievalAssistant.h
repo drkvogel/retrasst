@@ -194,7 +194,20 @@ public:
             <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_cryo_pos<<"]}, "
             <<"loc: {"<<storage_str()<<"}";
         return oss.str();
-    };
+    }
+
+    string storage_str() {
+        ostringstream oss;
+        oss<<site_name<<"["<<vessel_pos<<"]: "
+            <<vessel_name<<":"<<shelf_number<<"["<<structure_pos<<"]/"<<structure_name<<"["<<box_pos<<"]";
+        return oss.str();
+    }
+
+    string dest_str() {
+        ostringstream oss;
+        oss<<dest_box_name<<" ["<<dest_cryo_pos<<"]";
+        return oss.str();
+    }
 };
 
 typedef std::vector<SampleRow *> vecpSampleRow;

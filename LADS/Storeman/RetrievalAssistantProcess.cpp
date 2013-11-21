@@ -26,14 +26,14 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("aliquot",  "Aliquot",          90);
     sgwVials->addCol("currbox",  "Current box",      257);
     sgwVials->addCol("currpos",  "Pos",              31);
-    sgwVials->addCol("site",     "Site",             120);
+    sgwVials->addCol("site",     "Site",             90);
     sgwVials->addCol("vesspos",  "Pos",              28);
     sgwVials->addCol("vessel",   "Vessel",           107);
     sgwVials->addCol("shelf",    "Shelf",            31);
     sgwVials->addCol("structpos","Pos",              27);
-    sgwVials->addCol("struct",   "Structure",        123);
+    sgwVials->addCol("struct",   "Structure",        100);
     sgwVials->addCol("boxpos",   "Slot",             26);
-    sgwVials->addCol("destbox",  "Destination box",  267);
+    sgwVials->addCol("destbox",  "Destination box",  240);
     sgwVials->addCol("destpos",  "Pos",              25);
     sgwVials->init();
 }
@@ -68,8 +68,9 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     chunks.clear();
     sgwChunks->clear();
     sgwVials->clear();
-    labelStorage->Caption   = "loading...";
     labelSampleID->Caption  = "loading...";
+    labelStorage->Caption   = "loading...";
+    labelDestbox->Caption   = "loading...";
 }
 
 void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
@@ -468,9 +469,9 @@ void TfrmProcess::showCurrentRow() {
 }
 
 void TfrmProcess::showRowDetails(SampleRow * sample) {
-    labelStorage->Caption   = sample->storage_str().c_str();//"loading...";
-    labelSampleID->Caption  = sample->cryovial_barcode.c_str();//"loading...";
-    //sgVials->Row = currentChunk()->getCurrentRow();
+    labelSampleID->Caption  = sample->cryovial_barcode.c_str();
+    labelStorage->Caption   = sample->storage_str().c_str();
+    labelDestbox->Caption   = sample->dest_str().c_str();
 }
 
 void TfrmProcess::addChunk(int row) {
@@ -498,7 +499,6 @@ void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) {
 
 void TfrmProcess::accept(String barcode) {
     // check correct vial; could be missing, swapped etc
-    //SampleRow * sample = currentChunk()->rowAt(currentChunk()->getCurrentRow());
     SampleRow * sample = currentSample();
     switch (sample->retrieval_record->getStatus()) {
         case LCDbCryovialRetrieval::EXPECTED:
@@ -507,7 +507,6 @@ void TfrmProcess::accept(String barcode) {
         case LCDbCryovialRetrieval::COLLECTED:
             msgbox("Already collected"); return;
         case LCDbCryovialRetrieval::NOT_FOUND:
-            //msgbox("");
             if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) {
                 return;
             }
@@ -558,8 +557,9 @@ void TfrmProcess::nextRow() {
             Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
         }
     }
-    editBarcode->Clear();
     showChunks();
+    editBarcode->Clear();
+    ActiveControl = editBarcode; // focus for next barcode
 }
 
 void TfrmProcess::exit() {
