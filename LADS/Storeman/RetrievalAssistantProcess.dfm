@@ -221,6 +221,7 @@ object frmProcess: TfrmProcess
     Align = alBottom
     Caption = 'Details'
     TabOrder = 3
+    ExplicitTop = 411
     object Label3: TLabel
       Left = 14
       Top = 20
@@ -235,7 +236,7 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object labelStorage: TLabel
-      Left = 303
+      Left = 383
       Top = 19
       Width = 167
       Height = 37
@@ -261,7 +262,7 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object Label2: TLabel
-      Left = 251
+      Left = 331
       Top = 19
       Width = 38
       Height = 25
@@ -274,7 +275,7 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object Label4: TLabel
-      Left = 251
+      Left = 321
       Top = 83
       Width = 48
       Height = 25
@@ -287,7 +288,7 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object labelDestbox: TLabel
-      Left = 305
+      Left = 385
       Top = 73
       Width = 173
       Height = 37

@@ -335,9 +335,13 @@ public:
                 throw "unknown status";
         }
     }
+    float getProgress() {
+        return ((float)currentRowIdx/((float)getSize()));
+    }
     string progressString() {
         ostringstream oss;
-        float percent = ((float)currentRowIdx/((float)getSize()))*100;
+        //float percent = ((float)currentRowIdx/((float)getSize()))*100;
+        float percent = getProgress()*100;
         oss<<currentRowIdx<<"/"<<getSize()<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
         return oss.str();
     }

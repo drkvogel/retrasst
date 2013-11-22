@@ -436,7 +436,7 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
     if (RETRASSTDEBUG) { // sgDebug - all vials
         sgDebug->RowCount = vials.size()+1;
         sgDebug->FixedRows = 1;
-        for (int row=0; row < vials.size(); row++) {
+        for (unsigned row=0; row < vials.size(); row++) {
             SampleRow *         sampleRow = vials[row];
             LPDbCryovial *      vial    = sampleRow->cryo_record;
             LPDbCryovialStore * store   = sampleRow->store_record;
