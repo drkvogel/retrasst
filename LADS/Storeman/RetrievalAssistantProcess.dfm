@@ -45,9 +45,11 @@ object frmProcess: TfrmProcess
       Height = 121
       Align = alClient
       DefaultDrawing = False
+      DoubleBuffered = True
       Enabled = False
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect]
+      ParentDoubleBuffered = False
       TabOrder = 0
       OnDrawCell = sgVialsDrawCell
     end
@@ -83,6 +85,9 @@ object frmProcess: TfrmProcess
         Width = 664
         Height = 85
         Align = alLeft
+        DoubleBuffered = False
+        ParentDoubleBuffered = False
+        ScrollBars = ssVertical
         TabOrder = 0
       end
       object btnSimAccept: TButton

@@ -57,7 +57,10 @@ void __fastcall TfrmProcess::FormDestroy(TObject *Sender) {
 }
 
 void TfrmProcess::debugLog(String s) {
-    memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
+    //ostringstream oss
+    String tmp = Now().CurrentDateTime().DateTimeString() + ": " + s;
+    //memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
+    memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
 }
 
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
@@ -284,7 +287,7 @@ void TfrmProcess::loadRows() {
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
     Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
-    wstringstream oss; oss<<"loadRows started at "<<Now().CurrentDateTime().DateTimeString().c_str();
+    wstringstream oss; oss<<"loadRows for job "<<job->getID()<<" started";
     debugLog(oss.str().c_str());
     Enabled = false;
     loadPlanWorkerThread = new LoadPlanWorkerThread();
@@ -298,6 +301,10 @@ __fastcall LoadPlanWorkerThread::LoadPlanWorkerThread() : TThread(false) {
 void __fastcall LoadPlanWorkerThread::updateStatus() { // can't use args for synced method, don't know why
     frmProcess->panelLoading->Caption = loadingMessage.c_str();
     frmProcess->panelLoading->Repaint();
+}
+
+void __fastcall LoadPlanWorkerThread::debugLog() {
+    frmProcess->debugLog(debugMessage.c_str());
 }
 
 void __fastcall LoadPlanWorkerThread::Execute() {
@@ -367,7 +374,12 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     qd.setParam("rtid", retrieval_cid);
     qd.execSQL();
 
+    debugMessage = "finished create temp table";
+    Synchronize((TThreadMethod)&debugLog);
+
     //qd.setSQL("COMMIT"); qd.execSQL();
+    // use non-star query for this bit for speed? but where would the temp table be?
+    // LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), false)); // not ddb
 
     qd.setSQL(
         " SELECT"
@@ -377,7 +389,6 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         "     s1.box_cid, b1.external_name AS src_box, s1.status, s1.tube_position, s1.note_exists AS cs_note,"
         "     g.box_id AS dest_id, b2.external_name AS dest_name, s2.tube_position AS slot_number, s2.status AS dest_status"
         " FROM "
-        //"     my_extra_table g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
         TEMP_TABLE_NAME" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
         " WHERE"
         "     c.cryovial_barcode = g.cryovial_barcode"
@@ -421,9 +432,15 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         qd.next();
         rowCount++;
     }
-    //qd.setSQL("DROP my_extra_table"); qd.execSQL();
+
+    debugMessage = "finished loading samples";
+    Synchronize((TThreadMethod)&debugLog);
+
     qd.setSQL("DROP "TEMP_TABLE_NAME);
     qd.execSQL();
+
+    debugMessage = "finished drop temp table";
+    Synchronize((TThreadMethod)&debugLog);
 
     frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
 
@@ -448,17 +465,19 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         loadingMessage = oss.str().c_str();
         Synchronize((TThreadMethod)&updateStatus);
 	}
+    debugMessage = "finished load storage details";
+    Synchronize((TThreadMethod)&debugLog);
 }
 
 void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
-    showChunks(); //SampleRow * sample = currentChunk()->rowAt(0);
+    showChunks();
     currentChunk()->setCurrentRow(0); //currentChunk = 0;
     showCurrentRow();
     Enabled = true;
-    wstringstream oss; oss<<"loadRows finished at "<<Now().CurrentDateTime().DateTimeString().c_str();
+    wstringstream oss; oss<<"loadRows for job "<<job->getID()<<" finished";
     debugLog(oss.str().c_str());
 }
 
@@ -564,8 +583,8 @@ void TfrmProcess::nextRow() {
 
 void TfrmProcess::exit() {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
-        // save stuff
         Application->MessageBox(L"Save completed boxes", L"Info", MB_OK);
+        Application->MessageBox(L"Signoff form (or on open form?)", L"Info", MB_OK);
         // how to update boxes? check at save and exit that all vials in a box have been saved?
         Close();
     }

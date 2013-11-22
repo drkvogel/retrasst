@@ -1,4 +1,7 @@
-﻿CREATE TABLE my_extra_table AS
+﻿DROP TABLE IF EXISTS my_extra_table;
+\p\g
+
+CREATE TABLE my_extra_table AS
 SELECT 
     cbr.rj_box_cid, cbr.retrieval_cid, cbr.section chunk, cbr.status cbr_status, cbr.box_id,
     lcr.position dest_pos, lcr.slot_number lcr_slot, lcr.process_cid lcr_procid, lcr.status lcr_status,
@@ -9,8 +12,10 @@ WHERE
     cbr.retrieval_cid=-1015
 AND
     lcr.rj_box_cid=cbr.rj_box_cid;
+\p\g
 
 COMMIT; 
+\p\g
 
 SELECT
     s1.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status,
@@ -31,16 +36,30 @@ WHERE
     AND b2.box_cid = s2.box_cid
 ORDER BY 
     s1.retrieval_cid,chunk, g.rj_box_cid, dest_pos;
+\p\g
     
 DROP my_extra_table;
+\p\g
 
--- load         2018    -1015
--- rows         28      4000        
--- before       30s     25m (1500s)
---  s/row       1.0     0.375
--- after (peak) 8s      failed with exceptions below
---  s/row       0.28    n/a
---  increase    3.5     n/a
+COMMIT; 
+\p\g
+
+-- the above now completes in 7 seconds when run from the command line via sql interpreter
+-- and:
+/*  22/11/2013 12:28:54: loadRows for job -1015 started
+    22/11/2013 12:28:54: finished create temp table
+    22/11/2013 12:29:43: finished loading samples
+    22/11/2013 12:29:43: finished drop temp table
+    22/11/2013 12:31:27: finished load storage details
+    22/11/2013 12:31:27: loadRows for job -1015 finished*/
+
+-- load         2018    -1015           1743
+-- rows         28      4000            837
+-- before       30s     25m (1500s)     ?
+--  s/row       1.0     0.375               
+-- after (peak) 8s      failed          30s
+--  s/row       0.28    n/a             0.035
+--  increase    3.5     n/a             ?
 -- after (off)  5s      failed
 --  s/row       0.17    (255s/4m15s?)
 --  increase    6       n/a

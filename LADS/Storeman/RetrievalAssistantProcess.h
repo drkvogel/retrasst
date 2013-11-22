@@ -20,7 +20,9 @@ public:
     __fastcall LoadPlanWorkerThread();
     int             rowCount;
     string          loadingMessage;
+    string          debugMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
+    void __fastcall debugLog(); // synchronized methods can't have args
 };
 
 class TfrmProcess : public TForm {
