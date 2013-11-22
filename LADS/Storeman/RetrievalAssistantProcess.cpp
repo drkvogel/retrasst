@@ -9,14 +9,15 @@ TfrmProcess *frmProcess;
 
 __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
-    sgwChunks->addCol("section",  "Section",  87);
+    sgwChunks->addCol("section",  "Section",  60);
     sgwChunks->addCol("status",   "Status",   91);
+    sgwChunks->addCol("progress", "Progress", 91);
     sgwChunks->addCol("start",    "Start",    70);
-    sgwChunks->addCol("startbox", "Box",      304);
+    sgwChunks->addCol("startbox", "Box",      250);
     sgwChunks->addCol("startvial","Vial",     150);
     sgwChunks->addCol("end",      "End",      66);
     sgwChunks->addCol("endbox",   "Box",      242);
-    sgwChunks->addCol("endvial",  "Vial",     160);
+    sgwChunks->addCol("endvial",  "Vial",     150);
     sgwChunks->addCol("size",     "Size",     87);
     sgwChunks->init();
 
@@ -200,6 +201,7 @@ void TfrmProcess::showChunks() {
         Chunk< SampleRow > * chunk = *it;
         sgChunks->Cells[sgwChunks->colNameToInt("section")]   [row] = chunk->getSection();
         sgChunks->Cells[sgwChunks->colNameToInt("status")]    [row] = chunk->statusString().c_str();
+        sgChunks->Cells[sgwChunks->colNameToInt("progress")]  [row] = chunk->progressString().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStart();
         sgChunks->Cells[sgwChunks->colNameToInt("startbox")]  [row] = chunk->getStartBox().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("startvial")] [row] = chunk->getStartVial().c_str();
@@ -449,7 +451,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     int rowCount2 = 0;
 	for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
-        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]";
+        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
         map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
         if (found != samples.end()) { // fill in box location from cache map
             sample->copyLocation(*(found->second));
@@ -482,15 +484,28 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
 }
 
 void TfrmProcess::showCurrentRow() {
-    SampleRow * row = currentChunk()->rowAt(currentChunk()->getCurrentRow());
-    showRowDetails(row);
-    sgVials->Row = currentChunk()->getCurrentRow()+1; // causes double header row!
+    SampleRow * sample;
+    int rowIdx = currentChunk()->getCurrentRow();
+    if (rowIdx == currentChunk()->getSize()) {  // ie. past the end, chunk completed
+        sample = NULL;              // no details to show
+        sgVials->Row = rowIdx;      // just show the last row
+    } else {
+        sample = currentChunk()->rowAt(rowIdx);
+        sgVials->Row = rowIdx+1;    // allow for header row
+    }
+    showRowDetails(sample);
 }
 
 void TfrmProcess::showRowDetails(SampleRow * sample) {
-    labelSampleID->Caption  = sample->cryovial_barcode.c_str();
-    labelStorage->Caption   = sample->storage_str().c_str();
-    labelDestbox->Caption   = sample->dest_str().c_str();
+    if (NULL == sample) {
+        labelSampleID->Caption  = "";
+        labelStorage->Caption   = "Chunk completed";
+        labelDestbox->Caption   = "";
+    } else {
+        labelSampleID->Caption  = sample->cryovial_barcode.c_str();
+        labelStorage->Caption   = sample->storage_str().c_str();
+        labelDestbox->Caption   = sample->dest_str().c_str();
+    }
 }
 
 void TfrmProcess::addChunk(int row) {
@@ -568,6 +583,7 @@ void TfrmProcess::nextRow() {
         chunk->setCurrentRow(current+1); //???
         showCurrentRow();
     } else { // skipped last row
+        chunk->setCurrentRow(current+1); // past end to show complete?
         debugLog("Save chunk"); // no, don't save - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
         if (chunk->getSection() < chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk

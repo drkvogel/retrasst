@@ -15,6 +15,8 @@
 #include "LPDbCryovial.h"
 #include "LDbBoxStore.h"
 #include "LCDbRetrieval.h"
+// for setprecision:
+#include <iomanip>
 
 using namespace std;
 
@@ -332,6 +334,12 @@ public:
             default:
                 throw "unknown status";
         }
+    }
+    string progressString() {
+        ostringstream oss;
+        float percent = ((float)currentRowIdx/((float)getSize()))*100;
+        oss<<currentRowIdx<<"/"<<getSize()<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
+        return oss.str();
     }
     int getStatus() { // http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates
         bool complete = true;
