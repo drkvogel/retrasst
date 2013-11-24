@@ -15,6 +15,8 @@
 #include "LPDbCryovial.h"
 #include "LDbBoxStore.h"
 #include "LCDbRetrieval.h"
+// for setprecision:
+#include <iomanip>
 
 using namespace std;
 
@@ -26,13 +28,16 @@ const bool RETRASSTDEBUG =
 #endif
 
 #define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
-#define RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR      clMoneyGreen
+#define RETRIEVAL_ASSISTANT_NEW_COLOUR          clMoneyGreen
 #define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
 #define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
+#define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR    clFuchsia
+#define RETRIEVAL_ASSISTANT_IGNORED_COLOUR      clGray
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
-#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
+#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clPurple
 
-//#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clGray
+// LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
+// LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND|DELETED
 
 #define DEFAULT_BOX_SIZE 100
 
@@ -149,13 +154,18 @@ typedef std::vector<pBoxRow> vecpBoxRow;
 
 class SampleRow : public RetrievalRow {
 public:
-    LPDbCryovial *          cryo_record;
+    LPDbCryovial *          cryo_record; // auto_ptr for these?
     LPDbCryovialStore *     store_record;
     LCDbCryovialRetrieval * retrieval_record;
     string              cryovial_barcode;
     string              aliquot_type_name;  // not in LPDbCryovial
     int                 dest_cryo_pos;      // cryovial_position/tube_position
-    ~SampleRow() { if (store_record) delete store_record; if (cryo_record) delete cryo_record;}
+    ~SampleRow() {
+        if (store_record) delete store_record;
+        if (cryo_record) delete cryo_record;
+        //if (retrieval_record) delete retrieval_record;
+        delete retrieval_record;
+    }
     SampleRow(  LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
                 string barc, string aliq, string srcnm, int dstid, string dstnm, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
@@ -186,7 +196,20 @@ public:
             <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_cryo_pos<<"]}, "
             <<"loc: {"<<storage_str()<<"}";
         return oss.str();
-    };
+    }
+
+    string storage_str() {
+        ostringstream oss;
+        oss<<site_name<<"["<<vessel_pos<<"]: "
+            <<vessel_name<<":"<<shelf_number<<"["<<structure_pos<<"]/"<<structure_name<<"["<<box_pos<<"]";
+        return oss.str();
+    }
+
+    string dest_str() {
+        ostringstream oss;
+        oss<<dest_box_name<<" ["<<dest_cryo_pos<<"]";
+        return oss.str();
+    }
 };
 
 typedef std::vector<SampleRow *> vecpSampleRow;
@@ -310,11 +333,57 @@ class Chunk { // not recorded in database
     string              endVial;
     string              endBox;
     string              endDescrip;
-    // NEW|PART_PROCESSED|COMPLETED
     int                 currentRowIdx;
+    //char *              statusString[] = {"NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED"};
 public:
     Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e), currentRowIdx(0) { }
-    enum Status { NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES } status;
+    enum Status { NOT_STARTED, INPROGRESS, DONE, /*REJECTED, DELETED = 99,*/ NUM_STATUSES };// status;
+    string statusString() {
+        switch (getStatus()) {
+            case NOT_STARTED:
+                return "Not started";
+            case INPROGRESS:
+                return "In progress";
+            case DONE:
+                return "Completed";
+            default:
+                throw "unknown status";
+        }
+    }
+    float getProgress() {
+        return ((float)currentRowIdx/((float)getSize()));
+    }
+    string progressString() {
+        ostringstream oss;
+        //float percent = ((float)currentRowIdx/((float)getSize()))*100;
+        float percent = getProgress()*100;
+        oss<<currentRowIdx<<"/"<<getSize()<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
+        return oss.str();
+    }
+    int getStatus() { // http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates
+        bool complete = true;
+        bool not_started = true;
+        for (int i=0; i<getSize(); i++) {
+            int status = rowAt(i)->retrieval_record->getStatus();
+            switch (status) {
+                case LCDbCryovialRetrieval::EXPECTED:
+                    complete = false; break;
+                case LCDbCryovialRetrieval::IGNORED:
+                case LCDbCryovialRetrieval::COLLECTED:
+                case LCDbCryovialRetrieval::NOT_FOUND:
+                    not_started = false; break;
+                default:
+                    throw "unexpected LCDbCryovialRetrieval status";
+            }
+        }
+        if (complete) {
+            return DONE;
+        } else if (not_started) {
+            return NOT_STARTED;
+        } else {
+            return INPROGRESS;
+        }
+    }
     int     getSection()    { return section; }
     int     getStart()      { return start; }
     int     getStartPos()   { return start+1; } // 1-indexed, human-readable

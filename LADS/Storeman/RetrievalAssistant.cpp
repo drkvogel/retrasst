@@ -56,7 +56,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
     } else {
         switch (job->getStatus()) {
         case LCDbCryoJob::Status::NEW_JOB:
-            background = RETRIEVAL_ASSISTANT_NEW_JOB_COLOUR;
+            background = RETRIEVAL_ASSISTANT_NEW_COLOUR;
             break;
         case LCDbCryoJob::Status::INPROGRESS:
             background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR;
@@ -270,4 +270,28 @@ void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
     loadJobs();
 }
 
-
+//template <class T>
+//int Chunk<T>::getStatus() {
+//    bool complete = true;
+//    bool not_started = true;
+//    for (int i=0; i<getSize(); i++) {
+//        int status = rowAt(i)->retrieval_record->getStatus();
+//        switch (status) {
+//            case LCDbCryovialRetrieval::EXPECTED:
+//                complete = false; break;
+//            case LCDbCryovialRetrieval::IGNORED:
+//            case LCDbCryovialRetrieval::COLLECTED:
+//            case LCDbCryovialRetrieval::NOT_FOUND:
+//                not_started = false; break;
+//            default:
+//                throw "unexpected LCDbCryovialRetrieval status";
+//        }
+//    }
+//    if (complete) {
+//        return DONE;
+//    } else if (not_started) {
+//        return NOT_STARTED;
+//    } else {
+//        return INPROGRESS;
+//    }
+//}

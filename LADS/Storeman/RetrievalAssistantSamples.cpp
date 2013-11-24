@@ -104,7 +104,7 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
-    delete_referenced< vector <SampleRow * > >(frmSamples->vials);
+    delete_referenced< vector <SampleRow * > >(vials);
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
 }
 
@@ -436,7 +436,7 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
     if (RETRASSTDEBUG) { // sgDebug - all vials
         sgDebug->RowCount = vials.size()+1;
         sgDebug->FixedRows = 1;
-        for (int row=0; row < vials.size(); row++) {
+        for (unsigned row=0; row < vials.size(); row++) {
             SampleRow *         sampleRow = vials[row];
             LPDbCryovial *      vial    = sampleRow->cryo_record;
             LPDbCryovialStore * store   = sampleRow->store_record;

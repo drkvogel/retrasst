@@ -4,18 +4,20 @@
 #include "RetrievalAssistantProcess.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
+
 TfrmProcess *frmProcess;
 
 __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
-    sgwChunks->addCol("section",  "Section",  87);
+    sgwChunks->addCol("section",  "Section",  60);
     sgwChunks->addCol("status",   "Status",   91);
+    sgwChunks->addCol("progress", "Progress", 91);
     sgwChunks->addCol("start",    "Start",    70);
-    sgwChunks->addCol("startbox", "Box",      304);
+    sgwChunks->addCol("startbox", "Box",      250);
     sgwChunks->addCol("startvial","Vial",     150);
     sgwChunks->addCol("end",      "End",      66);
     sgwChunks->addCol("endbox",   "Box",      242);
-    sgwChunks->addCol("endvial",  "Vial",     160);
+    sgwChunks->addCol("endvial",  "Vial",     150);
     sgwChunks->addCol("size",     "Size",     87);
     sgwChunks->init();
 
@@ -25,14 +27,14 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("aliquot",  "Aliquot",          90);
     sgwVials->addCol("currbox",  "Current box",      257);
     sgwVials->addCol("currpos",  "Pos",              31);
-    sgwVials->addCol("site",     "Site",             120);
+    sgwVials->addCol("site",     "Site",             90);
     sgwVials->addCol("vesspos",  "Pos",              28);
     sgwVials->addCol("vessel",   "Vessel",           107);
     sgwVials->addCol("shelf",    "Shelf",            31);
     sgwVials->addCol("structpos","Pos",              27);
-    sgwVials->addCol("struct",   "Structure",        123);
+    sgwVials->addCol("struct",   "Structure",        100);
     sgwVials->addCol("boxpos",   "Slot",             26);
-    sgwVials->addCol("destbox",  "Destination box",  267);
+    sgwVials->addCol("destbox",  "Destination box",  240);
     sgwVials->addCol("destpos",  "Pos",              25);
     sgwVials->init();
 }
@@ -45,9 +47,21 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     loadingMessage = "Loading retrieval list, please wait...";
 }
 
+void __fastcall TfrmProcess::FormClose(TObject *Sender, TCloseAction &Action) {
+    delete_referenced< vector <SampleRow * > >(vials);
+    delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
+}
+
 void __fastcall TfrmProcess::FormDestroy(TObject *Sender) {
     delete sgwChunks;
     delete sgwVials;
+}
+
+void TfrmProcess::debugLog(String s) {
+    //ostringstream oss
+    String tmp = Now().CurrentDateTime().DateTimeString() + ": " + s;
+    //memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
+    memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
 }
 
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
@@ -58,8 +72,9 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     chunks.clear();
     sgwChunks->clear();
     sgwVials->clear();
-    labelStorage->Caption   = "loading...";
     labelSampleID->Caption  = "loading...";
+    labelStorage->Caption   = "loading...";
+    labelDestbox->Caption   = "loading...";
 }
 
 void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
@@ -85,17 +100,38 @@ void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
     showChunk();
 }
 
+/*#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR  clActiveCaption
+#define RETRIEVAL_ASSISTANT_NEW_COLOUR          clMoneyGreen
+#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
+#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
+#define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR    clFuchsia
+#define RETRIEVAL_ASSISTANT_IGNORED_COLOUR      clGray
+#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
+#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clPurple*/
+
 void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-    TColor background = clWindow;
+    TColor background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
     if (0 == ARow) {
         background = clBtnFace;
     } else {
         Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][ARow];
-        background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == chunk) {
-            background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = clWindow; /// whilst loading
         } else {
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            int status = chunk->getStatus();  //chunkStatus(chunk);
+            switch (status) {
+                case Chunk< SampleRow >::NOT_STARTED:
+                    background = RETRIEVAL_ASSISTANT_NEW_COLOUR; break;
+                case Chunk< SampleRow >::INPROGRESS:
+                    background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR; break;
+                case Chunk< SampleRow >::DONE:
+                    background = RETRIEVAL_ASSISTANT_DONE_COLOUR; break;
+//                case Chunk< SampleRow >::REJECTED:
+//                    background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
+//                case Chunk< SampleRow >::DELETED:
+                default:
+                    background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; break;
+            }
         }
     }
     TCanvas * cnv = sgChunks->Canvas;
@@ -116,16 +152,28 @@ void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
 }
 
 void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-    TColor background = clWindow;
+    TColor background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
     if (0 == ARow) {
         background = clBtnFace;
     } else {
         SampleRow * row = (SampleRow *)sgVials->Objects[0][ARow];
-        background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == row) {
-            background = clWindow;
+            background = clWindow; /// whilst loading //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
+            int status = row->retrieval_record->getStatus();
+            switch (status) {
+                case LCDbCryovialRetrieval::EXPECTED:
+                    background = RETRIEVAL_ASSISTANT_NEW_COLOUR; break;
+                case LCDbCryovialRetrieval::IGNORED:
+                    background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
+                case LCDbCryovialRetrieval::COLLECTED:
+                    background = RETRIEVAL_ASSISTANT_DONE_COLOUR; break;
+                case LCDbCryovialRetrieval::NOT_FOUND:
+                    background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR; break;
+                //case LCDbCryovialRetrieval::DELETED:
+                default:
+                    background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            }
         }
     }
     TCanvas * cnv = sgVials->Canvas;
@@ -146,13 +194,14 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
 }
 
 void TfrmProcess::showChunks() {
-    sgwChunks->clear();
     if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
     else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
     int row = 1;
     for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
         Chunk< SampleRow > * chunk = *it;
         sgChunks->Cells[sgwChunks->colNameToInt("section")]   [row] = chunk->getSection();
+        sgChunks->Cells[sgwChunks->colNameToInt("status")]    [row] = chunk->statusString().c_str();
+        sgChunks->Cells[sgwChunks->colNameToInt("progress")]  [row] = chunk->progressString().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStart();
         sgChunks->Cells[sgwChunks->colNameToInt("startbox")]  [row] = chunk->getStartBox().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("startvial")] [row] = chunk->getStartVial().c_str();
@@ -189,6 +238,7 @@ void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
         LPDbCryovialStore * store   = sampleRow->store_record;
         int rw = row+1; // for stringgrid
         sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = sampleRow->retrieval_record->statusString(sampleRow->retrieval_record->getStatus());
         sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
@@ -203,8 +253,16 @@ void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
         sgVials->Objects[0][rw] = (TObject *)sampleRow;
     }
-    sgVials->Row = 1;
-    //showRowDetails(sampleRow);
+    //sgVials->Row = 1;
+    if (1.0 == chunk->getProgress()) { // completed
+        btnAccept->Enabled   = false;
+        btnSkip->Enabled     = false;
+        btnNotFound->Enabled = false;
+    } else {
+        btnAccept->Enabled   = true;
+        btnSkip->Enabled     = true;
+        btnNotFound->Enabled = true;
+    }
     showCurrentRow();
     Screen->Cursor = crDefault; Enabled = true;
 }
@@ -240,6 +298,8 @@ void TfrmProcess::loadRows() {
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
     Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
+    wstringstream oss; oss<<"loadRows for job "<<job->getID()<<" started";
+    debugLog(oss.str().c_str());
     Enabled = false;
     loadPlanWorkerThread = new LoadPlanWorkerThread();
     loadPlanWorkerThread->OnTerminate = &loadPlanWorkerThreadTerminated;
@@ -254,52 +314,82 @@ void __fastcall LoadPlanWorkerThread::updateStatus() { // can't use args for syn
     frmProcess->panelLoading->Repaint();
 }
 
+void __fastcall LoadPlanWorkerThread::debugLog() {
+    frmProcess->debugLog(debugMessage.c_str());
+}
+
 void __fastcall LoadPlanWorkerThread::Execute() {
-/** load retrieval plan
+    /** load retrieval plan
+    For a box retrieval, the retrieval plan will be given by: Select * from c_box_retrieval b order by b.section, b.rj_box_cid
+    For a cryovial retrieval, the retrieval plan will be: Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
 
-For a box retrieval, the retrieval plan will be given by
-Select * from c_box_retrieval b order by b.section, b.rj_box_cid
+    delete_referenced< vector<SampleRow * > >(frmProcess->vials); frmProcess->chunks.clear();
 
-For a cryovial retrieval, the retrieval plan will be:
-Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position
-*/
-    delete_referenced< vector<SampleRow * > >(frmProcess->vials);
-    frmProcess->chunks.clear();
     ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
     if (NULL != frmProcess && NULL != frmProcess->job) { frmProcess->job = frmProcess->job; } else { throw "wtf?"; }
+    loadingMessage = frmProcess->loadingMessage;
+
+    //LQuery qc(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
+//    LQuery qc(LIMSDatabase::getCentralDb());  // attempt to split up query - not sure if good idea
+//    qc.setSQL(
+//        "SELECT cbr.rj_box_cid, cbr.retrieval_cid, cbr.section chunk, cbr.status cbr_status, cbr.box_id,"
+//        " lcr.position dest_pos, lcr.slot_number lcr_slot, lcr.process_cid lcr_procid, lcr.status lcr_status,"
+//        " lcr.cryovial_barcode, lcr.aliquot_type_cid"
+//        " FROM c_box_retrieval cbr, l_cryovial_retrieval lcr"
+//        " WHERE cbr.retrieval_cid = :rtid AND lcr.rj_box_cid=cbr.rj_box_cid");
+#define TEMP_TABLE_NAME "retrieval_assistant_temp"
 
     LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
-    qd.setSQL( // from spec 2013-09-11
-        " SELECT"
-        //"    s1.retrieval_cid,cbr.section as chunk, cbr.rj_box_cid, lcr.position as dest_pos, cbr.status as cbr_status,"
-        "    s1.retrieval_cid, cbr.section as chunk, cbr.rj_box_cid, cbr.status as cbr_status,"
-        "    lcr.position as dest_pos, lcr.slot_number as lcr_slot, lcr.process_cid as lcr_procid, lcr.status as lcr_status,"
 
-        "    s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
-        "    s1.record_id, c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists as cryovial_note,"
-        "    s1.box_cid, b1.external_name as src_box, s1.status, s1.tube_position, s1.note_exists as cs_note,"
-        "    cbr.box_id as dest_id, b2.external_name as dest_name, s2.tube_position as slot_number, s2.status as dest_status"
-        " FROM"
-        "    c_box_retrieval cbr, l_cryovial_retrieval lcr, cryovial c, cryovial_store s1, box_name b1, cryovial_store s2, box_name b2,"
-        "    c_object_name t"
-        " WHERE"
-        "    cbr.retrieval_cid = :rtid AND"
-        "    s1.retrieval_cid = cbr.retrieval_cid AND"
-        "    lcr.rj_box_cid = cbr.rj_box_cid AND"
-        "    lcr. cryovial_barcode = c.cryovial_barcode AND lcr.aliquot_type_cid = c.aliquot_type_cid AND"
-        "    b2.box_cid = cbr.box_id AND"
-        "    t.object_cid = c.aliquot_type_cid AND"
-        "    c.cryovial_id = s1.cryovial_id AND"
-        "    c.cryovial_id = s2.cryovial_id AND"
-        "    b1.box_cid = s1.box_cid AND"
-        "    s2.box_cid = b2.box_cid"
-        " ORDER BY"
-        "    s1.retrieval_cid,chunk, cbr.rj_box_cid, lcr.position"
-    );
-    rowCount = 0; // class variable needed for synchronise
+    qd.setSQL("DROP TABLE IF EXISTS "TEMP_TABLE_NAME);
+    qd.execSQL();
+
+    qd.setSQL(
+        //"CREATE TABLE my_extra_table AS\n"
+        "CREATE TABLE "TEMP_TABLE_NAME" AS"
+        "   SELECT"
+        "       cbr.rj_box_cid, cbr.retrieval_cid, cbr.section AS chunk, cbr.status AS cbr_status, cbr.box_id,"
+        "       lcr.position AS dest_pos, lcr.slot_number AS lcr_slot, lcr.process_cid AS lcr_procid, lcr.status AS lcr_status,"
+        "       lcr.cryovial_barcode, lcr.aliquot_type_cid"
+        "   FROM"
+        "       c_box_retrieval cbr, l_cryovial_retrieval lcr"
+        "   WHERE"
+        "       cbr.retrieval_cid = :rtid"
+        "   AND"
+        "       lcr.rj_box_cid = cbr.rj_box_cid");
     int retrieval_cid = frmProcess->job->getID();
     qd.setParam("rtid", retrieval_cid);
-    loadingMessage = frmProcess->loadingMessage;
+    qd.execSQL();
+
+    debugMessage = "finished create temp table";
+    Synchronize((TThreadMethod)&debugLog);
+
+    //qd.setSQL("COMMIT"); qd.execSQL();
+    // use non-star query for this bit for speed? but where would the temp table be?
+    // LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), false)); // not ddb
+
+    qd.setSQL(
+        " SELECT"
+        "     s1.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status,"
+        "     s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position,"
+        "     s1.record_id, c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
+        "     s1.box_cid, b1.external_name AS src_box, s1.status, s1.tube_position, s1.note_exists AS cs_note,"
+        "     g.box_id AS dest_id, b2.external_name AS dest_name, s2.tube_position AS slot_number, s2.status AS dest_status"
+        " FROM "
+        TEMP_TABLE_NAME" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
+        " WHERE"
+        "     c.cryovial_barcode = g.cryovial_barcode"
+        "     AND c.aliquot_type_cid = g.aliquot_type_cid"
+        "     AND s1.cryovial_id = c.cryovial_id"
+        "     AND s1.retrieval_cid = g.retrieval_cid"
+        "     AND b2.box_cid = g.box_id"
+        "     AND b1.box_cid = s1.box_cid"
+        "     AND s2.cryovial_id = c.cryovial_id"
+        "     AND b2.box_cid = s2.box_cid"
+        " ORDER BY"
+        "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos"
+    );
+    rowCount = 0; // class variable needed for synchronise
     qd.open();
     int curchunk = 0, chunk = 0;
     while (!qd.eof()) {
@@ -329,6 +419,16 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         qd.next();
         rowCount++;
     }
+
+    debugMessage = "finished loading samples";
+    Synchronize((TThreadMethod)&debugLog);
+
+    qd.setSQL("DROP "TEMP_TABLE_NAME);
+    qd.execSQL();
+
+    debugMessage = "finished drop temp table";
+    Synchronize((TThreadMethod)&debugLog);
+
     frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
 
     // find locations of source boxes
@@ -336,7 +436,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     int rowCount2 = 0;
 	for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
-        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<"["<<rowCount2<<"/"<<rowCount<<"]";
+        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
         map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
         if (found != samples.end()) { // fill in box location from cache map
             sample->copyLocation(*(found->second));
@@ -352,6 +452,8 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         loadingMessage = oss.str().c_str();
         Synchronize((TThreadMethod)&updateStatus);
 	}
+    debugMessage = "finished load storage details";
+    Synchronize((TThreadMethod)&debugLog);
 }
 
 void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
@@ -359,23 +461,36 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
     showChunks();
-    //SampleRow * sample = currentChunk()->rowAt(0);
-    currentChunk()->setCurrentRow(0);
-    //currentChunk = 0;
+    currentChunk()->setCurrentRow(0); //currentChunk = 0;
     showCurrentRow();
     Enabled = true;
+    wstringstream oss; oss<<"loadRows for job "<<job->getID()<<" finished";
+    debugLog(oss.str().c_str());
 }
 
 void TfrmProcess::showCurrentRow() {
-    SampleRow * row = currentChunk()->rowAt(currentChunk()->getCurrentRow());
-    showRowDetails(row);
-    sgVials->Row = currentChunk()->getCurrentRow()+1; // causes double header row!
+    SampleRow * sample;
+    int rowIdx = currentChunk()->getCurrentRow();
+    if (rowIdx == currentChunk()->getSize()) {  // ie. past the end, chunk completed
+        sample = NULL;              // no details to show
+        sgVials->Row = rowIdx;      // just show the last row
+    } else {
+        sample = currentChunk()->rowAt(rowIdx);
+        sgVials->Row = rowIdx+1;    // allow for header row
+    }
+    showRowDetails(sample);
 }
 
 void TfrmProcess::showRowDetails(SampleRow * sample) {
-    labelStorage->Caption   = sample->storage_str().c_str();//"loading...";
-    labelSampleID->Caption  = sample->cryovial_barcode.c_str();//"loading...";
-    //sgVials->Row = currentChunk()->getCurrentRow();
+    if (NULL == sample) {
+        labelSampleID->Caption  = "";
+        labelStorage->Caption   = "Chunk completed";
+        labelDestbox->Caption   = "";
+    } else {
+        labelSampleID->Caption  = sample->cryovial_barcode.c_str();
+        labelStorage->Caption   = sample->storage_str().c_str();
+        labelDestbox->Caption   = sample->dest_str().c_str();
+    }
 }
 
 void TfrmProcess::addChunk(int row) {
@@ -393,19 +508,7 @@ void TfrmProcess::addChunk(int row) {
 // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
 
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
-
     accept(editBarcode->Text);
-//    // check correct vial; could be missing, swapped etc
-//    SampleRow * sample = currentChunk()->rowAt(currentChunk()->getCurrentRow());
-//    if (editBarcode->Text == sample->cryovial_barcode.c_str()) {
-//        // save
-//        sample->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
-//        Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
-//        nextRow();
-//    } else {
-//        //IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)
-//        Application->MessageBox(L"Barcode not matched", L"Info", MB_OK);
-//    }
 }
 
 void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) {
@@ -415,88 +518,75 @@ void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) {
 
 void TfrmProcess::accept(String barcode) {
     // check correct vial; could be missing, swapped etc
-    SampleRow * sample = currentChunk()->rowAt(currentChunk()->getCurrentRow());
-    if (barcode == sample->cryovial_barcode.c_str()) {
-        // save
+    SampleRow * sample = currentSample();
+    switch (sample->retrieval_record->getStatus()) {
+        case LCDbCryovialRetrieval::EXPECTED:
+        case LCDbCryovialRetrieval::IGNORED:
+            break; // ok, carry on
+        case LCDbCryovialRetrieval::COLLECTED:
+            msgbox("Already collected"); return;
+        case LCDbCryovialRetrieval::NOT_FOUND:
+            if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) {
+                return;
+            }
+    }
+    if (barcode == sample->cryovial_barcode.c_str()) { // save
         sample->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
-        Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
+        debugLog("Save accepted row"); //Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
         nextRow();
     } else {
-        //IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)
         Application->MessageBox(L"Barcode not matched", L"Info", MB_OK);
     }
 }
 
 void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
-    Application->MessageBox(L"Save skipped row", L"Info", MB_OK);
+    debugLog("Save skipped row"); //Application->MessageBox(L"Save skipped row", L"Info", MB_OK);
+    currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
     nextRow();
 }
 
 void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
-    Application->MessageBox(L"Save not found row", L"Info", MB_OK);
+    debugLog("Save not found row"); //Application->MessageBox(L"Save not found row", L"Info", MB_OK);
+    currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
     nextRow();
 }
 
-Chunk< SampleRow >::Status TfrmProcess::chunkStatus(Chunk< SampleRow > * chunk) {
-    bool complete = true;
-    bool not_started = true;
-    for (int i=0; i<chunk->getSize(); i++) {
-        int status = chunk->rowAt(i)->retrieval_record->getStatus();
-        switch (status) {
-            case LCDbCryovialRetrieval::EXPECTED:
-                complete = false; break;
-            case LCDbCryovialRetrieval::IGNORED:
-            case LCDbCryovialRetrieval::COLLECTED:
-            case LCDbCryovialRetrieval::NOT_FOUND:
-                not_started = false; break;
-            default:
-                throw "unexpected LCDbCryovialRetrieval status";
-        }
-    }
-    if (complete) {
-        return Chunk< SampleRow >::DONE;
-    } else if (not_started) {
-        return Chunk< SampleRow >::NOT_STARTED;
-    } else {
-        return Chunk< SampleRow >::INPROGRESS;
-    }
+SampleRow * TfrmProcess::currentSample() {
+    Chunk< SampleRow > * chunk = currentChunk();
+    int current = chunk->getCurrentRow();
+    SampleRow * sample = chunk->rowAt(current);
+    return sample;
 }
 
 void TfrmProcess::nextRow() {
-    if (currentChunk()->getCurrentRow() < currentChunk()->getSize()-1) {
-        currentChunk()->setCurrentRow(currentChunk()->getCurrentRow()+1); //???
+    Chunk< SampleRow > * chunk = currentChunk();
+    int current = chunk->getCurrentRow();
+    SampleRow * sample = chunk->rowAt(current);
+
+    //sample->retrieval_record->saveRecord(LIMSDatabase::getProjectDb());
+    if (current < chunk->getSize()-1) {
+        chunk->setCurrentRow(current+1); //???
         showCurrentRow();
     } else { // skipped last row
-        Application->MessageBox(L"Save chunk", L"Info", MB_OK);
-
-        if (sgChunks->Row < sgChunks->RowCount) { // if (sgChunks->Row == chunks.size()) {
-            sgChunks->Row++; // next chunk
+        chunk->setCurrentRow(current+1); // past end to show complete?
+        debugLog("Save chunk"); // no, don't save - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
+        if (chunk->getSection() < chunks.size()) {
+            sgChunks->Row = sgChunks->Row+1; // next chunk
         } else {
-            // at the end - save?
-            //Application->MessageBox(L"Are all chunks completed?", L"Info", MB_OK);
-            Application->MessageBox(L"Save job?", L"Info", MB_OK);
+            if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
+            Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
         }
     }
+    showChunks();
     editBarcode->Clear();
+    ActiveControl = editBarcode; // focus for next barcode
 }
 
 void TfrmProcess::exit() {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
-        // save stuff
         Application->MessageBox(L"Save completed boxes", L"Info", MB_OK);
+        Application->MessageBox(L"Signoff form (or on open form?)", L"Info", MB_OK);
         // how to update boxes? check at save and exit that all vials in a box have been saved?
         Close();
     }
 }
-
-void __fastcall TfrmProcess::editBarcodeChange(TObject *Sender) {
-    if (editBarcode->Text.IsEmpty()) return;
-    timerBarcode->Enabled = false; // reset
-    timerBarcode->Enabled = true;
-}
-
-void __fastcall TfrmProcess::timerBarcodeTimer(TObject *Sender) {
-    timerBarcode->Enabled = false;
-    accept(editBarcode->Text);
-}
-
