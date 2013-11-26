@@ -1,0 +1,39 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: Vessels vs Tanks in RefBoxes
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS1.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Wed, 3 Jul 2013
+ 11:56:14 +0100
+Date: Wed, 03 Jul 2013 10:56:13 GMT
+Content-Type: text/plain; charset=utf-8
+
+Hi Chris
+Population names,such as w24, are still relevant - Box Reception uses them, so you may need to show them for referred boxes, but you're right, it may be better to show site, position and shelf. I think that's what the retrieval assistant doc says
+Nick
+
+--- original message ---
+From: "Chris Bird" <chris.bird@ctsu.ox.ac.uk>
+Subject: Vessels vs Tanks in RefBoxes
+Date: 3rd July 2013
+Time: 10:41:05 am
+
+
+Hi Martin,
+
+Following yesterday's discussions, I was wondering if tank 'names' such
+as 'W42' are not meaningful anymore - as they may refer to the vessel's
+original position, but not necessarily the current position in the
+storage site - does it make sense to have 'Tanks' displayed in the list
+of referred boxes? I.e. should they instead be 'Vessels' with names like
+'Boron', 'Gold'? Or should both be displayed (in the top section of Ref
+Boxes)?
+
+Chris
+
+--
+Chris Bird
+Core Programming
+CTSU, Oxford
++44(0)1865 743743 x3511
+

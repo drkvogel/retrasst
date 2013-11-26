@@ -1,0 +1,74 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: Vessels vs Tanks in RefBoxes
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS2.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Mon, 8 Jul 2013
+ 17:22:49 +0100
+Date: Mon, 08 Jul 2013 16:22:49 GMT
+Content-Type: text/plain; charset=utf-8
+
+Hi Chris
+
+I'm back today - a shame when the weather's still so nice.
+
+Population and current vessel sounds good to me.  Hopefully Martin can comment when we hand over the next demo version on Thursday
+-- 
+Nick
+
+
+
+-----Original Message-----
+From: Chris Bird 
+Sent: 03 July 2013 16:13
+To: Nicholas Goodwin
+Cc: Martin Radley
+Subject: Re: Vessels vs Tanks in RefBoxes
+
+Nick,
+
+I was talking in this case about Referred Boxes still - what I have done for now is display both population and current vessel, e.g. 'W24 in Technetium [CVSD05L105]' - this can be changed to some variation quite easily so we can play around with it next week.
+
+Anyway you're supposed to be on holiday!!! :)
+
+Chris
+
+On 03/07/2013 11:56, Nicholas Goodwin wrote:
+> Hi Chris
+> Population names,such as w24, are still relevant - Box Reception uses 
+> them, so you may need to show them for referred boxes, but you're 
+> right, it may be better to show site, position and shelf. I think 
+> that's what the retrieval assistant doc says Nick
+>
+> --- original message ---
+> From: "Chris Bird" <chris.bird@ctsu.ox.ac.uk>
+> Subject: Vessels vs Tanks in RefBoxes
+> Date: 3rd July 2013
+> Time: 10:41:05 am
+>
+>
+> Hi Martin,
+>
+> Following yesterday's discussions, I was wondering if tank 'names' 
+> such as 'W42' are not meaningful anymore - as they may refer to the 
+> vessel's original position, but not necessarily the current position 
+> in the storage site - does it make sense to have 'Tanks' displayed in 
+> the list of referred boxes? I.e. should they instead be 'Vessels' with 
+> names like 'Boron', 'Gold'? Or should both be displayed (in the top 
+> section of Ref Boxes)?
+>
+> Chris
+>
+> --
+> Chris Bird
+> Core Programming
+> CTSU, Oxford
+> +44(0)1865 743743 x3511
+>
+
+--
+Chris Bird
+Core Programming
+CTSU, Oxford
++44(0)1865 743743 x3511
+

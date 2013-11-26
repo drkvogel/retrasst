@@ -1,0 +1,25 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: FW: Labs system alert
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS2.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Fri, 28 Jun 2013
+ 17:43:25 +0100
+Date: Fri, 28 Jun 2013 16:43:25 GMT
+Content-Type: text/plain; charset=utf-8
+
+Hi Chris
+
+One more thing about retrieval lists.  There's potentially a two-level hierarchy: a retrieval task (in c_retrieval_job) can belong to a retrieval exercise (in c_object_name).  This is a fairly new idea so, although it's documented for 2.7.2, the data's not all there yet.  That may be why you couldn't find the fields you were looking for
+-- 
+Nick
+
+
+-----Original Message-----
+From: cbird@Q108 [mailto:cbird@Q108] 
+Sent: 28 June 2013 15:26
+To: Nicholas Goodwin
+Subject: Labs system alert
+
+Storage Management v1.2.7.4, 28/06/2013 15:26:12 Rosetta error: ROSETTA Error: member "external_name" not found Rosetta error: ROSETTA Error: member "reason" not found
+

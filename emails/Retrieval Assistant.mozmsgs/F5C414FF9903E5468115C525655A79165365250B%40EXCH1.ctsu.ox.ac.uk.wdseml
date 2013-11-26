@@ -1,0 +1,126 @@
+From: Martin Radley <martin.radley@ctsu.ox.ac.uk>
+To: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+CC: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+Subject: Vessels vs Tanks in RefBoxes
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS2.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Tue, 9 Jul 2013
+ 11:27:45 +0100
+Date: Tue, 09 Jul 2013 10:27:44 GMT
+Content-Type: text/plain; charset=utf-8
+
+I can think of some naming conventions that might work, I guess the problems will start should we move populations between tanks? Also, there are long and short names, if only the short name is used by BR could we change the long name?
+
+Martin
+
+-----Original Message-----
+From: Nicholas Goodwin 
+Sent: 09 July 2013 11:20
+To: Martin Radley
+Cc: Chris Bird
+Subject: RE: Vessels vs Tanks in RefBoxes
+
+Not that I can see.  It uses the tank map to check which populations are at the selected site but it expects the name will be a letter followed by one or more digits.  This would be one of the first things I'd suggest Andrew changed
+-- 
+Nick
+
+
+From: Martin Radley 
+Sent: 09 July 2013 11:05
+To: Nicholas Goodwin
+Subject: RE: Vessels vs Tanks in RefBoxes
+
+So is there scope for changing the names without breaking BR? If so what would be the rules for the renaming process? I'm keen to try and more strongly differentiate the actual tanks from the populations...
+
+Martin
+
+From: Nicholas Goodwin 
+Sent: 09 July 2013 07:24
+To: Martin Radley
+Subject: Re: Vessels vs Tanks in RefBoxes
+
+Yes. Box Reception lists populations in name order
+Nick
+Sent from my HTC
+----- Reply message -----
+From: "Martin Radley" <martin.radley@ctsu.ox.ac.uk>
+To: "Nicholas Goodwin" <nicholas.goodwin@ctsu.ox.ac.uk>, "Chris Bird" <chris.bird@ctsu.ox.ac.uk>
+Subject: Vessels vs Tanks in RefBoxes
+Date: Tue, Jul 9, 2013 6:53 am
+
+Hi Nick
+
+I would therefore propose for consideration the renaming of these 'populations' as the current names are only likely to cause confusion. I guess the problem with doing this though is Box Reception?
+
+Martin
+
+-----Original Message-----
+From: Nicholas Goodwin 
+Sent: 08 July 2013 17:41
+To: Chris Bird; Martin Radley
+Subject: RE: Vessels vs Tanks in RefBoxes
+
+Hello both
+
+The population name is still loosely based on the location (W42 is likely to be in Worminghall) but "going forward", the numeric part is unlikely to match the position (the next population in Worminghall will be W50, even if that's just a new layout or a new shelf in an existing vessel)
+-- 
+Nick
+
+
+-----Original Message-----
+From: Chris Bird 
+Sent: 03 July 2013 11:29
+To: Martin Radley
+Cc: Nicholas Goodwin
+Subject: Re: Vessels vs Tanks in RefBoxes
+
+OK, I will display the vessel name and the old tank name for now, which seems to describe the location in most cases, and Nick can tell us next week where the location information should really come from 'going forward'.....
+
+On 03/07/2013 11:25, Martin Radley wrote:
+> Can you display the name (ie Boron) and somewhere else show it's physical location? It's the combination of these two things that will make it obvious what is being selected, there are around 75 tank names to remember the location of otherwise...
+>
+> Martin
+>
+> -----Original Message-----
+> From: Chris Bird
+> Sent: 03 July 2013 11:20
+> To: Martin Radley
+> Cc: Nicholas Goodwin
+> Subject: Re: Vessels vs Tanks in RefBoxes
+>
+> Just seen this - easy enough (he says..) to display either vessel or 'tank' (population), I will try that and then either can be commented out and we can talk about it next week - either way it won't stop me going through the test cases so I have plenty to be getting on with.
+>
+> Chris
+>
+> On 03/07/2013 11:07, Martin Radley wrote:
+>> Hi Chris
+>>
+>> The two key pieces of information from the users perspective are tank "name" and its location. From our point of view the name is now either a colour or element from the periodic table, it's location is the site and position within the site. I'm not sure where the location information comes from, my best guess is it's the records in c_object_name (object_type = 9) that are used by the legacy software, if so it may just be a case of editing these records so they no longer use the word "tank" in the name. Even then though I'm not sure how the various strands link together to give the required information, though given enough time, I'm sure we could work it out, it's probably best to wait until Monday for Nick's input and focus on the other stuff to do.
+>>
+>> Martin
+>>
+>> -----Original Message-----
+>> From: Chris Bird
+>> Sent: 03 July 2013 10:41
+>> To: Martin Radley
+>> Cc: Nicholas Goodwin
+>> Subject: Vessels vs Tanks in RefBoxes
+>>
+>> Hi Martin,
+>>
+>> Following yesterday's discussions, I was wondering if tank 'names' such as 'W42' are not meaningful anymore - as they may refer to the vessel's original position, but not necessarily the current position in the storage site - does it make sense to have 'Tanks' displayed in the list of referred boxes? I.e. should they instead be 'Vessels' with names like 'Boron', 'Gold'? Or should both be displayed (in the top section of Ref Boxes)?
+>>
+>> Chris
+>>
+> --
+> Chris Bird
+> Core Programming
+> CTSU, Oxford
+> +44(0)1865 743743 x3511
+>
+
+--
+Chris Bird
+Core Programming
+CTSU, Oxford
++44(0)1865 743743 x3511
+

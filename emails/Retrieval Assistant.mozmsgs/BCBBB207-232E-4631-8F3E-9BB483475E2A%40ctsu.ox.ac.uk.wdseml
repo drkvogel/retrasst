@@ -1,0 +1,64 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: Labs system alert
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS1.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Tue, 9 Jul 2013
+ 19:42:02 +0100
+Date: Tue, 09 Jul 2013 18:42:01 GMT
+Content-Type: text/html; charset=utf-8
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="Generator" content="Microsoft Exchange Server">
+<!-- converted from text --><style><!-- .EmailQuote { margin-left: 1pt; padding-left: 4pt; border-left: #800000 2px solid; } --></style>
+</head>
+<body>
+<style>
+<!--
+.x_EmailQuote
+	{margin-left:1pt;
+	padding-left:4pt;
+	border-left:#800000 2px solid}
+-->
+</style>
+<div>If you're worried, commit your changes and I'll test the merged version<br>
+Nick<br>
+Sent from my HTC<br>
+<br>
+<div id="x_htc_header" style="">----- Reply message -----<br>
+From: &quot;Chris Bird&quot; &lt;chris.bird@ctsu.ox.ac.uk&gt;<br>
+To: &quot;Nicholas Goodwin&quot; &lt;nicholas.goodwin@ctsu.ox.ac.uk&gt;<br>
+Subject: Labs system alert<br>
+Date: Tue, Jul 9, 2013 7:36 pm<br>
+<br>
+</div>
+<br>
+<br>
+</div>
+<font size="2"><span style="font-size:10pt;">
+<div class="PlainText">OK... I'm tempted *not* to pull recent changes from CVS at this late
+<br>
+stage in case there is any problem merging with what I've got... but <br>
+then again it is storeman as a whole we are 'releasing', not just my <br>
+bit, so.. what do you think?<br>
+<br>
+Chris<br>
+<br>
+On 09/07/2013 15:37, Nicholas Goodwin wrote:<br>
+&gt; Hi Chris<br>
+&gt;<br>
+&gt; I'll look at this later.&nbsp; Meanwhile, I have updated the code in CVS to create the new population names but I've suggested we hold off changing the records in the mirror system until after Thursday's demo<br>
+<br>
+-- <br>
+Chris Bird<br>
+Core Programming<br>
+CTSU, Oxford<br>
+&#43;44(0)1865 743743 x3511<br>
+<br>
+</div>
+</span></font>
+</body>
+</html>
+

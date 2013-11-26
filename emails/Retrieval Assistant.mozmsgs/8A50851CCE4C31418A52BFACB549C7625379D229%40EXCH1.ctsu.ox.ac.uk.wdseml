@@ -1,0 +1,210 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: Paul Storey <paul.storey@ctsu.ox.ac.uk>
+Subject: Access Violation
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS2.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Wed, 17 Jul 2013
+ 10:42:04 +0100
+Date: Wed, 17 Jul 2013 09:42:03 GMT
+Content-Type: text/html; charset=utf-8
+
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<meta name="Generator" content="Microsoft Word 14 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+@font-face
+	{font-family:"\@SimSun";
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:Consolas;
+	panose-1:2 11 6 9 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	color:black;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+pre
+	{mso-style-priority:99;
+	mso-style-link:"HTML Preformatted Char";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	color:black;}
+p.MsoAcetate, li.MsoAcetate, div.MsoAcetate
+	{mso-style-priority:99;
+	mso-style-link:"Balloon Text Char";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:8.0pt;
+	font-family:"Tahoma","sans-serif";
+	color:black;}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{mso-style-priority:34;
+	margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	color:black;}
+span.EmailStyle18
+	{mso-style-type:personal;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+span.EmailStyle19
+	{mso-style-type:personal;
+	font-family:"Calibri","sans-serif";
+	color:#1F497D;}
+span.HTMLPreformattedChar
+	{mso-style-name:"HTML Preformatted Char";
+	mso-style-priority:99;
+	mso-style-link:"HTML Preformatted";
+	font-family:"Consolas","serif";
+	color:black;}
+span.EmailStyle22
+	{mso-style-type:personal-reply;
+	font-family:"Calibri","sans-serif";
+	color:#1F497D;}
+span.BalloonTextChar
+	{mso-style-name:"Balloon Text Char";
+	mso-style-priority:99;
+	mso-style-link:"Balloon Text";
+	font-family:"Tahoma","sans-serif";
+	color:black;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext="edit" spidmax="1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext="edit">
+<o:idmap v:ext="edit" data="1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body bgcolor="white" lang="EN-GB" link="blue" vlink="purple">
+<div class="WordSection1">
+<p class="MsoNormal"><span style="color:#1F497D">Do you use Paul&#8217;s library or just his source code?&nbsp; The problem only seems to occur if you use the library (specifically, the release version of the library with the debug version of our code)<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D">-- <o:p></o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D">Nick<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D"><o:p>&nbsp;</o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D"><o:p>&nbsp;</o:p></span></p>
+<div>
+<div style="border:none;border-top:solid #B5C4DF 1.0pt;padding:3.0pt 0cm 0cm 0cm">
+<p class="MsoNormal"><b><span lang="EN-US" style="font-size:10.0pt;font-family:&quot;Tahoma&quot;,&quot;sans-serif&quot;;color:windowtext">From:</span></b><span lang="EN-US" style="font-size:10.0pt;font-family:&quot;Tahoma&quot;,&quot;sans-serif&quot;;color:windowtext"> Chris Bird
+<br>
+<b>Sent:</b> 17 July 2013 10:34<br>
+<b>To:</b> Paul Storey<br>
+<b>Cc:</b> Nicholas Goodwin<br>
+<b>Subject:</b> Re: Access Violation<o:p></o:p></span></p>
+</div>
+</div>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal" style="margin-bottom:12.0pt">Hi Paul<br>
+<br>
+Re stream insertion - could you give an example of code that you were having problems with? I use stream insertion all the time and haven't had any problems.<br>
+<br>
+Chris<br>
+<br>
+<o:p></o:p></p>
+<div>
+<p class="MsoNormal">On 17/07/2013 09:07, Paul Storey wrote:<o:p></o:p></p>
+</div>
+<blockquote style="margin-top:5.0pt;margin-bottom:5.0pt">
+<p class="MsoNormal"><span style="color:#1F497D">Hi Nick</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">Re. the access violation:</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">This is a bug in the compiler, or in the implementation of the std library that we use. Deep within std lib code, a static variable is not being allocated (it&#8217;s in Locale, or somewhere like that, as I recall).
+ It has caused me no end of hassle over the months/years.&nbsp; The&nbsp; only workaround that I have found (apart from editing the std library code, which I&#8217;m not keen to do) is to avoid using stream insertion operators (which I used to use all the time!).&nbsp; If the release
+ version works OK, but not the debug version, my guess is that the &#8216;trace&#8217; macro (which defines as zilch in a release build) is the source of your problem.
+</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">How recently did you pull my code out of CVS?&nbsp; You might find that this problem has already been addressed?&nbsp; Newer code avoids using stream insertion operators, but, instead, overloads the &#8216;&lt;&lt;&#8217; operator to allow
+ for code like the following:</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">int i = 9;</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">const char* msg = &#8220;hello&#8221;;</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">std::string s(&#8220;abc&#8221;);</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">std::string alltogether = std::string() &lt;&lt; msg &lt;&lt; s &lt;&lt; i;</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">// alltogether now: &#8220;helloabc9&#8221;</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">// The code that makes this possible is in StringBuilder.h</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal" style="margin-left:5.25pt"><span style="color:#1F497D">The second problem that you mention is extra line feeds. I think this is entirely unrelated to the access violations?&nbsp; I&#8217;ve experience a similar problem with Andrew.&nbsp; He got my Java
+ code out of CVS and it wouldn&#8217;t build &#8211; because of extra linefeeds.&nbsp; I&#8217;m using CVS wihin cygwin.&nbsp; Andrew was using Tortoise (I think that&#8217;s what it&#8217;s called).&nbsp; We did find a checkbox about Unix end-of-line characters, but checking it didn&#8217;t make any difference.
+ We were in a hurry. Andrew already had cygwin installed. So the workaround was to checkout the code using Cygwin.&nbsp; Not that I&#8217;m suggesting we need to do that in this case.&nbsp; It might just be a case of me running unix2dos on the header&nbsp; files that are causing
+ you a problem.&nbsp; Then you could checkout my code again. However, the strange thing is that you had this problem before, and then it sorted itself out.&nbsp; So perhaps there&#8217;s some CVS configuration that you&#8217;re missing? Which client are you using? What configuration
+ options does it give you?</span><o:p></o:p></p>
+<p class="MsoNormal" style="margin-left:5.25pt"><span style="color:#1F497D">&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal" style="margin-left:5.25pt"><span style="color:#1F497D">By all means give me a shout and I&#8217;ll come and have a look.</span><o:p></o:p></p>
+<p class="MsoNormal" style="margin-left:5.25pt"><span style="color:#1F497D">&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal" style="margin-left:5.25pt"><span style="color:#1F497D">Thanks</span><o:p></o:p></p>
+<p class="MsoNormal" style="margin-left:5.25pt"><span style="color:#1F497D">&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal" style="margin-left:5.25pt"><span style="color:#1F497D">Paul</span><o:p></o:p></p>
+<p class="MsoNormal" style="margin-left:5.25pt"><span style="color:#1F497D">&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="color:#1F497D">&nbsp;</span><o:p></o:p></p>
+<div style="border:none;border-left:solid blue 1.5pt;padding:0cm 0cm 0cm 4.0pt">
+<div>
+<div style="border:none;border-top:solid #B5C4DF 1.0pt;padding:3.0pt 0cm 0cm 0cm">
+<p class="MsoNormal"><b><span lang="EN-US" style="font-size:10.0pt;font-family:&quot;Tahoma&quot;,&quot;sans-serif&quot;">From:</span></b><span lang="EN-US" style="font-size:10.0pt;font-family:&quot;Tahoma&quot;,&quot;sans-serif&quot;"> Nicholas Goodwin
+<br>
+<b>Sent:</b> 16 July 2013 18:11<br>
+<b>To:</b> Paul Storey<br>
+<b>Cc:</b> Chris Bird<br>
+<b>Subject:</b> Access Violation</span><o:p></o:p></p>
+</div>
+</div>
+<p class="MsoNormal">&nbsp;<o:p></o:p></p>
+<p class="MsoNormal">Hi Paul<o:p></o:p></p>
+<p class="MsoNormal">&nbsp;<o:p></o:p></p>
+<p class="MsoNormal">I&#8217;ve had trouble building StoreMan recently.&nbsp; The release version works OK but the debug version fails with an access violation &#8211; it seems not to initialise the C&#43;&#43; streams correctly.&nbsp; I&#8217;ve tried including your source files, instead of
+ the library, and that works OK, so I thought I&#8217;d try building the 32-bit debug version of your code.&nbsp; No luck &#8211; it seems to have the extra line feeds that break the macros. &nbsp;Any ideas?<o:p></o:p></p>
+<p class="MsoNormal">-- <o:p></o:p></p>
+<p class="MsoNormal">Nick<o:p></o:p></p>
+<p class="MsoNormal">&nbsp;<o:p></o:p></p>
+</div>
+</blockquote>
+<p class="MsoNormal"><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;"><br>
+<br>
+<o:p></o:p></span></p>
+<pre>-- <o:p></o:p></pre>
+<pre>Chris Bird<o:p></o:p></pre>
+<pre>Core Programming<o:p></o:p></pre>
+<pre>CTSU, Oxford<o:p></o:p></pre>
+<pre>&#43;44(0)1865 743743 x3511<o:p></o:p></pre>
+</div>
+</body>
+</html>
+

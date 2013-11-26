@@ -1,0 +1,91 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: Labs system alert
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS1.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Wed, 10 Jul 2013
+ 14:15:40 +0100
+Date: Wed, 10 Jul 2013 13:15:39 GMT
+Content-Type: text/plain; charset=utf-8
+
+Hi Chris
+
+Sorry not to be able to discuss these
+
+2758457 - yes; slot_cid is obsolete
+
+1507 - yes; hack the position or change the test case so that the desired position is free.  I think there's another test case where there's no existing box_store record but the desired position is in use; if there isn't there should be
+
+2464829 - tricky: StoreMan can't tell for sure if it's the box name or the box_arrival_id that's wrong.  I'd tend to go with the box name: (a) that's what the user sees and (b) Box Reception invents its own arrival IDs for unexpected boxes.  You therefore need to use the box_cid when updating box_name and box_store but the box_arrival_id when updating l_box_arrival - I imagine you already make this distinction if a user clicks on a different box in the central section of the screen.  Bodging the test case and re-creating the l_box_arrival record seems sensible
+
+2758460 - 0 might be valid: it depends on the layout of the selected rack.  In future we may have a storage structure where the exact position of each box doesn't matter (like boxes on a shelf at the supermarket)
+
+120056 - yes; a real live example
+
+If you're happy with is, yes: put it into CVS and tag it as a demo release, put a copy onto the K: drive for Martin to play with and check it's working on the laptop for tomorrow's meeting.  Great!
+-- 
+Nick
+
+
+From: Chris Bird 
+Sent: 10 July 2013 12:22
+To: Nicholas Goodwin
+Subject: Re: Labs system alert
+
+Have pulled from CVS and built with no apparent problems.
+
+I ran through the test cases last night and made a few modifications which I think means they are all dealt with correctly now. I have a some questions about some of them:
+
+HPS2-THRIVE EDTA_1_LT 2758457 - Wrong tank_cid; should be W35
+I noticed that I'd created a box_store record with slot_position = 10 and updated l_box_arrival.slot_position to 10 also - but box_name.slot_cid had not changed. Is this correct? I can't remember how box_name.slot_cid relates to box_store.slot_position - maybe not at all? (Just noticed from the webcore document - 'obsolete - use box_store')
+
+HPS2-THRIVE EDTA_2(UK) 1507  - New location for existing box
+This one has an existing store record which is different from the referred location, and thus highlighted in red. When I go to OK the new location, the position is found to be in use and an error thrown. If I select the existing location (ie. changing it back to what it was), that position is available and you can sign it off. So my program would seem to behave correctly, but the test case is not what I expected. I guess I could hack the position to be available to make the test I what I thought it should be, unless I've misunderstood it.
+
+HPS2-THRIVE FL/OX_LT 2464829 - Wrong box_arrival_id [ID is 7464829 - note it starts with 7, not 2]
+Created a problem with my program as was - if I go to mark off a referred box as IN_TANK or DELETED, which record am I changing? Because the record has an ID of 7464829, not 2464829, and therefore refers to a non-existent or different box from that which is intended. What I have done is to modify box_name, box_store and box_event history tables with the ID of the selected box - ie. 2464829 in this case - which matches exactly on name and is picked out by the user as being the correct box - and change the l_box_arrival record to have the corrected ID. Doing this on signoff would be complicated (especially at this late stage) so I 99 the incorrect l_box_arrival record and insert a correct one immediately as you press OK or discard - the record is clearly erroneous at this point so I can't see any reason not to deal with it straight away - and it makes things easier for my program.
+
+HPS2-THRIVE URINE_LT 2758460 - No position; should be 7 (slot is 0)
+I wonder if a slot position of 0 be disallowed outright (ie. throw an error immediately)? Is there any case where slot 0 would be valid?
+
+KS-A-120056 
+This is not in your 'bodged boxes' document - is this a real live one that has crept in from ldbc?
+
+Anyway if all these are dealt with then I would say it's ready to go and I will check it into CVS and perhaps have another look at the Retrieval Assistant before tomorrow.
+
+Chris
+On 09/07/2013 19:42, Nicholas Goodwin wrote:
+If you're worried, commit your changes and I'll test the merged version
+Nick
+Sent from my HTC
+----- Reply message -----
+From: "Chris Bird" <chris.bird@ctsu.ox.ac.uk>
+To: "Nicholas Goodwin" <nicholas.goodwin@ctsu.ox.ac.uk>
+Subject: Labs system alert
+Date: Tue, Jul 9, 2013 7:36 pm
+
+OK... I'm tempted *not* to pull recent changes from CVS at this late 
+stage in case there is any problem merging with what I've got... but 
+then again it is storeman as a whole we are 'releasing', not just my 
+bit, so.. what do you think?
+
+Chris
+
+On 09/07/2013 15:37, Nicholas Goodwin wrote:
+> Hi Chris
+>
+> I'll look at this later.  Meanwhile, I have updated the code in CVS to create the new population names but I've suggested we hold off changing the records in the mirror system until after Thursday's demo
+
+-- 
+Chris Bird
+Core Programming
+CTSU, Oxford
++44(0)1865 743743 x3511
+
+
+-- 
+Chris Bird
+Core Programming
+CTSU, Oxford
++44(0)1865 743743 x3511
+

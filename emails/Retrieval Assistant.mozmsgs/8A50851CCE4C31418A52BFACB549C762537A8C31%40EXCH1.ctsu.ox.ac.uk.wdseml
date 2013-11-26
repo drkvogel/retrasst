@@ -1,0 +1,34 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: Tomorrow's code
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS2.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Wed, 14 Aug 2013
+ 16:25:52 +0100
+Date: Wed, 14 Aug 2013 15:25:51 GMT
+Content-Type: text/plain; charset=utf-8
+
+Fine by me, unless we're going to give Martin a version to play with.  I'll let you know when I've committed my changes
+-- 
+Nick
+
+
+-----Original Message-----
+From: Chris Bird 
+Sent: 14 August 2013 15:52
+To: Nicholas Goodwin
+Subject: Re: Tomorrow's code
+
+Shall I build with your new code from CVS and my local code? And keep mine out of CVS for the time being?
+
+On 14/08/2013 15:47, Nicholas Goodwin wrote:
+> Hi Chris
+>
+> I have nearly finished the code I want to show Martin tomorrow - I'll put it into CVS before I go this evening.  Do you want to build the demo version or shall I?
+
+--
+Chris Bird
+Core Programming
+CTSU, Oxford
++44(0)1865 743743 x3511
+

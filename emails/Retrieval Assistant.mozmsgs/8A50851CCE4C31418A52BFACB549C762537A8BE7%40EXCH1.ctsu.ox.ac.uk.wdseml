@@ -1,0 +1,16 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: Tomorrow's code
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS2.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Wed, 14 Aug 2013
+ 15:47:27 +0100
+Date: Wed, 14 Aug 2013 14:47:26 GMT
+Content-Type: text/plain; charset=utf-8
+
+Hi Chris
+
+I have nearly finished the code I want to show Martin tomorrow - I'll put it into CVS before I go this evening.  Do you want to build the demo version or shall I?
+-- 
+Nick
+

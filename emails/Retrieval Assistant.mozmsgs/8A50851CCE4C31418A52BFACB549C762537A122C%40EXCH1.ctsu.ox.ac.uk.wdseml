@@ -1,0 +1,24 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: retrieval plans
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS1.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Mon, 29 Jul 2013
+ 14:37:20 +0100
+Date: Mon, 29 Jul 2013 13:37:19 GMT
+Content-Type: text/plain; charset=utf-8
+
+Hi Chris
+
+I have added a couple of retrieval plans to the mirror system.  I can't tell if they are accurate but they do give an indication of what you might end up with once the retrieval assistant is in use:
+
+-116: ten rows in c_box_retrieval.  It's only a small job so it doesn't need chunks and they're retrieving whole boxes so it doesn't need to list individual cryovials.  In this example, the retrieval plan is sorted by box location - the boxes were in the same segment in the same population so I ordered them by rack and slot giving c_box_retrieval.section from 1 to 10.
+
+-1180118: twelve rows in c_box_retrieval for the destination boxes; 1140 in l_cryovial_retrieval.  It's a large enough job to need splitting into chunks (section 1 to 5).  The retrieval plan is sorted by cryovial location.  In this example, the boxes were filled one at a time but that's often not be the case.
+
+BTW, C_box_retrieval.position is redundant - once you've created a retrieval plan there's no obvious difference between having no chunks and having one box per chunk.  The URS implies you can't edit a retrieval plan once it's been saved and the position in l_cryovial_retrieval takes priority anyway.
+
+Let me know if it's not clear what's going on
+-- 
+Nick
+

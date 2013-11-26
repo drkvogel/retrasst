@@ -1,0 +1,42 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: problems
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS1.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Fri, 30 Aug 2013
+ 16:59:35 +0100
+Date: Fri, 30 Aug 2013 15:59:35 GMT
+Content-Type: text/plain; charset=utf-8
+
+Hi Chris
+
+It seems OK (at the moment?) so I've committed my latest changes, including my project file
+-- 
+Nick
+
+
+-----Original Message-----
+From: Chris Bird 
+Sent: 30 August 2013 15:55
+To: Nicholas Goodwin
+Subject: Re: problems
+
+
+> Builder has started to complain about your class SgData in RetrievalAssistantSamples:
+>      char *          colnames[];
+>      int             colwidths[];
+>
+> It doesn't know how much space to reserve for these arrays.  Commenting them out seems to fix the problem.
+Yes, that whole class, SgData, is redundant - an idea I decided was unnecessary.
+> It's also complaining about sorter in sortList in 
+> RetrievalAssistantBoxes - it can't initialise it.  The syntax looks 
+> rather too C++11
+Ah. I hadn't knowingly written in C++11 nor ticked any options allowing it - it compiles fine for me (I was slightly surprised that it did!). 
+What's the error?
+
+--
+Chris Bird
+Core Programming
+CTSU, Oxford
++44(0)1865 743743 x3511
+

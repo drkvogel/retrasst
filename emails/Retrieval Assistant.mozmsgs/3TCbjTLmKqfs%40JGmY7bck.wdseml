@@ -1,0 +1,60 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Martin Bowes <martin.bowes@ctsu.ox.ac.uk>
+CC: Martin Radley <martin.radley@ctsu.ox.ac.uk>, Chris Bird <chris.bird@ctsu.ox.ac.uk>
+Subject: SELECT grant on t_ldbc
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS2.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Wed, 3 Jul 2013
+ 11:56:18 +0100
+Date: Wed, 03 Jul 2013 10:56:18 GMT
+Content-Type: text/plain; charset=utf-8
+
+Hi Marty
+I'll have to check next week but c_storage_details should exist as a view for compatibility with existing software. Chris shouldn't need the other tables. They're flagged as obsolete in the 2.7 documentation. As Martin says, the relevant info is now in c_tank_map or c_object_name but we can't drop the old tables yet
+Nick
+
+--- original message ---
+From: "Martin Bowes" <martin.bowes@ctsu.ox.ac.uk>
+Subject: RE: SELECT grant on t_ldbc
+Date: 3rd July 2013
+Time: 10:44:41 am
+
+
+Hi Both,
+
+The database t_ldbc has been migrated to version 2.7.2. At which point we have removed all grants on tables:
+    c_storage_details, c_box_arrival, c_calibreag_test, c_rack_capacity, c_slot_allocation and c_box_retrieval
+
+For Chris to do his work, I've restored the select grant to wizard_group on all the above tables.
+
+This of course is pending a final decision by Nick.
+
+Marty
+-----Original Message-----
+From: Chris Bird
+Sent: 03 July 2013 10:34
+To: Martin Bowes
+Cc: Nicholas Goodwin
+Subject: SELECT grant on t_ldbc
+
+Hi Marty,
+
+I tried to do a SELECT on vnode_vlab::t_ldbc.c_storage_details and got:
+
+* select * from c_storage_details\g
+Executing . . .
+
+E_US0DAE SELECT on table c_storage_details: no GRANT or GRANT compatible
+     permit exists.
+     (Wed Jul  3 10:29:25 2013)
+
+logged in as cbird. There are at least a couple of other tables I don't have access to (c_rack_capacity, c_slot_allocation). Could I just have select permission on everything on t_ldbc for testing/development purposes?
+
+cheers
+Chris
+
+--
+Chris Bird
+Core Programming
+CTSU, Oxford
++44(0)1865 743743 x3511
+

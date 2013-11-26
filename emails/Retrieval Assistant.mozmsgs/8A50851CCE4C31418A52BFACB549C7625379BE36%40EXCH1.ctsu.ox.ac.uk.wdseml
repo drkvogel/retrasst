@@ -1,0 +1,24 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: Labs system alert
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS1.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Tue, 9 Jul 2013
+ 15:37:48 +0100
+Date: Tue, 09 Jul 2013 14:37:47 GMT
+Content-Type: text/plain; charset=utf-8
+
+Hi Chris
+
+I'll look at this later.  Meanwhile, I have updated the code in CVS to create the new population names but I've suggested we hold off changing the records in the mirror system until after Thursday's demo
+-- 
+Nick
+
+-----Original Message-----
+From: cbird@Q108 [mailto:cbird@Q108] 
+Sent: 09 July 2013 15:23
+To: Nicholas Goodwin
+Subject: Labs system alert
+
+Storage Management v1.2.6.5, 09/07/2013 15:23:00 Rosetta error: ROSETTA Error: member "external_name" not found Rosetta error: ROSETTA Error: member "reason" not found
+

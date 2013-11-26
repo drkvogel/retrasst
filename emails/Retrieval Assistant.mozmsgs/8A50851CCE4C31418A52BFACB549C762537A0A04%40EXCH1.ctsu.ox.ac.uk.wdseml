@@ -1,0 +1,37 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: LCDbJob exercise_cid/reason
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS2.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Thu, 25 Jul 2013
+ 14:17:14 +0100
+Date: Thu, 25 Jul 2013 13:17:13 GMT
+Content-Type: text/plain; charset=utf-8
+
+Hi Chris
+
+I have updated LCDbJob in CVS.  The missing fields will be populated in the mirror system when Marty rebuilds the mirror system in August
+-- 
+Nick
+
+
+
+-----Original Message-----
+From: Chris Bird 
+Sent: 18 July 2013 15:26
+To: Nicholas Goodwin
+Subject: LCDbJob exercise_cid/reason
+
+Hi Nick,
+
+In the 2.7 documentation, c_retrieval_job.reason (also time_stamp) is marked as obsolete and looks like it has been replace with exercise_cid. 
+But there are no methods to get or set exercise_cid in LCDbJob. Should there be and if so should I add code to do that?
+
+Chris
+
+--
+Chris Bird
+Core Programming
+CTSU, Oxford
++44(0)1865 743743 x3511
+

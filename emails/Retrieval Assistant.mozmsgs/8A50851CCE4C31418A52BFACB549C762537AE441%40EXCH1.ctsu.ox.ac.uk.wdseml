@@ -1,0 +1,20 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Andrew Munday <andrew.munday@ctsu.ox.ac.uk>, Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: CVS
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS1.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Fri, 30 Aug 2013
+ 10:17:07 +0100
+Date: Fri, 30 Aug 2013 09:17:06 GMT
+Content-Type: text/plain; charset=utf-8
+
+Hello both
+
+I have made a few changes to the LIMS shared classes.  Please let me know if they break everything.
+
+Also, can you make sure you commit your changes regularly?  That way I can be more confident that my changes won't interfere with yours.
+
+Thanks
+-- 
+Nick
+

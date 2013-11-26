@@ -1,0 +1,207 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Martin Radley <martin.radley@ctsu.ox.ac.uk>, Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: StoreMan
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS1.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Thu, 15 Aug 2013
+ 16:19:06 +0100
+Date: Thu, 15 Aug 2013 15:19:06 GMT
+Content-Type: text/html; charset=utf-8
+
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<meta name="Generator" content="Microsoft Word 14 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"\@SimSun";
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{mso-style-priority:34;
+	margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri","sans-serif";}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+/* List Definitions */
+@list l0
+	{mso-list-id:452555486;
+	mso-list-type:hybrid;
+	mso-list-template-ids:347767514 -1683868000 134807555 134807557 134807553 134807555 134807557 134807553 134807555 134807557;}
+@list l0:level1
+	{mso-level-start-at:0;
+	mso-level-number-format:bullet;
+	mso-level-text:-;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:20.25pt;
+	text-indent:-18.0pt;
+	font-family:"Calibri","sans-serif";
+	mso-fareast-font-family:SimSun;
+	mso-bidi-font-family:"Times New Roman";}
+@list l0:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:56.25pt;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+@list l0:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:92.25pt;
+	text-indent:-18.0pt;
+	font-family:Wingdings;}
+@list l0:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:128.25pt;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l0:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:164.25pt;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+@list l0:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:200.25pt;
+	text-indent:-18.0pt;
+	font-family:Wingdings;}
+@list l0:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:236.25pt;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l0:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:272.25pt;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+@list l0:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:308.25pt;
+	text-indent:-18.0pt;
+	font-family:Wingdings;}
+ol
+	{margin-bottom:0cm;}
+ul
+	{margin-bottom:0cm;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext="edit" spidmax="1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext="edit">
+<o:idmap v:ext="edit" data="1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang="EN-GB" link="blue" vlink="purple">
+<div class="WordSection1">
+<p class="MsoNormal">Hello both<o:p></o:p></p>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal">I&#8217;d welcome your comments on this before I put them into Outlook. &nbsp;You may have come away with a different understanding or thought of problems/questions we didn&#8217;t have time to deal with today.<o:p></o:p></p>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal">Create List<o:p></o:p></p>
+<p class="MsoListParagraph" style="margin-left:20.25pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1">
+<![if !supportLists]><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>Any aliquot type used by a project can be selected as the primary; the secondary cannot match the primary<o:p></o:p></p>
+<p class="MsoListParagraph" style="margin-left:20.25pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1">
+<![if !supportLists]><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>Creating a new sample retrieval list will always create new box name records and (provisionally) allocate cryovial positions<o:p></o:p></p>
+<p class="MsoListParagraph" style="margin-left:20.25pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1">
+<![if !supportLists]><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>A &nbsp;source file may be pre-sorted and may include box numbers and positions as well as the barcode<o:p></o:p></p>
+<p class="MsoListParagraph" style="margin-left:20.25pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1">
+<![if !supportLists]><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>The retrieval list can be re-sorted on screen but this will only affect the destination positions if the source was not pre-sorted<o:p></o:p></p>
+<p class="MsoListParagraph" style="margin-left:20.25pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1">
+<![if !supportLists]><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position<o:p></o:p></p>
+<p class="MsoListParagraph" style="margin-left:20.25pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1">
+<![if !supportLists]><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>Rejected tasks can be modified (re-using existing box name records) or deleted<o:p></o:p></p>
+<p class="MsoListParagraph" style="margin-left:20.25pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1">
+<![if !supportLists]><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>Finding where all the cryovials are can take a long time; users must wait for the information to be available<o:p></o:p></p>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal">Retrieval Assistant<o:p></o:p></p>
+<p class="MsoListParagraph" style="margin-left:20.25pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1">
+<![if !supportLists]><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>Cryogenics staff can reject a retrieval list if it does not have a retrieval plan<o:p></o:p></p>
+<p class="MsoListParagraph" style="margin-left:20.25pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1">
+<![if !supportLists]><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box<o:p></o:p></p>
+<p class="MsoListParagraph" style="margin-left:20.25pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1">
+<![if !supportLists]><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position<o:p></o:p></p>
+<p class="MsoListParagraph" style="margin-left:20.25pt;text-indent:-18.0pt;mso-list:l0 level1 lfo1">
+<![if !supportLists]><span style="mso-list:Ignore">-<span style="font:7.0pt &quot;Times New Roman&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>If required, the secondary aliquots appear at the end of the retrieval plan for each chunk &#8211; they may never be needed<o:p></o:p></p>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal">All comments welcome<o:p></o:p></p>
+<p class="MsoNormal">-- <o:p></o:p></p>
+<p class="MsoNormal">Nick<o:p></o:p></p>
+</div>
+</body>
+</html>
+

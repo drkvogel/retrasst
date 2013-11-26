@@ -1,0 +1,54 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: Possible error in StoreUtil
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS1.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Mon, 8 Jul 2013
+ 17:30:18 +0100
+Date: Mon, 08 Jul 2013 16:30:12 GMT
+Content-Type: text/plain; charset=utf-8
+
+Thanks Chris
+
+I've fixed Util::isVesselInUse() to use LCDbObject::STORAGE_VESSEL
+-- 
+Nick
+
+
+-----Original Message-----
+From: Chris Bird 
+Sent: 03 July 2013 16:02
+To: Nicholas Goodwin
+Subject: Possible error in StoreUtil
+
+Nick,
+
+Whilst trying to work out how to get a vessel name/description given a tank (population) ID, I saw in Util::isVesselInUse() the comparison:
+
+             if( tmi->isActive() && tmi->getStorageCID() == store->getID() )
+
+where tmi is a Range< LCDbTankMap > and store->getObjectType() is supposed to be LCDbObject::STORAGE_POPULATION
+
+It struck me that getStorageCID() seems to return a vessel ID, where as 
+store->getID() is supposed to return a population ID in this case - so
+these should not be compared?
+
+I've done something similar:
+
+             if (tmi->isActive() && tmi->getTankCID() == pop.getID()) { 
+//if (tmi->isActive() && tmi->getStorageCID() == pop.getID()) {
+                     vesselCID = tmi->getStorageCID(); break;
+             }
+
+to get what I think is the vessel ID in order to get it's name and 
+description (e.g. 'Boron'), and it seems to work - the IDs I get are IDs 
+of vessels, not populations.
+
+Chris
+
+-- 
+Chris Bird
+Core Programming
+CTSU, Oxford
++44(0)1865 743743 x3511
+

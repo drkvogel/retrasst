@@ -1,0 +1,65 @@
+From: Chris Bird <drkvogel@yahoo.co.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: Fw: Retrieval job
+Received: from relay11.mail.ox.ac.uk (129.67.1.162) by pat.ctsu.ox.ac.uk
+ (10.10.6.216) with Microsoft SMTP Server id 14.3.123.3; Tue, 30 Jul 2013
+ 11:22:27 +0100
+Date: Tue, 30 Jul 2013 10:22:26 GMT
+Content-Type: text/plain; charset=utf-8
+
+----- Forwarded Message -----
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: "drkvogel@yahoo.co.uk" <drkvogel@yahoo.co.uk> 
+Sent: Saturday, 27 July 2013, 9:32
+Subject: Re: Retrieval job
+ 
+
+
+ 
+ 
+Hi Chris
+Secondary_aliquot will be added to c_retrieval_job in the next rebuild. I'm not convinced we need new tables - you have c_box_retrieval and l_cryovial_retrieval, but we can discuss next week.
+Have a good weekend
+Nick
+Sent from my HTC
+
+
+----- Reply message -----
+From: "Chris Bird" <chris.bird@ctsu.ox.ac.uk>
+To: "Nicholas Goodwin" <nicholas.goodwin@ctsu.ox.ac.uk>
+Subject: Retrieval job
+Date: Sat, Jul 27, 2013 12:30 am
+
+
+
+Thanks.
+
+A couple of questions:
+
+If there were a secondary aliquot for this job, how would it be defined? 
+ie. I there is primary_aliquot field in c_retrieval_job, but no 
+secondary_aliquot.
+
+Is it OK to create new tables in t_ldbc for holding retrieval plans? 
+e.g. c_retrieval_plan and c_retrieval_plan_chunk? Just in case doing so 
+would upset any scripts or something, I will hold off doing so until I 
+am in next week.
+
+Chris
+
+On 26/07/2013 12:09, Nicholas Goodwin wrote:
+> retrieve 4000 THRIVE samples:
+>
+> C_retrieval_job: record -1015, job type 4, status 0, primary aliquot EDTA_2, no secondary aliquot.  The retrieval assistant might split this into (say) eight chunks of five boxes in c_box_retrieval with cryovials in l_cryovial_retrieval.  It would set C_retrieval_job.status
+ to 1 and the start date to 'now'.  The operator would retrieve a chunk at a time, ticked off in in c_box_retrieval and l_cryovial_retrieval.  When that's finished, it would set C_retrieval_job.status to 2 and finish date to 'now'.
+>
+> Cryovial_store: the 4000-odd records saying where the cryovials are at the moment have retrieval_cid -1015, status = 2, removed = ''.  Set status = 5, removed = 'now' when they're retrieved.  Each cryovial has a second cryovial_store record giving the expected
+ destination, status = 0.  Set status = 1 when the position's confirmed
+
+-- 
+Chris Bird
+Core Programming
+CTSU, Oxford
++44(0)1865 743743 x3511
+

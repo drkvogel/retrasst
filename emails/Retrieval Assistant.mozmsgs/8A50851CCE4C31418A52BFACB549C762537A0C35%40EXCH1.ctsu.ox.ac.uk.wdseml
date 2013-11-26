@@ -1,0 +1,20 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: Retrieval job
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS1.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Fri, 26 Jul 2013
+ 12:09:58 +0100
+Date: Fri, 26 Jul 2013 11:09:57 GMT
+Content-Type: text/plain; charset=utf-8
+
+Hi Chris
+
+Just to flesh out the details of what I said yesterday, I've been creating a retrieval list for a Tim & co to retrieve 4000 THRIVE samples:
+
+C_retrieval_job: record -1015, job type 4, status 0, primary aliquot EDTA_2, no secondary aliquot.  The retrieval assistant might split this into (say) eight chunks of five boxes in c_box_retrieval with cryovials in l_cryovial_retrieval.  It would set C_retrieval_job.status to 1 and the start date to 'now'.  The operator would retrieve a chunk at a time, ticked off in in c_box_retrieval and l_cryovial_retrieval.  When that's finished, it would set C_retrieval_job.status to 2 and finish date to 'now'.
+
+Cryovial_store: the 4000-odd records saying where the cryovials are at the moment have retrieval_cid -1015, status = 2, removed = ''.  Set status = 5, removed = 'now' when they're retrieved.  Each cryovial has a second cryovial_store record giving the expected destination, status = 0.  Set status = 1 when the position's confirmed
+-- 
+Nick
+

@@ -1,0 +1,79 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: Possible error in StoreUtil
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS1.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Wed, 3 Jul 2013
+ 20:33:16 +0100
+Date: Wed, 03 Jul 2013 19:33:14 GMT
+Content-Type: text/html; charset=utf-8
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="Generator" content="Microsoft Exchange Server">
+<!-- converted from text --><style><!-- .EmailQuote { margin-left: 1pt; padding-left: 4pt; border-left: #800000 2px solid; } --></style>
+</head>
+<body>
+<style>
+<!--
+.x_EmailQuote
+	{margin-left:1pt;
+	padding-left:4pt;
+	border-left:#800000 2px solid}
+-->
+</style>
+<div>Hi Chris<br>
+I'll look at this next week<br>
+Nick<br>
+Sent from my HTC<br>
+<br>
+<div id="x_htc_header" style="">----- Reply message -----<br>
+From: &quot;Chris Bird&quot; &lt;chris.bird@ctsu.ox.ac.uk&gt;<br>
+To: &quot;Nicholas Goodwin&quot; &lt;nicholas.goodwin@ctsu.ox.ac.uk&gt;<br>
+Subject: Possible error in StoreUtil<br>
+Date: Wed, Jul 3, 2013 4:01 pm<br>
+<br>
+</div>
+<br>
+<br>
+</div>
+<font size="2"><span style="font-size:10pt;">
+<div class="PlainText">Nick,<br>
+<br>
+Whilst trying to work out how to get a vessel name/description given a <br>
+tank (population) ID, I saw in Util::isVesselInUse() the comparison:<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if( tmi-&gt;isActive() &amp;&amp; tmi-&gt;getStorageCID() == store-&gt;getID() )<br>
+<br>
+where tmi is a Range&lt; LCDbTankMap &gt; and store-&gt;getObjectType() is <br>
+supposed to be LCDbObject::STORAGE_POPULATION<br>
+<br>
+It struck me that getStorageCID() seems to return a vessel ID, where as <br>
+store-&gt;getID() is supposed to return a population ID in this case - so <br>
+these should not be compared?<br>
+<br>
+I've done something similar:<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (tmi-&gt;isActive() &amp;&amp; tmi-&gt;getTankCID() == pop.getID()) { <br>
+//if (tmi-&gt;isActive() &amp;&amp; tmi-&gt;getStorageCID() == pop.getID()) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vesselCID = tmi-&gt;getStorageCID(); break;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+<br>
+to get what I think is the vessel ID in order to get it's name and <br>
+description (e.g. 'Boron'), and it seems to work - the IDs I get are IDs <br>
+of vessels, not populations.<br>
+<br>
+Chris<br>
+<br>
+-- <br>
+Chris Bird<br>
+Core Programming<br>
+CTSU, Oxford<br>
+&#43;44(0)1865 743743 x3511<br>
+<br>
+</div>
+</span></font>
+</body>
+</html>
+

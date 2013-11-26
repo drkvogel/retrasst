@@ -1,0 +1,151 @@
+From: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>
+To: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+CC: 
+Subject: StoreMan
+Received: from EXCH1.ctsu.ox.ac.uk ([fe80::5898:3103:c793:5433]) by
+ CAS2.ctsu.ox.ac.uk ([::1]) with mapi id 14.03.0123.003; Tue, 3 Sep 2013
+ 14:30:29 +0100
+Date: Tue, 03 Sep 2013 13:30:29 GMT
+Content-Type: text/html; charset=utf-8
+
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<meta name="Generator" content="Microsoft Word 14 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+@font-face
+	{font-family:"\@SimSun";
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:Consolas;
+	panose-1:2 11 6 9 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	color:black;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+pre
+	{mso-style-priority:99;
+	mso-style-link:"HTML Preformatted Char";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	color:black;}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{mso-style-priority:34;
+	margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	color:black;}
+span.EmailStyle18
+	{mso-style-type:personal;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+span.HTMLPreformattedChar
+	{mso-style-name:"HTML Preformatted Char";
+	mso-style-priority:99;
+	mso-style-link:"HTML Preformatted";
+	font-family:"Consolas","serif";
+	color:black;}
+span.EmailStyle21
+	{mso-style-type:personal-reply;
+	font-family:"Calibri","sans-serif";
+	color:#1F497D;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext="edit" spidmax="1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext="edit">
+<o:idmap v:ext="edit" data="1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body bgcolor="white" lang="EN-GB" link="blue" vlink="purple">
+<div class="WordSection1">
+<p class="MsoNormal"><span style="color:#1F497D">Thanks Chris<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D"><o:p>&nbsp;</o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D">There shouldn&#8217;t be that many changes, although most files are affected.<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D"><o:p>&nbsp;</o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D">The String changes may be part of some grand plan or they may indeed be a step backwards: Andrew may have overwritten my changes.&nbsp; I will investigate<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D">-- <o:p></o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D">Nick<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D"><o:p>&nbsp;</o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D"><o:p>&nbsp;</o:p></span></p>
+<div>
+<div style="border:none;border-top:solid #B5C4DF 1.0pt;padding:3.0pt 0cm 0cm 0cm">
+<p class="MsoNormal"><b><span lang="EN-US" style="font-size:10.0pt;font-family:&quot;Tahoma&quot;,&quot;sans-serif&quot;;color:windowtext">From:</span></b><span lang="EN-US" style="font-size:10.0pt;font-family:&quot;Tahoma&quot;,&quot;sans-serif&quot;;color:windowtext"> Chris Bird
+<br>
+<b>Sent:</b> 03 September 2013 13:02<br>
+<b>To:</b> Nicholas Goodwin<br>
+<b>Subject:</b> Re: StoreMan<o:p></o:p></span></p>
+</div>
+</div>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal" style="margin-bottom:12.0pt">I just pulled from CVS and there were a lot of changes. I think the last time I pulled was on Friday so they are changes since then.<br>
+<br>
+It built with no problems. I was looking at what has changed - in some cases it almost seemed to be a step backward -
+<br>
+<br>
+&nbsp; std::strings that had been replaced by String have gone back to std::string<br>
+&nbsp; bcsToStd() calls that had been removed have reappeared<br>
+&nbsp; <br>
+but I'm sure it's all part of the grand plan!<br>
+<br>
+Chris<o:p></o:p></p>
+<div>
+<p class="MsoNormal">On 02/09/2013 15:52, Nicholas Goodwin wrote:<o:p></o:p></p>
+</div>
+<blockquote style="margin-top:5.0pt;margin-bottom:5.0pt">
+<p class="MsoNormal">Hi Chris<o:p></o:p></p>
+<p class="MsoNormal">&nbsp;<o:p></o:p></p>
+<p class="MsoNormal">I have modified StoreMan&#8217;s main form so that it doesn&#8217;t step through all the projects on start-up.&nbsp; The records() function reads data from the current project instead.&nbsp; Let me know if this has caused any unforeseen side effects<o:p></o:p></p>
+<p class="MsoNormal">-- <o:p></o:p></p>
+<p class="MsoNormal">Nick<o:p></o:p></p>
+<p class="MsoNormal">&nbsp;<o:p></o:p></p>
+</blockquote>
+<p class="MsoNormal"><span style="font-size:12.0pt;font-family:&quot;Times New Roman&quot;,&quot;serif&quot;"><br>
+<br>
+<o:p></o:p></span></p>
+<pre>-- <o:p></o:p></pre>
+<pre>Chris Bird<o:p></o:p></pre>
+<pre>Core Programming<o:p></o:p></pre>
+<pre>CTSU, Oxford<o:p></o:p></pre>
+<pre>&#43;44(0)1865 743743 x3511<o:p></o:p></pre>
+</div>
+</body>
+</html>
+
