@@ -1072,21 +1072,17 @@ void __fastcall TfrmDiscardSamples::miNoteAllClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmDiscardSamples::FormClose(TObject *Sender,
-      TCloseAction &Action)
-{
+void __fastcall TfrmDiscardSamples::FormClose(TObject *Sender, TCloseAction &Action) {
     Action = caHide;
 
-    do
-    {
+    do {
         if (m_context->isSaved()) break;
         
 	    if (! this->btnConfirm->Enabled) break;
 
 		String title = "Unsaved changes";
 		String message = "Return to main menu without saving ?";
-		if (Application->MessageBox(message.c_str(), title.c_str(),
-			MB_OKCANCEL | MB_ICONWARNING) == IDOK) break;
+		if (Application->MessageBox(message.c_str(), title.c_str(), MB_OKCANCEL | MB_ICONWARNING) == IDOK) break;
 
         Action = caNone;
 
@@ -1094,14 +1090,11 @@ void __fastcall TfrmDiscardSamples::FormClose(TObject *Sender,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmDiscardSamples::btnAbortClick(TObject *Sender)
-{
-    do
-    {
+void __fastcall TfrmDiscardSamples::btnAbortClick(TObject *Sender) {
+    do {
 		String title = "Abort job";
 		String message = "Abort job ?";
-        if (Application->MessageBox(message.c_str(), title.c_str(),
-			MB_OKCANCEL) != IDOK) break;
+        if (Application->MessageBox(message.c_str(), title.c_str(), MB_OKCANCEL) != IDOK) break;
 
         std::string summary = "Abort job " + m_context->calcJobDescription();
 
@@ -1122,8 +1115,7 @@ void __fastcall TfrmDiscardSamples::btnAbortClick(TObject *Sender)
         	Screen->Cursor = cursor;
         }
 
-		if (error != "")
-		{
+		if (error != "") {
 			String message = error.c_str();
 			Application->MessageBox(message.c_str(), L"", MB_ICONWARNING);
 			break;

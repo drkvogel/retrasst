@@ -9,12 +9,8 @@
 
 TfrmSearch *frmSearch;
 
-
-void
-TfrmSearch::init( Discard::Context * context )
-{
-    if (context == 0)
-    {
+void TfrmSearch::init( Discard::Context * context ) {
+    if (context == 0) {
 		std::string message = "";
 		message += "null context";
 		message += " at ";
@@ -27,17 +23,15 @@ TfrmSearch::init( Discard::Context * context )
 
     this->ediText->Text = "";
 
-    this->rgType->Controls[3]->Enabled = false;
+    //this->rgType->Controls[3]->Enabled = false; // crash!
+    //this->rgType->Enabled = false; // maybe?
 
     this->cmbMenu->Items->Clear();
 
-    if (m_context->isSelectJobStage())
-    {
+    if (m_context->isSelectJobStage()) {
         this->cmbMenu->Enabled = false;
         m_jobnos = m_context->getJobnos();
-        for (IntVec::const_iterator it = m_jobnos.begin();
-            it != m_jobnos.end(); it++)
-        {
+        for (IntVec::const_iterator it = m_jobnos.begin(); it != m_jobnos.end(); it++) {
             const int jobno = *it;
             const std::string jobPrompt = m_context->calcJobPrompt(jobno);
             this->cmbMenu->Items->Add(jobPrompt.c_str());
@@ -45,26 +39,20 @@ TfrmSearch::init( Discard::Context * context )
         }
     }
 
-    if (Discard::Person::canSearch())
-    {
+    if (Discard::Person::canSearch()) {
         this->rgType->Controls[3]->Enabled = true;
     }
 
-    if (m_context->isCreateJobStage())
-    {
+    if (m_context->isCreateJobStage()) {
         gotoStep1();
-    }
-    else
-    {
+    } else {
         gotoStep3();
     }
     
     return;
 }
 
-void
-TfrmSearch::gotoStep1( )
-{
+void TfrmSearch::gotoStep1() {
     m_stepno = 1;
     updateUI();
     return;
@@ -264,39 +252,31 @@ void __fastcall TfrmSearch::btnBackClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmSearch::btnNextClick(TObject *Sender)
-{
-    do
-    {
-        if (m_stepno == 1)
-        {
+void __fastcall TfrmSearch::btnNextClick(TObject *Sender) {
+    do {
+        if (m_stepno == 1) {
             gotoStep2();
             break;
         }
 
-        if (m_stepno == 2)
-        {
+        if (m_stepno == 2) {
             gotoStep3();
             break;
         }
 
-        if (m_stepno == 3)
-        {
+        if (m_stepno == 3) {
             int mr = mrNone;
 
-            do
-            {
+            do {
 				AnsiString type;
 				AnsiString source;
 				AnsiString text;
 
-                if (m_context->isSelectJobStage())
-                {
+                if (m_context->isSelectJobStage()) {
                     type = "Job";
                     source = "Text";
                     size_t index = this->cmbMenu->ItemIndex;
-                    if (index < m_jobnos.size())
-                    {
+                    if (index < m_jobnos.size()) {
                         const int jobno = m_jobnos[index];
 						String title = "Job";
 						String message = m_context->calcJobDescription(jobno).c_str();
@@ -305,30 +285,22 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender)
 						Application->MessageBox(message.c_str(),title.c_str(), MB_OK);
 						text = jobno;
                     }
-                }
-                else
-                {
+                } else {
                     const int index = this->rgType->ItemIndex;
-                    if (index < 0)
-                    {
-                        break;
-					}
-					type =  this->rgType->Items->Strings[index] ;
+                    if (index < 0) { break; }
 
-					if (this->rgSource->ItemIndex == 0)
-					{
+
+                    type =  this->rgType->Items->Strings[index] ;
+					if (this->rgSource->ItemIndex == 0) {
 						source = "Text";
 						text =  this->ediText->Text;
-                    }
-                    else if (this->rgSource->ItemIndex == 1)
-                    {
+                    } else if (this->rgSource->ItemIndex == 1) {
                         source = "File";
 						text = this->ediFile->Text ;
                     }
                 }
 
-                if ((type == "") || (source == "") || (text == ""))
-                {
+                if ((type == "") || (source == "") || (text == "")) {
                     break;
                 }
 
@@ -337,7 +309,6 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender)
 				m_context->configSearchTexts(text.c_str());
 
                 mr = mrOk;
-
             } while (false);
 
             this->ModalResult = mr;
