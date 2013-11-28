@@ -8,16 +8,15 @@
 #pragma package(smart_init)
 
 
-namespace Discard
-{
+namespace Discard {
 
 // Sef
 
 Sef::Sef( const std::string & studyName, const std::string & studyCode,
-    const std::string & description, const std::string & reason,
-    const std::string & owner,
-    const time_t created, const std::string username,
-    const std::string & key )
+          const std::string & description, const std::string & reason,
+          const std::string & owner,
+          const time_t created, const std::string username,
+          const std::string & key )
     : m_studyName(studyName)
     , m_studyCode(studyCode)
     , m_reason(reason)
@@ -28,12 +27,10 @@ Sef::Sef( const std::string & studyName, const std::string & studyCode,
     , m_key(key)
     , m_isOpen(true)
     , m_filename("")
-    , m_method("")
-{
+    , m_method("") {
 }
 
-Sef::Sef( )
-{
+Sef::Sef( ) {
     std::string error = "";
     error += "attempt to call no-arg constructor for Sef";
     error += " at ";
@@ -43,10 +40,8 @@ Sef::Sef( )
 
 void
 Sef::addSample( const std::string & sbarcode, const std::string & stype,
-    const std::string & cbarcode )
-{
-    do
-    {
+                const std::string & cbarcode ) {
+    do {
         if (! m_isOpen) break;
 
         m_sbarcodes.push_back(sbarcode);
@@ -59,10 +54,8 @@ Sef::addSample( const std::string & sbarcode, const std::string & stype,
 }
 
 void
-Sef::close( const int serial, const std::string & method )
-{
-    do
-    {
+Sef::close( const int serial, const std::string & method ) {
+    do {
         if (! m_isOpen) break;
 
         m_ddmmyyyy = Util::ddmmyyyy();
@@ -90,13 +83,10 @@ Sef::close( const int serial, const std::string & method )
     return;
 }
 
-std::string
-Sef::asString( ) const
-{
+std::string Sef::asString() const {
     std::string text = "";
 
-    do
-    {
+    do {
         if (m_isOpen) break;
 
         StringVec lines;
@@ -105,103 +95,73 @@ Sef::asString( ) const
         lines.push_back(m_studyName + " " + Util::bracket(m_studyCode));
         lines.push_back("");
         lines.push_back("");
-        lines.push_back("Study: " +
-            m_studyName);
+        lines.push_back("Study: " + m_studyName);
         lines.push_back("");
-        lines.push_back("Reference Number: " +
-            m_reference);
+        lines.push_back("Reference Number: " + m_reference);
         lines.push_back("");
-        lines.push_back("Date: " +
-            Util::ddmmyyyy(m_created));
+        lines.push_back("Date: " + Util::ddmmyyyy(m_created));
         lines.push_back("");
 
         bool isCryovialBarcodeDifferent = false;
         const int nsamples = m_sbarcodes.size();
-        for (int sampleno=0; sampleno<nsamples; sampleno++)
-        {
-            if (! isCryovialBarcodeDifferent)
-            {
-                if (m_sbarcodes[sampleno] != m_cbarcodes[sampleno])
-                {
+        for (int sampleno=0; sampleno<nsamples; sampleno++) {
+            if (! isCryovialBarcodeDifferent) {
+                if (m_sbarcodes[sampleno] != m_cbarcodes[sampleno]) {
                     isCryovialBarcodeDifferent = true;
                 }
             }
-            lines.push_back("Sample: " +
-                m_sbarcodes[sampleno] +
-                " " +
-                Util::bracket(m_stypes[sampleno]));
+            lines.push_back("Sample: "+m_sbarcodes[sampleno]+" "+Util::bracket(m_stypes[sampleno]));
             lines.push_back("");
         }
         lines.push_back("");
-
         lines.push_back("Event Details");
         lines.push_back(m_description);
         lines.push_back("");
         lines.push_back("");
-
         lines.push_back("Missing Vacutainers");
         lines.push_back("");
-        lines.push_back("The following vacutainers were missing: "
-            + std::string("N/A"));
+        lines.push_back("The following vacutainers were missing: "+std::string("N/A"));
         lines.push_back("");
         lines.push_back("");
-
         lines.push_back("Missing Results");
         lines.push_back("");
-        lines.push_back("The following test results will be missing: "
-            + std::string("N/A"));
+        lines.push_back("The following test results will be missing: "+std::string("N/A"));
         lines.push_back("");
-        lines.push_back("Reason: "
-            + std::string("N/A"));
+        lines.push_back("Reason: "+std::string("N/A"));
         lines.push_back("");
         lines.push_back("");
-
         lines.push_back("Sample Disposal");
         lines.push_back("");
-        lines.push_back("Reason for Disposal: " +
-            m_reason);
+        lines.push_back("Reason for Disposal: "+m_reason);
         lines.push_back("");
 
-        if (isCryovialBarcodeDifferent)
-        {
-            for (int sampleno=0; sampleno<nsamples; sampleno++)
-            {
+        if (isCryovialBarcodeDifferent) {
+            for (int sampleno=0; sampleno<nsamples; sampleno++) {
                 lines.push_back("Barcode ID: " + m_cbarcodes[sampleno]);
                 lines.push_back("");
             }
-        }
-        else
-        {
+        } else {
             lines.push_back("Barcode IDs are the same as sample IDs above.");
             lines.push_back("");
         }
         lines.push_back("");
 
-        lines.push_back("Date of Disposal: " +
-            m_ddmmyyyy);
+        lines.push_back("Date of Disposal: "+m_ddmmyyyy);
         lines.push_back("");
-        lines.push_back("Method of Disposal: " +
-            m_method);
+        lines.push_back("Method of Disposal: "+m_method);
         lines.push_back("");
-        lines.push_back("Initials: " +
-            m_username);
+        lines.push_back("Initials: "+m_username);
         lines.push_back("");
         lines.push_back("");
-
         lines.push_back("Other");
         lines.push_back("");
         lines.push_back("");
 
         text += " serial: " + m_serialString;
-
         text += " key: " + m_key;
-
         text += " date: " + m_ddmmyyyy;
-
         text += " filename: " + m_filename;
-
-        text += " samples: " +
-            Util::join(",", m_sbarcodes.begin(), m_sbarcodes.end());
+        text += " samples: "+Util::join(",", m_sbarcodes.begin(), m_sbarcodes.end());
 
         lines.push_back("");
 
@@ -212,31 +172,19 @@ Sef::asString( ) const
     return text;
 }
 
-const std::string &
-Sef::getFilename( ) const
-{
-    return m_filename;
-}
+const std::string & Sef::getFilename( ) const { return m_filename; }
 
 
 // SefBatch
 
-SefBatch::SefBatch( const Context * context )
-    : m_context(context)
-{
-}
+SefBatch::SefBatch( const Context * context ) : m_context(context) { }
 
-void
-SefBatch::addSample( const Sample * s )
-{
-    do
-    {
+void SefBatch::addSample( const Sample * s ) {
+    do {
         if (s == 0) break;
 
         const std::string personid = s->getPersonId();
-        const std::string key = (personid == "")
-            ? s->getCryovialBarcode()
-            : personid;
+        const std::string key = (personid == "") ? s->getCryovialBarcode() : personid;
 
         const int jobno = s->getJobno();
 
@@ -245,18 +193,15 @@ SefBatch::addSample( const Sample * s )
 
         const std::string description = c->getJobDescription(jobno);
         const std::string reason = c->getJobReason(jobno);
-        Sef sef(c->getProjectName(), c->getStudyCode(),
-            description, reason,
-            c->getJobOwner(jobno), c->getJobCreationUtime(jobno),
-            c->getCurrentUserName(), key);
+        Sef sef(c->getProjectName(), c->getStudyCode(), description, reason,
+                c->getJobOwner(jobno), c->getJobCreationUtime(jobno),
+                c->getCurrentUserName(), key);
 
-        if (m_sefs.count(key) == 0)
-        {
+        if (m_sefs.count(key) == 0) {
             m_sefs.insert(std::make_pair(key, sef));
         }
 
-        if (m_sefs.count(key) != 1)
-        {
+        if (m_sefs.count(key) != 1) {
             std::string error = "";
             error += "not one sef for ";
             error += key;
@@ -275,33 +220,24 @@ SefBatch::addSample( const Sample * s )
     return;
 }
 
-size_t
-SefBatch::size( ) const
-{
-    return m_sefs.size();
-}
+size_t SefBatch::size( ) const { return m_sefs.size(); }
 
-void
-SefBatch::publish( int studySerial )
-{
+void SefBatch::publish( int studySerial ) {
     for (StringToSefMap::iterator it = m_sefs.begin();
-        it != m_sefs.end(); it++)
-    {
+            it != m_sefs.end(); it++) {
         const std::string key = it->first;
         Sef & sef = it->second;
         sef.close(studySerial++, m_context->getMethod());
     }
 
     for (StringToSefMap::const_iterator it = m_sefs.begin();
-        it != m_sefs.end(); it++)
-    {
+            it != m_sefs.end(); it++) {
         const std::string key = it->first;
         Sef sef = it->second;
         const std::string filename = sef.getFilename();
         const std::string filepath = filename; // FIXME 81
         const std::string content = sef.asString();
-        if (! Util::splat(filepath, content))
-        {
+        if (! Util::splat(filepath, content)) {
             std::string error = "";
             error += "failed to write file ";
             error += filepath;
@@ -309,8 +245,7 @@ SefBatch::publish( int studySerial )
             error += HERE;
             throw MyException(error);
         }
-        if (! m_context->addAuditEntry(content))
-        {
+        if (! m_context->addAuditEntry(content)) {
             std::string error = "";
             error += "failed to add audit entry";
             error += " at ";

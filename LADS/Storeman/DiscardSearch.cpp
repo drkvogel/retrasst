@@ -11,14 +11,14 @@ TfrmSearch *frmSearch;
 
 void TfrmSearch::init( Discard::Context * context ) {
     if (context == 0) {
-		std::string message = "";
-		message += "null context";
-		message += " at ";
+        std::string message = "";
+        message += "null context";
+        message += " at ";
         message += HERE;
-		throw Exception(message.c_str());
+        throw Exception(message.c_str());
     }
     m_context = context;
-    
+
     m_stepno = -1;
 
     this->ediText->Text = "";
@@ -48,7 +48,7 @@ void TfrmSearch::init( Discard::Context * context ) {
     } else {
         gotoStep3();
     }
-    
+
     return;
 }
 
@@ -59,38 +59,31 @@ void TfrmSearch::gotoStep1() {
 }
 
 void
-TfrmSearch::gotoStep2( )
-{
+TfrmSearch::gotoStep2( ) {
     m_stepno = 2;
     updateUI();
     return;
 }
 
 void
-TfrmSearch::gotoStep3( )
-{
+TfrmSearch::gotoStep3( ) {
     m_stepno = 3;
     updateUI();
     return;
 }
 
 void
-TfrmSearch::updateUI( )
-{
-    do
-    {
-        if (m_stepno == 1)
-        {
+TfrmSearch::updateUI( ) {
+    do {
+        if (m_stepno == 1) {
             updateUIStep1();
             break;
         }
-        if (m_stepno == 2)
-        {
+        if (m_stepno == 2) {
             updateUIStep2();
             break;
         }
-        if (m_stepno == 3)
-        {
+        if (m_stepno == 3) {
             updateUIStep3();
             break;
         }
@@ -101,8 +94,7 @@ TfrmSearch::updateUI( )
 }
 
 void
-TfrmSearch::updateUIStep1( )
-{
+TfrmSearch::updateUIStep1( ) {
     this->Caption = "Search Step 1 of 3";
 
     this->pnlStep1->Visible = false;
@@ -117,16 +109,14 @@ TfrmSearch::updateUIStep1( )
     this->btnBack->Enabled = false;
 
     this->btnNext->Enabled = false;
-    if (this->rgType->ItemIndex >= 0)
-    {
+    if (this->rgType->ItemIndex >= 0) {
         this->btnNext->Enabled = true;
     }
     return;
 }
 
 void
-TfrmSearch::updateUIStep2( )
-{
+TfrmSearch::updateUIStep2( ) {
     this->Caption = "Search Step 2 of 3";
 
     this->pnlStep1->Visible = false;
@@ -141,8 +131,7 @@ TfrmSearch::updateUIStep2( )
     this->btnBack->Enabled = true;
 
     this->btnNext->Enabled = false;
-    if (this->rgSource->ItemIndex >= 0)
-    {
+    if (this->rgSource->ItemIndex >= 0) {
         this->btnNext->Enabled = true;
     }
 
@@ -150,13 +139,11 @@ TfrmSearch::updateUIStep2( )
 }
 
 void
-TfrmSearch::updateUIStep3( )
-{
+TfrmSearch::updateUIStep3( ) {
     this->pnlStep1->Visible = false;
     this->pnlStep2->Visible = false;
 
-    if (m_context->isSelectJobStage())
-    {
+    if (m_context->isSelectJobStage()) {
         this->Caption = "Choose job";
         this->pnlStep3a->Visible = false;
         this->pnlStep3b->Visible = true;
@@ -164,9 +151,7 @@ TfrmSearch::updateUIStep3( )
         this->btnNext->Caption = "OK";
         this->btnBack->Enabled = false;
         this->btnBack->Visible = false;
-    }
-    else
-    {
+    } else {
         this->Caption = "Search Step 3 of 3";
         this->pnlStep3a->Visible = (this->rgSource->ItemIndex == 0);
         this->pnlStep3b->Visible = false;
@@ -176,34 +161,24 @@ TfrmSearch::updateUIStep3( )
     }
 
     this->btnNext->Enabled = false;
-    if (this->pnlStep3a->Visible)
-    {
-        if (this->ediText->Text != "")
-        {
+    if (this->pnlStep3a->Visible) {
+        if (this->ediText->Text != "") {
             this->btnNext->Enabled = true;
         }
-    }
-    else if (this->pnlStep3b->Visible)
-    {
-        if (this->cmbMenu->Text != "")
-        {
+    } else if (this->pnlStep3b->Visible) {
+        if (this->cmbMenu->Text != "") {
             this->btnNext->Enabled = true;
         }
-    }
-    else if (this->pnlStep3c->Visible)
-    {
-        if (this->ediFile->Text != "")
-        {
+    } else if (this->pnlStep3c->Visible) {
+        if (this->ediFile->Text != "") {
             this->btnNext->Enabled = true;
         }
-    }
-    else
-    {
-		std::string message = "";
-		message += "internal error";
-		message += " at ";
+    } else {
+        std::string message = "";
+        message += "internal error";
+        message += " at ";
         message += HERE;
-		throw Exception(message.c_str());
+        throw Exception(message.c_str());
     }
 
     return;
@@ -214,36 +189,29 @@ TfrmSearch::updateUIStep3( )
 
 //---------------------------------------------------------------------------
 __fastcall TfrmSearch::TfrmSearch(TComponent* Owner)
-    : TForm(Owner)
-{
+    : TForm(Owner) {
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmSearch::btnCancelClick(TObject *Sender)
-{
-	int mr = mrNone;
+void __fastcall TfrmSearch::btnCancelClick(TObject *Sender) {
+    int mr = mrNone;
 
-    do
-    {
-	    mr = mrCancel;
+    do {
+        mr = mrCancel;
 
     } while (false);
 
-	this->ModalResult = mr;
+    this->ModalResult = mr;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmSearch::btnBackClick(TObject *Sender)
-{
-    do
-    {
-        if (m_stepno == 2)
-        {
+void __fastcall TfrmSearch::btnBackClick(TObject *Sender) {
+    do {
+        if (m_stepno == 2) {
             gotoStep1();
             break;
         }
-        if (m_stepno == 3)
-        {
+        if (m_stepno == 3) {
             gotoStep2();
             break;
         }
@@ -268,9 +236,9 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender) {
             int mr = mrNone;
 
             do {
-				AnsiString type;
-				AnsiString source;
-				AnsiString text;
+                AnsiString type;
+                AnsiString source;
+                AnsiString text;
 
                 if (m_context->isSelectJobStage()) {
                     type = "Job";
@@ -278,25 +246,27 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender) {
                     size_t index = this->cmbMenu->ItemIndex;
                     if (index < m_jobnos.size()) {
                         const int jobno = m_jobnos[index];
-						String title = "Job";
-						String message = m_context->calcJobDescription(jobno).c_str();
-						message += "\n";
-						message += m_context->calcJobStatus(jobno).c_str();
-						Application->MessageBox(message.c_str(),title.c_str(), MB_OK);
-						text = jobno;
+                        String title = "Job";
+                        String message = m_context->calcJobDescription(jobno).c_str();
+                        message += "\n";
+                        message += m_context->calcJobStatus(jobno).c_str();
+                        Application->MessageBox(message.c_str(),title.c_str(), MB_OK);
+                        text = jobno;
                     }
                 } else {
                     const int index = this->rgType->ItemIndex;
-                    if (index < 0) { break; }
+                    if (index < 0) {
+                        break;
+                    }
 
 
                     type =  this->rgType->Items->Strings[index] ;
-					if (this->rgSource->ItemIndex == 0) {
-						source = "Text";
-						text =  this->ediText->Text;
+                    if (this->rgSource->ItemIndex == 0) {
+                        source = "Text";
+                        text =  this->ediText->Text;
                     } else if (this->rgSource->ItemIndex == 1) {
                         source = "File";
-						text = this->ediFile->Text ;
+                        text = this->ediFile->Text ;
                     }
                 }
 
@@ -304,9 +274,9 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender) {
                     break;
                 }
 
-				m_context->setSearchType(type.c_str());
-				m_context->setSearchSource(source.c_str());
-				m_context->configSearchTexts(text.c_str());
+                m_context->setSearchType(type.c_str());
+                m_context->setSearchSource(source.c_str());
+                m_context->configSearchTexts(text.c_str());
 
                 mr = mrOk;
             } while (false);
@@ -319,17 +289,14 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender) {
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmSearch::rgTypeClick(TObject *Sender)
-{
+void __fastcall TfrmSearch::rgTypeClick(TObject *Sender) {
     updateUI();
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmSearch::btnBrowseClick(TObject *Sender)
-{
+void __fastcall TfrmSearch::btnBrowseClick(TObject *Sender) {
     frmSearch->SendToBack();
-    if (this->openFile->Execute())
-    {
+    if (this->openFile->Execute()) {
         AnsiString filename = this->openFile->FileName;
         this->ediFile->Text = filename.c_str();
         updateUI();
@@ -338,36 +305,30 @@ void __fastcall TfrmSearch::btnBrowseClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmSearch::cmbMenuChange(TObject *Sender)
-{
+void __fastcall TfrmSearch::cmbMenuChange(TObject *Sender) {
     updateUI();
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmSearch::ediTextKeyPress(TObject *Sender, char &Key)
-{
+void __fastcall TfrmSearch::ediTextKeyPress(TObject *Sender, char &Key) {
     const char c = Key;
 
-    do
-    {
-        if (c == '\r')
-        {
+    do {
+        if (c == '\r') {
             btnNextClick(0);
         }
 
-	} while (false);
+    } while (false);
 }
 //---------------------------------------------------------------------------
 
 
-void __fastcall TfrmSearch::ediTextChange(TObject *Sender)
-{
-    updateUI();    
+void __fastcall TfrmSearch::ediTextChange(TObject *Sender) {
+    updateUI();
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmSearch::rgSourceClick(TObject *Sender)
-{
+void __fastcall TfrmSearch::rgSourceClick(TObject *Sender) {
     updateUI();
 }
 //---------------------------------------------------------------------------
