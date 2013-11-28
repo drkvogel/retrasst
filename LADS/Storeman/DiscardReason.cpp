@@ -10,15 +10,13 @@ TfrmDiscardReason *frmDiscardReason;
 
 
 void
-TfrmDiscardReason::init( Discard::Context * context )
-{
-    if (context == 0)
-    {
-		std::string message = "";
-		message += "null context";
-		message += " at ";
+TfrmDiscardReason::init( Discard::Context * context ) {
+    if (context == 0) {
+        std::string message = "";
+        message += "null context";
+        message += " at ";
         message += HERE;
-		throw Exception(message.c_str());
+        throw Exception(message.c_str());
     }
     m_context = context;
 
@@ -26,7 +24,7 @@ TfrmDiscardReason::init( Discard::Context * context )
     const int dbfieldWidth = 16;
     const int jobWidth = 12; // eg " -2147483647"
     this->ediDesc->MaxLength = dbfieldWidth - jobWidth;
-    
+
     this->cmbReason->Items->Clear();
     this->cmbReason->Enabled = false;
 
@@ -38,8 +36,7 @@ TfrmDiscardReason::init( Discard::Context * context )
     // FIXME 72 end
 
     for (StringVec::const_iterator it = reasons.begin();
-        it != reasons.end(); it++)
-    {
+            it != reasons.end(); it++) {
         const std::string reason = *it;
         this->cmbReason->Items->Add(reason.c_str());
         this->cmbReason->Enabled = true;
@@ -53,8 +50,7 @@ TfrmDiscardReason::init( Discard::Context * context )
 }
 
 void
-TfrmDiscardReason::updateUI( )
-{
+TfrmDiscardReason::updateUI( ) {
     this->btnOK->Enabled =
         (this->ediDesc->Text != "") && (this->cmbReason->Text != "");
 
@@ -65,62 +61,54 @@ TfrmDiscardReason::updateUI( )
 // start of callbacks
 
 __fastcall TfrmDiscardReason::TfrmDiscardReason(TComponent* Owner)
-    : TForm(Owner)
-{
+    : TForm(Owner) {
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmDiscardReason::btnCancelClick(TObject *Sender)
-{
-	int mr = mrNone;
+void __fastcall TfrmDiscardReason::btnCancelClick(TObject *Sender) {
+    int mr = mrNone;
 
-    do
-    {
+    do {
         m_context->setReason("");
         m_context->setDescription("");
 
-	    mr = mrCancel;
+        mr = mrCancel;
 
     } while (false);
 
-	this->ModalResult = mr;
+    this->ModalResult = mr;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmDiscardReason::cmbReasonChange(TObject *Sender)
-{
+void __fastcall TfrmDiscardReason::cmbReasonChange(TObject *Sender) {
     updateUI();
 }
 //---------------------------------------------------------------------------
 
 
-void __fastcall TfrmDiscardReason::btnOKClick(TObject *Sender)
-{
+void __fastcall TfrmDiscardReason::btnOKClick(TObject *Sender) {
     int mr = mrNone;
 
-    do
-    {
-		AnsiString description =  this->ediDesc->Text ;
+    do {
+        AnsiString description =  this->ediDesc->Text ;
         AnsiString reason =  this->cmbReason->Text;
 
-        if ((description == "") || (reason == ""))
-        {
+        if ((description == "") || (reason == "")) {
             break; // FIXME
         }
 
-		m_context->setReason(reason.c_str());
+        m_context->setReason(reason.c_str());
         m_context->setDescription(description.c_str());
 
         mr = mrOk;
 
     } while (false);
 
-	this->ModalResult = mr;
+    this->ModalResult = mr;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmDiscardReason::ediDescChange(TObject *Sender)
-{
+void __fastcall TfrmDiscardReason::ediDescChange(TObject *Sender) {
     updateUI();
 }
 //---------------------------------------------------------------------------

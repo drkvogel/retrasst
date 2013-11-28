@@ -10,15 +10,13 @@ TfrmDiscardMethod *frmDiscardMethod;
 
 
 void
-TfrmDiscardMethod::init( Discard::Context * context )
-{
-    if (context == 0)
-    {
-		std::string message = "";
-		message += "null context";
-		message += " at ";
+TfrmDiscardMethod::init( Discard::Context * context ) {
+    if (context == 0) {
+        std::string message = "";
+        message += "null context";
+        message += " at ";
         message += HERE;
-		throw Exception(message.c_str());
+        throw Exception(message.c_str());
     }
     m_context = context;
 
@@ -33,8 +31,7 @@ TfrmDiscardMethod::init( Discard::Context * context )
     // FIXME 72 end
 
     for (StringVec::const_iterator it = methods.begin();
-        it != methods.end(); it++)
-    {
+            it != methods.end(); it++) {
         const std::string method = *it;
         this->cmbMethod->Items->Add(method.c_str());
         this->cmbMethod->Enabled = true;
@@ -48,8 +45,7 @@ TfrmDiscardMethod::init( Discard::Context * context )
 }
 
 void
-TfrmDiscardMethod::updateUI( )
-{
+TfrmDiscardMethod::updateUI( ) {
     this->btnOK->Enabled = (this->cmbMethod->Text != "");
 
     return;
@@ -59,44 +55,37 @@ TfrmDiscardMethod::updateUI( )
 // start of callbacks
 
 __fastcall TfrmDiscardMethod::TfrmDiscardMethod(TComponent* Owner)
-    : TForm(Owner)
-{
+    : TForm(Owner) {
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmDiscardMethod::btnCancelClick(TObject *Sender)
-{
-	int mr = mrNone;
+void __fastcall TfrmDiscardMethod::btnCancelClick(TObject *Sender) {
+    int mr = mrNone;
 
-    do
-    {
+    do {
         m_context->setMethod("");
 
-	    mr = mrCancel;
+        mr = mrCancel;
 
     } while (false);
 
-	this->ModalResult = mr;
+    this->ModalResult = mr;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmDiscardMethod::cmbMethodChange(TObject *Sender)
-{
+void __fastcall TfrmDiscardMethod::cmbMethodChange(TObject *Sender) {
     updateUI();
 }
 //---------------------------------------------------------------------------
 
 
-void __fastcall TfrmDiscardMethod::btnOKClick(TObject *Sender)
-{
+void __fastcall TfrmDiscardMethod::btnOKClick(TObject *Sender) {
     int mr = mrNone;
 
-    do
-    {
-		AnsiString method =  this->cmbMethod->Text;
+    do {
+        AnsiString method =  this->cmbMethod->Text;
 
-        if (method == "")
-        {
+        if (method == "") {
             break; // FIXME
         }
 
@@ -106,12 +95,11 @@ void __fastcall TfrmDiscardMethod::btnOKClick(TObject *Sender)
 
     } while (false);
 
-	this->ModalResult = mr;
+    this->ModalResult = mr;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmDiscardMethod::ediDescChange(TObject *Sender)
-{
+void __fastcall TfrmDiscardMethod::ediDescChange(TObject *Sender) {
     updateUI();
 }
 //---------------------------------------------------------------------------

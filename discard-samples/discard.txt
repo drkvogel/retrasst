@@ -1,0 +1,26 @@
+﻿enum JobKind { UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
+
+ * select sample
+    * errors
+    * search, add notes
+    * create disposal list - implement    
+ * confirm removal - not necessary?
+ * confirm disposal
+ 
+ 
+Discard::Db
+Discard::Context
+
+frmDiscardPrologue->init(&context)
+frmDiscardPrologue->ShowModal() // set context with project and action
+
+frmDiscardSamples->init(&context)
+frmDiscardSamples->ShowModal()
+
+search
+  step 1 { tube?, cryovial, box, person? }
+  step 2 { text, file? }
+  step 3 text
+    failed to match, or
+    ?
+  
