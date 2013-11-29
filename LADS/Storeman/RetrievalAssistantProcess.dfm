@@ -157,6 +157,7 @@ object frmProcess: TfrmProcess
       Font.Style = []
       ParentFont = False
       TabOrder = 2
+      OnKeyUp = editBarcodeKeyUp
     end
     object cbLog: TCheckBox
       Left = 514
