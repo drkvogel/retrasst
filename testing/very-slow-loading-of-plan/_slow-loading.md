@@ -31,8 +31,23 @@ Loading -1015 Thrive Lp(a) Analysis takes many minutes and eventually throws an 
  * Is correct type of sort (numeric/alpha) being used on each column?
 
 
+## showChunk()/showChunks() - royally messed that up din I
 
+## 2ndary aliquots - don't display at first, only at end of chunk if some vials not collected
 
+## empty boxes - tbc
+
+  show list, confirm
+  update db to free positions
+  allow mark for referral
+  
+## columns - fit to screen, resize by percentage
+
+## add 1 chunk - must be last, not split mid chunk
+
+## box move jobs? display in front screen
+
+## does target db have correct statistics?
 
 ### Displaying the QEP
 
