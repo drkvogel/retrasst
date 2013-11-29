@@ -72,6 +72,8 @@ __published:
     void __fastcall btnSimAcceptClick(TObject *Sender);
     void __fastcall btnNotFoundClick(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
+    void __fastcall editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
+
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);

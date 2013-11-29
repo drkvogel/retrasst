@@ -27,7 +27,9 @@ LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query)
 
 const char * LCDbCryovialRetrieval::statusString(int st) {
     // EXPECTED, IGNORED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
-    static const char * statusStrings[] = { "Expected", "Ignored", "Collected", "Not found", "Deleted" };
+    //static const char * statusStrings[] = { "Expected", "Ignored", "Collected", "Not found", "Deleted" };
+    // EXPECTED, IGNORED, COLLECTED, PROCESSED, DISPOSED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
+    static const char * statusStrings[] = { "Expected", "Ignored", "Collected", "Processed", "Disposed", "Not found", "Deleted" };
     return st < LCDbCryovialRetrieval::Status::NUM_STATUSES ? statusStrings[st] : "Invalid";
 };
 

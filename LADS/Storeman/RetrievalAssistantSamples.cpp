@@ -17,30 +17,30 @@ TfrmSamples *frmSamples;
 
 __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
-    sgwChunks->addCol("section",  "Section",  87);
-    sgwChunks->addCol("start",    "Start",    70);
-    sgwChunks->addCol("startbox", "Box",      304);
-    sgwChunks->addCol("startvial","Vial",     150);
-    sgwChunks->addCol("end",      "End",      66);
-    sgwChunks->addCol("endbox",   "Box",      242);
-    sgwChunks->addCol("endvial",  "Vial",     160);
-    sgwChunks->addCol("size",     "Size",     87);
+    sgwChunks->addCol("section",  "Section",            87);
+    sgwChunks->addCol("start",    "Start",              70);
+    sgwChunks->addCol("startbox", "Destination Box",    304);
+    sgwChunks->addCol("startvial","Vial",               150);
+    sgwChunks->addCol("end",      "End",                66);
+    sgwChunks->addCol("endbox",   "Destination Box",    242);
+    sgwChunks->addCol("endvial",  "Vial",               160);
+    sgwChunks->addCol("size",     "Size",               87);
     sgwChunks->init();
 
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
     sgwVials->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode,    "barcode");
     sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
-    sgwVials->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
-    sgwVials->addCol("currpos",  "Pos",              31,    SampleRow::sort_asc_currpos,    "source box position");
+    sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
+    sgwVials->addCol("destpos",  "CPos",             25,    SampleRow::sort_asc_destpos,    "dest. box position");
     sgwVials->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
-    sgwVials->addCol("vesspos",  "Pos",              28,    SampleRow::sort_asc_vesspos,    "vessel position");
+    sgwVials->addCol("vesspos",  "VPos",             28,    SampleRow::sort_asc_vesspos,    "vessel position");
     sgwVials->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel,     "vessel name");
     sgwVials->addCol("shelf",    "Shelf",            31,    SampleRow::sort_asc_shelf,      "shelf number");
-    sgwVials->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos,  "structure position");
+    sgwVials->addCol("structpos","SPos",             27,    SampleRow::sort_asc_structpos,  "structure position");
     sgwVials->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure,  "structure name");
     sgwVials->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot,       "slot");
-    sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
-    sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
+    sgwVials->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
+    sgwVials->addCol("currpos",  "CPos",             31,    SampleRow::sort_asc_currpos,    "source box position");
     sgwVials->init();
 
     sgwDebug = new StringGridWrapper<SampleRow>(sgDebug, &vials);
@@ -62,7 +62,13 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
 }
 
 void TfrmSamples::debugLog(String s) {
-    frmSamples->memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
+    //frmSamples->memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
+    String tmp = Now().CurrentDateTime().DateTimeString() + ": " + s;
+    memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
+}
+
+void __fastcall LoadVialsWorkerThread::debugLog() {
+    frmSamples->debugLog(debugMessage.c_str());
 }
 
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
@@ -263,6 +269,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         chunks.clear();
         addChunk(0);
         showChunks();
+        showChunk();
     }
 }
 
@@ -308,12 +315,14 @@ void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
     if (sgVials->Row <= 1) return; // header or silly chunk
     addChunk(sgVials->Row-1); // allowing for fixed header row
     showChunks();
+    showChunk();
 }
 
 void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
     int selectedChunkSize = comboSectionSize->Items->Strings[comboSectionSize->ItemIndex].ToIntDef(0);
-    if (frmSamples->addChunk(selectedChunkSize)) {
-        frmSamples->showChunks();
+    if (addChunk(selectedChunkSize)) {
+        showChunks();
+        showChunk();
     } else {
         msgbox("Chosen chunk size is too big for current list");
     }
@@ -383,7 +392,7 @@ void TfrmSamples::showChunks() {
         sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
-    showChunk();
+    //showChunk();
     sgChunks->Row = sgChunks->RowCount-1; // make it the current chunk
     sgwVials->clearSelection();
 }
@@ -452,7 +461,8 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
             sgDebug->Objects[0][rw] = (TObject *)sampleRow;
         }
     }
-
+    showChunks(); // to refrest start/end boxes
+    //showChunk();
     Screen->Cursor = crDefault; Enabled = true;
 }
 
@@ -574,6 +584,9 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
     loadingMessage = oss.str().c_str();
 
+    debugMessage = "preparing query";
+    Synchronize((TThreadMethod)&debugLog);
+
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
     qd.setSQL( // from spec 2013-09-11
         "SELECT"
@@ -597,14 +610,22 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         "  s1.cryovial_id = s2.cryovial_id AND"
         "  s2.status = 0 AND"
         "  b2.box_cid = s2.box_cid AND"
-        "  t.object_cid = aliquot_type_cid AND"
+        "  t.object_cid = aliquot_type_cid AND" // make this a map for speed
         "  s1.retrieval_cid = :jobID"
         " ORDER BY"
         "  cryovial_barcode"
         );
     qd.setParam("jobID", frmSamples->job->getID());
     loadingMessage = frmSamples->loadingMessage;
+
+    debugMessage = "opening query";
+    Synchronize((TThreadMethod)&debugLog);
+
     rowCount = 0; qd.open();
+
+    debugMessage = "query open";
+    Synchronize((TThreadMethod)&debugLog);
+
     while (!qd.eof()) {
         if (0 == rowCount % 10) {
             ostringstream oss; oss<<"Found "<<rowCount<<" vials";
@@ -627,6 +648,9 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         rowCount++;
     }
 
+    debugMessage = "finished retrieving rows, getting storage details";
+    Synchronize((TThreadMethod)&debugLog);
+
     // find locations of source boxes
     map<int, const SampleRow *> samples; ROSETTA result; StoreDAO dao; int rowCount2 = 0;
 	for (vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it, rowCount2++) {
@@ -648,6 +672,9 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         loadingMessage = oss.str().c_str();
         Synchronize((TThreadMethod)&updateStatus);
 	}
+
+    debugMessage = "finished getting storage details";
+    Synchronize((TThreadMethod)&debugLog);
 }
 
 void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
@@ -670,6 +697,7 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     editDestBoxSize->Text = box_size;
     addChunk(0); // default chunk
     showChunks();
+    showChunk();
     Enabled = true;
 }
 
@@ -684,6 +712,7 @@ void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
         debugLog(oss.str().c_str());
         (*(chunks.end()-1))->setEnd(vials.size()-1);
         showChunks();
+        showChunk();
     }
 }
 
@@ -698,10 +727,12 @@ void __fastcall TfrmSamples::btnAddAllChunksClick(TObject *Sender) {
     int numChunks = ceil(result);
     for (int i=0; i < numChunks; i++) {
         showChunks();
+        //showChunk();
         if (!addChunk(selectedChunkSize))
             break;
     }
     showChunks();
+    showChunk();
     Screen->Cursor = crDefault; Enabled = true;
 }
 

@@ -26,6 +26,8 @@ public:
     int             rowCount;
     string          loadingMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
+    string          debugMessage;
+    void __fastcall debugLog(); // synchronized methods can't have args
 };
 
 class TfrmSamples : public TForm {

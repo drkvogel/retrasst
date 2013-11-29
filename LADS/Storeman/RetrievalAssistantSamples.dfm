@@ -154,8 +154,6 @@ object frmSamples: TfrmSamples
         OnFixedCellClick = sgChunksFixedCellClick
         OnGetEditText = sgChunksGetEditText
         OnSetEditText = sgChunksSetEditText
-        ExplicitLeft = -4
-        ExplicitTop = 11
       end
     end
     object groupAutoChunk: TGroupBox
@@ -174,7 +172,7 @@ object frmSamples: TfrmSamples
         Height = 20
         Alignment = taCenter
         AutoSize = False
-        Caption = 'Max section size'
+        Caption = 'Max chunk size'
         GlowSize = 8
         Transparent = True
       end
@@ -185,7 +183,7 @@ object frmSamples: TfrmSamples
         Height = 26
         Alignment = taRightJustify
         AutoSize = False
-        Caption = 'Next section size'
+        Caption = 'Next chunk size'
       end
       object Label3: TLabel
         Left = 2

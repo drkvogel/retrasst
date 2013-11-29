@@ -6,6 +6,34 @@ Loading -1015 Thrive Lp(a) Analysis takes many minutes and eventually throws an 
 
 2018 "A few THRIVE..." takes about 30 seconds but works OK. Suspect size of QEP for -1015 is too big for server.
 
+### scratch
+
+#### load job
+
+29/11/2013 17:48:13: preparing query (1743)
+29/11/2013 17:48:13: opening query
+29/11/2013 17:49:52: query open (about 1m40)
+29/11/2013 17:49:55: finished retrieving rows, getting storage details
+29/11/2013 17:49:58: finished getting storage details (3s)
+
+#### process job
+
+29/11/2013 14:57:19: loadRows for job 1743 started
+29/11/2013 14:57:30: finished create temp table
+29/11/2013 15:02:45: finished loading samples (5m15)
+29/11/2013 15:02:45: finished drop temp table
+29/11/2013 15:02:47: finished load storage details (2s)
+
+
+## Rows not being sorted properly?
+
+ * Is sort being applied to all columns?
+ * Is correct type of sort (numeric/alpha) being used on each column?
+
+
+
+
+
 ### Displaying the QEP
 
 Precede the query with:
