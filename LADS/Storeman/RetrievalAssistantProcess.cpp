@@ -23,10 +23,6 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
 
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
     sgwVials->addCol("barcode",  "Barcode",          91);
-    sgwVials->addCol("status",   "Status",           91);
-    sgwVials->addCol("aliquot",  "Aliquot",          90);
-    sgwVials->addCol("destbox",  "Destination box",  240);
-    sgwVials->addCol("destpos",  "Pos",              25);
     sgwVials->addCol("site",     "Site",             90);
     sgwVials->addCol("vesspos",  "VPos",              28);
     sgwVials->addCol("vessel",   "Vessel",           107);
@@ -36,6 +32,12 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("boxpos",   "Slot",             26);
     sgwVials->addCol("currbox",  "Current box",      257);
     sgwVials->addCol("currpos",  "CPos",              31);
+    sgwVials->addCol("destbox",  "Destination box",  240);
+    sgwVials->addCol("destpos",  "Pos",              25);
+#ifdef _DEBUG
+    sgwVials->addCol("status",   "Status",           91);
+    sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
+#endif
     sgwVials->init();
 }
 

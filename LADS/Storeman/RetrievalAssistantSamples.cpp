@@ -29,9 +29,6 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
 
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
     sgwVials->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode,    "barcode");
-    sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
-    sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
-    sgwVials->addCol("destpos",  "CPos",             25,    SampleRow::sort_asc_destpos,    "dest. box position");
     sgwVials->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
     sgwVials->addCol("vesspos",  "VPos",             28,    SampleRow::sort_asc_vesspos,    "vessel position");
     sgwVials->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel,     "vessel name");
@@ -41,23 +38,22 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot,       "slot");
     sgwVials->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
     sgwVials->addCol("currpos",  "CPos",             31,    SampleRow::sort_asc_currpos,    "source box position");
+    sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
+    sgwVials->addCol("destpos",  "DPos",             25,    SampleRow::sort_asc_destpos,    "dest. box position");
+#ifdef _DEBUG
+    sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
+#endif
     sgwVials->init();
 
     sgwDebug = new StringGridWrapper<SampleRow>(sgDebug, &vials);
-    sgwDebug->addCol("rownum",   "Row",              21,    SampleRow::sort_asc_barcode,    "row");
-    sgwDebug->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode,    "barcode");
-    sgwDebug->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
-    sgwDebug->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
-    sgwDebug->addCol("currpos",  "Pos",              31,    SampleRow::sort_asc_currpos,    "source box position");
-//    sgwDebug->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
-//    sgwDebug->addCol("vesspos",  "Pos",              28,    SampleRow::sort_asc_vesspos,    "vessel position");
-//    sgwDebug->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel,     "vessel name");
-//    sgwDebug->addCol("shelf",    "Shelf",            31,    SampleRow::sort_asc_shelf,      "shelf number");
-//    sgwDebug->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos,  "structure position");
-//    sgwDebug->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure,  "structure name");
-    sgwDebug->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot,       "slot");
-    sgwDebug->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
-    sgwDebug->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
+    sgwDebug->addCol("rownum",   "Row",              21);
+    sgwDebug->addCol("barcode",  "Barcode",          91);
+    sgwDebug->addCol("aliquot",  "Aliquot",          90);
+    sgwDebug->addCol("currbox",  "Current box",      257);
+    sgwDebug->addCol("currpos",  "Pos",              31);
+    sgwDebug->addCol("boxpos",   "Slot",             26);
+    sgwDebug->addCol("destbox",  "Destination box",  267);
+    sgwDebug->addCol("destpos",  "Pos",              25);
     sgwDebug->init();
 }
 
@@ -90,6 +86,8 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     Enabled = false;
     ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
     Caption = oss.str().c_str();
+    labelPrimary->Caption   = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str();
+    labelSecondary->Caption = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str();
     btnSave->Enabled = true;
     chunks.clear();
     sgwChunks->clear();
@@ -347,7 +345,8 @@ bool TfrmSamples::addChunk(unsigned int offset) {
             Application->MessageBox(L"Invalid chunk size", L"Info", MB_OK);
             return false;
         } //throw "invalid offset"; // ok only for first chunk
-        curchunk = currentChunk();
+        //curchunk = currentChunk();
+        curchunk = chunks[chunks.size()-1];
         int currentchunksize = curchunk->getSize(); // no chunks until first added
         if (curchunk->getStart()+offset > vials.size()) { // current last chunk is too small to be split at this offset
             return false; // e.g. for auto-chunk to stop chunking

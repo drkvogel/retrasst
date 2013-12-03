@@ -330,8 +330,30 @@ bool Util::numericCompare(const std::string a, const std::string b) {
             return others.str();
         }
     } local;
+    // fixme return immediately if strings are equal
+    if (a == b)
+        return false; //???
+#ifdef _DEBUG
+    std::string     a_non, b_non;
+    int             a_just, b_just;
+
+    a_non           = local.nonNumerics(a);
+    b_non           = local.nonNumerics(b);
+    int diff_non    = a_non.compare(b_non);
+
+    a_just          = local.justNumerics(a);
+    b_just          = local.justNumerics(b);
+    int diff_just   = a_just < b_just;
+
+    if (0 == diff_non) {
+        return diff_just;
+    } else {
+        return diff_non;
+    }
+#else
     int diff = local.nonNumerics(a).compare(local.nonNumerics(b));
     return diff == 0 ? local.justNumerics(a) < local.justNumerics(b) : diff < 0;
+#endif
 }
 
 std::string Util::getAliquotDescription(int aliquot_cid) { // c_object_name 6: aliquot type

@@ -4,7 +4,7 @@ object frmSamples: TfrmSamples
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Sample Retrieval Plan'
   ClientHeight = 626
-  ClientWidth = 884
+  ClientWidth = 963
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,32 +22,35 @@ object frmSamples: TfrmSamples
   object Splitter1: TSplitter
     Left = 0
     Top = 258
-    Width = 884
+    Width = 963
     Height = 15
     Cursor = crVSplit
     Align = alTop
     Beveled = True
     ExplicitTop = 193
+    ExplicitWidth = 884
   end
   object splitterDebug: TSplitter
     Left = 0
     Top = 525
-    Width = 884
+    Width = 963
     Height = 3
     Cursor = crVSplit
     Align = alBottom
     Visible = False
     ExplicitLeft = 2
     ExplicitTop = 552
+    ExplicitWidth = 884
   end
   object panelDebug: TPanel
     Left = 0
     Top = 528
-    Width = 884
+    Width = 963
     Height = 98
     Align = alBottom
     TabOrder = 0
     Visible = False
+    ExplicitWidth = 884
     object Splitter2: TSplitter
       Left = 345
       Top = 1
@@ -66,38 +69,44 @@ object frmSamples: TfrmSamples
     object sgDebug: TStringGrid
       Left = 348
       Top = 1
-      Width = 535
+      Width = 614
       Height = 96
       Align = alClient
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
       TabOrder = 1
+      ExplicitWidth = 535
     end
   end
   object panelChunks: TPanel
     Left = 0
     Top = 0
-    Width = 884
+    Width = 963
     Height = 258
     Align = alTop
     Caption = 'panelChunks'
     TabOrder = 1
+    ExplicitWidth = 884
     object groupList: TGroupBox
       Left = 1
       Top = 1
-      Width = 882
-      Height = 213
+      Width = 961
+      Height = 256
       Align = alClient
       Caption = 'Chunks'
       TabOrder = 0
+      ExplicitWidth = 882
+      ExplicitHeight = 213
       object Panel2: TPanel
-        Left = 790
+        Left = 869
         Top = 15
         Width = 90
-        Height = 196
+        Height = 198
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 790
+        ExplicitHeight = 196
         object btnCancel: TButton
           Left = 0
           Top = 50
@@ -142,8 +151,8 @@ object frmSamples: TfrmSamples
       object sgChunks: TStringGrid
         Left = 2
         Top = 15
-        Width = 788
-        Height = 196
+        Width = 867
+        Height = 198
         Align = alClient
         DefaultDrawing = False
         FixedCols = 0
@@ -154,147 +163,226 @@ object frmSamples: TfrmSamples
         OnFixedCellClick = sgChunksFixedCellClick
         OnGetEditText = sgChunksGetEditText
         OnSetEditText = sgChunksSetEditText
+        ExplicitWidth = 788
+        ExplicitHeight = 196
       end
-    end
-    object groupAutoChunk: TGroupBox
-      Left = 1
-      Top = 214
-      Width = 882
-      Height = 43
-      Align = alBottom
-      Caption = 'Auto-Chunk'
-      TabOrder = 1
-      object Label1: TLabel
-        AlignWithMargins = True
-        Left = 165
-        Top = 16
-        Width = 102
-        Height = 20
-        Alignment = taCenter
-        AutoSize = False
-        Caption = 'Max chunk size'
-        GlowSize = 8
-        Transparent = True
-      end
-      object Label2: TLabel
-        Left = 327
-        Top = 17
-        Width = 86
-        Height = 26
-        Alignment = taRightJustify
-        AutoSize = False
-        Caption = 'Next chunk size'
-      end
-      object Label3: TLabel
+      object Panel1: TPanel
         Left = 2
-        Top = 16
-        Width = 111
-        Height = 23
-        Alignment = taCenter
-        AutoSize = False
-        Caption = 'Destination box size'
-      end
-      object editMaxSize: TEdit
-        Left = 261
-        Top = 14
-        Width = 45
-        Height = 21
-        Alignment = taCenter
-        AutoSize = False
-        TabOrder = 0
-        Text = '500'
-        OnChange = editDestBoxSizeChange
-      end
-      object comboSectionSize: TComboBox
-        Left = 424
-        Top = 15
-        Width = 106
-        Height = 21
-        Style = csDropDownList
-        TabOrder = 1
-      end
-      object btnAddChunk: TButton
-        Left = 535
-        Top = 14
-        Width = 90
-        Height = 26
-        Caption = 'Add 1 Chunk'
+        Top = 213
+        Width = 957
+        Height = 41
+        Align = alBottom
+        BevelOuter = bvNone
+        Caption = 'Panel1'
         TabOrder = 2
-        OnClick = btnAddChunkClick
-      end
-      object editDestBoxSize: TEdit
-        AlignWithMargins = True
-        Left = 110
-        Top = 14
-        Width = 39
-        Height = 21
-        Alignment = taCenter
-        AutoSize = False
-        TabOrder = 3
-        Text = '72'
-        OnChange = editDestBoxSizeChange
-      end
-      object btnAddAllChunks: TButton
-        Left = 628
-        Top = 14
-        Width = 87
-        Height = 26
-        Caption = 'Add All Chunks'
-        TabOrder = 4
-        OnClick = btnAddAllChunksClick
-      end
-      object updownBoxSize: TUpDown
-        AlignWithMargins = True
-        Left = 149
-        Top = 14
-        Width = 17
-        Height = 21
-        Margins.Right = 13
-        Associate = editDestBoxSize
-        Position = 72
-        TabOrder = 5
-      end
-      object updownMaxSection: TUpDown
-        Left = 306
-        Top = 14
-        Width = 16
-        Height = 21
-        Associate = editMaxSize
-        Max = 5000
-        Position = 500
-        TabOrder = 6
-      end
-      object btnDelChunk: TButton
-        Left = 798
-        Top = 15
-        Width = 82
-        Height = 26
-        Align = alRight
-        Caption = 'Delete last'
-        TabOrder = 7
-        OnClick = btnDelChunkClick
+        ExplicitLeft = 0
+        ExplicitTop = 261
+        ExplicitWidth = 884
+        object groupAutoChunk: TGroupBox
+          Left = 201
+          Top = 0
+          Width = 756
+          Height = 41
+          Align = alClient
+          Caption = 'Auto-Chunk'
+          TabOrder = 0
+          ExplicitLeft = 1
+          ExplicitTop = 1
+          ExplicitWidth = 752
+          ExplicitHeight = 39
+          object Label1: TLabel
+            AlignWithMargins = True
+            Left = 156
+            Top = 16
+            Width = 91
+            Height = 20
+            Alignment = taCenter
+            AutoSize = False
+            Caption = 'Max chunk size'
+            GlowSize = 8
+            Transparent = True
+          end
+          object Label2: TLabel
+            Left = 289
+            Top = 16
+            Width = 86
+            Height = 26
+            Alignment = taRightJustify
+            AutoSize = False
+            Caption = 'Next chunk size'
+          end
+          object Label3: TLabel
+            Left = 2
+            Top = 16
+            Width = 111
+            Height = 23
+            Alignment = taCenter
+            AutoSize = False
+            Caption = 'Destination box size'
+          end
+          object editMaxSize: TEdit
+            Left = 242
+            Top = 14
+            Width = 33
+            Height = 21
+            Alignment = taCenter
+            AutoSize = False
+            TabOrder = 0
+            Text = '500'
+            OnChange = editDestBoxSizeChange
+          end
+          object comboSectionSize: TComboBox
+            Left = 380
+            Top = 14
+            Width = 106
+            Height = 21
+            Style = csDropDownList
+            TabOrder = 1
+          end
+          object btnAddChunk: TButton
+            Left = 488
+            Top = 11
+            Width = 90
+            Height = 26
+            Caption = 'Add 1 Chunk'
+            TabOrder = 2
+            OnClick = btnAddChunkClick
+          end
+          object editDestBoxSize: TEdit
+            AlignWithMargins = True
+            Left = 108
+            Top = 14
+            Width = 30
+            Height = 21
+            Alignment = taCenter
+            AutoSize = False
+            TabOrder = 3
+            Text = '72'
+            OnChange = editDestBoxSizeChange
+          end
+          object btnAddAllChunks: TButton
+            Left = 580
+            Top = 11
+            Width = 87
+            Height = 26
+            Caption = 'Add All Chunks'
+            TabOrder = 4
+            OnClick = btnAddAllChunksClick
+          end
+          object updownBoxSize: TUpDown
+            AlignWithMargins = True
+            Left = 137
+            Top = 14
+            Width = 16
+            Height = 21
+            Margins.Right = 13
+            Associate = editDestBoxSize
+            Position = 72
+            TabOrder = 5
+          end
+          object updownMaxSection: TUpDown
+            Left = 274
+            Top = 14
+            Width = 16
+            Height = 21
+            Associate = editMaxSize
+            Max = 5000
+            Position = 500
+            TabOrder = 6
+          end
+          object btnDelChunk: TButton
+            Left = 672
+            Top = 15
+            Width = 82
+            Height = 24
+            Align = alRight
+            Caption = 'Delete last'
+            TabOrder = 7
+            OnClick = btnDelChunkClick
+            ExplicitLeft = 724
+            ExplicitTop = 5
+            ExplicitHeight = 32
+          end
+        end
+        object GroupBox1: TGroupBox
+          Left = 0
+          Top = 0
+          Width = 97
+          Height = 41
+          Margins.Bottom = 9
+          Align = alLeft
+          Caption = 'Primary Aliquot'
+          Padding.Left = 5
+          Padding.Top = 5
+          Padding.Right = 5
+          Padding.Bottom = 5
+          TabOrder = 1
+          object labelPrimary: TLabel
+            Left = 7
+            Top = 20
+            Width = 83
+            Height = 14
+            Align = alClient
+            Caption = 'labelPrimary'
+            Layout = tlCenter
+            ExplicitLeft = 8
+            ExplicitTop = 19
+          end
+        end
+        object GroupBox2: TGroupBox
+          Left = 97
+          Top = 0
+          Width = 104
+          Height = 41
+          Align = alLeft
+          Caption = 'Secondary Aliquot'
+          Padding.Left = 5
+          Padding.Top = 5
+          Padding.Right = 5
+          Padding.Bottom = 5
+          TabOrder = 2
+          object labelSecondary: TLabel
+            Left = 7
+            Top = 20
+            Width = 90
+            Height = 14
+            Margins.Left = 5
+            Margins.Top = 5
+            Margins.Right = 5
+            Margins.Bottom = 5
+            Align = alClient
+            Caption = 'labelSecondary'
+            Layout = tlCenter
+            ExplicitLeft = 2
+            ExplicitTop = 15
+            ExplicitWidth = 73
+            ExplicitHeight = 13
+          end
+        end
       end
     end
   end
   object panelVials: TPanel
     Left = 0
     Top = 273
-    Width = 884
+    Width = 963
     Height = 252
     Align = alClient
     TabOrder = 2
+    ExplicitWidth = 884
     object groupVials: TGroupBox
       Left = 1
       Top = 42
-      Width = 882
+      Width = 961
       Height = 209
       Align = alClient
       Caption = 'Vials in chunk'
       TabOrder = 0
+      ExplicitWidth = 882
       object sgVials: TStringGrid
         Left = 2
         Top = 15
-        Width = 878
+        Width = 957
         Height = 192
         Align = alClient
         Anchors = [akLeft, akRight, akBottom]
@@ -306,6 +394,7 @@ object frmSamples: TfrmSamples
         OnDblClick = sgVialsDblClick
         OnDrawCell = sgVialsDrawCell
         OnFixedCellClick = sgVialsFixedCellClick
+        ExplicitWidth = 878
       end
       object panelLoading: TPanel
         Left = 176
@@ -328,13 +417,14 @@ object frmSamples: TfrmSamples
     object groupSort: TGroupBox
       Left = 1
       Top = 1
-      Width = 882
+      Width = 961
       Height = 41
       Align = alTop
       Caption = 'Sort'
       TabOrder = 1
+      ExplicitWidth = 882
       object btnDelSort: TButton
-        Left = 798
+        Left = 877
         Top = 15
         Width = 25
         Height = 24
@@ -342,9 +432,10 @@ object frmSamples: TfrmSamples
         Caption = '-'
         TabOrder = 0
         OnClick = btnDelSortClick
+        ExplicitLeft = 798
       end
       object btnAddSort: TButton
-        Left = 774
+        Left = 853
         Top = 15
         Width = 24
         Height = 24
@@ -352,9 +443,10 @@ object frmSamples: TfrmSamples
         Caption = '+'
         TabOrder = 1
         OnClick = btnAddSortClick
+        ExplicitLeft = 774
       end
       object btnApplySort: TButton
-        Left = 823
+        Left = 902
         Top = 15
         Width = 57
         Height = 24
@@ -362,6 +454,7 @@ object frmSamples: TfrmSamples
         Caption = 'Sort'
         TabOrder = 2
         OnClick = btnApplySortClick
+        ExplicitLeft = 823
       end
     end
   end
