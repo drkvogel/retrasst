@@ -346,3 +346,22 @@ std::string Util::getAliquotDescription(int aliquot_cid) { // c_object_name 6: a
     return oss.str();
 }
 
+bool Util::statsOnColumn(int project_cid, std::string tableName, std::string colName) {
+    // determine whether stats are set on cryovial_store table
+    int stat_count;
+    const char * select_stats =
+        "SELECT COUNT(*) FROM iistatistics s JOIN iirelation r"
+        " ON s.stabbase = r.reltid AND s.stabindex = r.reltidx"
+        " JOIN iiattribute a ON a.attrelid = r.reltid"
+        " AND a.attrelidx = r.reltidx AND a.attid = s.satno"
+        " WHERE r.relid = :table_name"
+        " AND a.attname = :column_name";
+
+	LQuery qt(Util::projectQuery(project_cid));
+    qt.setSQL(select_stats);
+    qt.setParam("table_name", tableName); qt.open();
+    qt.setParam("column_name", colName); qt.open();
+    stat_count = qt.readInt(0); // LQuery::close(), only by going out of scope
+    return stat_count == 1;
+}
+

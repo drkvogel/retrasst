@@ -368,6 +368,9 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     // use non-star query for this bit for speed? but where would the temp table be?
     // LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), false)); // not ddb
 
+    bool have_stats = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store", "box_cid");
+    // gj added a secondary index on cryovial_store (on t_ldb20 only) - how to check this?
+
     qd.setSQL(
         " SELECT"
         "     s1.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status,"
@@ -394,7 +397,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     int curchunk = 0, chunk = 0;
     while (!qd.eof()) {
         chunk = qd.readInt("chunk");
-        wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
+        //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) {
             frmProcess->addChunk(rowCount);
             curchunk = chunk;
@@ -420,7 +423,9 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         rowCount++;
     }
 
-    debugMessage = "finished loading samples";
+    wstringstream wss; wss<<"finished loading "<<rowCount<<"samples";
+    //debugMessage = "finished loading samples";
+    debugMessage = oss.str();
     Synchronize((TThreadMethod)&debugLog);
 
     qd.setSQL("DROP "TEMP_TABLE_NAME);

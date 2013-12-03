@@ -122,6 +122,8 @@ public:
         static bool numericCompare(const std::string a, const std::string b);
 
         static std::string getAliquotDescription(int aliquot_cid);
+
+        static bool statsOnColumn(int project_id, std::string tableName, std::string colName);
 };
 
 //---------------------------------------------------------------------------

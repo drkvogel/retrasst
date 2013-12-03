@@ -46,7 +46,7 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwDebug = new StringGridWrapper<SampleRow>(sgDebug, &vials);
     sgwDebug->addCol("rownum",   "Row",              21,    SampleRow::sort_asc_barcode,    "row");
     sgwDebug->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode,    "barcode");
-    //sgwDebug->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
+    sgwDebug->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
     sgwDebug->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
     sgwDebug->addCol("currpos",  "Pos",              31,    SampleRow::sort_asc_currpos,    "source box position");
 //    sgwDebug->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
@@ -452,7 +452,7 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
             int rw = row+1; // for stringgrid
             sgDebug->Cells[sgwDebug->colNameToInt("rownum")]   [rw] = row;
             sgDebug->Cells[sgwDebug->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
-            //sgDebug->Cells[sgwDebug->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
+            sgDebug->Cells[sgwDebug->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
             sgDebug->Cells[sgwDebug->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;

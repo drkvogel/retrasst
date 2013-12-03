@@ -1,0 +1,16 @@
+﻿canned searches - save, delete
+
+site name, vessel pos, structure pos, slot, source box pos
+
+1743 - 
+    create plan
+        ##doesn't show 2ndary aliqs - does!
+        shows EDTA_2 as well as EDTA_1
+        
+    process plan
+        shows EDTA_2 as well as EDTA_1
+        
+factor out select_stats into Util
+        
+        
+michelle
