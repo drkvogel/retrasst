@@ -356,11 +356,11 @@ bool Util::statsOnColumn(int project_cid, std::string tableName, std::string col
         " AND a.attrelidx = r.reltidx AND a.attid = s.satno"
         " WHERE r.relid = :table_name"
         " AND a.attname = :column_name";
-
 	LQuery qt(Util::projectQuery(project_cid));
     qt.setSQL(select_stats);
-    qt.setParam("table_name", tableName); qt.open();
-    qt.setParam("column_name", colName); qt.open();
+    qt.setParam("table_name", tableName);
+    qt.setParam("column_name", colName);
+    qt.open();
     stat_count = qt.readInt(0); // LQuery::close(), only by going out of scope
     return stat_count == 1;
 }

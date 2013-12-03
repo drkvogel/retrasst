@@ -569,28 +569,6 @@ void __fastcall FindMatchesWorkerThread::Execute() {
 
     // determine whether stats are set on cryovial_store table
     bool stat_record_id, stat_cryovial_id, stat_box_cid, have_stats;
-    const char * select_stats_on_column =
-        "SELECT COUNT(*) FROM iistatistics s JOIN iirelation r"
-        " ON s.stabbase = r.reltid AND s.stabindex = r.reltidx"
-        " JOIN iiattribute a ON a.attrelid = r.reltid"
-        " AND a.attrelidx = r.reltidx AND a.attid = s.satno"
-        " WHERE r.relid = 'cryovial_store'"
-        " AND a.attname = :column_name";
-
-//	{   LQuery qt(Util::projectQuery(project));
-//        qt.setSQL(select_stats_on_column);
-//		qt.setParam("column_name", "record_id"); qt.open();
-//        stat_record_id = qt.readInt(0); } // LQuery::close(), only by going out of scope
-//
-//    {   LQuery qt(Util::projectQuery(project));
-//        qt.setSQL(select_stats_on_column);
-//		qt.setParam("column_name", "cryovial_id"); qt.open();
-//        stat_cryovial_id = qt.readInt(0); }
-//
-//    {   LQuery qt(Util::projectQuery(project));
-//        qt.setSQL(select_stats_on_column);
-//		qt.setParam("column_name", "box_cid"); qt.open();
-//        stat_box_cid = qt.readInt(0); }
 
     stat_record_id      = Util::statsOnColumn(project, "cryovial_store", "record_id");
     stat_cryovial_id    = Util::statsOnColumn(project, "cryovial_store", "cryovial_id");

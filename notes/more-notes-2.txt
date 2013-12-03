@@ -13,4 +13,3 @@ site name, vessel pos, structure pos, slot, source box pos
 factor out select_stats into Util
         
         
-michelle

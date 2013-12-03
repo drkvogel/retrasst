@@ -369,6 +369,9 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     // LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), false)); // not ddb
 
     bool have_stats = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store", "box_cid");
+    have_stats = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial", "box_cid");
+    have_stats = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store", "box_cid");
+    have_stats = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store", "box_cid");
     // gj added a secondary index on cryovial_store (on t_ldb20 only) - how to check this?
 
     qd.setSQL(
