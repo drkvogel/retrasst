@@ -1,15 +1,22 @@
 ﻿canned searches - save, delete
-
-site name, vessel pos, structure pos, slot, source box pos
-
-1743 - 
+    e.g. site name, vessel pos, structure pos, slot, source box pos
+factor out select_stats into Util-
+    
+primary/secondary aliquots    
     create plan
         ##doesn't show 2ndary aliqs - does!
-        shows EDTA_2 as well as EDTA_1
+        shows EDTA_2 as well as EDTA_1, mixed together - 835 rows in total
+        1743 - 
+            112004768 EDTA_1 HPS2-THRIVE EDTA_1(UK) 1506 CPos: 1   
+            
+            112004768 EDTA_2 HPS2-THRIVE EDTA_2(UK) 1507 CPos: 1  (src box names are different)
+        
         
     process plan
         shows EDTA_2 as well as EDTA_1
         
-factor out select_stats into Util
+
+sort "aliquot aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782)
         
-        
+Source/Current box - standardise name
+    current probably better?

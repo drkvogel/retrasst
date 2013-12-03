@@ -346,6 +346,21 @@ std::string Util::getAliquotDescription(int aliquot_cid) { // c_object_name 6: a
     return oss.str();
 }
 
+bool Util::secondaryIndexExists(int project_cid, std::string indexName, bool exactMatch) {
+    const char * sql;
+    if (exactMatch) {
+        sql  = "select count(*) from iitables where table_owner=dbmsinfo('dba') and table_type='I' and index_name = ':index_name'\p\g";
+    } else {
+        sql  = "select count(*) from iitables where table_owner=dbmsinfo('dba') and table_type='I' and index_name like '%:index_name%'\p\g";
+    }
+	LQuery qt(Util::projectQuery(project_cid));
+    qt.setSQL(sql);
+    qt.setParam("index_name", indexName);
+    qt.open();
+    int count = qt.readInt(0); // LQuery::close(), only by going out of scope
+    return count >= 1; //???
+}
+
 bool Util::statsOnColumn(int project_cid, std::string tableName, std::string colName) {
     // determine whether stats are set on cryovial_store table
     int stat_count;
