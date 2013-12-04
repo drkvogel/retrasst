@@ -272,7 +272,14 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
-    showChunk(); // default is 1st
+    Chunk< SampleRow > * chunk;
+    int row = sgChunks->Row;
+    if (0 == row) {
+        return;
+    } else {
+        chunk = (Chunk< SampleRow > * )(sgChunks->Objects[0][row]);
+        showChunk(chunk); // default is 1st
+    }
 }
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
@@ -392,7 +399,7 @@ void TfrmSamples::showChunks() {
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
     //showChunk();
-    sgChunks->Row = sgChunks->RowCount-1; // make it the current chunk
+    //sgChunks->Row = sgChunks->RowCount-1; // make it the current chunk
     sgwVials->clearSelection();
 }
 
@@ -753,4 +760,10 @@ As retrieval lists will always specify destination boxes, chunk size can be base
     }
     comboSectionSize->ItemIndex = comboSectionSize->Items->Count-1;
 }
+
+void __fastcall TfrmSamples::FormResize(TObject *Sender) {
+    sgwChunks->resize();
+    sgwVials->resize();
+}
+
 

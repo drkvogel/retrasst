@@ -15,6 +15,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
   Position = poScreenCenter
   WindowState = wsMaximized
   OnClose = FormClose
+  OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
   object GroupBox1: TGroupBox

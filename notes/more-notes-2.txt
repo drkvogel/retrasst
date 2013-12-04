@@ -8,10 +8,7 @@ primary/secondary aliquots
         shows EDTA_2 as well as EDTA_1, mixed together - 835 rows in total
         1743 - 
             112004768 EDTA_1 HPS2-THRIVE EDTA_1(UK) 1506 CPos: 1   
-            
             112004768 EDTA_2 HPS2-THRIVE EDTA_2(UK) 1507 CPos: 1  (src box names are different)
-        
-        
     process plan
         shows EDTA_2 as well as EDTA_1
         

@@ -607,3 +607,8 @@ void __fastcall TfrmProcess::editBarcodeKeyUp(TObject *Sender, WORD &Key, TShift
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TfrmProcess::FormResize(TObject *Sender) {
+    sgwChunks->resize();
+    sgwVials->resize();
+}
+

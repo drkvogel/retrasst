@@ -103,6 +103,7 @@ __published:
     void __fastcall editDestBoxSizeChange(TObject *Sender);
     void __fastcall btnAddAllChunksClick(TObject *Sender);
     void __fastcall timerCalculateTimer(TObject *Sender);
+    void __fastcall FormResize(TObject *Sender);
 private:
     LoadVialsWorkerThread *                     loadVialsWorkerThread;
     void __fastcall                             loadVialsWorkerThreadTerminated(TObject *Sender);
