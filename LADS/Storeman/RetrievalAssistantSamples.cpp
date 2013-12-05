@@ -316,8 +316,12 @@ void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
 //-----chunks-------
 
 void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
-    // mark chunk boundary //msgbox("chunk split");
-    if (sgVials->Row <= 1) return; // header or silly chunk
+    if (sgVials->Row <= 1)
+        return; // header or silly chunk
+    if (sgChunks->Row < sgChunks->RowCount-1) {
+        msgbox("Only the last chunk can be split");
+        return;
+    }
     addChunk(sgVials->Row-1); // allowing for fixed header row
     showChunks();
     showChunk();
@@ -331,10 +335,6 @@ void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
     } else {
         msgbox("Chosen chunk size is too big for current list");
     }
-
-//    if (sgVials->Row < 2) return;
-//    addChunk(sgVials->Row);
-//    showChunks();
 }
 
 bool TfrmSamples::addChunk(unsigned int offset) {
@@ -352,8 +352,7 @@ bool TfrmSamples::addChunk(unsigned int offset) {
             Application->MessageBox(L"Invalid chunk size", L"Info", MB_OK);
             return false;
         } //throw "invalid offset"; // ok only for first chunk
-        //curchunk = currentChunk();
-        curchunk = chunks[chunks.size()-1];
+        curchunk = chunks[chunks.size()-1]; //curchunk = currentChunk();
         int currentchunksize = curchunk->getSize(); // no chunks until first added
         if (curchunk->getStart()+offset > vials.size()) { // current last chunk is too small to be split at this offset
             return false; // e.g. for auto-chunk to stop chunking
@@ -362,10 +361,8 @@ bool TfrmSamples::addChunk(unsigned int offset) {
         newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStart()+offset, vials.size()-1);
     }
     chunks.push_back(newchunk);
-    if (frmAutoChunk->Visible) {
-        frmAutoChunk->BringToFront();
-        FocusControl(frmAutoChunk);
-    }
+    showChunk(newchunk);
+    sgChunks->Row = sgChunks->RowCount-1;
     return true;
 }
 
@@ -398,7 +395,6 @@ void TfrmSamples::showChunks() {
         sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
-    //showChunk();
     //sgChunks->Row = sgChunks->RowCount-1; // make it the current chunk
     sgwVials->clearSelection();
 }
@@ -468,7 +464,6 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
         }
     }
     showChunks(); // to refrest start/end boxes
-    //showChunk();
     Screen->Cursor = crDefault; Enabled = true;
 }
 
@@ -491,14 +486,9 @@ void TfrmSamples::autoChunk() {
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL)
         throw "box not found";
-    frmAutoChunk->setBoxSize(found->getSize());
-    frmAutoChunk->Visible = false; // http://www.delphipages.com/forum/showthread.php?t=69616
-    //Enabled = false;
-    frmAutoChunk->ShowModal();
-    //frmAutoChunk->Visible = false;
-    //Enabled = true;
-    //frmAutoChunk->Show();
-    //Enabled = true;
+//    frmAutoChunk->setBoxSize(found->getSize());
+//    frmAutoChunk->Visible = false; // http://www.delphipages.com/forum/showthread.php?t=69616
+//    frmAutoChunk->ShowModal();
 }
 
 //-------------- sorters --------------
@@ -733,7 +723,6 @@ void __fastcall TfrmSamples::btnAddAllChunksClick(TObject *Sender) {
     int numChunks = ceil(result);
     for (int i=0; i < numChunks; i++) {
         showChunks();
-        //showChunk();
         if (!addChunk(selectedChunkSize))
             break;
     }

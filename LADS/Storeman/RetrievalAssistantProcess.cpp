@@ -99,6 +99,7 @@ void __fastcall TfrmProcess::sgChunksFixedCellClick(TObject *Sender, int ACol, i
 }
 
 void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
+    //loadChunk();
     showChunk();
 }
 
@@ -370,11 +371,19 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     // use non-star query for this bit for speed? but where would the temp table be?
     // LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), false)); // not ddb
 
-    bool have_stats = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store", "box_cid");
-    have_stats = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial", "box_cid");
-    have_stats = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store", "box_cid");
-    have_stats = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store", "box_cid");
     // gj added a secondary index on cryovial_store (on t_ldb20 only) - how to check this?
+    bool stats_c_barcode                = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial", "cryovial_barcode");
+    bool stats_c_aliquot                = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial", "aliquot_type_cid");
+    bool stats_cs_cryovial_id           = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store", "cryovial_id");
+    bool stats_cs_status                = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store", "status");
+    bool stats_cs_retrieval_cid         = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store", "retrieval_cid");
+    if (!(stats_c_barcode && stats_c_aliquot && stats_cs_cryovial_id && stats_cs_status && stats_cs_retrieval_cid)) {
+        debugMessage = "no stats";
+        Synchronize((TThreadMethod)&debugLog);
+    } else {
+        debugMessage = "have stats";
+        Synchronize((TThreadMethod)&debugLog);
+    }
 
     qd.setSQL(
         " SELECT"
