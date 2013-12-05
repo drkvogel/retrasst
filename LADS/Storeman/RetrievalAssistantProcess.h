@@ -23,6 +23,7 @@ public:
     string          debugMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
     void __fastcall debugLog(); // synchronized methods can't have args
+    void __fastcall msgbox();
 };
 
 class TfrmProcess : public TForm {
@@ -84,6 +85,9 @@ private:
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
     StringGridWrapper<SampleRow> *              sgwVials;
     void                                        showChunks();
+    Chunk< SampleRow > *                        loadingChunk;
+    //void                                        loadChunk(Chunk< SampleRow > *);
+    void                                        loadChunk();
     Chunk< SampleRow > *                        currentChunk();
     SampleRow *                                 currentSample();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
