@@ -9,19 +9,14 @@ namespace Discard {
 
 // SampleHandler
 
-SampleHandler::SampleHandler( ) {
+SampleHandler::SampleHandler( ) { }
+
+int SampleHandler::operator()( SamplePile * samples, const int sampleno ) const {
+	int nchanged = 0;
+	return nchanged;
 }
 
-int
-SampleHandler::operator()( SamplePile * samples,
-                           const int sampleno ) const {
-    int nchanged = 0;
-
-    return nchanged;
-}
-
-bool
-SampleHandler::isMarkable( SamplePile * samples, const int sampleno ) const {
+bool SampleHandler::isMarkable( SamplePile * samples, const int sampleno ) const {
     const Sample * sample = samples->getSample(sampleno);
     return (sample != 0) && (samples->isSampleMarkable(*sample));
 }
@@ -29,246 +24,213 @@ SampleHandler::isMarkable( SamplePile * samples, const int sampleno ) const {
 
 // MarkSampleHandler
 
-MarkSampleHandler::MarkSampleHandler( ) {
-}
+MarkSampleHandler::MarkSampleHandler( ) { }
 
-int
-MarkSampleHandler::operator()( SamplePile * samples,
-                               const int sampleno ) const {
-    int nchanged = 0;
-
+int MarkSampleHandler::operator()( SamplePile * samples, const int sampleno ) const {
+	int nchanged = 0;
     do {
         if (! isMarkable(samples, sampleno)) break;
 
         nchanged += samples->setMarked(sampleno);
 
-    } while (false);
-
+	} while (false);
     return nchanged;
 }
 
 
 // UnmarkSampleHandler
 
-UnmarkSampleHandler::UnmarkSampleHandler( ) {
-}
+UnmarkSampleHandler::UnmarkSampleHandler( ) { }
 
-int
-UnmarkSampleHandler::operator()( SamplePile * samples,
-                                 const int sampleno ) const {
-    int nchanged = 0;
-
+int UnmarkSampleHandler::operator()( SamplePile * samples, const int sampleno ) const {
+	int nchanged = 0;
     do {
         if (! isMarkable(samples, sampleno)) break;
 
         nchanged += samples->clearMarked(sampleno);
 
-    } while (false);
-
+	} while (false);
     return nchanged;
 }
 
 
 // ToggleMarkSampleHandler
 
-ToggleMarkSampleHandler::ToggleMarkSampleHandler( ) {
-}
+ToggleMarkSampleHandler::ToggleMarkSampleHandler( ) { }
 
-int
-ToggleMarkSampleHandler::operator()( SamplePile * samples,
-                                     const int sampleno ) const {
-    int nchanged = 0;
+int ToggleMarkSampleHandler::operator()( SamplePile * samples, const int sampleno ) const {
+	int nchanged = 0;
+	do {
+		if (! isMarkable(samples, sampleno)) break;
 
-    do {
-        if (! isMarkable(samples, sampleno)) break;
-
-        nchanged += samples->toggleMarked(sampleno);
-
-    } while (false);
-
-    return nchanged;
+		nchanged += samples->toggleMarked(sampleno);
+	} while (false);
+	return nchanged;
 }
 
 
 // NoteSampleHandler
 
-NoteSampleHandler::NoteSampleHandler( ) {
-}
+NoteSampleHandler::NoteSampleHandler( ) { }
 
-int
-NoteSampleHandler::operator()( SamplePile * samples,
-                               const int sampleno ) const {
-    int nchanged = 0;
-
-    do {
+int NoteSampleHandler::operator()( SamplePile * samples, const int sampleno ) const {
+	int nchanged = 0;
+	do {
 //        if (! isMarkable(samples, sampleno)) break;
 
-        nchanged += samples->setNoteFromContext(sampleno);
+		nchanged += samples->setNoteFromContext(sampleno);
 
-    } while (false);
-
-    return nchanged;
+	} while (false);
+	return nchanged;
 }
 
 
 // SCComparator
 
 SCComparator::SCComparator( const int sortcolno )
-    : m_sortcolnos()
-    , m_scalidToSampleno()
-    , m_alnoToAlid()
-    , m_samples(0) {
-    m_sortcolnos.push_front(sortcolno);
+	: m_sortcolnos()
+	, m_scalidToSampleno()
+	, m_alnoToAlid()
+	, m_samples(0) {
+	m_sortcolnos.push_front(sortcolno);
 }
 
-void
-SCComparator::insertSortcolno( const int abssortcolno, const int direction ) {
-    const int lastsortcolno = m_sortcolnos.front();
-    int sortcolno = abssortcolno;
-    switch (direction) {
-    case 1:
-        break;
-    case -1:
-        sortcolno = -sortcolno;
-        break;
-    case 0:
-    default:
-        if (abssortcolno == std::abs(lastsortcolno)) {
-            sortcolno = -lastsortcolno;
-        }
-        break;
-    }
-    if (sortcolno != lastsortcolno) {
-        m_sortcolnos.push_front(sortcolno);
-    }
-    return;
+void SCComparator::insertSortcolno( const int abssortcolno, const int direction ) {
+	const int lastsortcolno = m_sortcolnos.front();
+	int sortcolno = abssortcolno;
+	switch (direction) {
+	case 1:
+		break;
+	case -1:
+		sortcolno = -sortcolno;
+		break;
+	case 0:
+	default:
+		if (abssortcolno == std::abs(lastsortcolno)) {
+			sortcolno = -lastsortcolno;
+		}
+		break;
+	}
+	if (sortcolno != lastsortcolno) {
+		m_sortcolnos.push_front(sortcolno);
+	}
+	return;
 }
 
-int
-SCComparator::getSortPosition( const int abssortcolno ) const {
-    int position = 0;
-    int index = 0;
-    for (std::list<int>::const_iterator it=m_sortcolnos.begin();
-            it !=m_sortcolnos.end(); it++) {
-        const int sortcolno = *it;
-        ++index;
-        if (sortcolno == abssortcolno) {
-            position = index;
-            break;
-        }
-        if (sortcolno == -abssortcolno) {
-            position = -index;
-            break;
-        }
-    }
-    return position;
+int SCComparator::getSortPosition( const int abssortcolno ) const {
+	int position = 0;
+	int index = 0;
+	for (std::list<int>::const_iterator it=m_sortcolnos.begin();
+			it !=m_sortcolnos.end(); it++) {
+		const int sortcolno = *it;
+		++index;
+		if (sortcolno == abssortcolno) {
+			position = index;
+			break;
+		}
+		if (sortcolno == -abssortcolno) {
+			position = -index;
+			break;
+		}
+	}
+	return position;
 }
 
-void
-SCComparator::setScalidToSampleno(
-    const std::map<IntPair,int> & scalidToSampleno ) {
-    m_scalidToSampleno = scalidToSampleno;
-    return;
+void SCComparator::setScalidToSampleno(
+	const std::map<IntPair,int> & scalidToSampleno ) {
+	m_scalidToSampleno = scalidToSampleno;
+	return;
 }
 
-void
-SCComparator::setAlnoToAlid( const IntToIntMap & alnoToAlid ) {
-    m_alnoToAlid = alnoToAlid;
-    return;
+void SCComparator::setAlnoToAlid( const IntToIntMap & alnoToAlid ) {
+	m_alnoToAlid = alnoToAlid;
+	return;
 }
 
-void
-SCComparator::setSamples( const SamplePile * samples ) {
-    m_samples = samples;
-    return;
+void SCComparator::setSamples( const SamplePile * samples ) {
+	m_samples = samples;
+	return;
 }
 
-bool
-SCComparator::operator()( const int & left, const int & right ) const {
-    int sigma = 0;
+bool SCComparator::operator()( const int & left, const int & right ) const {
+	int sigma = 0;
 
-    for (std::list<int>::const_iterator it = m_sortcolnos.begin();
-            it != m_sortcolnos.end(); it++) {
-        const int sortcolno = *it;
-        const int abssortcolno = std::abs(sortcolno);
+	for (std::list<int>::const_iterator it = m_sortcolnos.begin(); it != m_sortcolnos.end(); it++) {
+		const int sortcolno = *it;
+		const int abssortcolno = std::abs(sortcolno);
 
-        do {
-            if (abssortcolno == RESULTNO) {
-                sigma = Util::sigma(left - right);
-                break;
-            }
+		do {
+			if (abssortcolno == RESULTNO) {
+				sigma = Util::sigma(left - right);
+				break;
+			}
 
-            const int alid =
-                Util::at(m_alnoToAlid, abssortcolno - ALIQUOT0, 0);
+			const int alid =
+				Util::at(m_alnoToAlid, abssortcolno - ALIQUOT0, 0);
 
-            const Sample * leftSample = getSample(left, alid);
-            const Sample * rightSample = getSample(right, alid);
+			const Sample * leftSample = getSample(left, alid);
+			const Sample * rightSample = getSample(right, alid);
 
-            switch (abssortcolno) {
-            case SBARCODE:
-            case CBARCODE:
-            case PERSONID:
-                if ((leftSample == 0) || (rightSample == 0)) {
-                    std::string message = "";
-                    message += "null sample";
-                    message += " at ";
-                    message += HERE;
-                    throw Exception(message.c_str());
-                }
-                break;
-            }
+			switch (abssortcolno) {
+			case SBARCODE:
+			case CBARCODE:
+			case PERSONID:
+				if ((leftSample == 0) || (rightSample == 0)) {
+					std::string message = "";
+					message += "null sample";
+					message += " at ";
+					message += HERE;
+					throw Exception(message.c_str());
+				}
+				break;
+			}
 
-            if (abssortcolno == SBARCODE) {
-                sigma = leftSample->getBarcode().compare(
-                            rightSample->getBarcode());
-                break;
-            }
+			if (abssortcolno == SBARCODE) {
+				sigma = leftSample->getBarcode().compare(
+							rightSample->getBarcode());
+				break;
+			}
 
-            if (abssortcolno == CBARCODE) {
-                sigma = leftSample->getCryovialBarcode().compare(
-                            rightSample->getCryovialBarcode());
-                break;
-            }
+			if (abssortcolno == CBARCODE) {
+				sigma = leftSample->getCryovialBarcode().compare(rightSample->getCryovialBarcode());
+				break;
+			}
 
-            if (abssortcolno == PERSONID) {
-                sigma = leftSample->getPersonId().compare(
-                            rightSample->getPersonId());
-                break;
-            }
+			if (abssortcolno == PERSONID) {
+				sigma = leftSample->getPersonId().compare(rightSample->getPersonId());
+				break;
+			}
 
-            if (leftSample == 0) {
-                sigma = (rightSample == 0)
-                        ? 0
-                        : 1;
-            } else {
-                sigma = (rightSample == 0)
-                        ? -1
-                        : Util::sigma(leftSample->getCryovialStatus() -
-                                      rightSample->getCryovialStatus());
-            }
+			if (leftSample == 0) {
+				sigma = (rightSample == 0) ? 0 : 1;
+			} else {
+				sigma = (rightSample == 0)
+						? -1
+						: Util::sigma(leftSample->getCryovialStatus() -
+									  rightSample->getCryovialStatus());
+			}
 
-        } while (false);
+		} while (false);
 
-        if (sigma != 0) {
-            if (sortcolno != abssortcolno) {
-                sigma = -sigma;
-            }
-            break;
-        }
-    }
+		if (sigma != 0) {
+			if (sortcolno != abssortcolno) {
+				sigma = -sigma;
+			}
+			break;
+		}
+	}
 
-    return sigma < 0;
+	return sigma < 0;
 }
 
-const Sample *
-SCComparator::getSample( const int scid, const int alid ) const {
-    int sampleno = -1;
-    do {
-        const IntPair scalid(scid, alid);
-        if (m_scalidToSampleno.count(scalid) != 1) break;
-        sampleno = m_scalidToSampleno.find(scalid)->second;
+const Sample * SCComparator::getSample( const int scid, const int alid ) const {
+	int sampleno = -1;
+	do {
+		const IntPair scalid(scid, alid);
+		if (m_scalidToSampleno.count(scalid) != 1) break;
+		sampleno = m_scalidToSampleno.find(scalid)->second;
 
-    } while (false);
+	} while (false);
 
     return m_samples->getSample(sampleno);
 }
@@ -289,24 +251,20 @@ Context::Context( Db * db )
     m_alinfo.init();
 }
 
-void
-Context::setProjectName( const std::string & name ) {
-    m_db->setProjectName(name);
-    return;
+void Context::setProjectName( const std::string & name ) {
+	m_db->setProjectName(name);
+	return;
 }
 
-const std::string &
-Context::getProjectName( ) const {
-    return m_db->getProjectName();
+const std::string & Context::getProjectName( ) const {
+	return m_db->getProjectName();
 }
 
-std::string
-Context::getStudyCode( ) const {
-    return m_db->getStudyCode();
+std::string Context::getStudyCode( ) const {
+	return m_db->getStudyCode();
 }
 
-void
-Context::configCrstatus( const int index ) {
+void Context::configCrstatus( const int index ) {
     switch (index) {
     case 0:
         m_crstatus.setCurrentId(Cryovial::CONFIRMED);
@@ -327,154 +285,133 @@ Context::configCrstatus( const int index ) {
     return;
 }
 
-int
-Context::getCurrentCrstatus( ) const {
-    return m_crstatus.getCurrentId();
+int Context::getCurrentCrstatus( ) const {
+	return m_crstatus.getCurrentId();
 }
 
-int
-Context::getNextCrstatus( ) const {
-    return m_crstatus.getNextId();
+int Context::getNextCrstatus( ) const {
+	return m_crstatus.getNextId();
 }
 
-int
-Context::getCurrentDbCrstatus( ) const {
-    return calcDbCrstatus(getCurrentCrstatus());
+int Context::getCurrentDbCrstatus( ) const {
+	return calcDbCrstatus(getCurrentCrstatus());
 }
 
-int
-Context::getNextDbCrstatus( ) const {
-    return calcDbCrstatus(getNextCrstatus());
+int Context::getNextDbCrstatus( ) const {
+	return calcDbCrstatus(getNextCrstatus());
 }
 
-std::string
-Context::getCurrentCrstatusName( ) const {
-    return m_crstatus.getName(m_crstatus.getCurrentId());
+std::string Context::getCurrentCrstatusName( ) const {
+	return m_crstatus.getName(m_crstatus.getCurrentId());
 }
 
-std::string
-Context::getNextCrstatusName( ) const {
-    return m_crstatus.getName(m_crstatus.getNextId());
+std::string Context::getNextCrstatusName( ) const {
+	return m_crstatus.getName(m_crstatus.getNextId());
 }
 
-bool
-Context::isCreateJobStage( ) const {
-    bool isCreateJobStage = false;
-    const int nextCrstatus = m_crstatus.getNextId();
-    switch (nextCrstatus) {
-    case Cryovial::CONFIRMED:
-        isCreateJobStage = true;
-        break;
+bool Context::isCreateJobStage( ) const {
+	bool isCreateJobStage = false;
+	const int nextCrstatus = m_crstatus.getNextId();
+	switch (nextCrstatus) {
+	case Cryovial::CONFIRMED:
+		isCreateJobStage = true;
+		break;
 //    case Cryovial::REMOVED: isCreateJobStage = true; break; // was FIXME 66
-    }
-    return isCreateJobStage;
+	}
+	return isCreateJobStage;
 }
 
-bool
-Context::isSelectJobStage( ) const {
-    bool isSelectJobStage = false;
-    const int nextCrstatus = m_crstatus.getNextId();
-    switch (nextCrstatus) {
-    case Cryovial::DESTROYED:
-        isSelectJobStage = true;
-        break;
-    }
-    return isSelectJobStage;
+bool Context::isSelectJobStage( ) const {
+	bool isSelectJobStage = false;
+	const int nextCrstatus = m_crstatus.getNextId();
+	switch (nextCrstatus) {
+	case Cryovial::DESTROYED:
+		isSelectJobStage = true;
+		break;
+	}
+	return isSelectJobStage;
 }
 
-void
-Context::setReason( const std::string & reason ) {
-    m_reason = reason;
-    return;
+void Context::setReason( const std::string & reason ) {
+	m_reason = reason;
+	return;
 }
 
-const std::string &
-Context::getReason( ) const {
-    return m_reason;
+const std::string & Context::getReason( ) const {
+	return m_reason;
 }
 
-void
-Context::setDescription( const std::string & description ) {
-    m_description = description;
-    return;
+void Context::setDescription( const std::string & description ) {
+	m_description = description;
+	return;
 }
 
-const std::string &
-Context::getDescription( ) const {
-    return m_description;
+const std::string & Context::getDescription( ) const {
+	return m_description;
 }
 
-void
-Context::setMethod( const std::string & method ) {
-    m_method = method;
-    return;
+void Context::setMethod( const std::string & method ) {
+	m_method = method;
+	return;
 }
 
-const std::string &
-Context::getMethod( ) const {
-    return m_method;
+const std::string & Context::getMethod( ) const {
+	return m_method;
 }
 
-void
-Context::setNote( const std::string & note ) {
-    m_note = note;
-    return;
+void Context::setNote( const std::string & note ) {
+	m_note = note;
+	return;
 }
 
-const std::string &
-Context::getNote( ) const {
-    return m_note;
+const std::string & Context::getNote( ) const {
+	return m_note;
 }
 
-const MarkSampleHandler &
-Context::getMarker( ) {
-    return s_marker;
+const MarkSampleHandler & Context::getMarker( ) {
+	return s_marker;
 }
 
-const UnmarkSampleHandler &
-Context::getUnmarker( ) {
-    return s_unmarker;
+const UnmarkSampleHandler & Context::getUnmarker( ) {
+	return s_unmarker;
 }
 
-const ToggleMarkSampleHandler &
-Context::getToggleMarker( ) {
-    return s_toggleMarker;
+const ToggleMarkSampleHandler & Context::getToggleMarker( ) {
+	return s_toggleMarker;
 }
 
-const NoteSampleHandler &
-Context::getNoter( ) {
-    return s_noter;
+const NoteSampleHandler & Context::getNoter( ) {
+	return s_noter;
 }
 
 IntVec Context::getAliquotIds( ) const {
-    return m_alinfo.getIds();
+	return m_alinfo.getIds();
 }
 
 std::string Context::getAliquotName( const int aliquotId ) const {
-    return m_alinfo.getName(aliquotId);
+	return m_alinfo.getName(aliquotId);
 }
 
 void Context::configPersonFname( ) {
-    Person::setFname(m_db->calcPersonFname());
-
-    return;
+	Person::setFname(m_db->calcPersonFname());
+	return;
 }
 
 std::string Context::getPersonFname( ) const {
-    return m_personFname;
+	return m_personFname;
 }
 
 IntVec Context::getJobnos( ) const {
-    IntVec jobnos;
+	IntVec jobnos;
 //    m_db->addJobnos(&jobnos, getCurrentDbCrstatus());
-    m_db->addJobnos(&jobnos, -1);
-    return jobnos;
+	m_db->addJobnos(&jobnos, -1);
+	return jobnos;
 }
 
 std::string Context::calcJobPrompt( int jobno ) const {
-    if (jobno == 0) jobno = m_jobno;
+	if (jobno == 0) jobno = m_jobno;
 
-    std::string prompt = Util::asString(jobno);
+	std::string prompt = Util::asString(jobno);
 
     do {
         if (! m_db->isJob(jobno)) break;
@@ -640,393 +577,360 @@ Context::getSearchTexts( ) const {
     return m_searchTexts;
 }
 
-int
-Context::calcDbCrstatus( const int crstatus ) const {
-    int dbCrstatus = -1;
+int Context::calcDbCrstatus( const int crstatus ) const {
+	int dbCrstatus = -1;
 
-    do {
-        IntToIntMap::const_iterator it = m_dbCrstatusMap.find(crstatus);
-        if (it == m_dbCrstatusMap.end()) break;
-        dbCrstatus = it->second;
+	do {
+		IntToIntMap::const_iterator it = m_dbCrstatusMap.find(crstatus);
+		if (it == m_dbCrstatusMap.end()) break;
+		dbCrstatus = it->second;
 
-    } while (false);
+	} while (false);
 
-    return dbCrstatus;
+	return dbCrstatus;
 }
 
-int
-Context::calcCrstatus( const int dbcrstatus ) const {
-    int crstatus = -1;
+int Context::calcCrstatus( const int dbcrstatus ) const {
+	int crstatus = -1;
 
-    do {
-        IntToIntMap::const_iterator it = m_crstatusMap.find(dbcrstatus);
-        if (it == m_crstatusMap.end()) break;
-        crstatus = it->second;
+	do {
+		IntToIntMap::const_iterator it = m_crstatusMap.find(dbcrstatus);
+		if (it == m_crstatusMap.end()) break;
+		crstatus = it->second;
 
-    } while (false);
+	} while (false);
 
-    return crstatus;
+	return crstatus;
 }
 
-void
-Context::configDbCrstatusMap( ) {
-    CrstatusInfo crstatusInfo;
-    crstatusInfo.init();
-    IntVec crstatuses = crstatusInfo.getIds();
-    for (IntVec::const_iterator it=crstatuses.begin();
-            it != crstatuses.end(); it++) {
-        const int crstatus = *it;
-        const int dbcrstatus = crstatusInfo.getNumber(crstatus);
-        m_dbCrstatusMap[crstatus] = dbcrstatus;
-        m_crstatusMap[dbcrstatus] = crstatus;
-    }
-    return;
+void Context::configDbCrstatusMap( ) {
+	CrstatusInfo crstatusInfo;
+	crstatusInfo.init();
+	IntVec crstatuses = crstatusInfo.getIds();
+	for (IntVec::const_iterator it=crstatuses.begin();
+			it != crstatuses.end(); it++) {
+		const int crstatus = *it;
+		const int dbcrstatus = crstatusInfo.getNumber(crstatus);
+		m_dbCrstatusMap[crstatus] = dbcrstatus;
+		m_crstatusMap[dbcrstatus] = crstatus;
+	}
+	return;
 }
 
-Db *
-Context::getDb( ) {
-    return m_db;
+Db * Context::getDb( ) {
+	return m_db;
 }
 
-void
-Context::setSelectMode( const int mode ) {
-    m_selectMode = mode;
+void Context::setSelectMode( const int mode ) {
+	m_selectMode = mode;
 }
 
-int
-Context::getSelectMode( ) const {
-    return m_selectMode;
+int Context::getSelectMode( ) const {
+	return m_selectMode;
 }
 
-bool
-Context::isMarking( ) const {
-    return m_selectMode == MARK;
+bool Context::isMarking( ) const {
+	return m_selectMode == MARK;
 }
 
-bool
-Context::isNoting( ) const {
-    return m_selectMode == NOTE;
+bool Context::isNoting( ) const {
+	return m_selectMode == NOTE;
 }
 
-void
-Context::setSaved( const bool isSaved ) {
-    m_isSaved = isSaved;
-    return;
+void Context::setSaved( const bool isSaved ) {
+	m_isSaved = isSaved;
+	return;
 }
 
-bool
-Context::isSaved( ) const {
-    return m_isSaved;
+bool Context::isSaved( ) const {
+	return m_isSaved;
 }
 
-int
-Context::allocCids( const size_t count ) const {
-    return m_db->allocCids(count);
+int Context::allocCids( const size_t count ) const {
+	return m_db->allocCids(count);
 }
 
-std::string
-Context::getCurrentUserName( ) const {
-    return m_db->getCurrentUserName();
+std::string Context::getCurrentUserName( ) const {
+	return m_db->getCurrentUserName();
 }
 
-bool
-Context::addAuditEntry( const std::string & message ) const {
-    return m_db->addAuditEntry(message);
+bool Context::addAuditEntry( const std::string & message ) const {
+	return m_db->addAuditEntry(message);
 }
 
-void
-Context::setJobno( const int jobno ) {
-    m_jobno = jobno;
-    return;
+void Context::setJobno( const int jobno ) {
+	m_jobno = jobno;
+	return;
 }
 
-int
-Context::getJobno( ) const {
-    return m_jobno;
+int Context::getJobno( ) const {
+	return m_jobno;
 }
 
 // SamplePile
 
 SamplePile::SamplePile( ) {
-    clear();
+	clear();
 }
 
-void
-SamplePile::init( Discard::Context * context ) {
-    if (context == 0) {
-        std::string message = "";
-        message += "null context";
-        message += " at ";
-        message += HERE;
-        throw Exception(message.c_str());
-    }
+void SamplePile::init( Discard::Context * context ) {
+	if (context == 0) {
+		std::string message = "";
+		message += "null context";
+		message += " at ";
+		message += HERE;
+		throw Exception(message.c_str());
+	}
 
-    m_context = context;
+	m_context = context;
+	clear();
+	return;
+}
 
-    clear();
+IntPair SamplePile::add( const Tube & tube ) {
+	const int oldnsamples = count();
+	int nfound = 0;
 
+	do {
+		SampleVec samples;
+		m_context->getDb()->addSamples(&samples, tube);
+		nfound = samples.size();
+
+		for (std::vector<Sample>::const_iterator it = samples.begin();
+				it != samples.end(); it++) {
+			const Sample sample = *it;
+			add(sample);
+			m_jobnos.insert(sample.getJobno());
+		}
+
+	} while (false);
+
+	const int nadded = count() - oldnsamples;
+
+	return std::make_pair(nfound, nadded);
+}
+
+IntPair SamplePile::add( const Cryovial & cryovial ) {
+	const int oldnsamples = count();
+	int nfound = 0;
+
+	do {
+		SampleVec samples;
+		m_context->getDb()->addSamples(&samples, cryovial);
+		nfound = samples.size();
+
+		for (std::vector<Sample>::const_iterator it = samples.begin();
+				it != samples.end(); it++) {
+			const Sample sample = *it;
+			add(sample);
+			m_jobnos.insert(sample.getJobno());
+		}
+
+	} while (false);
+
+	const int nadded = count() - oldnsamples;
+
+	return std::make_pair(nfound, nadded);
+}
+
+IntPair SamplePile::add( const Box & box ) {
+	const int oldnsamples = count();
+	int nfound = 0;
+
+	do {
+		SampleVec samples;
+		m_context->getDb()->addSamples(&samples, box);
+		nfound = samples.size();
+
+		for (std::vector<Sample>::const_iterator it = samples.begin();
+				it != samples.end(); it++) {
+			const Sample sample = *it;
+			add(sample);
+			m_jobnos.insert(sample.getJobno());
+		}
+
+	} while (false);
+
+	const int nadded = count() - oldnsamples;
+
+	return std::make_pair(nfound, nadded);
+}
+
+IntPair SamplePile::add( const Person & person ) {
+	const int oldnsamples = count();
+	int nfound = 0;
+
+	do {
+		SampleVec samples;
+		m_context->getDb()->addSamples(&samples, person);
+		nfound = samples.size();
+
+		for (std::vector<Sample>::const_iterator it = samples.begin();
+				it != samples.end(); it++) {
+			const Sample sample = *it;
+			add(sample);
+			m_jobnos.insert(sample.getJobno());
+		}
+
+	} while (false);
+
+	const int nadded = count() - oldnsamples;
+
+	return std::make_pair(nfound, nadded);
+}
+
+IntPair SamplePile::add( const Job & job ) {
+	const int oldnsamples = count();
+	int nfound = 0;
+
+	do {
+		SampleVec samples;
+		m_context->getDb()->addSamples(&samples, job);
+		nfound = samples.size();
+
+		for (std::vector<Sample>::const_iterator it = samples.begin();
+				it != samples.end(); it++) {
+			const Sample sample = *it;
+			add(sample);
+			m_jobnos.insert(sample.getJobno());
+		}
+
+	} while (false);
+
+	const int nadded = count() - oldnsamples;
+	return std::make_pair(nfound, nadded);
+}
+
+void SamplePile::add( const Sample & sample ) {
+	do {
+		const int crid = sample.getCryovialId();
+		const int n = m_crids.count(crid);
+
+		if (n == 1) break;
+
+		if (n != 0) {
+			std::string message = "";
+			message += "suspect map";
+			message += " at ";
+			message += HERE;
+			throw Exception(message.c_str());
+		}
+
+		m_samples.push_back(Sample(sample));
+		m_crids.insert(crid);
+
+		if (! isSampleMarkable(sample)) break;
+
+		const int sampleno = count() - 1;
+		this->setMarked(sampleno);
+
+
+	} while (false);
+
+	return;
+}
+
+void SamplePile::clear( ) {
+	m_samples.clear();
+	m_crids.clear();
+	m_ismarked.clear();
+	m_jobnos.clear();
+	m_note.clear();
     return;
 }
 
-IntPair
-SamplePile::add( const Tube & tube ) {
-    const int oldnsamples = count();
-    int nfound = 0;
-
-    do {
-        SampleVec samples;
-        m_context->getDb()->addSamples(&samples, tube);
-        nfound = samples.size();
-
-        for (std::vector<Sample>::const_iterator it = samples.begin();
-                it != samples.end(); it++) {
-            const Sample sample = *it;
-            add(sample);
-            m_jobnos.insert(sample.getJobno());
-        }
-
-    } while (false);
-
-    const int nadded = count() - oldnsamples;
-
-    return std::make_pair(nfound, nadded);
+int SamplePile::count( ) const {
+	return m_samples.size();
 }
 
-IntPair
-SamplePile::add( const Cryovial & cryovial ) {
-    const int oldnsamples = count();
-    int nfound = 0;
-
-    do {
-        SampleVec samples;
-        m_context->getDb()->addSamples(&samples, cryovial);
-        nfound = samples.size();
-
-        for (std::vector<Sample>::const_iterator it = samples.begin();
-                it != samples.end(); it++) {
-            const Sample sample = *it;
-            add(sample);
-            m_jobnos.insert(sample.getJobno());
-        }
-
-    } while (false);
-
-    const int nadded = count() - oldnsamples;
-
-    return std::make_pair(nfound, nadded);
+std::string SamplePile::asString( ) const {
+	std::string text = "";
+	std::string line = "";
+	text += line + "\n";
+	for (std::vector<Sample>::const_iterator it = m_samples.begin(); it != m_samples.end(); it++) {
+		const Sample sample = *it;
+		line = "";
+		line += " sample_id=" + Util::asString(sample.getId());
+		line += " sample_barcode=" + sample.getBarcode();
+		line += " cryovial_id=" + Util::asString(sample.getCryovialId());
+		line += " cryovial_barcode=" + sample.getCryovialBarcode();
+		const int aliquotId = sample.getAliquotId();
+		line += " aliquot_id=" + Util::asString(aliquotId);
+		const std::string aliquotName = m_context->getAliquotName(aliquotId);
+		line += " aliquot_name=" + aliquotName;
+		text += line + "\n";
+	}
+	return text;
 }
 
-IntPair
-SamplePile::add( const Box & box ) {
-    const int oldnsamples = count();
-    int nfound = 0;
-
-    do {
-        SampleVec samples;
-        m_context->getDb()->addSamples(&samples, box);
-        nfound = samples.size();
-
-        for (std::vector<Sample>::const_iterator it = samples.begin();
-                it != samples.end(); it++) {
-            const Sample sample = *it;
-            add(sample);
-            m_jobnos.insert(sample.getJobno());
-        }
-
-    } while (false);
-
-    const int nadded = count() - oldnsamples;
-
-    return std::make_pair(nfound, nadded);
+const Sample * SamplePile::getSample( const int sampleno ) const {
+	return ((sampleno >= 0) && (sampleno < (int) (m_samples.size())))
+		   ? &(m_samples[sampleno])
+		   : 0;
 }
 
-IntPair
-SamplePile::add( const Person & person ) {
-    const int oldnsamples = count();
-    int nfound = 0;
+std::string SamplePile::update(
+		const int dbcrstatus, const std::string & description, const std::string & reason ) {
+	std::string error = "";
 
-    do {
-        SampleVec samples;
-        m_context->getDb()->addSamples(&samples, person);
-        nfound = samples.size();
+	do {
+		std::map<int,IntSet> jobCsids;
+		IntToStringMap sampleNote;
 
-        for (std::vector<Sample>::const_iterator it = samples.begin();
-                it != samples.end(); it++) {
-            const Sample sample = *it;
-            add(sample);
-            m_jobnos.insert(sample.getJobno());
-        }
+		const int nsamples = count();
+		for (int sampleno=0; sampleno<nsamples; sampleno++) {
+			const Sample * sample = getSample(sampleno);
+			if (sample == 0) continue;
+			if (! isMarked(sampleno)) continue;
+			const int csid = sample->getCryovialStoreId();
+			const std::string note = getNote(sampleno);
+			if (note != "") sampleNote[csid] = note;
+			const int jobno = sample->getJobno();
+			if (m_jobnos.count(jobno) != 1) continue;
+			jobCsids[jobno].insert(csid);
+		}
 
-    } while (false);
+		const std::string jobName = description; // sic
+		const std::string jobDescription = reason; // sic
 
-    const int nadded = count() - oldnsamples;
+		error = m_context->getDb()->updateSamples(jobCsids,
+				dbcrstatus, jobName, jobDescription, sampleNote);
+		if (error != "") break;
 
-    return std::make_pair(nfound, nadded);
+	} while (false);
+
+	return error;
 }
 
-IntPair
-SamplePile::add( const Job & job ) {
-    const int oldnsamples = count();
-    int nfound = 0;
+std::string SamplePile::reset( ) {
+	std::string error = "";
 
-    do {
-        SampleVec samples;
-        m_context->getDb()->addSamples(&samples, job);
-        nfound = samples.size();
+	do {
+		std::map<int,IntSet> jobCsids;
 
-        for (std::vector<Sample>::const_iterator it = samples.begin();
-                it != samples.end(); it++) {
-            const Sample sample = *it;
-            add(sample);
-            m_jobnos.insert(sample.getJobno());
-        }
+		const int nsamples = count();
+		for (int sampleno=0; sampleno<nsamples; sampleno++) {
+			const Sample * sample = getSample(sampleno);
+			if (sample == 0) continue;
+			const int csid = sample->getCryovialStoreId();
+			const int jobno = sample->getJobno();
+			if (m_jobnos.count(jobno) != 1) continue;
+			jobCsids[jobno].insert(csid);
+		}
 
-    } while (false);
+		error = m_context->getDb()->resetSamples(jobCsids);
+		if (error != "") break;
 
-    const int nadded = count() - oldnsamples;
+	} while (false);
 
-    return std::make_pair(nfound, nadded);
+	return error;
 }
 
-void
-SamplePile::add( const Sample & sample ) {
-    do {
-        const int crid = sample.getCryovialId();
-        const int n = m_crids.count(crid);
+int SamplePile::getNCryovialsRemaining( const int jobno ) const {
+	int nRemaining = -1;
 
-        if (n == 1) break;
-
-        if (n != 0) {
-            std::string message = "";
-            message += "suspect map";
-            message += " at ";
-            message += HERE;
-            throw Exception(message.c_str());
-        }
-
-        m_samples.push_back(Sample(sample));
-        m_crids.insert(crid);
-
-        if (! isSampleMarkable(sample)) break;
-
-        const int sampleno = count() - 1;
-        this->setMarked(sampleno);
-
-
-    } while (false);
-
-    return;
-}
-
-void
-SamplePile::clear( ) {
-    m_samples.clear();
-    m_crids.clear();
-    m_ismarked.clear();
-    m_jobnos.clear();
-    m_note.clear();
-    return;
-}
-
-int
-SamplePile::count( ) const {
-    return m_samples.size();
-}
-
-std::string
-SamplePile::asString( ) const {
-    std::string text = "";
-    std::string line = "";
-    text += line + "\n";
-    for (std::vector<Sample>::const_iterator it = m_samples.begin();
-            it != m_samples.end(); it++) {
-        const Sample sample = *it;
-        line = "";
-        line += " sample_id=" + Util::asString(sample.getId());
-        line += " sample_barcode=" + sample.getBarcode();
-        line += " cryovial_id=" + Util::asString(sample.getCryovialId());
-        line += " cryovial_barcode=" + sample.getCryovialBarcode();
-        const int aliquotId = sample.getAliquotId();
-        line += " aliquot_id=" + Util::asString(aliquotId);
-        const std::string aliquotName = m_context->getAliquotName(aliquotId);
-        line += " aliquot_name=" + aliquotName;
-        text += line + "\n";
-    }
-    return text;
-}
-
-const Sample *
-SamplePile::getSample( const int sampleno ) const {
-    return ((sampleno >= 0) && (sampleno < (int) (m_samples.size())))
-           ? &(m_samples[sampleno])
-           : 0;
-}
-
-std::string
-SamplePile::update( const int dbcrstatus, const std::string & description,
-                    const std::string & reason ) {
-    std::string error = "";
-
-    do {
-        std::map<int,IntSet> jobCsids;
-        IntToStringMap sampleNote;
-
-        const int nsamples = count();
-        for (int sampleno=0; sampleno<nsamples; sampleno++) {
-            const Sample * sample = getSample(sampleno);
-            if (sample == 0) continue;
-            if (! isMarked(sampleno)) continue;
-            const int csid = sample->getCryovialStoreId();
-            const std::string note = getNote(sampleno);
-            if (note != "") sampleNote[csid] = note;
-            const int jobno = sample->getJobno();
-            if (m_jobnos.count(jobno) != 1) continue;
-            jobCsids[jobno].insert(csid);
-        }
-
-        const std::string jobName = description; // sic
-        const std::string jobDescription = reason; // sic
-
-        error = m_context->getDb()->updateSamples(jobCsids,
-                dbcrstatus, jobName, jobDescription, sampleNote);
-        if (error != "") break;
-
-    } while (false);
-
-    return error;
-}
-
-std::string
-SamplePile::reset( ) {
-    std::string error = "";
-
-    do {
-        std::map<int,IntSet> jobCsids;
-
-        const int nsamples = count();
-        for (int sampleno=0; sampleno<nsamples; sampleno++) {
-            const Sample * sample = getSample(sampleno);
-            if (sample == 0) continue;
-            const int csid = sample->getCryovialStoreId();
-            const int jobno = sample->getJobno();
-            if (m_jobnos.count(jobno) != 1) continue;
-            jobCsids[jobno].insert(csid);
-        }
-
-        error = m_context->getDb()->resetSamples(jobCsids);
-        if (error != "") break;
-
-    } while (false);
-
-    return error;
-}
-
-int
-SamplePile::getNCryovialsRemaining( const int jobno ) const {
-    int nRemaining = -1;
-
-    do {
-        int nExcused = 0;
+	do {
+		int nExcused = 0;
         int nExpected = 0;
         int nConfirmed = 0;
         int nRemoved = 0;
@@ -1051,7 +955,7 @@ SamplePile::getNCryovialsRemaining( const int jobno ) const {
             if (crstatus == Cryovial::EXPECTED) {
                 ++nExpected;
                 continue;
-            }
+			}
             if (crstatus == Cryovial::CONFIRMED) {
                 ++nConfirmed;
                 continue;
@@ -1076,7 +980,7 @@ SamplePile::getNCryovialsRemaining( const int jobno ) const {
             message += "suspect sample";
             message += " at ";
             message += HERE;
-            throw Exception(message.c_str());
+			throw Exception(message.c_str());
         }
         if (nUnexpected > 0) {
             std::string message = "";
@@ -1093,49 +997,45 @@ SamplePile::getNCryovialsRemaining( const int jobno ) const {
     return nRemaining;
 }
 
-bool
-SamplePile::isSampleMarkable( const Sample & sample ) const {
-    bool isMarkable = false;
+bool SamplePile::isSampleMarkable( const Sample & sample ) const {
+	bool isMarkable = false;
 
-    do {
-        const int crst = sample.getCryovialStatus();
-        if (crst != m_context->getCurrentCrstatus()) break;
+	do {
+		const int crst = sample.getCryovialStatus();
+		if (crst != m_context->getCurrentCrstatus()) break;
 
-        const int jobno = sample.getJobno();
-        const bool isCreateJobStage = m_context->isCreateJobStage();
-        if (isCreateJobStage && (jobno != 0)) break;
-        const bool isSelectJobStage = m_context->isSelectJobStage();
-        if (isSelectJobStage && (jobno == 0)) break;
+		const int jobno = sample.getJobno();
+		const bool isCreateJobStage = m_context->isCreateJobStage();
+		if (isCreateJobStage && (jobno != 0)) break;
+		const bool isSelectJobStage = m_context->isSelectJobStage();
+		if (isSelectJobStage && (jobno == 0)) break;
 
-        isMarkable = true;
+		isMarkable = true;
 
-    } while (false);
+	} while (false);
 
-    return isMarkable;
+	return isMarkable;
 }
 
-int
-SamplePile::setMarked( const int sampleno ) {
-    int nchanged = 0;
-    if (isMarked(sampleno) == 0) {
-        m_ismarked.insert(sampleno);
-        ++nchanged;
-    }
-    return nchanged;
+int SamplePile::setMarked( const int sampleno ) {
+	int nchanged = 0;
+	if (isMarked(sampleno) == 0) {
+		m_ismarked.insert(sampleno);
+		++nchanged;
+	}
+	return nchanged;
 }
 
-int
-SamplePile::clearMarked( const int sampleno ) {
-    int nchanged = 0;
-    if (isMarked(sampleno) == 1) {
-        m_ismarked.erase(sampleno);
-        ++nchanged;
-    }
-    return nchanged;
+int SamplePile::clearMarked( const int sampleno ) {
+	int nchanged = 0;
+	if (isMarked(sampleno) == 1) {
+		m_ismarked.erase(sampleno);
+		++nchanged;
+	}
+	return nchanged;
 }
 
-int
-SamplePile::toggleMarked( const int sampleno ) {
+int SamplePile::toggleMarked( const int sampleno ) {
     int nchanged = 0;
     do {
         const int myIsMarked = isMarked(sampleno);
@@ -1153,80 +1053,68 @@ SamplePile::toggleMarked( const int sampleno ) {
     return nchanged;
 }
 
-int
-SamplePile::isMarked( const int sampleno ) {
+int SamplePile::isMarked( const int sampleno ) {
     const int n = m_ismarked.count(sampleno);
     return ((n == 0) || (n == 1)) ? n : -1;
 }
 
-int
-SamplePile::getNMarked( ) const {
+int SamplePile::getNMarked( ) const {
     return m_ismarked.size();
 }
 
-IntSet::const_iterator
-SamplePile::getMarkedBegin( ) const {
-    return m_ismarked.begin();
+IntSet::const_iterator SamplePile::getMarkedBegin( ) const {
+	return m_ismarked.begin();
 }
 
-IntSet::const_iterator
-SamplePile::getMarkedEnd( ) const {
-    return m_ismarked.end();
+IntSet::const_iterator SamplePile::getMarkedEnd( ) const {
+	return m_ismarked.end();
 }
 
-int
-SamplePile::setNoteFromContext( const int sampleno ) {
-    return setNote(sampleno, m_context->getNote());
+int SamplePile::setNoteFromContext( const int sampleno ) {
+	return setNote(sampleno, m_context->getNote());
 }
 
-int
-SamplePile::setNote( const int sampleno, const std::string & note ) {
-    int nchanged = 0;
-    do {
-        std::string oldNote = getNote(sampleno);
-        if (note == oldNote) break;
-        if (note == "") {
-            m_note.erase(sampleno);
-        } else {
-            m_note[sampleno] = note;
-        }
-        ++nchanged;
+int SamplePile::setNote( const int sampleno, const std::string & note ) {
+	int nchanged = 0;
+	do {
+		std::string oldNote = getNote(sampleno);
+		if (note == oldNote) break;
+		if (note == "") {
+			m_note.erase(sampleno);
+		} else {
+			m_note[sampleno] = note;
+		}
+		++nchanged;
 
-    } while (false);
+	} while (false);
 
-    return nchanged;
+	return nchanged;
 }
 
-std::string
-SamplePile::getNote( const int sampleno ) const {
-    return Util::at(m_note, sampleno);
+std::string SamplePile::getNote( const int sampleno ) const {
+	return Util::at(m_note, sampleno);
 }
 
-int
-SamplePile::getNNoted( ) const {
-    return m_note.size();
+int SamplePile::getNNoted( ) const {
+	return m_note.size();
 }
 
-IntVec
-SamplePile::getAliquotIds( ) const {
-    return m_context->getAliquotIds();
+IntVec SamplePile::getAliquotIds( ) const {
+	return m_context->getAliquotIds();
 }
 
-SCComparator *
-SamplePile::getSCComparator( ) {
-    return &m_scc;
+SCComparator * SamplePile::getSCComparator( ) {
+	return &m_scc;
 }
 
-std::string
-SamplePile::getAliquotName( const int alid ) const {
+std::string SamplePile::getAliquotName( const int alid ) const {
     return m_context->getAliquotName(alid);
 }
 
 
 // GridStuff
 
-GridStuff::GridStuff( const SamplePile & samples,
-                      const std::string & utext, const int usampleno )
+GridStuff::GridStuff( const SamplePile & samples, const std::string & utext, const int usampleno )
     : m_samples(samples)
     , m_utext(utext)
     , m_usampleno(usampleno)
@@ -1235,24 +1123,20 @@ GridStuff::GridStuff( const SamplePile & samples,
     init();
 }
 
-int
-GridStuff::getNcols( ) const {
+int GridStuff::getNcols( ) const {
     return m_ncols;
 }
 
-int
-GridStuff::getNrows( ) const {
+int GridStuff::getNrows( ) const {
     return m_nrows;
 }
 
-void
-GridStuff::setText( const Cell & cell, const std::string & text ) {
+void GridStuff::setText( const Cell & cell, const std::string & text ) {
     m_text[cell] = text;
     return;
 }
 
-const std::string &
-GridStuff::getText( const Cell & cell ) {
+const std::string & GridStuff::getText( const Cell & cell ) {
     std::map<Cell,std::string>::const_iterator it = m_text.find(cell);
     return (it == m_text.end())
            ? m_utext
@@ -1269,24 +1153,20 @@ GridStuff::getTextEnd( ) const {
     return m_text.end();
 }
 
-int
-GridStuff::getFirstSampleColno( ) const {
+int GridStuff::getFirstSampleColno( ) const {
     return m_firstSampleColno;
 }
 
-int
-GridStuff::getFirstSampleRowno( ) const {
+int GridStuff::getFirstSampleRowno( ) const {
     return m_firstSampleRowno;
 }
 
-void
-GridStuff::setHeader( const Cell & cell ) {
+void GridStuff::setHeader( const Cell & cell ) {
     m_header.insert(cell);
     return;
 }
 
-bool
-GridStuff::isHeader( const Cell & cell ) const {
+bool GridStuff::isHeader( const Cell & cell ) const {
     return m_header.find(cell) != m_header.end();
 }
 
@@ -1300,14 +1180,12 @@ GridStuff::getHeaderEnd( ) const {
     return m_header.end();
 }
 
-void
-GridStuff::setSampleno( const Cell & cell, const int sampleno ) {
+void GridStuff::setSampleno( const Cell & cell, const int sampleno ) {
     m_sampleno[cell] = sampleno;
     return;
 }
 
-const int
-GridStuff::getSampleno( const Cell & cell ) {
+const int GridStuff::getSampleno( const Cell & cell ) {
     std::map<Cell,int>::const_iterator it = m_sampleno.find(cell);
     return (it == m_sampleno.end())
            ? m_usampleno
@@ -1324,8 +1202,7 @@ GridStuff::getCellSamplenoEnd( ) const {
     return m_sampleno.end();
 }
 
-void
-GridStuff::init( ) {
+void GridStuff::init( ) {
     m_firstSampleColno = -1;
     m_firstSampleRowno = -1;
 
@@ -1342,8 +1219,7 @@ GridStuff::init( ) {
     return;
 }
 
-void
-GridStuff::analyze( SCComparator * scc ) {
+void GridStuff::analyze( SCComparator * scc ) {
     std::map<StringPair,int> scbarcodeToScid;
     IntVec scids;
 
@@ -1442,8 +1318,7 @@ GridStuff::analyze( SCComparator * scc ) {
     return;
 }
 
-void
-GridStuff::setup( ) {
+void GridStuff::setup( ) {
     specifyGridColumns();
     specifyGridRows();
     specifyGridCells();
@@ -1451,8 +1326,7 @@ GridStuff::setup( ) {
     return;
 }
 
-void
-GridStuff::specifyGridColumns( ) {
+void GridStuff::specifyGridColumns( ) {
     const int rowno = 0;
 
     {
@@ -1496,8 +1370,7 @@ GridStuff::specifyGridColumns( ) {
     return;
 }
 
-void
-GridStuff::specifyGridRows( ) {
+void GridStuff::specifyGridRows( ) {
     for (IntToIntMap::const_iterator it = m_scidToScno.begin();
             it != m_scidToScno.end(); it++) {
         const int scid = it->first;
@@ -1527,7 +1400,7 @@ GridStuff::specifyGridRows( ) {
             setHeader(cell);
         }
         {
-            Cell cell(SCComparator::PERSONID, rowno);
+			Cell cell(SCComparator::PERSONID, rowno);
             setText(cell, personid);
             setHeader(cell);
         }
@@ -1536,8 +1409,7 @@ GridStuff::specifyGridRows( ) {
     return;
 }
 
-void
-GridStuff::specifyGridCells( ) {
+void GridStuff::specifyGridCells( ) {
     const int nsamples = m_samples.count();
     for (int sampleno=0; sampleno<nsamples; sampleno++) {
         const int scid = Util::at(m_samplenoToScid, sampleno);
@@ -1579,13 +1451,11 @@ GridStuff::specifyGridCells( ) {
     return;
 }
 
-int
-GridStuff::scnoToRowno( const int scno ) {
+int GridStuff::scnoToRowno( const int scno ) {
     return 1 + scno;
 }
 
-int
-GridStuff::alnoToColno( const int alno ) {
+int GridStuff::alnoToColno( const int alno ) {
     return SCComparator::ALIQUOT0 + alno;
 }
 
