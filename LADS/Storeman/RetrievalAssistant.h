@@ -235,7 +235,8 @@ public:
         string  name;           // internal identifier string
         string  title;          // text to display in stringgrid header
         string  descrip;        // longer description e.g. to avoid ambiguity between cols with similar titles
-        int     width;          // for StringGrid::ColWidths[]
+        int     width;          // for StringGrid::ColWidths[]  // minWidth?
+        float   percentageWidth;// width as a percentage of total
         bool    sortAsc;        // sort toggle
     };
     vector< T * > *     rows;
@@ -246,13 +247,23 @@ public:
 
     void init() {
         sg->ColCount = cols.size(); // was setupStringGrid
+        int totalWidth = 0;
         for (int i=0; i<cols.size(); i++) {
-            sg->Cells[i][0]     = cols[i].title.c_str();
-            sg->ColWidths[i]    = cols[i].width;
+            totalWidth += cols[i].width;
         }
+        for (int i=0; i<cols.size(); i++) {
+            cols[i].percentageWidth = ((float)100/(float)totalWidth) * (float)cols[i].width;
+        }
+        resize();
         initialised = true;
 	}
-
+    void resize() {
+        for (int i=0; i<cols.size(); i++) {
+            sg->Cells[i][0] = cols[i].title.c_str();
+            const int MARGIN = cols.size() + 5; //5; // even ClientWidth seems not big enough to hold all columns without scrolling horizontally
+            sg->ColWidths[i] = cols[i].width = (int)((cols[i].percentageWidth * (float)(sg->ClientWidth-MARGIN)) / (float)100);
+        }
+    }
 	void addCol(Col c) {
 		if (initialised) throw "Already initialised";
 		mapColNameToInt[c.name] = cols.size();
@@ -482,6 +493,7 @@ __published:
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall cbRejectedClick(TObject *Sender);
     void __fastcall btnResetJobsClick(TObject *Sender);
+    void __fastcall FormResize(TObject *Sender);
 private:
     StringGridWrapper<LCDbCryoJob> *  sgwJobs;
     void               loadJobs();

@@ -16,6 +16,8 @@
 TfrmRetrievalAssistant *frmRetrievalAssistant;
 __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
 
+void __fastcall TfrmRetrievalAssistant::FormResize(TObject *Sender) { sgwJobs->resize(); }
+
 void __fastcall TfrmRetrievalAssistant::cbLogClick(TObject *Sender) { panelDebug->Visible = cbLog->Checked; }
 
 void __fastcall TfrmRetrievalAssistant::btnExitClick(TObject *Sender) { Close(); }
@@ -295,3 +297,4 @@ void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
 //        return INPROGRESS;
 //    }
 //}
+

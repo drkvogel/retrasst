@@ -23,10 +23,6 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
 
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
     sgwVials->addCol("barcode",  "Barcode",          91);
-    sgwVials->addCol("status",   "Status",           91);
-    sgwVials->addCol("aliquot",  "Aliquot",          90);
-    sgwVials->addCol("destbox",  "Destination box",  240);
-    sgwVials->addCol("destpos",  "Pos",              25);
     sgwVials->addCol("site",     "Site",             90);
     sgwVials->addCol("vesspos",  "VPos",              28);
     sgwVials->addCol("vessel",   "Vessel",           107);
@@ -36,6 +32,12 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("boxpos",   "Slot",             26);
     sgwVials->addCol("currbox",  "Current box",      257);
     sgwVials->addCol("currpos",  "CPos",              31);
+    sgwVials->addCol("destbox",  "Destination box",  240);
+    sgwVials->addCol("destpos",  "Pos",              25);
+#ifdef _DEBUG
+    sgwVials->addCol("status",   "Status",           91);
+    sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
+#endif
     sgwVials->init();
 }
 
@@ -58,9 +60,7 @@ void __fastcall TfrmProcess::FormDestroy(TObject *Sender) {
 }
 
 void TfrmProcess::debugLog(String s) {
-    //ostringstream oss
     String tmp = Now().CurrentDateTime().DateTimeString() + ": " + s;
-    //memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
     memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
 }
 
@@ -97,6 +97,11 @@ void __fastcall TfrmProcess::sgChunksFixedCellClick(TObject *Sender, int ACol, i
 }
 
 void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
+    int row = sgChunks->Row;
+    if (row < 1)
+    Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
+    timerLoadPlan->Enabled = true;
+    //loadChunk(chunk);
     showChunk();
 }
 
@@ -116,7 +121,7 @@ void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
     } else {
         Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][ARow];
         if (NULL == chunk) {
-            background = clWindow; /// whilst loading
+            background = clWindow; // whilst loading
         } else {
             int status = chunk->getStatus();  //chunkStatus(chunk);
             switch (status) {
@@ -126,9 +131,6 @@ void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
                     background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR; break;
                 case Chunk< SampleRow >::DONE:
                     background = RETRIEVAL_ASSISTANT_DONE_COLOUR; break;
-//                case Chunk< SampleRow >::REJECTED:
-//                    background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
-//                case Chunk< SampleRow >::DELETED:
                 default:
                     background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; break;
             }
@@ -288,10 +290,13 @@ extra:
 
 void __fastcall TfrmProcess::timerLoadPlanTimer(TObject *Sender) {
     timerLoadPlan->Enabled = false;
-    loadRows();
+    //loadRows();
+    //loadChunk(loadingChunk);
+    loadChunk();
 }
 
-void TfrmProcess::loadRows() {
+//void TfrmProcess::loadRows() {
+void TfrmProcess::loadChunk() { //Chunk< SampleRow > *) {
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
     panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
@@ -316,6 +321,10 @@ void __fastcall LoadPlanWorkerThread::updateStatus() { // can't use args for syn
 
 void __fastcall LoadPlanWorkerThread::debugLog() {
     frmProcess->debugLog(debugMessage.c_str());
+}
+
+void __fastcall LoadPlanWorkerThread::msgbox() {
+    Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK);
 }
 
 void __fastcall LoadPlanWorkerThread::Execute() {
@@ -364,9 +373,23 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     debugMessage = "finished create temp table";
     Synchronize((TThreadMethod)&debugLog);
 
-    //qd.setSQL("COMMIT"); qd.execSQL();
     // use non-star query for this bit for speed? but where would the temp table be?
     // LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), false)); // not ddb
+
+    // gj added a secondary index on cryovial_store (on t_ldb20 only) - how to check this?
+    bool stats_c_barcode                = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial",      "cryovial_barcode");
+    bool stats_c_aliquot                = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial",      "aliquot_type_cid");
+    bool stats_cs_cryovial_id           = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store","cryovial_id");
+    bool stats_cs_status                = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store","status");
+    bool stats_cs_retrieval_cid         = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store","retrieval_cid");
+
+    if (!(stats_c_barcode && stats_c_aliquot && stats_cs_cryovial_id && stats_cs_status && stats_cs_retrieval_cid)) {
+        debugMessage = "no stats";
+        Synchronize((TThreadMethod)&debugLog);
+    } else {
+        debugMessage = "have stats";
+        Synchronize((TThreadMethod)&debugLog);
+    }
 
     qd.setSQL(
         " SELECT"
@@ -394,7 +417,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     int curchunk = 0, chunk = 0;
     while (!qd.eof()) {
         chunk = qd.readInt("chunk");
-        wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
+        //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) {
             frmProcess->addChunk(rowCount);
             curchunk = chunk;
@@ -420,7 +443,8 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         rowCount++;
     }
 
-    debugMessage = "finished loading samples";
+    wstringstream wss; wss<<"finished loading "<<rowCount<<"samples";
+    debugMessage = oss.str();
     Synchronize((TThreadMethod)&debugLog);
 
     qd.setSQL("DROP "TEMP_TABLE_NAME);
@@ -464,7 +488,7 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     currentChunk()->setCurrentRow(0); //currentChunk = 0;
     showCurrentRow();
     Enabled = true;
-    wstringstream oss; oss<<"loadRows for job "<<job->getID()<<" finished";
+    wstringstream oss; oss<<__FUNC__<<"loadRows for job "<<job->getID()<<" finished";
     debugLog(oss.str().c_str());
 }
 
@@ -596,4 +620,9 @@ void __fastcall TfrmProcess::editBarcodeKeyUp(TObject *Sender, WORD &Key, TShift
     }
 }
 //---------------------------------------------------------------------------
+
+void __fastcall TfrmProcess::FormResize(TObject *Sender) {
+    sgwChunks->resize();
+    sgwVials->resize();
+}
 

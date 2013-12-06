@@ -533,12 +533,6 @@
 				<DependentOn>RetrievalAssistant.h</DependentOn>
 				<BuildOrder>89</BuildOrder>
 			</CppCompile>
-			<CppCompile Include="RetrievalAssistantAutoChunk.cpp">
-				<Form>frmAutoChunk</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>RetrievalAssistantAutoChunk.h</DependentOn>
-				<BuildOrder>90</BuildOrder>
-			</CppCompile>
 			<CppCompile Include="RetrievalAssistantBoxes.cpp">
 				<Form>frmBoxes</Form>
 				<FormType>dfm</FormType>
@@ -647,31 +641,30 @@
 			<FormResources Include="MoveJobs.dfm"/>
 			<FormResources Include="NewBoxType.dfm"/>
 			<FormResources Include="NewExercise.dfm"/>
-			<FormResources Include="BoxTransfer.dfm"/>
-			<FormResources Include="BrowseSample.dfm"/>
-			<FormResources Include="AddSpecimens.dfm"/>
+			<FormResources Include="DiscardPrologue.dfm"/>
 			<FormResources Include="AnalyseSamples.dfm"/>
-			<FormResources Include="Configure.dfm"/>
+			<FormResources Include="BoxTransfer.dfm"/>
+			<FormResources Include="AddSpecimens.dfm"/>
+			<FormResources Include="BrowseSample.dfm"/>
 			<FormResources Include="DiscardMethod.dfm"/>
 			<FormResources Include="DiscardNote.dfm"/>
-			<FormResources Include="DiscardPrologue.dfm"/>
-			<FormResources Include="NewTank.dfm"/>
+			<FormResources Include="Configure.dfm"/>
 			<FormResources Include="Storemain.dfm"/>
 			<FormResources Include="SelectSamples.dfm"/>
 			<FormResources Include="showsamples.dfm"/>
 			<FormResources Include="SMLogin.dfm"/>
+			<FormResources Include="SampleMove.dfm"/>
+			<FormResources Include="ReferredBoxesSummary.dfm"/>
 			<FormResources Include="RetrievalAssistant.dfm"/>
-			<FormResources Include="RetrievalAssistantAutoChunk.dfm"/>
-			<FormResources Include="RetrievalAssistantBoxes.dfm"/>
+			<FormResources Include="NewTank.dfm"/>
 			<FormResources Include="NewType.dfm"/>
 			<FormResources Include="ReferredBoxes.dfm"/>
-			<FormResources Include="ReferredBoxesSummary.dfm"/>
-			<FormResources Include="RetrievalAssistantProcess.dfm"/>
+			<FormResources Include="RetrievalAssistantBoxes.dfm"/>
+			<FormResources Include="RetrieveSamples.dfm"/>
 			<FormResources Include="SampleEntry.dfm"/>
-			<FormResources Include="SampleMove.dfm"/>
+			<FormResources Include="RetrievalAssistantProcess.dfm"/>
 			<FormResources Include="RetrievalAssistantProcessBoxes.dfm"/>
 			<FormResources Include="RetrievalAssistantSamples.dfm"/>
-			<FormResources Include="RetrieveSamples.dfm"/>
 			<FormResources Include="..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.dfm"/>
 			<FormResources Include="..\..\jonathanpr\RetrievalLists\TResultNotesDialog.dfm"/>
 			<FormResources Include="..\..\jonathanpr\RetrievalLists\mainDialog.dfm"/>

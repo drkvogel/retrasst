@@ -8,6 +8,7 @@
 
 
 
+
 USEFORM("FindSample.cpp", frmFind);
 USEFORM("DiscardReason.cpp", frmDiscardReason);
 USEFORM("DiscardSamples.cpp", frmDiscardSamples);
@@ -18,31 +19,30 @@ USEFORM("NewSite.cpp", frmNewSite);
 USEFORM("MoveJobs.cpp", frmSelectJob);
 USEFORM("NewBoxType.cpp", frmNewBoxType);
 USEFORM("NewExercise.cpp", frmNewExercise);
-USEFORM("BoxTransfer.cpp", frmBoxList);
-USEFORM("BrowseSample.cpp", frmBrowse);
-USEFORM("AddSpecimens.cpp", frmAddSpecimens);
+USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
 USEFORM("AnalyseSamples.cpp", frmAnalyseSpecimens);
-USEFORM("Configure.cpp", frmConfigure);
+USEFORM("BoxTransfer.cpp", frmBoxList);
+USEFORM("AddSpecimens.cpp", frmAddSpecimens);
+USEFORM("BrowseSample.cpp", frmBrowse);
 USEFORM("DiscardMethod.cpp", frmDiscardMethod);
 USEFORM("DiscardNote.cpp", frmDiscardNote);
-USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
-USEFORM("NewTank.cpp", frmNewTank);
+USEFORM("Configure.cpp", frmConfigure);
 USEFORM("Storemain.cpp", frmStoremain);
 USEFORM("SelectSamples.cpp", frmSelectBoxes);
 USEFORM("showsamples.cpp", frmAliquotTypes);
 USEFORM("SMLogin.cpp", frmSMLogin);
+USEFORM("SampleMove.cpp", frmMove);
+USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
 USEFORM("RetrievalAssistant.cpp", frmRetrievalAssistant);
-USEFORM("RetrievalAssistantAutoChunk.cpp", frmAutoChunk);
-USEFORM("RetrievalAssistantBoxes.cpp", frmBoxes);
+USEFORM("NewTank.cpp", frmNewTank);
 USEFORM("NewType.cpp", frmNewStoreType);
 USEFORM("ReferredBoxes.cpp", frmReferred);
-USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
-USEFORM("RetrievalAssistantProcess.cpp", frmProcess);
+USEFORM("RetrievalAssistantBoxes.cpp", frmBoxes);
+USEFORM("RetrieveSamples.cpp", frmRetrieved);
 USEFORM("SampleEntry.cpp", frmRetrieveMain);
-USEFORM("SampleMove.cpp", frmMove);
+USEFORM("RetrievalAssistantProcess.cpp", frmProcess);
 USEFORM("RetrievalAssistantProcessBoxes.cpp", frmProcessBoxes);
 USEFORM("RetrievalAssistantSamples.cpp", frmSamples);
-USEFORM("RetrieveSamples.cpp", frmRetrieved);
 USEFORM("..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.cpp", cryovialHistoryDialog);
 USEFORM("..\..\jonathanpr\RetrievalLists\TResultNotesDialog.cpp", ResultNotesDialog);
 USEFORM("..\..\jonathanpr\RetrievalLists\mainDialog.cpp", frmViewListMain);
@@ -90,7 +90,6 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmSelectBoxes), &frmSelectBoxes);
          Application->CreateForm(__classid(TfrmReferredBoxesSummary), &frmReferredBoxesSummary);
          Application->CreateForm(__classid(TfrmRetrievalAssistant), &frmRetrievalAssistant);
-         Application->CreateForm(__classid(TfrmAutoChunk), &frmAutoChunk);
          Application->CreateForm(__classid(TfrmBoxes), &frmBoxes);
          Application->CreateForm(__classid(TfrmProcess), &frmProcess);
          Application->CreateForm(__classid(TfrmSamples), &frmSamples);

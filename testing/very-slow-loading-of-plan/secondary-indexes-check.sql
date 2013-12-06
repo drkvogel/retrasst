@@ -1,0 +1,2 @@
+/* select count(*) from iitables where table_name='cryovial_store_idx' and table_owner=dbmsinfo('dba') and table_type='I'; */
+select * from iitables where table_owner=dbmsinfo('dba') and table_type='I' and table_name like '%cryovial_store%'\p\g

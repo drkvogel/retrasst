@@ -51,6 +51,16 @@ __published:
     TButton *btnReject;
     TCheckBox *cbLog;
     TStringGrid *sgChunks;
+    TPanel *panelVials;
+    TGroupBox *groupVials;
+    TStringGrid *sgVials;
+    TPanel *panelLoading;
+    TProgressBar *progressBottom;
+    TGroupBox *groupSort;
+    TButton *btnDelSort;
+    TButton *btnAddSort;
+    TButton *btnApplySort;
+    TPanel *Panel1;
     TGroupBox *groupAutoChunk;
     TLabel *Label1;
     TLabel *Label2;
@@ -62,16 +72,11 @@ __published:
     TButton *btnAddAllChunks;
     TUpDown *updownBoxSize;
     TUpDown *updownMaxSection;
-    TPanel *panelVials;
-    TGroupBox *groupVials;
-    TStringGrid *sgVials;
-    TPanel *panelLoading;
-    TProgressBar *progressBottom;
-    TGroupBox *groupSort;
-    TButton *btnDelSort;
-    TButton *btnAddSort;
-    TButton *btnApplySort;
     TButton *btnDelChunk;
+    TGroupBox *GroupBox1;
+    TGroupBox *GroupBox2;
+    TLabel *labelPrimary;
+    TLabel *labelSecondary;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
@@ -98,6 +103,7 @@ __published:
     void __fastcall editDestBoxSizeChange(TObject *Sender);
     void __fastcall btnAddAllChunksClick(TObject *Sender);
     void __fastcall timerCalculateTimer(TObject *Sender);
+    void __fastcall FormResize(TObject *Sender);
 private:
     LoadVialsWorkerThread *                     loadVialsWorkerThread;
     void __fastcall                             loadVialsWorkerThreadTerminated(TObject *Sender);

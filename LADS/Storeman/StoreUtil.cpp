@@ -330,8 +330,30 @@ bool Util::numericCompare(const std::string a, const std::string b) {
             return others.str();
         }
     } local;
+    // fixme return immediately if strings are equal
+    if (a == b)
+        return false; //???
+#ifdef _DEBUG
+    std::string     a_non, b_non;
+    int             a_just, b_just;
+
+    a_non           = local.nonNumerics(a);
+    b_non           = local.nonNumerics(b);
+    int diff_non    = a_non.compare(b_non);
+
+    a_just          = local.justNumerics(a);
+    b_just          = local.justNumerics(b);
+    int diff_just   = a_just < b_just;
+
+    if (0 == diff_non) {
+        return diff_just;
+    } else {
+        return diff_non;
+    }
+#else
     int diff = local.nonNumerics(a).compare(local.nonNumerics(b));
     return diff == 0 ? local.justNumerics(a) < local.justNumerics(b) : diff < 0;
+#endif
 }
 
 std::string Util::getAliquotDescription(int aliquot_cid) { // c_object_name 6: aliquot type
@@ -344,5 +366,39 @@ std::string Util::getAliquotDescription(int aliquot_cid) { // c_object_name 6: a
         oss << "ID "<<aliquot_cid<<" not found";
     }
     return oss.str();
+}
+
+bool Util::secondaryIndexExists(int project_cid, std::string indexName, bool exactMatch) {
+    const char * sql;
+    if (exactMatch) {
+        sql  = "select count(*) from iitables where table_owner=dbmsinfo('dba') and table_type='I' and index_name = ':index_name'\p\g";
+    } else {
+        sql  = "select count(*) from iitables where table_owner=dbmsinfo('dba') and table_type='I' and index_name like '%:index_name%'\p\g";
+    }
+	LQuery qt(Util::projectQuery(project_cid));
+    qt.setSQL(sql);
+    qt.setParam("index_name", indexName);
+    qt.open();
+    int count = qt.readInt(0); // LQuery::close(), only by going out of scope
+    return count >= 1; //???
+}
+
+bool Util::statsOnColumn(int project_cid, std::string tableName, std::string colName) {
+    // determine whether stats are set on cryovial_store table
+    int stat_count;
+    const char * select_stats =
+        "SELECT COUNT(*) FROM iistatistics s JOIN iirelation r"
+        " ON s.stabbase = r.reltid AND s.stabindex = r.reltidx"
+        " JOIN iiattribute a ON a.attrelid = r.reltid"
+        " AND a.attrelidx = r.reltidx AND a.attid = s.satno"
+        " WHERE r.relid = :table_name"
+        " AND a.attname = :column_name";
+	LQuery qt(Util::projectQuery(project_cid));
+    qt.setSQL(select_stats);
+    qt.setParam("table_name", tableName);
+    qt.setParam("column_name", colName);
+    qt.open();
+    stat_count = qt.readInt(0); // LQuery::close(), only by going out of scope
+    return stat_count == 1;
 }
 
