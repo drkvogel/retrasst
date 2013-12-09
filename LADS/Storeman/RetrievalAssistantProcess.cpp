@@ -342,35 +342,37 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     if (NULL != frmProcess && NULL != frmProcess->job) { frmProcess->job = frmProcess->job; } else { throw "wtf?"; }
     loadingMessage = frmProcess->loadingMessage;
 
-    const int pid = LCDbAuditTrail::getCurrent().getProcessID();
-    char tempTableName[128]; sprintf(tempTableName, "retrieval_assistant_temp_%d", pid);
+    //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+    //char tempTableName[128]; sprintf(tempTableName, "retrieval_assistant_temp_%d", pid);
+    char * tempTableName = "retrieval_assistant_temp";
 
-    LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
+    {
+        LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
 
-    //qd.setSQL("DROP TABLE IF EXISTS "TEMP_TABLE_NAME);
-    qd.setSQL("DROP TABLE IF EXISTS :temp");
-    qd.setParam("temp", tempTableName);
-    qd.execSQL();
+        //qd.setSQL("DROP TABLE IF EXISTS "TEMP_TABLE_NAME);
+        qd.setSQL("DROP TABLE IF EXISTS :temp");
+        qd.setParam("temp", tempTableName);
+        qd.execSQL();
 
-    qd.setSQL(
-        "CREATE TABLE :temp AS"
-        "   SELECT"
-        "       cbr.section AS chunk, cbr.rj_box_cid, cbr.retrieval_cid, cbr.status AS cbr_status, cbr.box_id,"
-        "       lcr.position AS dest_pos, lcr.slot_number AS lcr_slot, lcr.process_cid AS lcr_procid, lcr.status AS lcr_status,"
-        "       lcr.cryovial_barcode, lcr.aliquot_type_cid"
-        "   FROM"
-        "       c_box_retrieval cbr, l_cryovial_retrieval lcr"
-        "   WHERE"
-        "       cbr.retrieval_cid = :rtid"
-        "   AND chunk = :chnk"
-        "   AND"
-        "       lcr.rj_box_cid = cbr.rj_box_cid");
-    int retrieval_cid = frmProcess->job->getID();
-    qd.setParam("temp", tempTableName);
-    qd.setParam("rtid", retrieval_cid);
-    qd.setParam("chnk", loadingChunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
-    qd.execSQL();
-
+        qd.setSQL(
+            "CREATE TABLE :temp AS"
+            "   SELECT"
+            "       cbr.section AS chunk, cbr.rj_box_cid, cbr.retrieval_cid, cbr.status AS cbr_status, cbr.box_id,"
+            "       lcr.position AS dest_pos, lcr.slot_number AS lcr_slot, lcr.process_cid AS lcr_procid, lcr.status AS lcr_status,"
+            "       lcr.cryovial_barcode, lcr.aliquot_type_cid"
+            "   FROM"
+            "       c_box_retrieval cbr, l_cryovial_retrieval lcr"
+            "   WHERE"
+            "       cbr.retrieval_cid = :rtid"
+            "   AND chunk = :chnk"
+            "   AND"
+            "       lcr.rj_box_cid = cbr.rj_box_cid");
+        int retrieval_cid = frmProcess->job->getID();
+        qd.setParam("temp", tempTableName);
+        qd.setParam("rtid", retrieval_cid);
+        qd.setParam("chnk", loadingChunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
+        qd.execSQL();
+    }
     debugMessage = "finished create temp table";
     Synchronize((TThreadMethod)&debugLog);
 
@@ -398,7 +400,8 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         Synchronize((TThreadMethod)&debugLog);
     }
 
-    qd.setSQL(
+    LQuery ql(Util::projectQuery(frmProcess->job->getProjectID(), false)); // no ddb
+    ql.setSQL(
         " SELECT"
         "     g.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status, g.box_id AS dest_id,"
         "     c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
@@ -421,12 +424,12 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         " ORDER BY"
         "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos"
     );
-    qd.setParam("temp", tempTableName);
+    ql.setParam("temp", tempTableName);
     rowCount = 0; // class variable needed for synchronise
-    qd.open();
+    ql.open();
     int curchunk = 0, chunk = 0;
-    while (!qd.eof()) {
-        chunk = qd.readInt("chunk");
+    while (!ql.eof()) {
+        chunk = ql.readInt("chunk");
         //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) {
             frmProcess->addChunk(rowCount);
@@ -438,18 +441,18 @@ void __fastcall LoadPlanWorkerThread::Execute() {
             Synchronize((TThreadMethod)&updateStatus);
         }
         SampleRow * row = new SampleRow(
-            new LPDbCryovial(qd),
-            new LPDbCryovialStore(qd),
-            new LCDbCryovialRetrieval(qd), // fixme
-            qd.readString(  "cryovial_barcode"),
-            Util::getAliquotDescription(qd.readInt("aliquot_type_cid")),
-            qd.readString(  "src_box"),
-            qd.readInt(     "dest_id"),
-            qd.readString(  "dest_name"),
-            qd.readInt(     "dest_pos"),
+            new LPDbCryovial(ql),
+            new LPDbCryovialStore(ql),
+            new LCDbCryovialRetrieval(ql), // fixme
+            ql.readString(  "cryovial_barcode"),
+            Util::getAliquotDescription(ql.readInt("aliquot_type_cid")),
+            ql.readString(  "src_box"),
+            ql.readInt(     "dest_id"),
+            ql.readString(  "dest_name"),
+            ql.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
         frmProcess->vials.push_back(row);
-        qd.next();
+        ql.next();
         rowCount++;
     }
 
@@ -458,9 +461,9 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     Synchronize((TThreadMethod)&debugLog);
 
     //qd.setSQL("DROP "TEMP_TABLE_NAME);
-    qd.setSQL("DROP :temp");
-    qd.setParam("temp", tempTableName);
-    if (!RETRASSTDEBUG) qd.execSQL();
+    ql.setSQL("DROP :temp");
+    ql.setParam("temp", tempTableName);
+    if (!RETRASSTDEBUG) ql.execSQL();
 
     debugMessage = "finished drop temp table";
     Synchronize((TThreadMethod)&debugLog);

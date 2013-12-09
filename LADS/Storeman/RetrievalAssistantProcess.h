@@ -13,6 +13,7 @@
 
 #define DEFAULT_NUMROWS 25
 
+//class LoadSamplesWorkerThread : public TThread {
 class LoadPlanWorkerThread : public TThread {
 protected:
     void __fastcall Execute();
