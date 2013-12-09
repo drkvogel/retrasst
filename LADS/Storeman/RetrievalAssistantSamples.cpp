@@ -195,6 +195,8 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
         if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) return;
 
+        debugLog("starting save plan");
+
         Screen->Cursor = crSQLWait; Enabled = false;
         LQuery qc(LIMSDatabase::getCentralDb());
 
@@ -207,7 +209,6 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                 SampleRow *         sampleRow = chunk->rowAt(i);
                 LPDbCryovial *      cryo  = sampleRow->cryo_record;
                 LPDbCryovialStore * store = sampleRow->store_record;
-                //map<int, int>::iterator found = boxes.find(sampleRow->store_record->getBoxID());
                 map<int, int>::iterator found = boxes.find(sampleRow->dest_box_id);
                 if (found == boxes.end()) { // not added yet, add record and cache
                     { // must go out of scope otherwise read locks db with "no mst..."
@@ -261,6 +262,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         btnSave->Enabled = false;
         job->setStatus(LCDbCryoJob::INPROGRESS);
         job->saveRecord(LIMSDatabase::getCentralDb());
+        debugLog("finshed save plan");
         Screen->Cursor = crDefault; Enabled = true;
         ModalResult = mrOk;
     } else { // start again

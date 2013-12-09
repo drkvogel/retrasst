@@ -2,6 +2,7 @@
 #pragma hdrstop
 #include "StoreDAO.h"
 #include "RetrievalAssistantProcess.h"
+#include "LCDbAuditTrail.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -75,34 +76,6 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     labelSampleID->Caption  = "loading...";
     labelStorage->Caption   = "loading...";
     labelDestbox->Caption   = "loading...";
-}
-
-void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
-    panelDebug->Visible = cbLog->Checked;
-    //splitterDebug->Visible  = cbLog->Checked;
-}
-
-void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
-    exit();
-}
-
-void __fastcall TfrmProcess::btnExitClick(TObject *Sender) {
-    exit();
-}
-
-void __fastcall TfrmProcess::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
-    ostringstream oss; oss << __FUNC__;
-    oss<<sgwChunks->printColWidths()<<" clicked on col: "<<ACol<<".";
-    //debugLog(oss.str().c_str());
-}
-
-void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
-    int row = sgChunks->Row;
-    if (row < 1)
-    Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
-    timerLoadPlan->Enabled = true;
-    //loadChunk(chunk);
-    showChunk();
 }
 
 /*#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR  clActiveCaption
@@ -193,6 +166,34 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
 	} else {
         cnv->TextOut(Rect.Left+5, Rect.Top+5, sgVials->Cells[ACol][ARow]);
     }
+}
+
+void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
+    panelDebug->Visible = cbLog->Checked;
+    //splitterDebug->Visible  = cbLog->Checked;
+}
+
+void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
+    exit();
+}
+
+void __fastcall TfrmProcess::btnExitClick(TObject *Sender) {
+    exit();
+}
+
+void __fastcall TfrmProcess::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
+    ostringstream oss; oss << __FUNC__;
+    oss<<sgwChunks->printColWidths()<<" clicked on col: "<<ACol<<".";
+    //debugLog(oss.str().c_str());
+}
+
+void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
+    int row = sgChunks->Row;
+    if (row < 1)
+    //Chunk< SampleRow > * loadingChunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
+    timerLoadPlan->Enabled = true;
+    //loadChunk(chunk);
+    //showChunk();
 }
 
 void TfrmProcess::showChunks() {
@@ -292,11 +293,13 @@ void __fastcall TfrmProcess::timerLoadPlanTimer(TObject *Sender) {
     timerLoadPlan->Enabled = false;
     //loadRows();
     //loadChunk(loadingChunk);
+    //loadChunk(currentChunk());
     loadChunk();
 }
 
 //void TfrmProcess::loadRows() {
-void TfrmProcess::loadChunk() { //Chunk< SampleRow > *) {
+void TfrmProcess::loadChunk() {
+//void TfrmProcess::loadChunk(Chunk< SampleRow > *) {
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
     panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
@@ -307,6 +310,7 @@ void TfrmProcess::loadChunk() { //Chunk< SampleRow > *) {
     debugLog(oss.str().c_str());
     Enabled = false;
     loadPlanWorkerThread = new LoadPlanWorkerThread();
+    loadPlanWorkerThread->loadingChunk = currentChunk();
     loadPlanWorkerThread->OnTerminate = &loadPlanWorkerThreadTerminated;
 }
 
@@ -338,43 +342,37 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     if (NULL != frmProcess && NULL != frmProcess->job) { frmProcess->job = frmProcess->job; } else { throw "wtf?"; }
     loadingMessage = frmProcess->loadingMessage;
 
-    //LQuery qc(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
-//    LQuery qc(LIMSDatabase::getCentralDb());  // attempt to split up query - not sure if good idea
-//    qc.setSQL(
-//        "SELECT cbr.rj_box_cid, cbr.retrieval_cid, cbr.section chunk, cbr.status cbr_status, cbr.box_id,"
-//        " lcr.position dest_pos, lcr.slot_number lcr_slot, lcr.process_cid lcr_procid, lcr.status lcr_status,"
-//        " lcr.cryovial_barcode, lcr.aliquot_type_cid"
-//        " FROM c_box_retrieval cbr, l_cryovial_retrieval lcr"
-//        " WHERE cbr.retrieval_cid = :rtid AND lcr.rj_box_cid=cbr.rj_box_cid");
-#define TEMP_TABLE_NAME "retrieval_assistant_temp"
+    const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+    char tempTableName[128]; sprintf(tempTableName, "retrieval_assistant_temp_%d", pid);
 
     LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
 
-    qd.setSQL("DROP TABLE IF EXISTS "TEMP_TABLE_NAME);
+    //qd.setSQL("DROP TABLE IF EXISTS "TEMP_TABLE_NAME);
+    qd.setSQL("DROP TABLE IF EXISTS :temp");
+    qd.setParam("temp", tempTableName);
     qd.execSQL();
 
     qd.setSQL(
-        //"CREATE TABLE my_extra_table AS\n"
-        "CREATE TABLE "TEMP_TABLE_NAME" AS"
+        "CREATE TABLE :temp AS"
         "   SELECT"
-        "       cbr.rj_box_cid, cbr.retrieval_cid, cbr.section AS chunk, cbr.status AS cbr_status, cbr.box_id,"
+        "       cbr.section AS chunk, cbr.rj_box_cid, cbr.retrieval_cid, cbr.status AS cbr_status, cbr.box_id,"
         "       lcr.position AS dest_pos, lcr.slot_number AS lcr_slot, lcr.process_cid AS lcr_procid, lcr.status AS lcr_status,"
         "       lcr.cryovial_barcode, lcr.aliquot_type_cid"
         "   FROM"
         "       c_box_retrieval cbr, l_cryovial_retrieval lcr"
         "   WHERE"
         "       cbr.retrieval_cid = :rtid"
+        "   AND chunk = :chnk"
         "   AND"
         "       lcr.rj_box_cid = cbr.rj_box_cid");
     int retrieval_cid = frmProcess->job->getID();
+    qd.setParam("temp", tempTableName);
     qd.setParam("rtid", retrieval_cid);
+    qd.setParam("chnk", loadingChunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
     qd.execSQL();
 
     debugMessage = "finished create temp table";
     Synchronize((TThreadMethod)&debugLog);
-
-    // use non-star query for this bit for speed? but where would the temp table be?
-    // LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), false)); // not ddb
 
     // gj added a secondary index on cryovial_store (on t_ldb20 only) - how to check this?
     bool stats_c_barcode                = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial",      "cryovial_barcode");
@@ -383,8 +381,17 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     bool stats_cs_status                = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store","status");
     bool stats_cs_retrieval_cid         = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store","retrieval_cid");
 
-    if (!(stats_c_barcode && stats_c_aliquot && stats_cs_cryovial_id && stats_cs_status && stats_cs_retrieval_cid)) {
-        debugMessage = "no stats";
+    stats = stats_c_barcode && stats_c_aliquot && stats_cs_cryovial_id && stats_cs_status && stats_cs_retrieval_cid;
+
+    if (!stats) {
+        oss.str(""); oss<<"missing stats on "
+            <<(stats_c_barcode        ? "cryovial_barcode" : "")
+            <<(stats_c_aliquot        ? "aliquot_type_cid" : "")
+            <<(stats_cs_cryovial_id   ? "cryovial_id"      : "")
+            <<(stats_cs_status        ? "status"           : "")
+            <<(stats_cs_retrieval_cid ? "retrieval_cid"    : "");
+        debugMessage = oss.str();
+        Synchronize((TThreadMethod)&msgbox);
         Synchronize((TThreadMethod)&debugLog);
     } else {
         debugMessage = "have stats";
@@ -393,13 +400,15 @@ void __fastcall LoadPlanWorkerThread::Execute() {
 
     qd.setSQL(
         " SELECT"
-        "     s1.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status,"
-        "     s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position,"
-        "     s1.record_id, c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
-        "     s1.box_cid, b1.external_name AS src_box, s1.status, s1.tube_position, s1.note_exists AS cs_note,"
-        "     g.box_id AS dest_id, b2.external_name AS dest_name, s2.tube_position AS slot_number, s2.status AS dest_status"
+        "     g.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status, g.box_id AS dest_id,"
+        "     c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
+        "     s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position, s1.record_id,"
+        "     s1.status, s1.tube_position, s1.note_exists AS cs_note,"
+        "     b1.external_name AS src_box, "
+        "     b2.external_name AS dest_name,"
+        "     s2.tube_position AS slot_number, s2.status AS dest_status"
         " FROM "
-        TEMP_TABLE_NAME" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
+        "     :temp g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
         " WHERE"
         "     c.cryovial_barcode = g.cryovial_barcode"
         "     AND c.aliquot_type_cid = g.aliquot_type_cid"
@@ -412,6 +421,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         " ORDER BY"
         "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos"
     );
+    qd.setParam("temp", tempTableName);
     rowCount = 0; // class variable needed for synchronise
     qd.open();
     int curchunk = 0, chunk = 0;
@@ -447,7 +457,9 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     debugMessage = oss.str();
     Synchronize((TThreadMethod)&debugLog);
 
-    qd.setSQL("DROP "TEMP_TABLE_NAME);
+    //qd.setSQL("DROP "TEMP_TABLE_NAME);
+    qd.setSQL("DROP :temp");
+    qd.setParam("temp", tempTableName);
     if (!RETRASSTDEBUG) qd.execSQL();
 
     debugMessage = "finished drop temp table";
@@ -614,15 +626,15 @@ void TfrmProcess::exit() {
         Close();
     }
 }
+
 void __fastcall TfrmProcess::editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
     if (VK_RETURN == Key) {
         accept(editBarcode->Text);
     }
 }
-//---------------------------------------------------------------------------
 
 void __fastcall TfrmProcess::FormResize(TObject *Sender) {
-    sgwChunks->resize();
-    sgwVials->resize();
+    if (sgwChunks) sgwChunks->resize(); // in case has been deleted in FormDestroy
+    if (sgwVials)  sgwVials->resize();
 }
 

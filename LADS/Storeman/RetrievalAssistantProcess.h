@@ -18,12 +18,29 @@ protected:
     void __fastcall Execute();
 public:
     __fastcall LoadPlanWorkerThread();
+    Chunk< SampleRow > * loadingChunk;
     int             rowCount;
     string          loadingMessage;
     string          debugMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
     void __fastcall debugLog(); // synchronized methods can't have args
     void __fastcall msgbox();
+    bool stats;
+};
+
+class LoadChunksWorkerThread : public TThread {
+protected:
+    void __fastcall Execute();
+public:
+    __fastcall LoadChunksWorkerThread();
+    Chunk< SampleRow > * loadingChunk;
+    int             rowCount;
+    string          loadingMessage;
+    string          debugMessage;
+    void __fastcall updateStatus(); // synchronized methods can't have args
+    void __fastcall debugLog(); // synchronized methods can't have args
+    void __fastcall msgbox();
+    bool stats;
 };
 
 class TfrmProcess : public TForm {
@@ -80,12 +97,12 @@ private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
+    //int                                         chunk;
     vector< Chunk< SampleRow > *>               chunks;
     vecpSampleRow                               vials;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
     StringGridWrapper<SampleRow> *              sgwVials;
     void                                        showChunks();
-    Chunk< SampleRow > *                        loadingChunk;
     //void                                        loadChunk(Chunk< SampleRow > *);
     void                                        loadChunk();
     Chunk< SampleRow > *                        currentChunk();
@@ -106,6 +123,7 @@ private:
     //int maxRows;
     const char *                                loadingMessage;
     void                                        debugLog(String s);
+
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);
