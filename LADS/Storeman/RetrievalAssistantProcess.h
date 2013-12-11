@@ -79,7 +79,6 @@ __published:
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
-    void __fastcall FormDestroy(TObject *Sender);
     void __fastcall timerLoadPlanTimer(TObject *Sender);
     void __fastcall btnAcceptClick(TObject *Sender);
     void __fastcall sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow);
@@ -101,6 +100,7 @@ private:
     //int                                         chunk;
     vector< Chunk< SampleRow > *>               chunks;
     vecpSampleRow                               vials;
+    //std::auto_ptr< StringGridWrapper< Chunk< SampleRow > > >  sgwChunks;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
     StringGridWrapper<SampleRow> *              sgwVials;
     void                                        showChunks();
@@ -124,10 +124,11 @@ private:
     //int maxRows;
     const char *                                loadingMessage;
     void                                        debugLog(String s);
-
+    bool destroying;
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);
+    __fastcall TfrmProcess::~TfrmProcess();
 };
 
 extern PACKAGE TfrmProcess *frmProcess;

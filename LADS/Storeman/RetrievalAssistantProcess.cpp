@@ -9,6 +9,8 @@
 TfrmProcess *frmProcess;
 
 __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
+    destroying = false;
+    //sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  60);
     sgwChunks->addCol("status",   "Status",   91);
@@ -42,6 +44,12 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwVials->init();
 }
 
+__fastcall TfrmProcess::~TfrmProcess() {
+    destroying = true;
+    delete sgwChunks;
+    delete sgwVials;
+}
+
 void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     cbLog->Checked      = RETRASSTDEBUG;
@@ -54,12 +62,6 @@ void __fastcall TfrmProcess::FormClose(TObject *Sender, TCloseAction &Action) {
     delete_referenced< vector <SampleRow * > >(vials);
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
 }
-
-void __fastcall TfrmProcess::FormDestroy(TObject *Sender) {
-    delete sgwChunks;
-    delete sgwVials;
-}
-
 void TfrmProcess::debugLog(String s) {
     String tmp = Now().CurrentDateTime().DateTimeString() + ": " + s;
     memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
@@ -189,10 +191,11 @@ void __fastcall TfrmProcess::sgChunksFixedCellClick(TObject *Sender, int ACol, i
 
 void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
     int row = sgChunks->Row;
-    if (row < 1)
-    //Chunk< SampleRow > * loadingChunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
-    timerLoadPlan->Enabled = true;
+    if (row < 1) return;
+    Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
+    //timerLoadPlan->Enabled = true;
     //loadChunk(chunk);
+    showChunk(chunk);
     //showChunk();
 }
 
@@ -310,7 +313,7 @@ void TfrmProcess::loadChunk() {
     debugLog(oss.str().c_str());
     Enabled = false;
     loadPlanWorkerThread = new LoadPlanWorkerThread();
-    loadPlanWorkerThread->loadingChunk = currentChunk();
+    //loadPlanWorkerThread->loadingChunk = currentChunk();
     loadPlanWorkerThread->OnTerminate = &loadPlanWorkerThreadTerminated;
 }
 
@@ -342,20 +345,19 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     if (NULL != frmProcess && NULL != frmProcess->job) { frmProcess->job = frmProcess->job; } else { throw "wtf?"; }
     loadingMessage = frmProcess->loadingMessage;
 
-    //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
-    //char tempTableName[128]; sprintf(tempTableName, "retrieval_assistant_temp_%d", pid);
-    char * tempTableName = "retrieval_assistant_temp";
+    const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+    char tempTableName[128]; sprintf(tempTableName, "retrieval_assistant_temp_%d", pid);
+    //char * tempTableName = "retrieval_assistant_temp";
 
     {
         LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
 
-        //qd.setSQL("DROP TABLE IF EXISTS "TEMP_TABLE_NAME);
-        qd.setSQL("DROP TABLE IF EXISTS :temp");
-        qd.setParam("temp", tempTableName);
+        oss.str(""); oss<<"DROP TABLE IF EXISTS "<<tempTableName; // ingres doesn't like table names passed as parameters
+        qd.setSQL(oss.str());
         qd.execSQL();
 
-        qd.setSQL(
-            "CREATE TABLE :temp AS"
+        oss.str("");
+        oss<<"CREATE TABLE "<<tempTableName<<" AS"<<
             "   SELECT"
             "       cbr.section AS chunk, cbr.rj_box_cid, cbr.retrieval_cid, cbr.status AS cbr_status, cbr.box_id,"
             "       lcr.position AS dest_pos, lcr.slot_number AS lcr_slot, lcr.process_cid AS lcr_procid, lcr.status AS lcr_status,"
@@ -364,13 +366,14 @@ void __fastcall LoadPlanWorkerThread::Execute() {
             "       c_box_retrieval cbr, l_cryovial_retrieval lcr"
             "   WHERE"
             "       cbr.retrieval_cid = :rtid"
-            "   AND chunk = :chnk"
+            //"   AND chunk = :chnk"
             "   AND"
-            "       lcr.rj_box_cid = cbr.rj_box_cid");
+            "       lcr.rj_box_cid = cbr.rj_box_cid";
+        qd.setSQL(oss.str());
+
         int retrieval_cid = frmProcess->job->getID();
-        qd.setParam("temp", tempTableName);
         qd.setParam("rtid", retrieval_cid);
-        qd.setParam("chnk", loadingChunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
+        //qd.setParam("chnk", loadingChunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
         qd.execSQL();
     }
     debugMessage = "finished create temp table";
@@ -400,8 +403,9 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         Synchronize((TThreadMethod)&debugLog);
     }
 
-    LQuery ql(Util::projectQuery(frmProcess->job->getProjectID(), false)); // no ddb
-    ql.setSQL(
+    LQuery ql(Util::projectQuery(frmProcess->job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
+    oss.str("");
+    oss<<
         " SELECT"
         "     g.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status, g.box_id AS dest_id,"
         "     c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
@@ -411,7 +415,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         "     b2.external_name AS dest_name,"
         "     s2.tube_position AS slot_number, s2.status AS dest_status"
         " FROM "
-        "     :temp g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
+        <<tempTableName<<" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
         " WHERE"
         "     c.cryovial_barcode = g.cryovial_barcode"
         "     AND c.aliquot_type_cid = g.aliquot_type_cid"
@@ -422,9 +426,9 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         "     AND s2.cryovial_id = c.cryovial_id"
         "     AND b2.box_cid = s2.box_cid"
         " ORDER BY"
-        "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos"
-    );
-    ql.setParam("temp", tempTableName);
+        "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos";
+    ql.setSQL(oss.str());
+
     rowCount = 0; // class variable needed for synchronise
     ql.open();
     int curchunk = 0, chunk = 0;
@@ -460,9 +464,8 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     debugMessage = oss.str();
     Synchronize((TThreadMethod)&debugLog);
 
-    //qd.setSQL("DROP "TEMP_TABLE_NAME);
-    ql.setSQL("DROP :temp");
-    ql.setParam("temp", tempTableName);
+    oss.str(""); oss<<"DROP TABLE IF EXISTS "<<tempTableName;
+    ql.setSQL(oss.str());
     if (!RETRASSTDEBUG) ql.execSQL();
 
     debugMessage = "finished drop temp table";
@@ -604,12 +607,20 @@ void TfrmProcess::nextRow() {
 
     //sample->retrieval_record->saveRecord(LIMSDatabase::getProjectDb());
     if (current < chunk->getSize()-1) {
-        chunk->setCurrentRow(current+1); //???
+        int lookAhead = sgVials->VisibleRowCount/2;
+        if (current+lookAhead < chunk->getSize()-1) {
+            chunk->setCurrentRow(current+lookAhead);
+            showCurrentRow(); // bodge to scroll next few samples into view; ScrollBy doesn't seem to work
+        } else {
+            chunk->setCurrentRow(chunk->getSize()-1);
+            showCurrentRow();
+        }
+        chunk->setCurrentRow(current+1);
         showCurrentRow();
     } else { // skipped last row
         chunk->setCurrentRow(current+1); // past end to show complete?
         debugLog("Save chunk"); // no, don't save - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
-        if (chunk->getSection() < chunks.size()) {
+        if (chunk->getSection() < (int)chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk
         } else {
             if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
@@ -617,6 +628,19 @@ void TfrmProcess::nextRow() {
         }
     }
     showChunks();
+    //ScrollInView(sgVials);
+
+    wstringstream oss; oss<<"Row: "<<sgVials->Row<<", TopRow: "<<sgVials->TopRow<<", VisibleRowCount: "<<sgVials->VisibleRowCount<<", DefaultRowHeight: "<<sgVials->DefaultRowHeight;
+    //sgVials->
+    debugLog(oss.str().c_str());
+//    if ((sgVials->Row - sgVials->TopRow) > ( sgVials->VisibleRowCount - 5)) {
+//        debugLog("scroll!");
+//        sgVials->Enabled = true;
+//        ActiveControl = sgVials;
+//        sgVials->ScrollBy(0, sgVials->DefaultRowHeight * 5); // doesn't seem to do anything!
+//        //sgVials->ScrollBy(0, 5);
+//        sgVials->Enabled = false;
+//    }
     editBarcode->Clear();
     ActiveControl = editBarcode; // focus for next barcode
 }
@@ -636,8 +660,10 @@ void __fastcall TfrmProcess::editBarcodeKeyUp(TObject *Sender, WORD &Key, TShift
     }
 }
 
-void __fastcall TfrmProcess::FormResize(TObject *Sender) {
-    if (sgwChunks) sgwChunks->resize(); // in case has been deleted in FormDestroy
-    if (sgwVials)  sgwVials->resize();
+void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after* FormDestroy
+    if (!destroying) {
+        sgwChunks->resize(); // in case has been deleted in FormDestroy
+        sgwVials->resize();
+    }
 }
 

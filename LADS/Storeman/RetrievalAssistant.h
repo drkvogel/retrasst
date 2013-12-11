@@ -259,7 +259,7 @@ public:
     void resize() {
         for (int i=0; i<cols.size(); i++) {
             sg->Cells[i][0] = cols[i].title.c_str();
-            const int MARGIN = cols.size() + 5; //5; // even ClientWidth seems not big enough to hold all columns without scrolling horizontally
+            const int MARGIN = cols.size() + 10; //5; // even ClientWidth seems not big enough to hold all columns without scrolling horizontally
             sg->ColWidths[i] = cols[i].width = (int)((cols[i].percentageWidth * (float)(sg->ClientWidth-MARGIN)) / (float)100);
         }
     }

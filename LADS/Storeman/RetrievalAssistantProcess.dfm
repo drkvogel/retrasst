@@ -15,7 +15,6 @@ object frmProcess: TfrmProcess
   WindowState = wsMaximized
   OnClose = FormClose
   OnCreate = FormCreate
-  OnDestroy = FormDestroy
   OnResize = FormResize
   OnShow = FormShow
   PixelsPerInch = 96
@@ -223,7 +222,6 @@ object frmProcess: TfrmProcess
     Align = alBottom
     Caption = 'Details'
     TabOrder = 3
-    ExplicitTop = 411
     object Label3: TLabel
       Left = 14
       Top = 20
