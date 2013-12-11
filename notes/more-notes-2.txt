@@ -1,6 +1,5 @@
 ﻿canned searches - save, delete
     e.g. site name, vessel pos, structure pos, slot, source box pos
-
     
 primary/secondary aliquots    
     create plan
