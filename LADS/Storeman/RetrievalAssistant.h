@@ -40,6 +40,7 @@ const bool RETRASSTDEBUG =
 // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND|DELETED
 
 #define DEFAULT_BOX_SIZE 100
+#define MAX_CHUNK_SIZE 1001
 
 void msgbox(char * main, char * title="Info") {
     Application->MessageBoxW(String(main).w_str(), String(title).w_str(), MB_OK);

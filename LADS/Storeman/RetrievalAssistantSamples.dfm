@@ -51,7 +51,6 @@ object frmSamples: TfrmSamples
     Align = alBottom
     TabOrder = 0
     Visible = False
-    ExplicitWidth = 884
     object Splitter2: TSplitter
       Left = 345
       Top = 1
@@ -76,7 +75,6 @@ object frmSamples: TfrmSamples
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
       TabOrder = 1
-      ExplicitWidth = 535
     end
   end
   object panelChunks: TPanel
@@ -103,8 +101,6 @@ object frmSamples: TfrmSamples
         Align = alRight
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = 790
-        ExplicitHeight = 196
         object btnCancel: TButton
           Left = 0
           Top = 50
@@ -161,8 +157,6 @@ object frmSamples: TfrmSamples
         OnFixedCellClick = sgChunksFixedCellClick
         OnGetEditText = sgChunksGetEditText
         OnSetEditText = sgChunksSetEditText
-        ExplicitWidth = 788
-        ExplicitHeight = 196
       end
       object Panel1: TPanel
         Left = 2
@@ -262,7 +256,7 @@ object frmSamples: TfrmSamples
           end
           object updownBoxSize: TUpDown
             AlignWithMargins = True
-            Left = 137
+            Left = 138
             Top = 14
             Width = 16
             Height = 21
@@ -272,7 +266,7 @@ object frmSamples: TfrmSamples
             TabOrder = 5
           end
           object updownMaxSection: TUpDown
-            Left = 274
+            Left = 275
             Top = 14
             Width = 16
             Height = 21
@@ -290,9 +284,6 @@ object frmSamples: TfrmSamples
             Caption = 'Delete last'
             TabOrder = 7
             OnClick = btnDelChunkClick
-            ExplicitLeft = 724
-            ExplicitTop = 5
-            ExplicitHeight = 32
           end
         end
         object GroupBox1: TGroupBox
@@ -311,11 +302,13 @@ object frmSamples: TfrmSamples
           object labelPrimary: TLabel
             Left = 7
             Top = 20
-            Width = 58
-            Height = 13
+            Width = 83
+            Height = 14
             Align = alClient
             Caption = 'labelPrimary'
             Layout = tlCenter
+            ExplicitWidth = 58
+            ExplicitHeight = 13
           end
         end
         object GroupBox2: TGroupBox
@@ -333,8 +326,8 @@ object frmSamples: TfrmSamples
           object labelSecondary: TLabel
             Left = 7
             Top = 20
-            Width = 73
-            Height = 13
+            Width = 90
+            Height = 14
             Margins.Left = 5
             Margins.Top = 5
             Margins.Right = 5
@@ -342,6 +335,8 @@ object frmSamples: TfrmSamples
             Align = alClient
             Caption = 'labelSecondary'
             Layout = tlCenter
+            ExplicitWidth = 73
+            ExplicitHeight = 13
           end
         end
       end
@@ -354,7 +349,6 @@ object frmSamples: TfrmSamples
     Height = 252
     Align = alClient
     TabOrder = 2
-    ExplicitWidth = 884
     object groupVials: TGroupBox
       Left = 1
       Top = 42
@@ -363,7 +357,6 @@ object frmSamples: TfrmSamples
       Align = alClient
       Caption = 'Vials in chunk'
       TabOrder = 0
-      ExplicitWidth = 882
       object sgVials: TStringGrid
         Left = 2
         Top = 15
@@ -379,7 +372,6 @@ object frmSamples: TfrmSamples
         OnDblClick = sgVialsDblClick
         OnDrawCell = sgVialsDrawCell
         OnFixedCellClick = sgVialsFixedCellClick
-        ExplicitWidth = 878
       end
       object panelLoading: TPanel
         Left = 176
@@ -407,7 +399,6 @@ object frmSamples: TfrmSamples
       Align = alTop
       Caption = 'Sort'
       TabOrder = 1
-      ExplicitWidth = 882
       object btnDelSort: TButton
         Left = 877
         Top = 15
@@ -417,7 +408,6 @@ object frmSamples: TfrmSamples
         Caption = '-'
         TabOrder = 0
         OnClick = btnDelSortClick
-        ExplicitLeft = 798
       end
       object btnAddSort: TButton
         Left = 853
@@ -428,7 +418,6 @@ object frmSamples: TfrmSamples
         Caption = '+'
         TabOrder = 1
         OnClick = btnAddSortClick
-        ExplicitLeft = 774
       end
       object btnApplySort: TButton
         Left = 902
@@ -439,7 +428,6 @@ object frmSamples: TfrmSamples
         Caption = 'Sort'
         TabOrder = 2
         OnClick = btnApplySortClick
-        ExplicitLeft = 823
       end
     end
   end

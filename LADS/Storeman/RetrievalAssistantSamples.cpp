@@ -190,6 +190,15 @@ void __fastcall TfrmSamples::sgChunksFixedCellClick(TObject *Sender, int ACol, i
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
     and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
+
+    for (int i=0; i<chunks.size(); i++) {
+        if (chunks[i]->getSize() > MAX_CHUNK_SIZE) {
+            wstringstream oss; oss<<"Maximum chunk size is "<<MAX_CHUNK_SIZE;
+            Application->MessageBox(oss.str().c_str(), L"Error", MB_OK);
+            return;
+        }
+    }
+
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
         std::set<int> projects; projects.insert(job->getProjectID());
         frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
