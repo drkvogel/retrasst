@@ -27,14 +27,14 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
     sgwVials->addCol("barcode",  "Barcode",          91);
     sgwVials->addCol("site",     "Site",             90);
-    sgwVials->addCol("vesspos",  "VPos",              28);
+    sgwVials->addCol("vesspos",  "Pos",              28);
     sgwVials->addCol("vessel",   "Vessel",           107);
     sgwVials->addCol("shelf",    "Shelf",            31);
-    sgwVials->addCol("structpos","SPos",              27);
+    sgwVials->addCol("structpos","Pos",              27);
     sgwVials->addCol("struct",   "Structure",        100);
     sgwVials->addCol("boxpos",   "Slot",             26);
     sgwVials->addCol("currbox",  "Current box",      257);
-    sgwVials->addCol("currpos",  "CPos",              31);
+    sgwVials->addCol("currpos",  "Pos",              31);
     sgwVials->addCol("destbox",  "Destination box",  240);
     sgwVials->addCol("destpos",  "Pos",              25);
 #ifdef _DEBUG

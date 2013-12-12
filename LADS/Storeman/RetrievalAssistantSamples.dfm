@@ -87,7 +87,6 @@ object frmSamples: TfrmSamples
     Align = alTop
     Caption = 'panelChunks'
     TabOrder = 1
-    ExplicitWidth = 884
     object groupList: TGroupBox
       Left = 1
       Top = 1
@@ -96,8 +95,6 @@ object frmSamples: TfrmSamples
       Align = alClient
       Caption = 'Chunks'
       TabOrder = 0
-      ExplicitWidth = 882
-      ExplicitHeight = 213
       object Panel2: TPanel
         Left = 869
         Top = 15
@@ -176,9 +173,6 @@ object frmSamples: TfrmSamples
         BevelOuter = bvNone
         Caption = 'Panel1'
         TabOrder = 2
-        ExplicitLeft = 0
-        ExplicitTop = 261
-        ExplicitWidth = 884
         object groupAutoChunk: TGroupBox
           Left = 201
           Top = 0
@@ -187,10 +181,6 @@ object frmSamples: TfrmSamples
           Align = alClient
           Caption = 'Auto-Chunk'
           TabOrder = 0
-          ExplicitLeft = 1
-          ExplicitTop = 1
-          ExplicitWidth = 752
-          ExplicitHeight = 39
           object Label1: TLabel
             AlignWithMargins = True
             Left = 156
@@ -321,13 +311,11 @@ object frmSamples: TfrmSamples
           object labelPrimary: TLabel
             Left = 7
             Top = 20
-            Width = 83
-            Height = 14
+            Width = 58
+            Height = 13
             Align = alClient
             Caption = 'labelPrimary'
             Layout = tlCenter
-            ExplicitLeft = 8
-            ExplicitTop = 19
           end
         end
         object GroupBox2: TGroupBox
@@ -345,8 +333,8 @@ object frmSamples: TfrmSamples
           object labelSecondary: TLabel
             Left = 7
             Top = 20
-            Width = 90
-            Height = 14
+            Width = 73
+            Height = 13
             Margins.Left = 5
             Margins.Top = 5
             Margins.Right = 5
@@ -354,10 +342,6 @@ object frmSamples: TfrmSamples
             Align = alClient
             Caption = 'labelSecondary'
             Layout = tlCenter
-            ExplicitLeft = 2
-            ExplicitTop = 15
-            ExplicitWidth = 73
-            ExplicitHeight = 13
           end
         end
       end
