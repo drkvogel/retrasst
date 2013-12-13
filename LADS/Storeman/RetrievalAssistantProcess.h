@@ -75,6 +75,12 @@ __published:
     TLabel *Label2;
     TLabel *Label4;
     TLabel *labelDestbox;
+    TButton *btnSecondary;
+    TPanel *panelAliquots;
+    TGroupBox *GroupBox1;
+    TLabel *labelPrimary;
+    TGroupBox *GroupBox4;
+    TLabel *labelSecondary;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
@@ -92,6 +98,7 @@ __published:
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
     void __fastcall FormResize(TObject *Sender);
+    void __fastcall btnSecondaryClick(TObject *Sender);
 
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;

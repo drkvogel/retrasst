@@ -78,6 +78,9 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     labelSampleID->Caption  = "loading...";
     labelStorage->Caption   = "loading...";
     labelDestbox->Caption   = "loading...";
+    labelPrimary->Caption   = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str();
+    labelSecondary->Caption = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str();
+    btnSecondary->Enabled   = job->getSecondaryAliquot() == 0 ? false : true;
 }
 
 /*#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR  clActiveCaption
@@ -628,19 +631,13 @@ void TfrmProcess::nextRow() {
         }
     }
     showChunks();
-    //ScrollInView(sgVials);
 
-    wstringstream oss; oss<<"Row: "<<sgVials->Row<<", TopRow: "<<sgVials->TopRow<<", VisibleRowCount: "<<sgVials->VisibleRowCount<<", DefaultRowHeight: "<<sgVials->DefaultRowHeight;
-    //sgVials->
-    debugLog(oss.str().c_str());
-//    if ((sgVials->Row - sgVials->TopRow) > ( sgVials->VisibleRowCount - 5)) {
-//        debugLog("scroll!");
-//        sgVials->Enabled = true;
-//        ActiveControl = sgVials;
-//        sgVials->ScrollBy(0, sgVials->DefaultRowHeight * 5); // doesn't seem to do anything!
-//        //sgVials->ScrollBy(0, 5);
-//        sgVials->Enabled = false;
-//    }
+    // aborted scrolling
+    //ScrollInView(sgVials);
+    //wstringstream oss; oss<<"Row: "<<sgVials->Row<<", TopRow: "<<sgVials->TopRow<<", VisibleRowCount: "<<sgVials->VisibleRowCount<<", DefaultRowHeight: "<<sgVials->DefaultRowHeight; debugLog(oss.str().c_str());
+
+    // fixme is there a secondary aliquot for this row?
+    //btnSecondary->Enabled   = job->getSecondaryAliquot()
     editBarcode->Clear();
     ActiveControl = editBarcode; // focus for next barcode
 }
@@ -665,5 +662,10 @@ void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after
         sgwChunks->resize(); // in case has been deleted in FormDestroy
         sgwVials->resize();
     }
+}
+
+void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
+    //
+    //job->getSecondaryAliquot()
 }
 

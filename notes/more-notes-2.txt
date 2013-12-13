@@ -11,22 +11,15 @@ primary/secondary aliquots
     process plan
         shows EDTA_2 as well as EDTA_1
 
-sort "aliquot aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782)
- shouldn't show aliquot anyway
+ * sort "aliquot aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782) shouldn't show aliquot anyway
 
-up/down arrows to show column sort
-
-Source/Current box - standardise name - current probably better?
+ * up/down arrows to show column sort
+ * Source/Current box - standardise name - current probably better?
     
 From meeting:
 
-Part 1
-
- * Don’t allow people to save a plan with chunks of more than 1001 samples for sample retrieval/disposal/reorganisation
-
 Part 2
  * Chunk list should include a second row for each chunk if there is a secondary aliquot (second part of each chunk?)
-
  * Allow user to fill gaps in boxes from secondary aliquot after primary aliquot (partly?) completed
  * Empty source boxes (all cryovials "accepted" or "not found") will normally be discarded.  Final stage should ask user to confirm that vessel/structure/slot is now empty, otherwise box should be referred.  All source boxes from a reorganisation task should end up empty
 
@@ -43,6 +36,7 @@ Part 2
 
 ## Done
 
+* Don’t allow people to save a plan with chunks of more than 1001 samples for sample retrieval/disposal/reorganisation
  * Only display primary aliquots.  
 add 1 chunk - must add to last current chunk, not in middle
 factor out select_stats into Util-

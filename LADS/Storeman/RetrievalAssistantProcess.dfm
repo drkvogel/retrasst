@@ -126,7 +126,7 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object btnAccept: TButton
-      Left = 646
+      Left = 571
       Top = 15
       Width = 75
       Height = 60
@@ -134,6 +134,7 @@ object frmProcess: TfrmProcess
       Caption = 'Accept'
       TabOrder = 0
       OnClick = btnAcceptClick
+      ExplicitLeft = 646
     end
     object btnSkip: TButton
       Left = 721
@@ -148,7 +149,7 @@ object frmProcess: TfrmProcess
     object editBarcode: TEdit
       Left = 159
       Top = 16
-      Width = 311
+      Width = 250
       Height = 53
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -160,8 +161,8 @@ object frmProcess: TfrmProcess
       OnKeyUp = editBarcodeKeyUp
     end
     object cbLog: TCheckBox
-      Left = 514
-      Top = 46
+      Left = 14
+      Top = 57
       Width = 64
       Height = 17
       Anchors = [akRight, akBottom]
@@ -188,6 +189,18 @@ object frmProcess: TfrmProcess
       Caption = 'Not Found'
       TabOrder = 5
       OnClick = btnNotFoundClick
+    end
+    object btnSecondary: TButton
+      Left = 646
+      Top = 15
+      Width = 75
+      Height = 60
+      Align = alRight
+      Caption = 'Use 2nd'
+      TabOrder = 6
+      OnClick = btnSecondaryClick
+      ExplicitLeft = 715
+      ExplicitTop = 14
     end
   end
   object Chunks: TGroupBox
@@ -299,6 +312,71 @@ object frmProcess: TfrmProcess
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
+    end
+    object panelAliquots: TPanel
+      Left = 761
+      Top = 15
+      Width = 185
+      Height = 113
+      Align = alRight
+      BevelOuter = bvNone
+      TabOrder = 0
+      ExplicitTop = 11
+      object GroupBox1: TGroupBox
+        Left = 0
+        Top = 0
+        Width = 185
+        Height = 55
+        Margins.Bottom = 9
+        Align = alTop
+        Caption = 'Primary Aliquot'
+        Padding.Left = 5
+        Padding.Top = 5
+        Padding.Right = 5
+        Padding.Bottom = 5
+        TabOrder = 0
+        object labelPrimary: TLabel
+          Left = 7
+          Top = 20
+          Width = 171
+          Height = 28
+          Align = alClient
+          Caption = 'labelPrimary'
+          Layout = tlCenter
+          ExplicitWidth = 58
+          ExplicitHeight = 13
+        end
+      end
+      object GroupBox4: TGroupBox
+        Left = 0
+        Top = 55
+        Width = 185
+        Height = 58
+        Align = alClient
+        Caption = 'Secondary Aliquot'
+        Padding.Left = 5
+        Padding.Top = 5
+        Padding.Right = 5
+        Padding.Bottom = 5
+        TabOrder = 1
+        ExplicitTop = 49
+        ExplicitHeight = 104
+        object labelSecondary: TLabel
+          Left = 7
+          Top = 20
+          Width = 171
+          Height = 31
+          Margins.Left = 5
+          Margins.Top = 5
+          Margins.Right = 5
+          Margins.Bottom = 5
+          Align = alClient
+          Caption = 'labelSecondary'
+          Layout = tlCenter
+          ExplicitWidth = 73
+          ExplicitHeight = 13
+        end
+      end
     end
   end
   object mainMenuMain: TMainMenu
