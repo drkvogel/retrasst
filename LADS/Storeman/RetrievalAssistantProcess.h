@@ -104,7 +104,6 @@ private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
-    //int                                         chunk;
     vector< Chunk< SampleRow > *>               chunks;
     vecpSampleRow                               vials;
     //std::auto_ptr< StringGridWrapper< Chunk< SampleRow > > >  sgwChunks;
@@ -116,22 +115,20 @@ private:
     Chunk< SampleRow > *                        currentChunk();
     SampleRow *                                 currentSample();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
-    //Chunk< SampleRow >::Status                  chunkStatus(Chunk< SampleRow > * chunk);
     void                                        loadRows();
     void                                        addChunk(int row);
     //void                                        addChunks();
     void                                        process();
     void                                        showCurrentRow();
-    void                                        showRowDetails(SampleRow * sample);
+    //void                                        showRowDetails(SampleRow * sample);
     void                                        accept(String barcode);
     void                                        nextRow();
     void                                        exit();
-    //int                                         currentRow;
-    //int                                         currentChunk;
-    //int maxRows;
     const char *                                loadingMessage;
     void                                        debugLog(String s);
     bool destroying;
+    char tempTableName[128];
+    map<int, const SampleRow *> storageCache;
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);

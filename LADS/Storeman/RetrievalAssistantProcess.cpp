@@ -349,18 +349,17 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     loadingMessage = frmProcess->loadingMessage;
 
     const int pid = LCDbAuditTrail::getCurrent().getProcessID();
-    char tempTableName[128]; sprintf(tempTableName, "retrieval_assistant_temp_%d", pid);
-    //char * tempTableName = "retrieval_assistant_temp";
+    sprintf(frmProcess->tempTableName, "retrieval_assistant_temp_%d", pid);
 
     {
         LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
 
-        oss.str(""); oss<<"DROP TABLE IF EXISTS "<<tempTableName; // ingres doesn't like table names passed as parameters
+        oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName; // ingres doesn't like table names passed as parameters
         qd.setSQL(oss.str());
         qd.execSQL();
 
         oss.str("");
-        oss<<"CREATE TABLE "<<tempTableName<<" AS"<<
+        oss<<"CREATE TABLE "<<frmProcess->tempTableName<<" AS"<<
             "   SELECT"
             "       cbr.section AS chunk, cbr.rj_box_cid, cbr.retrieval_cid, cbr.status AS cbr_status, cbr.box_id,"
             "       lcr.position AS dest_pos, lcr.slot_number AS lcr_slot, lcr.process_cid AS lcr_procid, lcr.status AS lcr_status,"
@@ -418,7 +417,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         "     b2.external_name AS dest_name,"
         "     s2.tube_position AS slot_number, s2.status AS dest_status"
         " FROM "
-        <<tempTableName<<" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
+        <<frmProcess->tempTableName<<" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
         " WHERE"
         "     c.cryovial_barcode = g.cryovial_barcode"
         "     AND c.aliquot_type_cid = g.aliquot_type_cid"
@@ -467,7 +466,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     debugMessage = oss.str();
     Synchronize((TThreadMethod)&debugLog);
 
-    oss.str(""); oss<<"DROP TABLE IF EXISTS "<<tempTableName;
+    oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName;
     ql.setSQL(oss.str());
     if (!RETRASSTDEBUG) ql.execSQL();
 
@@ -477,13 +476,14 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
 
     // find locations of source boxes
-    map<int, const SampleRow *> samples; ROSETTA result; StoreDAO dao;
+    //map<int, const SampleRow *> samples;
+    ROSETTA result; StoreDAO dao;
     int rowCount2 = 0;
 	for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
-        map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
-        if (found != samples.end()) { // fill in box location from cache map
+        map<int, const SampleRow *>::iterator found = frmProcess->storageCache.find(sample->store_record->getBoxID());
+        if (found != frmProcess->storageCache.end()) { // fill in box location from cache map
             sample->copyLocation(*(found->second));
         } else {
             if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
@@ -491,7 +491,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
             } else {
                 sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
             }
-            samples[sample->store_record->getBoxID()] = (*it); // cache result
+            frmProcess->storageCache[sample->store_record->getBoxID()] = (*it); // cache result
         }
         oss<<sample->storage_str();
         loadingMessage = oss.str().c_str();
@@ -523,10 +523,7 @@ void TfrmProcess::showCurrentRow() {
         sample = currentChunk()->rowAt(rowIdx);
         sgVials->Row = rowIdx+1;    // allow for header row
     }
-    showRowDetails(sample);
-}
 
-void TfrmProcess::showRowDetails(SampleRow * sample) {
     if (NULL == sample) {
         labelSampleID->Caption  = "";
         labelStorage->Caption   = "Chunk completed";
@@ -612,11 +609,9 @@ void TfrmProcess::nextRow() {
     if (current < chunk->getSize()-1) {
         int lookAhead = sgVials->VisibleRowCount/2;
         if (current+lookAhead < chunk->getSize()-1) {
-            chunk->setCurrentRow(current+lookAhead);
-            showCurrentRow(); // bodge to scroll next few samples into view; ScrollBy doesn't seem to work
+            sgVials->Row = current+lookAhead+1; // bodge to scroll next few samples into view; ScrollBy doesn't seem to work
         } else {
-            chunk->setCurrentRow(chunk->getSize()-1);
-            showCurrentRow();
+            sgVials->Row = sgVials->RowCount-1;
         }
         chunk->setCurrentRow(current+1);
         showCurrentRow();
@@ -665,7 +660,72 @@ void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after
 }
 
 void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
-    //
-    //job->getSecondaryAliquot()
+    //SampleRow * sample, secondary;
+
+    int rowIdx = currentChunk()->getCurrentRow();
+    SampleRow * sample = currentChunk()->rowAt(rowIdx); // current sample
+
+    // fixme is there a secondary aliquot for this row?
+    if (job->getSecondaryAliquot() != 0) {
+        LQuery ql(Util::projectQuery(frmProcess->job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
+        ostringstream oss;
+        oss<<
+            " SELECT"
+            "     g.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status, g.box_id AS dest_id,"
+            "     c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
+            "     s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position, s1.record_id,"
+            "     s1.status, s1.tube_position, s1.note_exists AS cs_note,"
+            "     b1.external_name AS src_box, "
+            "     b2.external_name AS dest_name,"
+            "     s2.tube_position AS slot_number, s2.status AS dest_status"
+            " FROM "
+            <<tempTableName<<" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
+            " WHERE"
+            "     c.cryovial_barcode = g.cryovial_barcode"
+            "     AND c.aliquot_type_cid = g.aliquot_type_cid"
+            "     AND s1.cryovial_id = c.cryovial_id"
+            "     AND s1.retrieval_cid = g.retrieval_cid"
+            "     AND b2.box_cid = g.box_id"
+            "     AND b1.box_cid = s1.box_cid"
+            "     AND s2.cryovial_id = c.cryovial_id"
+            "     AND b2.box_cid = s2.box_cid"
+            "     AND c.sample_id = "<<sample->cryo_record->getSampleID()<< //???
+            " ORDER BY"
+            "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos";
+        ql.setSQL(oss.str());
+        ql.open();
+        if (ql.eof()) {
+            delete sample;
+            //SampleRow * secondary = new SampleRow(
+            sample = new SampleRow( // replace with secondary aliquot
+                new LPDbCryovial(ql),
+                new LPDbCryovialStore(ql),
+                new LCDbCryovialRetrieval(ql), // fixme
+                ql.readString(  "cryovial_barcode"),
+                Util::getAliquotDescription(ql.readInt("aliquot_type_cid")),
+                ql.readString(  "src_box"),
+                ql.readInt(     "dest_id"),
+                ql.readString(  "dest_name"),
+                ql.readInt(     "dest_pos"),
+                "", 0, "", 0, 0, "", 0 ); // no storage details yet
+        } else {
+            throw "couldn't find secondary aliquot";
+        }
+
+        // find storage details
+        ROSETTA result; StoreDAO dao;
+        map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
+        if (found != storageCache.end()) { // fill in box location from cache map
+            sample->copyLocation(*(found->second));
+        } else {
+            if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
+                sample->copyLocation(result);
+            } else {
+                sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
+            }
+            storageCache[sample->store_record->getBoxID()] = (sample); // cache result
+        }
+    }
+    //btnSecondary->Enabled   = job->getSecondaryAliquot()}
 }
 
