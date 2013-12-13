@@ -1,17 +1,15 @@
 ﻿select * from c_box_retrieval where rj_box_cid = 2057
 
 select * from c_box_retrieval cbr, l_cryovial_retrieval lcr where cbr.rj_box_cid = lcr.rj_box_cid
-
+    
+## Done    
 
  * scroll to show at least 5 next samples - ScrollBy doesn't seem to work! but worked out a bodge
- 
  * show storage location
  * show sample ID (barcode)?
  * if identical barcode entered into signoff box
     * mark signed off
-    * refresh - different colour for signed off
-    
-    move to montpelier or somewhere
+    * refresh - different colour for signed off    
     
  when loading chunks, boxes, vials, pay attention to their state (
     // Chunk? Must be calculated? NEW|PART_PROCESSED|COMPLETED
@@ -42,9 +40,7 @@ SELECT     s1.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.
 
 sql in shell script (from GJ):
 
-It depends on the version of Ingres where you’re running the “sql” command.
-
-There are “-d” and “-s” command line options, which get rid of some of the header info.
+It depends on the version of Ingres where you’re running the “sql” command. There are “-d” and “-s” command line options, which get rid of some of the header info.
 
 More recent versions also have “-S” which is for “silent mode”, it gets rid of the everything except the data you select, so you won’t get any column titles, separators, rowcounts.
 If you need something in between all the info and none of the info, there are some other flags which I never remember but can look them up.

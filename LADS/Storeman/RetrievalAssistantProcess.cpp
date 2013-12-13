@@ -70,7 +70,6 @@ void TfrmProcess::debugLog(String s) {
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
     Caption = oss.str().c_str();
-    timerLoadPlan->Enabled = true;
     panelLoading->Caption = loadingMessage;
     chunks.clear();
     sgwChunks->clear();
@@ -81,6 +80,7 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     labelPrimary->Caption   = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str();
     labelSecondary->Caption = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str();
     btnSecondary->Enabled   = job->getSecondaryAliquot() == 0 ? false : true;
+    timerLoadPlan->Enabled = true;
 }
 
 /*#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR  clActiveCaption
@@ -187,9 +187,7 @@ void __fastcall TfrmProcess::btnExitClick(TObject *Sender) {
 }
 
 void __fastcall TfrmProcess::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
-    ostringstream oss; oss << __FUNC__;
-    oss<<sgwChunks->printColWidths()<<" clicked on col: "<<ACol<<".";
-    //debugLog(oss.str().c_str());
+    ostringstream oss; oss << __FUNC__; oss<<sgwChunks->printColWidths()<<" clicked on col: "<<ACol<<"."; //debugLog(oss.str().c_str());
 }
 
 void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
@@ -303,9 +301,7 @@ void __fastcall TfrmProcess::timerLoadPlanTimer(TObject *Sender) {
     loadChunk();
 }
 
-//void TfrmProcess::loadRows() {
-void TfrmProcess::loadChunk() {
-//void TfrmProcess::loadChunk(Chunk< SampleRow > *) {
+void TfrmProcess::loadChunk() { //(Chunk< SampleRow > *) {
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
     panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
@@ -476,29 +472,32 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
 
     // find locations of source boxes
-    //map<int, const SampleRow *> samples;
-    ROSETTA result; StoreDAO dao;
     int rowCount2 = 0;
 	for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
-        map<int, const SampleRow *>::iterator found = frmProcess->storageCache.find(sample->store_record->getBoxID());
-        if (found != frmProcess->storageCache.end()) { // fill in box location from cache map
-            sample->copyLocation(*(found->second));
-        } else {
-            if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
-                sample->copyLocation(result);
-            } else {
-                sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
-            }
-            frmProcess->storageCache[sample->store_record->getBoxID()] = (*it); // cache result
-        }
+        frmProcess->getStorage(sample);
         oss<<sample->storage_str();
         loadingMessage = oss.str().c_str();
         Synchronize((TThreadMethod)&updateStatus);
 	}
     debugMessage = "finished load storage details";
     Synchronize((TThreadMethod)&debugLog);
+}
+
+void TfrmProcess::getStorage(SampleRow * sample) { // this could be used application-wide
+    ROSETTA result; StoreDAO dao;
+    map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
+    if (found != storageCache.end()) { // fill in box location from cache map
+        sample->copyLocation(*(found->second));
+    } else {
+        if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
+            sample->copyLocation(result);
+        } else {
+            sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
+        }
+        storageCache[sample->store_record->getBoxID()] = sample; // cache result
+    }
 }
 
 void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
@@ -627,10 +626,6 @@ void TfrmProcess::nextRow() {
     }
     showChunks();
 
-    // aborted scrolling
-    //ScrollInView(sgVials);
-    //wstringstream oss; oss<<"Row: "<<sgVials->Row<<", TopRow: "<<sgVials->TopRow<<", VisibleRowCount: "<<sgVials->VisibleRowCount<<", DefaultRowHeight: "<<sgVials->DefaultRowHeight; debugLog(oss.str().c_str());
-
     // fixme is there a secondary aliquot for this row?
     //btnSecondary->Enabled   = job->getSecondaryAliquot()
     editBarcode->Clear();
@@ -660,8 +655,6 @@ void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after
 }
 
 void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
-    //SampleRow * sample, secondary;
-
     int rowIdx = currentChunk()->getCurrentRow();
     SampleRow * sample = currentChunk()->rowAt(rowIdx); // current sample
 
@@ -669,6 +662,9 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
     if (job->getSecondaryAliquot() != 0) {
         LQuery ql(Util::projectQuery(frmProcess->job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
         ostringstream oss;
+
+        // some of these fields may be the same as the primary, might be able to get away with joining less tables?
+
         oss<<
             " SELECT"
             "     g.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status, g.box_id AS dest_id,"
@@ -682,7 +678,7 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
             <<tempTableName<<" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
             " WHERE"
             "     c.cryovial_barcode = g.cryovial_barcode"
-            "     AND c.aliquot_type_cid = g.aliquot_type_cid"
+            "     AND c.aliquot_type_cid = "<<job->getSecondaryAliquot()<< //g.aliquot_type_cid"
             "     AND s1.cryovial_id = c.cryovial_id"
             "     AND s1.retrieval_cid = g.retrieval_cid"
             "     AND b2.box_cid = g.box_id"
@@ -693,10 +689,9 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
             " ORDER BY"
             "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos";
         ql.setSQL(oss.str());
-        ql.open();
-        if (ql.eof()) {
-            delete sample;
-            //SampleRow * secondary = new SampleRow(
+        if (ql.open()) {
+        //if (ql.eof()) {
+            //delete sample;
             sample = new SampleRow( // replace with secondary aliquot
                 new LPDbCryovial(ql),
                 new LPDbCryovialStore(ql),
@@ -708,22 +703,13 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
                 ql.readString(  "dest_name"),
                 ql.readInt(     "dest_pos"),
                 "", 0, "", 0, 0, "", 0 ); // no storage details yet
-        } else {
-            throw "couldn't find secondary aliquot";
-        }
 
-        // find storage details
-        ROSETTA result; StoreDAO dao;
-        map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
-        if (found != storageCache.end()) { // fill in box location from cache map
-            sample->copyLocation(*(found->second));
+            // find storage details
+            getStorage(sample);
         } else {
-            if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
-                sample->copyLocation(result);
-            } else {
-                sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
-            }
-            storageCache[sample->store_record->getBoxID()] = (sample); // cache result
+            //throw "couldn't find secondary aliquot";
+            //Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK);
+            Application->MessageBox(L"Couldn't find secondary aliquot", L"Info", MB_OK);
         }
     }
     //btnSecondary->Enabled   = job->getSecondaryAliquot()}

@@ -109,6 +109,7 @@ private:
     //std::auto_ptr< StringGridWrapper< Chunk< SampleRow > > >  sgwChunks;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
     StringGridWrapper<SampleRow> *              sgwVials;
+    void                                        getStorage(SampleRow * sample);
     void                                        showChunks();
     //void                                        loadChunk(Chunk< SampleRow > *);
     void                                        loadChunk();
