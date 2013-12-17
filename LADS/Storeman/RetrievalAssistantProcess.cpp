@@ -62,6 +62,7 @@ void __fastcall TfrmProcess::FormClose(TObject *Sender, TCloseAction &Action) {
     delete_referenced< vector <SampleRow * > >(vials);
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
 }
+
 void TfrmProcess::debugLog(String s) {
     String tmp = Now().CurrentDateTime().DateTimeString() + ": " + s;
     memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
@@ -82,15 +83,6 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     btnSecondary->Enabled   = job->getSecondaryAliquot() == 0 ? false : true;
     timerLoadPlan->Enabled = true;
 }
-
-/*#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR  clActiveCaption
-#define RETRIEVAL_ASSISTANT_NEW_COLOUR          clMoneyGreen
-#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
-#define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
-#define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR    clFuchsia
-#define RETRIEVAL_ASSISTANT_IGNORED_COLOUR      clGray
-#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
-#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clPurple*/
 
 void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
     TColor background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
@@ -138,7 +130,7 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
     } else {
         SampleRow * row = (SampleRow *)sgVials->Objects[0][ARow];
         if (NULL == row) {
-            background = clWindow; /// whilst loading //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = clWindow; // whilst loading
         } else {
             int status = row->retrieval_record->getStatus();
             switch (status) {
@@ -150,7 +142,6 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
                     background = RETRIEVAL_ASSISTANT_DONE_COLOUR; break;
                 case LCDbCryovialRetrieval::NOT_FOUND:
                     background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR; break;
-                //case LCDbCryovialRetrieval::DELETED:
                 default:
                     background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
             }
@@ -197,7 +188,6 @@ void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
     //timerLoadPlan->Enabled = true;
     //loadChunk(chunk);
     showChunk(chunk);
-    //showChunk();
 }
 
 void TfrmProcess::showChunks() {
@@ -241,26 +231,9 @@ void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
     }
     for (int row=0; row < chunk->getSize(); row++) {
         SampleRow *         sampleRow = chunk->rowAt(row);
-        LPDbCryovial *      vial    = sampleRow->cryo_record;
-        LPDbCryovialStore * store   = sampleRow->store_record;
-        int rw = row+1; // for stringgrid
-        sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = sampleRow->retrieval_record->statusString(sampleRow->retrieval_record->getStatus());
-        sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
-        sgVials->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("vesspos")]  [rw] = sampleRow->vessel_pos;
-        sgVials->Cells[sgwVials->colNameToInt("vessel" )]  [rw] = sampleRow->vessel_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("shelf"  )]  [rw] = sampleRow->shelf_number;
-        sgVials->Cells[sgwVials->colNameToInt("structpos")][rw] = sampleRow->structure_pos;
-        sgVials->Cells[sgwVials->colNameToInt("struct" )]  [rw] = sampleRow->structure_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
-        sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
-        sgVials->Objects[0][rw] = (TObject *)sampleRow;
+        fillRow(sampleRow, row+1); // row+1 for stringgrid
     }
-    //sgVials->Row = 1;
+
     if (1.0 == chunk->getProgress()) { // completed
         btnAccept->Enabled   = false;
         btnSkip->Enabled     = false;
@@ -272,6 +245,26 @@ void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
     }
     showCurrentRow();
     Screen->Cursor = crDefault; Enabled = true;
+}
+
+void TfrmProcess::fillRow(SampleRow * sampleRow, int rw) {
+    LPDbCryovial *      vial    = sampleRow->cryo_record;
+    LPDbCryovialStore * store   = sampleRow->store_record;
+    sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = sampleRow->retrieval_record->statusString(sampleRow->retrieval_record->getStatus());
+    sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
+    sgVials->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("vesspos")]  [rw] = sampleRow->vessel_pos;
+    sgVials->Cells[sgwVials->colNameToInt("vessel" )]  [rw] = sampleRow->vessel_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("shelf"  )]  [rw] = sampleRow->shelf_number;
+    sgVials->Cells[sgwVials->colNameToInt("structpos")][rw] = sampleRow->structure_pos;
+    sgVials->Cells[sgwVials->colNameToInt("struct" )]  [rw] = sampleRow->structure_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
+    sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
+    sgVials->Objects[0][rw] = (TObject *)sampleRow;
 }
 
 void TfrmProcess::process() {
@@ -522,7 +515,10 @@ void TfrmProcess::showCurrentRow() {
         sample = currentChunk()->rowAt(rowIdx);
         sgVials->Row = rowIdx+1;    // allow for header row
     }
+    showDetails(sample);
+}
 
+void TfrmProcess::showDetails(SampleRow * sample) {
     if (NULL == sample) {
         labelSampleID->Caption  = "";
         labelStorage->Caption   = "Chunk completed";
@@ -655,16 +651,17 @@ void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after
 }
 
 void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
-    int rowIdx = currentChunk()->getCurrentRow();
-    SampleRow * sample = currentChunk()->rowAt(rowIdx); // current sample
+    Screen->Cursor = crSQLWait; Enabled = false;
 
-    // fixme is there a secondary aliquot for this row?
-    if (job->getSecondaryAliquot() != 0) {
+    SampleRow * sample;//, * secondary;
+    int rowIdx = currentChunk()->getCurrentRow();
+    sample = currentChunk()->rowAt(rowIdx); // current primary
+
+    if (job->getSecondaryAliquot() != 0) { // is there a secondary aliquot for this row?
         LQuery ql(Util::projectQuery(frmProcess->job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
         ostringstream oss;
 
         // some of these fields may be the same as the primary, might be able to get away with joining less tables?
-
         oss<<
             " SELECT"
             "     g.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status, g.box_id AS dest_id,"
@@ -690,9 +687,7 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
             "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos";
         ql.setSQL(oss.str());
         if (ql.open()) {
-        //if (ql.eof()) {
-            //delete sample;
-            sample = new SampleRow( // replace with secondary aliquot
+            sample->secondary = new SampleRow( // replace with secondary aliquot
                 new LPDbCryovial(ql),
                 new LPDbCryovialStore(ql),
                 new LCDbCryovialRetrieval(ql), // fixme
@@ -705,13 +700,17 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
                 "", 0, "", 0, 0, "", 0 ); // no storage details yet
 
             // find storage details
-            getStorage(sample);
+            getStorage(sample->secondary);
+
+            // refresh sg row
+            fillRow(sample->secondary, rowIdx+1);
+            showCurrentRow();
+            showDetails(sample->secondary);
         } else {
-            //throw "couldn't find secondary aliquot";
-            //Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK);
             Application->MessageBox(L"Couldn't find secondary aliquot", L"Info", MB_OK);
         }
     }
-    //btnSecondary->Enabled   = job->getSecondaryAliquot()}
+
+    Screen->Cursor = crDefault; Enabled = true;
 }
 

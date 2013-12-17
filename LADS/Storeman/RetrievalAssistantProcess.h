@@ -116,12 +116,14 @@ private:
     Chunk< SampleRow > *                        currentChunk();
     SampleRow *                                 currentSample();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
+    void                                        fillRow(SampleRow * sampleRow, int rw);
     void                                        loadRows();
     void                                        addChunk(int row);
     //void                                        addChunks();
     void                                        process();
     void                                        showCurrentRow();
     //void                                        showRowDetails(SampleRow * sample);
+    void                                        showDetails(SampleRow * sample);
     void                                        accept(String barcode);
     void                                        nextRow();
     void                                        exit();
