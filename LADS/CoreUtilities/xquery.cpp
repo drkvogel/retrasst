@@ -57,11 +57,6 @@ bool XQUERY::isOpen( void )
 #endif
 	return( is_open );
 }
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-int XQUERY::getNRows( void )
-{
-	return( nrows_fetched );
-}
 //---------------------------------------------------------------------------
 void XQUERY::setAcceptNull( const bool acc_nul )
 {
@@ -692,6 +687,7 @@ bool XQUERY::ingFetchSetNull( const char *nam, const int typ )
 			ok = false;
 			break;
 		}
+	res_ptr->attachTag( nam, XSQL::nullable );
 	res_ptr->attachTag( nam, XSQL::null );
 	return( ok );
 }
@@ -712,59 +708,54 @@ bool XQUERY::ingFetchRepack( IIAPI_DESCRIPTOR *d, const IIAPI_DATAVALUE *v )
 		}
 	if ( d->ds_nullable && v->dv_null )
 		{ok = ingFetchSetNull( nam, d->ds_dataType );
+		return( ok );
 		}
-	else
-		{switch( abs( d->ds_dataType ) )
-			{
-			case IIAPI_INT_TYPE:
-				ok = ingFetchRepackInt( nam, v );
-				break;
-			case IIAPI_VCH_TYPE:
-				ok = ingFetchRepackVarchar( nam, v );
-				break;
-			case IIAPI_LVCH_TYPE:
-				ok = ingFetchRepackLVarchar( nam, v );
-				break;
-			case IIAPI_FLT_TYPE:
-				ok = ingFetchRepackReal( nam, v );
-				break;
-			case IIAPI_DTE_TYPE:
-				ok = ingFetchRepackDate( nam, v );
-				break;
-			case IIAPI_VBYTE_TYPE:
-				ok = ingFetchRepackByte( nam, v );
-				break;
-			case IIAPI_LBYTE_TYPE:
-				ok = ingFetchRepackLByte( nam, v );
-				break;
-			case IIAPI_CHA_TYPE:
-				ok = ingFetchRepackChar( nam, v );
-				break;
-			case IIAPI_CHR_TYPE:
-			case IIAPI_DEC_TYPE:
-			case IIAPI_MNY_TYPE:
-			case IIAPI_LTXT_TYPE:
-			case IIAPI_TXT_TYPE:
-			case IIAPI_BYTE_TYPE:
-				ok = ingFetchRepackOther( nam, d, v );
-				break;
-			case IIAPI_LOGKEY_TYPE:
-			case IIAPI_TABKEY_TYPE:
-				ok = ingFetchRepackKey( nam, v );
-				break;
-			default:
-				error( 0, "fetch(), invalid field type" );
-				ok = false;
-				break;
-			}
+	switch( abs( d->ds_dataType ) )
+		{
+		case IIAPI_INT_TYPE:
+			ok = ingFetchRepackInt( nam, v );
+			break;
+		case IIAPI_VCH_TYPE:
+			ok = ingFetchRepackVarchar( nam, v );
+			break;
+		case IIAPI_LVCH_TYPE:
+			ok = ingFetchRepackLVarchar( nam, v );
+			break;
+		case IIAPI_FLT_TYPE:
+			ok = ingFetchRepackReal( nam, v );
+			break;
+		case IIAPI_DTE_TYPE:
+			ok = ingFetchRepackDate( nam, v );
+			break;
+		case IIAPI_VBYTE_TYPE:
+			ok = ingFetchRepackByte( nam, v );
+			break;
+		case IIAPI_LBYTE_TYPE:
+			ok = ingFetchRepackLByte( nam, v );
+			break;
+		case IIAPI_CHA_TYPE:
+			ok = ingFetchRepackChar( nam, v );
+			break;
+		case IIAPI_CHR_TYPE:
+		case IIAPI_DEC_TYPE:
+		case IIAPI_MNY_TYPE:
+		case IIAPI_LTXT_TYPE:
+		case IIAPI_TXT_TYPE:
+		case IIAPI_BYTE_TYPE:
+			ok = ingFetchRepackOther( nam, d, v );
+			break;
+		case IIAPI_LOGKEY_TYPE:
+		case IIAPI_TABKEY_TYPE:
+			ok = ingFetchRepackKey( nam, v );
+			break;
+		default:
+			error( 0, "fetch(), invalid field type" );
+			ok = false;
+			break;
 		}
 	if ( d->ds_nullable )
-		{if ( nrows_fetched < 1 )
-			{res_ptr->attachTag( nam, XSQL::nullable );
-			}
-		else if ( ! v->dv_null )	// ONLY NEEDED IF ROW > 0
-			{res_ptr->removeTag( nam, XSQL::null );
-			}
+		{res_ptr->attachTag( nam, XSQL::nullable );
+		res_ptr->removeTag( nam, XSQL::null );
 		}
 	return( ok );
 }
@@ -881,6 +872,9 @@ bool XQUERY::ingFetch( void )
 			}
 		buffer_curow++;
 		}
+	if ( ok )
+		{nrows_fetched++;
+		}
 	return( ok );
 }
 #endif
@@ -931,7 +925,7 @@ LINT XQUERY::fetchLint( const LINT default_value )
 		{return( default_value );
 		}
 	LINT	v = default_value;
-	if ( fetch() && result.isLint( 0 ) )
+	if ( fetch() && ( result.isLint( 0 ) || result.isInt( 0 ) ) )
 		{v = result.getLint( 0 );
 		}
 	close();

@@ -25,6 +25,8 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class AcknowledgeXML
 {
+	private final boolean DEFINE_ALLOW_COMMENTS = false;
+		
 	private final String STATUS_STRING = "status";
 	private final String PERSONID_STRING = "partid";
 	private final String SESSIONID_STRING = "sessionid";
@@ -127,11 +129,13 @@ public class AcknowledgeXML
 		newAck.put(PERSONID_STRING, partid);
 		newAck.put(SESSIONID_STRING, sessionid);
 		newAck.put(SECTIONID_STRING, sectionid);
-		newAck.put(STATUS_STRING, "0"); // STATUS IS ERROR <> 1
+		newAck.put(STATUS_STRING, "3"); // STATUS IS ERROR <> 1. 2 = Error, 3 = Critical
 		newAck.put(ERR_STRING, Err);
 		m_Acknowledgements.add(newAck);
 		hasCriticalError = true;
-		m_comment.add("ALERT: Critical parsing error detected, could not complete the parsing of the XML data.");
+		
+		if (DEFINE_ALLOW_COMMENTS)
+			m_comment.add("ALERT: Critical parsing error detected, could not complete the parsing of the XML data.");
 	}
 
 	/**
@@ -231,9 +235,11 @@ public class AcknowledgeXML
 		String formatted = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(now);
 
 		out.writeStartDocument("UTF-8", "1.0");
-		for (int i = 0; i < m_comment.size(); i++)
-			out.writeComment((String) m_comment.get(i));
-
+		if (DEFINE_ALLOW_COMMENTS)
+		{
+			for (int i = 0; i < m_comment.size(); i++)
+				out.writeComment((String) m_comment.get(i));
+		}
 		out.writeStartElement("ackfile");
 		out.writeAttribute("outputId", outputId);
 		out.writeAttribute("timeFileGenerated", formatted);

@@ -33,6 +33,15 @@ bool equalValue( const std::string& val, const std::pair< std::string, std::stri
     return val == entry.second;
 }
 
+void SampleRunIDResolutionService::clear()
+{
+    paulst::AcquireCriticalSection a(m_cs);
+
+    {
+        m_idMap.clear();
+    }
+}
+
 bool SampleRunIDResolutionService::containsValue( const std::string& val ) const
 {
     IDMap::const_iterator i = std::find_if( m_idMap.begin(), m_idMap.end(), boost::bind( equalValue, val, _1 ) );

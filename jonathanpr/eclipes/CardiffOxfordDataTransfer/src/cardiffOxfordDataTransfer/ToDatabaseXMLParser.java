@@ -154,7 +154,6 @@ public class ToDatabaseXMLParser extends DefaultHandler
 				}
 				
 				m_databaseAccess.addVaribleInformation(rec_id,m_RespData,SectionName);
-				m_databaseAccess.commit();
 			}
 			catch (SQLException e1)
 			{
@@ -170,6 +169,18 @@ public class ToDatabaseXMLParser extends DefaultHandler
 			}			
 			m_SectionData.clear();		
 		}
+	}
+	
+	public void endDocument() throws SAXException
+	{
+		try
+		{
+			m_databaseAccess.commit();	
+		}
+		catch (SQLException e1)
+		{
+			dealWithExecption(e1);
+		}			
 	}
 	
 	private void dealWithExecption(Exception e1)

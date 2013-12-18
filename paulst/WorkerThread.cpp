@@ -32,13 +32,13 @@ WorkerThread::WorkerThread()
 
 void WorkerThread::cancelCurrentlyExecuting()
 {
-    AcquireCriticalSection a(m_cs);
+	AcquireCriticalSection a(m_cs);
 
-    if ( m_queue.size() )
-    {
-        WorkerThreadTask* t = m_queue.front();
-        t->setCancellationFlag();
-    }
+	if ( m_queue.size() )
+	{
+		WorkerThreadTask* t = m_queue.front();
+		t->setCancellationFlag();
+	}
 }
 
 int WorkerThread::queueSize()
@@ -50,7 +50,7 @@ int WorkerThread::queueSize()
     }
 }
 
-void WorkerThread::queueTask( WorkerThreadTask* task )
+void WorkerThread::queueTask(  WorkerThreadTask* task )
 {
     AcquireCriticalSection a(m_cs);
     

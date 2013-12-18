@@ -5,7 +5,6 @@
 #include <boost/lexical_cast.hpp>
 #include "BuddyDatabase.h"
 #include "BuddyDatabaseBuilder.h"
-#include "BuddyDatabaseEntryIndex.h"
 #include "BuddySampleIDKeyedOnSampleRunID.h"
 #include "DBConnection.h"
 #include "DBUpdateSchedule.h"
@@ -26,7 +25,9 @@ LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, paulstdb::DBConnection
     const std::string& sql,
     const std::string& inclusionRule,
     ExceptionalDataHandler* exceptionalDataHandler,
-    RuleEngineContainer* ruleEngine )
+    RuleEngineContainer* ruleEngine,
+    QCSampleDescriptorDerivationStrategy* qcsdds,
+    BuddyDatabaseEntryIndex* bdei )
     :
     m_localMachineID( localMachineID ),
     m_projects( projects ),
@@ -39,7 +40,9 @@ LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, paulstdb::DBConnection
     m_sql( sql ),
     m_inclusionRule( inclusionRule ),
     m_exceptionalDataHandler( exceptionalDataHandler ),
-    m_ruleEngine( ruleEngine )
+    m_ruleEngine( ruleEngine ),
+    m_QCSampleDescriptorDerivationStrategy( qcsdds ),
+    m_buddyDatabaseEntryIndex( bdei )
 {
 }
 
@@ -86,7 +89,7 @@ bool equivalentRuns( const SampleRun& a, const SampleRun& b )
             ( ! compareRuns( b, a ) );
 }
 
-void LoadBuddyDatabase::execute()
+void LoadBuddyDatabase::doStuff()
 {
     /*  sampleRuns:             a list of SampleRun instances each of which represents a row in the sample_run table
         candidateSampleRuns:    these do NOT exist in the sample_run table, but buddy_database activity suggests they are needed
@@ -95,13 +98,12 @@ void LoadBuddyDatabase::execute()
     */
     std::auto_ptr<SampleRuns>                      sampleRuns             ( new SampleRuns()), 
                                                    candidateSampleRuns    ( new SampleRuns());
-    std::auto_ptr<BuddyDatabaseEntryIndex>         buddyDatabaseEntryIndex( new BuddyDatabaseEntryIndex() );
     std::auto_ptr<BuddySampleIDKeyedOnSampleRunID> buddySampleIDKeyedOnSampleRunID
                                                                           ( new BuddySampleIDKeyedOnSampleRunID(m_sampleRunIDResolutionService));
 
     BuddyDatabaseBuilder builder(m_projects, m_resultIndex, sampleRuns.get(), candidateSampleRuns.get(), m_sampleRunIDResolutionService,
-        m_dbUpdateSchedule, buddySampleIDKeyedOnSampleRunID.get(), buddyDatabaseEntryIndex.get(), m_inclusionRule, m_exceptionalDataHandler,
-        m_ruleEngine, m_log );
+        m_dbUpdateSchedule, buddySampleIDKeyedOnSampleRunID.get(), m_buddyDatabaseEntryIndex, m_inclusionRule, m_exceptionalDataHandler,
+        m_ruleEngine, m_log, m_QCSampleDescriptorDerivationStrategy );
 
     for ( std::auto_ptr<paulstdb::Cursor> cursor( m_con->executeQuery( m_sql ) ); 
             ( ! cursor->endOfRecordSet() ) && builder.accept( cursor.get() ); cursor->next() );
@@ -136,7 +138,7 @@ void LoadBuddyDatabase::execute()
     LOG( std::string("Number of sample-runs: ") << sampleRuns->size() );
 
 	*m_buddyDatabase = new BuddyDatabase( m_localMachineID, sampleRuns.release(), buddySampleIDKeyedOnSampleRunID.release(),
-        buddyDatabaseEntryIndex.release() );
+        m_buddyDatabaseEntryIndex );
 }
 
 }

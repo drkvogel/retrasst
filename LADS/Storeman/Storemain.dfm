@@ -89,9 +89,9 @@ object frmStoremain: TfrmStoremain
       Height = 35
       Anchors = []
       Caption = 'Rationalise'
-      Enabled = False
       TabOrder = 3
       WordWrap = True
+      OnClick = BtnRationalyseClick
     end
   end
   object Panel2: TPanel

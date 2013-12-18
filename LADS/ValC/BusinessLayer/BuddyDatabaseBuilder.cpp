@@ -9,6 +9,7 @@
 #include "ExceptionalDataHandler.h"
 #include "LoggingService.h"
 #include "Projects.h"
+#include "QCSampleDescriptorDerivationStrategy.h"
 #include "Require.h"
 #include "ResultIndex.h"
 #include "RuleEngineContainer.h"
@@ -36,7 +37,8 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     const std::string&                  inclusionRule,
     ExceptionalDataHandler*             exceptionalDataHandler,
     RuleEngineContainer*                ruleEngine,
-    paulst::LoggingService*             log
+    paulst::LoggingService*             log,
+    QCSampleDescriptorDerivationStrategy* qcsdds
  )
     :
     m_projects                          ( p ),
@@ -50,7 +52,8 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     m_inclusionRule                     ( inclusionRule ),
     m_exceptionalDataHandler            ( exceptionalDataHandler ),
     m_ruleEngine                        ( ruleEngine ),
-    m_log                               ( log )
+    m_log                               ( log ),
+    m_QCSampleDescriptorDerivationStrategy( qcsdds )
 {
 }
 
@@ -155,7 +158,8 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
 
         if ( isQC() )
         {
-            sampleDescriptor = paulst::format( "\%s/\%d", barcode.c_str(),  machineID );
+            sampleDescriptor = m_QCSampleDescriptorDerivationStrategy->deriveFromBuddyDatabaseEntry( 
+                buddySampleID, barcode, machineID, resTestID, resWorklistID ); 
         }
         else
         {
@@ -179,9 +183,11 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
 
         if ( hasResult )
         {
-            result = new TestResultImpl( resActionFlag, sampleDescriptor, resDateAnalysed, machineID, resID, sampleRunID, resTestID, resValue );
+            result = new TestResultImpl( resActionFlag, sampleDescriptor, resDateAnalysed, machineID, resID, sampleRunID, resTestID, resValue,
+                            resText );
 
             m_resultIndex->addIndexEntryForResult( result );
+            m_buddyDatabaseEntryIndex->supplementEntryWithResultInfo( buddySampleID, resID, resTestID );
 
             if ( resWorklistID )
             {

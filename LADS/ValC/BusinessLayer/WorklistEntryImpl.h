@@ -2,7 +2,6 @@
 #define WORKLISTENTRYIMPLH
 
 #include "API.h"
-#include "WorklistRelation.h"
 
 namespace valc
 {
@@ -30,7 +29,6 @@ public:
         char                        status,
         float                       diluent,
         int                         buddyResultID,
-        const WorklistRelations&    relations,
         const WorklistDirectory*    worklistDirectory,
         const ResultDirectory*      resultDirectory );
 
@@ -74,7 +72,6 @@ private:
     const char                m_status;
     const float               m_diluent;
     const int                 m_buddyResultID;
-    const WorklistRelations   m_worklistRelations;
     const WorklistDirectory*  m_worklistDirectory;
     const ResultDirectory*    m_resultDirectory;
 

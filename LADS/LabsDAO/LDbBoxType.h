@@ -17,6 +17,7 @@ class LPDbBoxType : public LPDbID, public LDbNames
 	int sizeID;
 
 	static bool hasLocalContent();
+	bool needsNewID() const;
 
 	std::vector< int > content;
 

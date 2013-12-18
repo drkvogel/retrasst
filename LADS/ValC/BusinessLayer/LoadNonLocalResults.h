@@ -2,6 +2,7 @@
 #define LOADNONLOCALRESULTSH
 
 #include "ClusterIDs.h"
+#include "Task.h"
 
 /*
     Loads results obtained by other analysers if
@@ -28,7 +29,7 @@ class ExceptionalDataHandler;
 class Projects;
 class ResultIndex;
 
-class LoadNonLocalResults
+class LoadNonLocalResults : public stef::Task
 {
 public:
     LoadNonLocalResults( 
@@ -38,7 +39,8 @@ public:
         ResultIndex*            resultIndex,
         const std::string&      sql,
         ExceptionalDataHandler* exceptionalDataHandler );
-    void execute();
+protected:
+    void doStuff();
 private:
     const ClusterIDs*       m_clusterIDs;
     const Projects*         m_projects; 

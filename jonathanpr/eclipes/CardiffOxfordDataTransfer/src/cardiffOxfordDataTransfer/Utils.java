@@ -22,8 +22,9 @@ public class Utils
 	 */
 	public static Date ISODateStringToDate(String ISODateString) throws ParseException
 	{
-		Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(ISODateString);
-		return date;
+		SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		date.setLenient(false);
+		return date.parse(ISODateString);
 	}
 	
 	/**

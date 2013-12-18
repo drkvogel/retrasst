@@ -1,25 +1,26 @@
 #include "Cursor.h"
 #include "ExceptionalDataHandler.h"
+#include "QCSampleDescriptorDerivationStrategy.h"
 #include "Require.h"
 #include "ResultIndex.h"
 #include "StringBuilder.h"
 #include "WorklistEntryBuilder.h"
 #include "WorklistEntryImpl.h"
 #include "WorklistEntries.h"
-#include "WorklistEntries.h"
 
 namespace valc
 {
 
 WorklistEntryBuilder::WorklistEntryBuilder( WorklistEntries* worklistEntries, 
-    ResultIndex* resultIndex, WorklistRelationsDataSource* worklistRelationsDataSource, const std::string& inclusionRule,
-    ExceptionalDataHandler* exceptionalDataHandler )
+    ResultIndex* resultIndex, const std::string& inclusionRule,
+    ExceptionalDataHandler* exceptionalDataHandler,
+    QCSampleDescriptorDerivationStrategy* qcsdds )
     : 
     m_worklistEntries( worklistEntries ),
     m_resultIndex( resultIndex ),
-    m_worklistRelationsDataSource( worklistRelationsDataSource ),
     m_inclusionRule( inclusionRule ),
-    m_exceptionalDataHandler( exceptionalDataHandler )
+    m_exceptionalDataHandler( exceptionalDataHandler ),
+    m_QCSampleDescriptorDerivationStrategy( qcsdds )
 {
 }
 
@@ -52,8 +53,6 @@ bool WorklistEntryBuilder::accept( paulstdb::Cursor* worklistCursor )
         worklistCursor->read( COL_WL_DILUENT,           diluent );
         worklistCursor->read( COL_WL_BUDDY_RESULT_ID,   buddyResultID );
 
-        worklistRelations = m_worklistRelationsDataSource->getRelations( recordNo );
-
         m_inclusionRule.init();
         m_inclusionRule.addParam( barcode );
         m_inclusionRule.addParam( categoryID );
@@ -68,9 +67,23 @@ bool WorklistEntryBuilder::accept( paulstdb::Cursor* worklistCursor )
             break;
         }
 
+        if ( buddyResultID )
+        {
+            m_resultIndex->allocateResultToWorklistEntry( buddyResultID, recordNo );
+        }
+
         if ( isQC() )
         {
-            sampleDescriptor = barcode << "/" << machineID;
+            if ( m_QCSampleDescriptorDerivationStrategy )
+            {
+                sampleDescriptor = m_QCSampleDescriptorDerivationStrategy->deriveFromWorklistEntry( 
+                    recordNo, barcode, machineID, testID, buddyResultID, status );
+            }
+
+            if ( sampleDescriptor.empty() )
+            {
+                break;
+            }
         }
         else
         {
@@ -83,12 +96,6 @@ bool WorklistEntryBuilder::accept( paulstdb::Cursor* worklistCursor )
             }
 
             sampleDescriptor = std::string() << sampleID << "/" << projectID;
-        }
-
-
-        if ( buddyResultID )
-        {
-            m_resultIndex->allocateResultToWorklistEntry( buddyResultID, recordNo );
         }
 
         m_worklistEntries->add( new WorklistEntryImpl(
@@ -108,7 +115,6 @@ bool WorklistEntryBuilder::accept( paulstdb::Cursor* worklistCursor )
             status,
             diluent,
             buddyResultID,
-            worklistRelations,
             m_worklistEntries,
             m_resultIndex ) );
     }
@@ -124,7 +130,6 @@ void WorklistEntryBuilder::reset()
     timeStamp = 0.0;
     status = '\0';
     diluent = 0.0;
-    worklistRelations.resize( 0U );
 }
 
 }

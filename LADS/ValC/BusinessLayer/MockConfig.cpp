@@ -5,13 +5,36 @@ namespace valc
 
 MockConfig::MockConfig()
 {
-    addProperty( "LoadRules"                        , "LoadRules" );
-    addProperty( "LoadRuleConfig"                   , "LoadRuleConfig" );
-	addProperty( "InitialisationTimeoutSecs", "10" );
-	addProperty( "QCRuleConfigConnectionSessionReadLockSetting", "Owt" );
+    addProperty( "SQLStmtInsertWorklistRelation"    , "SQLStmtInsertWorklistRelation"  );
+    addProperty( "SQLStmtNextWorklistID"            , "SQLStmtNextWorklistID"  );
+    addProperty( "SQLStmtInsertRerun"               , "SQLStmtInsertRerun"  );
+    addProperty( "LogAllDatabaseStatements"         , "true"  );
+    addProperty( "DBUpdateThreadConnectionString"               , "10"  );
+    addProperty( "DBUpdateThreadSessionReadLockSetting"         , ""    );
+    addProperty( "DBUpdateThreadShutdownTimeoutSecs"            , "10"  );
+    addProperty( "DBUpdateThreadCancelPendingUpdatesOnShutdown" , "true");
+    addProperty( "PendingUpdateWaitTimeoutSecs"     , "10" );
+    addProperty( "PendingUpdateWaitTimeoutSecs"     , "10" );
+    addProperty( "PendingUpdateWaitTimeoutSecs"     , "10" );
+    addProperty( "PendingUpdateWaitTimeoutSecs"     , "10" );
+    addProperty( "RuleEngineTimeoutSecs"            , "10" );
+    addProperty( "TestNamesQuery"                   , "LoadTestNames" );
+    addProperty( "TestNamesConnectionString"        , "Owt" );
+    addProperty( "TestNamesSessionReadLockSetting"  , "Owt" );
+    addProperty( "ClusterIDsQuery"                  , "LoadClusterIDs" );
+    addProperty( "ClusterIDsConnectionString"       , "Owt" );
+    addProperty( "ClusterIDsSessionReadLockSetting" , "Owt" );
+    addProperty( "ProjectsQuery"                    , "LoadProjects" );
+    addProperty( "ProjectsConnectionString"         , "Owt" );
+    addProperty( "ProjectsSessionReadLockSetting"   , "Owt" );
+    addProperty( "QCRuleQuery"                      , "LoadRules" );
+    addProperty( "QCRuleConfigQuery"                , "LoadRuleConfig" );
+	addProperty( "InitialisationTimeoutSecs"        , "10" );
+	addProperty( "QCRuleConfigSessionReadLockSetting", "Owt" );
 	addProperty( "QCRuleConfigConnectionString"     , "Owt" );
+	addProperty( "QCRuleSessionReadLockSetting"     , "Owt" );
+	addProperty( "QCRuleConnectionString"           , "Owt" );
 	addProperty( "RuleEngineErrorCode"              , "999" );
-	addProperty( "DBUpdateConnectionString"         , "Doesn't matter" );
     addProperty( "ConnectionFactoryType"            , "Mock" );
     addProperty( "ForceReloadConnectionString"      , "Owt" );
     addProperty( "ForceReloadSessionReadLockSetting", "" );
@@ -57,6 +80,9 @@ MockConfig::MockConfig()
 "        return continueProcessing, adviseUser                          \n"
 "    end  \n"
  );
+    addProperty( "QCGatesConnectionString", "QCGatesConnectionString" );
+    addProperty( "QCGatesSessionReadLockSetting", "QCGatesSessionReadLockSetting" );
+    addProperty( "QCGatesQuery", "LoadQCGates" );
 }
 
 void MockConfig::addProperty( const std::string& name, const std::string& value )

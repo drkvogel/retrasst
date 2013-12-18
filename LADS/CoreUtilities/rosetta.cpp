@@ -362,11 +362,13 @@ bool ROSETTA::rename( const std::string from, const std::string to )
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 						/* RETURN NAME OF A PAIR */
 std::string ROSETTA::getName( const int index ) const
-{	if( index >= 0 && index < (int) pairs.size() ) {
-		return pairs[index]->id;
-	} else {
-		return "";
-	}
+{
+	if( index >= 0 && index < (int) pairs.size() )
+		{return( pairs[index]->id );
+		}
+	else
+		{return( "" );   	// beware BCB ?: move bug
+		}
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 						/* RETURN TYPE OF A PAIR */
@@ -1020,6 +1022,19 @@ PGET(XDATE,Date,ROSE_XDATE)
 PGET(XTIME,Time,ROSE_XTIME)
 PGET(XBINOB,Binob,ROSE_XBINOB)
 #undef PGET
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const ROSE_BASE *ROSETTA::pointerRoseBase( const std::string name ) const
+{
+	return( (const ROSE_BASE *) findCompound( name, false ) );
+}
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+const ROSE_BASE *ROSETTA::pointerRoseBase( const int index ) const
+{
+	if ( index < 0 || index >= (int)pairs.size() )
+		{return( NULL );
+		}
+	return( (const ROSE_BASE *) pairs[index] );
+}
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ROSETTA *ROSETTA::pointerRosetta( const std::string name ) const
 {	ROSE_BASE *b = findCompound( name, true );

@@ -20,9 +20,8 @@ TfrmSMLogin *frmSMLogin;
 __fastcall TfrmSMLogin::TfrmSMLogin(TComponent* Owner) : TfrmLoginBase(Owner)
 {
 	std::string ver = LIMSParams::instance().getProgVersion();
-	String app = Application -> Title + " " + ver.c_str();
-	version -> Caption = app + " ** DEMO **";
-	rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM;
+	version -> Caption = Application -> Title + " " + ver.c_str() + " ** DEMO **";
+	rgDatabase -> ItemIndex = LIMSDatabase::TEST_DATA;
 }
 
 //---------------------------------------------------------------------------

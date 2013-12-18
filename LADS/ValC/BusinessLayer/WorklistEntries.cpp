@@ -25,17 +25,21 @@ void WorklistEntries::add( const WorklistEntry* e )
 
 Range<WorklistEntryIterator> WorklistEntries::equal_range( const std::string& sampleDescriptor ) const
 {
-    WorklistEntriesKeyedOnSampleDescriptor::const_iterator begin, end;
-    std::pair<WorklistEntriesKeyedOnSampleDescriptor::const_iterator, WorklistEntriesKeyedOnSampleDescriptor::const_iterator> entriesForSample;
+    paulst::AcquireCriticalSection a( m_criticalSection );
 
-    entriesForSample = m_mapKeyedOnSampleDescriptor.equal_range(sampleDescriptor);
+    {
+        WorklistEntriesKeyedOnSampleDescriptor::const_iterator begin, end;
+        std::pair<WorklistEntriesKeyedOnSampleDescriptor::const_iterator, WorklistEntriesKeyedOnSampleDescriptor::const_iterator> entriesForSample;
 
-    begin = entriesForSample.first;
-    end   = entriesForSample.second;
+        entriesForSample = m_mapKeyedOnSampleDescriptor.equal_range(sampleDescriptor);
 
-    return Range<WorklistEntryIterator>( 
-        WorklistEntryIterator( new WorklistEntryIteratorImpl( begin, end ) ),
-        WorklistEntryIterator( new WorklistEntryIteratorImpl( end,   end ) )  );
+        begin = entriesForSample.first;
+        end   = entriesForSample.second;
+
+        return Range<WorklistEntryIterator>( 
+            WorklistEntryIterator( new WorklistEntryIteratorImpl( begin, end ) ),
+            WorklistEntryIterator( new WorklistEntryIteratorImpl( end,   end ) )  );
+    }
 }
 
 void WorklistEntries::forEach( WorklistDirectory::Func& f, const std::string& sampleDescriptor ) const

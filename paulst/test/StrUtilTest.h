@@ -11,7 +11,7 @@ namespace tut
     {
     };
 
-    typedef test_group<StrUtilTestFixture, 23> StrUtilTestGroup;
+    typedef test_group<StrUtilTestFixture, 24> StrUtilTestGroup;
 	StrUtilTestGroup testGroupStrUtil( "StrUtil tests");
 	typedef StrUtilTestGroup::object testStrUtil;
 
@@ -272,6 +272,16 @@ namespace tut
         using namespace paulst;
 
         ensure_equals( doTrim( "abc" ), "abc" );
+    }
+
+    template<>
+    template<>
+	void testStrUtil::test<24>()
+    {
+        set_test_name("format");
+        using namespace paulst;
+
+        ensure_equals( format( "abc%sdef%dghi", "cat", 34 ), std::string("abccatdef34ghi") );
     }
 
 };

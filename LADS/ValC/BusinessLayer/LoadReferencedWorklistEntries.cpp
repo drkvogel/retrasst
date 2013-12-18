@@ -26,7 +26,6 @@ LoadReferencedWorklistEntries::LoadReferencedWorklistEntries(
         ResultIndex*            resultIndex,
         const std::string&      tempTableName,
         const std::string&      worklistSQL,
-        const std::string&      worklistRelationSQL,
         ExceptionalDataHandler* exceptionalDataHandler )
     :
     m_con( con ),
@@ -35,7 +34,6 @@ LoadReferencedWorklistEntries::LoadReferencedWorklistEntries(
     m_resultIndex( resultIndex ),
     m_tempTableName( tempTableName ),
     m_worklistSQL( worklistSQL ),
-    m_worklistRelationSQL( worklistRelationSQL ),
     m_exceptionalDataHandler( exceptionalDataHandler )
 {
 }
@@ -70,7 +68,7 @@ void insertIntoTable( const int& id, const std::string* tableName, paulstdb::DBC
     con->executeStmt( stmt );
 }
 
-void LoadReferencedWorklistEntries::execute()
+void LoadReferencedWorklistEntries::doStuff()
 {
     const int maxIterations = 3;
     const std::string allInclusive( " function accept () return true end " );
@@ -85,8 +83,8 @@ void LoadReferencedWorklistEntries::execute()
 
         std::for_each( m_idList.begin(), m_idList.end(), boost::bind( insertIntoTable, _1, tempTable, m_con, m_log ) );
 
-        LoadWorklistEntries loadWorklistEntries( m_worklistEntries, m_con, m_log, m_resultIndex, m_worklistSQL, m_worklistRelationSQL,
-            allInclusive, m_exceptionalDataHandler );
+        LoadWorklistEntries loadWorklistEntries( m_worklistEntries, m_con, m_log, m_resultIndex, m_worklistSQL,
+            allInclusive, m_exceptionalDataHandler, NULL );
 
         loadWorklistEntries.execute();
     }

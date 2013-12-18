@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{58BB0A33-5F57-4C78-A3E6-93E623E2E172}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="lua_db.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="UnitTests\UnitTests.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="lua_db">
+        <MSBuild Projects="lua_db.cbproj"/>
+    </Target>
+    <Target Name="lua_db:Clean">
+        <MSBuild Projects="lua_db.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="lua_db:Make">
+        <MSBuild Projects="lua_db.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="UnitTests">
+        <MSBuild Projects="UnitTests\UnitTests.cbproj"/>
+    </Target>
+    <Target Name="UnitTests:Clean">
+        <MSBuild Projects="UnitTests\UnitTests.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="UnitTests:Make">
+        <MSBuild Projects="UnitTests\UnitTests.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="lua_db;UnitTests"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="lua_db:Clean;UnitTests:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="lua_db:Make;UnitTests:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

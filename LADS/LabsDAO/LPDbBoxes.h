@@ -24,6 +24,7 @@ class LPDbBoxName : public LPDbID
 	std::vector< std::string > cryovials;
 
 	const LCDbBoxSize * getLayout() const;
+	bool needsNewID() const;
 
 public:
 

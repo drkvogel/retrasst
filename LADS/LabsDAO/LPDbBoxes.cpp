@@ -17,6 +17,7 @@
  *  1 Feb 2010, NG:		count boxes that are ready to take to Worminghall
  *  5 Feb 2013, NG:		set new status (ANALYSED) if ready to be transferred
  * 20 September 2013:	ignore events - no longer required; add barcode
+ * 12 December, NG:		Check box_cid not already used in another project
  *---------------------------------------------------------------------------*/
 
 #include <vcl.h>
@@ -287,7 +288,7 @@ void LPDbBoxName::confirmAllocation( LQuery pQuery )
 }
 
 //---------------------------------------------------------------------------
-//  Add entry for this box to box_name table; record event if appropriate
+//  Add entry for this box to box_name table, ready to copy to c_box_name
 //---------------------------------------------------------------------------
 
 bool LPDbBoxName::saveRecord( LQuery query )
@@ -297,9 +298,9 @@ bool LPDbBoxName::saveRecord( LQuery query )
 					" time_stamp = 'now', note_exists = note_exists + :nex, process_cid = :pid"
 					" where box_cid = :bid" );
 	} else {
-		if( getID() == 0 )
+		while( needsNewID() ) {
 			claimNextID( query );
-
+		}
 		query.setSQL( "insert into box_name (box_cid, box_type_cid, box_capacity,"
 					" external_name, status, time_stamp, process_cid, note_exists)"
 ///// fixme - include barcode after upgrade
@@ -318,7 +319,25 @@ bool LPDbBoxName::saveRecord( LQuery query )
 		return true;
 	} else {
 		return false;
-    }
+	}
+}
+
+//---------------------------------------------------------------------------
+//	check the box ID is valid and another box doesn't have the same number
+//---------------------------------------------------------------------------
+
+bool LPDbBoxName::needsNewID() const
+{
+	if( getID() != 0 ) {
+		LQuery cq( LIMSDatabase::getCentralDb() );
+		cq.setSQL( "select count(*) from c_box_name where box_cid in (:pid, :nid)" );
+		cq.setParam( "pid", getID() );
+		cq.setParam( "nid", -getID() );
+		if( cq.open() && cq.readInt( 0 ) == 0 ) {
+			return false;
+		}
+	}
+	return true;
 }
 
 //---------------------------------------------------------------------------
@@ -335,9 +354,9 @@ bool LPDbBoxName::matchesGroup( LQuery pQuery )
 				" and t2.box_set_link = t1.box_set_link and n2.box_type_cid = t2.box_type_cid"
 				" and s2.box_cid = n2.box_cid and c2.cryovial_id = s2.cryovial_id"
 				" and c1.cryovial_barcode = c2.cryovial_barcode"
-				" and s1.cryovial_position <> s2.cryovial_position" ); 	// or tube_position
+				" and s1.tube_position <> s2.tube_position" );
 	pQuery.setParam( "bid", getID() );
-	return pQuery.open() == 1 && pQuery.readInt( 0 ) == 0;
+	return pQuery.open() && pQuery.readInt( 0 ) == 0;
 }
 
 //---------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 #include "AcquireCriticalSection.h"
 #include <boost/foreach.hpp>
+#include "DBTransactionHandler.h"
 #include "DBUpdateSchedule.h"
 #include "DBUpdateTaskInsertSampleRun.h"
 #include "DBUpdateTaskLinkResultToWorklistEntry.h"
@@ -25,32 +26,20 @@ DBUpdateSchedule::~DBUpdateSchedule()
     }
 }
 
-DBUpdateTask* DBUpdateSchedule::front() const
+void DBUpdateSchedule::queueScheduledUpdates( DBTransactionHandler* th )
 {
     paulst::AcquireCriticalSection a(m_cs);
 
     {
-        return m_updates.front();
+        while (  m_updates.size() )
+        {
+            DBUpdateTask* t = m_updates.front();
+            m_updates.pop_front();
+            th->queue( t );
+        }
     }
 }
 
-bool DBUpdateSchedule::noMoreUpdates() const
-{
-    paulst::AcquireCriticalSection a(m_cs);
-
-    {
-        return m_updates.empty();
-    }
-}
-
-void DBUpdateSchedule::pop_front()
-{
-    paulst::AcquireCriticalSection a(m_cs);
-
-    {
-        m_updates.pop_front();
-    }
-}
 
 void DBUpdateSchedule::scheduleUpdate( int forBuddySampleID, const std::string& candidateNewSampleRunID )
 {

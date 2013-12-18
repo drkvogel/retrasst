@@ -25,6 +25,7 @@ class BuddyDatabaseEntryIndex;
 class BuddySampleIDKeyedOnSampleRunID;
 class DBUpdateSchedule;
 class ExceptionalDataHandler;
+class QCSampleDescriptorDerivationStrategy;
 class Projects;
 class ResultIndex;
 class RuleEngineContainer;
@@ -61,7 +62,8 @@ public:
         const std::string&                  inclusionRule,
         ExceptionalDataHandler*             exceptionalDataHandler,
         RuleEngineContainer*                ruleEngine,
-        paulst::LoggingService*             log
+        paulst::LoggingService*             log,
+        QCSampleDescriptorDerivationStrategy* qcsdds
         );
     bool accept( paulstdb::Cursor* c );
 private:
@@ -84,6 +86,7 @@ private:
     ExceptionalDataHandler*             m_exceptionalDataHandler;
     RuleEngineContainer*                m_ruleEngine;
     paulst::LoggingService*             m_log;
+    QCSampleDescriptorDerivationStrategy* m_QCSampleDescriptorDerivationStrategy;
 
     BuddyDatabaseBuilder( const BuddyDatabaseBuilder& );
     BuddyDatabaseBuilder& operator=( const BuddyDatabaseBuilder& );

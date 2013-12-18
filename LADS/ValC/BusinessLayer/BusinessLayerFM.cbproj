@@ -304,6 +304,10 @@
             <DependentOn>Projects.h</DependentOn>
             <BuildOrder>48</BuildOrder>
         </CppCompile>
+        <CppCompile Include="QCResultsService.cpp">
+            <DependentOn>QCResultsService.h</DependentOn>
+            <BuildOrder>97</BuildOrder>
+        </CppCompile>
         <CppCompile Include="QueueBuilderParams.cpp">
             <DependentOn>QueueBuilderParams.h</DependentOn>
             <BuildOrder>49</BuildOrder>

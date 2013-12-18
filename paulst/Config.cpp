@@ -1,4 +1,5 @@
 #include "Config.h"
+#include "ExceptionUtil.h"
 #include "Require.h"
 
 #include <sstream>
@@ -63,6 +64,16 @@ Config::Config( const std::string& configString )
     }
 }
 
+Config::const_iterator Config::begin() const
+{
+    return m_properties.begin();
+}
+
+Config::const_iterator Config::end() const
+{
+    return m_properties.end();
+}
+
 bool Config::contains( const std::string& name ) const
 {
     return m_properties.end() != m_properties.find( name );
@@ -73,7 +84,7 @@ std::string Config::get( const std::string& name ) const
     Properties::const_iterator i = m_properties.find( name );
     if ( i == m_properties.end() )
     {
-        throwRuntimeError( ( std::string( "Property not defined: ") + name  ).c_str() );
+		exception( "Property '\%s' not defined.", name.c_str() );
     }
     return i->second;
 }

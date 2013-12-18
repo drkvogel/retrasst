@@ -1,6 +1,8 @@
 #ifndef LOADWORKLISTENTRIESH
 #define LOADWORKLISTENTRIESH
 
+#include "Task.h"
+
 namespace paulst
 {
     class LoggingService;
@@ -16,10 +18,11 @@ namespace valc
 
 class DBConnection;
 class ExceptionalDataHandler;
+class QCSampleDescriptorDerivationStrategy;
 class ResultIndex;
 class WorklistEntries;
 
-class LoadWorklistEntries
+class LoadWorklistEntries : public stef::Task
 {
 public:
 
@@ -31,19 +34,20 @@ public:
         /*  If loaded worklist entries name-check results, then this information will be added to resultIndex. */
         ResultIndex* resultIndex,         
         const std::string& worklistSQL, 
-        const std::string& worklistRelationSQL,
         const std::string& inclusionRule,
-        ExceptionalDataHandler* exceptionalDataHandler );
-    void execute();
+        ExceptionalDataHandler* exceptionalDataHandler,
+        QCSampleDescriptorDerivationStrategy* qcsdds );
+protected:
+    void doStuff();
 private:
     WorklistEntries* m_worklistEntries;
     paulstdb::DBConnection* m_con;
     paulst::LoggingService* m_log;
     ResultIndex* m_resultIndex;
     const std::string   m_worklistSQL, 
-                        m_worklistRelationSQL,
                         m_inclusionRule;
     ExceptionalDataHandler* m_exceptionalDataHandler;
+    QCSampleDescriptorDerivationStrategy* m_QCSampleDescriptorDerivationStrategy;
 };
 
 };

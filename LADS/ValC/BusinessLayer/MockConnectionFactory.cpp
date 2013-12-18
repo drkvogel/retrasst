@@ -32,14 +32,7 @@ SerializedRecordset& SerializedRecordset::operator=( const SerializedRecordset& 
     return *this;
 }
 
-SerializedRecordset MockConnectionFactory::clusters;
-SerializedRecordset MockConnectionFactory::projects;
-SerializedRecordset MockConnectionFactory::worklist;
-SerializedRecordset MockConnectionFactory::buddyDB;
-SerializedRecordset MockConnectionFactory::testNames;
-SerializedRecordset MockConnectionFactory::nonLocalResults;
-SerializedRecordset MockConnectionFactory::ruleConfig;
-SerializedRecordset MockConnectionFactory::rules;
+MockConnectionFactory::RecordSetsKeyedOnQueryKeyword MockConnectionFactory::s_recordsetsKeyedOnQueryKeyword;
 
 MockConnectionFactory::MockConnectionFactory()
 {
@@ -50,10 +43,57 @@ paulstdb::DBConnection* MockConnectionFactory::createConnection( const std::stri
     return new MockConnection();
 }
 
+SerializedRecordset MockConnectionFactory::findRecordSetForQuery( const std::string& sql )
+{
+    SerializedRecordset recordset;
+
+    for ( RecordSetsKeyedOnQueryKeyword::const_iterator i = s_recordsetsKeyedOnQueryKeyword.begin();
+            i != s_recordsetsKeyedOnQueryKeyword.end(); ++i )
+    {
+        const std::string queryKeyword = i->first;
+
+        if ( paulst::ifind( queryKeyword, sql ) )
+        {
+            recordset = i->second;
+            break;
+        }
+    }
+
+    return recordset;
+}
+
+void MockConnectionFactory::prime( const std::string& queryKeywordCaseInsensitive, const SerializedRecordset& recordset )
+{
+    s_recordsetsKeyedOnQueryKeyword.insert( std::make_pair( queryKeywordCaseInsensitive, recordset ) );
+}
+
+
+void MockConnectionFactory::prime( WellKnownQuery query, const SerializedRecordset& recordset )
+{
+    std::string keyword;
+
+    switch( query )
+    {
+    case CLUSTERS_QRY       : keyword = "LoadClusterIDs"        ; break;
+    case PROJECTS_QRY       : keyword = "LoadProjects"          ; break;
+    case WORKLIST_QRY       : keyword = "LoadWorklistEntries"   ; break;
+    case BUDDYDB_QRY        : keyword = "LoadBuddyDatabase"     ; break;
+    case TESTNAMES_QRY      : keyword = "LoadTestNames"         ; break;
+    case NONLOCALRESULTS_QRY: keyword = "LoadNonLocalResults"   ; break;
+    case RULECONFIG_QRY     : keyword = "LoadRuleConfig"        ; break;
+    case RULES_QRY          : keyword = "LoadRules"             ; break;
+    case SAMPLERUNID_QRY    : keyword = "sample_run_id.nextval" ; break;
+    default:
+        throw Exception( L"Not a well-known query!" );
+    }
+
+    prime( keyword, recordset );
+}
+
 void MockConnectionFactory::reset()
 {
-    projects = worklist = buddyDB = testNames = nonLocalResults = ruleConfig = "";
-    rules = SerializedRecordset();
+    s_recordsetsKeyedOnQueryKeyword.clear();
+    MockConnectionFactory::prime( SAMPLERUNID_QRY, "1,\n" );
 }
 
 }

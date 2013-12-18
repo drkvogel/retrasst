@@ -1,5 +1,6 @@
 package cardiffOxfordDataTransfer;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.xml.sax.SAXException;
@@ -20,92 +21,114 @@ public class main
 {
 	public static void main(String[] args) 
 	{
-		final String decrptedXML_FILENAME = "cardat.xml";
-		final String ack_FILENAME = "carack.xml";
+		try
+		{
+			final String decrptedXML_FILENAME = "cardat.xml";
+			final String ack_FILENAME = "carack.xml";
+		
+			//TEMP CODE TO SET THE EMAIL PASSWORD
+			try
+			{
+				ErrorReporting.m_PWD = Utils.ReadPWDFromFile("c:\\temp\\pwd.txt");
+			}
+			catch (IOException e2)
+			{
+				e2.printStackTrace();
+				ErrorReporting.reportCritical(e2);
+			}
+						
+			AcknowledgeXML AckXML = new AcknowledgeXML();
+			ValidationXMLParser XML = new ValidationXMLParser();
+			ToDatabaseXMLParser DatabaseParser = new ToDatabaseXMLParser();
+			varValidation varValidator = new varValidation();
+			
+			try
+			{
+				varValidator.LoadValidationFile("varvalidation.txt");
+			}
+			catch (XMLParseException e1)
+			{
+				e1.printStackTrace();
+				ErrorReporting.reportCritical(e1);
+				return;
+			}
+			catch (IOException e1)
+			{
+				e1.printStackTrace();
+				ErrorReporting.reportCritical(e1);
+				return;
+			}
+			
+			try
+			{
+				XML.setUp(decrptedXML_FILENAME, AckXML,varValidator);
+				XML.parse();
+			}
+			catch (SAXException s)
+			{
+				//parse exception.. lets report back what we know to Cardiff. Run on.
+			}
+			catch (FileNotFoundException fnfe)
+			{ //if no cardat.xml, relax. no problem.. go back to sleep
+				return;			
+			}
+			catch (Exception e)
+			{	
+				//something bigger happened. Better upgrade the problem to CTSU
+				e.printStackTrace();
+				ErrorReporting.reportCritical(e);
+				return;
+			}
+			
+			try
+			{
+				DatabaseParser.setUp(decrptedXML_FILENAME, AckXML,varValidator);
+				//store the XML in the database.			
+				DatabaseParser.parse();
+			}
+			catch (SAXException s)
+			{
+				//parse exception.. lets report back what we know to Cardiff. Run on.
+			}
+			catch (IOException IOE)
+			{
+				if (IOE.getMessage().compareTo("Buffer too small") == 0)
+				{
+					//File is of zero size.
+					//Lets do nothing
+					return;
+				}
+			}
+			catch (Exception e1)
+			{
+				e1.printStackTrace();
+				ErrorReporting.reportCritical(e1);			
+			}
 	
-		//TEMP CODE TO SET THE EMAIL PASSWORD
-		try
+			//check the number of sections are correct,
+			if (AckXML.getNumberOfAcks() != XML.getXMLnumSections())
+			{
+				if (!AckXML.hasCriticalError())
+					AckXML.addComment("The number of sections is reported to be " + XML.getXMLnumSections() + " but we found " + AckXML.getNumberOfAcks());	
+			}
+			try
+			{
+				AckXML.generateAckFile(ack_FILENAME);
+			}
+			catch (Exception e) //FileNotFoundException | UnsupportedEncodingException | NoSuchAlgorithmException | XMLStreamException | FactoryConfigurationError
+			{	
+				//What to do? Their XML parsed fine...
+				//a problem with the ACKNOLLAGE FILE!
+				//REPORT IT!, RE-PARSE IT PLEASE ONCE ISSUE IS LOOKED AT.
+				e.printStackTrace();
+				ErrorReporting.reportCritical(e);
+			}
+		}
+		catch (Exception eee)
 		{
-			ErrorReporting.m_PWD = Utils.ReadPWDFromFile("c:\\temp\\pwd.txt");
-		}
-		catch (IOException e2)
-		{
-			e2.printStackTrace();
-			ErrorReporting.reportCritical(e2);
-		}
-					
-		AcknowledgeXML AckXML = new AcknowledgeXML();
-		ValidationXMLParser XML = new ValidationXMLParser();
-		ToDatabaseXMLParser DatabaseParser = new ToDatabaseXMLParser();
-		varValidation varValidator = new varValidation();
-		
-		try
-		{
-			varValidator.LoadValidationFile("varvalidation.txt");
-		}
-		catch (XMLParseException e1)
-		{
-			e1.printStackTrace();
-			ErrorReporting.reportCritical(e1);
-			return;
-		}
-		catch (IOException e1)
-		{
-			e1.printStackTrace();
-			ErrorReporting.reportCritical(e1);
-			return;
-		}
-		
-		try
-		{
-			XML.setUp(decrptedXML_FILENAME, "schema.xml", AckXML,varValidator);
-			XML.parse();
-		}
-		catch (SAXException s)
-		{
-			//parse exception.. lets report back what we know to Cardiff. Run on.
-		}
-		catch (Exception e)
-		{	
-			//something bigger happened. Better upgrade the problem to CTSU
-			e.printStackTrace();
-			ErrorReporting.reportCritical(e);
-			return;
-		}
-		
-		try
-		{
-			DatabaseParser.setUp(decrptedXML_FILENAME, AckXML,varValidator);
-			//store the XML in the database.			
-			DatabaseParser.parse();
-		}
-		catch (SAXException s)
-		{
-			//parse exception.. lets report back what we know to Cardiff. Run on.
-		}
-		catch (Exception e1)
-		{
-			e1.printStackTrace();
-			ErrorReporting.reportCritical(e1);			
-		}
-
-		//check the number of sections are correct,
-		if (AckXML.getNumberOfAcks() != XML.getXMLnumSections())
-		{
-			if (!AckXML.hasCriticalError())
-				AckXML.addComment("The number of sections is reported to be " + XML.getXMLnumSections() + " but we found " + AckXML.getNumberOfAcks());	
-		}
-		try
-		{
-			AckXML.generateAckFile(ack_FILENAME);
-		}
-		catch (Exception e) //FileNotFoundException | UnsupportedEncodingException | NoSuchAlgorithmException | XMLStreamException | FactoryConfigurationError
-		{	
-			//What to do? Their XML parsed fine...
-			//a problem with the ACKNOLLAGE FILE!
-			//REPORT IT!, RE-PARSE IT PLEASE ONCE ISSUE IS LOOKED AT.
-			e.printStackTrace();
-			ErrorReporting.reportCritical(e);
+			//Anything uncought. Email it off...
+			eee.printStackTrace();
+			ErrorReporting.reportCritical(eee);
 		}
 	}	
 

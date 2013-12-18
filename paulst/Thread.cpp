@@ -7,9 +7,8 @@ namespace paulst
 {
 
 Event::Event()
-    : m_h(0)
+    : m_h( CreateEvent( NULL, TRUE, FALSE, NULL ) )
 {
-    m_h = CreateEvent( NULL, TRUE, FALSE, NULL );
     throwUnless (  m_h );
 }
 

@@ -1,18 +1,100 @@
+SQLStmtInsertWorklistRelation:
+insert into c_worklist_relation ( rerun_id, parent_id, insert_when, motivation )
+values( %d, %d, date('now'), 'R' )
 
-LoadRules:
-    select con.external_full , qr.script   
+SQLStmtInsertRerun:
+insert into valc_worklist
+( record_no, machine_cid, barcode, test_cid, group_id, category_id, sample_id, project_cid, profile_id, profile_name, ts_sequence, status )
+select %d  , machine_cid, barcode, test_cid, group_id, category_id, sample_id, project_cid, profile_id, profile_name, ts_sequence, 'S' 
+from valc_worklist where record_no = %d
+
+SQLStmtNextWorklistID:
+select valc_next_id.nextval
+
+LogAllDatabaseStatements:
+true
+
+PendingUpdateWaitTimeoutSecs:
+10
+
+RuleEngineTimeoutSecs:
+10
+
+QCResultSequenceConnectionString:
+dsn=paulst_brat_64;db=paulst_test3
+
+ProjectsConnectionString:
+dsn=paulst_brat_64;db=paulst_test3
+
+ProjectsSessionReadLockSetting:
+set lockmode session where readlock = nolock
+
+ProjectsQuery:
+select project_cid, lower(external_name), lower(db_name) from c_project
+
+ClusterIDsConnectionString:
+dsn=paulst_brat_64;db=paulst_test3
+
+ClusterIDsSessionReadLockSetting:
+set lockmode session where readlock = nolock
+
+ClusterIDsQuery:
+SELECT cluster_cid FROM c_cluster_machine WHERE machine_cid = -1019429
+
+TestNamesConnectionString:
+dsn=paulst_brat_64;db=paulst_test3
+
+TestNamesSessionReadLockSetting:
+set lockmode session where readlock = nolock
+
+TestNamesQuery:
+select test_cid, external_name from c_test
+
+QCGatesConnectionString:
+dsn=paulst_brat_64;db=paulst_test3
+
+QCGatesSessionReadLockSetting:
+set lockmode session where readlock = nolock
+
+QCGatesQuery:
+    select barcode_pattern, mean, stddev, qc_gate.test_cid, qc_gate.record_cid as gate_id, qc_gate.source, qc_lot.qc_status
+    from
+    qc_gate, qc_lot
+    where 
+    qc_gate.qc_id = qc_lot.qc_id
+    and
+    qc_gate.status = 1
+    and
+    qc_gate.machine_cid = -1019429
+    and
+    qc_lot.qc_status in ( 0, 1, 2 )
+
+QCRuleConnectionString:
+dsn=paulst_brat_64;db=paulst_test3
+
+QCRuleSessionReadLockSetting:
+set lockmode session where readlock = nolock
+
+QCRuleQuery:
+    select qr.record_cid, qr.rule_cid, con.external_name, con.external_full, qr.script   
     from                                   
     c_object_name con, qc_rule qr          
     where con.object_cid = qr.rule_cid     
     and qr.status = 1                      
-    and valid_from < date('now') 
-    and valid_to   > date('now')
+    and qr.valid_from < date('now') 
+    and qr.valid_to   > date('now')
 
-LoadRuleConfig:
-    select test_cid, machine_cid, project_cid, con.external_full   
-    from c_object_name con, qc_rule_config qrc        
-    where con.object_cid = qrc.rule_cid               
-    and qrc.status = 1                                
+QCRuleConfigConnectionString:
+dsn=paulst_brat_64;db=paulst_test3
+
+QCRuleConfigSessionReadLockSetting:
+set lockmode session where readlock = nolock
+
+QCRuleConfigQuery:
+    select test_cid, machine_cid, project_cid, rule_cid
+    from qc_rule_config
+    where 
+        status = 1                                
     and valid_from < date('now') 
     and valid_to   > date('now')
 
@@ -20,26 +102,28 @@ InitialisationTimeoutSecs:
 5
 
 RuleEngineErrorCode:
-999
+3
 
-QCRuleConfigConnectionString:
-dsn=paulst_brat_64;db=paulst_test2
-
-QCRuleConfigConnectionSessionReadLockSetting:
-set lockmode session where readlock = nolock
 
 ConnectionFactoryType:
 ADO
 
 ForceReloadConnectionString:
-dsn=paulst_brat_64;db=paulst_test2
+dsn=paulst_brat_64;db=paulst_test3
 
 ForceReloadSessionReadLockSetting:
 set lockmode session where readlock = nolock
 
-DBUpdateConnectionString:
-dsn=paulst_brat_64;db=paulst_test2
+DBUpdateThreadConnectionString:
+dsn=paulst_brat_64;db=paulst_test3
 
+DBUpdateThreadSessionReadLockSetting:
+
+DBUpdateThreadShutdownTimeoutSecs:
+5
+
+DBUpdateThreadCancelPendingUpdatesOnShutdown:
+true
 
 LoadBuddyDatabase:
     SELECT bd.buddy_sample_id, bd.barcode, bd.date_analysed,       

@@ -7,22 +7,15 @@
 
 //===========================================================================
 BASE_TrailCircle::BASE_TrailCircle( TheTrail *parent, const String image )
-	: m_in_play( false ), CIRCLE_SIZE(30),m_parent( parent )
+	: m_in_play( false ), CIRCLE_SIZE(60 /*30*/),m_parent( parent )
 {
  	m_type_id = m_parent->getNextId(); 	// UNIQUE PER OBJECT
- //	face = new Graphics::TBitmap();			// IMAGE SHOWING CARD FACE
- //	face->LoadFromResourceName( (int) HInstance, face_image );
-
-//	fm_board->image_play->Canvas->Draw( 0, 0, face );
-//	AMSG( "PIC", "Info", MB_OK );
-
 	m_image = image;
 
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 BASE_TrailCircle::~BASE_TrailCircle( void )
 {
-//	delete face;
 }
 //---------------------------------------------------------------------------
 int BASE_TrailCircle::getTypeId( void )
@@ -49,7 +42,6 @@ TrailCircle::TrailCircle(BASE_TrailCircle *base,const int left,const int top,con
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TrailCircle::~TrailCircle( void )
 {
- //	delete m_image;
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -87,23 +79,24 @@ void TrailCircle::draw()
 	m_base->m_parent->m_playing_board->Canvas->Brush->Color = ((TColor) 0xFFFFFF);
 	m_base->m_parent->m_playing_board->Canvas->Ellipse(m_left,m_top,m_left+m_base->CIRCLE_SIZE,m_top+m_base->CIRCLE_SIZE);
 
-	m_base->m_parent->m_playing_board->Canvas->Font->Size = 12;
+	m_base->m_parent->m_playing_board->Canvas->Font->Size = 12*2;
 
 	int width = m_base->m_parent->m_playing_board->Canvas->TextWidth(m_base->m_image);
 	int height = m_base->m_parent->m_playing_board->Canvas->TextHeight(m_base->m_image);
 
 	m_base->m_parent->m_playing_board->Canvas->TextOutW(m_left + ((m_base->CIRCLE_SIZE - width)/2),m_top + ((m_base->CIRCLE_SIZE - height)/2),m_base->m_image);
-
-//	m_trail->m_playing_board->Canvas->Pen
-/*
-	if ( m_rescale )
-		m_trail->m_playing_board->Canvas->StretchDraw(m_rect, m_image );
-	else
-		m_trail->m_playing_board->Canvas->Draw(m_left, m_top, m_image );
-*/
 }
 
-
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void TrailCircle::drawText(const std::string &text)
+{
+	m_base->m_parent->m_playing_board->Canvas->Font->Size = 16;
+	m_base->m_parent->m_playing_board->Canvas->Pen->Color = ((TColor) 0x000000);
+	m_base->m_parent->m_playing_board->Canvas->Brush->Color = ((TColor) 0x00FFFFFF);
+	int width = m_base->m_parent->m_playing_board->Canvas->TextWidth(text.c_str());
+	int height = m_base->m_parent->m_playing_board->Canvas->TextHeight(text.c_str());
+	m_base->m_parent->m_playing_board->Canvas->TextOutW(m_left + ((m_base->CIRCLE_SIZE - width)/2),m_top- m_base->CIRCLE_SIZE/2,text.c_str());
+}
 
 //===========================================================================
 

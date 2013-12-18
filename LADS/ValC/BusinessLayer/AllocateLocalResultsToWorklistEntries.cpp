@@ -27,7 +27,7 @@ AllocateLocalResultsToWorklistEntries::AllocateLocalResultsToWorklistEntries(
 {
 }
 
-void AllocateLocalResultsToWorklistEntries::execute()
+void AllocateLocalResultsToWorklistEntries::doStuff()
 {
     IntList unallocated;
 
@@ -89,6 +89,10 @@ void AllocateLocalResultsToWorklistEntries::execute( const WorklistEntry* wle )
         m_matchingWorklistEntries.push_back( wle->getID() );
     }
     
+}
+
+void AllocateLocalResultsToWorklistEntries::notifyCancelled()
+{
 }
 
 int AllocateLocalResultsToWorklistEntries::releaseReturnValue()

@@ -1,5 +1,7 @@
 #include "AcquireCriticalSection.h"
 #include <boost/lexical_cast.hpp>
+#include <cstdarg>
+#include <cstdio>
 #include "LoggingService.h"
 #include "Require.h"
 #include "WorkerThread.h"
@@ -81,6 +83,16 @@ bool LoggingService::hasPending()
 void LoggingService::log( const std::string& msg )
 {
     m_workerThread->queueTask( new LogWritingTask( m_writer, msg ) );
+}
+
+void LoggingService::logFormatted( const char* msgFormat, ... )
+{
+    char buffer[2048];
+    va_list args;
+    va_start(args, msgFormat );
+    std::vsprintf( buffer, msgFormat, args );
+    va_end(args);
+    log( buffer ); 
 }
 
 FileWriter::FileWriter( const std::string& filename )

@@ -2,6 +2,7 @@
 #define LOADREFERENCEDWORKLISTENTRIESH
 
 #include "IntList.h"
+#include "Task.h"
 #include "WorklistDirectory.h"
 
 namespace paulst
@@ -30,7 +31,7 @@ class WorklistEntries;
         4) Delegate to LoadWorklistEntries to achieve this loading.
         5) Repeat from (1).
 */
-class LoadReferencedWorklistEntries : public WorklistDirectory::Func
+class LoadReferencedWorklistEntries : public WorklistDirectory::Func, public stef::Task
 {
 public:
     LoadReferencedWorklistEntries( 
@@ -40,10 +41,10 @@ public:
         ResultIndex*            resultIndex,
         const std::string&      tempTableName,
         const std::string&      worklistSQL,
-        const std::string&      worklistRelationSQL,
         ExceptionalDataHandler* exceptionalDataHandler );
-    void execute();
     void execute( const WorklistEntry* wle );
+protected:
+    void doStuff();
 private:
     paulstdb::DBConnection* m_con;
     paulst::LoggingService* m_log;
@@ -51,8 +52,7 @@ private:
     ResultIndex*            m_resultIndex;
     IntList                 m_idList;
     std::string             m_tempTableName,
-                            m_worklistSQL,
-                            m_worklistRelationSQL;
+                            m_worklistSQL;
     ExceptionalDataHandler* m_exceptionalDataHandler;
 
     LoadReferencedWorklistEntries( const LoadReferencedWorklistEntries& );

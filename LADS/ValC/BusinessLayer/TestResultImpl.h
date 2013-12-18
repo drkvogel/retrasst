@@ -17,7 +17,8 @@ public:
         int resultID,
         const std::string& sampleRunID,
         int testID,
-        float resultValue );
+        float resultValue,
+        const std::string& resultText );
     ~TestResultImpl();
     char        getActionFlag       () const;
     TDateTime   getDateAnalysed     () const;
@@ -25,6 +26,7 @@ public:
     int         getID               () const;
     std::string getSampleDescriptor () const;
     std::string getSampleRunID      () const;
+    std::string getResultText       () const;
     float       getResultValue      () const;
     int         getTestID           () const;
 private:
@@ -36,6 +38,7 @@ private:
     const std::string   m_sampleRunID;
     const int           m_testID;
     const float         m_resultValue;
+    const std::string   m_resultText;
 
 };
 

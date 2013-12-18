@@ -32,8 +32,9 @@
 #include "StoreUtil.h"
 #include "SampleMove.h"
 #include "RetrievalAssistant.h"
-#include "RetrievalList.h"
-#include "mainDialog.h"
+#include "RetrievalListMainListDialog.h"
+#include "RetrievalListmainDialog.h"
+#include "RatTanksMainDialog.h"
 
 //---------------------------------------------------------------------------
 
@@ -247,7 +248,7 @@ void __fastcall TfrmStoremain::btnMoveClick(TObject *Sender)
 		const LCDbCryoJob * existing = frmSelectJob->getSelected();
 		if( existing == NULL || frmMove->init( existing ) ) {
 			frmMove->ShowModal( );
-        }
+		}
 	}
 }
 
@@ -328,8 +329,14 @@ void __fastcall TfrmStoremain::BtnRetrieveClick(TObject *Sender)
 
 void __fastcall TfrmStoremain::btnViewListsClick(TObject *Sender)
 {
-	frmViewListMain -> ShowModal();
+	frmRetrievalListViewListMain->ShowModal();
 }
 
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmStoremain::BtnRationalyseClick(TObject *Sender)
+{
+	frmRatTanksMainDialog->ShowModal();
+}
 //---------------------------------------------------------------------------
 

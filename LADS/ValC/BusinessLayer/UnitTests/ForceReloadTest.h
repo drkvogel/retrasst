@@ -7,33 +7,31 @@
 #include <boost/foreach.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/variant/get.hpp>
-#include "ConsoleWriter.h"
 #include <cstdio>
 #include <cwchar>
 #include "CSVIterator.h"
 #include <iterator>
-#include "LoggingService.h"
 #include <map>
 #include "MockConnection.h"
 #include "MockConnectionFactory.h"
-#include "MockConfig.h"
-#include "NoLogging.h"
 #include <set>
+#include "SnapshotTestFixture.h"
 #include "StringBackedCursor.h"
 #include "StrUtil.h"
 #include <tut.h>
 #include <vector>
 
 
+bool sameRun( valc::SnapshotPtr s, const std::string& runA, const std::string& runB )
+{
+    return s->compareSampleRunIDs( runA, runB );
+}
+
 void pipeSeparatedFieldValues( const std::string& record, paulstdb::RowValues& out )
 {
     typedef paulst::CSVIterator<'|'> CSVIter;
 	std::copy( CSVIter(record), CSVIter(), std::back_inserter( out ) );
 }
-
-/*
-These tests use MockConnectionFactory.
-*/
 
 bool runIDEquals( const std::string& runID, const valc::TestResult* result )
 {
@@ -47,81 +45,6 @@ bool hasResultWithRunID( const std::string& runID, const valc::WorklistEntry* wl
     return std::count_if( resultRange.first, resultRange.second, boost::bind( runIDEquals, runID, _1 ) );
 }
 
-const valc::TestResult* testResultFor( const valc::WorklistEntry* wle )
-{
-    using namespace valc;
-    Range<TestResultIterator> resultRange = wle->getTestResults();
-    unsigned int numResults = std::distance( resultRange.first, resultRange.second );
-    if (  numResults != 1 )
-    {
-        std::string testIDs;
-        if ( numResults )
-        {
-            testIDs = " .TestResult IDs: ";
-
-            for ( TestResultIterator i = resultRange.first; i != resultRange.second; ++i )
-            {
-                testIDs.append( AnsiString( (*i)->getID() ).c_str() );
-                testIDs.append(",");
-            }
-        }
-        char buffer[1024];
-        std::sprintf( buffer, "Worklist entry %d has %d test result(s)%s", wle->getID(), numResults, testIDs.c_str() );
-        throw Exception( buffer );
-    }
-    return *(resultRange.first);
-}
-
-const valc::WorklistEntry* worklistEntry( valc::Range<valc::WorklistEntryIterator>& worklistEntries, int id )
-{
-    using namespace valc;
-    const WorklistEntry* wle = 0;
-    for ( WorklistEntryIterator i = worklistEntries.first; i != worklistEntries.second; ++i )
-    {
-        if ( (*i)->getID() == id )
-        {
-            wle = *i;
-            break;
-        }
-    }
-
-    if ( wle == 0 )
-    {
-        throw Exception( "Failed to find expected worklist entry." );
-    }
-
-    return wle;
-}
-
-class ExceptionListener : public valc::DBUpdateExceptionHandlingPolicy
-{
-public:
-
-    void handleException( const std::string& msg )
-    {
-        m_msgs.push_back( msg );
-    }
-
-    bool noExceptions() const
-    {
-        return m_msgs.empty();
-    }
-
-private:
-    std::vector< std::string > m_msgs;
-};
-
-class UserWarnings : public valc::UserAdvisor
-{
-public:
-    std::vector< std::string > messages;
-
-    UserWarnings() {}
-
-    // NB: might want some concurrency protection here!
-    void advise( const std::string& msg ) { messages.push_back( msg ); }
-};
-
 bool sortOnBuddySampleID( const valc::BuddyDatabaseEntry& e1, const valc::BuddyDatabaseEntry& e2 )
 {
     return e1.buddy_sample_id < e2.buddy_sample_id;
@@ -134,56 +57,24 @@ bool sortOnWorklistEntryID( const valc::WorklistEntry* w1, const valc::WorklistE
 
 namespace tut
 {
-	class ForceReloadTestFixture
+	class ForceReloadTestFixture : public SnapshotTestFixture
     {
     public:
         static const int LOCAL_MACHINE_ID = -1019349;
         static const int USER_ID          = 1234;
 
-        valc::SnapshotPtr s;
-        paulst::LoggingService*         log;
-        valc::MockConfig                config;
-        UserWarnings                    userWarnings;
-        const bool                      logToConsole;
-
         ForceReloadTestFixture( bool initialise = false, bool suppressLogMessages = true )
-            : log(0), logToConsole( ! suppressLogMessages )
+            : SnapshotTestFixture( LOCAL_MACHINE_ID, USER_ID, initialise, suppressLogMessages )
         {
-            if ( initialise )
-            {
-                init();
-            }
-        }
-
-        void init()
-        {
-            paulst::Writer* logWriter = 0;
-            if ( logToConsole )
-            {
-                logWriter = new paulst::ConsoleWriter();
-            }
-            else
-            {
-                logWriter = new NoLogging();
-            }
-            log = new paulst::LoggingService( logWriter );
-            valc::InitialiseApplicationContext( LOCAL_MACHINE_ID, USER_ID, config.toString(), log );
-            s   = valc::Load( &userWarnings );
         }
         
-        ~ForceReloadTestFixture()
-        {
-            valc::DeleteApplicationContext();
-            delete log;
-        }
-
         valc::SnapshotPtr operator->() const
         {
-            return s;
+            return get();
         }
     };
 
-    typedef test_group<ForceReloadTestFixture, 17> ForceReloadTestGroup;
+    typedef test_group<ForceReloadTestFixture, 24> ForceReloadTestGroup;
 	ForceReloadTestGroup testGroupForceReload( "ForceReload tests");
 	typedef ForceReloadTestGroup::object testForceReload;
 
@@ -219,13 +110,13 @@ namespace tut
 
         MockConnectionFactory::reset();
 
-		MockConnectionFactory::clusters = "-1019430,\n";
-		MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
-		MockConnectionFactory::worklist = 
+		MockConnectionFactory::prime( CLUSTERS_QRY,  "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-832455,reveal,ldb25,\n");
+		MockConnectionFactory::prime( WORKLIST_QRY, 
 //rec  machine  barcode   test     group     c sample project p prof                  timestamp           seq s dil   result
 "24110,-1019430,118502164,-1031390,-12744865,0,417128,-832455,0,EDTA_1 analysis other,21-06-2013 11:07:57,39,Q,0.000,0,\n"
 "24111,-1019430,118502164,-1031389,-12744865,0,417128,-832455,0,EDTA_1 analysis other,21-06-2013 11:07:57,34,Q,0.000,0,\n"
-"24112,-1019430,118502164,-1031388,-12744865,0,417128,-832455,0,EDTA_1 analysis other,21-06-2013 11:07:57,35,Q,0.000,0,\n"
+"24112,-1019430,118502164,-1031388,-12744865,0,417128,-832455,0,EDTA_1 analysis other,21-06-2013 11:07:57,35,Q,0.000,0,\n")
 			;
 
         ForceReloadTestFixture s(true);
@@ -252,9 +143,9 @@ namespace tut
 
         MockConnectionFactory::reset();
 
-		MockConnectionFactory::clusters = "-1019430,\n";
-		MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
-		MockConnectionFactory::worklist =
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-832455,reveal,ldb25,\n" );
+		MockConnectionFactory::prime( WORKLIST_QRY, 
 //rec  machine  barcode   test     group     c sample project p prof                  timestamp           seq s dil   result
 "-36832,-1019430,118507097,-1031384,-12750391,0,195199,-832455,0,EDTA_1 analysis other,27-06-2013 10:56:14,11,Q,0.000,0,\n"
 "-36831,-1019430,118507097,-1031385,-12750391,0,195199,-832455,0,EDTA_1 analysis other,27-06-2013 10:56:14,19,Q,0.000,0,\n"
@@ -265,27 +156,25 @@ namespace tut
 "-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,882431,\n"
 "-36847,-1019430,118507091,-1031388,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,12,C,0.000,882429,\n"
 "-36846,-1019430,118507091,-1031389,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,13,C,0.000,882430,\n"
-"-36848,-1019430,118507091,-1031386,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,10,C,0.000,882427,\n"
+"-36848,-1019430,118507091,-1031386,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,10,C,0.000,882427,\n")
 // Note that the last 2 have zero for buddy_result_id
 //
 // the buddy_sample_id for buddy_result_id 882429 is: 882290
 			;
-		MockConnectionFactory::buddyDB =
+		MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
 "882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
 "882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
 "882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n")
 			;
 
         ForceReloadTestFixture s( true );
 
         const bool blockTillNoPendingUpdates = true;
-        ExceptionListener exceptionListener;
 
-        s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
+        s->runPendingDatabaseUpdates( blockTillNoPendingUpdates );
 
-        ensure( exceptionListener.noExceptions() );
         ensure( "Expected 1 new sample-run", 1 == MockConnection::totalNewSampleRuns() );
         const int actualUpdatesOfSampleRunID = MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase();
         ensure_equals( actualUpdatesOfSampleRunID, 1 );
@@ -320,26 +209,24 @@ namespace tut
 
 		MockConnectionFactory::reset();
 
-		MockConnectionFactory::clusters = "-1019430,\n";
-		MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
-		MockConnectionFactory::worklist =
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-832455,reveal,ldb25,\n" );
+		MockConnectionFactory::prime( WORKLIST_QRY, 
 //rec  machine  barcode   test     group     c sample project p prof                  timestamp           seq s dil   result
-"-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
+"-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n" )
 			;
-		MockConnectionFactory::buddyDB =
+		MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,res ,a,date analysed      ,restx,update when      ,cbw
 "882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.8 ,0,27-06-2013 11:57:47,1.8,27-06-2013 10:57:49,-36845,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882432,-1031390,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36845,,,,,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882432,-1031390,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36845,,,,,,\n")
 			;
 
         ForceReloadTestFixture s( true );
 
         const bool blockTillNoPendingUpdates = true;
-        ExceptionListener exceptionListener;
 
-        s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
+        s->runPendingDatabaseUpdates( blockTillNoPendingUpdates );
 
-        ensure( exceptionListener.noExceptions() );
         ensure( 1 == MockConnection::totalNewSampleRuns() );
         ensure( 1 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
@@ -383,7 +270,7 @@ namespace tut
 
 		MockConnectionFactory::reset();
 
-		MockConnectionFactory::testNames =
+		MockConnectionFactory::prime( TESTNAMES_QRY, 
 			"-12711493,A1c-IFmc,\n"
 			"-12703509,CD40ccv,\n"
 			"-12703493,CD40cm,\n"
@@ -391,7 +278,7 @@ namespace tut
 			"-12703329,CD40scv,\n"
 			"-12703327,CD40sm,\n"
 			"-12703115,BNPccv,\n"
-			"-12703113,BNPcm,\n";
+			"-12703113,BNPcm,\n" );
 
         ForceReloadTestFixture s( true );
 
@@ -410,12 +297,12 @@ namespace tut
 
         MockConnectionFactory::reset();
 
-        MockConnectionFactory::clusters = "-1019430,\n";
-        MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
-        MockConnectionFactory::worklist =
+        MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+        MockConnectionFactory::prime( PROJECTS_QRY, "-832455,reveal,ldb25,\n" );
+        MockConnectionFactory::prime( WORKLIST_QRY, 
 //rec  machine  barcode   test     group      c sample project p prof                  timestamp           seq s dil  result
 "-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
-"-36846,-1019430,118507091,-1031391,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
+"-36846,-1019430,118507091,-1031391,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n" )
             ;
 
         std::string tests[2] = {
@@ -428,9 +315,9 @@ namespace tut
         std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,",
                                          ",,,,,," };
 
-        MockConnectionFactory::buddyDB =
+        MockConnectionFactory::prime( BUDDYDB_QRY, 
             tests[0] + sampleRunData[0] + "\n" +
-            tests[1] + sampleRunData[1] + "\n"
+            tests[1] + sampleRunData[1] + "\n" )
             ;
 
 		try
@@ -438,11 +325,9 @@ namespace tut
             ForceReloadTestFixture s( true );
 
             const bool blockTillNoPendingUpdates = true;
-            ExceptionListener exceptionListener;
 
-            s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
+            s->runPendingDatabaseUpdates( blockTillNoPendingUpdates );
 
-            ensure( exceptionListener.noExceptions() );
             ensure( 0 == MockConnection::totalNewSampleRuns() );
             ensure( 1 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
@@ -482,12 +367,12 @@ namespace tut
 
         MockConnectionFactory::reset();
 
-        MockConnectionFactory::clusters = "-1019430,\n";
-        MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
-        MockConnectionFactory::worklist =
+        MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+        MockConnectionFactory::prime( PROJECTS_QRY, "-832455,reveal,ldb25,\n" );
+        MockConnectionFactory::prime( WORKLIST_QRY, 
 //rec  machine  barcode   test     group      c sample project p prof                  timestamp           seq s dil  result
 "-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
-"-36846,-1019430,118507091,-1031391,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
+"-36846,-1019430,118507091,-1031391,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n")
             ;
 
         std::string tests[2] = {
@@ -500,9 +385,9 @@ namespace tut
         std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y,",
                                          ",,,,,," };
 
-        MockConnectionFactory::buddyDB =
+        MockConnectionFactory::prime( BUDDYDB_QRY,
             tests[0] + sampleRunData[0] + "\n" +
-            tests[1] + sampleRunData[1] + "\n"
+            tests[1] + sampleRunData[1] + "\n" )
             ;
 
 		try
@@ -510,11 +395,9 @@ namespace tut
             ForceReloadTestFixture s( true );
 
             const bool blockTillNoPendingUpdates = true;
-            ExceptionListener exceptionListener;
 
-            s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
+            s->runPendingDatabaseUpdates( blockTillNoPendingUpdates );
 
-            ensure( exceptionListener.noExceptions() );
             ensure( 1 == MockConnection::totalNewSampleRuns() );
             ensure( 1 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
@@ -552,12 +435,12 @@ namespace tut
 
         MockConnectionFactory::reset();
 
-        MockConnectionFactory::clusters = "-1019430,\n";
-        MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
-        MockConnectionFactory::worklist =
+        MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+        MockConnectionFactory::prime( PROJECTS_QRY, "-832455,reveal,ldb25,\n" );
+        MockConnectionFactory::prime( WORKLIST_QRY,
 //rec  machine  barcode   test     group      c sample project p prof                  timestamp           seq s dil  result
 "-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
-"-36846,-1019430,118507091,-1031391,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n"
+"-36846,-1019430,118507091,-1031391,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n" )
             ;
 
         std::string tests[2] = {
@@ -570,9 +453,9 @@ namespace tut
         std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y,",
                                          "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y," };
 
-        MockConnectionFactory::buddyDB =
+        MockConnectionFactory::prime( BUDDYDB_QRY,
             tests[0] + sampleRunData[0] + "\n" +
-            tests[1] + sampleRunData[1] + "\n"
+            tests[1] + sampleRunData[1] + "\n" )
             ;
 
 		try
@@ -580,11 +463,9 @@ namespace tut
             ForceReloadTestFixture s( true );
 
             const bool blockTillNoPendingUpdates = true;
-            ExceptionListener exceptionListener;
 
-            s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
+            s->runPendingDatabaseUpdates( blockTillNoPendingUpdates );
 
-            ensure( exceptionListener.noExceptions() );
             ensure( 0 == MockConnection::totalNewSampleRuns() );
             ensure( 0 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
@@ -637,10 +518,10 @@ namespace tut
             {
                 MockConnectionFactory::reset();
 
-                MockConnectionFactory::clusters = "-1019430,\n";
-                MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
-                MockConnectionFactory::worklist = worklist;
-                MockConnectionFactory::buddyDB  = buddyDB;
+                MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+                MockConnectionFactory::prime( PROJECTS_QRY, "-832455,reveal,ldb25,\n" );
+                MockConnectionFactory::prime( WORKLIST_QRY, worklist );
+                MockConnectionFactory::prime( BUDDYDB_QRY,  buddyDB );
 
                 ForceReloadTestFixture s;
                 s.config.edit( "BuddyDatabaseInclusionRule", inclusionRule[iteration] );
@@ -671,20 +552,21 @@ namespace tut
 
         MockConnectionFactory::reset();
 
-		MockConnectionFactory::clusters = "-1019430,\n";
-		MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
-		MockConnectionFactory::worklist =
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-832455,reveal,ldb25,\n" );
+		MockConnectionFactory::prime( WORKLIST_QRY,
 //rec  machine  barcode   test     group     c sample project p prof                  timestamp           seq s dil   result
 "-36845,-1019430,118507091,-1031390,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,882431,\n"
-"-36847,-1019430,118507091,-1031388,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,12,C,0.000,882429,\n"
+"-36847,-1019430,118507091,-1031388,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,12,C,0.000,882429,\n" )
 			;
-		MockConnectionFactory::buddyDB =
+		MockConnectionFactory::prime( BUDDYDB_QRY, 
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
-"992431,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
+"992431,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n")
 			;
-        MockConnectionFactory::nonLocalResults =
+        MockConnectionFactory::prime( NONLOCALRESULTS_QRY,
 //barcode, machine ,sample,dbname,result_id,test_id , res_value, act_flg,date_analysed      , res_text, update_when        ,rec_no,project
-"118507091,-1019329,432560,REVEAL,882429   ,-1031388, 2.9      ,0       ,27-06-2013 11:57:47,2.9      , 27-06-2013 11:57:47,-36847,-832455,\n";  
+"118507091,-1019329,432560,REVEAL,882429   ,-1031388, 2.9      ,0       ,27-06-2013 11:57:47,2.9      , 27-06-2013 11:57:47,-36847,-832455,\n" )
+            ;  
 
         ForceReloadTestFixture s( true );
 
@@ -722,14 +604,14 @@ namespace tut
 
 		MockConnectionFactory::reset();
 
-		MockConnectionFactory::clusters = "-1019430,\n";
-		MockConnectionFactory::projects = "-832455,reveal,ldb25,\n";
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-832455,reveal,ldb25,\n" );
         // Data same as for test 2, but project ID is zero
-		MockConnectionFactory::worklist =
+		MockConnectionFactory::prime( WORKLIST_QRY,
 //rec  machine  barcode   test     group     c sample project p prof           timestamp           seq s dil   result
 "24110,-1019430,118502164,-1031390,-12744865,0,417128,0,0,EDTA_1 analysis other,21-06-2013 11:07:57,39,Q,0.000,0,\n"
 "24111,-1019430,118502164,-1031389,-12744865,0,417128,0,0,EDTA_1 analysis other,21-06-2013 11:07:57,34,Q,0.000,0,\n"
-"24112,-1019430,118502164,-1031388,-12744865,0,417128,0,0,EDTA_1 analysis other,21-06-2013 11:07:57,35,Q,0.000,0,\n"
+"24112,-1019430,118502164,-1031388,-12744865,0,417128,0,0,EDTA_1 analysis other,21-06-2013 11:07:57,35,Q,0.000,0,\n" )
 			;
 
         ForceReloadTestFixture s;
@@ -791,10 +673,10 @@ namespace tut
         {
             MockConnectionFactory::reset();
 
-            MockConnectionFactory::clusters = CLUSTERS;
-            MockConnectionFactory::projects = PROJECTS;
-            MockConnectionFactory::worklist = WORKLIST;
-            MockConnectionFactory::buddyDB  = BUDDYDB;
+            MockConnectionFactory::prime( CLUSTERS_QRY, CLUSTERS );
+            MockConnectionFactory::prime( PROJECTS_QRY, PROJECTS );
+            MockConnectionFactory::prime( WORKLIST_QRY, WORKLIST );
+            MockConnectionFactory::prime( BUDDYDB_QRY,  BUDDYDB  );
 
             ForceReloadTestFixture s;
 
@@ -838,10 +720,10 @@ namespace tut
         {
             MockConnectionFactory::reset();
 
-            MockConnectionFactory::clusters = CLUSTERS;
-            MockConnectionFactory::projects = PROJECTS;
-            MockConnectionFactory::worklist = WORKLIST;
-            MockConnectionFactory::buddyDB  = BUDDYDB;
+            MockConnectionFactory::prime( CLUSTERS_QRY, CLUSTERS );
+            MockConnectionFactory::prime( PROJECTS_QRY, PROJECTS );
+            MockConnectionFactory::prime( WORKLIST_QRY, WORKLIST );
+            MockConnectionFactory::prime( BUDDYDB_QRY,  BUDDYDB );
 
             ForceReloadTestFixture s;
 
@@ -886,10 +768,10 @@ namespace tut
 
         MockConnectionFactory::reset();
 
-        MockConnectionFactory::clusters = CLUSTERS;
-        MockConnectionFactory::projects = PROJECTS;
-        MockConnectionFactory::worklist = WORKLIST;
-        MockConnectionFactory::buddyDB  = BUDDYDB;
+        MockConnectionFactory::prime( CLUSTERS_QRY, CLUSTERS );
+        MockConnectionFactory::prime( PROJECTS_QRY, PROJECTS );
+        MockConnectionFactory::prime( WORKLIST_QRY, WORKLIST );
+        MockConnectionFactory::prime( BUDDYDB_QRY,  BUDDYDB  );
 
         ForceReloadTestFixture s( true );
 
@@ -897,11 +779,9 @@ namespace tut
         ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
 
         const bool blockTillNoPendingUpdates = true;
-        ExceptionListener exceptionListener;
 
-        s->runPendingDatabaseUpdates( &exceptionListener, blockTillNoPendingUpdates );
+        s->runPendingDatabaseUpdates( blockTillNoPendingUpdates );
 
-        ensure( exceptionListener.noExceptions() );
         ensure_equals( "There should be no warnings.", s.userWarnings.messages.size(), 0 );
         ensure_equals( "4 rows in buddy_result_float should have been updated.", MockConnection::totalNewResult2WorklistLinks(), 4 );
 
@@ -917,33 +797,33 @@ namespace tut
 
         MockConnectionFactory::reset();
 
-		MockConnectionFactory::clusters = "-1019430,\n";
-		MockConnectionFactory::projects = "-1234,QCs,ldbqc,\n";
-		MockConnectionFactory::worklist =
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-1234,QCs,ldbqc,\n" );
+		MockConnectionFactory::prime( WORKLIST_QRY, 
 //rec  machine   barcode    test    grp c samp prj p prof                              time               seq s dil   result
 "-36845,-1019349,QCRC100355,-1031390,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,14,C,0.000,882431,\n"
 "-36847,-1019349,QCRC100355,-1031388,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,12,C,0.000,882429,\n"
 "-36846,-1019349,QCRC100355,-1031389,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,13,C,0.000,882430,\n"
-"-36848,-1019349,QCRC100355,-1031386,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,10,C,0.000,882427,\n";
+"-36848,-1019349,QCRC100355,-1031386,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,10,C,0.000,882427,\n" );
 
-		MockConnectionFactory::buddyDB =
+		MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n" )
 			;
         
 
-        MockConnectionFactory::ruleConfig = 
-               "-1031390,-1019349,-1234,configRule,\n" 
-               "-1031388,-1019349,-1234,configRule,\n" 
-               "-1031389,-1019349,-1234,configRule,\n" 
-               "-1031386,-1019349,-1234,configRule,\n" ;
+        MockConnectionFactory::prime( RULECONFIG_QRY, 
+               "-1031390,-1019349,-1234,121,\n" 
+               "-1031388,-1019349,-1234,121,\n" 
+               "-1031389,-1019349,-1234,121,\n" 
+               "-1031386,-1019349,-1234,121,\n" );
 
 
-        MockConnectionFactory::rules = SerializedRecordset( 
-                "configRule|"
+        MockConnectionFactory::prime( RULES_QRY, SerializedRecordset( 
+                "1|121|configRule|a configuration rule|"
                     " local rule                                        "
                     " context = {}                                      "
                     "                                                   "
@@ -955,11 +835,11 @@ namespace tut
                     " function applyRules( qc )                         "
                     "   context.qc = qc                                 "
                     "   local result = rule()                           "
-                    "   return { result }, result.msg, result.resultCode"
+                    "   return { { result }, result.msg, result.resultCode } "
                     " end                                               |\n"
-                "myRule|"
+                "2|122|myRule|a rule|"
                     "return { resultCode = context.qc.testID + 2, rule = 'my rule', msg = 'Bob' }|\n",
-                &pipeSeparatedFieldValues);
+                &pipeSeparatedFieldValues) );
  
         ForceReloadTestFixture s( true, true );
 
@@ -995,31 +875,31 @@ namespace tut
 
         MockConnectionFactory::reset();
 
-		MockConnectionFactory::clusters = "-1019430,\n";
-		MockConnectionFactory::projects = "-1234,QCs,ldbqc,\n";
-		MockConnectionFactory::worklist =
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-1234,QCs,ldbqc,\n" );
+		MockConnectionFactory::prime( WORKLIST_QRY, 
 //rec  machine   barcode    test    grp c samp prj p prof                              time               seq s dil   result
-"-36845,-1019349,QCRC100355,-1031390,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,14,C,0.000,882431,\n";
+"-36845,-1019349,QCRC100355,-1031390,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,14,C,0.000,882431,\n" );
 
-		MockConnectionFactory::buddyDB =
+		MockConnectionFactory::prime( BUDDYDB_QRY, 
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n";
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n" );
         
 
-        MockConnectionFactory::ruleConfig = "-1031390,-1019349,-1234,configRule,\n" ; // Note: different test id from above.
+        MockConnectionFactory::prime( RULECONFIG_QRY, "-1031390,-1019349,-1234,121,\n" ); // Note: different test id from above.
 
 
-        MockConnectionFactory::rules = SerializedRecordset( 
-                "configRule|"
+        MockConnectionFactory::prime( RULES_QRY, SerializedRecordset( 
+                "1|121|configRule|a configuration rule|"
                     " function onLoad(loadFunc)                         "
                     "   loadFunc('nonExistentRule')                     "
                     " end                                               "
                     "                                                   "
                     " function applyRules( qc )                         "
                     "   local result = { resultCode = 1, rule = 'x', msg = 'msg' }                           "
-                    "   return { result }, 'msg', 1                     "
+                    "   return { { result }, 'msg', 1 }                 "
                     " end                                               |\n",
-                &pipeSeparatedFieldValues);
+                &pipeSeparatedFieldValues) );
  
         ForceReloadTestFixture s( false, true );
 
@@ -1056,30 +936,30 @@ namespace tut
 
         MockConnectionFactory::reset();
 
-		MockConnectionFactory::clusters = "-1019430,\n";
-		MockConnectionFactory::projects = "-1234,QCs,ldbqc,\n";
-		MockConnectionFactory::worklist =
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-1234,QCs,ldbqc,\n" );
+		MockConnectionFactory::prime( WORKLIST_QRY,
 //rec  machine   barcode    test    grp c samp prj p prof                              time               seq s dil   result
 "-36845,-1019349,QCRC100355,-1031390,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,14,C,0.000,882431,\n"
 "-36847,-1019349,QCRC100355,-1031388,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,12,C,0.000,882429,\n"
 "-36846,-1019349,QCRC100355,-1031389,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,13,C,0.000,882430,\n"
-"-36848,-1019349,QCRC100355,-1031386,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,10,C,0.000,882427,\n";
+"-36848,-1019349,QCRC100355,-1031386,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,10,C,0.000,882427,\n" );
 
-		MockConnectionFactory::buddyDB =
+		MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n";
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n" );
 
-        MockConnectionFactory::ruleConfig = 
-               "-1031390,-1019349,-1234,configRule1,\n" 
-               "-1031388,-1019349,-1234,configRule2,\n" 
-               "-1031389,-1019349,-1234,configRule3,\n" 
-               "-1031386,-1019349,-1234,configRule4,\n" ;
+        MockConnectionFactory::prime( RULECONFIG_QRY,
+               "-1031390,-1019349,-1234,1,\n" 
+               "-1031388,-1019349,-1234,2,\n" 
+               "-1031389,-1019349,-1234,3,\n" 
+               "-1031386,-1019349,-1234,4,\n" );
 
         const char* ruleConfigTemplate =
-                "configRule\%d|                                     "
+                "\%d|\%d|configRule\%d|config rule \%d|             "
                 " loadedRules = {}                                  "
                 "                                                   "
                 " context = {}                                      "
@@ -1100,23 +980,23 @@ namespace tut
                 "     local result = rule()                         "
                 "     table.insert( results, result )               "
                 "   end                                             "
-                "   return results, 'msg', context.total            "
+                "   return { results, 'msg', context.total }        "
                 " end                                               |\n";
  
-        MockConnectionFactory::rules = SerializedRecordset( 
-            paulst::format( ruleConfigTemplate, 1, "'plus1','plus5'" ) +
-            paulst::format( ruleConfigTemplate, 2, "'plus4','plus6'" ) +
-            paulst::format( ruleConfigTemplate, 3, "'plus3','plus1'" ) +
-            paulst::format( ruleConfigTemplate, 4, "'plus6','plus7'" ) +
+        MockConnectionFactory::prime( RULES_QRY, SerializedRecordset( 
+            paulst::format( ruleConfigTemplate, 10, 1, 1, 1, "'plus1','plus5'" ) +
+            paulst::format( ruleConfigTemplate, 20, 2, 2, 2, "'plus4','plus6'" ) +
+            paulst::format( ruleConfigTemplate, 30, 3, 3, 3, "'plus3','plus1'" ) +
+            paulst::format( ruleConfigTemplate, 40, 4, 4, 4, "'plus6','plus7'" ) +
                 std::string(
-                "plus1| context.total = context.total + 1  return { resultCode = 1, rule = 'plus1', msg = 'OK' }|\n"
-                "plus2| context.total = context.total + 2  return { resultCode = 2, rule = 'plus2', msg = 'OK' }|\n"
-                "plus3| context.total = context.total + 3  return { resultCode = 3, rule = 'plus3', msg = 'OK' }|\n"
-                "plus4| context.total = context.total + 4  return { resultCode = 4, rule = 'plus4', msg = 'OK' }|\n"
-                "plus5| context.total = context.total + 5  return { resultCode = 5, rule = 'plus5', msg = 'OK' }|\n"
-                "plus6| context.total = context.total + 6  return { resultCode = 6, rule = 'plus6', msg = 'OK' }|\n"
-                "plus7| context.total = context.total + 7  return { resultCode = 7, rule = 'plus7', msg = 'OK' }|\n"),
-                &pipeSeparatedFieldValues);
+                "101|5|plus1|plus 1| context.total = context.total + 1  return { resultCode = 1, rule = 'plus1', msg = 'OK' }|\n"
+                "109|6|plus2|plus 2| context.total = context.total + 2  return { resultCode = 2, rule = 'plus2', msg = 'OK' }|\n"
+                "102|7|plus3|plus 3| context.total = context.total + 3  return { resultCode = 3, rule = 'plus3', msg = 'OK' }|\n"
+                "107|8|plus4|plus 4| context.total = context.total + 4  return { resultCode = 4, rule = 'plus4', msg = 'OK' }|\n"
+                "103|9|plus5|plus 5| context.total = context.total + 5  return { resultCode = 5, rule = 'plus5', msg = 'OK' }|\n"
+                "105|10|plus6|plus 6| context.total = context.total + 6  return { resultCode = 6, rule = 'plus6', msg = 'OK' }|\n"
+                "108|11|plus7|plus 7| context.total = context.total + 7  return { resultCode = 7, rule = 'plus7', msg = 'OK' }|\n"),
+                &pipeSeparatedFieldValues) );
  
         ForceReloadTestFixture s( true, true );
 
@@ -1131,10 +1011,18 @@ namespace tut
         ensure_equals( std::distance( wles.first, wles.second ), 4U );
 
         std::map< int, int > expectedResults;
+
         expectedResults[882431] = /*testID -1031390, configRule1*/ 6  /*plus1 plus5*/;
         expectedResults[882429] = /*testID -1031388, configRule2*/ 10 /*plus4 plus6*/;
         expectedResults[882427] = /*testID -1031386, configRule4*/ 13 /*plus6 plus7*/;
         expectedResults[882430] = /*testID -1031389, configRule3*/ 4  /*plus3 plus1*/;
+
+        std::map< int, int > expectedRuleRecordIDs;
+
+        expectedRuleRecordIDs[882431] = /*configRule1*/ 10;
+        expectedRuleRecordIDs[882429] = /*configRule2*/ 20;
+        expectedRuleRecordIDs[882427] = /*configRule4*/ 40;
+        expectedRuleRecordIDs[882430] = /*configRule3*/ 30;
 
         for ( WorklistEntryIterator i = wles.first; i != wles.second; ++i )
         {
@@ -1145,9 +1033,376 @@ namespace tut
             ensure( s->hasRuleResults( resultID ) );
             RuleResults rr = s->getRuleResults( resultID );
             ensure_equals( rr.getSummaryResultCode(), expectedResults[resultID] );
+
+            RuleDescriptor rd = rr.getRuleDescriptor();
+            ensure_equals( rd.getRecordID(), expectedRuleRecordIDs[resultID] );
         }
     }
 
+    template<>
+	template<>
+	void testForceReload::test<18>()
+	{
+    	set_test_name("ForceReload - 'same' QC but each result has a different buddy_database entry.");
+
+		using namespace valc;
+
+        MockConnectionFactory::reset();
+
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-1234,QCs,ldbqc,\n" );
+		MockConnectionFactory::prime( WORKLIST_QRY, 
+//rec  machine   barcode    test    grp c samp prj p prof                              time               seq s dil   result
+"-36845,-1019349,QCRC100355,-1031390,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,14,C,0.000,882431,\n"
+"-36847,-1019349,QCRC100355,-1031388,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,12,C,0.000,882429,\n" );
+
+		MockConnectionFactory::prime( BUDDYDB_QRY, 
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882291,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n" );
+
+        ForceReloadTestFixture s(true);
+
+        const int expectedNumLocalRuns = 2;
+
+        int expectedWorklistIDSequence[expectedNumLocalRuns] = { -36845, -36847 };
+
+        int counter = 0;
+
+        std::set< std::string > localRunIDs;
+
+        for ( LocalEntryIterator localEntries = s->localBegin(); localEntries != s->localEnd(); ++localEntries )
+        {
+            LocalEntry localEntry = *localEntries;
+
+            LocalRun lr = boost::get<LocalRun>(localEntry);
+
+            localRunIDs.insert( lr.getRunID() );
+
+            Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
+
+            ensure_equals( "There should be only one worklist entry for each local run", 
+                std::distance( wles.first, wles.second ), 1 );
+
+            ensure( "Only expecting 2 local runs", counter < expectedNumLocalRuns );
+
+            const int expectedWorklistID = expectedWorklistIDSequence[counter];
+
+            const WorklistEntry* wle = *(wles.first);
+
+            ensure_equals( wle->getID(), expectedWorklistID );
+
+            ensure( "The test result for worklist entry should be local to this run",
+                s->compareSampleRunIDs( testResultFor( wle )->getSampleRunID(), lr.getRunID() ) );
+
+            ++counter;
+        }
+
+        ensure_equals( counter, expectedNumLocalRuns );
+        ensure_equals( localRunIDs.size(), expectedNumLocalRuns );
+
+        // Each runID should be unique
+        BOOST_FOREACH( std::string runID, localRunIDs )
+        {
+            ensure_equals( 1, std::count_if( localRunIDs.begin(), localRunIDs.end(), boost::bind(sameRun, s.get(), runID, _1) ) );
+        } 
+    }
+
+    template<>
+	template<>
+	void testForceReload::test<19>()
+	{
+    	set_test_name("ForceReload - as 18, but both QC results share the same  buddy_database entry.");
+
+		using namespace valc;
+
+        MockConnectionFactory::reset();
+
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-1234,QCs,ldbqc,\n" );
+		MockConnectionFactory::prime( WORKLIST_QRY, 
+//rec  machine   barcode    test    grp c samp prj p prof                              time               seq s dil   result
+"-36845,-1019349,QCRC100355,-1031390,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,14,C,0.000,882431,\n"
+"-36847,-1019349,QCRC100355,-1031388,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,12,C,0.000,882429,\n" );
+
+		MockConnectionFactory::prime( BUDDYDB_QRY,
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n" );
+
+        ForceReloadTestFixture s(true);
+
+		ensure_equals( "There should be only one local run", std::distance( s->localBegin(), s->localEnd() ), 1 );
+
+        LocalEntry localEntry = *(s->localBegin());
+
+        LocalRun lr = boost::get<LocalRun>(localEntry);
+
+        Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
+
+        ensure_equals( "There should be 2 worklist entries for this run", 2, std::distance( wles.first, wles.second ) );
+
+        for ( WorklistEntryIterator i = wles.first; i != wles.second; ++i )
+        {
+            const WorklistEntry* wle = *i;
+            ensure( "The test result for the worklist entry should be local to this run",
+                s->compareSampleRunIDs( testResultFor( wle )->getSampleRunID(), lr.getRunID() ) );
+        }
+    }
+
+    // Next: when there's an existing sample-run that is open, .. closed
+
+    template<>
+	template<>
+	void testForceReload::test<20>()
+	{
+    	set_test_name("ForceReload - as 19, but the 2nd got picked up on a 2nd force-reload, meaning the first has a persisted entry in the sample_run table.");
+
+		using namespace valc;
+
+        MockConnectionFactory::reset();
+
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-1234,QCs,ldbqc,\n" );
+		MockConnectionFactory::prime( WORKLIST_QRY, 
+//rec  machine   barcode    test    grp c samp prj p prof                              time               seq s dil   result
+"-36845,-1019349,QCRC100355,-1031390,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,14,C,0.000,882431,\n"
+"-36847,-1019349,QCRC100355,-1031388,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,12,C,0.000,882429,\n" );
+
+        std::string tests[2] = {
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,",
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,"
+            };
+
+        //                                runID, isOpen, when created       , when closed, sequence position,fao_level_one
+        std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,",
+                                         ",,,,,," };
+
+        MockConnectionFactory::prime( BUDDYDB_QRY, 
+            tests[0] + sampleRunData[0] + "\n" +
+            tests[1] + sampleRunData[1] + "\n" )
+            ;
+
+        ForceReloadTestFixture s(true);
+
+		ensure_equals( "There should be only one local run", std::distance( s->localBegin(), s->localEnd() ), 1 );
+
+        LocalEntry localEntry = *(s->localBegin());
+
+        LocalRun lr = boost::get<LocalRun>(localEntry);
+
+        Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
+
+        ensure_equals( "There should be 2 worklist entries for this run", 2, std::distance( wles.first, wles.second ) );
+
+        for ( WorklistEntryIterator i = wles.first; i != wles.second; ++i )
+        {
+            const WorklistEntry* wle = *i;
+            ensure( "The test result for the worklist entry should be local to this run",
+                s->compareSampleRunIDs( testResultFor( wle )->getSampleRunID(), lr.getRunID() ) );
+        }
+		
+		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
+    }
+
+    template<>
+	template<>
+	void testForceReload::test<21>()
+	{
+    	set_test_name("ForceReload - as 18, but the 2nd got picked up on a 2nd force-reload, meaning the first has a persisted entry in the sample_run table.");
+
+		using namespace valc;
+
+        MockConnectionFactory::reset();
+
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-1234,QCs,ldbqc,\n" );
+		MockConnectionFactory::prime( WORKLIST_QRY,
+//rec  machine   barcode    test    grp c samp prj p prof                              time               seq s dil   result
+"-36845,-1019349,QCRC100355,-1031390,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,14,C,0.000,882431,\n"
+"-36847,-1019349,QCRC100355,-1031388,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,12,C,0.000,882429,\n" );
+
+        std::string tests[2] = {
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,",
+"882291,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,"
+            };
+
+        //                                runID, isOpen, when created       , when closed, sequence position,fao_level_one
+        std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,",
+                                         ",,,,,," };
+
+        MockConnectionFactory::prime( BUDDYDB_QRY, 
+            tests[0] + sampleRunData[0] + "\n" +
+            tests[1] + sampleRunData[1] + "\n" )
+            ;
+
+        ForceReloadTestFixture s(true);
+
+		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 2 );
+    }
+
+
+    template<>
+	template<>
+	void testForceReload::test<22>()
+	{
+    	set_test_name("ForceReload - QC worklist entry at status 'P'.");
+
+		using namespace valc;
+
+        MockConnectionFactory::reset();
+
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-1234,QCs,ldbqc,\n" );
+		MockConnectionFactory::prime( WORKLIST_QRY, 
+//rec  machine   barcode    test    grp c samp prj p prof                              time               seq s dil   result
+"-36845,-1019349,QCRC100355,-1031390,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,14,C,0.000,882431,\n"
+"-36847,-1019349,QCRC100355,-1031388,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,12,P,0.000,0,\n" );
+
+		MockConnectionFactory::prime( BUDDYDB_QRY,
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n" );
+
+        ForceReloadTestFixture s(true);
+
+		ensure_equals( "There should be only one local run", std::distance( s->localBegin(), s->localEnd() ), 1 );
+
+        LocalEntry localEntry = *(s->localBegin());
+
+        LocalRun lr = boost::get<LocalRun>(localEntry);
+
+        Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
+
+        ensure_equals( "There should be 2 worklist entries for this run", 2, std::distance( wles.first, wles.second ) );
+
+        Range<TestResultIterator> results = worklistEntry( wles, -36845 )->getTestResults();
+
+        ensure_equals( "There should be 1 result for worklist entry -36845", 1, std::distance( results.first, results.second ) );
+
+        results = worklistEntry( wles, -36847 )->getTestResults();
+
+        ensure_equals( "There should be no results for worklist entry -36847", 0, std::distance( results.first, results.second ) );
+    }
+
+    template<>
+	template<>
+	void testForceReload::test<23>()
+	{
+    	set_test_name("ForceReload - QC worklist entry at status 'P'. Cut-down version of 22.");
+
+		using namespace valc;
+
+        MockConnectionFactory::reset();
+
+		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+		MockConnectionFactory::prime( PROJECTS_QRY, "-1234,QCs,ldbqc,\n" );
+		MockConnectionFactory::prime( WORKLIST_QRY,
+//rec  machine   barcode    test    grp c samp prj p prof                              time               seq s dil   result
+"-36847,-1019349,QCRC100355,-1031388,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,12,P,0.000,0,\n" );
+
+		MockConnectionFactory::prime( BUDDYDB_QRY, 
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,,,,,,,,,,,,,,\n" );
+
+        ForceReloadTestFixture s(true);
+
+		ensure_equals( "There should be only one local run", std::distance( s->localBegin(), s->localEnd() ), 1 );
+
+        LocalEntry localEntry = *(s->localBegin());
+
+        LocalRun lr = boost::get<LocalRun>(localEntry);
+
+        Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
+
+        ensure_equals( "There should be only one worklist entry", 1, std::distance( wles.first, wles.second ) );
+
+        Range<TestResultIterator> results = worklistEntry( wles, -36847 )->getTestResults();
+
+        ensure_equals( "There should be no result for worklist entry -36847", 0, std::distance( results.first, results.second ) );
+    }
+
+    template<>
+	template<>
+	void testForceReload::test<24>()
+	{
+    	set_test_name(
+        "ForceReload - a 'P' QC will go with the latest buddy_database entry, unless the latest has a result already for the same test.");
+
+		using namespace valc;
+
+        const int idOfFirstTest [] = { -1031390, -1031390, -1031388 };
+        const int idOfSecondTest[] = { -1031390, -1031388, -1031388 };
+        const int testIDForPWorklistEntry =      -1031388;
+
+
+        for ( int testCase = 0; testCase < 3; ++testCase )
+        {
+            MockConnectionFactory::reset();
+
+            MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+            MockConnectionFactory::prime( PROJECTS_QRY, "-1234,QCs,ldbqc,\n" );
+            MockConnectionFactory::prime( WORKLIST_QRY, 
+    paulst::format(
+    //rec  machine   barcode    test    grp c samp prj p prof                              time               seq s dil   result
+    "-36845,-1019349,QCRC100355,\%d     ,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,14,C,0.000,882431,\n"
+    "-36847,-1019349,QCRC100355,\%d     ,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,12,C,0.000,882429,\n"
+    "-36849,-1019349,QCRC100355,\%d     ,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,12,P,0.000,0,\n",
+        idOfSecondTest[testCase], idOfFirstTest[testCase], testIDForPWorklistEntry ) );
+
+            MockConnectionFactory::prime( BUDDYDB_QRY,
+    paulst::format(
+    //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
+    "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,\%d     ,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
+    "882291,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,\%d     ,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n",
+        idOfFirstTest[testCase], idOfSecondTest[testCase] ) );
+
+            ForceReloadTestFixture s(true);
+
+            ensure_equals( "There should be 2 local runs", std::distance( s->localBegin(), s->localEnd() ), 2 );
+
+            int listPosition = 0;
+            int expectedWorklistEntries [2];
+
+            switch( testCase )
+            {
+                case 0: 
+                    expectedWorklistEntries[0] = 1;
+                    expectedWorklistEntries[1] = 2;
+                    break;
+                case 1:
+                    expectedWorklistEntries[0] = 2;
+                    expectedWorklistEntries[1] = 1;
+                    break;
+                case 2:
+                    expectedWorklistEntries[0] = 1;
+                    expectedWorklistEntries[1] = 1;
+                    break;
+            }
+
+            for ( LocalEntryIterator localEntries = s->localBegin(); localEntries != s->localEnd(); ++localEntries )
+            {
+                ensure( listPosition < 2 );
+
+                LocalEntry localEntry = *localEntries;
+
+                LocalRun lr = boost::get<LocalRun>(localEntry);
+
+                Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
+                
+                ensure_equals( paulst::format( 
+                    "Test iteration: \%d. LocalRun#\%d. There should be \%d worklist entry/entries", 
+                    testCase, listPosition, expectedWorklistEntries[listPosition] ).c_str(),
+                    std::distance( wles.first, wles.second ), expectedWorklistEntries[listPosition]  );
+
+                ++listPosition;
+            }
+
+            ensure_equals( listPosition, 2 );
+        }
+    }
+   
 };
 
 #endif

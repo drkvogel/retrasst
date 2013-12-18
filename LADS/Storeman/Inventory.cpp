@@ -982,7 +982,8 @@ void Rack::populate( ) {
 	// read boxes from database - most racks are filled with boxes from one project
 	StoreDAO dao;
 	std::vector< ROSETTA > results;
-	if( isSingleProject() ) {
+	dao.loadBoxes( id, results );
+/*	if( isSingleProject() ) {
 		dao.loadBoxes( id, project_cid, results );
 		if( results.size() != capacity && results.size() + emptySlots != capacity ) {
 			results.clear();	// not enough from this project; should check again
@@ -995,6 +996,7 @@ void Rack::populate( ) {
 			}
 		}
 	}
+*/
 	// allocate boxes to slots; allow more than one per slot (e.g. during box move)
 	std::multimap< int, Box * > boxes;
 	std::set< int > projects, boxTypes;
@@ -1842,15 +1844,13 @@ void AvlSection::populate( ) {
 		AvlRack *p = new AvlRack( *ri );
 		racknames.insert( p->getName() );
 		// check the occupancy if it's easy to do so; ignore if full
-		if( p->isSingleProject() ) {
-			std::set< int > occupied;
-			dao.loadRackOccupancy( p->getID(), p->getProject_cid(), occupied );
-			if( occupied.size() >= rackSize ) {
-				delete p;
-				continue;
-			} else {
-				p->setOccupancy( occupied );
-			}
+		std::set< int > occupied;
+		dao.loadRackOccupancy( p->getID(), occupied );
+		if( occupied.size() >= rackSize ) {
+			delete p;
+			continue;
+		} else {
+			p->setOccupancy( occupied );
 		}
 		p->setCapacity( rackSize );
 		p->setParent( this );
@@ -1907,20 +1907,8 @@ void AvlRack::populate( ) {
 		return;
 	}
 	if( id != -1 && occupied.empty() ) {
-		StoreDAO dao;
-		if( isSingleProject() ) {
-			dao.loadRackOccupancy( id, project_cid, occupied );
-		} else {
-			for( Range< LCDbProject > pr = LCDbProjects::records(); pr.isValid(); ++ pr ) {
-				if( pr -> isInCurrentSystem() && !pr -> isCentral() ) {
-					dao.loadRackOccupancy( id, pr -> getID(), occupied );
-				}
-			}
-		}
+		StoreDAO().loadRackOccupancy( id, occupied );
 	}
-
-//	Tank * t = dynamic_cast< Tank * >( parent->getParent()->getParent() );
-//	std::string rn = (t == NULL ? name : t->getName() + " " + name);
 	for( int i = 1; i <= capacity; i++ ) {
 		if( occupied.count( i ) == 0 ) {
 			char buf[ 70 ];

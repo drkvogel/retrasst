@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include <cstdarg>
+#include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <iterator>
@@ -59,6 +61,16 @@ int count( const std::string& within, const std::string& substring )
     while( ( pos = within.find( substring, pos + 1 ) ) != std::string::npos ) ++found;
 
     return found;
+}
+
+std::string format( const char* format, ... )
+{
+    char buffer[2048];
+    va_list args;
+    va_start(args, format );
+    std::vsprintf( buffer, format, args );
+    va_end(args);
+    return buffer;
 }
 
 std::string formatFileSize( __int64 s )

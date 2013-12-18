@@ -3,6 +3,7 @@
 
 #include "AbstractConnectionFactory.h"
 #include "DBConnection.h"
+#include "MockConnection.h"
 #include "StringBackedCursor.h"
 
 class MockRuleEngineConnection : public paulstdb::DBConnection
@@ -21,19 +22,22 @@ public:
     {
         if ( m_closed )
             ++(*m_closed);
+        m_connection.close();
     }
 
     paulstdb::Cursor* executeQuery( const std::string& sql )
     {
-        return new paulstdb::StringBackedCursor( sql );
+        return m_connection.executeQuery( sql );
     }
 
-    void executeStmt( const std::string& ) 
+    void executeStmt( const std::string& stmt ) 
     {
+        m_connection.executeStmt( stmt );
     }
 private:
     int* m_opened;
     int* m_closed;
+    valc::MockConnection m_connection;
 };
 
 

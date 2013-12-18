@@ -31,19 +31,21 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class ValidationXMLParser extends DefaultHandler
 {
-		
 	TreeMap m_SectionData = new TreeMap();		
 	TreeMap m_HeaderData = new TreeMap();		
 	String m_SectionMD5;
+	String m_SectionAbondoned;
 	
 	varValidation m_varValidation;
 	String m_CurrentSectionID; //section->SectionId;
 	String m_SectorfilePartId; //section->PartId;
 	String m_SectorfileSessionId; //section->SessionId;
-		
+	
+	String m_DateStarted; //datestarted_hmXX in qidresp
+	String m_DateCompleted; //datecompleted in section header
+	
 	int m_XMLnumSections = 0;
 	
-	String m_SchemaFile;
 	String m_XMLFile;
 	
 	duplicateCheckVar m_duplicateChecker; //checking for duplicate variables
@@ -51,7 +53,10 @@ public class ValidationXMLParser extends DefaultHandler
 	AcknowledgeXML m_AckXML;
 	
 	static boolean m_inCarfilePart;
-	
+		
+	/**
+	 * 
+	 */
 	public ValidationXMLParser()
 	{
 		m_duplicateChecker = new duplicateCheckVar();
@@ -73,11 +78,10 @@ public class ValidationXMLParser extends DefaultHandler
 	 * @param Ack		What to store the Ackowledgements so we can report back.
 	 * @param varValidator	What we use to validate the incoming XML data against.
 	 */
-	public void setUp(String XMLFile,String SchemaFile, AcknowledgeXML Ack,varValidation varValidator)
+	public void setUp(String XMLFile, AcknowledgeXML Ack,varValidation varValidator)
 	{
 		m_AckXML = Ack;
 		m_XMLFile = XMLFile;
-		m_SchemaFile = SchemaFile;
 		m_varValidation =  varValidator;
 	}
 	
@@ -141,12 +145,15 @@ public class ValidationXMLParser extends DefaultHandler
 		}		
 		else if (localName.compareTo(globals.DEFINE_SECTION_NAME)==0)
 		{
+			m_SectionAbondoned = "";
 			m_inCarfilePart = false;
 			m_CurrentSectionID = "?"; //section->SectionId;
 			m_SectorfilePartId = "?"; //section->PartId;
 			m_SectorfileSessionId = "?"; //section->SessionId;
 			m_SectionMD5 = "?";
-			
+			m_DateStarted = "";
+			m_DateCompleted = "";
+	
 			//reset the duplicate checker, as this is a new section
 			m_duplicateChecker.ClearForNewSet(); 
 			m_sourceVaribleChecker.ClearForNewSet();
@@ -159,13 +166,15 @@ public class ValidationXMLParser extends DefaultHandler
 					   //IN HERE SHOULD BE EVERY HEADER VARIABLE APART FROM DATE_COMPLETE AND CHECKSUM	
  					m_SectionData.put(atts.getLocalName(i),atts.getValue(i)); //FOR mD5
 				}
+				else
+					m_DateCompleted = atts.getValue(i);
 				//save for ack generation.
 				if (atts.getLocalName(i).compareTo(globals.DEFINE_PARTID_NAME) == 0)
 					m_SectorfilePartId = atts.getValue(i);
 				else if (atts.getLocalName(i).compareTo(globals.DEFINE_SESSIONID_NAME) == 0)
 					m_SectorfileSessionId = atts.getValue(i);			
 				else if (atts.getLocalName(i).compareTo(globals.DEFINE_SECTION_ID_NAME)==0)
-					m_CurrentSectionID = atts.getValue(i); 		
+					m_CurrentSectionID = atts.getValue(i); 					
 			}	
 			
 			if (m_CurrentSectionID.compareTo("?") == 0)
@@ -225,6 +234,13 @@ public class ValidationXMLParser extends DefaultHandler
 			{
 				m_SectionData.put(atts.getValue("qid"),atts.getValue("resp"));
 				
+				//look for abandon_hmXX, add it back in as abondon so we can get it later
+				String varibleName = atts.getValue("qid");
+				if (varibleName.startsWith("abandon_hm"))
+					m_SectionAbondoned = atts.getValue("resp");	
+				else if (varibleName.startsWith("datestarted_hm"))
+					m_DateStarted = atts.getValue("resp");
+
 				boolean res = false;
 				try
 				{
@@ -330,141 +346,8 @@ public class ValidationXMLParser extends DefaultHandler
 		{			
 			//validate start and end dates of this section
 
-/*	WHEN CONFIRMED WE DON'T NEED THIS DATE. REMOVE THIS CODE, Validate start and end date in the var section
- *
- * 			@SuppressWarnings("unused")
-			Date EndDate = null;
- * 
- * 		try
-			{
-				if (m_SectorfileDateCompleted == null)
-				{
-					m_AckXML.addComment("SessionID["+m_SectorfileSessionId+"]-CompleteDate is null");			
-				}
-				else
-					EndDate = Utils.ISODateStringToDate(m_SectorfileDateCompleted);
-			}
-			catch (ParseException e1)
-			{
-				m_AckXML.addComment("SessionID["+m_SectorfileSessionId+"]-EndDate can't be validated");
-			}
-*/				
-/*			
-			boolean passedTest = true;
-			if (m_CurrentSectionID.compareTo("?") == 0)
-			{
-				passedTest = false;
-				ErrorReporting.m_AckErrorString += "sectionid is not defined;";	
-			}
-			if (m_SectorfilePartId.compareTo("?") == 0)
-			{
-				passedTest = false;
-				ErrorReporting.m_AckErrorString += "partid is not defined;";	
-			}
-			if (m_SectorfileSessionId.compareTo("?") == 0)
-			{
-				passedTest = false;
-				ErrorReporting.m_AckErrorString += "sessionid is not defined;";	
-			}
-			if (m_SectionMD5.compareTo("?") == 0)
-			{
-				passedTest = false;
-				ErrorReporting.m_AckErrorString += "checkMD5 is not defined;";	
-			}
-			
-			//check participant id is in the valid range
-			try
-			{
-				int partID = Integer.parseInt(m_SectorfilePartId);
-				if ((partID <800000000) || (partID >899999999))
-				{
-					passedTest = false;
-					ErrorReporting.m_AckErrorString += "Partid out side of valid range;";	
-				}
-			}
-			catch (NumberFormatException e)
-			{
-				passedTest = false;
-				ErrorReporting.m_AckErrorString += "Partid not valid;";	
-			}
-			//check section id is in the valid range
-			try
-			{
-				int sectionID = Integer.parseInt(m_CurrentSectionID);
-				if ((sectionID <1) || (sectionID >9))
-				{
-					passedTest = false;
-					ErrorReporting.m_AckErrorString += "sectionid out side of valid range;";	
-				}
-			}
-			catch (NumberFormatException e)
-			{
-				passedTest = false;
-				ErrorReporting.m_AckErrorString += "sectionid not valid;";	
-			}
-		
-			try
-			{
-				Integer.parseInt(m_SectorfileSessionId);
-			}
-			catch (NumberFormatException e)
-			{
-				passedTest = false;
-				ErrorReporting.m_AckErrorString += "SessionID not valid;";	
-			}
-*/
-			if (ErrorReporting.m_AckErrorString.length() == 0)
-			{
-				try
-				{
-					if (!md5Util.checkMD5(m_SectionMD5, m_SectionData))
-						ErrorReporting.m_AckErrorString += "Failed MD5 check;";
-				}
-				catch (NoSuchAlgorithmException e)
-				{
-					e.printStackTrace();
-					ErrorReporting.reportCritical(e); //deal with it here.
-					return;
-				}
-			}		
-			
-			if (ErrorReporting.m_AckErrorString.length() == 0)
-			{
-				try
-				{
-					String result = m_varValidation.validateSectionData(m_CurrentSectionID,m_SectionData);
-					if (result.compareTo("OK")!=0)
-					{
-						ErrorReporting.m_AckErrorString += "failed the validation ["+ result +"];";
-					}
-				}
-				catch (XMLParseException e1)
-				{ //PARSING AN INT WITH IN VALIDATESECTION.. should never happen....
-					e1.printStackTrace();
-					ErrorReporting.reportCritical(e1); //deal with it here.
-				}
-		
-				if (ErrorReporting.m_AckErrorString.length() == 0)
-				{ //only check if no errors
-					if (!m_duplicateChecker.sectionHasData())
-					{
-						ErrorReporting.m_AckErrorString += "Section has no data;";
-					}
-				}
-									
-				try
-				{
-					if (m_sourceVaribleChecker.size() != m_varValidation.getNumberInSection(m_CurrentSectionID))
-					{
-						ErrorReporting.m_AckErrorString += "Looks like we are missing some varaibles("+m_sourceVaribleChecker.size()+"/"+m_varValidation.getNumberInSection(m_CurrentSectionID)+");";	
-					}
-				}
-				catch (XMLParseException e)
-				{
-					//this really should never happen.
-					// but if it did, it's caught above and report added so Cardiff will know there is a problem.
-				}
-			}	
+			if (!validateEndSection())
+				return;
 			
 			m_SectionData.clear();
 			
@@ -476,6 +359,116 @@ public class ValidationXMLParser extends DefaultHandler
 			//clear any errors, ready for next section
 			ErrorReporting.m_AckErrorString = "";
 		}
+	}
+
+	private boolean validateEndSection()
+	{
+		if (ErrorReporting.m_AckErrorString.length()  > 0)
+			return true;
+		
+		Date EndDate = null;
+		Date StartDate = null;
+			
+		try
+		{
+			if (m_DateStarted.compareTo("")==0)
+			{
+				ErrorReporting.m_AckErrorString += "DateStarted_hm is null";			
+				return true;
+			}
+			else
+				StartDate = Utils.ISODateStringToDate(m_DateStarted);
+		}
+		catch (ParseException e1)
+		{
+			ErrorReporting.m_AckErrorString += "DateStarted_hm can't be validated";
+			return true;
+		}
+		
+		try
+		{
+			if (m_DateCompleted.compareTo("")==0)
+			{
+				ErrorReporting.m_AckErrorString += "datecompleted is null";			
+				return true;
+			}
+			else
+				EndDate = Utils.ISODateStringToDate(m_DateCompleted);
+		}
+		catch (ParseException e1)
+		{
+			ErrorReporting.m_AckErrorString += "datecompleted can't be validated";
+			return true;
+		}
+		
+		if (StartDate.after(EndDate))
+		{
+			ErrorReporting.m_AckErrorString += "datecompleted is before datestarted_hm";			
+			return true;
+		}
+	
+		try
+		{
+			if (!md5Util.checkMD5(m_SectionMD5, m_SectionData))
+			{
+				ErrorReporting.m_AckErrorString += "Failed MD5 check;";
+				return true;
+			}
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			e.printStackTrace();
+			ErrorReporting.reportCritical(e); //deal with it here.
+			return false;
+		}
+		
+		try
+		{
+			String result = m_varValidation.validateSectionData(m_CurrentSectionID,m_SectionData);
+			if (result.compareTo("OK")!=0)
+			{
+				ErrorReporting.m_AckErrorString += "failed the validation ["+ result +"];";
+				return true;
+			}
+		}
+		catch (XMLParseException e1)
+		{ //PARSING AN INT WITH IN VALIDATESECTION.. should never happen....
+			e1.printStackTrace();
+			ErrorReporting.reportCritical(e1); //deal with it here.
+			return false;
+		}
+
+		 //only check if no errors
+		if (!m_duplicateChecker.sectionHasData())
+		{
+			ErrorReporting.m_AckErrorString += "Section has no data;";
+			return true;
+		}
+							
+		try
+		{
+			//check to see if this is a valid run or not, if was not complete, don't do this check
+			boolean doCheck = false;
+			if (m_SectionAbondoned.length() == 0)
+				doCheck = true;
+			else if (m_SectionAbondoned.compareTo("0") == 0)
+				doCheck = true;
+			
+			if (doCheck)
+			{	
+				if (m_sourceVaribleChecker.size() != m_varValidation.getNumberInSection(m_CurrentSectionID))
+				{
+					ErrorReporting.m_AckErrorString += "Looks like we are missing some varaibles("+m_sourceVaribleChecker.size()+"/"+m_varValidation.getNumberInSection(m_CurrentSectionID)+");";	
+					return true;
+				}
+			}
+		}
+		catch (XMLParseException e)
+		{
+			//this really should never happen.
+			// but if it did, it's caught above and report added so Cardiff will know there is a problem.
+		}
+		return true;
 	}
 
 	public void endDocument() throws SAXException

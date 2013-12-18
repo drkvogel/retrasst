@@ -19,6 +19,7 @@ bool        endsWith( const char* str, const char* substr ); // Does str end wit
 std::string formatFileSize( __int64 size );
 bool        caseInsensitiveCompare( char a, char b );
 int         count( const std::string& within, const std::string& substring );
+std::string format( const char* format, ... );
 std::string getErrorMessage( unsigned long windowsErrorCode );
 bool        ifind( const std::string& findWhat, const std::string& inWhat );
 bool        isDigit( char c );

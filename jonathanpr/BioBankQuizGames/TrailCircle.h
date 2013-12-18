@@ -38,6 +38,7 @@ public:
 
 	bool	acceptsClick( const int xpos, const int ypos );
 	void	draw();
+	void    drawText(const std::string &text);
 	void drawConnectingList(TrailCircle	*prevSelected);
 
 	void setSelected(const bool sel) {m_selected = sel;}

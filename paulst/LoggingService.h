@@ -31,6 +31,7 @@ public:
     LoggingService( Writer* w );
     ~LoggingService();
     void log( const std::string& msg );
+    void logFormatted( const char* msgFormat, ... );
     bool hasPending();
 private:
     std::auto_ptr<paulst::WorkerThread> m_workerThread;

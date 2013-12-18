@@ -71,40 +71,51 @@ void LPDbBoxType::setAliquots( Aliquots aliquotTypes )
 }
 
 //---------------------------------------------------------------------------
+
+bool LPDbBoxType::hasAliquot( int atid ) const
+{
+	for( Aliquots ali = content; ali.isValid(); ++ ali ) {
+		if( *ali == atid ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+//---------------------------------------------------------------------------
 //	Create or update the given box content record; copy into the cache
 //---------------------------------------------------------------------------
 
-bool LPDbBoxType::saveRecord( LQuery pQuery )
+bool LPDbBoxType::saveRecord( LQuery pq )
 {
-	if( saved )
-	{
-		pQuery.setSQL( "Update box_content set external_name = :nam, description = :desc, status = :sts,"
+	if( saved ) {
+		pq.setSQL( "Update box_content set external_name = :nam, description = :desc, status = :sts,"
 					  " expected_use = :eu, box_size_cid = :bs, box_order = :ord, box_set_link = :lnk,"
 					  " aliquot_type1 = :at1, aliquot_type2 = :at2, aliquot_type3 = :at3"
 					  " where box_type_cid = :cid" );
-	}
-	else
-	{	claimNextID( pQuery );
-		pQuery.setSQL( "Insert into box_content (box_type_cid, external_name, description, status, expected_use,"
+	} else {
+		while( needsNewID() ) {
+			claimNextID( pq );
+		}
+		pq.setSQL( "Insert into box_content (box_type_cid, external_name, description, status, expected_use,"
 					  " box_size_cid, box_order, aliquot_type1, aliquot_type2, aliquot_type3, box_set_link)"
 					  " values ( :cid, :nam, :desc, :sts, :eu, :bs, :ord, :at1, :at2, :at3, :lnk )" );
 	}
 
-	pQuery.setParam( "nam", getName() );
-	pQuery.setParam( "desc", getDescription() );
-	pQuery.setParam( "sts", status );
-	pQuery.setParam( "eu", uses );
-	pQuery.setParam( "bs", sizeID );
-	pQuery.setParam( "ord", position );
-	pQuery.setParam( "lnk", group );
-	pQuery.setParam( "cid", getID() );
+	pq.setParam( "nam", getName() );
+	pq.setParam( "desc", getDescription() );
+	pq.setParam( "sts", status );
+	pq.setParam( "eu", uses );
+	pq.setParam( "bs", sizeID );
+	pq.setParam( "ord", position );
+	pq.setParam( "lnk", group );
+	pq.setParam( "cid", getID() );
 
 	std::vector< int >::const_iterator alr = content.begin();
-	pQuery.setParam( "at1", alr == content.end() ? 0 : *alr ++ );
-	pQuery.setParam( "at2", alr == content.end() ? 0 : *alr ++ );
-	pQuery.setParam( "at3", alr == content.end() ? 0 : *alr ++ );
-	if( pQuery.execSQL() )
-	{
+	pq.setParam( "at1", alr == content.end() ? 0 : *alr ++ );
+	pq.setParam( "at2", alr == content.end() ? 0 : *alr ++ );
+	pq.setParam( "at3", alr == content.end() ? 0 : *alr ++ );
+	if( pq.execSQL() ) {
 		saved = true;
 		LPDbBoxTypes::records().insert( *this );
 		return true;
@@ -113,15 +124,21 @@ bool LPDbBoxType::saveRecord( LQuery pQuery )
 }
 
 //---------------------------------------------------------------------------
+//	check the box type ID is valid and another project doesn't use it
+//---------------------------------------------------------------------------
 
-bool LPDbBoxType::hasAliquot( int atid ) const
+bool LPDbBoxType::needsNewID() const
 {
-    for( Aliquots ali = content; ali.isValid(); ++ ali ) {
-		if( *ali == atid ) {
-			return true;
+	if( getID() != 0 ) {
+		LQuery cq( LIMSDatabase::getCentralDb() );
+		cq.setSQL( "select count(*) from c_box_content where box_type_cid in (:pid, :nid)" );
+		cq.setParam( "pid", getID() );
+		cq.setParam( "nid", -getID() );
+		if( cq.open() && cq.readInt( 0 ) == 0 ) {
+			return false;
 		}
 	}
-	return false;
+	return true;
 }
 
 //---------------------------------------------------------------------------

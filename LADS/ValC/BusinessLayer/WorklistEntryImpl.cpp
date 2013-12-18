@@ -24,7 +24,6 @@ WorklistEntryImpl::WorklistEntryImpl(
         char                        status,
         float                       diluent,
         int                         buddyResultID,
-        const WorklistRelations&    relations,
         const WorklistDirectory*    worklistDirectory,
         const ResultDirectory*      resultDirectory )
     :
@@ -44,7 +43,6 @@ WorklistEntryImpl::WorklistEntryImpl(
     m_status        ( status ),
     m_diluent       ( diluent ),
     m_buddyResultID ( buddyResultID ),
-    m_worklistRelations( relations ),
     m_worklistDirectory( worklistDirectory ),
     m_resultDirectory ( resultDirectory )
 {
@@ -75,17 +73,6 @@ RelatedEntries WorklistEntryImpl::getChildren() const
 {
     RelatedEntries re;
 
-    BOOST_FOREACH( const WorklistRelation wr, m_worklistRelations )
-    {
-        if ( wr.getParent() == this->getID() )
-        {
-            RelatedEntry r;
-            r.related = m_worklistDirectory->get( wr.getChild() );
-            r.howRelated = wr.getRelationshipMotivation();
-            re.push_back( r );
-        }
-    }
-
     return re;
 }
 
@@ -108,11 +95,6 @@ IntList WorklistEntryImpl::getIDsOfRelatedEntries() const
 {
     IntList il;
 
-    BOOST_FOREACH( const WorklistRelation wr, m_worklistRelations )
-    {
-        il.push_back( wr.getParent() == this->getID() ? wr.getChild() : wr.getParent() );
-    }
-
     return il;
 }
 
@@ -126,16 +108,6 @@ RelatedEntry WorklistEntryImpl::getParent() const
     RelatedEntry r;
     r.related = NULL;
     r.howRelated = '\0';
-
-    BOOST_FOREACH( const WorklistRelation wr, m_worklistRelations )
-    {
-        if ( wr.getChild() == this->getID() )
-        {
-            r.related = m_worklistDirectory->get( wr.getParent() );
-            r.howRelated = wr.getRelationshipMotivation();
-            break;
-        }
-    }
 
     return r;
 }

@@ -8,7 +8,6 @@
 #include "StringBuilder.h"
 #include "WorklistEntries.h"
 #include "WorklistEntryImpl.h"
-#include "WorklistRelation.h"
 #include <tut.h>
 #include <vector>
 
@@ -58,7 +57,6 @@ public:
             status,
             0.0,//diluent
             0, //buddyResultID
-            valc::WorklistRelations(),
             &m_worklistEntries,
             0 //resultDirectory
             )
