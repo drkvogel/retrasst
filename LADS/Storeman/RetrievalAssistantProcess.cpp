@@ -594,7 +594,7 @@ SampleRow * TfrmProcess::currentSample() {
     Chunk< SampleRow > * chunk = currentChunk();
     int current = chunk->getCurrentRow();
     SampleRow * sample = chunk->rowAt(current);
-    return sample;
+    return  (NULL != sample->secondary) ? sample->secondary : sample;
 }
 
 void TfrmProcess::nextRow() {

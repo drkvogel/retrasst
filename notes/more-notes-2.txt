@@ -1,19 +1,9 @@
-﻿canned searches - save, delete
-    e.g. site name, vessel pos, structure pos, slot, source box pos
+﻿
     
-primary/secondary aliquots    
-    create plan
-        ##doesn't show 2ndary aliqs - does!
-        shows EDTA_2 as well as EDTA_1, mixed together - 835 rows in total
-        1743 - 
-            112004768 EDTA_1 HPS2-THRIVE EDTA_1(UK) 1506 CPos: 1   
-            112004768 EDTA_2 HPS2-THRIVE EDTA_2(UK) 1507 CPos: 1  (src box names are different)
-    process plan
-        shows EDTA_2 as well as EDTA_1
+ * allow selection of secondary aliquots 
+   * 2nd ali gets overwritten on accept
+ * how to save stuff? to which tables? when (ie. per row or on exit/save)?
 
- * sort "aliquot aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782) shouldn't show aliquot anyway
-
- * up/down arrows to show column sort
  * Source/Current box - standardise name - current probably better?
     
 From meeting:
@@ -32,7 +22,10 @@ Part 2
 
 ## Deferred
 
+ * sort "aliquot aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782) shouldn't show aliquot anyway
+ * up/down arrows to show column sort
  * Only read the currently selected chunk/aliquot from the database when it is selected ?
+ * canned searches - save, delete e.g. site name, vessel pos, structure pos, slot, source box pos
 
 ## Done
 

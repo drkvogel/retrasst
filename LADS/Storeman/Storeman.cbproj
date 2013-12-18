@@ -5,7 +5,7 @@
 			<FrameworkType>VCL</FrameworkType>
 			<MainSource>StoreMan.cpp</MainSource>
 			<Base>True</Base>
-			<Config Condition="'$(Config)'==''">Release</Config>
+			<Config Condition="'$(Config)'==''">Debug</Config>
 			<Platform Condition="'$(Platform)'==''">Win32</Platform>
 			<TargetedPlatforms>1</TargetedPlatforms>
 			<AppType>Application</AppType>
@@ -699,29 +699,30 @@
 				<DependentOn>..\..\paulst\WorkerThread.h</DependentOn>
 				<BuildOrder>49</BuildOrder>
 			</CppCompile>
-			<FormResources Include="RationaliseTanks\RatTanksdbSelection.dfm"/>
 			<FormResources Include="RationaliseTanks\RatTanksCreateRetrievalJob.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksCreateExercise.dfm"/>
+			<FormResources Include="NewType.dfm"/>
 			<FormResources Include="RationaliseTanks\RatTanksBoxSelection.dfm"/>
 			<FormResources Include="RationaliseTanks\RatTanksBoxType.dfm"/>
-			<FormResources Include="RationaliseTanks\RatTanksCreateExercise.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksSignIn.dfm"/>
 			<FormResources Include="ReferredBoxes.dfm"/>
 			<FormResources Include="ReferredBoxesSummary.dfm"/>
-			<FormResources Include="RetrievalAssistant.dfm"/>
-			<FormResources Include="RationaliseTanks\RatTanksSignIn.dfm"/>
-			<FormResources Include="RationaliseTanks\RatTanksMainDialog.dfm"/>
 			<FormResources Include="RationaliseTanks\RatTanksPleaseWait.dfm"/>
-			<FormResources Include="NewType.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksdbSelection.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksMainDialog.dfm"/>
+			<FormResources Include="NewTank.dfm"/>
 			<FormResources Include="FindSample.dfm"/>
+			<FormResources Include="DiscardSearch.dfm"/>
+			<FormResources Include="DiscardPrologue.dfm"/>
 			<FormResources Include="DiscardReason.dfm"/>
 			<FormResources Include="DiscardSamples.dfm"/>
-			<FormResources Include="DiscardSearch.dfm"/>
+			<FormResources Include="NewJob.dfm"/>
 			<FormResources Include="NewSection.dfm"/>
 			<FormResources Include="NewSite.dfm"/>
-			<FormResources Include="NewTank.dfm"/>
-			<FormResources Include="NewJob.dfm"/>
+			<FormResources Include="NewExercise.dfm"/>
 			<FormResources Include="MoveJobs.dfm"/>
 			<FormResources Include="NewBoxType.dfm"/>
-			<FormResources Include="NewExercise.dfm"/>
+			<FormResources Include="RetrievalAssistant.dfm"/>
 			<FormResources Include="Storemain.dfm"/>
 			<FormResources Include="SMLogin.dfm"/>
 			<FormResources Include="SampleMove.dfm"/>
@@ -738,19 +739,18 @@
 			<FormResources Include="RetrievalLists\RetrievalListResultNotesDialog.dfm"/>
 			<FormResources Include="RetrievalLists\retrievalListMainDialog.dfm"/>
 			<FormResources Include="RetrievalLists\RetrievalListMainListDialog.dfm"/>
-			<FormResources Include="BoxTransfer.dfm"/>
-			<FormResources Include="BrowseSample.dfm"/>
 			<FormResources Include="AnalyseSamples.dfm"/>
+			<FormResources Include="BoxTransfer.dfm"/>
 			<FormResources Include="AddSpecimens.dfm"/>
 			<FormResources Include="DiscardMethod.dfm"/>
 			<FormResources Include="DiscardNote.dfm"/>
-			<FormResources Include="DiscardPrologue.dfm"/>
+			<FormResources Include="BrowseSample.dfm"/>
 			<FormResources Include="Configure.dfm"/>
-			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
+			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
+			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
-			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
