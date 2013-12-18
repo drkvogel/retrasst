@@ -80,7 +80,9 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     labelDestbox->Caption   = "loading...";
     labelPrimary->Caption   = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str();
     labelSecondary->Caption = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str();
-    btnSecondary->Enabled   = job->getSecondaryAliquot() == 0 ? false : true;
+    btnSecondary->Enabled   = job->getSecondaryAliquot() == 0 ? false : true; //???
+    labelPrimary->Enabled   = true;
+    labelSecondary->Enabled = false;
     timerLoadPlan->Enabled = true;
 }
 
@@ -620,6 +622,8 @@ void TfrmProcess::nextRow() {
             Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
         }
     }
+    labelPrimary->Enabled   = true;
+    labelSecondary->Enabled = false;
     showChunks();
 
     // fixme is there a secondary aliquot for this row?
@@ -706,6 +710,8 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
             fillRow(sample->secondary, rowIdx+1);
             showCurrentRow();
             showDetails(sample->secondary);
+            labelPrimary->Enabled   = false;
+            labelSecondary->Enabled = true;
         } else {
             Application->MessageBox(L"Couldn't find secondary aliquot", L"Info", MB_OK);
         }

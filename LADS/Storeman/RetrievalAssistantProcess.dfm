@@ -235,97 +235,18 @@ object frmProcess: TfrmProcess
     Align = alBottom
     Caption = 'Details'
     TabOrder = 3
-    object Label3: TLabel
-      Left = 14
-      Top = 20
-      Width = 29
-      Height = 25
-      Caption = 'ID:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -21
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object labelStorage: TLabel
-      Left = 383
-      Top = 19
-      Width = 167
-      Height = 37
-      Caption = 'labelStorage'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -31
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object labelSampleID: TLabel
-      Left = 14
-      Top = 50
-      Width = 231
-      Height = 45
-      Caption = 'labelSampleID'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -37
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object Label2: TLabel
-      Left = 331
-      Top = 19
-      Width = 38
-      Height = 25
-      Caption = 'Loc:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -21
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object Label4: TLabel
-      Left = 321
-      Top = 83
-      Width = 48
-      Height = 25
-      Caption = 'Dest:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -21
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object labelDestbox: TLabel
-      Left = 385
-      Top = 73
-      Width = 173
-      Height = 37
-      Caption = 'labelDestbox'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -31
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
     object panelAliquots: TPanel
-      Left = 761
+      Left = 2
       Top = 15
-      Width = 185
+      Width = 157
       Height = 113
-      Align = alRight
+      Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 11
-      object GroupBox1: TGroupBox
+      object groupPrimary: TGroupBox
         Left = 0
         Top = 0
-        Width = 185
+        Width = 157
         Height = 55
         Margins.Bottom = 9
         Align = alTop
@@ -335,22 +256,30 @@ object frmProcess: TfrmProcess
         Padding.Right = 5
         Padding.Bottom = 5
         TabOrder = 0
+        ExplicitTop = 6
+        ExplicitWidth = 185
         object labelPrimary: TLabel
           Left = 7
           Top = 20
-          Width = 171
+          Width = 143
           Height = 28
           Align = alClient
           Caption = 'labelPrimary'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
           Layout = tlCenter
-          ExplicitWidth = 58
-          ExplicitHeight = 13
+          ExplicitWidth = 80
+          ExplicitHeight = 16
         end
       end
-      object GroupBox4: TGroupBox
+      object groupSecondary: TGroupBox
         Left = 0
         Top = 55
-        Width = 185
+        Width = 157
         Height = 58
         Align = alClient
         Caption = 'Secondary Aliquot'
@@ -360,11 +289,12 @@ object frmProcess: TfrmProcess
         Padding.Bottom = 5
         TabOrder = 1
         ExplicitTop = 49
+        ExplicitWidth = 185
         ExplicitHeight = 104
         object labelSecondary: TLabel
           Left = 7
           Top = 20
-          Width = 171
+          Width = 143
           Height = 31
           Margins.Left = 5
           Margins.Top = 5
@@ -372,10 +302,115 @@ object frmProcess: TfrmProcess
           Margins.Bottom = 5
           Align = alClient
           Caption = 'labelSecondary'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
           Layout = tlCenter
-          ExplicitWidth = 73
-          ExplicitHeight = 13
+          ExplicitWidth = 99
+          ExplicitHeight = 16
         end
+      end
+    end
+    object Panel1: TPanel
+      Left = 425
+      Top = 15
+      Width = 521
+      Height = 113
+      Align = alClient
+      BevelOuter = bvNone
+      TabOrder = 1
+      ExplicitLeft = 464
+      ExplicitTop = 11
+      ExplicitWidth = 481
+      object Label2: TLabel
+        Left = 17
+        Top = 19
+        Width = 38
+        Height = 25
+        Caption = 'Loc:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -21
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object labelStorage: TLabel
+        Left = 74
+        Top = 3
+        Width = 167
+        Height = 37
+        Caption = 'labelStorage'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -31
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object labelDestbox: TLabel
+        Left = 84
+        Top = 54
+        Width = 173
+        Height = 37
+        Caption = 'labelDestbox'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -31
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Label4: TLabel
+        Left = 17
+        Top = 67
+        Width = 48
+        Height = 25
+        Caption = 'Dest:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -21
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+    end
+    object Panel2: TPanel
+      Left = 159
+      Top = 15
+      Width = 266
+      Height = 113
+      Align = alLeft
+      BevelOuter = bvNone
+      TabOrder = 2
+      object Label3: TLabel
+        Left = 9
+        Top = 12
+        Width = 29
+        Height = 25
+        Caption = 'ID:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -21
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object labelSampleID: TLabel
+        Left = 9
+        Top = 43
+        Width = 231
+        Height = 45
+        Caption = 'labelSampleID'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -37
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
       end
     end
   end

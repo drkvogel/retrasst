@@ -13,7 +13,6 @@ sgChunksClick()
 
 showChunk(Chunk< SampleRow > * chunk)
     ...
-    
-    
+
 showChunks()
     showChunk()
