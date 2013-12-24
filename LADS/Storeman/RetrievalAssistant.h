@@ -18,6 +18,8 @@
 // for setprecision:
 #include <iomanip>
 
+#define DEBUGSTREAM(x) {wstringstream oss; oss<<x; debugLog(oss.str().c_str());}
+
 using namespace std;
 
 const bool RETRASSTDEBUG =
@@ -29,6 +31,7 @@ const bool RETRASSTDEBUG =
 
 #define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
 #define RETRIEVAL_ASSISTANT_NEW_COLOUR          clMoneyGreen
+#define RETRIEVAL_ASSISTANT_SECONDARY_COLOUR    clYellow
 #define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
 #define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
 #define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR    clFuchsia

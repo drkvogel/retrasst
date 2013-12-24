@@ -1,7 +1,12 @@
-﻿
-    
+﻿DEBUGSTREAM
+ * still not showing 2ndary aliquot    
+ 
+ 
  * allow selection of secondary aliquots 
+   * query is v slow - e.g. 1m30s for aliquot_type_cid != Primary; 
    * 2nd ali gets overwritten on accept
+      accept()
+        sample = currentSample() # = currentChunk()->getCurrentRow()->rowAt(current); return (NULL != sample->secondary) ? sample->secondary:sample;
  * how to save stuff? to which tables? when (ie. per row or on exit/save)?
 
  * Source/Current box - standardise name - current probably better?

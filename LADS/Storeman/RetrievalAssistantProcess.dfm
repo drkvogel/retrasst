@@ -134,7 +134,6 @@ object frmProcess: TfrmProcess
       Caption = 'Accept'
       TabOrder = 0
       OnClick = btnAcceptClick
-      ExplicitLeft = 646
     end
     object btnSkip: TButton
       Left = 721
@@ -199,8 +198,6 @@ object frmProcess: TfrmProcess
       Caption = 'Use 2nd'
       TabOrder = 6
       OnClick = btnSecondaryClick
-      ExplicitLeft = 715
-      ExplicitTop = 14
     end
   end
   object Chunks: TGroupBox
@@ -256,13 +253,11 @@ object frmProcess: TfrmProcess
         Padding.Right = 5
         Padding.Bottom = 5
         TabOrder = 0
-        ExplicitTop = 6
-        ExplicitWidth = 185
         object labelPrimary: TLabel
           Left = 7
           Top = 20
-          Width = 80
-          Height = 16
+          Width = 143
+          Height = 28
           Align = alClient
           Caption = 'labelPrimary'
           Font.Charset = DEFAULT_CHARSET
@@ -272,6 +267,8 @@ object frmProcess: TfrmProcess
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 80
+          ExplicitHeight = 16
         end
       end
       object groupSecondary: TGroupBox
@@ -286,14 +283,11 @@ object frmProcess: TfrmProcess
         Padding.Right = 5
         Padding.Bottom = 5
         TabOrder = 1
-        ExplicitTop = 49
-        ExplicitWidth = 185
-        ExplicitHeight = 104
         object labelSecondary: TLabel
           Left = 7
           Top = 20
-          Width = 99
-          Height = 16
+          Width = 143
+          Height = 31
           Margins.Left = 5
           Margins.Top = 5
           Margins.Right = 5
@@ -307,6 +301,8 @@ object frmProcess: TfrmProcess
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 99
+          ExplicitHeight = 16
         end
       end
     end
@@ -318,9 +314,6 @@ object frmProcess: TfrmProcess
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 464
-      ExplicitTop = 11
-      ExplicitWidth = 481
       object Label2: TLabel
         Left = 17
         Top = 19
