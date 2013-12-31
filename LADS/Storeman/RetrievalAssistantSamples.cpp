@@ -699,20 +699,26 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     Enabled = true;
     chunks.clear();
     sgwChunks->clear();
-    Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
+    if (0 == vials.size()) {
+        //Enabled = true;
+        Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK);
+        Close();
+        return;
+    }
     int box_id = vials[0]->dest_box_id;//->getBoxID(); // look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL) {
-        Enabled = true;
-        Application->MessageBox(L"Box not found, exiting", L"Error", MB_YESNO);
+        Application->MessageBox(L"Box not found, exiting", L"Info", MB_OK);
         Close();
+        return;
     } //throw "box not found";
     box_size = found->getSize();
     editDestBoxSize->Text = box_size;
     addChunk(0); // default chunk
     showChunks();
     showChunk();
+    Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
     Enabled = true;
 }
 

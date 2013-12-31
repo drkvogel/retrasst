@@ -43,4 +43,4 @@ auto-select last chunk-
  * Show aliquot type(s) but not as a separate column
  * Chunk list should show destination boxes rather than source-
  * Columns (left to right): cryovial barcode, site, vessel position, vessel name, shelf (if necessary), structure name, slot, current box, current position, destination box, destination position
- * Columns (left to right): cryovial barcode, site, vessel position, vessel name, shelf (if necessary), structure name, slot, current box, current position, destination box, destination position
+ 
