@@ -164,7 +164,7 @@ object frmProcess: TfrmProcess
       Top = 57
       Width = 64
       Height = 17
-      Anchors = [akRight, akBottom]
+      Anchors = [akLeft, akBottom]
       Caption = 'Show Log'
       TabOrder = 3
       OnClick = cbLogClick

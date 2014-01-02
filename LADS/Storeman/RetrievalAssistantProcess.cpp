@@ -3,6 +3,9 @@
 #include "StoreDAO.h"
 #include "RetrievalAssistantProcess.h"
 #include "LCDbAuditTrail.h"
+#include <ctime>      // struct tm
+#include <locale>     // locale, time_put
+
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -80,7 +83,6 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     labelDestbox->Caption   = "loading...";
     labelPrimary->Caption   = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str();
     labelSecondary->Caption = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str();
-    //btnSecondary->Enabled   = job->getSecondaryAliquot() == 0 ? false : true; //???
     labelPrimary->Enabled   = true;
     labelSecondary->Enabled = false;
     timerLoadPlan->Enabled = true;
@@ -173,7 +175,6 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
 
 void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
     panelDebug->Visible = cbLog->Checked;
-    //splitterDebug->Visible  = cbLog->Checked;
 }
 
 void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
@@ -308,11 +309,10 @@ void TfrmProcess::loadChunk() { //(Chunk< SampleRow > *) {
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
     Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
-    wstringstream oss; oss<<"loadRows for job "<<job->getID()<<" started";
-    debugLog(oss.str().c_str());
+    //wstringstream oss; oss<<"loadRows for job "<<job->getID()<<" started"; debugLog(oss.str().c_str());
+    DEBUGSTREAM("loadRows for job "<<job->getID()<<" started")
     Enabled = false;
     loadPlanWorkerThread = new LoadPlanWorkerThread();
-    //loadPlanWorkerThread->loadingChunk = currentChunk();
     loadPlanWorkerThread->OnTerminate = &loadPlanWorkerThreadTerminated;
 }
 
@@ -341,19 +341,35 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     delete_referenced< vector<SampleRow * > >(frmProcess->vials); frmProcess->chunks.clear();
 
     ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
-    if (NULL != frmProcess && NULL != frmProcess->job) { frmProcess->job = frmProcess->job; } else { throw "wtf?"; }
+    if (NULL == frmProcess || NULL == frmProcess->job) { throw "wtf?"; }
     loadingMessage = frmProcess->loadingMessage;
-
     const int pid = LCDbAuditTrail::getCurrent().getProcessID();
-    sprintf(frmProcess->tempTableName, "retrieval_assistant_temp_%d", pid);
+
+    using namespace boost::local_time;
+    //local_date_time
+
+    time_t t(time(NULL)); // current time
+    tm tm(*localtime(&t));
+    std::locale loc("");
+    const std::time_put<char> &tput = std::use_facet< std::time_put< char > >(loc);
+    tput.put(oss.rdbuf(), oss, _T('\0'), &tm, _T('x'));
+
+    time_t rawtime;
+    struct tm * timeinfo;
+    char buffer [80];
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    strftime(buffer, 80, "%Y_%m_%dT%H_%M_%S", timeinfo);
+    puts(buffer);
+
+    oss.str(""); oss<<"retrieval_assistant_temp_"<<pid<<"_"<<buffer;
+    frmProcess->tempTableName.assign(oss.str());
 
     {
         LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
-
         oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName; // ingres doesn't like table names passed as parameters
         qd.setSQL(oss.str());
         qd.execSQL();
-
         oss.str("");
         oss<<"CREATE TABLE "<<frmProcess->tempTableName<<" AS"<<
             "   SELECT"
@@ -368,10 +384,8 @@ void __fastcall LoadPlanWorkerThread::Execute() {
             "   AND"
             "       lcr.rj_box_cid = cbr.rj_box_cid";
         qd.setSQL(oss.str());
-
         int retrieval_cid = frmProcess->job->getID();
-        qd.setParam("rtid", retrieval_cid);
-        //qd.setParam("chnk", loadingChunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
+        qd.setParam("rtid", retrieval_cid); //qd.setParam("chnk", loadingChunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
         qd.execSQL();
     }
     debugMessage = "finished create temp table";
@@ -426,7 +440,6 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         " ORDER BY"
         "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos";
     ql.setSQL(oss.str());
-
     rowCount = 0; // class variable needed for synchronise
     ql.open();
     int curchunk = 0, chunk = 0;
@@ -459,13 +472,13 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     }
 
     wstringstream wss; wss<<"finished loading "<<rowCount<<"samples";
+    //DEBUGSTREAM("finished loading "<<rowCount<<"samples")
     debugMessage = oss.str();
     Synchronize((TThreadMethod)&debugLog);
 
     oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName;
     ql.setSQL(oss.str());
     if (!RETRASSTDEBUG) ql.execSQL();
-
     debugMessage = "finished drop temp table";
     Synchronize((TThreadMethod)&debugLog);
 
@@ -504,12 +517,16 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
-    showChunks();
-    currentChunk()->setCurrentRow(0); //currentChunk = 0;
-    showCurrentRow();
+    try {
+        showChunks();
+        currentChunk()->setCurrentRow(0); //currentChunk = 0;
+        showCurrentRow();
+    } catch (Exception & e) {
+        msgbox(e.Message);
+    }
     Enabled = true;
-    wstringstream oss; oss<<__FUNC__<<"loadRows for job "<<job->getID()<<" finished";
-    debugLog(oss.str().c_str());
+    //wstringstream oss; oss<<__FUNC__<<"loadRows for job "<<job->getID()<<" finished"; debugLog(oss.str().c_str());
+    DEBUGSTREAM(__FUNC__<<"loadRows for job "<<job->getID()<<" finished")
 }
 
 void TfrmProcess::showCurrentRow() {
@@ -669,7 +686,6 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
     int rowIdx = currentChunk()->getCurrentRow();
     sample = currentChunk()->rowAt(rowIdx); // current primary
 
-    //if (job->getSecondaryAliquot() != 0) { // is there a secondary aliquot for this row?
     LQuery ql(Util::projectQuery(frmProcess->job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
     ostringstream oss;
 
@@ -687,7 +703,6 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
         <<tempTableName<<" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
         " WHERE"
         "     c.cryovial_barcode = g.cryovial_barcode"
-        //"     AND c.aliquot_type_cid = "<<job->getSecondaryAliquot()<< //g.aliquot_type_cid"
         "     AND c.aliquot_type_cid != "<<job->getPrimaryAliquot()<<
         "     AND s1.cryovial_id = c.cryovial_id"
         "     AND s1.retrieval_cid = g.retrieval_cid"

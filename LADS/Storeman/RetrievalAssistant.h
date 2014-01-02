@@ -17,6 +17,7 @@
 #include "LCDbRetrieval.h"
 // for setprecision:
 #include <iomanip>
+#include <boost/date_time.hpp>
 
 #define DEBUGSTREAM(x) {wstringstream oss; oss<<x; debugLog(oss.str().c_str());}
 

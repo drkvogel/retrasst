@@ -1,6 +1,15 @@
 ﻿DEBUGSTREAM
  * still not showing 2ndary aliquot    
- 
+ * rename files: Retrasst[Plan|Process][Samples|Boxes]
+ * port [Plan|Process]Samples to [Plan|Process]Boxes
+ * speed up queries
+   * profile?
+   * Plan: 
+        * load primary aliquot only?
+        * save is quite slow
+      
+   * Process: 
+   
  
  * allow selection of secondary aliquots 
    * query is v slow - e.g. 1m30s for aliquot_type_cid != Primary; 

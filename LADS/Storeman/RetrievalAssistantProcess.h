@@ -132,7 +132,7 @@ private:
     const char *                                loadingMessage;
     void                                        debugLog(String s);
     bool destroying;
-    char tempTableName[128];
+    string tempTableName;
     map<int, const SampleRow *> storageCache;
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
