@@ -39,10 +39,8 @@ either:
  * how does create list do it?
     frmRetrieveMain: SampleEntry.cpp
     
-## New
+## Done
 
- * what happens if you double click in a chunk in the middle of other chunks?
- * which way round should the sorters be done?
-    prevent it
-    
+ * what happens if you double click in a chunk in the middle of other chunks? prevent it-
+ * which way round should the sorters be done? backwards
     white october mail?

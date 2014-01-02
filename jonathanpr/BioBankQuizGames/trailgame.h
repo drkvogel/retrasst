@@ -42,7 +42,7 @@ private:
 	bool	abandoned;
 	void 	(* flashBGFunction)();
 	void    (* resetBGFunction)();
-	void drawText(std::vector<String> &info, bool showButton, int Size = 12);
+	void drawText(std::vector<String> &info, bool showButton, int Size = 12, System::Uitypes::TColor TextColour = clBlack);
 	//so we know the bounds of what we want to show. so we can centre it.
 	int m_PosMinX,m_PosMaxX,m_PosMinY,m_PosMaxY;
 	System::TDateTime m_gameTime;

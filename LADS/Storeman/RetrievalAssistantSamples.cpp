@@ -30,16 +30,16 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
     sgwVials->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode,    "barcode");
     sgwVials->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
-    sgwVials->addCol("vesspos",  "VPos",             28,    SampleRow::sort_asc_vesspos,    "vessel position");
+    sgwVials->addCol("vesspos",  "Pos",             28,    SampleRow::sort_asc_vesspos,    "vessel position");
     sgwVials->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel,     "vessel name");
     sgwVials->addCol("shelf",    "Shelf",            31,    SampleRow::sort_asc_shelf,      "shelf number");
-    sgwVials->addCol("structpos","SPos",             27,    SampleRow::sort_asc_structpos,  "structure position");
+    sgwVials->addCol("structpos","Pos",             27,    SampleRow::sort_asc_structpos,  "structure position");
     sgwVials->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure,  "structure name");
     sgwVials->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot,       "slot");
     sgwVials->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
-    sgwVials->addCol("currpos",  "CPos",             31,    SampleRow::sort_asc_currpos,    "source box position");
+    sgwVials->addCol("currpos",  "Pos",             31,    SampleRow::sort_asc_currpos,    "source box position");
     sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
-    sgwVials->addCol("destpos",  "DPos",             25,    SampleRow::sort_asc_destpos,    "dest. box position");
+    sgwVials->addCol("destpos",  "Pos",             25,    SampleRow::sort_asc_destpos,    "dest. box position");
 #ifdef _DEBUG
     sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
 #endif
@@ -190,10 +190,21 @@ void __fastcall TfrmSamples::sgChunksFixedCellClick(TObject *Sender, int ACol, i
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
     and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
+
+    for (int i=0; i<chunks.size(); i++) {
+        if (chunks[i]->getSize() > MAX_CHUNK_SIZE) {
+            wstringstream oss; oss<<"Maximum chunk size is "<<MAX_CHUNK_SIZE;
+            Application->MessageBox(oss.str().c_str(), L"Error", MB_OK);
+            return;
+        }
+    }
+
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
         std::set<int> projects; projects.insert(job->getProjectID());
         frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
         if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) return;
+
+        debugLog("starting save plan");
 
         Screen->Cursor = crSQLWait; Enabled = false;
         LQuery qc(LIMSDatabase::getCentralDb());
@@ -207,7 +218,6 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                 SampleRow *         sampleRow = chunk->rowAt(i);
                 LPDbCryovial *      cryo  = sampleRow->cryo_record;
                 LPDbCryovialStore * store = sampleRow->store_record;
-                //map<int, int>::iterator found = boxes.find(sampleRow->store_record->getBoxID());
                 map<int, int>::iterator found = boxes.find(sampleRow->dest_box_id);
                 if (found == boxes.end()) { // not added yet, add record and cache
                     { // must go out of scope otherwise read locks db with "no mst..."
@@ -261,6 +271,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         btnSave->Enabled = false;
         job->setStatus(LCDbCryoJob::INPROGRESS);
         job->saveRecord(LIMSDatabase::getCentralDb());
+        debugLog("finshed save plan");
         Screen->Cursor = crDefault; Enabled = true;
         ModalResult = mrOk;
     } else { // start again
@@ -583,13 +594,18 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     debugMessage = "preparing query";
     Synchronize((TThreadMethod)&debugLog);
 
+    int aliquot_type_cid = frmSamples->job->getPrimaryAliquot();
+
+
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
     qd.setSQL( // from spec 2013-09-11
         "SELECT"
         "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
         "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
+        "  s1.record_id, c.sample_id, :aliquotID AS aliquot_type_cid, " // for LPDbCryovial
             // LPDbCryovial::storeID( query.readInt( "record_id" ) ) <-- record_id comes from cryovial_store?
-        "  c.cryovial_barcode, t.external_name AS aliquot,"
+        //"  c.cryovial_barcode, t.external_name AS aliquot,"
+        "  c.cryovial_barcode,"
         "  b1.box_cid as source_id,"
         "  b1.external_name as source_name,"
         "  s1.tube_position as source_pos,"
@@ -598,20 +614,23 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         "  s2.tube_position as dest_pos"
         " FROM"
         "  cryovial c, cryovial_store s1, box_name b1,"
-        "  cryovial_store s2, box_name b2,"
-        "  c_object_name t"
+        "  cryovial_store s2, box_name b2"
+        //"  c_object_name t"
         " WHERE"
         "  c.cryovial_id = s1.cryovial_id AND"
         "  b1.box_cid = s1.box_cid AND"
         "  s1.cryovial_id = s2.cryovial_id AND"
         "  s2.status = 0 AND"
         "  b2.box_cid = s2.box_cid AND"
-        "  t.object_cid = aliquot_type_cid AND" // make this a map for speed
+        //"  t.object_cid = aliquot_type_cid AND" // make this a map for speed
         "  s1.retrieval_cid = :jobID"
         " ORDER BY"
         "  cryovial_barcode"
         );
     qd.setParam("jobID", frmSamples->job->getID());
+    qd.setParam("aliquotID", aliquot_type_cid);
+    //qd.setParam("aliquotName", Util::getAliquotDescription(aliquot_type_cid));
+
     loadingMessage = frmSamples->loadingMessage;
 
     debugMessage = "opening query";
@@ -633,7 +652,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             new LPDbCryovialStore(qd),
             NULL,
             qd.readString(  "cryovial_barcode"),
-            qd.readString(  "aliquot"),
+            Util::getAliquotDescription(aliquot_type_cid), //"",//qd.readString(  "aliquot"),
             qd.readString(  "source_name"),
             qd.readInt(     "dest_id"),
             qd.readString(  "dest_name"),
@@ -680,20 +699,26 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     Enabled = true;
     chunks.clear();
     sgwChunks->clear();
-    Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
+    if (0 == vials.size()) {
+        //Enabled = true;
+        Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK);
+        Close();
+        return;
+    }
     int box_id = vials[0]->dest_box_id;//->getBoxID(); // look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL) {
-        Enabled = true;
-        Application->MessageBox(L"Box not found, exiting", L"Error", MB_YESNO);
+        Application->MessageBox(L"Box not found, exiting", L"Info", MB_OK);
         Close();
+        return;
     } //throw "box not found";
     box_size = found->getSize();
     editDestBoxSize->Text = box_size;
     addChunk(0); // default chunk
     showChunks();
     showChunk();
+    Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
     Enabled = true;
 }
 

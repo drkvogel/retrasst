@@ -9,3 +9,9 @@ int lua_toInteger( lua_State* L, int index )
 {
     return lua_tointeger( L, index );
 }
+
+double lua_toNumber( lua_State* L, int index )
+{
+    return lua_tonumber( L, index );
+}
+

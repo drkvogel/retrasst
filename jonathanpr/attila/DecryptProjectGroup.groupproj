@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{D87F875F-866A-4544-B214-5430E350F0A4}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="att_proj.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="decrypt.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="att_proj">
+        <MSBuild Projects="att_proj.cbproj"/>
+    </Target>
+    <Target Name="att_proj:Clean">
+        <MSBuild Projects="att_proj.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="att_proj:Make">
+        <MSBuild Projects="att_proj.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="decrypt">
+        <MSBuild Projects="decrypt.cbproj"/>
+    </Target>
+    <Target Name="decrypt:Clean">
+        <MSBuild Projects="decrypt.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="decrypt:Make">
+        <MSBuild Projects="decrypt.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="att_proj;decrypt"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="att_proj:Clean;decrypt:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="att_proj:Make;decrypt:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

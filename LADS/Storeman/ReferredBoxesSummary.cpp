@@ -238,7 +238,8 @@ void TfrmReferredBoxesSummary::storeTRS(LQuery & qp, BoxArrivalRecord * box) {
         out<<"Record found. Setting IN_TANK";
         LPDbBoxName boxName = *(pboxName);
         boxName.setStatus(LPDbBoxName::Status::IN_TANK);
-        if (!dummyRun) boxName.saveRecord(qp);
+        LQuery cq(LIMSDatabase::getCentralDb()); // for extra param to LPDbBoxName::saveRecord()
+	    if (!dummyRun) boxName.saveRecord(qp, cq);
     }
     debugLog(out.str());
 }

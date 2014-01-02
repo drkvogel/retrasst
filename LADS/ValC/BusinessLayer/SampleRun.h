@@ -1,6 +1,7 @@
 #ifndef SAMPLERUNH
 #define SAMPLERUNH
 
+#include "Nullable.h"
 #include <string>
 #include <System.hpp>
 
@@ -22,19 +23,21 @@ public:
     SampleRun( const SampleRun& );
 	// Note that 'closed' will be garbage if isOpen.
     SampleRun( const std::string& runID, const std::string& sampleDescriptor, bool isOpen, const TDateTime& created, const TDateTime& closed, 
-        float sequencePosition );
-    SampleRun& operator=( const SampleRun& o );
-    std::string getID() const;
-    std::string getSampleDescriptor() const;
-    float       getSequencePosition() const;
-    bool        isOpen() const;
+        float sequencePosition, const paulst::Nullable<int>& groupID );
+    SampleRun&              operator=( const SampleRun& o );
+    paulst::Nullable<int>   getGroupID() const;
+    std::string             getID() const;
+    std::string             getSampleDescriptor() const;
+    float                   getSequencePosition() const;
+    bool                    isOpen() const;
 private:
-    std::string   m_runID;
-    std::string   m_sampleDescriptor;
-    bool          m_isOpen;
-    TDateTime     m_created;
-    TDateTime     m_closed;
-    float         m_sequencePosition;
+    std::string             m_runID;
+    std::string             m_sampleDescriptor;
+    bool                    m_isOpen;
+    TDateTime               m_created;
+    TDateTime               m_closed;
+    float                   m_sequencePosition;
+    paulst::Nullable<int>   m_groupID;
 };
 
 };

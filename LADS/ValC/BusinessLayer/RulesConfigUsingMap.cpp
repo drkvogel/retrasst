@@ -24,33 +24,33 @@ bool RulesConfigUsingMap::isConfigured( const UncontrolledResult& r )
 {
     TestMachine key( r.testID, r.machineID, r.projectID );
 
-    return m_ruleNames.count( key );
+    return m_ruleIDs.count( key );
 }
 
-void RulesConfigUsingMap::specify( const std::string ruleName, int forTest, int onMachine, int forProject )
+void RulesConfigUsingMap::specify( int ruleID, int forTest, int onMachine, int forProject )
 {
     TestMachine key( forTest, onMachine, forProject );
 
-    if ( m_ruleNames.count( key ) )
+    if ( m_ruleIDs.count( key ) )
     {
         paulst::exception( 
-            "Cannot specify rule \%s for test \%d for machine \%d for project \%d. "
-            "A rule is already specified: \%s.", ruleName.c_str(), forTest, onMachine, forProject, m_ruleNames.find(key)->second.c_str() );
+            "Cannot specify rule \%d for test \%d for machine \%d for project \%d. "
+            "A rule is already specified: \%d.", ruleID, forTest, onMachine, forProject, m_ruleIDs.find(key)->second );
     }
 
-    m_ruleNames.insert( std::make_pair( key, ruleName ) );
+    m_ruleIDs.insert( std::make_pair( key, ruleID ) );
 }
 
-std::string RulesConfigUsingMap::getRuleNameFor( int test, int machine, int project )
+int RulesConfigUsingMap::getRuleIDFor( int test, int machine, int project )
 {
     TestMachine key( test, machine, project );
 
-    if ( m_ruleNames.count( key ) == 0 )
+    if ( m_ruleIDs.count( key ) == 0 )
     {
         paulst::exception( "No rules configured for test \%d on machine \%d for project \%d", test, machine, project );
     }
 
-    return m_ruleNames.find( key )->second;
+    return m_ruleIDs.find( key )->second;
 }
 
 

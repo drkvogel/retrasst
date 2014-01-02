@@ -203,14 +203,12 @@ bool XDATE::setNow( void )
 	return(	set( tnow ) );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
- int XDATE::getYear( void ) const
+const int XDATE::getYear( void ) const
 {
 	return( dateValid ? yr : XTIME::invalid );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
- int XDATE::getMonth( void ) const
+const int XDATE::getMonth( void ) const
 {
 	return( dateValid ? mon : XTIME::invalid );
 }
@@ -229,8 +227,7 @@ const std::string XDATE::getMonthAbbrev( void ) const
 		: std::string("INVALID_MONTH") );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
- int XDATE::getDay( void ) const
+const int XDATE::getDay( void ) const
 {
 	return( dateValid ? dy : XTIME::invalid );
 }
@@ -575,26 +572,22 @@ bool XCLOCK::setNow( void )
 	return(	set( tnow ) );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
- int XCLOCK::getHour( void ) const
+const int XCLOCK::getHour( void ) const
 {
 	return( clockValid ? hr : XTIME::invalid );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
- int XCLOCK::getMinute( void ) const
+const int XCLOCK::getMinute( void ) const
 {
 	return( clockValid ? min : XTIME::invalid );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
- int XCLOCK::getSecond( void ) const
+const int XCLOCK::getSecond( void ) const
 {
 	return( clockValid ? sec : XTIME::invalid );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
- int XCLOCK::getMilliSecond( void ) const
+const int XCLOCK::getMilliSecond( void ) const
 {
 	return( clockValid ? ms : XTIME::invalid );
 }

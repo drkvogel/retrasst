@@ -1,42 +1,50 @@
-﻿canned searches - save, delete
-    e.g. site name, vessel pos, structure pos, slot, source box pos
+﻿DEBUGSTREAM
+ * still not showing 2ndary aliquot    
+ * rename files: Retrasst[Plan|Process][Samples|Boxes]
+ * port [Plan|Process]Samples to [Plan|Process]Boxes
+ * speed up queries
+   * profile?
+   * Plan: 
+        * load primary aliquot only?
+        * save is quite slow
+      
+   * Process: 
+   
+ 
+ * allow selection of secondary aliquots 
+   * query is v slow - e.g. 1m30s for aliquot_type_cid != Primary; 
+   * 2nd ali gets overwritten on accept
+      accept()
+        sample = currentSample() # = currentChunk()->getCurrentRow()->rowAt(current); return (NULL != sample->secondary) ? sample->secondary:sample;
+ * how to save stuff? to which tables? when (ie. per row or on exit/save)?
 
-    
-primary/secondary aliquots    
-    create plan
-        ##doesn't show 2ndary aliqs - does!
-        shows EDTA_2 as well as EDTA_1, mixed together - 835 rows in total
-        1743 - 
-            112004768 EDTA_1 HPS2-THRIVE EDTA_1(UK) 1506 CPos: 1   
-            112004768 EDTA_2 HPS2-THRIVE EDTA_2(UK) 1507 CPos: 1  (src box names are different)
-    process plan
-        shows EDTA_2 as well as EDTA_1
-
-sort "aliquot aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782)
- shouldn't show aliquot anyway
-
-up/down arrows to show column sort
-
-Source/Current box - standardise name - current probably better?
+ * Source/Current box - standardise name - current probably better?
     
 From meeting:
 
-Part 1
- * Only display primary aliquots.  
- * Don’t allow people to save a plan with chunks of more than 1001 samples for sample retrieval/disposal/reorganisation
-
 Part 2
  * Chunk list should include a second row for each chunk if there is a secondary aliquot (second part of each chunk?)
- * Only read the currently selected chunk/aliquot from the database when it is selected
  * Allow user to fill gaps in boxes from secondary aliquot after primary aliquot (partly?) completed
  * Empty source boxes (all cryovials "accepted" or "not found") will normally be discarded.  Final stage should ask user to confirm that vessel/structure/slot is now empty, otherwise box should be referred.  All source boxes from a reorganisation task should end up empty
 
 ---
 
+## Notes
+
  * Usual sort order before chunking: destination box and position
  * Usual sort order for each chunk: vessel position, shelf, structure, slot and current position
 
+## Deferred
+
+ * sort "aliquot aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782) shouldn't show aliquot anyway
+ * up/down arrows to show column sort
+ * Only read the currently selected chunk/aliquot from the database when it is selected ?
+ * canned searches - save, delete e.g. site name, vessel pos, structure pos, slot, source box pos
+
 ## Done
+
+* Don’t allow people to save a plan with chunks of more than 1001 samples for sample retrieval/disposal/reorganisation
+ * Only display primary aliquots.  
 add 1 chunk - must add to last current chunk, not in middle
 factor out select_stats into Util-
 click on chunk doesn't work now - stays on current chunk-
@@ -44,4 +52,4 @@ auto-select last chunk-
  * Show aliquot type(s) but not as a separate column
  * Chunk list should show destination boxes rather than source-
  * Columns (left to right): cryovial barcode, site, vessel position, vessel name, shelf (if necessary), structure name, slot, current box, current position, destination box, destination position
- * Columns (left to right): cryovial barcode, site, vessel position, vessel name, shelf (if necessary), structure name, slot, current box, current position, destination box, destination position
+ 

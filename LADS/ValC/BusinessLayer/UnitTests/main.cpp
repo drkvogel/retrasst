@@ -12,12 +12,15 @@
 #include <tchar.h>
 #include <cstdio>
 
-
+#include "BuddyDatabaseEntryIndexTest.h"
 #include "BuddySampleIDKeyedOnSampleRunIDTest.h"
 #include "ForceReloadTest.h"
 #include "QueuedSamplesFactoryTest.h"
+#include "RerunTest.h"
 #include "RuleEngineTest.h"
+#include "RuleLoaderTest.h"
 #include "SampleRunIDResolutionServiceTest.h"
+#include "WorklistRelativeTest.h"
 
 
 void pause()
@@ -36,3 +39,4 @@ int _tmain(int argc, _TCHAR* argv[])
     pause();
     return EXIT_SUCCESS;
 }
+

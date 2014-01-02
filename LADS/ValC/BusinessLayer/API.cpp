@@ -3,52 +3,89 @@
 #include "AnalysisActivitySnapshotImpl.h"
 #include "API.h"
 #include "ApplicationContext.h"
-#include "AsyncInitialisationMonitor.h"
+#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/scoped_ptr.hpp>
 #include "BuddyDatabase.h"
+#include "BuddyDatabaseEntryIndex.h"
 #include "ClusterIDs.h"
 #include "Config.h"
+#include "ConnectionFactoryWithLogging.h"
+#include "Cursor.h"
 #include "DBConnectionFactory.h"
+#include "DBQueryTask.h"
+#include "DBTransactionHandler.h"
 #include "DBUpdateSchedule.h"
 #include "ExceptionalDataHandlerImpl.h"
 #include "ExceptionUtil.h"
 #include <iterator>
 #include "LoadBuddyDatabase.h"
-#include "LoadClusterIDs.h"
 #include "LoadNonLocalResults.h"
-#include "LoadProjects.h"
-#include "LoadReferencedWorklistEntries.h"
-#include "LoadTestNames.h"
 #include "LoadWorklistEntries.h"
 #include "LoggingService.h"
 #include <memory>
 #include "MockConnectionFactory.h"
 #include "Projects.h"
+#include "QCGates.h"
+#include "QCSampleDescriptorDerivationStrategyImpl.h"
 #include "Require.h"
 #include "ResultAttributes.h"
 #include "ResultIndex.h"
 #include "RuleEngineContainer.h"
 #include "SampleRunIDResolutionService.h"
-#include "STEF.h"
 #include "StrUtil.h"
-#include "Task.h"
+#include "TaskExceptionUserAdvisor.h"
 #include "TestNames.h"
 #include "TestResultIteratorImpl.h"
-#include "ThreadExceptionMsgs.h"
+#include "ThreadPool.h"
 #include "Trace.h"
 #include <vector>
 #include "WorklistEntries.h"
 #include "WorklistEntryIteratorImpl.h"
+#include "WorklistLinks.h"
+#include "WorklistRelativeImpl.h"
 
 
 namespace valc
 {
 
+void addProject( paulstdb::Cursor* c, Projects* p )
+{
+    const int           projectID       = paulstdb::read<int>           ( *c, 0 );
+    const std::string   externalName    = paulstdb::read<std::string>   ( *c, 1 );
+    const std::string   dbName          = paulstdb::read<std::string>   ( *c, 2 );
 
+    p->add( projectID, externalName, dbName );
+}
  
+void addCluster( paulstdb::Cursor* c, ClusterIDs* clusterIDs )
+{
+    const int clusterID = paulstdb::read<int>( *c, 0 );
+
+    clusterIDs->insert( clusterID );
+}
+
+void addTestName( paulstdb::Cursor* c, TestNames* tn )
+{
+    const int           testID       = paulstdb::read<int>        ( *c, 0 );
+    const std::string   externalName = paulstdb::read<std::string>( *c, 1 );
+
+    tn->insert( std::make_pair( testID, externalName ) );
+}
+
+void addWorklistRelation( paulstdb::Cursor* c, WorklistLinks* wl )
+{
+    const int           from         = paulstdb::read<int>        ( *c, 0 );
+    const int           to           = paulstdb::read<int>        ( *c, 1 );
+    const char          relation     = paulstdb::read<char>       ( *c, 2 );
+
+    wl->addLink( from, to, relation );
+}
+
 ApplicationContext* applicationContext = NULL;
 
-void InitialiseApplicationContext( int localMachineID, int user, const std::string& config, paulst::LoggingService* log )
+void InitialiseApplicationContext( int localMachineID, int user, const std::string& config, paulst::LoggingService* log,
+    UserAdvisor* userAdvisor )
 {
     if ( applicationContext )
     {
@@ -56,9 +93,7 @@ void InitialiseApplicationContext( int localMachineID, int user, const std::stri
     }
     else
     {
-        std::auto_ptr<ApplicationContext> ac( new ApplicationContext() );
-        ac->localMachineID = localMachineID;
-        ac->user = user;
+		ApplicationContext* ac = new ApplicationContext();
         ac->config = new paulst::Config( config );
         std::string connectionFactoryType = ac->getProperty("ConnectionFactoryType");
         paulst::trim( connectionFactoryType );
@@ -74,20 +109,55 @@ void InitialiseApplicationContext( int localMachineID, int user, const std::stri
         {
             throw Exception( L"ConnectionFactoryType (in config) is not valid.  Valid values are 'ADO' or 'Mock'." );
         }
-        ac->log = log;
-        ac->asyncInitialisationMonitor = new AsyncInitialisationMonitor();
-        ac->asyncInitialisationTaskList = new stef::SerialTaskExecutionFramework( ac->asyncInitialisationMonitor );
-        ac->resultAttributes = new ResultAttributes();
-        ac->ruleEngineContainer = new RuleEngineContainer( 
-            ac->asyncInitialisationTaskList,
-            ac->config,
-            ac->connectionFactory,
-            ac->log,
-            ac->resultAttributes );
-        applicationContext = ac.release();
-        applicationContext->asyncInitialisationTaskList->start();
-    }
+        if ( "true" == ac->getProperty("LogAllDatabaseStatements") )
+        {
+            ac->connectionFactory = new paulstdb::ConnectionFactoryWithLogging( ac->connectionFactory, log );
+        }
+        ac->localMachineID                  = localMachineID;
+        ac->user                            = user;
+        ac->userAdvisor                     = userAdvisor;
+        ac->taskExceptionUserAdvisor        = new TaskExceptionUserAdvisor( userAdvisor, log );
+        ac->log                             = log;
+        ac->sampleRunIDResolutionService    = new SampleRunIDResolutionService();
+        ac->initialisationQueries           = new stef::ThreadPool(0, 1);
+        ac->initialisationQueries->addDefaultTaskExceptionHandler( ac->taskExceptionUserAdvisor );
+        ac->databaseUpdateThread            = new DBTransactionHandler( 
+                                                    ac->connectionFactory->createConnection( 
+                                                        ac->getProperty("DBUpdateThreadConnectionString"),
+                                                        ac->getProperty("DBUpdateThreadSessionReadLockSetting") ),
+                                                    log,
+                                                    ac->sampleRunIDResolutionService,
+                                                    paulst::toInt(ac->getProperty("DBUpdateThreadShutdownTimeoutSecs")),
+                                                    std::string("true") == ac->getProperty("DBUpdateThreadCancelPendingUpdatesOnShutdown"),
+                                                    ac->taskExceptionUserAdvisor,
+                                                    ac->config  );
+        ac->resultAttributes                = new ResultAttributes();
+        ac->clusterIDs                      = new ClusterIDs();
+        ac->projects                        = new Projects();
+        ac->testNames                       = new TestNames();
+        ac->qcGates                         = new QCGates(  
+                                                    ac->initialisationQueries,
+                                                    ac->config,
+                                                    ac->connectionFactory,
+                                                    ac->log,
+                                                    ac->localMachineID );
+        ac->ruleEngineContainer             = new RuleEngineContainer(  
+                                                    ac->initialisationQueries,
+                                                    ac->config,
+                                                    ac->connectionFactory,
+                                                    ac->log,
+                                                    ac->resultAttributes,
+                                                    ac->qcGates,
+                                                    ac->taskExceptionUserAdvisor );
+        ac->initialisationQueries->addTask(
+            new DBQueryTask( "Projects", ac->connectionFactory, ac->config, boost::bind( addProject, _1, ac->projects ) ) );
+        ac->initialisationQueries->addTask(
+            new DBQueryTask( "ClusterIDs", ac->connectionFactory, ac->config, boost::bind( addCluster, _1, ac->clusterIDs ) ) );
+        ac->initialisationQueries->addTask(
+            new DBQueryTask( "TestNames", ac->connectionFactory, ac->config, boost::bind( addTestName, _1, ac->testNames ) ) );
         
+		applicationContext = ac;
+    }
 }
 
 void DeleteApplicationContext()
@@ -102,18 +172,22 @@ void DeleteApplicationContext()
     applicationContext = NULL;
 }
 
-void wait( HANDLE* array, int howMany, ThreadExceptionMsgs* exceptionMsgs )
+void wait( stef::ThreadPool* taskRunner, long timeoutMillis )
 {
-	DWORD waitResult = WaitForMultipleObjectsEx( howMany, array, true, INFINITE, false );
+    if ( ! taskRunner->waitTillQuiet( timeoutMillis ) )
+    {
+        throw Exception( "Initialisation task timed out." );
+    }
 
-	require(
-		( waitResult >= WAIT_OBJECT_0 			) &&
-		( waitResult < WAIT_OBJECT_0 + howMany 	) );
+    std::string lastError = taskRunner->getLastError();
 
-	exceptionMsgs->throwFirst();
+    if ( ! lastError.empty() )
+    {
+        throw Exception( lastError.c_str() );
+    }
 }
 
-SnapshotPtr Load( UserAdvisor* userAdvisor )
+SnapshotPtr Load() 
 {
     if ( applicationContext == NULL )
     {
@@ -125,24 +199,24 @@ SnapshotPtr Load( UserAdvisor* userAdvisor )
         throw Exception( L"Snapshot already loaded." );
     }
 
-    DWORD waitResult = applicationContext->asyncInitialisationTaskList->wait( 
-        paulst::toInt(applicationContext->getProperty("InitialisationTimeoutSecs")) * 1000 );
+    const int initialisationWaitTimeout = paulst::toInt(applicationContext->getProperty("InitialisationTimeoutSecs")) * 1000;
 
-    if ( waitResult != WAIT_OBJECT_0 )
+    if ( ! applicationContext->initialisationQueries->waitTillQuiet( initialisationWaitTimeout ) )
     {
         throw Exception( L"Initialisation timeout. Try increasing value of InitialisationTimeoutSecs in config." );
     }
 
-    std::pair< AsyncInitialisationMonitor::exception_msg_iterator, AsyncInitialisationMonitor::exception_msg_iterator > 
-        initialisationExceptionMsgs = applicationContext->asyncInitialisationMonitor->exceptionMessages();
+    std::string lastError = applicationContext->initialisationQueries->getLastError();
 
-    if ( initialisationExceptionMsgs.first != initialisationExceptionMsgs.second )
+    if ( ! lastError.empty() )
     {
-        paulst::exception( "Initialisation error. \%s", initialisationExceptionMsgs.first->c_str() );
+        paulst::exception( "Initialisation error. \%s", lastError.c_str() );
     }
 
     // Don't want rules using cached stats.
     applicationContext->ruleEngineContainer->clearRulesCache();
+
+    applicationContext->sampleRunIDResolutionService->clear();
     
     std::auto_ptr<paulstdb::DBConnection> dbConnection( applicationContext->connectionFactory->createConnection(
         applicationContext->getProperty("ForceReloadConnectionString"),
@@ -153,92 +227,97 @@ SnapshotPtr Load( UserAdvisor* userAdvisor )
     int                 localMachineID     = applicationContext->localMachineID;
 	ResultIndex*        resultIndex        = new ResultIndex();
 	WorklistEntries*    worklistEntries    = new WorklistEntries();
-	ClusterIDs*         clusterIDs         = new ClusterIDs();
-	Projects*           projects           = new Projects();
-	TestNames*          testNames          = new TestNames();
+    WorklistLinks*      worklistLinks      = new WorklistLinks(worklistEntries);
 	BuddyDatabase*      buddyDatabase      = NULL;
     DBUpdateSchedule*   dbUpdateSchedule   = new DBUpdateSchedule();
-    std::auto_ptr<SampleRunIDResolutionService> sampleRunIDResolutionService(new SampleRunIDResolutionService());
-	ThreadExceptionMsgs threadExceptionMsgs;
     ExceptionalDataHandlerImpl exceptionalDataHandler(
-        applicationContext->getProperty("ExceptionalDataHandler"), userAdvisor, log);
-	HANDLE hArray[3];
-
-
-	ThreadTask<LoadProjects>   loadProjectsTask  ( new LoadProjects  ( projects,   log, con ), 					&threadExceptionMsgs );
-	ThreadTask<LoadClusterIDs> loadClusterIDsTask( new LoadClusterIDs( clusterIDs, log, con, localMachineID ), 	&threadExceptionMsgs );
-	ThreadTask<LoadTestNames>  loadTestNamesTask ( new LoadTestNames ( testNames,  log, con ), 					&threadExceptionMsgs );
-
-	hArray[0] = loadProjectsTask  .start();
-	hArray[1] = loadClusterIDsTask.start();
-	hArray[2] = loadTestNamesTask .start();
-
-	wait( hArray, 3, &threadExceptionMsgs );
+        applicationContext->getProperty("ExceptionalDataHandler"), applicationContext->userAdvisor, log);
+    BuddyDatabaseEntryIndex* buddyDatabaseEntryIndex = new BuddyDatabaseEntryIndex();
+    boost::scoped_ptr<QCSampleDescriptorDerivationStrategy> QCSampleDescriptorDerivationStrategy(
+        new QCSampleDescriptorDerivationStrategyImpl( resultIndex, buddyDatabaseEntryIndex, applicationContext->log ) );
 
     // Clear previously obtained RuleResults
     applicationContext->resultAttributes->clearRuleResults();
 
+    stef::ThreadPool* taskRunner = new stef::ThreadPool(1,5);
+
+    taskRunner->addDefaultTaskExceptionHandler( applicationContext->taskExceptionUserAdvisor );
+
 	// Task for loading LOCAL analysis activity and LOCAL results
-	ThreadTask<LoadBuddyDatabase> loadBuddyDatabaseTask(
-		new LoadBuddyDatabase( localMachineID, con, log, resultIndex, projects, &buddyDatabase, dbUpdateSchedule, 
-            sampleRunIDResolutionService.get(), applicationContext->getProperty("LoadBuddyDatabase"), 
-            applicationContext->getProperty("BuddyDatabaseInclusionRule"),
-            &exceptionalDataHandler,
-            applicationContext->ruleEngineContainer ),
-		&threadExceptionMsgs );
+    taskRunner->addTask( new LoadBuddyDatabase( 
+        localMachineID, 
+        con, 
+        log, 
+        resultIndex, 
+        applicationContext->projects, 
+        &buddyDatabase, 
+        dbUpdateSchedule, 
+        applicationContext->sampleRunIDResolutionService, 
+        applicationContext->getProperty("LoadBuddyDatabase"), 
+        applicationContext->getProperty("BuddyDatabaseInclusionRule"),
+        &exceptionalDataHandler,
+        applicationContext->ruleEngineContainer,
+        QCSampleDescriptorDerivationStrategy.get(),
+        buddyDatabaseEntryIndex ) );
+
+	wait( taskRunner, initialisationWaitTimeout );
 
     // Task for loading LOCAL and CLUSTER worklist entries
-	ThreadTask<LoadWorklistEntries> loadWorklistEntriesTask(
-		new LoadWorklistEntries( worklistEntries, con, log, resultIndex, applicationContext->getProperty( "LoadWorklistEntries" ), 
-            applicationContext->getProperty( "LoadWorklistRelations" ), 
-            applicationContext->getProperty("WorklistInclusionRule"), &exceptionalDataHandler ),
-		&threadExceptionMsgs );
+    taskRunner->addTask( new LoadWorklistEntries( 
+        worklistEntries, 
+        con, 
+        log, 
+        resultIndex, 
+        applicationContext->getProperty( "LoadWorklistEntries" ), 
+        applicationContext->getProperty("WorklistInclusionRule"), 
+        &exceptionalDataHandler,
+        QCSampleDescriptorDerivationStrategy.get() ) );
 
-	hArray[0] = loadBuddyDatabaseTask  .start();
-	hArray[1] = loadWorklistEntriesTask.start();
+    taskRunner->addTask( new DBQueryTask( 
+        "WorklistRelation", 
+        applicationContext->connectionFactory, 
+        applicationContext->config, 
+        boost::bind( addWorklistRelation, _1, worklistLinks ) ) );
 
-	wait( hArray, 2, &threadExceptionMsgs );
+	wait( taskRunner, initialisationWaitTimeout );
 
     // Task for allocating LOCAL results to worklist entries
-	ThreadTask<AllocateLocalResultsToWorklistEntries> allocateLocalResultsToWorklistEntries(
-		new AllocateLocalResultsToWorklistEntries( localMachineID, clusterIDs, log, worklistEntries, resultIndex, dbUpdateSchedule,
-            &exceptionalDataHandler ),
-		&threadExceptionMsgs );
+    taskRunner->addTask( new AllocateLocalResultsToWorklistEntries( 
+                localMachineID, applicationContext->clusterIDs, log, worklistEntries, resultIndex, dbUpdateSchedule, &exceptionalDataHandler ) );
 
-	hArray[0] = allocateLocalResultsToWorklistEntries.start();
-
-    wait( hArray, 1, &threadExceptionMsgs );
-
-    // Task for loading hither-to unloaded worklist entries that are related to already-loaded worklist entries.
-    // In other words, where there exists a row in worklist_relation for which only one of the referenced worklist entries has been loaded, 
-    // load the other. 
-	ThreadTask<LoadReferencedWorklistEntries> loadReferencedWorklistEntries(
-		new LoadReferencedWorklistEntries(      con, 
-                                                log, 
-                                                worklistEntries, 
-                                                resultIndex,
-                                                applicationContext->getProperty("RefTempTableName"),
-                                                applicationContext->getProperty("LoadReferencedWorklistEntries"),
-                                                applicationContext->getProperty("LoadReferencedWorklistRelations"),
-                                                &exceptionalDataHandler ),
-		&threadExceptionMsgs );
+    wait( taskRunner, initialisationWaitTimeout );
 
     // Task for loading non-local results for worklist entries loaded by LoadWorklistEntries (above).
-    ThreadTask<LoadNonLocalResults> loadNonLocalResults( 
-        new LoadNonLocalResults( projects, con, log, resultIndex, applicationContext->getProperty("LoadNonLocalResults"), &exceptionalDataHandler ),
-        &threadExceptionMsgs );
+    taskRunner->addTask( new LoadNonLocalResults( 
+        applicationContext->projects, 
+        con, 
+        log, 
+        resultIndex, 
+        applicationContext->getProperty("LoadNonLocalResults"), 
+        &exceptionalDataHandler ) );
 
-	hArray[0] = loadReferencedWorklistEntries        .start();
-	hArray[1] = loadNonLocalResults                  .start();
+	wait( taskRunner, initialisationWaitTimeout );
 
-	wait( hArray, 2, &threadExceptionMsgs );
+    taskRunner->shutdown( initialisationWaitTimeout, false );
 
     resultIndex->removeReferencesToResultsNotLoaded();
 
-    applicationContext->ruleEngineContainer->waitForQueued();
+    const int ruleEngineWaitTimeoutSecs = paulst::toInt(applicationContext->getProperty("RuleEngineTimeoutSecs"));
 
-    applicationContext->snapshot = new AnalysisActivitySnapshotImpl( clusterIDs, projects, buddyDatabase, resultIndex, worklistEntries, testNames,
-        dbUpdateSchedule, sampleRunIDResolutionService.release(), applicationContext );
+    if ( ! applicationContext->ruleEngineContainer->waitForQueued( ruleEngineWaitTimeoutSecs * 1000 ) )
+    {
+        paulst::exception( "RuleEngine wait timeout after %d secs", ruleEngineWaitTimeoutSecs );
+    }
+
+    applicationContext->snapshot = new AnalysisActivitySnapshotImpl( 
+        buddyDatabase, 
+        resultIndex, 
+        worklistEntries, 
+        worklistLinks,
+        dbUpdateSchedule, 
+        applicationContext->sampleRunIDResolutionService, 
+        applicationContext,
+        paulst::toInt( applicationContext->getProperty("PendingUpdateWaitTimeoutSecs") ) );
 
     return SnapshotPtr( applicationContext->snapshot );
 }
@@ -250,14 +329,6 @@ void Unload( SnapshotPtr s )
         delete applicationContext->snapshot;
         applicationContext->snapshot = NULL;
     }
-}
-
-DBUpdateExceptionHandlingPolicy::DBUpdateExceptionHandlingPolicy()
-{
-}
-
-DBUpdateExceptionHandlingPolicy::~DBUpdateExceptionHandlingPolicy()
-{
 }
 
 AnalysisActivitySnapshot::AnalysisActivitySnapshot()
@@ -301,20 +372,24 @@ BuddyDatabaseEntry& BuddyDatabaseEntry::operator=( const BuddyDatabaseEntry& oth
 }
 
 LocalRun::LocalRun()
+    :
+    m_impl(0)
 {
 }
 
 LocalRun::LocalRun( const LocalRun& o )
     :
     m_id                ( o.m_id ),
-    m_sampleDescriptor  ( o.m_sampleDescriptor )
+    m_sampleDescriptor  ( o.m_sampleDescriptor ),
+    m_impl              ( o.m_impl )
 {
 }
 
 LocalRun::LocalRun( const std::string& sampleDescriptor, const std::string& id )
     :
     m_id                ( id ),
-    m_sampleDescriptor  ( sampleDescriptor )
+    m_sampleDescriptor  ( sampleDescriptor ),
+    m_impl              ( 0 )
 {
 }
 
@@ -322,6 +397,7 @@ LocalRun& LocalRun::operator=( const LocalRun& o )
 {
     m_id                = o.m_id;
     m_sampleDescriptor  = o.m_sampleDescriptor;
+    m_impl              = o.m_impl;
     return *this;
 }
 
@@ -333,6 +409,12 @@ std::string LocalRun::getRunID() const
 std::string LocalRun::getSampleDescriptor() const
 {
     return m_sampleDescriptor;
+}
+
+bool LocalRun::isOpen() const
+{
+    require( m_impl );
+    return m_impl->isOpen( m_id );
 }
 
 QueuedSample::QueuedSample()
@@ -458,39 +540,111 @@ UserAdvisor::~UserAdvisor()
 }
 
 
+RuleDescriptor::RuleDescriptor( int recordID, int ruleID, const std::string& uniqueName, const std::string& desc )
+    :
+    m_recordID  ( recordID  ),
+    m_ruleID    ( ruleID    ),
+    m_uniqueName( uniqueName),
+    m_desc      ( desc      )
+{
+}
+
+RuleDescriptor::RuleDescriptor()
+    :
+    m_recordID  ( 0 ),
+    m_ruleID    ( 0 )
+{
+}
+
+RuleDescriptor::RuleDescriptor( const RuleDescriptor& rd )
+    :
+    m_recordID  ( rd.m_recordID  ),
+    m_ruleID    ( rd.m_ruleID    ),
+    m_uniqueName( rd.m_uniqueName),
+    m_desc      ( rd.m_desc      )
+{
+}
+
+RuleDescriptor& RuleDescriptor::operator=( const RuleDescriptor& rd )
+{
+    m_recordID   = rd.m_recordID;
+    m_ruleID     = rd.m_ruleID;
+    m_uniqueName = rd.m_uniqueName;
+    m_desc       = rd.m_desc;
+    return *this;
+}
+
+int RuleDescriptor::getRecordID() const
+{
+    return m_recordID;
+}
+
+int RuleDescriptor::getRuleID() const
+{
+    return m_ruleID;
+}
+
+std::string RuleDescriptor::getUniqueName() const
+{
+    return m_uniqueName;
+}
+
+std::string RuleDescriptor::getDesc() const
+{
+    return m_desc;
+}
+
+
 RuleResults::RuleResults()
     : m_summaryResultCode(0)
 {
 }
 
-RuleResults::RuleResults( RuleResults::const_iterator begin, RuleResults::const_iterator end, int summaryResultCode,
-    const std::string& summaryMsg ) 
+RuleResults::RuleResults( const RuleDescriptor& rd, RuleResults::const_iterator begin, RuleResults::const_iterator end, int summaryResultCode,
+    const std::string& summaryMsg, const std::vector<std::string>& extraValues ) 
     :
+    m_ruleDescriptor( rd ),
     m_summaryResultCode(summaryResultCode),
     m_summaryMsg(summaryMsg),
-    m_results( begin, end )
+    m_results( begin, end ),
+    m_extraValues( extraValues )
 {
 }
 
 RuleResults::RuleResults( const RuleResults& other )
     :
-    m_summaryResultCode( other.m_summaryResultCode ),
-    m_summaryMsg( other.m_summaryMsg ),
-    m_results( other.m_results )
+    m_ruleDescriptor    ( other.m_ruleDescriptor ),
+    m_summaryResultCode ( other.m_summaryResultCode ),
+    m_summaryMsg        ( other.m_summaryMsg ),
+    m_results           ( other.m_results ),
+    m_extraValues       ( other.m_extraValues )
 {
 }
 
 RuleResults& RuleResults::operator=( const RuleResults& other )
 {
+    m_ruleDescriptor    = other.m_ruleDescriptor;
     m_summaryResultCode = other.m_summaryResultCode;
-    m_summaryMsg = other.m_summaryMsg;
-    m_results = other.m_results;
+    m_summaryMsg        = other.m_summaryMsg;
+    m_results           = other.m_results;
+    m_extraValues       = other.m_extraValues;
     return *this;
+}
+
+RuleDescriptor RuleResults::getRuleDescriptor() const
+{
+    return m_ruleDescriptor;
 }
 
 int RuleResults::getSummaryResultCode() const
 {
     return m_summaryResultCode;
+}
+
+std::string RuleResults::getExtraValue( int index ) const
+{
+    require( ( index < numExtraValues() ) && ( index >= 0 ) );
+    return m_extraValues.at( index );
 }
 
 std::string RuleResults::getSummaryMsg() const
@@ -506,6 +660,88 @@ RuleResults::const_iterator RuleResults::begin() const
 RuleResults::const_iterator RuleResults::end() const
 {
     return m_results.end();
+}
+
+int RuleResults::numExtraValues() const
+{
+    return m_extraValues.size();
+}
+
+SnapshotObserver::SnapshotObserver()
+{
+}
+
+SnapshotObserver::~SnapshotObserver()
+{
+}
+
+
+WorklistRelative::WorklistRelative( int id, const WorklistEntry* e, char howCreated )
+    :
+    m_worklistEntry( e ),
+    m_howCreated   ( howCreated ),
+    m_id           ( id ),
+    m_impl         ( 0 )
+{
+}
+
+WorklistRelative::WorklistRelative( const WorklistRelative& other )
+    :
+    m_worklistEntry( other.m_worklistEntry ),
+    m_howCreated   ( other.m_howCreated    ),
+    m_impl         ( other.m_impl          ),
+    m_id           ( other.m_id            )
+{
+}
+
+WorklistRelative& WorklistRelative::operator=( const WorklistRelative& other )
+{
+    m_worklistEntry = other.m_worklistEntry;
+    m_howCreated    = other.m_howCreated;
+    m_impl          = other.m_impl;
+    m_id            = other.m_id;
+    return *this;
+}
+
+bool WorklistRelative::isBoundToWorklistEntryInstance() const
+{
+    return m_worklistEntry;
+}
+
+const WorklistEntry*  WorklistRelative::operator->() const
+{
+    require( m_worklistEntry );
+    return m_worklistEntry;
+}
+
+bool WorklistRelative::hasChildren() const
+{
+    return m_impl->hasChildren( m_id );
+}
+
+bool WorklistRelative::hasParent() const
+{
+    return m_impl->hasParent( m_id );
+}
+
+std::vector<WorklistRelative> WorklistRelative::getChildren() const
+{
+    return m_impl->getChildren( m_id );
+}
+
+int WorklistRelative::getID() const
+{
+    return m_id;
+}
+
+WorklistRelative WorklistRelative::getParent() const
+{
+    return m_impl->getParent( m_id );
+}
+
+char WorklistRelative::getRelation() const
+{
+    return m_howCreated;
 }
 
 }

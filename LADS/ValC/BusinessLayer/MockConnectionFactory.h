@@ -2,6 +2,7 @@
 #define MOCKCONNECTIONFACTORYH
 
 #include "AbstractConnectionFactory.h"
+#include <map>
 #include <string>
 #include "StringBackedCursor.h"
 
@@ -21,6 +22,8 @@ struct SerializedRecordset
     SerializedRecordset& operator=( const SerializedRecordset& other );
 };
 
+enum WellKnownQuery { CLUSTERS_QRY, PROJECTS_QRY, WORKLIST_QRY, BUDDYDB_QRY, TESTNAMES_QRY, NONLOCALRESULTS_QRY, RULECONFIG_QRY, 
+                        RULES_QRY, SAMPLERUNID_QRY };
 /*
 ConnectionFactory from which can be obtained connections which run 
 their queries against the data strings specified using the 
@@ -41,6 +44,9 @@ class MockConnectionFactory : public paulstdb::AbstractConnectionFactory
 public:
     MockConnectionFactory();
     paulstdb::DBConnection* createConnection( const std::string& connectionString, const std::string& sessionReadLockSetting );
+    static SerializedRecordset findRecordSetForQuery( const std::string& sql );
+    static void prime( const std::string& queryKeywordCaseInsensitive, const SerializedRecordset& recordset );
+    static void prime( WellKnownQuery query, const SerializedRecordset& recordset );
     static void reset();
     /* Example sql:
     
@@ -48,15 +54,10 @@ public:
      time_stamp, ts_sequence, status, diluent, buddy_result_id
      from valc_worklist
     */
-    static SerializedRecordset clusters,
-                projects,
-                worklist,
-                buddyDB,
-                testNames,
-                nonLocalResults,
-                ruleConfig,
-                rules;
+
 private:
+    typedef std::map< std::string, SerializedRecordset > RecordSetsKeyedOnQueryKeyword;
+    static RecordSetsKeyedOnQueryKeyword s_recordsetsKeyedOnQueryKeyword;
 
     MockConnectionFactory( const MockConnectionFactory& );
     MockConnectionFactory& operator=( const MockConnectionFactory& );

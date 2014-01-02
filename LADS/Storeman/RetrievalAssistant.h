@@ -17,6 +17,9 @@
 #include "LCDbRetrieval.h"
 // for setprecision:
 #include <iomanip>
+#include <boost/date_time.hpp>
+
+#define DEBUGSTREAM(x) {wstringstream oss; oss<<x; debugLog(oss.str().c_str());}
 
 using namespace std;
 
@@ -29,6 +32,7 @@ const bool RETRASSTDEBUG =
 
 #define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
 #define RETRIEVAL_ASSISTANT_NEW_COLOUR          clMoneyGreen
+#define RETRIEVAL_ASSISTANT_SECONDARY_COLOUR    clYellow
 #define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
 #define RETRIEVAL_ASSISTANT_DONE_COLOUR         clSkyBlue
 #define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR    clFuchsia
@@ -40,6 +44,7 @@ const bool RETRASSTDEBUG =
 // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND|DELETED
 
 #define DEFAULT_BOX_SIZE 100
+#define MAX_CHUNK_SIZE 1001
 
 void msgbox(char * main, char * title="Info") {
     Application->MessageBoxW(String(main).w_str(), String(title).w_str(), MB_OK);
@@ -154,23 +159,24 @@ typedef std::vector<pBoxRow> vecpBoxRow;
 
 class SampleRow : public RetrievalRow {
 public:
-    LPDbCryovial *          cryo_record; // auto_ptr for these?
-    LPDbCryovialStore *     store_record;
-    LCDbCryovialRetrieval * retrieval_record;
-    string              cryovial_barcode;
-    string              aliquot_type_name;  // not in LPDbCryovial
-    int                 dest_cryo_pos;      // cryovial_position/tube_position
+    LPDbCryovial            * cryo_record; // auto_ptr for these?
+    LPDbCryovialStore       * store_record;
+    LCDbCryovialRetrieval   * retrieval_record;
+    string                  cryovial_barcode;
+    string                  aliquot_type_name;  // not in LPDbCryovial
+    int                     dest_cryo_pos;      // cryovial_position/tube_position
+    SampleRow               * secondary;
     ~SampleRow() {
         if (store_record) delete store_record;
         if (cryo_record) delete cryo_record;
-        //if (retrieval_record) delete retrieval_record;
-        delete retrieval_record;
+        if (secondary) delete secondary;
+        if (retrieval_record) delete retrieval_record;
     }
     SampleRow(  LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
                 string barc, string aliq, string srcnm, int dstid, string dstnm, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
                 RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps),
-                cryo_record(cryo_rec), store_record(store_rec), retrieval_record(retrieval_rec), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps) {
+                cryo_record(cryo_rec), store_record(store_rec), retrieval_record(retrieval_rec), cryovial_barcode(barc), aliquot_type_name(aliq), dest_cryo_pos(dstps), secondary(NULL) {
     }
 
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
@@ -260,7 +266,7 @@ public:
     void resize() {
         for (int i=0; i<cols.size(); i++) {
             sg->Cells[i][0] = cols[i].title.c_str();
-            const int MARGIN = cols.size() + 5; //5; // even ClientWidth seems not big enough to hold all columns without scrolling horizontally
+            const int MARGIN = cols.size() + 10; //5; // even ClientWidth seems not big enough to hold all columns without scrolling horizontally
             sg->ColWidths[i] = cols[i].width = (int)((cols[i].percentageWidth * (float)(sg->ClientWidth-MARGIN)) / (float)100);
         }
     }

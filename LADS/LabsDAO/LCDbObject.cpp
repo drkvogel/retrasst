@@ -99,7 +99,8 @@ std::string LCDbObject::findDescription( Category type )
 
 LCDbObject::Category LCDbObject::findObjectType( const std::string & description )
 {
-	for( int type = 0; type < NUM_TYPES; type ++ ) {
+	for( short n = 0; n < NUM_TYPES; n ++ ) {
+		Category type( n );
 		if( description.compare( findDescription( type ) ) == 0 ) {
 			return type;
 		}

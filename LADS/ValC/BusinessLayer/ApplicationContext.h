@@ -1,7 +1,9 @@
 #ifndef APPLICATIONCONTEXTH
 #define APPLICATIONCONTEXTH
 
+#include "ClusterIDs.h"
 #include <string>
+#include "TestNames.h"
 
 namespace paulst
 {
@@ -16,16 +18,21 @@ namespace paulstdb
 
 namespace stef
 {
-    class SerialTaskExecutionFramework;
+    class TaskExceptionHandler;
+    class ThreadPool;
 }
 
 namespace valc
 {
 
 class AnalysisActivitySnapshot;
-class AsyncInitialisationMonitor;
+class DBTransactionHandler;
+class Projects;
+class QCGates;
 class ResultAttributes;
 class RuleEngineContainer;
+class SampleRunIDResolutionService;
+class UserAdvisor;
 
 
 struct ApplicationContext
@@ -34,12 +41,20 @@ struct ApplicationContext
     int                                     localMachineID;
     int                                     user;
     paulst::Config*                         config;
-    paulst::LoggingService*                 log;
+    paulst::LoggingService*                 log; // Owned by UI
     paulstdb::AbstractConnectionFactory*    connectionFactory;
-    AsyncInitialisationMonitor*             asyncInitialisationMonitor;
-    stef::SerialTaskExecutionFramework*     asyncInitialisationTaskList;
+    stef::ThreadPool*                       initialisationQueries;
     ResultAttributes*                       resultAttributes;
     RuleEngineContainer*                    ruleEngineContainer;
+    QCGates*                                qcGates;
+    Projects*                               projects;
+    ClusterIDs*                             clusterIDs;
+    TestNames*                              testNames;
+    UserAdvisor*                            userAdvisor; // Owned by UI
+    DBTransactionHandler*                   databaseUpdateThread;
+    SampleRunIDResolutionService*           sampleRunIDResolutionService;
+    stef::TaskExceptionHandler*             taskExceptionUserAdvisor;
+
 
     ApplicationContext();
     ~ApplicationContext();

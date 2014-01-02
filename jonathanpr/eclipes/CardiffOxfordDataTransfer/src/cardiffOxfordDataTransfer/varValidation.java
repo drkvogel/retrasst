@@ -1,6 +1,7 @@
 package cardiffOxfordDataTransfer;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -128,59 +129,11 @@ public class varValidation
 				}
 			}
 		}
-		catch (IOException e)
-		{
-		}
 		finally
 		{
 			if (in != null)
 				in.close();
 		}
-		
-/*		
-		String []s = new String[1];
-		s[0] = filename;
-		Path path = Paths.get(Dir,s);
-		Charset charset = Charset.forName("US-ASCII");
-		BufferedReader reader = Files.newBufferedReader(path, charset);
-		boolean firstLine = true;
-		String line = null;
-		int lineCounter = 0;
-		while ((line = reader.readLine()) != null)
-		{
-			if (firstLine) // skip the human reable stuff.
-			{
-				firstLine = false;
-				continue;
-			}
-			// System.out.println(line);
-			String[] output = line.split(";");
-			if ((output.length < 5) || (output.length > 6))
-				throw new XMLParseException("Error in validation data file: " + filename + " -@ line: " + lineCounter);
-
-			lineCounter++;
-
-			Vector data = new Vector();
-			data.add(output[1].trim()); // REGEX EXPRESSION TO MATCH AGAINST
-			data.add(output[2].trim()); // TYPE (INT, FLOAT, etc)
-			data.add(output[3].trim()); // MIN VALUE or ENUM
-			data.add(output[4].trim()); // MAX VALUE RANGE ALLOWED [1,4][a,d]
-
-			// check for copy or reference? we obviously don't want a copy..
-			Vector old = (Vector) m_VarData.get(output[0]);
-			if (old == null)
-			{
-				Vector newSet = new Vector();
-				newSet.add(data);
-				m_VarData.put(output[0], newSet);
-			}
-			else
-			{
-				old.add(data);
-				// m_VarData.put(output[0],old);
-			}
-		}
-		*/
 	}
 
 	private boolean validateVariableName(String varName)
@@ -610,6 +563,10 @@ public class varValidation
 				return false;
 			}
 
+			//this can be the only requirements..
+			if (((String)boundryInfo.get(2)).length() == 0)
+				return true;
+			
 			// it's a number stored as a char
 			int min = Integer.parseInt((String) boundryInfo.get(2));
 			int max = Integer.parseInt((String) boundryInfo.get(3));

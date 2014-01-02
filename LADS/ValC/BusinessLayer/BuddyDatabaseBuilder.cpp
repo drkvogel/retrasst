@@ -9,6 +9,7 @@
 #include "ExceptionalDataHandler.h"
 #include "LoggingService.h"
 #include "Projects.h"
+#include "QCSampleDescriptorDerivationStrategy.h"
 #include "Require.h"
 #include "ResultIndex.h"
 #include "RuleEngineContainer.h"
@@ -36,7 +37,8 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     const std::string&                  inclusionRule,
     ExceptionalDataHandler*             exceptionalDataHandler,
     RuleEngineContainer*                ruleEngine,
-    paulst::LoggingService*             log
+    paulst::LoggingService*             log,
+    QCSampleDescriptorDerivationStrategy* qcsdds
  )
     :
     m_projects                          ( p ),
@@ -50,7 +52,8 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     m_inclusionRule                     ( inclusionRule ),
     m_exceptionalDataHandler            ( exceptionalDataHandler ),
     m_ruleEngine                        ( ruleEngine ),
-    m_log                               ( log )
+    m_log                               ( log ),
+    m_QCSampleDescriptorDerivationStrategy( qcsdds )
 {
 }
 
@@ -72,7 +75,7 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
             COL_BRF_BUDDY_RESULT_ID, COL_BRF_TEST_ID, COL_BRF_RES_VALUE, COL_BRF_ACTION_FLAG, COL_BRF_DATE_ANALYSED, // from buddy_result_float
             COL_BRF_RES_TEXT, COL_BRF_UPDATE_WHEN, COL_BRF_CBW_RECORD_NO,
             COL_SR_RUN_ID, COL_SR_IS_OPEN, COL_SR_CREATED_WHEN, COL_SR_CLOSED_WHEN, COL_SR_SEQUENCE_POSITION,
-            COL_SR_FAO_LEVEL_ONE  }; // from sample_run
+            COL_SR_FAO_LEVEL_ONE, COL_SR_GROUP_ID  }; // from sample_run
 
         c->read( COL_BUDDY_SAMPLE_ID    , buddySampleID );
         c->read( COL_BARCODE            , barcode       );
@@ -109,6 +112,10 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
             }
             c->read( COL_SR_SEQUENCE_POSITION   , srSequencePosition );
             c->read( COL_SR_FAO_LEVEL_ONE       , srFAOLevelOne      );
+            if ( ! c->isNull( COL_SR_GROUP_ID ) )
+            {
+                srGroupID = paulstdb::read<int>(*c, COL_SR_GROUP_ID );
+            }
         }
         else
         {
@@ -155,7 +162,8 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
 
         if ( isQC() )
         {
-            sampleDescriptor = paulst::format( "\%s/\%d", barcode.c_str(),  machineID );
+            sampleDescriptor = m_QCSampleDescriptorDerivationStrategy->deriveFromBuddyDatabaseEntry( 
+                buddySampleID, barcode, machineID, resTestID, resWorklistID ); 
         }
         else
         {
@@ -164,7 +172,7 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
 
         std::string sampleRunID      = hasSampleRun ? paulst::toString(srID) : sampleDescriptor;
         SampleRuns* targetCollection = hasSampleRun ? m_sampleRuns : m_candidateSampleRuns;
-        SampleRun   sampleRun( sampleRunID, sampleDescriptor, srIsOpen != 0, srCreatedWhen, srClosedWhen, srSequencePosition );
+        SampleRun   sampleRun( sampleRunID, sampleDescriptor, srIsOpen != 0, srCreatedWhen, srClosedWhen, srSequencePosition, srGroupID );
 
         m_buddyDatabaseEntryIndex->add( buddySampleID, alphaSampleID, barcode, databaseName, dateAnalysed );
 
@@ -179,9 +187,11 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
 
         if ( hasResult )
         {
-            result = new TestResultImpl( resActionFlag, sampleDescriptor, resDateAnalysed, machineID, resID, sampleRunID, resTestID, resValue );
+            result = new TestResultImpl( resActionFlag, sampleDescriptor, resDateAnalysed, machineID, resID, sampleRunID, resTestID, resValue,
+                            resText );
 
             m_resultIndex->addIndexEntryForResult( result );
+            m_buddyDatabaseEntryIndex->supplementEntryWithResultInfo( buddySampleID, resID, resTestID );
 
             if ( resWorklistID )
             {
@@ -219,6 +229,7 @@ void BuddyDatabaseBuilder::reset()
     resValue = 0.0;
     hasResult = hasSampleRun = false;
     result = 0;
+    srGroupID = paulst::Nullable<int>();
 }
 
 }

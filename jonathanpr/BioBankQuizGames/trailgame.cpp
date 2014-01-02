@@ -10,7 +10,7 @@
 TRAIL_GAME::TRAIL_GAME( TImage *board, const TColor background,	void (* showMatchFn)(),	void (* resetBoardFn)(),TButton *NextButton )
 	:flashBGFunction( showMatchFn ),resetBGFunction(resetBoardFn),left_start( 15 ),left_gap( 30 ),top_gap( 30 ),top_start( 10 ), TheTrail( board, background )
 {
-	TRAIL_GAME::GAME_CLICKABLE_POSITIONS::m_scale = 0.75f;
+	TRAIL_GAME::GAME_CLICKABLE_POSITIONS::m_scale = 1.5f;//0.75f;
 	m_NextButton = NextButton;
 	m_NextButton->Hide();
 	m_CurrentRow= NULL;
@@ -29,9 +29,8 @@ TRAIL_GAME::~TRAIL_GAME( VOID )
 	}
 
 	for (unsigned int i=0;i<m_returnDataRow.size();i++)
-	{
 		delete m_returnDataRow[i];
-	}
+
 	if (m_CurrentRow)
 		delete m_CurrentRow;
 }
@@ -99,6 +98,7 @@ void TRAIL_GAME::NextClicked()
 //---------------------------------------------------------------------------
 void TRAIL_GAME::drawTrail(bool bdrawText)
 {
+/*
 //draw blue boarder
 	m_playing_board->Canvas->Pen->Width = 2.0;
 	m_playing_board->Canvas->Pen->Color = ((TColor) 0xEE0000);
@@ -109,6 +109,9 @@ void TRAIL_GAME::drawTrail(bool bdrawText)
 	m_playing_board->Canvas->LineTo(m_PosMaxX,m_PosMaxY);
 	m_playing_board->Canvas->LineTo(m_PosMaxX,m_PosMinY);
 	m_playing_board->Canvas->LineTo(m_PosMinX,m_PosMinY);
+*/
+
+
 
 	std::vector<TrailCircle *>::iterator vit = m_TrailCircles.begin();
 	TrailCircle *prevSelected = NULL;
@@ -118,6 +121,12 @@ void TRAIL_GAME::drawTrail(bool bdrawText)
 			(*vit)->drawConnectingList(prevSelected);
 		prevSelected = *vit;
 		vit++;
+	}
+
+	if ((m_GameID == 0) || (m_GameID == 2))
+	{
+		m_TrailCircles.at(0)->drawText("Begin");
+		m_TrailCircles.at(m_TrailCircles.size()-1)->drawText("End");
 	}
 
 	vit = m_TrailCircles.begin();
@@ -135,10 +144,12 @@ void TRAIL_GAME::drawTrail(bool bdrawText)
 
 //---------------------------------------------------------------------------
 
-void TRAIL_GAME::drawText(std::vector<String> &info, bool showButton, int Size)
+void TRAIL_GAME::drawText(std::vector<String> &info, bool showButton, int Size, System::Uitypes::TColor TextColour)
 {
 	m_playing_board->Canvas->Font->Size = Size;
+	System::Uitypes::TColor  oldTextColour = m_playing_board->Canvas->Font->Color;
 
+	m_playing_board->Canvas->Font->Color = TextColour;
 	unsigned int i=0;
 	for (;i<info.size();i++)
 		m_playing_board->Canvas->TextOut(m_PosMinX, m_PosMaxY+20+20*i, info[i]);
@@ -151,6 +162,7 @@ void TRAIL_GAME::drawText(std::vector<String> &info, bool showButton, int Size)
 	}
 	else
 		m_NextButton->Hide();
+	m_playing_board->Canvas->Font->Color = oldTextColour;
 }
 //---------------------------------------------------------------------------
 
@@ -292,10 +304,10 @@ void TRAIL_GAME::setupGame(int gameID)
 		itrPos++;
 	}
 
-	m_PosMinX -= 25;
-	m_PosMinY -= 25;
-	m_PosMaxY += 25;
-	m_PosMaxX += 25;
+	m_PosMinX -= 75;
+	m_PosMinY -= 75;
+	m_PosMaxY += 75;
+	m_PosMaxX += 75;
 	resetBGFunction();
 	m_trailClickTime = Now();
 	NewSaveRow();
@@ -564,19 +576,14 @@ void TRAIL_GAME::initGameData()
 	m_gameData[3].push_back(new GAME_CLICKABLE_POSITIONS( 56,452,"L"));
 	m_gameData[3].push_back(new GAME_CLICKABLE_POSITIONS( 32, 40,"13"));
 
-	m_praca_inst.push_back(L"This is a practice. Beginning with number 1,");
-	m_praca_inst.push_back(L"join all the circles in numeric order by");
-	m_praca_inst.push_back(L"clicking the next numbered circle. Please");
-	m_praca_inst.push_back(L"work as quickly and accurately as you can.");
+	m_praca_inst.push_back(L"This is a practice. Beginning with number 1, join all the circles in numeric order by");
+	m_praca_inst.push_back(L"clicking the next numbered circle. Please work as quickly and accurately as you can.");
 
 	m_parta_inst.push_back(L"Well done. Click next for the test.");
 
-	m_pracb_inst.push_back(L"This is a practice. Beginning with number 1");
-	m_pracb_inst.push_back(L"then letter A, join all the circles in");
-	m_pracb_inst.push_back(L"alternating numeric and alphabetic order by");
-	m_pracb_inst.push_back(L"clicking the next numbered then the next");
-	m_pracb_inst.push_back(L"lettered circle. Please work as quickly and");
-	m_pracb_inst.push_back(L"accurately as you can.");
+	m_pracb_inst.push_back(L"This is a practice. Beginning with number 1 then letter A, join all the circles in");
+	m_pracb_inst.push_back(L"alternating numeric and alphabetic order by clicking the next numbered then the next");
+	m_pracb_inst.push_back(L"lettered circle. Please work as quickly and accurately as you can.");
 
 	m_partb_inst.push_back(L"Well done. Click next for the test.");
 

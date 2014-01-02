@@ -39,6 +39,12 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>2057</VerInfo_Locale>
@@ -100,7 +106,6 @@
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
         <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
@@ -113,12 +118,21 @@
         <Defines>NDEBUG;$(Defines)</Defines>
         <TASM_Debugging>None</TASM_Debugging>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <LinkPackageImports>rtl.bpi;vcl.bpi;dbrtl.bpi;vcldb.bpi;bdertl.bpi</LinkPackageImports>
+    </PropertyGroup>
     <ItemGroup>
         <CppCompile Include="boxSelection.cpp">
             <Form>tBoxSelection</Form>
             <FormType>dfm</FormType>
             <DependentOn>boxSelection.h</DependentOn>
             <BuildOrder>22</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="boxType.cpp">
+            <Form>tBoxType</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>boxType.h</DependentOn>
+            <BuildOrder>24</BuildOrder>
         </CppCompile>
         <LibFiles Include="CoreUtilities\iiapi_bc.lib" Condition="'$(Platform)'=='Win32'">
             <BuildOrder>17</BuildOrder>
@@ -170,6 +184,12 @@
             <DependentOn>CoreUtilities\xtime.h</DependentOn>
             <BuildOrder>16</BuildOrder>
         </CppCompile>
+        <CppCompile Include="createExercise.cpp">
+            <Form>retrivalExerciseDialog</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>createExercise.h</DependentOn>
+            <BuildOrder>25</BuildOrder>
+        </CppCompile>
         <CppCompile Include="database.cpp">
             <DependentOn>database.h</DependentOn>
             <BuildOrder>3</BuildOrder>
@@ -177,6 +197,12 @@
         <CppCompile Include="operatorSignedIn.cpp">
             <DependentOn>operatorSignedIn.h</DependentOn>
             <BuildOrder>23</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="PleaseWait.cpp">
+            <Form>tPleaseWait</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>PleaseWait.h</DependentOn>
+            <BuildOrder>26</BuildOrder>
         </CppCompile>
         <PCHCompile Include="project.h">
             <BuildOrder>1</BuildOrder>
@@ -207,7 +233,7 @@
             <BuildOrder>5</BuildOrder>
         </CppCompile>
         <CppCompile Include="tmain.cpp">
-            <Form>Form1</Form>
+            <Form>BoxSelection_ComboBox</Form>
             <FormType>dfm</FormType>
             <DependentOn>tmain.h</DependentOn>
             <BuildOrder>2</BuildOrder>
@@ -215,11 +241,14 @@
         <None Include="util_Holder.h">
             <BuildOrder>18</BuildOrder>
         </None>
+        <FormResources Include="PleaseWait.dfm"/>
+        <FormResources Include="createExercise.dfm"/>
         <FormResources Include="tdbSelection.dfm"/>
         <FormResources Include="tmain.dfm"/>
         <FormResources Include="signIn.dfm"/>
         <FormResources Include="tCreateRetrievalJob.dfm"/>
         <FormResources Include="boxSelection.dfm"/>
+        <FormResources Include="boxType.dfm"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

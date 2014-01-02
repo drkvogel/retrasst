@@ -381,15 +381,15 @@ bool StoreDAO::occupyRack( ROSETTA& data )
 	return true;
 }
 
-void StoreDAO::loadRackOccupancy( int rack_cid, int proj_id, std::set< int > & occupied )
+void StoreDAO::loadRackOccupancy( int rack_cid, std::set< int > & occupied )
 {
-	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
+	LQuery cQuery( LIMSDatabase::getCentralDb() );
 	// include expected and confirmed boxes but not removed or deleted
-	pq.setSQL( "select distinct slot_position from box_store"
+	cQuery.setSQL( "select slot_position from c_slot_allocation"
 			  " where status in (0,1,2,5,6,7) and rack_cid = :rid" );
-	pq.setParam( "rid", rack_cid );
-	for( pq.open(); !pq.eof(); pq.next() )
-		occupied.insert( pq.readInt( 0 ) );
+	cQuery.setParam( "rid", rack_cid );
+	for( cQuery.open(); !cQuery.eof(); cQuery.next() )
+		occupied.insert( cQuery.readInt( 0 ) );
 }
 
 void StoreDAO::loadBoxDetails( int box_id, int proj_id, ROSETTA & result )
@@ -425,8 +425,21 @@ void StoreDAO::loadBoxes( const std::string & box_id, const std::string & box_ty
 	}
 }
 
-void StoreDAO::loadBoxes( int rack_id, int proj_id, std::vector<ROSETTA>& results)
+void StoreDAO::loadBoxes( int rack_id, std::vector<ROSETTA>& results)
 {
+	LQuery cq( LIMSDatabase::getCentralDb() );
+	cq.setSQL( "select b.box_cid, b.box_type_cid, b.external_name, b.box_capacity, s.*"
+			  "	from c_slot_allocation s, c_box_name b"
+			  " where b.box_cid = s.box_cid"
+			  " and s.rack_cid = :rid and s.status not in ( :rmv, :del )" );
+	cq.setParam( "rid", rack_id );
+	cq.setParam( "rmv", LCDbBoxStore::REMOVED );
+	cq.setParam( "del", LCDbBoxStore::DELETED );
+	for( cq.open(); !cq.eof(); cq.next() ) {
+		results.push_back( cq.getRecord() );
+	}
+
+/*
 	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
 	pq.setSQL( "select b.box_cid, b.box_type_cid, b.external_name, box_capacity,"
 				  " s.record_id, s.slot_position, s.retrieval_cid, s.status"
@@ -441,7 +454,6 @@ void StoreDAO::loadBoxes( int rack_id, int proj_id, std::vector<ROSETTA>& result
 		box.setInt( "project_cid", proj_id );
 		results.push_back( box );
 	}
-/*
 	// most boxes have their latest positions stored in box_store
 	results.clear();
 	ddQuery.setSQL( "SELECT record_id, db_name, box_cid, external_name, box_type_cid, retrieval_cid,"

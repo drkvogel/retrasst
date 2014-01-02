@@ -43,11 +43,15 @@ The above would result in the following config:
 class Config
 {
 public:
+    typedef std::map< std::string, std::string > Properties;
+    typedef Properties::const_iterator const_iterator;
+
     Config( const std::string& configString );
+    const_iterator begin() const;
+    const_iterator end() const;
     bool contains( const std::string& name ) const;
     std::string get( const std::string& name ) const;
 private:
-    typedef std::map< std::string, std::string > Properties;
     Properties m_properties;
 };
 

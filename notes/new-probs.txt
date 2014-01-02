@@ -1,37 +1,40 @@
 ﻿## todo
 
+ * boxes form doesn't work properly - turn the handle (but not for demo)
+ * new requirement is to check at the end of processing each chunk (pt II) if any source boxes are now empty, in which case they might want to discard them rather than put them back
+
+## Deferred
+
+ * something to bear in mind for processing when it eventually goes live is that the database might not reflect reality perfectly - vials might be missing or swapped etc.
+   won't come up till live testing, but worth thinking about at this stage of development
+ * demo possible; email martin. make sure there are sufficient example jobs - e.g. "1743 THRIVE boxes - few (EDTA1 & EDTA2)"-
  
---- 
- * is sorting chunks working properly?
- * sorting chunk sorts everything, not the chunk. this is wrong.
+## Done
+
  * auto-chunk prompt - silly because list might not be sorted at correctly at this point. remind to hit auto-chunk or manually chunk by double-clicking on rows
  * get rid of add, del, +/- - auto chunk and dbl-click is enough flexibility
  * fixed row count error from clicking pos too much- Enabled = false
  * longer descriptions for sorters (e.g. several called pos)- 
  * auto-chunk: get dest box size from job- is it getting the dest size or src size?- dest now
  * crash on "do you want to chunk" now, as list not loaded yet? list is loaded, but no chunks yet. fixed.
- * not quite, sorting a chunk without affecting rest sometimes, but not others...
- * because didn't change sort_dsc in the same way
- * but that produces an access violation... can you do rend()+x? no, of course not, it's rbegin()+x you want
- * but that doesn't seem to do anything!
- * nope, they're still messin' with one another.. sorter still assigned to previously selected chunk? currentChunk() not right?
- * the column toggle value would still be in the Col object no matter what chunk is selected
- * it is, I think, sorting the last shown chunk on first click
- * and the sort was off by one - including one from previous chunk and missing last of current chunk, so I added 1 to start and end - should I have?
+ * is sorting chunks working properly?
+    sorting chunk sorts everything, not the chunk. this is wrong.
+    not quite, sorting a chunk without affecting rest sometimes, but not others...
+    because didn't change sort_dsc in the same way
+    but that produces an access violation... can you do rend()+x? no, of course not, it's rbegin()+x you want
+    but that doesn't seem to do anything!
+    nope, they're still messin' with one another.. sorter still assigned to previously selected chunk? currentChunk() not right?
+    the column toggle value would still be in the Col object no matter what chunk is selected
+    it is, I think, sorting the last shown chunk on first click
+    and the sort was off by one - including one from previous chunk and missing last of current chunk, so I added 1 to start and end - should I have?
  * delete current chunk (e.g. from middle of chunk list)
  * existing chunk +/-
- * boxes form doesn't work properly - turn the handle (but not for demo)
+
  * storage sync not worth attempting to rebuild-
  * bodge should be ok and not something I have to worry about-
  * other than search/replacing my code to use tube_position rather than cryovial position-
- * new requirement is to check at the end of processing each chunk (pt II) if any source boxes are now empty, in which case they might want to discard them rather than put them back
- * something to bear in mind for processing when it eventually goes live is that the database might not reflect reality perfectly - vials might be missing or swapped etc.
-   won't come up till live testing, but worth thinking about at this stage of development
- * demo possible; email martin. make sure there are sufficient example jobs - e.g. "1743 THRIVE boxes - few (EDTA1 & EDTA2)"-
- * update from cvs-
-
-// dot notation: vec.begin() also seems to work - how?
-// it wasn't being compiled because dead code in a template// http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates
+ 
+// dot notation: vec.begin() also seems to work - how? it wasn't being compiled because dead code in a template// http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates
 //export
 //inline
 // attempts to move definition of Chunk() to .cpp in order to try to set breakpoints which disappear at runtime when

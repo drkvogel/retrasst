@@ -22,42 +22,7 @@ selecting from -1015 (select * from cryovial_store where retrieval_cid = -1015) 
 job -1015 THRIVE Lp(a) baseline (496 boxes, 3972 cryovials)
  select count(*) from c_box_retrieval where retrieval_cid = -1015: 496 boxes
  select count(*) from l_cryovial_retrieval: 3972 cryovials
-
-I would like set this job back to its initial state, NEW_JOB and no plan. easy enough:
-    
-delete from l_cryovial_retrieval; 
-delete from c_box_retrieval;
-update c_retrieval_job set status = 0 where retrieval_cid = -1015
  
- 
- 
-
----------------------------
-Debugger Exception Notification
----------------------------
-Project Storeman.exe raised exception class Exception with message '
-Rosetta error: ROSETTA Error: member "dest_pos" not found
-Rosetta error: ROSETTA Error: member "dest_name" not found
-Rosetta error: ROSETTA Error: member "dest_id" not found
-Rosetta error: ROSETTA Error: member "source_name" not found
-Rosetta error: ROSETTA Error: member "aliquot" not found
-Rosetta error: ROSETTA Error: member "Cryovial_id" not found
-Rosetta error: ROSETTA Error: member "Note_Exists" not found
-Rosetta error: ROSETTA Error: member "cryovial_id" not found
-Rosetta error: ROSETTA Error: member "box_cid" not found
-Rosetta error: ROSETTA Error: member "cryovial_position" not found
-Rosetta error: ROSETTA Error: member "Cryovial_id" not found
-Rosetta error: ROSETTA Error: member "Note_Exists" not found
-Rosetta error: ROSETTA Error: member "box_cid" not found
-Rosetta error: ROSETTA Error: member "sample_id" not found
-Rosetta error: ROSETTA Error: member "record_id" not found
-Rosetta error: ROSETTA Error: member "cryovial_position" not found'.
----------------------------
-Break   Continue   Help   
----------------------------
-
-  
-  
 process: doesn't load chunks/rows
 chunk: should add/change store records?
 autochunk: thread/wait pointer
@@ -68,14 +33,10 @@ chunks: sizes are wrong - 1 too high
 chunks: can go over end of vials - check
 can only double click to split chunk on last chunk?
 sorting slow
-
-N ҉ A ҉ M ҉ A ҉ S ҉ T ҉﻿ E 
 496 boxes
 3972 cryovials
 
 sample - can be split into cryovials
-
-Atkins/Ruskin 1h35
 
 ### Cultural learnings of 2013-09-28
 

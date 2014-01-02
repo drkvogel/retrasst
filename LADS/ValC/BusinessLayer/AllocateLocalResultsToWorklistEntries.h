@@ -3,6 +3,7 @@
 
 #include "ClusterIDs.h"
 #include "IntList.h"
+#include "Task.h"
 #include "WorklistDirectory.h"
 
 namespace paulst
@@ -30,13 +31,15 @@ class WorklistEntries;
     (method 'allocateResultToWorklistEntry').
     Otherwise, a match failure is logged.
 */
-class AllocateLocalResultsToWorklistEntries : public WorklistDirectory::Func
+class AllocateLocalResultsToWorklistEntries : public WorklistDirectory::Func, public stef::Task
 {
 public:
     AllocateLocalResultsToWorklistEntries( int localMachineID, const ClusterIDs* clusterIDs, paulst::LoggingService* log, WorklistEntries* worklistEntries, ResultIndex* resultIndex, DBUpdateSchedule* dbUpdateSchedule, ExceptionalDataHandler* exceptionalDataHandler );
-    void execute();
     void execute( const WorklistEntry* wle );
     int releaseReturnValue();
+    void notifyCancelled();
+protected:
+    void doStuff();
 private:
     paulst::LoggingService* m_log;
     WorklistEntries* m_worklistEntries;

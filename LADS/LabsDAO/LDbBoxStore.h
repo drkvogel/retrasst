@@ -54,7 +54,6 @@ public:
 	void setStatus( short p_st ) { status = p_st; };
 	void setRackID( int p_id ) { rackID = p_id; };
 	void setJobID( int p_id ) { jobID = p_id; };
-	// void setMapID( int p_id ) { map_id = p_id; };
 
 	bool findBoxRecord( LQuery & ddbq );
 	bool findStoreRecord( LQuery & ddbq );
@@ -72,10 +71,7 @@ public:
 
 class LCDbBoxStores : public LDbCache< LCDbBoxStore >
 {
-//	class Matcher;
-
 public:
-
 	bool readJob( LQuery project, int jobRef );
 };
 

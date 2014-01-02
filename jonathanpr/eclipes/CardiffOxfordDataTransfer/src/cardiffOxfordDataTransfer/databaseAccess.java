@@ -17,6 +17,15 @@ import java.util.TreeMap;
 /**
  * @author jonathanp
  *
+ *
+CLEAR DOWN DB
+-------------
+delete from cardat;
+delete from rawdata_bool;
+delete from rawdata_ints;
+delete from rawdata_date;
+delete from rawdata_chars;
+ *
  */
 public class databaseAccess
 {
@@ -99,7 +108,7 @@ public class databaseAccess
 		{
 			throw new SQLException("Error converting date: " + dateCompleted);
 		}
-	
+		
         String query = "INSERT INTO cardat (partid, sessionid, sectionid, checkmd5,result,cksum_row,datecompleted)";
         query += " VALUES (?,?,?,?,?,?,?)";
             

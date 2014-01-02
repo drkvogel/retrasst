@@ -15,7 +15,9 @@ my %tables = (
     valc_worklist       => "create_table_valc_worklist.sql",
     qc_rule             => "create_table_qc_rule.sql",
     qc_rule_config      => "create_table_qc_rule_config.sql",
-    c_object_name       => "create_table_c_oject_name.sql",
+    c_object_name       => "create_table_c_object_name.sql",
+    qc_lot              => "create_table_qc_lot.sql",
+    qc_gate             => "create_table_qc_gate.sql",
 );
 
 my %sequences = (
@@ -88,6 +90,11 @@ Usage:
     build_new_db.pl action vnode database [ODBC_data_source_name vnode_vlab]
 
     Valid values for 'action': clean, build
+
+    Whether vnode and vnode_vlab are 64bit or 32bit depends on the 
+    executable described by 'terminalMonitor' (in DBUtil.pm).
+
+    ODBC_data_source_name should be 32bit.
 
     ODBC_data_source_name is an ODBC datasource which references 
     the same database as vnode::database.  A value for this argument is 

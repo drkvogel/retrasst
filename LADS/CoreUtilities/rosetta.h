@@ -174,6 +174,7 @@ public:
 	XTIME	getTimeDefault(   const int index, XTIME def ) const;
 	XBINOB	getBinobDefault(  const int index, XBINOB def ) const;
 	ROSETTA *getRosettaDefault( const int index, ROSETTA *def ) const;
+	const ROSE_BASE	*pointerRoseBase( const int index ) const;
 						// GET-BY-NAME FUNCTIONS
 	bool	flagExists(const std::string name ) const;
 	int	getType(   const std::string name ) const;
@@ -186,6 +187,7 @@ public:
 	XTIME	getTime(   const std::string name ) const;
 	XBINOB	getBinob(  const std::string name ) const;
 	ROSETTA *getRosetta( const std::string name ) const;
+	const ROSE_BASE	*pointerRoseBase( const std::string name ) const;
 						// TEST-TYPE-BY-NAME FUNCTIONS
 	bool	isInt(     const std::string name ) const;
 	bool	isLint(    const std::string name ) const;

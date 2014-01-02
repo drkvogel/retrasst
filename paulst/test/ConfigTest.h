@@ -147,6 +147,21 @@ namespace tut
         }
     }
 
+    template<>
+    template<>
+	void testConfig::test<9>()
+    {
+        set_test_name("iterating");
+
+        using namespace paulst;
+
+        Config cfg(
+            "a:\nb\n\nc:\nd\n\n");
+
+        ensure_equals( std::distance( cfg.begin(), cfg.end() ), 2U );
+        
+    }
+
 };
  
 #endif

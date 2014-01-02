@@ -2,6 +2,7 @@
 #define BUDDYDATABASEBUILDERH
 
 #include "InclusionRule.h"
+#include "Nullable.h"
 #include "SampleRuns.h"
 #include <string>
 #include <System.hpp>
@@ -25,6 +26,7 @@ class BuddyDatabaseEntryIndex;
 class BuddySampleIDKeyedOnSampleRunID;
 class DBUpdateSchedule;
 class ExceptionalDataHandler;
+class QCSampleDescriptorDerivationStrategy;
 class Projects;
 class ResultIndex;
 class RuleEngineContainer;
@@ -61,13 +63,15 @@ public:
         const std::string&                  inclusionRule,
         ExceptionalDataHandler*             exceptionalDataHandler,
         RuleEngineContainer*                ruleEngine,
-        paulst::LoggingService*             log
+        paulst::LoggingService*             log,
+        QCSampleDescriptorDerivationStrategy* qcsdds
         );
     bool accept( paulstdb::Cursor* c );
 private:
     char resActionFlag, srFAOLevelOne;
     TDateTime dateAnalysed, resDateAnalysed, resUpdateWhen, srCreatedWhen, srClosedWhen;
     int buddySampleID, machineID, resID, alphaSampleID, resTestID, resWorklistID, srSequencePosition, srID, srIsOpen;
+    paulst::Nullable<int> srGroupID;
     std::string barcode, databaseName, sampleDescriptor, resText, sampleRunID;
     float resValue;
     bool hasResult, hasSampleRun;
@@ -84,6 +88,7 @@ private:
     ExceptionalDataHandler*             m_exceptionalDataHandler;
     RuleEngineContainer*                m_ruleEngine;
     paulst::LoggingService*             m_log;
+    QCSampleDescriptorDerivationStrategy* m_QCSampleDescriptorDerivationStrategy;
 
     BuddyDatabaseBuilder( const BuddyDatabaseBuilder& );
     BuddyDatabaseBuilder& operator=( const BuddyDatabaseBuilder& );

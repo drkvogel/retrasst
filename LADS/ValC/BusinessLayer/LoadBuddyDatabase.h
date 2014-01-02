@@ -1,6 +1,7 @@
 #ifndef LOADBUDDYDATABASEH
 #define LOADBUDDYDATABASEH
 
+#include "Task.h"
 #include <memory>
 
 namespace paulst
@@ -17,9 +18,11 @@ namespace valc
 {
 
 class BuddyDatabase;
+class BuddyDatabaseEntryIndex;
 class DBUpdateSchedule;
 class ExceptionalDataHandler;
 class Projects;
+class QCSampleDescriptorDerivationStrategy;
 class ResultIndex;
 class RuleEngineContainer;
 class SampleRunIDResolutionService;
@@ -32,15 +35,18 @@ class SampleRunIDResolutionService;
     The return value, following the invocation of 'execute', is a new instance of BuddyDatabase. TestResult instances may also have been
     added to resultIndex.
 */
-class LoadBuddyDatabase
+class LoadBuddyDatabase : public stef::Task
 {
 public:
     LoadBuddyDatabase( int localMachineID, paulstdb::DBConnection* con, paulst::LoggingService* log, 
 		ResultIndex* resultIndex, Projects* projects, BuddyDatabase** out, DBUpdateSchedule* dbUpdateSchedule,
         SampleRunIDResolutionService* sampleRunIDResolutionService, const std::string& sql,
         const std::string& inclusionRule, ExceptionalDataHandler* exceptionalDataHandler,
-        RuleEngineContainer* ruleEngine );
-	void execute();
+        RuleEngineContainer* ruleEngine,
+        QCSampleDescriptorDerivationStrategy* qcsdds,
+        BuddyDatabaseEntryIndex* bdei );
+protected:
+	void doStuff();
 private:
     BuddyDatabase**                 m_buddyDatabase;
     const int                       m_localMachineID;
@@ -54,6 +60,8 @@ private:
     const std::string               m_inclusionRule;
     ExceptionalDataHandler*         m_exceptionalDataHandler;
     RuleEngineContainer*            m_ruleEngine;
+    QCSampleDescriptorDerivationStrategy* m_QCSampleDescriptorDerivationStrategy;
+    BuddyDatabaseEntryIndex*        m_buddyDatabaseEntryIndex;
 };
 
 };

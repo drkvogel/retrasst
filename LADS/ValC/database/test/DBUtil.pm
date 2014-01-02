@@ -250,6 +250,11 @@ sub dumpQCs {
                 $test->{diluent} = 0;
             }
 
+            my $status = 'P';
+            my %actFlagToStatus = ( '0' => 'C', '1' => 'F', '2' => 'V', '3' => 'T', );
+
+            next unless ( $test->{action_flag} ) && exists( $actFlagToStatus{ $test->{action_flag} } );
+
             my @colValues = (
                 [ '%d', $recNumSequence->() ], #record_no
                 [ '%d', $qc->{machine_cid}  ],
@@ -269,7 +274,7 @@ sub dumpQCs {
                 [ '%d', 0                   ], #lower_trigger_limit
                 [ '%d', 0                   ], #upper_trigger_limit
                 [ '%s', 'N'                 ], #private_result
-                [ '%s', exists( $test->{buddy_result_id} ) ? 'C' : 'P' ], #status
+                [ '%s', $actFlagToStatus{ $test->{action_flag} }], #status
                 [ '%f', $test->{diluent}    ], #diluent
                 [ '%d', exists( $test->{buddy_result_id} ) ? $test->{buddy_result_id} : 0 ] #buddy_result_id
 
@@ -356,7 +361,7 @@ sub createTestInfoSource {
 sub supplementUsingBuddyResultFloat {
     my ($dataSource,$username, $delegate) = @_;
     my $dbh = DBI->connect( "dbi:ODBC:DSN=$dataSource", $username, undef, undef ) or die "Oh dear.";#$DBI::err;
-    my $query = $dbh->prepare('select buddy_result_id, test_id, date_analysed from buddy_result_float where buddy_sample_id = ?') or 
+    my $query = $dbh->prepare('select buddy_result_id, test_id, date_analysed, action_flag from buddy_result_float where buddy_sample_id = ?') or 
         die $dbh->errstr;
 
     sub {

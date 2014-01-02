@@ -2,44 +2,64 @@
 #include "ApplicationContext.h"
 #include <boost/foreach.hpp>
 #include "BuddyDatabase.h"
-#include "DBUpdateConsumer.h"
+#include "DBTransactionHandler.h"
 #include "DBUpdateSchedule.h"
-#include "Projects.h"
+#include "ExceptionUtil.h"
 #include "QueueBuilderParams.h"
 #include "QueuedSamplesBuilderFunction.h"
 #include "ResultAttributes.h"
 #include "ResultDirectory.h"
 #include "SampleRunIDResolutionService.h"
-#include "WorklistDirectory.h"
+#include "SnapshotUpdateTaskQRerun.h"
+#include "WorklistEntries.h"
+#include "WorklistLinks.h"
 
 namespace valc
 {
 
 AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl( 
-    const ClusterIDs* clusterIDs, const Projects* p, const BuddyDatabase* bdb, 
-    const ResultDirectory* rd, const WorklistDirectory* wd, const TestNames* tns, DBUpdateSchedule* dbUpdateSchedule,
-    SampleRunIDResolutionService* sampleRunIDResolutionService,
-    ApplicationContext* appContext )
+    const BuddyDatabase*            bdb, 
+    const ResultDirectory*          rd, 
+    WorklistEntries*                wd, 
+    WorklistLinks*                  wl,
+    DBUpdateSchedule*               dbUpdateSchedule,
+    SampleRunIDResolutionService*   sampleRunIDResolutionService,
+    ApplicationContext*             appContext,
+    int                             pendingUpdateWaitTimeoutSecs )
     : 
-    m_buddyDatabase     ( bdb ),
-    m_clusterIDs        ( clusterIDs ),
-    m_log               ( appContext->log),
-    m_projects          ( p ),
-    m_resultDirectory   ( rd ),
-    m_worklistDirectory ( wd ),
-    m_testNames         ( tns ),
-    m_dbUpdateSchedule  ( dbUpdateSchedule ),
-    m_sampleRunIDResolutionService( sampleRunIDResolutionService ),
-    m_appContext( appContext ),
-    m_resultAttributes( appContext->resultAttributes )
+    m_buddyDatabase                 ( bdb ),
+    m_log                           ( appContext->log),
+    m_resultDirectory               ( rd ),
+    m_worklistEntries               ( wd ),
+    m_worklistLinks                 ( wl ),
+    m_dbUpdateSchedule              ( dbUpdateSchedule ),
+    m_sampleRunIDResolutionService  ( sampleRunIDResolutionService ),
+    m_appContext                    ( appContext ),
+    m_resultAttributes              ( appContext->resultAttributes ),
+    m_dbTransactionHandler          ( appContext->databaseUpdateThread ),
+    m_pendingUpdateWaitTimeoutSecs  ( pendingUpdateWaitTimeoutSecs ),
+    m_updateHandle                  ( this ),
+    m_snapshotUpdateThread  ( appContext->databaseUpdateThread, m_updateHandle, appContext->log, appContext->taskExceptionUserAdvisor ),
+    m_worklistRelativeImpl          ( wl )
 {
     BOOST_FOREACH( const SampleRun& sr, *m_buddyDatabase )
     {
-        m_localEntries.push_back( LocalRun( sr.getSampleDescriptor(), sr.getID() ) );
+        LocalRun lr( sr.getSampleDescriptor(), sr.getID() );
+        m_localRunImpl.introduce( lr, sr.isOpen() );
+        m_localEntries.push_back( lr );
     }
 
-    QueuedSamplesBuilderFunction buildQueue( new QueueBuilderParams( bdb, wd, clusterIDs ) );
+    QueuedSamplesBuilderFunction buildQueue( new QueueBuilderParams( bdb, wd, m_appContext->clusterIDs ) );
     buildQueue( &m_queuedSamples ); 
+}
+
+AnalysisActivitySnapshotImpl::~AnalysisActivitySnapshotImpl()
+{
+    delete m_buddyDatabase;
+    delete m_resultDirectory;
+    delete m_worklistEntries;
+    delete m_worklistLinks;
+    delete m_dbUpdateSchedule;
 }
 
 bool AnalysisActivitySnapshotImpl::compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID )    const
@@ -62,22 +82,20 @@ BuddyDatabaseEntries AnalysisActivitySnapshotImpl::listBuddyDatabaseEntriesFor( 
     return m_buddyDatabase->listBuddyDatabaseEntriesFor( sampleRunID );
 }
 
-void AnalysisActivitySnapshotImpl::runPendingDatabaseUpdates( DBUpdateExceptionHandlingPolicy* exceptionCallback, 
-    bool block )
+void AnalysisActivitySnapshotImpl::runPendingDatabaseUpdates( bool block )
 {
-    m_dbUpdateConsumer.reset( 
-        new DBUpdateConsumer( m_appContext, m_sampleRunIDResolutionService.get(), m_dbUpdateSchedule.get(), exceptionCallback ) );
+    m_dbUpdateSchedule->queueScheduledUpdates( m_dbTransactionHandler );
 
-    if ( block )
+    if ( block && ! m_dbTransactionHandler->waitForQueued( m_pendingUpdateWaitTimeoutSecs * 1000 ) )
     {
-        m_dbUpdateConsumer->waitFor();
+        paulst::exception( "Pending updates failed to run within the timeout limit of %d secs", m_pendingUpdateWaitTimeoutSecs );
     }
 }
 
 std::string AnalysisActivitySnapshotImpl::getTestName( int testID ) const
 {
-    TestNames::const_iterator i = m_testNames->find( testID );
-    return i == m_testNames->end() ? std::string("Unknown test") : i->second;
+    TestNames::const_iterator i = m_appContext->testNames->find( testID );
+    return i == m_appContext->testNames->end() ? std::string("Unknown test") : i->second;
 }
 
 LocalEntryIterator AnalysisActivitySnapshotImpl::localBegin() const
@@ -102,7 +120,36 @@ QueuedSampleIterator AnalysisActivitySnapshotImpl::queueEnd()   const
 
 Range<WorklistEntryIterator> AnalysisActivitySnapshotImpl::getWorklistEntries( const std::string& sampleDescriptor ) const
 {
-    return m_worklistDirectory->equal_range( sampleDescriptor );
+    return m_worklistEntries->equal_range( sampleDescriptor );
+}
+
+HANDLE AnalysisActivitySnapshotImpl::queueForRerun( int worklistID, const std::string& sampleRunID, const std::string& sampleDescriptor )
+{
+    SnapshotUpdateTask* sut = new SnapshotUpdateTaskQRerun( worklistID, sampleRunID, sampleDescriptor, m_appContext->user );
+    
+    HANDLE h = sut->getDoneSignal();
+
+    m_snapshotUpdateThread.add( sut );
+
+    return h;
+}
+
+void AnalysisActivitySnapshotImpl::setObserver( SnapshotObserver* so )
+{
+    m_snapshotUpdateThread.setSnapshotObserver( so );
+}
+
+WorklistRelative AnalysisActivitySnapshotImpl::viewRelatively( const WorklistEntry* e ) const
+{
+    return m_worklistRelativeImpl.wrap( e );
+}
+
+bool AnalysisActivitySnapshotImpl::waitForActionsPending( long millis )
+{
+    const bool noDBTransactionsInProgress = m_dbTransactionHandler->waitForQueued( millis );
+    const bool noUpdatesPending           = m_snapshotUpdateThread. waitTillQuiet( millis );
+
+    return noDBTransactionsInProgress && noUpdatesPending;
 }
 
 }

@@ -1,37 +1,67 @@
 #ifndef DBQUERYTASKH
 #define DBQUERYTASKH
 
-#include <memory>
+#include "AbstractConnectionFactory.h"
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
+#include "Config.h"
+#include "Cursor.h"
+#include "DBConnection.h"
 #include <string>
-#include "../../../paulst/stef/Task.h"
+#include "Task.h"
 
-namespace paulstdb
-{
-    class AbstractConnectionFactory;
-}
 
 namespace valc
 {
 
-class CursorConsumer;
+void releaseConnection( paulstdb::DBConnection* c );
+void releaseCursor( paulstdb::Cursor* c );
+
+typedef boost::function<void (paulstdb::Cursor*)> CursorConsumer;
 
 class DBQueryTask : public stef::Task
 {
 public:
-    DBQueryTask( const std::string& name = "DBQueryTask" );
-    ~DBQueryTask();
-    void setConnectionFactory( paulstdb::AbstractConnectionFactory* cf );
-    void setConnectionString( const std::string& connectionString );
-    void setCursorConsumer( CursorConsumer* cc, bool assumeOwnershipOfConsumer = true );
-    void setSessionReadLockSetting( const std::string& sessionReadLockSetting );
+    
+    DBQueryTask( const std::string& name, paulstdb::AbstractConnectionFactory* f, const paulst::Config* config, CursorConsumer cc )
+        :
+        m_connectionFactory(f),
+        m_cursorConsumer(cc),
+        m_name( name )
+    {
+        m_connectionString       = config->get( name + "ConnectionString" );
+        m_sessionReadLockSetting = config->get( name + "SessionReadLockSetting" );
+        m_sql                    = config->get( name + "Query" );
+    }
+
+    std::string getName() const { return m_name; }
+
 protected:
-    void doStuff();
+    void doStuff()
+    {
+        paulstdb::DBConnection* con = m_connectionFactory->createConnection( m_connectionString, m_sessionReadLockSetting );
+
+        boost::shared_ptr<void> releaseConnectionOnBlockExit( con, releaseConnection );
+
+        {
+            paulstdb::Cursor* c = con->executeQuery( m_sql );
+            boost::shared_ptr<void> releaseCursorOnBlockExit( c, releaseCursor );
+            
+            while ( *c )
+            {
+                m_cursorConsumer( c );
+                c->next();
+            }
+        }
+    }
+
 private:
-    CursorConsumer* m_cursorConsumer;
-    paulstdb::AbstractConnectionFactory* m_connectionFactory;
-    std::string m_connectionString;
-    std::string m_sessionReadLockSetting;
-    bool m_deleteCursorConsumer;
+    paulstdb::AbstractConnectionFactory*    m_connectionFactory;
+    std::string                             m_connectionString;
+    std::string                             m_sessionReadLockSetting;
+    std::string                             m_sql;
+    CursorConsumer                          m_cursorConsumer;
+    std::string                             m_name;
     
 };
 

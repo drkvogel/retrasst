@@ -2,9 +2,11 @@
 #define DBUPDATETASKH
 
 #include <string>
+#include "Task.h"
 
 namespace paulst
 {
+    class Config;
     class LoggingService;
 };
 
@@ -16,30 +18,29 @@ namespace paulstdb
 namespace valc
 {
 
-class DBUpdateExceptionHandlingPolicy;
 class SampleRunIDResolutionService;
 
-class DBUpdateTask 
+class DBUpdateTask : public stef::Task
 {
 public:
+    DBUpdateTask();
     virtual ~DBUpdateTask();
-    bool execute();
+    void setConfig( const paulst::Config* c );
     void setConnection( paulstdb::DBConnection* c );
-    void setExceptionHandlingPolicy( DBUpdateExceptionHandlingPolicy* p );
     void setLog( paulst::LoggingService* log );
     void setSampleRunIDResolutionService( SampleRunIDResolutionService* s );
 protected:
     virtual std::string             describeUpdate() const = 0;
+    void doStuff();
     virtual void                    updateDatabase() = 0;
     SampleRunIDResolutionService*   getSampleRunIDResolutionService() const;
+    const paulst::Config*           getConfig() const;
     paulstdb::DBConnection*         getConnection() const;
 private:
     SampleRunIDResolutionService*       m_sampleRunIDResolutionService;
     paulst::LoggingService*             m_log;
-    DBUpdateExceptionHandlingPolicy*    m_exceptionHandlingPolicy;
     paulstdb::DBConnection*             m_connection;
-
-    void                                handleException( const std::string& msg, bool& continuePerformingOtherUpdates );
+    const paulst::Config*               m_config;
 };
 
 };

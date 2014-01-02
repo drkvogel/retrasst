@@ -13,17 +13,35 @@
 
 #define DEFAULT_NUMROWS 25
 
+//class LoadSamplesWorkerThread : public TThread {
 class LoadPlanWorkerThread : public TThread {
 protected:
     void __fastcall Execute();
 public:
     __fastcall LoadPlanWorkerThread();
+    Chunk< SampleRow > * loadingChunk;
     int             rowCount;
     string          loadingMessage;
     string          debugMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
     void __fastcall debugLog(); // synchronized methods can't have args
     void __fastcall msgbox();
+    bool stats;
+};
+
+class LoadChunksWorkerThread : public TThread {
+protected:
+    void __fastcall Execute();
+public:
+    __fastcall LoadChunksWorkerThread();
+    Chunk< SampleRow > * loadingChunk;
+    int             rowCount;
+    string          loadingMessage;
+    string          debugMessage;
+    void __fastcall updateStatus(); // synchronized methods can't have args
+    void __fastcall debugLog(); // synchronized methods can't have args
+    void __fastcall msgbox();
+    bool stats;
 };
 
 class TfrmProcess : public TForm {
@@ -46,22 +64,29 @@ __published:
     TTimer *timerLoadPlan;
     TSplitter *Splitter1;
     TGroupBox *GroupBox3;
-    TLabel *Label3;
     TButton *btnExit;
-    TLabel *labelStorage;
-    TLabel *labelSampleID;
     TPanel *panelDebug;
     TMemo *memoDebug;
     TButton *btnSimAccept;
     TButton *btnNotFound;
+    TButton *btnSecondary;
+    TPanel *panelAliquots;
+    TGroupBox *groupPrimary;
+    TLabel *labelPrimary;
+    TGroupBox *groupSecondary;
+    TLabel *labelSecondary;
+    TPanel *Panel1;
     TLabel *Label2;
-    TLabel *Label4;
+    TLabel *labelStorage;
     TLabel *labelDestbox;
+    TLabel *Label4;
+    TPanel *Panel2;
+    TLabel *Label3;
+    TLabel *labelSampleID;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
     void __fastcall cbLogClick(TObject *Sender);
-    void __fastcall FormDestroy(TObject *Sender);
     void __fastcall timerLoadPlanTimer(TObject *Sender);
     void __fastcall btnAcceptClick(TObject *Sender);
     void __fastcall sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow);
@@ -75,6 +100,7 @@ __published:
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
     void __fastcall FormResize(TObject *Sender);
+    void __fastcall btnSecondaryClick(TObject *Sender);
 
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
@@ -82,33 +108,36 @@ private:
     LCDbCryoJob *                               job;
     vector< Chunk< SampleRow > *>               chunks;
     vecpSampleRow                               vials;
+    //std::auto_ptr< StringGridWrapper< Chunk< SampleRow > > >  sgwChunks;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
     StringGridWrapper<SampleRow> *              sgwVials;
+    void                                        getStorage(SampleRow * sample);
     void                                        showChunks();
-    Chunk< SampleRow > *                        loadingChunk;
     //void                                        loadChunk(Chunk< SampleRow > *);
     void                                        loadChunk();
     Chunk< SampleRow > *                        currentChunk();
     SampleRow *                                 currentSample();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
-    //Chunk< SampleRow >::Status                  chunkStatus(Chunk< SampleRow > * chunk);
+    void                                        fillRow(SampleRow * sampleRow, int rw);
     void                                        loadRows();
     void                                        addChunk(int row);
     //void                                        addChunks();
     void                                        process();
     void                                        showCurrentRow();
-    void                                        showRowDetails(SampleRow * sample);
+    //void                                        showRowDetails(SampleRow * sample);
+    void                                        showDetails(SampleRow * sample);
     void                                        accept(String barcode);
     void                                        nextRow();
     void                                        exit();
-    //int                                         currentRow;
-    //int                                         currentChunk;
-    //int maxRows;
     const char *                                loadingMessage;
     void                                        debugLog(String s);
+    bool destroying;
+    string tempTableName;
+    map<int, const SampleRow *> storageCache;
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);
+    __fastcall TfrmProcess::~TfrmProcess();
 };
 
 extern PACKAGE TfrmProcess *frmProcess;

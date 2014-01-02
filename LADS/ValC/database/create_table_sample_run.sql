@@ -4,6 +4,7 @@ create table sample_run (
     created_when        ingresdate  not null default 'now',
     closed_when         ingresdate,
     sequence_position   float       not null,
-    fao_level_one       char(1)     not null default 'y'
+    fao_level_one       char(1)     not null default 'y',
+    group_id            integer
 );
 

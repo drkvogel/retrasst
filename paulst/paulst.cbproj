@@ -131,6 +131,10 @@
         <None Include="CSVIterator.h">
             <BuildOrder>11</BuildOrder>
         </None>
+        <CppCompile Include="ExceptionUtil.cpp">
+            <DependentOn>ExceptionUtil.h</DependentOn>
+            <BuildOrder>19</BuildOrder>
+        </CppCompile>
         <CppCompile Include="FileWriterC.cpp">
             <BuildOrder>12</BuildOrder>
         </CppCompile>
@@ -167,6 +171,10 @@
         <CppCompile Include="Thread.cpp">
             <DependentOn>Thread.h</DependentOn>
             <BuildOrder>2</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="ThreadPool.cpp">
+            <DependentOn>ThreadPool.h</DependentOn>
+            <BuildOrder>18</BuildOrder>
         </CppCompile>
         <CppCompile Include="TraceTime.cpp">
             <DependentOn>TraceTime.h</DependentOn>

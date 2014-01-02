@@ -9,6 +9,8 @@
 #include <queue>
 #include <string>
 #include <System.hpp>
+#include "Task.h"
+#include "UncontrolledResult.h"
 #include <utility>
 #include <vector>
 
@@ -16,6 +18,7 @@ class lua_State;
 
 namespace paulst
 {
+    class Config;
     class LoggingService;
 }
 
@@ -24,24 +27,16 @@ namespace paulstdb
     class AbstractConnectionFactory;
 }
 
+namespace stef
+{
+    class ThreadPool;
+}
+
 namespace valc
 {
 
-class RuleLoader
-{
-public:
-    RuleLoader();
-    virtual ~RuleLoader();
-    /*
-        Implementations must handle the possibility that their implementation of 
-        'loadRulesFor' may get called simultaneously on different threads.
-    */
-    virtual std::string loadRulesFor( const std::string& ruleName ) = 0;
-private:
-    RuleLoader( const RuleLoader& );
-    RuleLoader& operator=( const RuleLoader& );
-};
-
+class Gates;
+class RuleLoaderInterface;
 
 class RuleResultPublisher
 {
@@ -58,54 +53,24 @@ private:
 };
 
 
-struct UncontrolledResult
-{
-    int         testID;             /* default: 0 */
-    int         resultID;           /* default: 0 */
-    int         machineID;          /* default: 0 */
-    double      resultValue;        /* default: 0 */
-    std::string resultText;         /* default: '' */
-    std::string barcode;            /* default: '' */
-    int         projectID;          /* default: 0 */
-    TDateTime   dateAnalysed;       /* default: 1977 */
-    char        actionFlag;         /* default: '?' */
-
-    UncontrolledResult();
-};
-
-
-void lua_pushUncontrolledResult( lua_State* L, const UncontrolledResult& r );
-
 class Rules
 {
 public:
-    Rules( const std::string& script, ConnectionFactory cf, void* connectionState, RuleLoader* rl,
-        paulst::LoggingService* l );
+    Rules( const RuleDescriptor& rd, const std::string& script, ConnectionFactory cf, void* connectionState, RuleLoaderInterface* rl,
+        paulst::LoggingService* l, Gates* g, int test, int machine, int project, const paulst::Config* c );
     ~Rules();
     RuleResults applyTo( const UncontrolledResult& r );
 private:
-    paulst::CritSec     m_critSec;
-    ConnectionFactory   m_connectionFactory;
-    void*               m_connectionState;
-    lua_State*          L;
-    paulst::LoggingService* m_log;
+    paulst::CritSec             m_critSec;
+    ConnectionFactory           m_connectionFactory;
+    void*                       m_connectionState;
+    lua_State*                  L;
+    paulst::LoggingService*     m_log;
+    const RuleDescriptor        m_ruleDescriptor;
+    Gates*                      m_gates;
 
     Rules( const Rules& );
     Rules& operator=( const Rules& );
-};
-
-class ResultQueue
-{
-public:
-    ResultQueue();
-    void queue( const UncontrolledResult& r );
-    UncontrolledResult removeNext();
-private:
-    std::queue< UncontrolledResult > m_queue;
-    paulst::CritSec m_critSec;
-
-    ResultQueue( const ResultQueue& );
-    ResultQueue& operator=( const ResultQueue& );
 };
 
 class RulesConfig
@@ -117,7 +82,7 @@ public:
         Implementations of this method are invoked one-at-a-time,
         i.e. in series, not in parallel.
     */
-    virtual std::string getRuleNameFor( int test, int machine, int project ) = 0;
+    virtual int         getRuleIDFor( int test, int machine, int project ) = 0;
     virtual bool        isConfigured( const UncontrolledResult& r ) = 0;
 private:
     RulesConfig( const RulesConfig& );
@@ -131,36 +96,43 @@ public:
     ~RulesCache();
     void  clear();
     Rules* getRulesFor      ( int test, int machine, int project );
+    void setConfig          ( const paulst::Config* c );
     void setConnectionCache ( ConnectionCache* cc );
+    void setGates           ( Gates* g );
     void setLog             ( paulst::LoggingService* l );
     void setRulesConfig     ( RulesConfig* c );
-    void setRuleLoader      ( RuleLoader* l );
+    void setRuleLoader      ( RuleLoaderInterface* l );
 private:
-    typedef std::map< std::string, Rules* > Cache;
-    paulst::CritSec     m_critSec;
-    RulesConfig*        m_rulesConfig;
-    RuleLoader*         m_ruleLoader;
-    Cache               m_cache;
-    ConnectionCache*    m_connectionCache;
+    typedef std::map< int, Rules* > Cache;
+    paulst::CritSec         m_critSec;
+    RulesConfig*            m_rulesConfig;
+    RuleLoaderInterface*    m_ruleLoader;
+    Cache                   m_cache;
+    ConnectionCache*        m_connectionCache;
     paulst::LoggingService* m_log;
+    Gates*                  m_gates;
+    const paulst::Config*   m_config;
 
     RulesCache( const RulesCache& );
     RulesCache& operator=( const RulesCache& );
-    Rules* load( const std::string& ruleName );
+    Rules* load( int ruleID, int test, int machine, int project );
 };
 
-class ThreadTaskExceptions
+class QCResults;
+
+class ResultAssessmentTask : public stef::Task
 {
 public:
-    ThreadTaskExceptions();
-    void add( const Exception& e );
-    void addUnspecified();
-    bool empty() const;
-    std::string getFirstMsg() const;
+    ResultAssessmentTask( const UncontrolledResult& result, int errorResultCode, RulesCache* rulesCache, 
+        RuleResultPublisher* resultPublisher, paulst::LoggingService* log );
+protected:
+    void doStuff();
 private:
-    paulst::CritSec m_critSec;
-    typedef std::vector< std::string > Messages;
-    Messages m_messages;
+    const UncontrolledResult    m_result;
+    const int                   m_errorResultCode;
+    RulesCache*                 m_rulesCache;
+    RuleResultPublisher*        m_resultPublisher;
+    paulst::LoggingService*     m_log;
 };
 
 class RuleEngine
@@ -169,61 +141,37 @@ public:
     RuleEngine( int maxThreads = 10, int errorResultCode = 999 );
     ~RuleEngine();
     void clearRulesCache();
-    int  getErrorResultCode() const;
     void queue( const UncontrolledResult& r );
+    void setConfig( const paulst::Config* c );
     /*
         This connection factory is used when a rule script wants a connection.
         It is invoked indirectly, via ConnectionCache. The latter enforces
         one-at-a-time access to this connection factory.
     */
     void setConnectionFactory( paulstdb::AbstractConnectionFactory* conFac );
+    void setDefaultTaskExceptionHandler( stef::TaskExceptionHandler* teh );
     void setErrorResultCode( int errorCode );
+    void setGates( Gates* g );
     void setLog( paulst::LoggingService* l );
-    void setRuleLoader( RuleLoader* l );
+    void setRuleLoader( RuleLoaderInterface* l );
     void setRulesConfig( RulesConfig* c );
     void setResultPublisher( RuleResultPublisher* p );
-    /*
-        'waitForQueued' will throw an Exception if an exception has been reported by 
-        a worker thread.
-    */
-    void waitForQueued();
-
-    friend class ThreadTaskContext;
-
-    class ThreadTaskContext
-    {
-    public:
-        ThreadTaskContext( RuleEngine* qcre );
-        UncontrolledResult  nextQueuedResult();
-        int                 getErrorResultCode() const;
-        Rules*              getRulesFor( int test, int machine, int project );
-        void                publishResults( const RuleResults& r, int forResult );
-        void                reportException( const Exception& e );
-        void                reportUnspecifiedException();
-    private:
-        RuleEngine* m_ruleEngine;
-    }; 
+    bool waitForQueued( long timeoutMillis );
 
 private:
+    stef::ThreadPool*       m_resultAssessor;
+    paulst::CritSec         m_cs;
     RuleResultPublisher*    m_publisher;
-    TP_CALLBACK_ENVIRON     m_threadPoolCallbackEnv;
-    PTP_POOL                m_threadPool;
-    PTP_WORK                m_threadPoolWork;
-    ResultQueue             m_resultQueue;
     RulesCache              m_rulesCache;
-    ThreadTaskExceptions    m_exceptions;
-    ThreadTaskContext       m_threadTaskContext;
     ConnectionCache         m_connectionCache;
     int                     m_errorResultCode;
     paulst::LoggingService* m_log;
+    int                     m_pending;
+    HANDLE                  m_signalWhenNonPending;
 
     RuleEngine( const RuleEngine& );
     RuleEngine& operator=( const RuleEngine& );
-    Rules*              getRulesFor( int test, int machine, int project );
-    UncontrolledResult  nextQueuedResult();
-    void                publishResults( const RuleResults& r, int forResult );
-    void                reportException( const Exception& e );
-    void                reportUnspecifiedException();
+    void onNotify();
 };
 
 }

@@ -4,11 +4,14 @@
 #pragma hdrstop
 #include <tchar.h>
 //---------------------------------------------------------------------------
-USEFORM("signIn.cpp", tSignIn);
-USEFORM("tmain.cpp", Form1);
+USEFORM("createExercise.cpp", retrivalExerciseDialog);
 USEFORM("tdbSelection.cpp", DbSelectionDialog);
+USEFORM("tmain.cpp", Form1);
+USEFORM("signIn.cpp", tSignIn);
 USEFORM("tCreateRetrievalJob.cpp", CreateRetrievalJobForm);
 USEFORM("boxSelection.cpp", tBoxSelection);
+USEFORM("boxType.cpp", tBoxType);
+USEFORM("PleaseWait.cpp", tPleaseWait);
 //---------------------------------------------------------------------------
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
@@ -21,6 +24,9 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 		Application->CreateForm(__classid(TtSignIn), &tSignIn);
 		Application->CreateForm(__classid(TCreateRetrievalJobForm), &CreateRetrievalJobForm);
 		Application->CreateForm(__classid(TtBoxSelection), &tBoxSelection);
+		Application->CreateForm(__classid(TtBoxType), &tBoxType);
+		Application->CreateForm(__classid(TretrivalExerciseDialog), &retrivalExerciseDialog);
+		Application->CreateForm(__classid(TtPleaseWait), &tPleaseWait);
 		Application->Run();
 	}
 	catch (Exception &exception)

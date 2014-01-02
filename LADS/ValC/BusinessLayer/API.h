@@ -64,6 +64,30 @@ private:
 };
 
 /*
+    Implementations of UserAdvisor serve to advise 
+    the user of issues encountered by the BusinessLayer.
+
+    Note that implementations of 'advise' should be able 
+    to cope with being called concurrently on different 
+    threads and should be non-blocking.
+
+    One possibility is to implement UserAdvisor as a Queue.
+    Implementations of the 'advise' method would simply 
+    add the message to the end of the queue.
+*/
+class UserAdvisor
+{
+public:
+    UserAdvisor();
+    virtual ~UserAdvisor();
+    virtual void advise( const std::string& warning ) = 0;
+private:
+    UserAdvisor( const UserAdvisor& );
+    UserAdvisor& operator=( const UserAdvisor& );
+};
+
+
+/*
     The application context must be initialised before a Snapshot can be loaded.
 
     It is an error to attempt to initialise the application context if it has already 
@@ -75,6 +99,7 @@ private:
         user            - the ID of the user
         configString    - configuration. Load config.txt into a string. e.g. (in paulst/StrUtil.h) loadContentsOf("config.txt")
         log             - a logging service
+        userAdvisor     - callback allowing the BusinessLayer to issue warnings to the UI
 
     Example of how to create an instance of LoggingService:
 
@@ -84,17 +109,15 @@ void InitialiseApplicationContext(
     int                                     localMachineID, 
     int                                     user, 
     const std::string&                      config, /* Refer to paulst::Config re. format of this string */
-    paulst::LoggingService*                 log ); 
+    paulst::LoggingService*                 log,
+    UserAdvisor*                            userAdvisor ); 
 
 /*
     Loads a Snapshot.
 
     Loading of Snapshots is one-at-a-time.  To reload, Unload and then Load.
-
-    UserAdvisor, if supplied, is a callback for warnings relating to the loading process.
 */
-SnapshotPtr Load( 
-    UserAdvisor* userAdvisor = NULL ); 
+SnapshotPtr Load(); 
 
 /*
     Unloads a loaded Snapshot.
@@ -152,6 +175,10 @@ struct Range : public std::pair<Iter, Iter>
 class LocalRun
 {
 public:
+
+    struct Impl;
+    friend Impl;
+
     LocalRun();
     LocalRun( const LocalRun& );
     LocalRun( const std::string& sampleDescriptor, const std::string& id );
@@ -167,8 +194,14 @@ public:
         Returns an identifier for this sample-run.
     */
     std::string getRunID() const;
+
+    /*
+        Is this run open, or has it been closed off?
+    */
+    bool isOpen() const;
 private:
     std::string m_id, m_sampleDescriptor;
+    Impl* m_impl;
 };
 
 /*
@@ -255,24 +288,6 @@ private:
     const WorklistEntry*&   dereference() const;
 };
 
-/*
-    API users must implement this policy and pass it as a parameter in order to
-    'enableDatabaseUpdates' on AnalysisActivitySnapshot.
-*/
-class DBUpdateExceptionHandlingPolicy
-{
-public:
-    DBUpdateExceptionHandlingPolicy();
-    virtual ~DBUpdateExceptionHandlingPolicy();
-    /*
-        Implement this method to explain that there has been a database update failure.
-        Note that callbacks on this method are asynchronous, from a different thread.
-        Implementations should not block the thread. e.g. consider using 'PostMessage'
-        or some other asynchronous technique in order not to tie up the calling thread.
-    */
-    virtual void handleException( const std::string& msg ) = 0;
-};
-
 
 /*
     Describes a row in the buddy_database table.
@@ -307,6 +322,25 @@ struct RuleResult
 };
 
 /*
+    Identifies a row in the qc_rule table.
+*/
+class RuleDescriptor
+{
+public:
+    RuleDescriptor( int recordID, int ruleID, const std::string& uniqueName, const std::string& desc );
+    RuleDescriptor();
+    RuleDescriptor( const RuleDescriptor& rd );
+    RuleDescriptor& operator=( const RuleDescriptor& rd );
+    int         getRecordID()   const;
+    int         getRuleID()     const;
+    std::string getUniqueName() const;
+    std::string getDesc()       const;
+private:
+    int m_recordID, m_ruleID;
+    std::string m_uniqueName, m_desc;
+};
+
+/*
     A TestResult can be subjected to Rules in order to assess their reliability/validity.
 
     RuleResults encapsulates the outcome of the application of such Rules for a particular TestResult.
@@ -316,31 +350,80 @@ struct RuleResult
 class RuleResults
 {
 public:
-    static const int RESULT_CODE_FAIL               = 0;
-    static const int RESULT_CODE_PASS               = 1;
-    static const int RESULT_CODE_BORDERLINE         = 2;
-    static const int RESULT_CODE_ERROR              = 3;
-    static const int RESULT_CODE_NO_RULES_APPLIED   = 4;
+    const static int RESULT_CODE_FAIL               = 0;
+    const static int RESULT_CODE_PASS               = 1;
+    const static int RESULT_CODE_BORDERLINE         = 2;
+    const static int RESULT_CODE_ERROR              = 3;
+    const static int RESULT_CODE_NO_RULES_APPLIED   = -1;
 
     typedef std::vector<RuleResult> RuleResultCollection;
     typedef RuleResultCollection::const_iterator const_iterator;
 
     RuleResults();
-    RuleResults( const_iterator begin, const_iterator end, int summaryResultCode, const std::string& summaryMsg );
+    RuleResults( const RuleDescriptor& rd, const_iterator begin, const_iterator end, int summaryResultCode, const std::string& summaryMsg,
+        const std::vector< std::string >& extraValues = std::vector< std::string >() );
     RuleResults( const RuleResults& );
     RuleResults& operator=( const RuleResults& );
     /* Returns an iterator to the first RuleResult in the sequence.  */
-    const_iterator  begin() const;
+    const_iterator  begin()                const;
     /* Returns an iterator marking the end of the RuleResult sequence.  */
-    const_iterator  end() const;
+    const_iterator  end()                  const;
+    std::string     getExtraValue(int idx) const; // zero-based index
+    RuleDescriptor  getRuleDescriptor()    const;
     /* Returns one of the RESULT_CODE constants listed above. */
     int             getSummaryResultCode() const;
-    std::string     getSummaryMsg() const;
+    std::string     getSummaryMsg()        const;
+    int             numExtraValues()       const;
 private:
-    int                  m_summaryResultCode;
-    std::string          m_summaryMsg;
-    RuleResultCollection m_results;
+    int                         m_summaryResultCode;
+    std::string                 m_summaryMsg;
+    RuleResultCollection        m_results;
+    RuleDescriptor              m_ruleDescriptor;
+    std::vector<std::string>    m_extraValues;
 };
+
+/*
+    Parent-child relationships can exist between worklist entries.
+    For example, a rerun is a 'child' of the original worklist entry.
+
+    WorklistRelative provides access to such data. Instances of WorklistRelative should be sourced 
+    from AnalysisActivitySnapshot, via the method 'viewRelatively'.
+
+    An instance of WorklistRelative always describes a worklist entry.  However, that 
+    worklist entry may not have been loaded from the database.  Examples of when a worklist entry may not have been loaded:
+        a) The worklist entry has status 'T' ('transmitted to project')
+        b) The worklist entry is associated with a different cluster
+    Use 'isBoundToWorklistEntryInstance' to test whether or not the worklist entry has been loaded.
+    If this returns 'true', then it is safe to use '->' to access methods on the WorklistEntry interface.
+*/
+class WorklistRelative
+{
+public:
+
+    struct Impl;
+    friend Impl;
+
+    WorklistRelative( int id = 0, const WorklistEntry* entry = 0, char howCreated = '\0' );
+    WorklistRelative( const WorklistRelative& );
+    WorklistRelative&               operator=( const WorklistRelative& );
+    bool                            isBoundToWorklistEntryInstance()    const;
+    const WorklistEntry*            operator->()                        const;
+    bool                            hasChildren()                       const;
+    bool                            hasParent()                         const;
+    std::vector<WorklistRelative>   getChildren()                       const;
+    int                             getID()                             const;
+    WorklistRelative                getParent()                         const;
+    char                            getRelation()                       const;
+private:
+    const WorklistEntry* m_worklistEntry;
+    char m_howCreated;// triggered? rerun?
+    int  m_id;
+
+    const Impl* m_impl;
+};
+
+
+class SnapshotObserver;
 
 /*  
     AnalysisActivitySnapshot is the model of which the ValC
@@ -384,16 +467,13 @@ public:
     AnalysisActivitySnapshot();
     virtual ~AnalysisActivitySnapshot();
     /*
-        A thread updates the database following the loading of a snapshot.
-        This thread doesn't run automatically, but only when this method is called.
+        When a Snapshot gets Loaded, one or more database updates may get scheduled.
+        Call this method to allow those updates to proceed.
         Parameters:
-            - an implementation of DBUpdateExceptionHandlingPolicy
-                (e.g. to show a message to the user). Note that callbacks on
-                this policy will be asynchronous, from a background thread.
             - whether the method should block until all updates have been performed, or allow 
                 updates to continue in the background
     */
-    virtual void runPendingDatabaseUpdates( DBUpdateExceptionHandlingPolicy* p, bool block ) = 0;
+    virtual void runPendingDatabaseUpdates( bool block ) = 0;
     /*
         How to test that a TestResult is associated with a particular LocalRun? 
         The only way to find out is to use this method, supplying the runID of the LocalRun
@@ -406,6 +486,12 @@ public:
     virtual QueuedSampleIterator            queueBegin()                                                    const = 0;
     virtual QueuedSampleIterator            queueEnd()                                                      const = 0;
 
+    /*
+        Returns a 'wrapper' that supports queries regarding how a worklist entry was 
+        created, whether it has a parent, whether it has children, etc.
+    */
+    virtual WorklistRelative                viewRelatively( const WorklistEntry* e )                        const = 0;
+
     /* Returns the RuleResults for the specified result.  See hasRuleResults below. */
     virtual RuleResults                     getRuleResults( int resultID )                                  const = 0;
 
@@ -413,6 +499,9 @@ public:
         Returns a pair of iterators that describe the set 
         of worklist entries that are associated with 
         the specified sample.
+
+        Note that the return value cannot be used with confidence if there are pending asynchronous 
+        updates to the list of worklist entries - for example if the insertion of a rerun is in progress.
     */
     virtual Range<WorklistEntryIterator>    getWorklistEntries( const std::string& sampleDescriptor )       const = 0;
     /*
@@ -434,6 +523,39 @@ public:
     */
     virtual BuddyDatabaseEntries            listBuddyDatabaseEntriesFor( const std::string& sampleRunID )   const = 0;
 
+    /*
+        Initiate a rerun of the specified worklist entry.
+        The return value is a handle which can be used to test when the rerun request has been processed (WaitForSingleObject).
+        The handle should be closed when it is no longer needed (using the Windows API function CloseHandle).
+
+        Changes made to the snaphost object model are broadcast via SnapshotObserver.
+    */
+    virtual HANDLE                       queueForRerun( int worklistID, const std::string& sampleRunID, const std::string& sampleDescriptor ) = 0;
+
+    /*
+        Use this method to specifiy a callback interface on which to receive notifications of updates to the snapshot.
+    */
+    virtual void                            setObserver( SnapshotObserver* obs ) = 0;
+
+    /*
+        Call this method before Unloading the Snapshot.  
+
+        There are methods on the Snapshot interface which cause processes to run in the background. 
+        For example, 'runPendingDatabaseUpdates' can create a background process for updating the database 
+        (unless a value of 'true' is supplied for the 'block' parameter). 
+        Another example is 'queueForRerun'.  The process that updates the database and the in-memory model (i.e. this Snapshot) 
+        runs in the background.
+
+        Use the 'millis' parameter to specify how long you are prepared to wait for background processes to complete.
+
+        A return value of 'true' indicates that all background processes have run to completion.
+
+        If a value of 'false' is obtained, then there are two options:
+            1) wait again
+            2) continue with the Unload, in which case some of the background processes may get cancelled.
+    */
+    virtual bool                            waitForActionsPending(long millis) = 0;
+
 private:
     AnalysisActivitySnapshot( const AnalysisActivitySnapshot& );
     AnalysisActivitySnapshot& operator=( const AnalysisActivitySnapshot& );
@@ -442,49 +564,6 @@ private:
 class BuddyDatabase;
 class Projects;
 class ResultIndex;
-
-/*
-    Implementations of UserAdvisor serve to advise 
-    the user of issues encountered by the BusinessLayer.
-
-    Note that implementations of 'advise' should be able 
-    to cope with being called concurrently on different 
-    threads and should be non-blocking.
-
-    One possibility is to implement UserAdvisor as a Queue.
-    Implementations of the 'advise' method would simply 
-    add the message to the end of the queue.
-*/
-class UserAdvisor
-{
-public:
-    UserAdvisor();
-    virtual ~UserAdvisor();
-    virtual void advise( const std::string& warning ) = 0;
-private:
-    UserAdvisor( const UserAdvisor& );
-    UserAdvisor& operator=( const UserAdvisor& );
-};
-
-/*
-    Parent-child relationships can exist between worklist entries.
-    For example, a rerun is a 'child' of the original worklist entry.
-
-    WorklistEntry has methods to support access to this data, 
-    i.e. 'getParent' and 'getChildren'. These methods return 
-    instances of RelatedEntry.
-
-    RelatedEntry describes a WorklistEntry that is related 
-    to the WorklistEntry from which it was obtained. It also 
-    describes the reason for the existence of the relationship.
-*/
-struct RelatedEntry
-{
-    const WorklistEntry* related;
-    char howRelated;// triggered? rerun?
-};
-
-typedef std::vector< RelatedEntry > RelatedEntries;
 
 class TestResult;
 class TestResultIteratorImpl;
@@ -544,10 +623,6 @@ public:
     */
     virtual int                         getCategoryID()             const = 0;
     /*
-        Refer to documentation on RelatedEntry
-    */
-    virtual RelatedEntries              getChildren()               const = 0;
-    /*
         c_buddy_worklist.diluent
     */
     virtual float                       getDiluent()                const = 0;
@@ -560,24 +635,17 @@ public:
     */
     virtual int                         getID()                     const = 0;
     /*
-        Returns a list of the IDs of worklist entries 
-        that are related to this one. For info re. 
-        what 'related' means in this context,
-        refer to documentation on RelatedEntry.
-    */
-    virtual IntList                     getIDsOfRelatedEntries()    const = 0;
-    /*
         c_buddy_worklist.machine_cid
     */
     virtual int                         getMachineID()              const = 0;
     /*
-        Refer to documentation on RelatedEntry.
-    */
-    virtual RelatedEntry                getParent()                 const = 0;
-    /*
         c_buddy_worklist.profile_id
     */
     virtual int                         getProfileID()              const = 0;
+    /*
+        c_buddy_worklist.profile_name
+    */
+    virtual std::string                 getProfileName()            const = 0;
     /*
         c_buddy_worklist.project_cid
     */
@@ -613,8 +681,6 @@ public:
         c_buddy_worklist.status
     */
     virtual char                        getStatus()                 const = 0;
-    virtual bool                        hasChildren()               const = 0;
-    virtual bool                        hasParent()                 const = 0;
 private:
     WorklistEntry( const WorklistEntry& );
     WorklistEntry& operator=( const WorklistEntry& );
@@ -656,6 +722,10 @@ public:
     */
     virtual int         getID               () const = 0;
     /*
+        buddy_result_float.res_text
+    */
+    virtual std::string getResultText       () const = 0;
+    /*
         buddy_result_float.res_value
     */
     virtual float       getResultValue      () const = 0;
@@ -673,6 +743,24 @@ private:
     TestResult& operator=( const TestResult& );
 };
 
+
+/*
+    Used in order to notify the UI of changes that have been 
+    made to the snapshot object model.
+*/
+class SnapshotObserver
+{
+public:
+    SnapshotObserver();
+    virtual ~SnapshotObserver();
+    virtual void notifyWorklistEntryChanged ( const WorklistEntry* we ) = 0;
+    virtual void notifyNewWorklistEntry     ( const WorklistEntry* we ) = 0;
+    virtual void notifySampleAddedToQueue   ( const std::string& sampleDescriptor ) = 0;
+    virtual void notifySampleRunClosedOff   ( const std::string& runID ) = 0;
+    virtual void notifyUpdateFailed         ( const char* errorMsg ) = 0;
 };
+
+
+}
 #endif
 

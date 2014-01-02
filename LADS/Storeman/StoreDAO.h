@@ -38,7 +38,7 @@ class StoreDAO
 		void loadRacks( int tank_cid, std::vector<ROSETTA>& results, int type = 0 );
 		void loadRacks( const std::set< int > & rackCids, std::vector<ROSETTA>& results);
 		bool occupyRack( ROSETTA& data );
-		void loadRackOccupancy( int rack_cid, int proj_id, std::set< int > & occupied );
+		void loadRackOccupancy( int rack_cid, std::set< int > & occupied );
 
 		bool addBoxToLHSJobList( ROSETTA& data );
 		bool addBoxToRHSJobList( ROSETTA& data );
@@ -47,7 +47,7 @@ class StoreDAO
 
 		void loadBoxDetails( int box_id, int proj_id, ROSETTA & result );
 		void loadBoxes( const std::string & num, const std::string & type, int proj_id, std::vector<ROSETTA>& results);
-		void loadBoxes( int rack_id, int proj_id, std::vector<ROSETTA>& results);
+		void loadBoxes( int rack_id, std::vector<ROSETTA>& results);
 		void loadBoxesByJobID( int jobID, int proj_id, std::vector<ROSETTA>& results);
 		void loadBoxHistory( int box_id, int proj_id, std::vector<ROSETTA>& results);
 		void loadSamples( int box_id, int proj_id, std::vector<ROSETTA>& results);

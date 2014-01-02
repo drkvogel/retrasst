@@ -22,6 +22,7 @@ class SampleRunIDResolutionService
 public:
     SampleRunIDResolutionService();
     void        addMapping( const std::string& fromCandidate, const std::string& toExisting );
+    void        clear();
     bool        compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID ) const;
     /*
         Returns true if 'forRunID' exists as a key or a value.

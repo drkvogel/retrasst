@@ -17,6 +17,7 @@
  *  1 Feb 2010, NG:		count boxes that are ready to take to Worminghall
  *  5 Feb 2013, NG:		set new status (ANALYSED) if ready to be transferred
  * 20 September 2013:	ignore events - no longer required; add barcode
+ * 12 December, NG:		Check box_cid not already used in another project
  *---------------------------------------------------------------------------*/
 
 #include <vcl.h>
@@ -176,12 +177,15 @@ bool LPDbBoxNames::readFilled( LQuery pq )
 //  Set up an empty box of the given type with a new name and ID
 //---------------------------------------------------------------------------
 
-bool LPDbBoxName::create( const LPDbBoxType & type, LQuery query )
+bool LPDbBoxName::create( const LPDbBoxType & type, LQuery pQuery, LQuery cQuery )
 {
-	const LCDbProject & proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() );
 	saved = false;
-	unsigned code = abs( claimNextID( query ) );
-	char buff[ 64 ];
+	do { claimNextID( pQuery );
+	} while( needsNewID( cQuery ) );
+	unsigned code = abs( getID() );
+
+	const LCDbProject & proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() );
+	char buff[ 32 ];
 	std::sprintf( buff, "%s%0.6u", proj.getStudyCode().c_str(), code );
 	barcode = buff;
 	AnsiString projName = proj.getName().c_str();
@@ -196,7 +200,7 @@ bool LPDbBoxName::create( const LPDbBoxType & type, LQuery query )
 	filledBy = 0;
 	cryovials.clear();
 	status = EMPTY;
-	return saveRecord( query );
+	return saveRecord( pQuery, cQuery );
 }
 
 //---------------------------------------------------------------------------
@@ -277,48 +281,65 @@ short LPDbBoxName::addCryovial( const std::string & barcode )
 //	Confirm the allocation of cryovials in box_name and related tables
 //---------------------------------------------------------------------------
 
-void LPDbBoxName::confirmAllocation( LQuery pQuery )
+void LPDbBoxName::confirmAllocation( LQuery pQuery, LQuery cQuery )
 {
 	status = CONFIRMED;
-	saveRecord( pQuery );
+	saveRecord( pQuery, cQuery );
 
 	LPDbCryovialStores contents;
 	contents.confirmAllocation( pQuery, getID() );
 }
 
 //---------------------------------------------------------------------------
-//  Add entry for this box to box_name table; record event if appropriate
+//  Add entry for this box to box_name table, ready to copy to c_box_name
 //---------------------------------------------------------------------------
 
-bool LPDbBoxName::saveRecord( LQuery query )
+bool LPDbBoxName::saveRecord( LQuery & pQuery, LQuery & cQuery )
 {
 	if( saved ) {
-		query.setSQL( "update box_name set box_capacity = :cap, status = :sts,"
+		pQuery.setSQL( "update box_name set box_capacity = :cap, status = :sts,"
 					" time_stamp = 'now', note_exists = note_exists + :nex, process_cid = :pid"
 					" where box_cid = :bid" );
 	} else {
-		if( getID() == 0 )
-			claimNextID( query );
-
-		query.setSQL( "insert into box_name (box_cid, box_type_cid, box_capacity,"
+		while( needsNewID( cQuery ) ) {
+			claimNextID( pQuery );
+		}
+		pQuery.setSQL( "insert into box_name (box_cid, box_type_cid, box_capacity,"
 					" external_name, status, time_stamp, process_cid, note_exists)"
 ///// fixme - include barcode after upgrade
 					" values ( :bid, :btid, :cap, :exn, :sts, 'now', :pid, :nex)" );
-		query.setParam( "exn", name );
-		query.setParam( "btid", boxTypeID );
+		pQuery.setParam( "exn", name );
+		pQuery.setParam( "btid", boxTypeID );
 	}
 
-	query.setParam( "bid", getID() );
-	query.setParam( "cap", getSpace() );
-	query.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
-	query.setParam( "sts", status );
-	query.setParam( "nex", 0 );
-	if( query.execSQL() ) {
+	pQuery.setParam( "bid", getID() );
+	pQuery.setParam( "cap", getSpace() );
+	pQuery.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
+	pQuery.setParam( "sts", status );
+	pQuery.setParam( "nex", 0 );
+	if( pQuery.execSQL() ) {
 		saved = true;
 		return true;
 	} else {
 		return false;
-    }
+	}
+}
+
+//---------------------------------------------------------------------------
+//	check the box ID is valid and another box doesn't have the same number
+//---------------------------------------------------------------------------
+
+bool LPDbBoxName::needsNewID( LQuery & cQuery ) const
+{
+	if( getID() != 0 ) {
+		cQuery.setSQL( "select count(*) from c_box_name where box_cid in (:pid, :nid)" );
+		cQuery.setParam( "pid", getID() );
+		cQuery.setParam( "nid", -getID() );
+		if( cQuery.open() && cQuery.readInt( 0 ) == 0 ) {
+			return false;
+		}
+	}
+	return true;
 }
 
 //---------------------------------------------------------------------------
@@ -335,9 +356,9 @@ bool LPDbBoxName::matchesGroup( LQuery pQuery )
 				" and t2.box_set_link = t1.box_set_link and n2.box_type_cid = t2.box_type_cid"
 				" and s2.box_cid = n2.box_cid and c2.cryovial_id = s2.cryovial_id"
 				" and c1.cryovial_barcode = c2.cryovial_barcode"
-				" and s1.cryovial_position <> s2.cryovial_position" ); 	// or tube_position
+				" and s1.tube_position <> s2.tube_position" );
 	pQuery.setParam( "bid", getID() );
-	return pQuery.open() == 1 && pQuery.readInt( 0 ) == 0;
+	return pQuery.open() && pQuery.readInt( 0 ) == 0;
 }
 
 //---------------------------------------------------------------------------

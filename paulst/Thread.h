@@ -18,7 +18,7 @@ class Event
         bool set();
         
     private:
-        HANDLE m_h;
+        const HANDLE m_h;
 
         Event( const Event& );
         Event& operator=( const Event& );

@@ -6,6 +6,7 @@ create table qc_rule_config (
     project_cid             integer not null,
     status                  smallint not null default 1,
     valid_from              ingresdate not null default 'now',
-    valid_to                ingresdate not null default '01/01/2020'
+    valid_to                ingresdate not null default '01/01/2020',
+    rule_parameter          varchar(40)
 )
 

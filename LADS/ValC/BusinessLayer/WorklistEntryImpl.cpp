@@ -1,7 +1,6 @@
 #include <boost/foreach.hpp>
 #include "ResultDirectory.h"
 #include "Trace.h"
-#include "WorklistDirectory.h"
 #include "WorklistEntryImpl.h"
 
 namespace valc
@@ -24,8 +23,6 @@ WorklistEntryImpl::WorklistEntryImpl(
         char                        status,
         float                       diluent,
         int                         buddyResultID,
-        const WorklistRelations&    relations,
-        const WorklistDirectory*    worklistDirectory,
         const ResultDirectory*      resultDirectory )
     :
     m_recordNo      ( recordNo ),
@@ -44,16 +41,12 @@ WorklistEntryImpl::WorklistEntryImpl(
     m_status        ( status ),
     m_diluent       ( diluent ),
     m_buddyResultID ( buddyResultID ),
-    m_worklistRelations( relations ),
-    m_worklistDirectory( worklistDirectory ),
     m_resultDirectory ( resultDirectory )
 {
-    trace( "WorklistEntryImpl constructor" );
 }
 
 WorklistEntryImpl::~WorklistEntryImpl()
 {
-    trace( "WorklistEntryImpl destructor" );
 }
 
 std::string WorklistEntryImpl::getBarcode() const
@@ -71,24 +64,6 @@ int WorklistEntryImpl::getCategoryID() const
     return m_categoryID;
 }
 
-RelatedEntries WorklistEntryImpl::getChildren() const
-{
-    RelatedEntries re;
-
-    BOOST_FOREACH( const WorklistRelation wr, m_worklistRelations )
-    {
-        if ( wr.getParent() == this->getID() )
-        {
-            RelatedEntry r;
-            r.related = m_worklistDirectory->get( wr.getChild() );
-            r.howRelated = wr.getRelationshipMotivation();
-            re.push_back( r );
-        }
-    }
-
-    return re;
-}
-
 float WorklistEntryImpl::getDiluent() const
 {
     return m_diluent;
@@ -104,45 +79,19 @@ int WorklistEntryImpl::getID() const
     return m_recordNo;
 }
 
-IntList WorklistEntryImpl::getIDsOfRelatedEntries() const
-{
-    IntList il;
-
-    BOOST_FOREACH( const WorklistRelation wr, m_worklistRelations )
-    {
-        il.push_back( wr.getParent() == this->getID() ? wr.getChild() : wr.getParent() );
-    }
-
-    return il;
-}
-
 int WorklistEntryImpl::getMachineID() const
 {
     return m_machineID;
 }
 
-RelatedEntry WorklistEntryImpl::getParent() const
-{
-    RelatedEntry r;
-    r.related = NULL;
-    r.howRelated = '\0';
-
-    BOOST_FOREACH( const WorklistRelation wr, m_worklistRelations )
-    {
-        if ( wr.getChild() == this->getID() )
-        {
-            r.related = m_worklistDirectory->get( wr.getParent() );
-            r.howRelated = wr.getRelationshipMotivation();
-            break;
-        }
-    }
-
-    return r;
-}
-
 int WorklistEntryImpl::getProfileID() const
 {
     return m_profileID;
+}
+
+std::string WorklistEntryImpl::getProfileName() const
+{
+    return m_profileName;
 }
 
 int WorklistEntryImpl::getProjectID() const
@@ -183,18 +132,6 @@ int WorklistEntryImpl::getTSSequence() const
 char WorklistEntryImpl::getStatus() const
 {
     return m_status;
-}
-
-bool WorklistEntryImpl::hasChildren() const
-{
-    RelatedEntries children = getChildren();
-    return children.size();
-}
-
-bool WorklistEntryImpl::hasParent() const
-{
-    RelatedEntry r = getParent();
-    return r.related;
 }
 
 }

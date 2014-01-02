@@ -12,7 +12,8 @@ TestResultImpl::TestResultImpl(
         int resultID,
         const std::string& sampleRunID,
         int testID,
-        float resultValue )
+        float resultValue,
+        const std::string& resultText )
     : 
     m_actionFlag(actionFlag),
     m_sampleDescriptor(sampleDescriptor),
@@ -21,7 +22,8 @@ TestResultImpl::TestResultImpl(
     m_resultID(resultID),
     m_sampleRunID(sampleRunID),
     m_testID(testID),
-    m_resultValue(resultValue)
+    m_resultValue(resultValue),
+    m_resultText(resultText)
 {
 }
 
@@ -47,6 +49,11 @@ int TestResultImpl::getMachineID() const
 int TestResultImpl::getID() const
 {
     return m_resultID;
+}
+
+std::string TestResultImpl::getResultText() const
+{
+    return m_resultText;
 }
 
 float TestResultImpl::getResultValue() const

@@ -12,8 +12,8 @@ class RulesConfigUsingMap : public RulesConfig
 {
 public:
     RulesConfigUsingMap();
-    void specify( const std::string ruleName, int forTest, int onMachine, int forProject );
-    std::string getRuleNameFor( int test, int machine, int project );
+    void specify( int ruleID, int forTest, int onMachine, int forProject );
+    int getRuleIDFor( int test, int machine, int project );
     bool isConfigured( const UncontrolledResult& r );
 
 private:
@@ -24,8 +24,8 @@ private:
         bool operator<( const TestMachine& other ) const; 
     }; 
 
-    typedef std::map< TestMachine, std::string > RuleNamesKeyedOnTestMachine;
-    RuleNamesKeyedOnTestMachine m_ruleNames;
+    typedef std::map< TestMachine, int > RuleIDsKeyedOnTestMachine;
+    RuleIDsKeyedOnTestMachine m_ruleIDs;
 };
 
 }
