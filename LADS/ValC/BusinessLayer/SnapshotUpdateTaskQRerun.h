@@ -1,8 +1,10 @@
 #ifndef SNAPSHOTUPDATETASKQRERUNH
 #define SNAPSHOTUPDATETASKQRERUNH
 
+#include <boost/shared_ptr.hpp>
 #include "DBTransactionRerun.h"
 #include "DBUpdateTaskWithCallback.h"
+#include "MeetingPlace.h"
 #include "Require.h"
 #include "SnapshotUpdateTask.h"
 #include <string>
@@ -11,16 +13,24 @@
 namespace valc
 {
 
+class SnapshotUpdateTaskQRerun;
+
+void leaveMeetingPlace( SnapshotUpdateTaskQRerun* s );
+
 class SnapshotUpdateTaskQRerun : public SnapshotUpdateTask
 {
 public:
+    friend void leaveMeetingPlace( SnapshotUpdateTaskQRerun* s );
 
     typedef DBUpdateTaskWithCallback<SnapshotUpdateTaskQRerun, DBTransactionRerun> DBUpdateTaskRerun;
 
-    SnapshotUpdateTaskQRerun( int worklistID, const std::string& sampleRunID )
+    SnapshotUpdateTaskQRerun( int worklistID, const std::string& sampleRunID, const std::string& sampleDescriptor, int user )
         :
         m_worklistID( worklistID ),
-        m_dbUpdateCallbackEvent( 0 )
+        m_dbUpdateCallbackEvent( 0 ),
+        m_sampleRunID( sampleRunID ),
+        m_sampleDescriptor( sampleDescriptor ),
+        m_user( user )
     {
     }
 
@@ -29,10 +39,13 @@ public:
         CloseHandle( m_dbUpdateCallbackEvent );
     }
 
-    void notifyDBTransactionCompleted( DBTransactionRerun& dbt )  volatile
+    void notify( DBTransactionRerun& dbt )  volatile
     {
-        m_newWorklistID = dbt.newWorklistID;
-        log->log( "notifyDBTransactionCompleted" );
+        if ( dbt.success )
+            m_newWorklistID = dbt.newWorklistID;
+
+        log->logFormatted( "notifyDBTransactionCompleted: %s", dbt.success ? "OK" : "FAILED" );
+
         SetEvent( m_dbUpdateCallbackEvent );
     }
 
@@ -45,14 +58,21 @@ protected:
 
         DBTransactionRerun dbt;
         dbt.worklistID = m_worklistID;
+        dbt.userID = m_user;
+        dbt.sampleRunID = snapshot.getDatabaseIDForSampleRun(m_sampleRunID);
 
-        DBUpdateTaskRerun* task = new DBUpdateTaskRerun( this, dbt );
+        m_meetingPlace = new MeetingPlace< SnapshotUpdateTaskQRerun, DBUpdateTaskRerun, int, DBTransactionRerun >();
+
+        m_meetingPlace->arrive( this );
+
+        boost::shared_ptr<void> onBlockExit( this, leaveMeetingPlace );
+
+        DBUpdateTaskRerun* task = new DBUpdateTaskRerun( m_meetingPlace, dbt );
         
         dbTransactionHandler->queue( task );
 
         if ( WAIT_OBJECT_0 != WaitForSingleObject( m_dbUpdateCallbackEvent, 5000 ) )
         {
-            task->unregisterCallback();
             throw Exception( L"Abandoned waiting for database transaction" );
         }
         log->log( "Done updating database" );
@@ -60,20 +80,34 @@ protected:
 
     void updateSnapshot() 
     {
+        snapshot.closeOff( m_sampleRunID );
         snapshot.insertRerun( m_worklistID, m_newWorklistID );
+        snapshot.appendToQueue( m_sampleDescriptor );
     }
 
     void notifyObserver() 
     {
         snapshotObserver->notifyNewWorklistEntry    ( snapshot.getWorklistEntry( m_newWorklistID ) );
         snapshotObserver->notifyWorklistEntryChanged( snapshot.getWorklistEntry( m_worklistID ) );
+        snapshotObserver->notifySampleRunClosedOff  ( m_sampleRunID );
+        snapshotObserver->notifySampleAddedToQueue  ( m_sampleDescriptor );
     }
 
 private:
-    volatile int m_newWorklistID;
-    const    int m_worklistID;
-    HANDLE       m_dbUpdateCallbackEvent;
+    volatile int         m_newWorklistID;
+    const    int         m_worklistID;
+    const    int         m_user;
+    HANDLE               m_dbUpdateCallbackEvent;
+    const    std::string m_sampleRunID;
+    const    std::string m_sampleDescriptor;
+    MeetingPlace< SnapshotUpdateTaskQRerun, DBUpdateTaskRerun, int, DBTransactionRerun >* m_meetingPlace;
 };
+
+void leaveMeetingPlace( SnapshotUpdateTaskQRerun* s )
+{
+    int i = 0;
+    s->m_meetingPlace->leave( s, i );
+}
 
 }
 

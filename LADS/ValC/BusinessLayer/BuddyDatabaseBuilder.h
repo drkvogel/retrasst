@@ -2,6 +2,7 @@
 #define BUDDYDATABASEBUILDERH
 
 #include "InclusionRule.h"
+#include "Nullable.h"
 #include "SampleRuns.h"
 #include <string>
 #include <System.hpp>
@@ -70,6 +71,7 @@ private:
     char resActionFlag, srFAOLevelOne;
     TDateTime dateAnalysed, resDateAnalysed, resUpdateWhen, srCreatedWhen, srClosedWhen;
     int buddySampleID, machineID, resID, alphaSampleID, resTestID, resWorklistID, srSequencePosition, srID, srIsOpen;
+    paulst::Nullable<int> srGroupID;
     std::string barcode, databaseName, sampleDescriptor, resText, sampleRunID;
     float resValue;
     bool hasResult, hasSampleRun;

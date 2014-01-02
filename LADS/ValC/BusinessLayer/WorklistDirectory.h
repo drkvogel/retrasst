@@ -20,6 +20,9 @@ public:
     };
 
     virtual ~WorklistDirectory();
+    /*
+        Returns NULL if not found.
+    */
     virtual const WorklistEntry* get( int id ) const = 0;
     /*
         f gets invoked for every WorklistEntry with the specified sampleDescriptor, or, if sampleDescriptor is empty,

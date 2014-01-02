@@ -4,7 +4,7 @@
 #pragma hdrstop
 
 #include "RatTanksSignIn.h"
-#include <regex>
+// #include <regex>
 #include "RatTanksdatabase.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)

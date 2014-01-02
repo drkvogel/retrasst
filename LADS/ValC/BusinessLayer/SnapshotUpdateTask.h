@@ -1,6 +1,7 @@
 #ifndef SNAPSHOTUPDATETASKH
 #define SNAPSHOTUPDATETASKH
 
+#include "API.h"
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include "SnapshotUpdateHandle.h"
@@ -40,9 +41,22 @@ protected:
     void doStuff()
     {
         boost::shared_ptr<void> setDoneSignalOnBlockExit( static_cast<void*>(0), boost::bind( setSignal, doneSignal ) );
-        updateDatabase();
-        updateSnapshot();
-        notifyObserver();
+        try
+        {
+            updateDatabase();
+            updateSnapshot();
+            notifyObserver();
+        }
+        catch( const Exception& e )
+        {
+            snapshotObserver->notifyUpdateFailed( AnsiString( e.Message.c_str() ).c_str() );
+            throw;
+        }
+        catch( ... )
+        {
+            snapshotObserver->notifyUpdateFailed( "Unspecified exception" );
+            throw;
+        }
     }
 
     virtual void updateDatabase() = 0;

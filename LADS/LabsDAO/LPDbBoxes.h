@@ -24,7 +24,7 @@ class LPDbBoxName : public LPDbID
 	std::vector< std::string > cryovials;
 
 	const LCDbBoxSize * getLayout() const;
-	bool needsNewID() const;
+	bool needsNewID( LQuery & cQuery ) const;
 
 public:
 
@@ -57,14 +57,14 @@ public:
 	short addCryovial( const std::string & barcode );
 	const std::vector< std::string > & getCryovials() const { return cryovials; }
 
-	bool create( const LPDbBoxType & type, LQuery query );
+	bool create( const LPDbBoxType & type, LQuery pQuery, LQuery cQuery );
 	void findSpace( const LPDbBoxType & type, LQuery query );
-	bool saveRecord( LQuery query );
+	bool saveRecord( LQuery & pQuery, LQuery & cQuery );
 //	bool addEventRecord( LQuery query, const LCDbObject * event, const std::string & text );
 	void addCryovials( LQuery & pq );
 	void checkFilledBy( LQuery & pq );
 
-	void confirmAllocation( LQuery pQuery );
+	void confirmAllocation( LQuery pQuery, LQuery cQuery );
 	bool matchesGroup( LQuery pQuery );
 
 	static const LCDbObject * findEvent( const char * eventName );

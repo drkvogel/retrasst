@@ -13,7 +13,7 @@
 //		28 July, 2010:	Added job ID as link to owner (LCDbRetrievalJob)
 //		15 Nov 2012:    Don't use storeman_ddb after all - it's unreliable
 //						Use box_store + c_slot_allocation for compatibility
-//      16 Dec 13, NG:	Updated to use c_ tables for database v2.7.3
+//      16 Dec 13, NG:	Updated to use c_ tables for database v2.7.2
 //---------------------------------------------------------------------------
 
 #include <vcl.h>

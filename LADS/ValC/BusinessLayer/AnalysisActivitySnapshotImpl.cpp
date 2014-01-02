@@ -12,37 +12,54 @@
 #include "SampleRunIDResolutionService.h"
 #include "SnapshotUpdateTaskQRerun.h"
 #include "WorklistEntries.h"
+#include "WorklistLinks.h"
 
 namespace valc
 {
 
 AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl( 
-    const BuddyDatabase* bdb, 
-    const ResultDirectory* rd, const WorklistEntries* wd, DBUpdateSchedule* dbUpdateSchedule,
-    SampleRunIDResolutionService* sampleRunIDResolutionService,
-    ApplicationContext* appContext,
-    int pendingUpdateWaitTimeoutSecs )
+    const BuddyDatabase*            bdb, 
+    const ResultDirectory*          rd, 
+    WorklistEntries*                wd, 
+    WorklistLinks*                  wl,
+    DBUpdateSchedule*               dbUpdateSchedule,
+    SampleRunIDResolutionService*   sampleRunIDResolutionService,
+    ApplicationContext*             appContext,
+    int                             pendingUpdateWaitTimeoutSecs )
     : 
-    m_buddyDatabase     ( bdb ),
-    m_log               ( appContext->log),
-    m_resultDirectory   ( rd ),
-    m_worklistEntries ( wd ),
-    m_dbUpdateSchedule  ( dbUpdateSchedule ),
-    m_sampleRunIDResolutionService( sampleRunIDResolutionService ),
-    m_appContext( appContext ),
-    m_resultAttributes( appContext->resultAttributes ),
-    m_dbTransactionHandler( appContext->databaseUpdateThread ),
-    m_pendingUpdateWaitTimeoutSecs( pendingUpdateWaitTimeoutSecs ),
-    m_updateHandle( this ),
-    m_snapshotUpdateThread( appContext->databaseUpdateThread, m_updateHandle, appContext->log, appContext->taskExceptionUserAdvisor )
+    m_buddyDatabase                 ( bdb ),
+    m_log                           ( appContext->log),
+    m_resultDirectory               ( rd ),
+    m_worklistEntries               ( wd ),
+    m_worklistLinks                 ( wl ),
+    m_dbUpdateSchedule              ( dbUpdateSchedule ),
+    m_sampleRunIDResolutionService  ( sampleRunIDResolutionService ),
+    m_appContext                    ( appContext ),
+    m_resultAttributes              ( appContext->resultAttributes ),
+    m_dbTransactionHandler          ( appContext->databaseUpdateThread ),
+    m_pendingUpdateWaitTimeoutSecs  ( pendingUpdateWaitTimeoutSecs ),
+    m_updateHandle                  ( this ),
+    m_snapshotUpdateThread  ( appContext->databaseUpdateThread, m_updateHandle, appContext->log, appContext->taskExceptionUserAdvisor ),
+    m_worklistRelativeImpl          ( wl )
 {
     BOOST_FOREACH( const SampleRun& sr, *m_buddyDatabase )
     {
-        m_localEntries.push_back( LocalRun( sr.getSampleDescriptor(), sr.getID() ) );
+        LocalRun lr( sr.getSampleDescriptor(), sr.getID() );
+        m_localRunImpl.introduce( lr, sr.isOpen() );
+        m_localEntries.push_back( lr );
     }
 
     QueuedSamplesBuilderFunction buildQueue( new QueueBuilderParams( bdb, wd, m_appContext->clusterIDs ) );
     buildQueue( &m_queuedSamples ); 
+}
+
+AnalysisActivitySnapshotImpl::~AnalysisActivitySnapshotImpl()
+{
+    delete m_buddyDatabase;
+    delete m_resultDirectory;
+    delete m_worklistEntries;
+    delete m_worklistLinks;
+    delete m_dbUpdateSchedule;
 }
 
 bool AnalysisActivitySnapshotImpl::compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID )    const
@@ -106,9 +123,9 @@ Range<WorklistEntryIterator> AnalysisActivitySnapshotImpl::getWorklistEntries( c
     return m_worklistEntries->equal_range( sampleDescriptor );
 }
 
-HANDLE AnalysisActivitySnapshotImpl::queueForRerun( int worklistID, const std::string& sampleRunID )
+HANDLE AnalysisActivitySnapshotImpl::queueForRerun( int worklistID, const std::string& sampleRunID, const std::string& sampleDescriptor )
 {
-    SnapshotUpdateTask* sut = new SnapshotUpdateTaskQRerun( worklistID, sampleRunID );
+    SnapshotUpdateTask* sut = new SnapshotUpdateTaskQRerun( worklistID, sampleRunID, sampleDescriptor, m_appContext->user );
     
     HANDLE h = sut->getDoneSignal();
 
@@ -120,6 +137,11 @@ HANDLE AnalysisActivitySnapshotImpl::queueForRerun( int worklistID, const std::s
 void AnalysisActivitySnapshotImpl::setObserver( SnapshotObserver* so )
 {
     m_snapshotUpdateThread.setSnapshotObserver( so );
+}
+
+WorklistRelative AnalysisActivitySnapshotImpl::viewRelatively( const WorklistEntry* e ) const
+{
+    return m_worklistRelativeImpl.wrap( e );
 }
 
 bool AnalysisActivitySnapshotImpl::waitForActionsPending( long millis )

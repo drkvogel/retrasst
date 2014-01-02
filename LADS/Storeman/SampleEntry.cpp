@@ -193,10 +193,11 @@ void __fastcall TfrmRetrieveMain::btnDestinationClick(TObject *Sender)
 		throw Exception( "No matching formation type" );
 	}
 
-	LQuery query = LIMSDatabase::getProjectDb();
+	LQuery cQuery = LIMSDatabase::getCentralDb();
+	LQuery pQuery = LIMSDatabase::getProjectDb();
 	LPDbBoxName box;
 	for( std::vector<GridEntry>::iterator ge = rows.begin(); ge != rows.end(); ++ ge ) {
-		if( !box.hasSpace() && !box.create( *boxType, query ) ) {
+		if( !box.hasSpace() && !box.create( *boxType, pQuery, cQuery ) ) {
 			throw Exception( "Cannot create destination box" );
 		}
 		ge -> new_box = box.getName();

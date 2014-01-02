@@ -177,12 +177,15 @@ bool LPDbBoxNames::readFilled( LQuery pq )
 //  Set up an empty box of the given type with a new name and ID
 //---------------------------------------------------------------------------
 
-bool LPDbBoxName::create( const LPDbBoxType & type, LQuery query )
+bool LPDbBoxName::create( const LPDbBoxType & type, LQuery pQuery, LQuery cQuery )
 {
-	const LCDbProject & proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() );
 	saved = false;
-	unsigned code = abs( claimNextID( query ) );
-	char buff[ 64 ];
+	do { claimNextID( pQuery );
+	} while( needsNewID( cQuery ) );
+	unsigned code = abs( getID() );
+
+	const LCDbProject & proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() );
+	char buff[ 32 ];
 	std::sprintf( buff, "%s%0.6u", proj.getStudyCode().c_str(), code );
 	barcode = buff;
 	AnsiString projName = proj.getName().c_str();
@@ -197,7 +200,7 @@ bool LPDbBoxName::create( const LPDbBoxType & type, LQuery query )
 	filledBy = 0;
 	cryovials.clear();
 	status = EMPTY;
-	return saveRecord( query );
+	return saveRecord( pQuery, cQuery );
 }
 
 //---------------------------------------------------------------------------
@@ -278,10 +281,10 @@ short LPDbBoxName::addCryovial( const std::string & barcode )
 //	Confirm the allocation of cryovials in box_name and related tables
 //---------------------------------------------------------------------------
 
-void LPDbBoxName::confirmAllocation( LQuery pQuery )
+void LPDbBoxName::confirmAllocation( LQuery pQuery, LQuery cQuery )
 {
 	status = CONFIRMED;
-	saveRecord( pQuery );
+	saveRecord( pQuery, cQuery );
 
 	LPDbCryovialStores contents;
 	contents.confirmAllocation( pQuery, getID() );
@@ -291,30 +294,30 @@ void LPDbBoxName::confirmAllocation( LQuery pQuery )
 //  Add entry for this box to box_name table, ready to copy to c_box_name
 //---------------------------------------------------------------------------
 
-bool LPDbBoxName::saveRecord( LQuery query )
+bool LPDbBoxName::saveRecord( LQuery & pQuery, LQuery & cQuery )
 {
 	if( saved ) {
-		query.setSQL( "update box_name set box_capacity = :cap, status = :sts,"
+		pQuery.setSQL( "update box_name set box_capacity = :cap, status = :sts,"
 					" time_stamp = 'now', note_exists = note_exists + :nex, process_cid = :pid"
 					" where box_cid = :bid" );
 	} else {
-		while( needsNewID() ) {
-			claimNextID( query );
+		while( needsNewID( cQuery ) ) {
+			claimNextID( pQuery );
 		}
-		query.setSQL( "insert into box_name (box_cid, box_type_cid, box_capacity,"
+		pQuery.setSQL( "insert into box_name (box_cid, box_type_cid, box_capacity,"
 					" external_name, status, time_stamp, process_cid, note_exists)"
 ///// fixme - include barcode after upgrade
 					" values ( :bid, :btid, :cap, :exn, :sts, 'now', :pid, :nex)" );
-		query.setParam( "exn", name );
-		query.setParam( "btid", boxTypeID );
+		pQuery.setParam( "exn", name );
+		pQuery.setParam( "btid", boxTypeID );
 	}
 
-	query.setParam( "bid", getID() );
-	query.setParam( "cap", getSpace() );
-	query.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
-	query.setParam( "sts", status );
-	query.setParam( "nex", 0 );
-	if( query.execSQL() ) {
+	pQuery.setParam( "bid", getID() );
+	pQuery.setParam( "cap", getSpace() );
+	pQuery.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
+	pQuery.setParam( "sts", status );
+	pQuery.setParam( "nex", 0 );
+	if( pQuery.execSQL() ) {
 		saved = true;
 		return true;
 	} else {
@@ -326,14 +329,13 @@ bool LPDbBoxName::saveRecord( LQuery query )
 //	check the box ID is valid and another box doesn't have the same number
 //---------------------------------------------------------------------------
 
-bool LPDbBoxName::needsNewID() const
+bool LPDbBoxName::needsNewID( LQuery & cQuery ) const
 {
 	if( getID() != 0 ) {
-		LQuery cq( LIMSDatabase::getCentralDb() );
-		cq.setSQL( "select count(*) from c_box_name where box_cid in (:pid, :nid)" );
-		cq.setParam( "pid", getID() );
-		cq.setParam( "nid", -getID() );
-		if( cq.open() && cq.readInt( 0 ) == 0 ) {
+		cQuery.setSQL( "select count(*) from c_box_name where box_cid in (:pid, :nid)" );
+		cQuery.setParam( "pid", getID() );
+		cQuery.setParam( "nid", -getID() );
+		if( cQuery.open() && cQuery.readInt( 0 ) == 0 ) {
 			return false;
 		}
 	}

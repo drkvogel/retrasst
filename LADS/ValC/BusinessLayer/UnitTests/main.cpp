@@ -20,6 +20,7 @@
 #include "RuleEngineTest.h"
 #include "RuleLoaderTest.h"
 #include "SampleRunIDResolutionServiceTest.h"
+#include "WorklistRelativeTest.h"
 
 
 void pause()

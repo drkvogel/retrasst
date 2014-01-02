@@ -724,7 +724,7 @@ void TfrmRatTanksMainDialog::scan()
 
 //Check the activity flag.. put a note on it if you can't rationalise.
 			std::string activityFlag = data["activity_flags"];
-			if (!((activityFlag== "5") || (activityFlag== "6")))
+			if (!((activityFlag== "6") || (activityFlag== "7") || (activityFlag== "0")))
 				s = L"[Analyse only] " + s;
 			Project_ComboBox->AddItem(s,ValueHolder);
 		}

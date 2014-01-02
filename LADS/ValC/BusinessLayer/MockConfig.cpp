@@ -5,6 +5,8 @@ namespace valc
 
 MockConfig::MockConfig()
 {
+    addProperty( "QueryForSampleRun"                , "QueryForSampleRun %d" );
+    addProperty( "SQLStmtCloseSampleRun"            , "SQLStmtCloseSampleRun %d %d" );
     addProperty( "SQLStmtInsertWorklistRelation"    , "SQLStmtInsertWorklistRelation"  );
     addProperty( "SQLStmtNextWorklistID"            , "SQLStmtNextWorklistID"  );
     addProperty( "SQLStmtInsertRerun"               , "SQLStmtInsertRerun"  );
@@ -24,6 +26,9 @@ MockConfig::MockConfig()
     addProperty( "ClusterIDsQuery"                  , "LoadClusterIDs" );
     addProperty( "ClusterIDsConnectionString"       , "Owt" );
     addProperty( "ClusterIDsSessionReadLockSetting" , "Owt" );
+    addProperty( "WorklistRelationQuery"                    , "LoadWorklistRelation" );
+    addProperty( "WorklistRelationConnectionString"         , "Owt" );
+    addProperty( "WorklistRelationSessionReadLockSetting"   , "Owt" );
     addProperty( "ProjectsQuery"                    , "LoadProjects" );
     addProperty( "ProjectsConnectionString"         , "Owt" );
     addProperty( "ProjectsSessionReadLockSetting"   , "Owt" );

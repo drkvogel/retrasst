@@ -74,7 +74,7 @@ namespace tut
         }
     };
 
-    typedef test_group<ForceReloadTestFixture, 24> ForceReloadTestGroup;
+    typedef test_group<ForceReloadTestFixture, 25> ForceReloadTestGroup;
 	ForceReloadTestGroup testGroupForceReload( "ForceReload tests");
 	typedef ForceReloadTestGroup::object testForceReload;
 
@@ -163,10 +163,10 @@ namespace tut
 			;
 		MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n")
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,\n")
 			;
 
         ForceReloadTestFixture s( true );
@@ -217,8 +217,8 @@ namespace tut
 			;
 		MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,res ,a,date analysed      ,restx,update when      ,cbw
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.8 ,0,27-06-2013 11:57:47,1.8,27-06-2013 10:57:49,-36845,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882432,-1031390,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36845,,,,,,\n")
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.8 ,0,27-06-2013 11:57:47,1.8,27-06-2013 10:57:49,-36845,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882432,-1031390,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36845,,\n")
 			;
 
         ForceReloadTestFixture s( true );
@@ -312,8 +312,8 @@ namespace tut
             };
 
         //                                runID, isOpen, when created       , when closed, sequence position,fao_level_one
-        std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,",
-                                         ",,,,,," };
+        std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,,",
+                                         ",,,,,,," };
 
         MockConnectionFactory::prime( BUDDYDB_QRY, 
             tests[0] + sampleRunData[0] + "\n" +
@@ -381,9 +381,9 @@ namespace tut
 "882291,118507091,27-06-2013 11:55:36,REVEAL,432560,-1019349,882432,-1031391,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36846,"
             };
 
-        //                                runID, isOpen, when created       , when closed      ,sequence position,fao_level_one
-        std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y,",
-                                         ",,,,,," };
+        //                                runID, isOpen, when created       , when closed      ,sequence position,fao_level_one,group_id
+        std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y,,",
+                                         ",,,,,,," };
 
         MockConnectionFactory::prime( BUDDYDB_QRY,
             tests[0] + sampleRunData[0] + "\n" +
@@ -449,9 +449,9 @@ namespace tut
 "882291,118507091,27-06-2013 11:55:36,REVEAL,432560,-1019349,882432,-1031391,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36846,"
             };
 
-        //                                runID, isOpen, when created       , when closed      ,sequence position,fao_level_one
-        std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y,",
-                                         "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y," };
+        //                                runID, isOpen, when created       , when closed      ,sequence position,fao_level_one,group_id
+        std::string sampleRunData[2] = { "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y,,",
+                                         "   12,      0,27-06-2013 11:42:36,27-06-2013 11:42:36,882290,y,," };
 
         MockConnectionFactory::prime( BUDDYDB_QRY,
             tests[0] + sampleRunData[0] + "\n" +
@@ -501,10 +501,10 @@ namespace tut
 
         const std::string buddyDB(
 //bsid ,barcode ,date analysed      ,dbname,sample,macine  ,res id,test,result,a,date analysed      ,restx,update when        ,
-"882291,11850701,27-06-2013 11:42:36,REVEAL,432561,-1019349,1,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882292,11850702,27-06-2013 11:42:36,REVEAL,432562,-1019349,2,-1031390,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882293,11850703,27-06-2013 11:42:36,REVEAL,432563,-1019349,3,-1031390,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882294,11850704,27-06-2013 11:42:36,REVEAL,432564,-1019349,4,-1031390,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n");
+"882291,11850701,27-06-2013 11:42:36,REVEAL,432561,-1019349,1,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n"
+"882292,11850702,27-06-2013 11:42:36,REVEAL,432562,-1019349,2,-1031390,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,\n"
+"882293,11850703,27-06-2013 11:42:36,REVEAL,432563,-1019349,3,-1031390,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,\n"
+"882294,11850704,27-06-2013 11:42:36,REVEAL,432564,-1019349,4,-1031390,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,\n");
 
         const std::string inclusionRule[2] = { 
             "function accept ( b, d, a, f ) return true  end",
@@ -561,7 +561,7 @@ namespace tut
 			;
 		MockConnectionFactory::prime( BUDDYDB_QRY, 
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
-"992431,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n")
+"992431,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n")
 			;
         MockConnectionFactory::prime( NONLOCALRESULTS_QRY,
 //barcode, machine ,sample,dbname,result_id,test_id , res_value, act_flg,date_analysed      , res_text, update_when        ,rec_no,project
@@ -646,10 +646,10 @@ namespace tut
 "-36848,-1019430,118507091,-1031386,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,10,C,0.000,882427,\n";
         const std::string BUDDYDB = // Data same as for test 3, but dbname is 'Unknown'
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
-"882290,118507091,27-06-2013 11:42:36,Unknown,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,Unknown,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,Unknown,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,Unknown,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n";
+"882290,118507091,27-06-2013 11:42:36,Unknown,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n"
+"882290,118507091,27-06-2013 11:42:36,Unknown,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,\n"
+"882290,118507091,27-06-2013 11:42:36,Unknown,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,\n"
+"882290,118507091,27-06-2013 11:42:36,Unknown,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,\n";
 
         const std::string exceptionalDataHandlers[3] = {
 " function canProvideProjectIDFor         () return false end\n"
@@ -704,10 +704,10 @@ namespace tut
         const std::string WORKLIST = "";
         const std::string BUDDYDB = // Data same as for test 3
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n";
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,\n";
 
         const char* exceptionalDataHandler = 
 " function canProvideProjectIDFor         () return false end\n"
@@ -761,10 +761,10 @@ namespace tut
 
         const std::string BUDDYDB = // Data same as for test 3
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n";
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,\n"
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,\n";
 
         MockConnectionFactory::reset();
 
@@ -808,10 +808,10 @@ namespace tut
 
 		MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n" )
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n"
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,\n"
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,\n"
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,\n" )
 			;
         
 
@@ -883,7 +883,7 @@ namespace tut
 
 		MockConnectionFactory::prime( BUDDYDB_QRY, 
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n" );
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n" );
         
 
         MockConnectionFactory::prime( RULECONFIG_QRY, "-1031390,-1019349,-1234,121,\n" ); // Note: different test id from above.
@@ -947,10 +947,10 @@ namespace tut
 
 		MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,,,,,\n" );
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n"
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,\n"
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,\n"
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,\n" );
 
         MockConnectionFactory::prime( RULECONFIG_QRY,
                "-1031390,-1019349,-1234,1,\n" 
@@ -1058,8 +1058,8 @@ namespace tut
 
 		MockConnectionFactory::prime( BUDDYDB_QRY, 
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882291,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n" );
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n"
+"882291,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,\n" );
 
         ForceReloadTestFixture s(true);
 
@@ -1127,8 +1127,8 @@ namespace tut
 
 		MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n" );
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n"
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,\n" );
 
         ForceReloadTestFixture s(true);
 
@@ -1175,9 +1175,9 @@ namespace tut
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,"
             };
 
-        //                                runID, isOpen, when created       , when closed, sequence position,fao_level_one
-        std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,",
-                                         ",,,,,," };
+        //                                runID, isOpen, when created       , when closed, sequence position,fao_level_one,group_id
+        std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,,",
+                                         ",,,,,,," };
 
         MockConnectionFactory::prime( BUDDYDB_QRY, 
             tests[0] + sampleRunData[0] + "\n" +
@@ -1229,9 +1229,9 @@ namespace tut
 "882291,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,"
             };
 
-        //                                runID, isOpen, when created       , when closed, sequence position,fao_level_one
-        std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,",
-                                         ",,,,,," };
+        //                                runID, isOpen, when created       , when closed, sequence position,fao_level_one,group_id
+        std::string sampleRunData[2] = { "   12,      1,27-06-2013 11:42:36,,882290,y,,",
+                                         ",,,,,,," };
 
         MockConnectionFactory::prime( BUDDYDB_QRY, 
             tests[0] + sampleRunData[0] + "\n" +
@@ -1263,7 +1263,7 @@ namespace tut
 
 		MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
-"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n" );
+"882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n" );
 
         ForceReloadTestFixture s(true);
 
@@ -1354,8 +1354,8 @@ namespace tut
             MockConnectionFactory::prime( BUDDYDB_QRY,
     paulst::format(
     //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
-    "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,\%d     ,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n"
-    "882291,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,\%d     ,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,,,,,\n",
+    "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,\%d     ,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n"
+    "882291,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,\%d     ,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,\n",
         idOfFirstTest[testCase], idOfSecondTest[testCase] ) );
 
             ForceReloadTestFixture s(true);
@@ -1402,7 +1402,99 @@ namespace tut
             ensure_equals( listPosition, 2 );
         }
     }
-   
+ 
+    template<>
+	template<>
+	void testForceReload::test<25>()
+	{
+		set_test_name("ForceReload - loading from worklist_relation.");
+
+		using namespace valc;
+
+        std::vector<WorklistRelative> children;
+
+        const std::string worklist(
+//rec  mac   barcode   test     group     c sample project p prof                  timestamp         seq s dil   result
+"-1,-1019430,11850701,-1031390,-12750394,0,432561,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,1,\n"
+"-2,-1019430,11850702,-1031390,-12750394,0,432562,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,12,C,0.000,2,\n"
+"-3,-1019430,11850703,-1031390,-12750394,0,432563,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,13,C,0.000,3,\n"
+"-4,-1019430,11850704,-1031390,-12750394,0,432564,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,10,C,0.000,4,\n");
+
+        const std::string buddyDB(
+//bsid ,barcode ,date analysed      ,dbname,sample,macine  ,res id,test,result,a,date analysed      ,restx,update when        ,
+"882291,11850701,27-06-2013 11:42:36,REVEAL,432561,-1019349,1,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n"
+"882292,11850702,27-06-2013 11:42:36,REVEAL,432562,-1019349,2,-1031390,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,\n"
+"882293,11850703,27-06-2013 11:42:36,REVEAL,432563,-1019349,3,-1031390,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,\n"
+"882294,11850704,27-06-2013 11:42:36,REVEAL,432564,-1019349,4,-1031390,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,\n");
+
+        MockConnectionFactory::reset();
+
+        MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+        MockConnectionFactory::prime( PROJECTS_QRY, "-832455,reveal,ldb25,\n" );
+        MockConnectionFactory::prime( WORKLIST_QRY, worklist );
+        MockConnectionFactory::prime( BUDDYDB_QRY,  buddyDB );
+        MockConnectionFactory::prime( "LoadWorklistRelation",  
+            "-2,-4,r,\n"
+            "-1,-2,r,\n"
+            "-4,-5,r,\n"
+            );
+
+        ForceReloadTestFixture s;
+        s.config.edit( "WorklistRelationQuery", "LoadWorklistRelation" );
+        s.init(); 
+
+        ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 4 );
+
+        LocalEntryIterator localEntries = s->localBegin();
+
+        LocalRun lr = boost::get<LocalRun>(*localEntries);
+
+		Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
+
+        const WorklistEntry* e = worklistEntry( wles, -1 );
+
+        ensure_equals( e->getID(), -1 );
+
+        WorklistRelative wr = s->viewRelatively( e );
+
+        ensure_equals( wr.getID(), -1 );
+        ensure       ( wr.isBoundToWorklistEntryInstance() );
+        ensure_equals( wr->getID(), -1 );
+        ensure       ( wr.hasChildren() );
+        children = wr.getChildren();
+        ensure_equals( children.size(), 1 );
+        wr = children.at(0);
+        ensure_equals( wr.getID(), -2 );
+        ensure       ( wr.isBoundToWorklistEntryInstance() );
+        ensure_equals( wr->getID(), -2 );
+        ensure       ( wr.hasChildren() );
+        children = wr.getChildren();
+        ensure_equals( children.size(), 1 );
+        wr = children.at(0);
+        ensure_equals( wr.getID(), -4 );
+        ensure       ( wr.isBoundToWorklistEntryInstance() );
+        ensure_equals( wr->getID(), -4 );
+        ensure       ( wr.hasChildren() );
+        children = wr.getChildren();
+        ensure_equals( children.size(), 1 );
+        wr = children.at(0);
+        ensure_equals( wr.getID(), -5 );
+        ensure_not   ( wr.isBoundToWorklistEntryInstance() );
+        ensure_not   ( wr.hasChildren() );
+
+        localEntries += 2;
+        lr = boost::get<LocalRun>(*localEntries);
+
+		wles = s->getWorklistEntries( lr.getSampleDescriptor() );
+
+        wr = s->viewRelatively( worklistEntry( wles, -3 ) );
+
+        ensure_equals( wr.getID(), -3 );
+        ensure       ( wr.isBoundToWorklistEntryInstance() );
+        ensure_equals( wr->getID(), -3 );
+        ensure_not   ( wr.hasChildren() );
+	}
+  
 };
 
 #endif

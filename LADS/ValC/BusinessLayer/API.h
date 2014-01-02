@@ -175,6 +175,10 @@ struct Range : public std::pair<Iter, Iter>
 class LocalRun
 {
 public:
+
+    struct Impl;
+    friend Impl;
+
     LocalRun();
     LocalRun( const LocalRun& );
     LocalRun( const std::string& sampleDescriptor, const std::string& id );
@@ -190,8 +194,14 @@ public:
         Returns an identifier for this sample-run.
     */
     std::string getRunID() const;
+
+    /*
+        Is this run open, or has it been closed off?
+    */
+    bool isOpen() const;
 private:
     std::string m_id, m_sampleDescriptor;
+    Impl* m_impl;
 };
 
 /*
@@ -372,6 +382,47 @@ private:
     std::vector<std::string>    m_extraValues;
 };
 
+/*
+    Parent-child relationships can exist between worklist entries.
+    For example, a rerun is a 'child' of the original worklist entry.
+
+    WorklistRelative provides access to such data. Instances of WorklistRelative should be sourced 
+    from AnalysisActivitySnapshot, via the method 'viewRelatively'.
+
+    An instance of WorklistRelative always describes a worklist entry.  However, that 
+    worklist entry may not have been loaded from the database.  Examples of when a worklist entry may not have been loaded:
+        a) The worklist entry has status 'T' ('transmitted to project')
+        b) The worklist entry is associated with a different cluster
+    Use 'isBoundToWorklistEntryInstance' to test whether or not the worklist entry has been loaded.
+    If this returns 'true', then it is safe to use '->' to access methods on the WorklistEntry interface.
+*/
+class WorklistRelative
+{
+public:
+
+    struct Impl;
+    friend Impl;
+
+    WorklistRelative( int id = 0, const WorklistEntry* entry = 0, char howCreated = '\0' );
+    WorklistRelative( const WorklistRelative& );
+    WorklistRelative&               operator=( const WorklistRelative& );
+    bool                            isBoundToWorklistEntryInstance()    const;
+    const WorklistEntry*            operator->()                        const;
+    bool                            hasChildren()                       const;
+    bool                            hasParent()                         const;
+    std::vector<WorklistRelative>   getChildren()                       const;
+    int                             getID()                             const;
+    WorklistRelative                getParent()                         const;
+    char                            getRelation()                       const;
+private:
+    const WorklistEntry* m_worklistEntry;
+    char m_howCreated;// triggered? rerun?
+    int  m_id;
+
+    const Impl* m_impl;
+};
+
+
 class SnapshotObserver;
 
 /*  
@@ -435,6 +486,12 @@ public:
     virtual QueuedSampleIterator            queueBegin()                                                    const = 0;
     virtual QueuedSampleIterator            queueEnd()                                                      const = 0;
 
+    /*
+        Returns a 'wrapper' that supports queries regarding how a worklist entry was 
+        created, whether it has a parent, whether it has children, etc.
+    */
+    virtual WorklistRelative                viewRelatively( const WorklistEntry* e )                        const = 0;
+
     /* Returns the RuleResults for the specified result.  See hasRuleResults below. */
     virtual RuleResults                     getRuleResults( int resultID )                                  const = 0;
 
@@ -473,7 +530,7 @@ public:
 
         Changes made to the snaphost object model are broadcast via SnapshotObserver.
     */
-    virtual HANDLE                          queueForRerun( int worklistID, const std::string& sampleRunID ) = 0;
+    virtual HANDLE                       queueForRerun( int worklistID, const std::string& sampleRunID, const std::string& sampleDescriptor ) = 0;
 
     /*
         Use this method to specifiy a callback interface on which to receive notifications of updates to the snapshot.
@@ -507,26 +564,6 @@ private:
 class BuddyDatabase;
 class Projects;
 class ResultIndex;
-
-/*
-    Parent-child relationships can exist between worklist entries.
-    For example, a rerun is a 'child' of the original worklist entry.
-
-    WorklistEntry has methods to support access to this data, 
-    i.e. 'getParent' and 'getChildren'. These methods return 
-    instances of RelatedEntry.
-
-    RelatedEntry describes a WorklistEntry that is related 
-    to the WorklistEntry from which it was obtained. It also 
-    describes the reason for the existence of the relationship.
-*/
-struct RelatedEntry
-{
-    const WorklistEntry* related;
-    char howRelated;// triggered? rerun?
-};
-
-typedef std::vector< RelatedEntry > RelatedEntries;
 
 class TestResult;
 class TestResultIteratorImpl;
@@ -586,10 +623,6 @@ public:
     */
     virtual int                         getCategoryID()             const = 0;
     /*
-        Refer to documentation on RelatedEntry
-    */
-    virtual RelatedEntries              getChildren()               const = 0;
-    /*
         c_buddy_worklist.diluent
     */
     virtual float                       getDiluent()                const = 0;
@@ -602,24 +635,17 @@ public:
     */
     virtual int                         getID()                     const = 0;
     /*
-        Returns a list of the IDs of worklist entries 
-        that are related to this one. For info re. 
-        what 'related' means in this context,
-        refer to documentation on RelatedEntry.
-    */
-    virtual IntList                     getIDsOfRelatedEntries()    const = 0;
-    /*
         c_buddy_worklist.machine_cid
     */
     virtual int                         getMachineID()              const = 0;
     /*
-        Refer to documentation on RelatedEntry.
-    */
-    virtual RelatedEntry                getParent()                 const = 0;
-    /*
         c_buddy_worklist.profile_id
     */
     virtual int                         getProfileID()              const = 0;
+    /*
+        c_buddy_worklist.profile_name
+    */
+    virtual std::string                 getProfileName()            const = 0;
     /*
         c_buddy_worklist.project_cid
     */
@@ -655,8 +681,6 @@ public:
         c_buddy_worklist.status
     */
     virtual char                        getStatus()                 const = 0;
-    virtual bool                        hasChildren()               const = 0;
-    virtual bool                        hasParent()                 const = 0;
 private:
     WorklistEntry( const WorklistEntry& );
     WorklistEntry& operator=( const WorklistEntry& );
@@ -731,6 +755,7 @@ public:
     virtual ~SnapshotObserver();
     virtual void notifyWorklistEntryChanged ( const WorklistEntry* we ) = 0;
     virtual void notifyNewWorklistEntry     ( const WorklistEntry* we ) = 0;
+    virtual void notifySampleAddedToQueue   ( const std::string& sampleDescriptor ) = 0;
     virtual void notifySampleRunClosedOff   ( const std::string& runID ) = 0;
     virtual void notifyUpdateFailed         ( const char* errorMsg ) = 0;
 };

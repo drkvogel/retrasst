@@ -161,16 +161,6 @@ public:
 };
 
 
-class ExceptionHandlingPolicy : public valc::DBUpdateExceptionHandlingPolicy
-{
-public:
-    bool empty() const { return m_msg.empty(); }
-    std::string get() const { return m_msg; }
-    void handleException( const std::string& msg ) { m_msg = msg; }
-private:
-    std::string m_msg;
-};
-
 void print( const valc::QueuedSample& qs, valc::SnapshotPtr snapshot, paulst::LoggingService* log )
 {
     using namespace valc;
@@ -245,11 +235,12 @@ int _tmain(int argc, _TCHAR* argv[])
 
         log->log( configString );
 
-        valc::InitialiseApplicationContext( localMachineID, USER_ID, configString, log.get() );
-
         QueuedWarnings warnings;
 
-        valc::SnapshotPtr s = valc::Load( &warnings );
+        valc::InitialiseApplicationContext( localMachineID, USER_ID, configString, log.get(), &warnings );
+
+
+        valc::SnapshotPtr s = valc::Load();
 
         CountingVisitor counts (s);
         PrintingVisitor printer(s, log.get());
@@ -277,19 +268,6 @@ int _tmain(int argc, _TCHAR* argv[])
         int numQueued = std::distance( s->queueBegin(), s->queueEnd() );
         
 		log->log( std::string() << "queued samples: " << numQueued << "\n" );
-
-        /*
-        log->log( "Processing updates...\n" );
-
-        ExceptionHandlingPolicy cachedExceptionMsg;
-
-        s->runPendingDatabaseUpdates( connection.get(), &cachedExceptionMsg, true );
-
-        if ( ! cachedExceptionMsg.empty() )
-        {
-            log->log( cachedExceptionMsg.get() );
-        }
-        */
 
         for ( QueuedWarnings::const_iterator i = warnings.begin(); i != warnings.end(); ++i )
         {

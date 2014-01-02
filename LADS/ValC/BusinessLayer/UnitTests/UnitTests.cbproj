@@ -227,13 +227,13 @@
             <DependentOn>..\LoadNonLocalResults.h</DependentOn>
             <BuildOrder>62</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\LoadReferencedWorklistEntries.cpp">
-            <DependentOn>..\LoadReferencedWorklistEntries.h</DependentOn>
-            <BuildOrder>33</BuildOrder>
-        </CppCompile>
         <CppCompile Include="..\LoadWorklistEntries.cpp">
             <DependentOn>..\LoadWorklistEntries.h</DependentOn>
             <BuildOrder>35</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LocalRunImpl.cpp">
+            <DependentOn>..\LocalRunImpl.h</DependentOn>
+            <BuildOrder>99</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\LuaUtil.cpp">
             <BuildOrder>76</BuildOrder>
@@ -385,6 +385,18 @@
         <CppCompile Include="..\WorklistEntryIteratorImpl.cpp">
             <DependentOn>..\WorklistEntryIteratorImpl.h</DependentOn>
             <BuildOrder>54</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\WorklistLinks.cpp">
+            <DependentOn>..\WorklistLinks.h</DependentOn>
+            <BuildOrder>97</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\WorklistNode.cpp">
+            <DependentOn>..\WorklistNode.h</DependentOn>
+            <BuildOrder>98</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\WorklistRelativeImpl.cpp">
+            <DependentOn>..\WorklistRelativeImpl.h</DependentOn>
+            <BuildOrder>98</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\..\paulst\AcquireCriticalSection.cpp">
             <DependentOn>..\..\..\..\paulst\AcquireCriticalSection.h</DependentOn>

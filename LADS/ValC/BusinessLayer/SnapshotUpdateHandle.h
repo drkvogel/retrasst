@@ -13,6 +13,9 @@ public:
     SnapshotUpdateHandle( AnalysisActivitySnapshotImpl* snapshot = 0 );
     SnapshotUpdateHandle( const SnapshotUpdateHandle& );
     SnapshotUpdateHandle& operator=( const SnapshotUpdateHandle& );
+    void                 appendToQueue   ( const std::string& sampleDesriptor );
+    void                 closeOff        ( const std::string& sampleRunID );
+    int                  getDatabaseIDForSampleRun( const std::string& sampleRunID );
     const WorklistEntry* getWorklistEntry( int id );
     void                 insertRerun     ( int existingWorklistID, int newWorklistID );
 

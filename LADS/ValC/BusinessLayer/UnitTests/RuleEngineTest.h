@@ -422,6 +422,7 @@ namespace tut
             catch( const Exception& e )
             {
                 AnsiString ansiStr( e.Message.c_str() );
+                printf( "Exception: %s\n", ansiStr.c_str() );
                 ensure( ansiStr.c_str(), false );
             }
         }
@@ -430,6 +431,7 @@ namespace tut
         ensure_equals( "expect 1 connection instance closed", connectionsClosed, 1 );
 	}
 
+/*
     template<>
 	template<>
 	void testRuleEngine::test<3>()
@@ -608,7 +610,7 @@ namespace tut
             const std::string configName = paulst::format( "configRuleForTest%d", testID );
             char config[1024];
             ensure( std::sprintf( config, configScriptTemplate, testID, testID, configName.c_str(), testID ) );
-            testFixture.rulesConfig.specify( ruleID, testID, 8/*machineID*/, 4/*projectID*/ );
+            testFixture.rulesConfig.specify( ruleID, testID, 8, 4 );// 8:machineID, 4:projectID
             testFixture.ruleLoader.add( RuleDescriptor( 1, ruleID, configName, "" ), config );
         }
 
@@ -1034,7 +1036,7 @@ namespace tut
             
             ensure_equals( testFixture.countResults(), 1U );
             RuleResults ruleResults = testFixture.getResultFor( 6 );
-            ensure_equals( ruleResults.getSummaryResultCode(), 3 /*RuleResults::RESULT_CODE_ERROR*/ );
+            ensure_equals( ruleResults.getSummaryResultCode(), 3  );//RuleResults::RESULT_CODE_ERROR
             ensure_equals( ruleResults.getSummaryMsg(), std::string("Too few previous QC results available to apply rule") );
             ensure_equals( std::distance( ruleResults.begin(), ruleResults.end() ), 1U );
             RuleResult ruleResult = *(ruleResults.begin());
@@ -1085,7 +1087,7 @@ namespace tut
             
             ensure_equals( testFixture.countResults(), 1U );
             RuleResults ruleResults = testFixture.getResultFor( 6 );
-            ensure_equals( ruleResults.getSummaryResultCode(), 1 /*RuleResults::RESULT_CODE_PASS*/ );
+            ensure_equals( ruleResults.getSummaryResultCode(), 1  );//RuleResults::RESULT_CODE_PASS
             ensure_equals( std::distance( ruleResults.begin(), ruleResults.end() ), 1U );
             RuleResult ruleResult = *(ruleResults.begin());
             ensure_equals( ruleResult.rule, std::string("3:2s") );
@@ -1135,7 +1137,7 @@ namespace tut
             
             ensure_equals( testFixture.countResults(), 1U );
             RuleResults ruleResults = testFixture.getResultFor( 6 );
-            ensure_equals( ruleResults.getSummaryResultCode(), 0 /*RuleResults::RESULT_CODE_FAIL*/ );
+            ensure_equals( ruleResults.getSummaryResultCode(), 0  );//RuleResults::RESULT_CODE_FAIL
             ensure_equals( std::distance( ruleResults.begin(), ruleResults.end() ), 1U );
             RuleResult ruleResult = *(ruleResults.begin());
             ensure_equals( ruleResult.rule, std::string("3:2s") );
@@ -1185,7 +1187,7 @@ namespace tut
             
             ensure_equals( testFixture.countResults(), 1U );
             RuleResults ruleResults = testFixture.getResultFor( 6 );
-            ensure_equals( ruleResults.getSummaryResultCode(), 1 /*RuleResults::RESULT_CODE_PASS*/ );
+            ensure_equals( ruleResults.getSummaryResultCode(), 1  );//RuleResults::RESULT_CODE_PASS
             ensure_equals( std::distance( ruleResults.begin(), ruleResults.end() ), 1U );
             RuleResult ruleResult = *(ruleResults.begin());
             ensure_equals( ruleResult.rule, std::string("3:2s") );
@@ -1196,7 +1198,7 @@ namespace tut
             ensure( ansiStr.c_str(), false );
         }
     }
-
+*/
 };
 
 #endif

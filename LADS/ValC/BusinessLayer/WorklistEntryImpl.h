@@ -6,7 +6,7 @@
 namespace valc
 {
 
-class WorklistDirectory;
+class WorklistLinks;
 class ResultDirectory;
 
 class WorklistEntryImpl : public WorklistEntry
@@ -29,21 +29,18 @@ public:
         char                        status,
         float                       diluent,
         int                         buddyResultID,
-        const WorklistDirectory*    worklistDirectory,
         const ResultDirectory*      resultDirectory );
 
     ~WorklistEntryImpl();
     std::string                 getBarcode()    const;
     int                         getBuddyResultID() const;
     int                         getCategoryID() const;
-    RelatedEntries              getChildren()   const;
     float                       getDiluent()    const;
     int                         getGroupID()    const;
     int                         getID()         const;
-    IntList                     getIDsOfRelatedEntries() const;
     int                         getMachineID()  const;
-    RelatedEntry                getParent()     const;
     int                         getProfileID()  const;
+    std::string                 getProfileName() const;
     int                         getProjectID()  const;
     Range<TestResultIterator>   getTestResults() const;
     std::string                 getSampleDescriptor() const;
@@ -52,8 +49,6 @@ public:
     TDateTime                   getTimeStamp()  const;
     int                         getTSSequence() const;
     char                        getStatus()     const;
-    bool                        hasChildren()   const;
-    bool                        hasParent()     const;
 
 private:
     const int                 m_recordNo;
@@ -72,8 +67,7 @@ private:
     const char                m_status;
     const float               m_diluent;
     const int                 m_buddyResultID;
-    const WorklistDirectory*  m_worklistDirectory;
-    const ResultDirectory*    m_resultDirectory;
+    const ResultDirectory*    const m_resultDirectory;
 
 };
 

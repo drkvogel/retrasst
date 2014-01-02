@@ -21,7 +21,6 @@
 #include <iterator>
 #include "LoadBuddyDatabase.h"
 #include "LoadNonLocalResults.h"
-#include "LoadReferencedWorklistEntries.h"
 #include "LoadWorklistEntries.h"
 #include "LoggingService.h"
 #include <memory>
@@ -43,6 +42,8 @@
 #include <vector>
 #include "WorklistEntries.h"
 #include "WorklistEntryIteratorImpl.h"
+#include "WorklistLinks.h"
+#include "WorklistRelativeImpl.h"
 
 
 namespace valc
@@ -70,6 +71,15 @@ void addTestName( paulstdb::Cursor* c, TestNames* tn )
     const std::string   externalName = paulstdb::read<std::string>( *c, 1 );
 
     tn->insert( std::make_pair( testID, externalName ) );
+}
+
+void addWorklistRelation( paulstdb::Cursor* c, WorklistLinks* wl )
+{
+    const int           from         = paulstdb::read<int>        ( *c, 0 );
+    const int           to           = paulstdb::read<int>        ( *c, 1 );
+    const char          relation     = paulstdb::read<char>       ( *c, 2 );
+
+    wl->addLink( from, to, relation );
 }
 
 ApplicationContext* applicationContext = NULL;
@@ -117,7 +127,7 @@ void InitialiseApplicationContext( int localMachineID, int user, const std::stri
                                                         ac->getProperty("DBUpdateThreadSessionReadLockSetting") ),
                                                     log,
                                                     ac->sampleRunIDResolutionService,
-                                                    paulst::toInt("DBUpdateThreadShutdownTimeoutSecs"),
+                                                    paulst::toInt(ac->getProperty("DBUpdateThreadShutdownTimeoutSecs")),
                                                     std::string("true") == ac->getProperty("DBUpdateThreadCancelPendingUpdatesOnShutdown"),
                                                     ac->taskExceptionUserAdvisor,
                                                     ac->config  );
@@ -217,6 +227,7 @@ SnapshotPtr Load()
     int                 localMachineID     = applicationContext->localMachineID;
 	ResultIndex*        resultIndex        = new ResultIndex();
 	WorklistEntries*    worklistEntries    = new WorklistEntries();
+    WorklistLinks*      worklistLinks      = new WorklistLinks(worklistEntries);
 	BuddyDatabase*      buddyDatabase      = NULL;
     DBUpdateSchedule*   dbUpdateSchedule   = new DBUpdateSchedule();
     ExceptionalDataHandlerImpl exceptionalDataHandler(
@@ -229,6 +240,7 @@ SnapshotPtr Load()
     applicationContext->resultAttributes->clearRuleResults();
 
     stef::ThreadPool* taskRunner = new stef::ThreadPool(1,5);
+
     taskRunner->addDefaultTaskExceptionHandler( applicationContext->taskExceptionUserAdvisor );
 
 	// Task for loading LOCAL analysis activity and LOCAL results
@@ -240,7 +252,8 @@ SnapshotPtr Load()
         applicationContext->projects, 
         &buddyDatabase, 
         dbUpdateSchedule, 
-        applicationContext->sampleRunIDResolutionService, applicationContext->getProperty("LoadBuddyDatabase"), 
+        applicationContext->sampleRunIDResolutionService, 
+        applicationContext->getProperty("LoadBuddyDatabase"), 
         applicationContext->getProperty("BuddyDatabaseInclusionRule"),
         &exceptionalDataHandler,
         applicationContext->ruleEngineContainer,
@@ -260,6 +273,12 @@ SnapshotPtr Load()
         &exceptionalDataHandler,
         QCSampleDescriptorDerivationStrategy.get() ) );
 
+    taskRunner->addTask( new DBQueryTask( 
+        "WorklistRelation", 
+        applicationContext->connectionFactory, 
+        applicationContext->config, 
+        boost::bind( addWorklistRelation, _1, worklistLinks ) ) );
+
 	wait( taskRunner, initialisationWaitTimeout );
 
     // Task for allocating LOCAL results to worklist entries
@@ -267,18 +286,6 @@ SnapshotPtr Load()
                 localMachineID, applicationContext->clusterIDs, log, worklistEntries, resultIndex, dbUpdateSchedule, &exceptionalDataHandler ) );
 
     wait( taskRunner, initialisationWaitTimeout );
-
-    // Task for loading hither-to unloaded worklist entries that are related to already-loaded worklist entries.
-    // In other words, where there exists a row in worklist_relation for which only one of the referenced worklist entries has been loaded, 
-    // load the other. 
-    taskRunner->addTask( new LoadReferencedWorklistEntries(      
-        con, 
-        log, 
-        worklistEntries, 
-        resultIndex,
-        applicationContext->getProperty("RefTempTableName"),
-        applicationContext->getProperty("LoadReferencedWorklistEntries"),
-        &exceptionalDataHandler ) );
 
     // Task for loading non-local results for worklist entries loaded by LoadWorklistEntries (above).
     taskRunner->addTask( new LoadNonLocalResults( 
@@ -306,6 +313,7 @@ SnapshotPtr Load()
         buddyDatabase, 
         resultIndex, 
         worklistEntries, 
+        worklistLinks,
         dbUpdateSchedule, 
         applicationContext->sampleRunIDResolutionService, 
         applicationContext,
@@ -364,20 +372,24 @@ BuddyDatabaseEntry& BuddyDatabaseEntry::operator=( const BuddyDatabaseEntry& oth
 }
 
 LocalRun::LocalRun()
+    :
+    m_impl(0)
 {
 }
 
 LocalRun::LocalRun( const LocalRun& o )
     :
     m_id                ( o.m_id ),
-    m_sampleDescriptor  ( o.m_sampleDescriptor )
+    m_sampleDescriptor  ( o.m_sampleDescriptor ),
+    m_impl              ( o.m_impl )
 {
 }
 
 LocalRun::LocalRun( const std::string& sampleDescriptor, const std::string& id )
     :
     m_id                ( id ),
-    m_sampleDescriptor  ( sampleDescriptor )
+    m_sampleDescriptor  ( sampleDescriptor ),
+    m_impl              ( 0 )
 {
 }
 
@@ -385,6 +397,7 @@ LocalRun& LocalRun::operator=( const LocalRun& o )
 {
     m_id                = o.m_id;
     m_sampleDescriptor  = o.m_sampleDescriptor;
+    m_impl              = o.m_impl;
     return *this;
 }
 
@@ -396,6 +409,12 @@ std::string LocalRun::getRunID() const
 std::string LocalRun::getSampleDescriptor() const
 {
     return m_sampleDescriptor;
+}
+
+bool LocalRun::isOpen() const
+{
+    require( m_impl );
+    return m_impl->isOpen( m_id );
 }
 
 QueuedSample::QueuedSample()
@@ -654,6 +673,75 @@ SnapshotObserver::SnapshotObserver()
 
 SnapshotObserver::~SnapshotObserver()
 {
+}
+
+
+WorklistRelative::WorklistRelative( int id, const WorklistEntry* e, char howCreated )
+    :
+    m_worklistEntry( e ),
+    m_howCreated   ( howCreated ),
+    m_id           ( id ),
+    m_impl         ( 0 )
+{
+}
+
+WorklistRelative::WorklistRelative( const WorklistRelative& other )
+    :
+    m_worklistEntry( other.m_worklistEntry ),
+    m_howCreated   ( other.m_howCreated    ),
+    m_impl         ( other.m_impl          ),
+    m_id           ( other.m_id            )
+{
+}
+
+WorklistRelative& WorklistRelative::operator=( const WorklistRelative& other )
+{
+    m_worklistEntry = other.m_worklistEntry;
+    m_howCreated    = other.m_howCreated;
+    m_impl          = other.m_impl;
+    m_id            = other.m_id;
+    return *this;
+}
+
+bool WorklistRelative::isBoundToWorklistEntryInstance() const
+{
+    return m_worklistEntry;
+}
+
+const WorklistEntry*  WorklistRelative::operator->() const
+{
+    require( m_worklistEntry );
+    return m_worklistEntry;
+}
+
+bool WorklistRelative::hasChildren() const
+{
+    return m_impl->hasChildren( m_id );
+}
+
+bool WorklistRelative::hasParent() const
+{
+    return m_impl->hasParent( m_id );
+}
+
+std::vector<WorklistRelative> WorklistRelative::getChildren() const
+{
+    return m_impl->getChildren( m_id );
+}
+
+int WorklistRelative::getID() const
+{
+    return m_id;
+}
+
+WorklistRelative WorklistRelative::getParent() const
+{
+    return m_impl->getParent( m_id );
+}
+
+char WorklistRelative::getRelation() const
+{
+    return m_howCreated;
 }
 
 }

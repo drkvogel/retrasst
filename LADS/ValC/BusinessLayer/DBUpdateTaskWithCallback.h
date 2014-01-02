@@ -4,6 +4,7 @@
 #include "AcquireCriticalSection.h"
 #include "CritSec.h"
 #include "DBUpdateTask.h"
+#include "MeetingPlace.h"
 #include "Require.h"
 
 namespace valc
@@ -13,30 +14,28 @@ template<class Callback, class DBTransaction>
 class DBUpdateTaskWithCallback : public DBUpdateTask
 {
 private:
-    paulst::CritSec     m_cs;
     DBTransaction       transaction;
-    volatile Callback*  callback;
+    MeetingPlace<   Callback, 
+                    DBUpdateTaskWithCallback < Callback, DBTransaction >, 
+                    int, 
+                    DBTransaction >* meetingPlace;
 
 public:
 
-    DBUpdateTaskWithCallback( Callback* c, DBTransaction t )
+    DBUpdateTaskWithCallback( 
+        MeetingPlace< Callback, DBUpdateTaskWithCallback < Callback, DBTransaction >, int, DBTransaction >* mp, 
+        DBTransaction t )
         :
-        callback    ( c ),
-        transaction ( t )
+        transaction ( t ),
+        meetingPlace( mp )
     {
-        require( callback );
+        mp->arrive( this );
     }
 
-    void unregisterCallback()
-    {
-        paulst::AcquireCriticalSection a(m_cs);
-
-        {
-            callback = 0;
-        }
-    }
+    void notify( int& i ) volatile {}
 
 protected:
+
     std::string describeUpdate() const
     {
         return transaction.describe();
@@ -44,15 +43,15 @@ protected:
 
     void updateDatabase()
     {
-        transaction.execute( getConnection(), getConfig() );
-        
+        try
         {
-            paulst::AcquireCriticalSection a(m_cs); // Protect against unregistration in between testing 'callback' and using it.
-
-            if ( callback ) // Check that the callback hasn't unregistered.
-            {
-                callback->notifyDBTransactionCompleted( transaction ); 
-            }
+            transaction.execute( getConnection(), getConfig() );
+            meetingPlace->leave( this, transaction );
+        }
+        catch( ... )
+        {
+            meetingPlace->leave( this, transaction );
+            throw;
         }
     }
     

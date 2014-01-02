@@ -183,17 +183,16 @@
             <DependentOn>..\BusinessLayer\ConnectionCache.h</DependentOn>
             <BuildOrder>67</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\BusinessLayer\CursorBackedWorklistRelationsDataSource.cpp">
-            <DependentOn>..\BusinessLayer\CursorBackedWorklistRelationsDataSource.h</DependentOn>
-            <BuildOrder>10</BuildOrder>
-        </CppCompile>
         <CppCompile Include="..\BusinessLayer\DBQueryTask.cpp">
             <DependentOn>..\BusinessLayer\DBQueryTask.h</DependentOn>
             <BuildOrder>78</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\BusinessLayer\DBUpdateConsumer.cpp">
-            <DependentOn>..\BusinessLayer\DBUpdateConsumer.h</DependentOn>
-            <BuildOrder>53</BuildOrder>
+        <CppCompile Include="..\BusinessLayer\DBTransactionHandler.cpp">
+            <BuildOrder>93</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\DBTransactionUtil.cpp">
+            <DependentOn>..\BusinessLayer\DBTransactionUtil.h</DependentOn>
+            <BuildOrder>84</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\BusinessLayer\DBUpdateSchedule.cpp">
             <DependentOn>..\BusinessLayer\DBUpdateSchedule.h</DependentOn>
@@ -243,13 +242,13 @@
             <DependentOn>..\BusinessLayer\LoadNonLocalResults.h</DependentOn>
             <BuildOrder>58</BuildOrder>
         </CppCompile>
-        <CppCompile Include="..\BusinessLayer\LoadReferencedWorklistEntries.cpp">
-            <DependentOn>..\BusinessLayer\LoadReferencedWorklistEntries.h</DependentOn>
-            <BuildOrder>16</BuildOrder>
-        </CppCompile>
         <CppCompile Include="..\BusinessLayer\LoadWorklistEntries.cpp">
             <DependentOn>..\BusinessLayer\LoadWorklistEntries.h</DependentOn>
             <BuildOrder>18</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\LocalRunImpl.cpp">
+            <DependentOn>..\BusinessLayer\LocalRunImpl.h</DependentOn>
+            <BuildOrder>85</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\BusinessLayer\LuaUtil.cpp">
             <BuildOrder>68</BuildOrder>
@@ -325,6 +324,22 @@
             <DependentOn>..\BusinessLayer\SampleRunIDResolutionService.h</DependentOn>
             <BuildOrder>28</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\BusinessLayer\SnapshotUpdateHandle.cpp">
+            <DependentOn>..\BusinessLayer\SnapshotUpdateHandle.h</DependentOn>
+            <BuildOrder>86</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\SnapshotUpdateTask.cpp">
+            <DependentOn>..\BusinessLayer\SnapshotUpdateTask.h</DependentOn>
+            <BuildOrder>87</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\SnapshotUpdateThread.cpp">
+            <DependentOn>..\BusinessLayer\SnapshotUpdateThread.h</DependentOn>
+            <BuildOrder>88</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\TaskExceptionUserAdvisor.cpp">
+            <DependentOn>..\BusinessLayer\TaskExceptionUserAdvisor.h</DependentOn>
+            <BuildOrder>89</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\BusinessLayer\TestResultImpl.cpp">
             <DependentOn>..\BusinessLayer\TestResultImpl.h</DependentOn>
             <BuildOrder>30</BuildOrder>
@@ -357,9 +372,21 @@
             <DependentOn>..\BusinessLayer\WorklistEntryIteratorImpl.h</DependentOn>
             <BuildOrder>37</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\BusinessLayer\WorklistLinks.cpp">
+            <DependentOn>..\BusinessLayer\WorklistLinks.h</DependentOn>
+            <BuildOrder>90</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\WorklistNode.cpp">
+            <DependentOn>..\BusinessLayer\WorklistNode.h</DependentOn>
+            <BuildOrder>91</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\BusinessLayer\WorklistRelation.cpp">
             <DependentOn>..\BusinessLayer\WorklistRelation.h</DependentOn>
             <BuildOrder>38</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\BusinessLayer\WorklistRelativeImpl.cpp">
+            <DependentOn>..\BusinessLayer\WorklistRelativeImpl.h</DependentOn>
+            <BuildOrder>92</BuildOrder>
         </CppCompile>
         <CppCompile Include="Main.cpp">
             <BuildOrder>0</BuildOrder>
@@ -391,6 +418,10 @@
             <DependentOn>..\..\..\paulst\db\ComUtil.h</DependentOn>
             <BuildOrder>66</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\..\..\paulst\db\ConnectionFactoryWithLogging.cpp">
+            <DependentOn>..\..\..\paulst\db\ConnectionFactoryWithLogging.h</DependentOn>
+            <BuildOrder>83</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\..\..\paulst\db\Cursor.cpp">
             <DependentOn>..\..\..\paulst\db\Cursor.h</DependentOn>
             <BuildOrder>65</BuildOrder>
@@ -410,6 +441,10 @@
         <CppCompile Include="..\..\..\paulst\db\DBConnectionFactory.cpp">
             <DependentOn>..\..\..\paulst\db\DBConnectionFactory.h</DependentOn>
             <BuildOrder>69</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\..\paulst\db\DBConnectionWithLogging.cpp">
+            <DependentOn>..\..\..\paulst\db\DBConnectionWithLogging.h</DependentOn>
+            <BuildOrder>82</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\paulst\db\StringBackedCursor.cpp">
             <DependentOn>..\..\..\paulst\db\StringBackedCursor.h</DependentOn>
@@ -437,10 +472,6 @@
         <CppCompile Include="..\..\..\paulst\Properties.cpp">
             <DependentOn>..\..\..\paulst\Properties.h</DependentOn>
             <BuildOrder>46</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\..\paulst\stef\Executable.cpp">
-            <DependentOn>..\..\..\paulst\stef\Executable.h</DependentOn>
-            <BuildOrder>87</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\..\paulst\stef\Task.cpp">
             <DependentOn>..\..\..\paulst\stef\Task.h</DependentOn>

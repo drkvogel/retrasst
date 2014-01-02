@@ -11,8 +11,10 @@
 namespace valc
 {
 
-WorklistEntryBuilder::WorklistEntryBuilder( WorklistEntries* worklistEntries, 
-    ResultIndex* resultIndex, const std::string& inclusionRule,
+WorklistEntryBuilder::WorklistEntryBuilder( 
+    WorklistEntries* worklistEntries,
+    ResultIndex* resultIndex, 
+    const std::string& inclusionRule,
     ExceptionalDataHandler* exceptionalDataHandler,
     QCSampleDescriptorDerivationStrategy* qcsdds )
     : 
@@ -115,7 +117,6 @@ bool WorklistEntryBuilder::accept( paulstdb::Cursor* worklistCursor )
             status,
             diluent,
             buddyResultID,
-            m_worklistEntries,
             m_resultIndex ) );
     }
     while( false );

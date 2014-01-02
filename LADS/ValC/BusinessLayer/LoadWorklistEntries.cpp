@@ -8,7 +8,9 @@
 namespace valc
 {
 
-LoadWorklistEntries::LoadWorklistEntries( WorklistEntries* worklistEntries, paulstdb::DBConnection* con, 
+LoadWorklistEntries::LoadWorklistEntries( 
+    WorklistEntries* worklistEntries, 
+    paulstdb::DBConnection* con, 
     paulst::LoggingService* log, ResultIndex* resultIndex,
     const std::string& worklistSQL, const std::string& inclusionRule, 
     ExceptionalDataHandler* exceptionalDataHandler,

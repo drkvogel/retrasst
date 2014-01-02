@@ -8,6 +8,7 @@
 #include "StringBuilder.h"
 #include "WorklistEntries.h"
 #include "WorklistEntryImpl.h"
+#include "WorklistLinks.h"
 #include <tut.h>
 #include <vector>
 
@@ -23,10 +24,12 @@ private:
     int                         m_localMachineID;
     valc::ClusterIDs            m_clusterIDs;
     valc::WorklistEntries       m_worklistEntries;
+    valc::WorklistLinks*        m_worklistLinks;
     std::vector<std::string>    m_sampleDescriptorsWithOpenRuns;
 
 public:
-    MockParams() : m_currentWorklistEntry(0) { }
+    MockParams() : m_currentWorklistEntry(0), m_worklistLinks( new valc::WorklistLinks(&m_worklistEntries) ) { }
+    ~MockParams() { delete m_worklistLinks; }
 
     void addCluster( int clusterID )
     {
@@ -57,7 +60,6 @@ public:
             status,
             0.0,//diluent
             0, //buddyResultID
-            &m_worklistEntries,
             0 //resultDirectory
             )
          );

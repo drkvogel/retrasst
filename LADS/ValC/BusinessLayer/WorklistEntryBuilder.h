@@ -28,7 +28,7 @@ class WorklistEntryBuilder
 {
 public:
     WorklistEntryBuilder( 
-        WorklistEntries* worklistEntries, 
+        WorklistEntries* worklistEntries,
 
         /*  If newInstance is invoked with a Cursor value that describes a worklist that explicitly names its result, then
             this information is passed to resultIndex (using the method: allocateResultToWorklistEntry). */
