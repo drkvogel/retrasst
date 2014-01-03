@@ -52,7 +52,7 @@ object frmSamples: TfrmSamples
     TabOrder = 0
     Visible = False
     object Splitter2: TSplitter
-      Left = 345
+      Left = 713
       Top = 1
       Height = 96
       ExplicitLeft = 549
@@ -60,21 +60,23 @@ object frmSamples: TfrmSamples
     object memoDebug: TMemo
       Left = 1
       Top = 1
-      Width = 344
+      Width = 712
       Height = 96
       Align = alLeft
       ScrollBars = ssVertical
       TabOrder = 0
     end
     object sgDebug: TStringGrid
-      Left = 348
+      Left = 716
       Top = 1
-      Width = 614
+      Width = 246
       Height = 96
       Align = alClient
       FixedCols = 0
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
       TabOrder = 1
+      ExplicitLeft = 348
+      ExplicitWidth = 614
     end
   end
   object panelChunks: TPanel
@@ -302,11 +304,13 @@ object frmSamples: TfrmSamples
           object labelPrimary: TLabel
             Left = 7
             Top = 20
-            Width = 58
-            Height = 13
+            Width = 83
+            Height = 14
             Align = alClient
             Caption = 'labelPrimary'
             Layout = tlCenter
+            ExplicitWidth = 58
+            ExplicitHeight = 13
           end
         end
         object GroupBox2: TGroupBox
@@ -324,8 +328,8 @@ object frmSamples: TfrmSamples
           object labelSecondary: TLabel
             Left = 7
             Top = 20
-            Width = 73
-            Height = 13
+            Width = 90
+            Height = 14
             Margins.Left = 5
             Margins.Top = 5
             Margins.Right = 5
@@ -333,6 +337,8 @@ object frmSamples: TfrmSamples
             Align = alClient
             Caption = 'labelSecondary'
             Layout = tlCenter
+            ExplicitWidth = 73
+            ExplicitHeight = 13
           end
         end
       end

@@ -590,21 +590,18 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     delete_referenced< vector<SampleRow * > >(frmSamples->vials);
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
     loadingMessage = oss.str().c_str();
-
     debugMessage = "preparing query";
     Synchronize((TThreadMethod)&debugLog);
 
-    int aliquot_type_cid = frmSamples->job->getPrimaryAliquot();
-
+    int primary_aliquot = frmSamples->job->getPrimaryAliquot();
 
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
     qd.setSQL( // from spec 2013-09-11
         "SELECT"
         "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
         "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
-        "  s1.record_id, c.sample_id, :aliquotID AS aliquot_type_cid, " // for LPDbCryovial
+        //"  s1.record_id, c.sample_id, :primary AS aliquot_type_cid, " // for LPDbCryovial
             // LPDbCryovial::storeID( query.readInt( "record_id" ) ) <-- record_id comes from cryovial_store?
-        //"  c.cryovial_barcode, t.external_name AS aliquot,"
         "  c.cryovial_barcode,"
         "  b1.box_cid as source_id,"
         "  b1.external_name as source_name,"
@@ -615,32 +612,28 @@ void __fastcall LoadVialsWorkerThread::Execute() {
         " FROM"
         "  cryovial c, cryovial_store s1, box_name b1,"
         "  cryovial_store s2, box_name b2"
-        //"  c_object_name t"
         " WHERE"
         "  c.cryovial_id = s1.cryovial_id AND"
         "  b1.box_cid = s1.box_cid AND"
         "  s1.cryovial_id = s2.cryovial_id AND"
         "  s2.status = 0 AND"
         "  b2.box_cid = s2.box_cid AND"
-        //"  t.object_cid = aliquot_type_cid AND" // make this a map for speed
+        //"  aliquot_type_cid = :aliquotID AND"
         "  s1.retrieval_cid = :jobID"
         " ORDER BY"
         "  cryovial_barcode"
         );
     qd.setParam("jobID", frmSamples->job->getID());
-    qd.setParam("aliquotID", aliquot_type_cid);
-    //qd.setParam("aliquotName", Util::getAliquotDescription(aliquot_type_cid));
-
+    //qd.setParam("primary", primary_aliquot);
     loadingMessage = frmSamples->loadingMessage;
-
     debugMessage = "opening query";
     Synchronize((TThreadMethod)&debugLog);
-
-    rowCount = 0; qd.open();
-
+    debugMessage = qd.getSQL();
+    Synchronize((TThreadMethod)&debugLog);
+    rowCount = 0;
+    qd.open();
     debugMessage = "query open";
     Synchronize((TThreadMethod)&debugLog);
-
     while (!qd.eof()) {
         if (0 == rowCount % 10) {
             ostringstream oss; oss<<"Found "<<rowCount<<" vials";
@@ -652,7 +645,8 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             new LPDbCryovialStore(qd),
             NULL,
             qd.readString(  "cryovial_barcode"),
-            Util::getAliquotDescription(aliquot_type_cid), //"",//qd.readString(  "aliquot"),
+            //Util::getAliquotDescription(primary), //"",//qd.readString(  "aliquot"),
+            Util::getAliquotDescription(qd.readInt("aliquot_type_cid")),
             qd.readString(  "source_name"),
             qd.readInt(     "dest_id"),
             qd.readString(  "dest_name"),

@@ -47,8 +47,8 @@ public:
 class TfrmProcess : public TForm {
     friend class LoadPlanWorkerThread;
 __published:
-    TGroupBox *List;
-    TGroupBox *GroupBox2;
+    TGroupBox *groupRetrievalList;
+    TGroupBox *groupSignOff;
     TButton *btnAccept;
     TButton *btnSkip;
     TEdit *editBarcode;
@@ -63,7 +63,7 @@ __published:
     TProgressBar *progressBottom;
     TTimer *timerLoadPlan;
     TSplitter *Splitter1;
-    TGroupBox *GroupBox3;
+    TGroupBox *groupDetails;
     TButton *btnExit;
     TPanel *panelDebug;
     TMemo *memoDebug;
@@ -83,6 +83,8 @@ __published:
     TPanel *Panel2;
     TLabel *Label3;
     TLabel *labelSampleID;
+    TSplitter *Splitter2;
+    TSplitter *splitterDebug;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
