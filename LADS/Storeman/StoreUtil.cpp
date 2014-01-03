@@ -356,14 +356,27 @@ bool Util::numericCompare(const std::string a, const std::string b) {
 #endif
 }
 
-std::string Util::getAliquotDescription(int aliquot_cid) { // c_object_name 6: aliquot type
+std::string Util::getAliquotDescription(int aliquot_type_cid) { // c_object_name 6: aliquot type
+    static std::map<int, std::string> cache;
     std::ostringstream oss;
-    if (0 == aliquot_cid) return "Not specified";
+    std::string description;
+
+    if (0 == aliquot_type_cid) return "Not specified";
     try {
-        const LCDbObject * aliquot = LCDbObjects::records().findByID(aliquot_cid);
-        oss << aliquot->getName().c_str();
+        // use map for speed
+        std::map<int, std::string>::iterator found = cache.find(aliquot_type_cid);
+        if (found != cache.end()) { // found
+            return (found->second);
+        } else {
+            const LCDbObject * aliquot = LCDbObjects::records().findByID(aliquot_type_cid);
+            description = aliquot->getName().c_str();
+            cache[aliquot_type_cid] = description; // cache result
+            return description;
+        }
+//        const LCDbObject * aliquot = LCDbObjects::records().findByID(aliquot_cid);
+//        oss << aliquot->getName().c_str();
     } catch (...) {
-        oss << "ID "<<aliquot_cid<<" not found";
+        oss << "ID "<<aliquot_type_cid<<" not found";
     }
     return oss.str();
 }

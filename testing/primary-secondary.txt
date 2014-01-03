@@ -34,3 +34,28 @@ WHERE
  find secondary is matched on cryovial.sample_id, is the sample ID different?
  
  the non-specific-aliquot code - which seemed to be what I have been using for the last few weeks - pulled out 1674 (double 837) records for -363636, but collect can't find the 2ndary matching on sample_id. With the EDTA_1 & 2 one (id?), did it match on sample_id?
+
+ Yes, on the 1 & 2 one (UK Thrive), the sample ID must have been the same for both aliquots of each vial, but on -363636 it was different for each aliquot.
+
+ OK, here's the deal: old projects usually have the same sample IDs for both/all aliquots, if there are more than 1, for each cryovial. newer ones may/should have different sample IDs for each aliquot, as we saw in -363636 - which is also Thrive but China Thrive which is more recent. (i.e thrive being such a big and long-running project contains a mix of both aliquoting styles). Better is to match on cryovial_barcode to find the secondary aliquot. 
+
+ The combination of cryovial_barcode and aliquot_type_cid should be globally unique even for older projects, even if the sample_ids of the pairs are the same (as with 1&2). In the collect stage, I was trying to match on sample_id for the 2ndary ali of a vial in a newer job (-363636) and not finding anything, where I should have been matching on cryovial_barcode.
+
+ BUT - this was not the right point at which to find the 2ndary ali anyway - it should be found at the plan stage and put in the plan, so it is available at collect stage if needed anyway (avoids more frustrating db waits...). And how on earth was I planning on recording which aliquot had been recorded anyway? I wasn't... but it was concerning me - classic smell!
+
+ Also, though I may have read in a previous version of the lims documentation that in c_retrieval_job, secondary_aliquot = 0 means 'not specfied, could be anything or nothing', the current version says that 0 means there is no 2ndary. And also we agreed that if it was set to non-zero, those 2ndary alis should be present in the job.
+
+ Nick said something about 'source_name', which is a descriptor but 'difficult to get at' - ie. aliquots of the same vial should share this descriptor(?), but 
+
+ So:
+
+  * if 2ndary specified, load them in plan retrieval, and save them in the plan.
+  * thus we don't need to search for them again in collect
+  * I think we agreed with martin/tim that displaying 2ndary aliquots at the planning stage would be confusing? 
+     * option to show if required?
+  * 2ndaries may not need to be displayed at first, but should be loaded
+  * 1&2 job would still be useful to have to test 
+
+  getAliquotDescription should use a map
+
+  // LPDbCryovial::storeID( query.readInt( "record_id" ) ) <-- record_id comes from cryovial_store?
