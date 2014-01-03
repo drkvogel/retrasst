@@ -589,9 +589,19 @@ void __fastcall LoadVialsWorkerThread::updateStatus() { // can't use args for sy
 }
 
 void __fastcall LoadVialsWorkerThread::Execute() {
+    try {
+        load();
+    } catch (Exception & e) {
+        //debugMessage = string(e.Message.c_str()); Synchronize((TThreadMethod)&debugLog);
+        debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
+    } catch (...) {
+        debugMessage = "unknown error"; Synchronize((TThreadMethod)&debugLog);
+    }
+}
+
+void LoadVialsWorkerThread::load() {
     delete_referenced< vector<SampleRow * > >(frmSamples->vials);
-    ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)";
-    loadingMessage = oss.str().c_str();
+    ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
     debugMessage = "preparing query"; Synchronize((TThreadMethod)&debugLog);
 
     int primary_aliquot     = frmSamples->job->getPrimaryAliquot();
@@ -650,16 +660,17 @@ void __fastcall LoadVialsWorkerThread::Execute() {
             qd.readString(  "dest_name"),
             qd.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
-        if (previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
+        if (previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
             if (previous->cryo_record->getAliquotType() != row->cryo_record->getAliquotType()) {
-                throw "duplicate aliquot";
+                throw Exception("duplicate aliquot");
             } else if (row->cryo_record->getAliquotType() != secondary_aliquot) {
-                throw "spurious aliquot";
+                throw Exception("spurious aliquot");
             } else { // secondary
                 previous->secondary = row;
             }
         } else {
             frmSamples->vials.push_back(row); // new primary
+            previous = row;
         }
         qd.next();
         rowCount++;
@@ -700,8 +711,10 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     sgwChunks->clear();
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
     if (0 == vials.size()) {
-        Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK);
-        Close();
+        //Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK);
+        if (IDYES == Application->MessageBox(L"No samples found, exit?", L"Info", MB_YESNO)) {
+            Close();
+        }
         return;
     }
     int box_id = vials[0]->dest_box_id;//->getBoxID(); // look at base list, chunk might not have been created
