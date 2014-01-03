@@ -241,7 +241,6 @@ void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
         SampleRow *         sampleRow = chunk->rowAt(row);
         fillRow(sampleRow, row+1); // row+1 for stringgrid
     }
-
     if (1.0 == chunk->getProgress()) { // completed
         btnAccept->Enabled   = false;
         btnSkip->Enabled     = false;
@@ -309,7 +308,6 @@ void TfrmProcess::loadChunk() { //(Chunk< SampleRow > *) {
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
     Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
-    //wstringstream oss; oss<<"loadRows for job "<<job->getID()<<" started"; debugLog(oss.str().c_str());
     DEBUGSTREAM("loadRows for job "<<job->getID()<<" started")
     Enabled = false;
     loadPlanWorkerThread = new LoadPlanWorkerThread();
@@ -345,15 +343,6 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     loadingMessage = frmProcess->loadingMessage;
     const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 
-    using namespace boost::local_time;
-    //local_date_time
-
-    time_t t(time(NULL)); // current time
-    tm tm(*localtime(&t));
-    std::locale loc("");
-    const std::time_put<char> &tput = std::use_facet< std::time_put< char > >(loc);
-    tput.put(oss.rdbuf(), oss, _T('\0'), &tm, _T('x'));
-
     time_t rawtime;
     struct tm * timeinfo;
     char buffer [80];
@@ -369,6 +358,8 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
         oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName; // ingres doesn't like table names passed as parameters
         qd.setSQL(oss.str());
+        debugMessage = oss.str();
+        Synchronize((TThreadMethod)&debugLog);
         qd.execSQL();
         oss.str("");
         oss<<"CREATE TABLE "<<frmProcess->tempTableName<<" AS"<<
@@ -380,12 +371,13 @@ void __fastcall LoadPlanWorkerThread::Execute() {
             "       c_box_retrieval cbr, l_cryovial_retrieval lcr"
             "   WHERE"
             "       cbr.retrieval_cid = :rtid"
-            //"   AND chunk = :chnk"
             "   AND"
             "       lcr.rj_box_cid = cbr.rj_box_cid";
+        debugMessage = oss.str();
+        Synchronize((TThreadMethod)&debugLog);
         qd.setSQL(oss.str());
         int retrieval_cid = frmProcess->job->getID();
-        qd.setParam("rtid", retrieval_cid); //qd.setParam("chnk", loadingChunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
+        qd.setParam("rtid", retrieval_cid); //qd.setParam("chnk", loading0Chunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
         qd.execSQL();
     }
     debugMessage = "finished create temp table";
@@ -714,6 +706,7 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
         " ORDER BY"
         "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos";
     ql.setSQL(oss.str());
+    DEBUGSTREAM(oss.str())
     if (ql.open()) {
         sample->secondary = new SampleRow( // replace with secondary aliquot
             new LPDbCryovial(ql),
@@ -744,3 +737,11 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
     DEBUGSTREAM(__FUNC__<<" finished")
 }
 
+//    using namespace boost::local_time;
+//    //local_date_time
+//
+//    time_t t(time(NULL)); // current time
+//    tm tm(*localtime(&t));
+//    std::locale loc("");
+//    const std::time_put<char> &tput = std::use_facet< std::time_put< char > >(loc);
+//    tput.put(oss.rdbuf(), oss, _T('\0'), &tm, _T('x'));

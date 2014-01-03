@@ -30,7 +30,7 @@ object frmProcess: TfrmProcess
     ExplicitTop = 105
     ExplicitWidth = 956
   end
-  object List: TGroupBox
+  object groupRetrievalList: TGroupBox
     Left = 0
     Top = 183
     Width = 948
@@ -38,11 +38,20 @@ object frmProcess: TfrmProcess
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
+    object splitterDebug: TSplitter
+      Left = 2
+      Top = 131
+      Width = 944
+      Height = 5
+      Cursor = crVSplit
+      Align = alBottom
+      ExplicitTop = 124
+    end
     object sgVials: TStringGrid
       Left = 2
       Top = 15
       Width = 944
-      Height = 121
+      Height = 116
       Align = alClient
       DefaultDrawing = False
       DoubleBuffered = True
@@ -52,6 +61,7 @@ object frmProcess: TfrmProcess
       ParentDoubleBuffered = False
       TabOrder = 0
       OnDrawCell = sgVialsDrawCell
+      ExplicitHeight = 121
     end
     object panelLoading: TPanel
       Left = 248
@@ -79,6 +89,16 @@ object frmProcess: TfrmProcess
       BevelEdges = []
       Caption = 'panelDebug'
       TabOrder = 2
+      ExplicitLeft = 3
+      ExplicitTop = 132
+      object Splitter2: TSplitter
+        Left = 665
+        Top = 1
+        Height = 85
+        ExplicitLeft = 864
+        ExplicitTop = 48
+        ExplicitHeight = 100
+      end
       object memoDebug: TMemo
         Left = 1
         Top = 1
@@ -101,7 +121,7 @@ object frmProcess: TfrmProcess
       end
     end
   end
-  object GroupBox2: TGroupBox
+  object groupSignOff: TGroupBox
     Left = 0
     Top = 538
     Width = 948
@@ -198,6 +218,7 @@ object frmProcess: TfrmProcess
       Caption = 'Use 2nd'
       TabOrder = 6
       OnClick = btnSecondaryClick
+      ExplicitLeft = 652
     end
   end
   object Chunks: TGroupBox
@@ -224,7 +245,7 @@ object frmProcess: TfrmProcess
       OnFixedCellClick = sgChunksFixedCellClick
     end
   end
-  object GroupBox3: TGroupBox
+  object groupDetails: TGroupBox
     Left = 0
     Top = 408
     Width = 948

@@ -21,6 +21,7 @@ using namespace std;
 class LoadVialsWorkerThread : public TThread {
 protected:
     void __fastcall Execute();
+    void load();
 public:
     __fastcall LoadVialsWorkerThread();
     int             rowCount;
