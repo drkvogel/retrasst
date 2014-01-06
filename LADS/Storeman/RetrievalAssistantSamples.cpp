@@ -202,9 +202,10 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
 
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
         std::set<int> projects; projects.insert(job->getProjectID());
-        frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
-        if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) return;
+        const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 
+        frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
+        if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) return
         debugLog("starting save plan");
 
         Screen->Cursor = crSQLWait; Enabled = false;
@@ -231,39 +232,30 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
                     int sect = chunk->getSection();
                     int bid  = sampleRow->store_record->getBoxID();
                     int stat = LCDbBoxStore::Status::SLOT_ALLOCATED;
-                    // project_cid is 0
                     qc.setSQL(
                         "INSERT INTO c_box_retrieval (rj_box_cid, retrieval_cid, box_id, project_cid, section, status)"
                         " VALUES (:rjbid, :rtid, :bxid, :prid, :sect, :stat)"
                     );
                     qc.setParam("rjbid",rj_box_cid); // Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
                     qc.setParam("rtid", job->getID());
-                    // following should be dest box - is it? should be dest_box_id?
-                    //qc.setParam("bxid", sampleRow->store_record->getBoxID()); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
                     qc.setParam("bxid", sampleRow->dest_box_id); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
                     qc.setParam("prid", job->getProjectID());
                     qc.setParam("sect", chunk->getSection()); // 0 = retrieve all boxes in parallel
                     qc.setParam("stat", LCDbBoxRetrieval::Status::NEW); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
                     qc.execSQL();
-                    //boxes[sampleRow->store_record->getBoxID()] = rj_box_cid; // cache result
                     boxes[sampleRow->dest_box_id] = rj_box_cid; // cache result
                 } else {
                     rj_box_cid = found->second;
                 }
-                // status, slot_number are 0
                 qc.setSQL(
-                    "INSERT INTO l_cryovial_retrieval"
-                    " (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status)"
-                    " VALUES"
-                    " (:rjid, :pos, :barc, :aliq, :slot, :pid, 'now', :st)"
+                    "INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status)"
+                    " VALUES (:rjid, :pos, :barc, :aliq, :slot, :pid, 'now', :st)"
                 );
                 qc.setParam("rjid", rj_box_cid);
-                //qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
-                qc.setParam("pos",  sampleRow->dest_cryo_pos); //??
+                qc.setParam("pos",  sampleRow->dest_cryo_pos); //?? //qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
                 qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
                 qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
                 qc.setParam("slot", sampleRow->box_pos); //??? // rename box_pos to dest_pos?
-                const int pid = LCDbAuditTrail::getCurrent().getProcessID();
                 qc.setParam("pid",  pid);
                 qc.setParam("st",   LCDbCryovialRetrieval::Status::EXPECTED); //??
                 qc.execSQL();
@@ -281,6 +273,10 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         showChunks();
         showChunk();
     }
+}
+
+void TfrmSamples::saveSampleToPlan(int box_cid) {
+
 }
 
 void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
@@ -306,6 +302,7 @@ void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, in
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
     SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     sample?debugLog(sample->str().c_str()):debugLog("NULL sample");
+    sample->secondary?debugLog(sample->secondary->str().c_str()):debugLog("NULL secondary");
 }
 
 void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
@@ -661,7 +658,7 @@ void LoadVialsWorkerThread::load() {
             qd.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
         if (previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
-            if (previous->cryo_record->getAliquotType() != row->cryo_record->getAliquotType()) {
+            if (previous->cryo_record->getAliquotType() == row->cryo_record->getAliquotType()) {
                 throw Exception("duplicate aliquot");
             } else if (row->cryo_record->getAliquotType() != secondary_aliquot) {
                 throw Exception("spurious aliquot");

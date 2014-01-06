@@ -1,4 +1,6 @@
 ﻿DEBUGSTREAM
+ * load 2ndaries seems to work ok
+ * save 2ndaries in plan
  * still not showing 2ndary aliquot    
  * rename files: Retrasst[Plan|Process][Samples|Boxes]
  * port [Plan|Process]Samples to [Plan|Process]Boxes
