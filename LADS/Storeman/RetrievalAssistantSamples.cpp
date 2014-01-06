@@ -192,6 +192,52 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
     and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
 
+    struct Saver { // encapsulate in order to re-use for secondary aliquot
+        LCDbCryoJob * job;
+        LQuery & qc;
+        int pid;
+        Saver(LCDbCryoJob * _job, LQuery & _qc, int _pid) : job(_job), qc(_qc), pid(_pid) {} //, chunk(chunk), sampleRow(sampleRow) { }
+        int saveBox(Chunk< SampleRow > * chunk, map<int, int> & boxes, int dest_box_id) {
+            int rj_box_cid;
+            map<int, int>::iterator found = boxes.find(dest_box_id);
+            if (found == boxes.end()) { // not added yet, add record and cache
+                { // must go out of scope otherwise read locks db with "no mst..."
+                    LQuery qt(LIMSDatabase::getCentralDb()); LCDbID myLCDbID;
+                    rj_box_cid = myLCDbID.claimNextID(qt); // SQL: "next value for c_id_sequence"
+                } //int rtid = job->getID(); int sect = chunk->getSection(); int bid  = sampleRow->store_record->getBoxID(); // debug
+                qc.setSQL(
+                    "INSERT INTO c_box_retrieval (rj_box_cid, retrieval_cid, box_id, project_cid, section, status)"
+                    " VALUES (:rjbid, :rtid, :bxid, :prid, :sect, :stat)"
+                );
+                qc.setParam("rjbid",rj_box_cid); // Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
+                qc.setParam("rtid", job->getID());
+                qc.setParam("bxid", dest_box_id); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
+                qc.setParam("prid", job->getProjectID());
+                qc.setParam("sect", chunk->getSection()); // 0 = retrieve all boxes in parallel
+                qc.setParam("stat", LCDbBoxRetrieval::Status::NEW); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
+                qc.execSQL();
+                boxes[dest_box_id] = rj_box_cid; // cache result
+            } else {
+                rj_box_cid = found->second;
+            }
+            return rj_box_cid;
+        }
+        void saveSample(Chunk< SampleRow > * chunk, SampleRow * sampleRow, int rj_box_cid) {
+            qc.setSQL(
+                "INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status)"
+                " VALUES (:rjid, :pos, :barc, :aliq, :slot, :pid, 'now', :st)"
+            );
+            qc.setParam("rjid", rj_box_cid);
+            qc.setParam("pos",  sampleRow->dest_cryo_pos); //?? //qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
+            qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
+            qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
+            qc.setParam("slot", sampleRow->box_pos); //??? // rename box_pos to dest_pos?
+            qc.setParam("pid",  pid);
+            qc.setParam("st",   LCDbCryovialRetrieval::Status::EXPECTED); //??
+            qc.execSQL();
+        }
+    };
+
     for (int i=0; i<chunks.size(); i++) {
         if (chunks[i]->getSize() > MAX_CHUNK_SIZE) {
             wstringstream oss; oss<<"Maximum chunk size is "<<MAX_CHUNK_SIZE;
@@ -210,55 +256,19 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
 
         Screen->Cursor = crSQLWait; Enabled = false;
         LQuery qc(LIMSDatabase::getCentralDb());
-
+        Saver s(job, qc, pid);
         for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) {
             map<int, int> boxes; // box_id to rj_box_id, per chunk
             int rj_box_cid;
-
             Chunk< SampleRow > * chunk = *it;
             for (int i = 0; i < chunk->getSize(); i++) {
                 SampleRow *         sampleRow = chunk->rowAt(i);
-                LPDbCryovial *      cryo  = sampleRow->cryo_record;
-                LPDbCryovialStore * store = sampleRow->store_record;
-                map<int, int>::iterator found = boxes.find(sampleRow->dest_box_id);
-                if (found == boxes.end()) { // not added yet, add record and cache
-                    { // must go out of scope otherwise read locks db with "no mst..."
-                        LQuery qt(LIMSDatabase::getCentralDb()); LCDbID myLCDbID;
-                        rj_box_cid = myLCDbID.claimNextID(qt); // SQL: "next value for c_id_sequence"
-                    }
-
-                    // debug
-                    int rtid = job->getID();
-                    int sect = chunk->getSection();
-                    int bid  = sampleRow->store_record->getBoxID();
-                    int stat = LCDbBoxStore::Status::SLOT_ALLOCATED;
-                    qc.setSQL(
-                        "INSERT INTO c_box_retrieval (rj_box_cid, retrieval_cid, box_id, project_cid, section, status)"
-                        " VALUES (:rjbid, :rtid, :bxid, :prid, :sect, :stat)"
-                    );
-                    qc.setParam("rjbid",rj_box_cid); // Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
-                    qc.setParam("rtid", job->getID());
-                    qc.setParam("bxid", sampleRow->dest_box_id); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
-                    qc.setParam("prid", job->getProjectID());
-                    qc.setParam("sect", chunk->getSection()); // 0 = retrieve all boxes in parallel
-                    qc.setParam("stat", LCDbBoxRetrieval::Status::NEW); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
-                    qc.execSQL();
-                    boxes[sampleRow->dest_box_id] = rj_box_cid; // cache result
-                } else {
-                    rj_box_cid = found->second;
+                rj_box_cid = s.saveBox(chunk, boxes, sampleRow->dest_box_id);
+                s.saveSample(chunk, sampleRow, rj_box_cid);
+                if (NULL != sampleRow->secondary) {
+                    rj_box_cid = s.saveBox(chunk, boxes, sampleRow->secondary->dest_box_id);
+                    s.saveSample(chunk, sampleRow->secondary, rj_box_cid);
                 }
-                qc.setSQL(
-                    "INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status)"
-                    " VALUES (:rjid, :pos, :barc, :aliq, :slot, :pid, 'now', :st)"
-                );
-                qc.setParam("rjid", rj_box_cid);
-                qc.setParam("pos",  sampleRow->dest_cryo_pos); //?? //qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
-                qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
-                qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
-                qc.setParam("slot", sampleRow->box_pos); //??? // rename box_pos to dest_pos?
-                qc.setParam("pid",  pid);
-                qc.setParam("st",   LCDbCryovialRetrieval::Status::EXPECTED); //??
-                qc.execSQL();
             }
         }
         btnSave->Enabled = false;
@@ -273,10 +283,6 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         showChunks();
         showChunk();
     }
-}
-
-void TfrmSamples::saveSampleToPlan(int box_cid) {
-
 }
 
 void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {

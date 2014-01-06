@@ -124,7 +124,9 @@ private:
     void                                        showChunks();
     void                                        loadRows();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
-    void                                        saveSampleToPlan(int box_cid);
+    //void                                        saveSampleToPlan(int box_cid);
+    //int                                         insertBox(int dest_box_id);
+    //void                                        insertSample(int box_cid);
     const char *                                loadingMessage;
     void                                        calcSizes();
     int                                         section_size;
