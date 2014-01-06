@@ -1,4 +1,17 @@
 ﻿DEBUGSTREAM
+
+why is the map of box_id to rj_box_id per chunk?
+  within each chunk, all boxes containing the vials in that chunk will have a plan entry (rj_box_cid)
+  each cryovial is linked to __a box in a particular chunk__ via rj_box_cid, which tells us which chunk the vial is in.
+  thus the map being per chunk rather than global is what defines chunks - ie, definitely keep it that way.
+the problem now is how to keep this behaviour and factor out code in order to save both primary and secondary aliquots.
+by the same logic as above, boxes of secondary aliquots must be given unique-per chunk entries also.
+ok, so the same map can be used for both.
+struct Saver to re-use code for 2ndary ali - seems to be saving both aliquots.
+are they read in properly in process? they are read in (hurrah!) but both are displayed.
+ * save changes thread
+ * load 2ndaries seems to work ok
+ * save 2ndaries in plan
  * still not showing 2ndary aliquot    
  * rename files: Retrasst[Plan|Process][Samples|Boxes]
  * port [Plan|Process]Samples to [Plan|Process]Boxes

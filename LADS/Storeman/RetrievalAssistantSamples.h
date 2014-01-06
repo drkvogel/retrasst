@@ -22,13 +22,14 @@ class LoadVialsWorkerThread : public TThread {
 protected:
     void __fastcall Execute();
     void load();
-public:
-    __fastcall LoadVialsWorkerThread();
+    LCDbCryoJob *   job;
     int             rowCount;
     string          loadingMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
     string          debugMessage;
     void __fastcall debugLog(); // synchronized methods can't have args
+public:
+    __fastcall LoadVialsWorkerThread();
 };
 
 class TfrmSamples : public TForm {
@@ -124,6 +125,9 @@ private:
     void                                        showChunks();
     void                                        loadRows();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
+    //void                                        saveSampleToPlan(int box_cid);
+    //int                                         insertBox(int dest_box_id);
+    //void                                        insertSample(int box_cid);
     const char *                                loadingMessage;
     void                                        calcSizes();
     int                                         section_size;
