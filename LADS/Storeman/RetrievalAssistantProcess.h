@@ -20,6 +20,7 @@ protected:
 public:
     __fastcall LoadPlanWorkerThread();
     Chunk< SampleRow > * loadingChunk;
+    LCDbCryoJob *   job;
     int             rowCount;
     string          loadingMessage;
     string          debugMessage;

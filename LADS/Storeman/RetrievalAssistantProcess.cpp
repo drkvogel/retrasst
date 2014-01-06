@@ -342,6 +342,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     if (NULL == frmProcess || NULL == frmProcess->job) { throw "wtf?"; }
     loadingMessage = frmProcess->loadingMessage;
     const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+    job = frmProcess->job;
 
     time_t rawtime;
     struct tm * timeinfo;
@@ -355,7 +356,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     frmProcess->tempTableName.assign(oss.str());
 
     {
-        LQuery qd(Util::projectQuery(frmProcess->job->getProjectID(), true)); // ddb
+        LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
         oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName; // ingres doesn't like table names passed as parameters
         qd.setSQL(oss.str());
         debugMessage = oss.str();
@@ -376,7 +377,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         debugMessage = oss.str();
         Synchronize((TThreadMethod)&debugLog);
         qd.setSQL(oss.str());
-        int retrieval_cid = frmProcess->job->getID();
+        int retrieval_cid = job->getID();
         qd.setParam("rtid", retrieval_cid); //qd.setParam("chnk", loading0Chunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
         qd.execSQL();
     }
@@ -384,11 +385,11 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     Synchronize((TThreadMethod)&debugLog);
 
     // gj added a secondary index on cryovial_store (on t_ldb20 only) - how to check this?
-    bool stats_c_barcode                = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial",      "cryovial_barcode");
-    bool stats_c_aliquot                = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial",      "aliquot_type_cid");
-    bool stats_cs_cryovial_id           = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store","cryovial_id");
-    bool stats_cs_status                = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store","status");
-    bool stats_cs_retrieval_cid         = Util::statsOnColumn(frmProcess->job->getProjectID(), "cryovial_store","retrieval_cid");
+    bool stats_c_barcode                = Util::statsOnColumn(job->getProjectID(), "cryovial",      "cryovial_barcode");
+    bool stats_c_aliquot                = Util::statsOnColumn(job->getProjectID(), "cryovial",      "aliquot_type_cid");
+    bool stats_cs_cryovial_id           = Util::statsOnColumn(job->getProjectID(), "cryovial_store","cryovial_id");
+    bool stats_cs_status                = Util::statsOnColumn(job->getProjectID(), "cryovial_store","status");
+    bool stats_cs_retrieval_cid         = Util::statsOnColumn(job->getProjectID(), "cryovial_store","retrieval_cid");
 
     stats = stats_c_barcode && stats_c_aliquot && stats_cs_cryovial_id && stats_cs_status && stats_cs_retrieval_cid;
 
@@ -407,7 +408,10 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         Synchronize((TThreadMethod)&debugLog);
     }
 
-    LQuery ql(Util::projectQuery(frmProcess->job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
+    int primary_aliquot     = job->getPrimaryAliquot();
+    int secondary_aliquot   = job->getSecondaryAliquot();
+
+    LQuery ql(Util::projectQuery(job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
     oss.str("");
     oss<<
         " SELECT"
@@ -430,14 +434,14 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         "     AND s2.cryovial_id = c.cryovial_id"
         "     AND b2.box_cid = s2.box_cid"
         " ORDER BY"
-        "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos";
+        "     s1.retrieval_cid, chunk, g.rj_box_cid, c.aliquot_type_cid "
+        << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC");
     ql.setSQL(oss.str());
     rowCount = 0; // class variable needed for synchronise
     ql.open();
     int curchunk = 0, chunk = 0;
     while (!ql.eof()) {
-        chunk = ql.readInt("chunk");
-        //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
+        chunk = ql.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) {
             frmProcess->addChunk(rowCount);
             curchunk = chunk;
@@ -463,16 +467,13 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         rowCount++;
     }
 
-    wstringstream wss; wss<<"finished loading "<<rowCount<<"samples";
     //DEBUGSTREAM("finished loading "<<rowCount<<"samples")
-    debugMessage = oss.str();
-    Synchronize((TThreadMethod)&debugLog);
+    //wstringstream wss; wss<<"finished loading "<<rowCount<<"samples";
+    oss.str(""); oss<<"finished loading "<<rowCount<<"samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
 
     oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName;
-    ql.setSQL(oss.str());
-    if (!RETRASSTDEBUG) ql.execSQL();
-    debugMessage = "finished drop temp table";
-    Synchronize((TThreadMethod)&debugLog);
+    ql.setSQL(oss.str()); if (!RETRASSTDEBUG) ql.execSQL();
+    debugMessage = "finished drop temp table"; Synchronize((TThreadMethod)&debugLog);
 
     frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
 
@@ -482,9 +483,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
         frmProcess->getStorage(sample);
-        oss<<sample->storage_str();
-        loadingMessage = oss.str().c_str();
-        Synchronize((TThreadMethod)&updateStatus);
+        oss<<sample->storage_str(); loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 	}
     debugMessage = "finished load storage details";
     Synchronize((TThreadMethod)&debugLog);
@@ -517,7 +516,6 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
         msgbox(e.Message);
     }
     Enabled = true;
-    //wstringstream oss; oss<<__FUNC__<<"loadRows for job "<<job->getID()<<" finished"; debugLog(oss.str().c_str());
     DEBUGSTREAM(__FUNC__<<"loadRows for job "<<job->getID()<<" finished")
 }
 
@@ -614,11 +612,10 @@ SampleRow * TfrmProcess::currentSample() {
 void TfrmProcess::nextRow() {
     Chunk< SampleRow > * chunk = currentChunk();
     int current = chunk->getCurrentRow();
-//    SampleRow * sample = chunk->rowAt(current);
-    SampleRow * sample = currentSample(); // which may be the secondary aliquot
+    SampleRow * sample = currentSample(); // which may be the secondary aliquot //    SampleRow * sample = chunk->rowAt(current);
 
+    // save both primary and secondary
     //sample->retrieval_record->saveRecord(LIMSDatabase::getProjectDb());
-    // save both primary and secondary?
     //sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getProjectDb());
     if (current < chunk->getSize()-1) {
         int lookAhead = sgVials->VisibleRowCount/2;
@@ -639,8 +636,7 @@ void TfrmProcess::nextRow() {
             Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
         }
     }
-    labelPrimary->Enabled   = true;
-    labelSecondary->Enabled = false;
+    labelPrimary->Enabled = true; labelSecondary->Enabled = false;
     showChunks();
 
     // fixme is there a secondary aliquot for this row?
@@ -674,67 +670,84 @@ void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after
 void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
     DEBUGSTREAM(__FUNC__<<" started")
     Screen->Cursor = crSQLWait; Enabled = false;
+
     SampleRow * sample;//, * secondary;
     int rowIdx = currentChunk()->getCurrentRow();
     sample = currentChunk()->rowAt(rowIdx); // current primary
 
-    LQuery ql(Util::projectQuery(frmProcess->job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
-    ostringstream oss;
+    getStorage(sample->secondary);
 
-    // some of these fields may be the same as the primary, might be able to get away with joining less tables?
-    oss<<
-        " SELECT"
-        "     g.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status, g.box_id AS dest_id,"
-        "     c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
-        "     s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position, s1.record_id,"
-        "     s1.status, s1.tube_position, s1.note_exists AS cs_note,"
-        "     b1.external_name AS src_box, "
-        "     b2.external_name AS dest_name,"
-        "     s2.tube_position AS slot_number, s2.status AS dest_status"
-        " FROM "
-        <<tempTableName<<" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
-        " WHERE"
-        "     c.cryovial_barcode = g.cryovial_barcode"
-        "     AND c.aliquot_type_cid != "<<job->getPrimaryAliquot()<<
-        "     AND s1.cryovial_id = c.cryovial_id"
-        "     AND s1.retrieval_cid = g.retrieval_cid"
-        "     AND b2.box_cid = g.box_id"
-        "     AND b1.box_cid = s1.box_cid"
-        "     AND s2.cryovial_id = c.cryovial_id"
-        "     AND b2.box_cid = s2.box_cid"
-        "     AND c.sample_id = "<<sample->cryo_record->getSampleID()<< //???
-        " ORDER BY"
-        "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos";
-    ql.setSQL(oss.str());
-    DEBUGSTREAM(oss.str())
-    if (ql.open()) {
-        sample->secondary = new SampleRow( // replace with secondary aliquot
-            new LPDbCryovial(ql),
-            new LPDbCryovialStore(ql),
-            new LCDbCryovialRetrieval(ql), // fixme
-            ql.readString(  "cryovial_barcode"),
-            Util::getAliquotDescription(ql.readInt("aliquot_type_cid")),
-            ql.readString(  "src_box"),
-            ql.readInt(     "dest_id"),
-            ql.readString(  "dest_name"),
-            ql.readInt(     "dest_pos"),
-            "", 0, "", 0, 0, "", 0 ); // no storage details yet
+    // refresh sg row
+    fillRow(sample->secondary, rowIdx+1);
+    showCurrentRow();
+    showDetails(sample->secondary);
+    //labelPrimary->Enabled   = false; labelSecondary->Enabled = true;
+    Screen->Cursor = crDefault; Enabled = true; DEBUGSTREAM(__FUNC__<<" finished")
+    return;
 
-        // find storage details
-        getStorage(sample->secondary);
-
-        // refresh sg row
-        fillRow(sample->secondary, rowIdx+1);
-        showCurrentRow();
-        showDetails(sample->secondary);
-        labelPrimary->Enabled   = false;
-        labelSecondary->Enabled = true;
-    } else {
-        Application->MessageBox(L"Couldn't find secondary aliquot", L"Info", MB_OK);
-    }
-
-    Screen->Cursor = crDefault; Enabled = true;
-    DEBUGSTREAM(__FUNC__<<" finished")
+    // obsolete
+//    DEBUGSTREAM(__FUNC__<<" started")
+//    Screen->Cursor = crSQLWait; Enabled = false;
+//    //SampleRow * sample;//, * secondary;
+//    //int rowIdx = currentChunk()->getCurrentRow();
+//    sample = currentChunk()->rowAt(rowIdx); // current primary
+//
+//    LQuery ql(Util::projectQuery(frmProcess->job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
+//    ostringstream oss;
+//
+//    // some of these fields may be the same as the primary, might be able to get away with joining less tables?
+//    oss<<
+//        " SELECT"
+//        "     g.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status, g.box_id AS dest_id,"
+//        "     c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
+//        "     s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position, s1.record_id,"
+//        "     s1.status, s1.tube_position, s1.note_exists AS cs_note,"
+//        "     b1.external_name AS src_box, "
+//        "     b2.external_name AS dest_name,"
+//        "     s2.tube_position AS slot_number, s2.status AS dest_status"
+//        " FROM "
+//        <<tempTableName<<" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
+//        " WHERE"
+//        "     c.cryovial_barcode = g.cryovial_barcode"
+//        "     AND c.aliquot_type_cid != "<<job->getPrimaryAliquot()<<
+//        "     AND s1.cryovial_id = c.cryovial_id"
+//        "     AND s1.retrieval_cid = g.retrieval_cid"
+//        "     AND b2.box_cid = g.box_id"
+//        "     AND b1.box_cid = s1.box_cid"
+//        "     AND s2.cryovial_id = c.cryovial_id"
+//        "     AND b2.box_cid = s2.box_cid"
+//        "     AND c.sample_id = "<<sample->cryo_record->getSampleID()<< //???
+//        " ORDER BY"
+//        "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos";
+//    ql.setSQL(oss.str());
+//    DEBUGSTREAM(oss.str())
+//    if (ql.open()) {
+//        sample->secondary = new SampleRow( // replace with secondary aliquot
+//            new LPDbCryovial(ql),
+//            new LPDbCryovialStore(ql),
+//            new LCDbCryovialRetrieval(ql), // fixme
+//            ql.readString(  "cryovial_barcode"),
+//            Util::getAliquotDescription(ql.readInt("aliquot_type_cid")),
+//            ql.readString(  "src_box"),
+//            ql.readInt(     "dest_id"),
+//            ql.readString(  "dest_name"),
+//            ql.readInt(     "dest_pos"),
+//            "", 0, "", 0, 0, "", 0 ); // no storage details yet
+//
+//        // find storage details
+//        getStorage(sample->secondary);
+//
+//        // refresh sg row
+//        fillRow(sample->secondary, rowIdx+1);
+//        showCurrentRow();
+//        showDetails(sample->secondary);
+//        labelPrimary->Enabled   = false;
+//        labelSecondary->Enabled = true;
+//    } else {
+//        Application->MessageBox(L"Couldn't find secondary aliquot", L"Info", MB_OK);
+//    }
+//Screen->Cursor = crDefault; Enabled = true;
+//    DEBUGSTREAM(__FUNC__<<" finished")
 }
 
 //    using namespace boost::local_time;

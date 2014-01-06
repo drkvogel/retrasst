@@ -606,13 +606,14 @@ void LoadVialsWorkerThread::load() {
     delete_referenced< vector<SampleRow * > >(frmSamples->vials);
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
     debugMessage = "preparing query"; Synchronize((TThreadMethod)&debugLog);
+    loadingMessage = frmSamples->loadingMessage;
+    job = frmSamples->job;
 
-    int primary_aliquot     = frmSamples->job->getPrimaryAliquot();
-    int secondary_aliquot   = frmSamples->job->getSecondaryAliquot();
+    int primary_aliquot     = job->getPrimaryAliquot();
+    int secondary_aliquot   = job->getSecondaryAliquot();
 
-    LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); // ddb
-    oss.str("");
-    oss <<
+    LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
+    oss.str(""); oss <<
         "SELECT"
         "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
         "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
@@ -638,12 +639,8 @@ void LoadVialsWorkerThread::load() {
         << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC");
 
     qd.setSQL(oss.str()); debugMessage = qd.getSQL(); Synchronize((TThreadMethod)&debugLog);
-    qd.setParam("jobID", frmSamples->job->getID()); //qd.setParam("primary", primary_aliquot);
-
-    loadingMessage = frmSamples->loadingMessage; debugMessage = "opening query"; Synchronize((TThreadMethod)&debugLog);
-
+    qd.setParam("jobID", job->getID());
     qd.open(); debugMessage = "query open"; Synchronize((TThreadMethod)&debugLog);
-
     rowCount = 0; SampleRow * previous = NULL;
     while (!qd.eof()) {
         if (0 == rowCount % 10) {
@@ -656,14 +653,13 @@ void LoadVialsWorkerThread::load() {
             new LPDbCryovialStore(qd),
             NULL,
             qd.readString(  "cryovial_barcode"),
-            //Util::getAliquotDescription(primary), //"",//qd.readString(  "aliquot"),
-            Util::getAliquotDescription(qd.readInt("aliquot_type_cid")),
+            Util::getAliquotDescription(qd.readInt("aliquot_type_cid")), // should cache
             qd.readString(  "source_name"),
             qd.readInt(     "dest_id"),
             qd.readString(  "dest_name"),
             qd.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
-        if (previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
+        if (secondary_aliquot != 0 && previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
             if (previous->cryo_record->getAliquotType() == row->cryo_record->getAliquotType()) {
                 throw Exception("duplicate aliquot");
             } else if (row->cryo_record->getAliquotType() != secondary_aliquot) {
@@ -698,10 +694,8 @@ void LoadVialsWorkerThread::load() {
             samples[sample->store_record->getBoxID()] = (*it); // cache result
             oss<<sample->storage_str(); oss<<"         ";
         }
-        loadingMessage = oss.str().c_str();
-        Synchronize((TThreadMethod)&updateStatus);
+        loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 	}
-
     debugMessage = "finished getting storage details"; Synchronize((TThreadMethod)&debugLog);
 }
 
@@ -714,17 +708,13 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     sgwChunks->clear();
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
     if (0 == vials.size()) {
-        //Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK);
-        if (IDYES == Application->MessageBox(L"No samples found, exit?", L"Info", MB_YESNO)) {
-            Close();
-        }
+        if (IDYES == Application->MessageBox(L"No samples found, exit?", L"Info", MB_YESNO)) { Close(); }
         return;
     }
-    int box_id = vials[0]->dest_box_id;//->getBoxID(); // look at base list, chunk might not have been created
+    int box_id = vials[0]->dest_box_id; // look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL) {
-        throw "box not found";
-        //Application->MessageBox(L"Box not found, exiting", L"Info", MB_OK); Close(); return;
+        throw "box not found"; //Application->MessageBox(L"Box not found, exiting", L"Info", MB_OK); Close(); return;
     }
     box_size = found->getSize();
     editDestBoxSize->Text = box_size;
