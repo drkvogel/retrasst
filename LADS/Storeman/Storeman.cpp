@@ -8,58 +8,63 @@
 
 
 
-USEFORM("RationaliseTanks\RatTanksdbSelection.cpp", frmRatTankDbSelectionDialog);
+
+
+
+
+
 USEFORM("RationaliseTanks\RatTanksCreateRetrievalJob.cpp", frmRatTankCreateRetrievalJob);
+USEFORM("RationaliseTanks\RatTanksCreateExercise.cpp", frmRatTanksRetrivalExercise);
+USEFORM("NewType.cpp", frmNewStoreType);
 USEFORM("RationaliseTanks\RatTanksBoxSelection.cpp", frmRatTanksBoxSelection);
 USEFORM("RationaliseTanks\RatTanksBoxType.cpp", frmRatTanksBoxType);
-USEFORM("RationaliseTanks\RatTanksCreateExercise.cpp", frmRatTanksRetrivalExercise);
+USEFORM("RationaliseTanks\RatTanksSignIn.cpp", frmRatTankSignIn);
 USEFORM("ReferredBoxes.cpp", frmReferred);
 USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
-USEFORM("RetrievalAssistant.cpp", frmRetrievalAssistant);
-USEFORM("RationaliseTanks\RatTanksSignIn.cpp", frmRatTankSignIn);
-USEFORM("RationaliseTanks\RatTanksMainDialog.cpp", frmRatTanksMainDialog);
 USEFORM("RationaliseTanks\RatTanksPleaseWait.cpp", frmRatTankPleaseWait);
-USEFORM("NewType.cpp", frmNewStoreType);
+USEFORM("RationaliseTanks\RatTanksdbSelection.cpp", frmRatTankDbSelectionDialog);
+USEFORM("RationaliseTanks\RatTanksMainDialog.cpp", frmRatTanksMainDialog);
+USEFORM("NewTank.cpp", frmNewTank);
 USEFORM("FindSample.cpp", frmFind);
+USEFORM("DiscardSearch.cpp", frmSearch);
+USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
 USEFORM("DiscardReason.cpp", frmDiscardReason);
 USEFORM("DiscardSamples.cpp", frmDiscardSamples);
-USEFORM("DiscardSearch.cpp", frmSearch);
+USEFORM("NewJob.cpp", frmNewJob);
 USEFORM("NewSection.cpp", frmNewSection);
 USEFORM("NewSite.cpp", frmNewSite);
-USEFORM("NewTank.cpp", frmNewTank);
-USEFORM("NewJob.cpp", frmNewJob);
+USEFORM("NewExercise.cpp", frmNewExercise);
 USEFORM("MoveJobs.cpp", frmSelectJob);
 USEFORM("NewBoxType.cpp", frmNewBoxType);
-USEFORM("NewExercise.cpp", frmNewExercise);
+USEFORM("RetrAsstMain.cpp", frmRetrievalAssistant);
 USEFORM("Storemain.cpp", frmStoremain);
 USEFORM("SMLogin.cpp", frmSMLogin);
 USEFORM("SampleMove.cpp", frmMove);
 USEFORM("SelectSamples.cpp", frmSelectBoxes);
 USEFORM("showsamples.cpp", frmAliquotTypes);
 USEFORM("RetrievalLists\RetrievalListCryovialHistoryDialog.cpp", frmRetrievalListCryovialHistoryDialog);
-USEFORM("RetrievalAssistantSamples.cpp", frmSamples);
-USEFORM("RetrievalAssistantBoxes.cpp", frmBoxes);
-USEFORM("RetrievalAssistantProcess.cpp", frmProcess);
-USEFORM("RetrievalAssistantProcessBoxes.cpp", frmProcessBoxes);
+USEFORM("RetrAsstPlanSamples.cpp", frmSamples);
+USEFORM("RetrAsstPlanBoxes.cpp", frmBoxes);
+USEFORM("RetrAsstCollectSamples.cpp", frmProcess);
+USEFORM("RetrAsstCollectBoxes.cpp", frmProcessBoxes);
 USEFORM("RetrievalLists\RetrievalListResultsDialog.cpp", frmRetrievalListResultsDialog);
 USEFORM("RetrieveSamples.cpp", frmRetrieved);
 USEFORM("SampleEntry.cpp", frmRetrieveMain);
 USEFORM("RetrievalLists\RetrievalListResultNotesDialog.cpp", frmRetrievalListResultNotesDialog);
 USEFORM("RetrievalLists\retrievalListMainDialog.cpp", frmRetrievalListViewListMain);
 USEFORM("RetrievalLists\RetrievalListMainListDialog.cpp", frmRetrievalListDialog);
-USEFORM("BoxTransfer.cpp", frmBoxList);
-USEFORM("BrowseSample.cpp", frmBrowse);
 USEFORM("AnalyseSamples.cpp", frmAnalyseSpecimens);
+USEFORM("BoxTransfer.cpp", frmBoxList);
 USEFORM("AddSpecimens.cpp", frmAddSpecimens);
 USEFORM("DiscardMethod.cpp", frmDiscardMethod);
 USEFORM("DiscardNote.cpp", frmDiscardNote);
-USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
+USEFORM("BrowseSample.cpp", frmBrowse);
 USEFORM("Configure.cpp", frmConfigure);
-USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
 USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
+USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
+USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
 USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
 USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
-USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
 //---------------------------------------------------------------------------
 WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
