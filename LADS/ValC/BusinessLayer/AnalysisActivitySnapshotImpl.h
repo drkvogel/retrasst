@@ -3,9 +3,11 @@
 
 #include "API.h"
 #include <boost/scoped_ptr.hpp>
+#include "DBTransactionHandler.h"
 #include "LocalRunImpl.h"
 #include "LoggingService.h"
 #include <memory>
+#include "SampleRunGroupModel.h"
 #include "SnapshotUpdateHandle.h"
 #include "SnapshotUpdateThread.h"
 #include "WorklistRelativeImpl.h"
@@ -15,10 +17,10 @@ namespace valc
 
 class ApplicationContext;
 class BuddyDatabase;
-class DBTransactionHandler;
 class DBUpdateSchedule;
 class ResultAttributes;
 class ResultDirectory;
+class SampleRunGroupIDGenerator;
 class SampleRunIDResolutionService;
 class WorklistEntries;
 class WorklistLinks;
@@ -39,7 +41,8 @@ public:
         DBUpdateSchedule* dbUpdateSchedule,
         SampleRunIDResolutionService* sampleRunIDResolutionService,
         ApplicationContext* appContext,
-        int pendingUpdateWaitTimeoutSecs );
+        int pendingUpdateWaitTimeoutSecs,
+        SampleRunGroupIDGenerator* sampleRunGroupIDGenerator );
     ~AnalysisActivitySnapshotImpl();
     bool                            compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID )    const;
     RuleResults                     getRuleResults( int forResultID ) const;
@@ -61,7 +64,6 @@ public:
 
 private:
     ApplicationContext*             m_appContext;
-    DBTransactionHandler*           m_dbTransactionHandler;
     const BuddyDatabase*            m_buddyDatabase;
     const ResultDirectory*          m_resultDirectory;
     WorklistEntries*                m_worklistEntries;
@@ -74,9 +76,11 @@ private:
     ResultAttributes*               m_resultAttributes;
     const int                       m_pendingUpdateWaitTimeoutSecs;
     SnapshotUpdateHandle            m_updateHandle;
+    DBTransactionHandler            m_dbTransactionHandler;
     SnapshotUpdateThread            m_snapshotUpdateThread;
     WorklistRelative::Impl          m_worklistRelativeImpl;
     LocalRun::Impl                  m_localRunImpl;
+    SampleRunGroupModel             m_sampleRunGroupModel;
 };
 
 };

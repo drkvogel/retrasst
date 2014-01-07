@@ -1,8 +1,8 @@
+#include "AbstractConnectionFactory.h"
 #include "AnalysisActivitySnapshotImpl.h"
 #include "ApplicationContext.h"
 #include <boost/foreach.hpp>
 #include "BuddyDatabase.h"
-#include "DBTransactionHandler.h"
 #include "DBUpdateSchedule.h"
 #include "ExceptionUtil.h"
 #include "QueueBuilderParams.h"
@@ -25,7 +25,8 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
     DBUpdateSchedule*               dbUpdateSchedule,
     SampleRunIDResolutionService*   sampleRunIDResolutionService,
     ApplicationContext*             appContext,
-    int                             pendingUpdateWaitTimeoutSecs )
+    int                             pendingUpdateWaitTimeoutSecs,
+    SampleRunGroupIDGenerator*      sampleRunGroupIDGenerator )
     : 
     m_buddyDatabase                 ( bdb ),
     m_log                           ( appContext->log),
@@ -36,17 +37,31 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
     m_sampleRunIDResolutionService  ( sampleRunIDResolutionService ),
     m_appContext                    ( appContext ),
     m_resultAttributes              ( appContext->resultAttributes ),
-    m_dbTransactionHandler          ( appContext->databaseUpdateThread ),
-    m_pendingUpdateWaitTimeoutSecs  ( pendingUpdateWaitTimeoutSecs ),
     m_updateHandle                  ( this ),
-    m_snapshotUpdateThread  ( appContext->databaseUpdateThread, m_updateHandle, appContext->log, appContext->taskExceptionUserAdvisor ),
-    m_worklistRelativeImpl          ( wl )
+    m_dbTransactionHandler          (   
+                                        appContext->connectionFactory->createConnection( 
+                                            appContext->getProperty("DBUpdateThreadConnectionString"),
+                                            appContext->getProperty("DBUpdateThreadSessionReadLockSetting") ),
+                                        appContext->log,
+                                        m_updateHandle,
+                                        paulst::toInt(appContext->getProperty("DBUpdateThreadShutdownTimeoutSecs")),
+                                        std::string("true") == appContext->getProperty("DBUpdateThreadCancelPendingUpdatesOnShutdown"),
+                                        appContext->taskExceptionUserAdvisor,
+                                        appContext->config 
+                                     ),
+    m_pendingUpdateWaitTimeoutSecs  ( pendingUpdateWaitTimeoutSecs ),
+    m_snapshotUpdateThread          ( &m_dbTransactionHandler, m_updateHandle, appContext->log, appContext->taskExceptionUserAdvisor ),
+    m_worklistRelativeImpl          ( wl ),
+    m_sampleRunGroupModel           ( sampleRunGroupIDGenerator )
 {
+    m_localRunImpl.setSampleRunGroupModel( &m_sampleRunGroupModel );
+
     BOOST_FOREACH( const SampleRun& sr, *m_buddyDatabase )
     {
         LocalRun lr( sr.getSampleDescriptor(), sr.getID() );
         m_localRunImpl.introduce( lr, sr.isOpen() );
         m_localEntries.push_back( lr );
+        m_sampleRunGroupModel.assignToGroup( sr.getID(), sr.isQC(), sr.getGroupID() );
     }
 
     QueuedSamplesBuilderFunction buildQueue( new QueueBuilderParams( bdb, wd, m_appContext->clusterIDs ) );
@@ -84,9 +99,9 @@ BuddyDatabaseEntries AnalysisActivitySnapshotImpl::listBuddyDatabaseEntriesFor( 
 
 void AnalysisActivitySnapshotImpl::runPendingDatabaseUpdates( bool block )
 {
-    m_dbUpdateSchedule->queueScheduledUpdates( m_dbTransactionHandler );
+    m_dbUpdateSchedule->queueScheduledUpdates( &m_dbTransactionHandler );
 
-    if ( block && ! m_dbTransactionHandler->waitForQueued( m_pendingUpdateWaitTimeoutSecs * 1000 ) )
+    if ( block && ! m_dbTransactionHandler.waitForQueued( m_pendingUpdateWaitTimeoutSecs * 1000 ) )
     {
         paulst::exception( "Pending updates failed to run within the timeout limit of %d secs", m_pendingUpdateWaitTimeoutSecs );
     }
@@ -146,8 +161,8 @@ WorklistRelative AnalysisActivitySnapshotImpl::viewRelatively( const WorklistEnt
 
 bool AnalysisActivitySnapshotImpl::waitForActionsPending( long millis )
 {
-    const bool noDBTransactionsInProgress = m_dbTransactionHandler->waitForQueued( millis );
-    const bool noUpdatesPending           = m_snapshotUpdateThread. waitTillQuiet( millis );
+    const bool noDBTransactionsInProgress = m_dbTransactionHandler.waitForQueued( millis );
+    const bool noUpdatesPending           = m_snapshotUpdateThread.waitTillQuiet( millis );
 
     return noDBTransactionsInProgress && noUpdatesPending;
 }

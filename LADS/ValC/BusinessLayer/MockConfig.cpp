@@ -5,12 +5,19 @@ namespace valc
 
 MockConfig::MockConfig()
 {
-    addProperty( "QueryForSampleRun"                , "QueryForSampleRun %d" );
-    addProperty( "SQLStmtCloseSampleRun"            , "SQLStmtCloseSampleRun %d %d" );
-    addProperty( "SQLStmtInsertWorklistRelation"    , "SQLStmtInsertWorklistRelation"  );
-    addProperty( "SQLStmtNextWorklistID"            , "SQLStmtNextWorklistID"  );
-    addProperty( "SQLStmtInsertRerun"               , "SQLStmtInsertRerun"  );
-    addProperty( "LogAllDatabaseStatements"         , "true"  );
+    addProperty( "BuddyDatabaseSampleRunIDUpdateSQL", "update buddy_database set sample_run_id = %d where buddy_sample_id = %d" );
+    addProperty( "LinkResultToWorklistEntryUpdateSQL", "update buddy_result_float set cbw_record_no = %d where buddy_result_id = %d" );
+    addProperty( "SampleRunIDQueryString"                       , "select sample_run_id.nextval"  );
+    addProperty( "SampleRunInsertSQL"                 , "insert into sample_run ( run_id, sequence_position, group_id ) values ( %d, %d, %d )" );
+    addProperty( "SampleRunGroupIDConnectionString"             , "dsn=paulst_brat_64;db=paulst_test3" );
+    addProperty( "SampleRunGroupIDSessionReadLockSetting"       , "set lockmode session where readlock = nolock" );
+    addProperty( "SampleRunGroupIDQueryString"                  , "select valc_next_id.nextval" );
+    addProperty( "QueryForSampleRun"                            , "QueryForSampleRun %d" );
+    addProperty( "SQLStmtCloseSampleRun"                        , "SQLStmtCloseSampleRun %d %d" );
+    addProperty( "SQLStmtInsertWorklistRelation"                , "SQLStmtInsertWorklistRelation"  );
+    addProperty( "SQLStmtNextWorklistID"                        , "SQLStmtNextWorklistID"  );
+    addProperty( "SQLStmtInsertRerun"                           , "SQLStmtInsertRerun"  );
+    addProperty( "LogAllDatabaseStatements"                     , "true"  );
     addProperty( "DBUpdateThreadConnectionString"               , "10"  );
     addProperty( "DBUpdateThreadSessionReadLockSetting"         , ""    );
     addProperty( "DBUpdateThreadShutdownTimeoutSecs"            , "10"  );

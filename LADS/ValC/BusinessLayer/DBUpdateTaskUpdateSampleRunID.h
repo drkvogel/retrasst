@@ -15,7 +15,7 @@ protected:
     void        updateDatabase();
 private:
     std::string m_candidateNewSampleRunID;
-    std::string m_buddySampleID;
+    int         m_buddySampleID;
 };
 
 };

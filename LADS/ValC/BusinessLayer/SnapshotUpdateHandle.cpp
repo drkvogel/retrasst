@@ -40,7 +40,7 @@ void SnapshotUpdateHandle::closeOff( const std::string& sampleRunID )
     m_snapshot->m_localRunImpl.closeOff( sampleRunID );
 }
 
-int SnapshotUpdateHandle::getDatabaseIDForSampleRun( const std::string& sampleRunID )
+int SnapshotUpdateHandle::getDatabaseIDForSampleRun( const std::string& sampleRunID ) const
 {
     try
     {
@@ -53,7 +53,12 @@ int SnapshotUpdateHandle::getDatabaseIDForSampleRun( const std::string& sampleRu
     }
 }
 
-const WorklistEntry* SnapshotUpdateHandle::getWorklistEntry( int id )
+int SnapshotUpdateHandle::getGroupIDForSampleRun( const std::string& candidateSampleRunID ) const
+{
+    return m_snapshot->m_sampleRunGroupModel.getGroupID( candidateSampleRunID );
+}
+
+const WorklistEntry* SnapshotUpdateHandle::getWorklistEntry( int id ) const
 {
     return m_snapshot->m_worklistEntries->get( id );
 }
@@ -86,6 +91,16 @@ void SnapshotUpdateHandle::insertRerun( int existingWorklistID, int newWorklistI
     m_snapshot->m_worklistEntries->add( newOne );
 
     m_snapshot->m_worklistLinks->addLink( existingWorklistID, newWorklistID, 'r' );
+}
+
+bool SnapshotUpdateHandle::knownDatabaseIDForCandidateSampleRun( const std::string& candidateSampleRunID ) const
+{
+    return m_snapshot->m_sampleRunIDResolutionService->hasMappingFor( candidateSampleRunID );
+}
+
+void SnapshotUpdateHandle::updateWithDatabaseIDForSampleRun( const std::string& candidateSampleRunID, int dbID )
+{
+    m_snapshot->m_sampleRunIDResolutionService->addMapping( candidateSampleRunID, paulst::toString(dbID) );
 }
 
 }

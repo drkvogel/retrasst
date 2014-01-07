@@ -25,7 +25,6 @@ class Projects;
 class QCSampleDescriptorDerivationStrategy;
 class ResultIndex;
 class RuleEngineContainer;
-class SampleRunIDResolutionService;
 /*  Queries for local buddy_database entries, joined with sample_run and with buddy_result_float. These joins are OUTER joins. Thus 
     a row will be obtained for each local buddy_database entry, regardless of whether that entry can be joined to a row in sample_run or rows 
     in buddy_result_float.
@@ -38,13 +37,21 @@ class SampleRunIDResolutionService;
 class LoadBuddyDatabase : public stef::Task
 {
 public:
-    LoadBuddyDatabase( int localMachineID, paulstdb::DBConnection* con, paulst::LoggingService* log, 
-		ResultIndex* resultIndex, Projects* projects, BuddyDatabase** out, DBUpdateSchedule* dbUpdateSchedule,
-        SampleRunIDResolutionService* sampleRunIDResolutionService, const std::string& sql,
-        const std::string& inclusionRule, ExceptionalDataHandler* exceptionalDataHandler,
-        RuleEngineContainer* ruleEngine,
-        QCSampleDescriptorDerivationStrategy* qcsdds,
-        BuddyDatabaseEntryIndex* bdei );
+    LoadBuddyDatabase( 
+        int                                     localMachineID, 
+        paulstdb::DBConnection*                 con, 
+        paulst::LoggingService*                 log, 
+        ResultIndex*                            resultIndex, 
+        Projects*                               projects, 
+        BuddyDatabase**                         out, 
+        DBUpdateSchedule*                       dbUpdateSchedule,
+        SampleRunIDResolutionService*           sampleRunIDResolutionService, 
+        const std::string&                      sql,
+        const std::string&                      inclusionRule, 
+        ExceptionalDataHandler*                 exceptionalDataHandler,
+        RuleEngineContainer*                    ruleEngine,
+        QCSampleDescriptorDerivationStrategy*   qcsdds,
+        BuddyDatabaseEntryIndex*                bdei );
 protected:
 	void doStuff();
 private:

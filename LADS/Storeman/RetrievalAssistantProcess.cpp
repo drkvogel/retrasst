@@ -42,7 +42,7 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("destpos",  "Pos",              25);
 #ifdef _DEBUG
     sgwVials->addCol("status",   "Status",           91);
-    sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
+    sgwVials->addCol("aliquot",  "Aliquot",          90);
 #endif
     sgwVials->init();
 }
@@ -259,7 +259,7 @@ void TfrmProcess::fillRow(SampleRow * sampleRow, int rw) {
     LPDbCryovialStore * store   = sampleRow->store_record;
     sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
     sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = sampleRow->retrieval_record->statusString(sampleRow->retrieval_record->getStatus());
-    sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquotName().c_str();
     sgVials->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
     sgVials->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
     sgVials->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
@@ -456,7 +456,6 @@ void __fastcall LoadPlanWorkerThread::Execute() {
             new LPDbCryovialStore(ql),
             new LCDbCryovialRetrieval(ql), // fixme
             ql.readString(  "cryovial_barcode"),
-            Util::getAliquotDescription(ql.readInt("aliquot_type_cid")),
             ql.readString(  "src_box"),
             ql.readInt(     "dest_id"),
             ql.readString(  "dest_name"),
@@ -467,8 +466,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         rowCount++;
     }
 
-    //DEBUGSTREAM("finished loading "<<rowCount<<"samples")
-    //wstringstream wss; wss<<"finished loading "<<rowCount<<"samples";
+    //DEBUGSTREAM("finished loading "<<rowCount<<"samples") //wstringstream wss; wss<<"finished loading "<<rowCount<<"samples";
     oss.str(""); oss<<"finished loading "<<rowCount<<"samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
 
     oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName;

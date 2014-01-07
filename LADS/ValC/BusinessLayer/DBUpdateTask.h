@@ -1,6 +1,7 @@
 #ifndef DBUPDATETASKH
 #define DBUPDATETASKH
 
+#include "SnapshotUpdateHandle.h"
 #include <string>
 #include "Task.h"
 
@@ -18,8 +19,6 @@ namespace paulstdb
 namespace valc
 {
 
-class SampleRunIDResolutionService;
-
 class DBUpdateTask : public stef::Task
 {
 public:
@@ -28,19 +27,16 @@ public:
     void setConfig( const paulst::Config* c );
     void setConnection( paulstdb::DBConnection* c );
     void setLog( paulst::LoggingService* log );
-    void setSampleRunIDResolutionService( SampleRunIDResolutionService* s );
+    void setSnapshotUpdateHandle( const SnapshotUpdateHandle& s );
 protected:
     virtual std::string             describeUpdate() const = 0;
-    void doStuff();
+    void                            doStuff();
     virtual void                    updateDatabase() = 0;
-    SampleRunIDResolutionService*   getSampleRunIDResolutionService() const;
-    const paulst::Config*           getConfig() const;
-    paulstdb::DBConnection*         getConnection() const;
-private:
-    SampleRunIDResolutionService*       m_sampleRunIDResolutionService;
-    paulst::LoggingService*             m_log;
-    paulstdb::DBConnection*             m_connection;
-    const paulst::Config*               m_config;
+
+    SnapshotUpdateHandle            snapshotUpdateHandle;
+    paulst::LoggingService*         log;
+    paulstdb::DBConnection*         connection;
+    const paulst::Config*           config;
 };
 
 };

@@ -162,22 +162,9 @@ string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
     }
 }
 
-// one for StoreUtil.h?
-//string TfrmRetrievalAssistant::getAliquotDescription(int aliquot_cid) { // c_object_name 6: aliquot type?
-//    ostringstream oss;
-//    if (0 == aliquot_cid) return "Not specified";
-//    try {
-//        const LCDbObject * aliquot = LCDbObjects::records().findByID(aliquot_cid);
-//        oss << aliquot->getName().c_str();
-//    } catch (...) {
-//        oss << "ID "<<aliquot_cid<<" not found";
-//    }
-//    return oss.str();
-//}
-
 string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
     // c_audit_trail
-    //LCDbCryoJob::getUserID()
+    //fixmeLCDbCryoJob::getUserID();
     return "";
 }
 

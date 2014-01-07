@@ -1,6 +1,8 @@
-#include <cstdio>
+#include "Config.h"
 #include "DBConnection.h"
 #include "DBUpdateTaskLinkResultToWorklistEntry.h"
+#include "StrUtil.h"
+
 
 namespace valc
 {
@@ -21,9 +23,8 @@ std::string DBUpdateTaskLinkResultToWorklistEntry::describeUpdate() const
 
 void DBUpdateTaskLinkResultToWorklistEntry::updateDatabase()
 {
-    char sql[1024];
-    std::sprintf( sql, "update buddy_result_float set cbw_record_no = %d where buddy_result_id = %d", m_worklistEntryID, m_resultID );
-    getConnection()->executeStmt( sql );
+    std::string sql = paulst::format( config->get("LinkResultToWorklistEntryUpdateSQL").c_str(), m_worklistEntryID, m_resultID );
+    connection->executeStmt( sql );
 }
 
 }

@@ -20,7 +20,7 @@ class LCDbAuditTrail : public LCDbID
 	static const char * default_email;
 
 	const static short MAX_MESSAGE = 1000;		// size of details field
-	struct LineSplitter;
+//	struct LineSplitter;
 
 	LCDbAuditTrail( const LCDbAuditTrail & );	  		// not implemented
 	LCDbAuditTrail & operator=( LCDbAuditTrail & );		// not implemented

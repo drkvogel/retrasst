@@ -19,6 +19,7 @@
 #include "RerunTest.h"
 #include "RuleEngineTest.h"
 #include "RuleLoaderTest.h"
+#include "SampleRunGroupModelTest.h"
 #include "SampleRunIDResolutionServiceTest.h"
 #include "WorklistRelativeTest.h"
 

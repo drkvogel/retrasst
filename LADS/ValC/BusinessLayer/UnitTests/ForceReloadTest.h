@@ -74,7 +74,7 @@ namespace tut
         }
     };
 
-    typedef test_group<ForceReloadTestFixture, 25> ForceReloadTestGroup;
+    typedef test_group<ForceReloadTestFixture, 26> ForceReloadTestGroup;
 	ForceReloadTestGroup testGroupForceReload( "ForceReload tests");
 	typedef ForceReloadTestGroup::object testForceReload;
 
@@ -324,16 +324,11 @@ namespace tut
 		{
             ForceReloadTestFixture s( true );
 
-            const bool blockTillNoPendingUpdates = true;
+			ensure( "The queue should be empty", std::distance( s->queueBegin(), s->queueEnd() ) == 0 );
 
-            s->runPendingDatabaseUpdates( blockTillNoPendingUpdates );
-
-            ensure( 0 == MockConnection::totalNewSampleRuns() );
-            ensure( 1 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
-
-			ensure( std::distance( s->queueBegin(), s->queueEnd() ) == 0 );
 			unsigned int numSampleRuns = std::distance( s->localBegin(), s->localEnd() );
-			ensure( numSampleRuns == 1U );
+
+			ensure( "There should be just the one sample run", numSampleRuns == 1U );
 
 			LocalEntry localEntry = *(s->localBegin());
 
@@ -341,14 +336,25 @@ namespace tut
 
 			Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
-			ensure( std::distance( wles.first, wles.second ) == 2 );
+			ensure( "There should be 2 worklist entries", std::distance( wles.first, wles.second ) == 2 );
         
-            ensure(     testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID() == lr.getRunID() );
-            ensure_not( testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID() == lr.getRunID() );
+            for ( int iteration = 0; iteration < 2; ++iteration )
+            {
+                ensure(     testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID() == lr.getRunID() );
+                ensure_not( testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID() == lr.getRunID() );
+                ensure(     testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID() == 
+                                           worklistEntry( wles, -36846 )  ->getSampleDescriptor()    ); 
+                ensure(     testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID() == "12" );
+                ensure    ( s->compareSampleRunIDs( testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID(), lr.getRunID() ) );
+                ensure    ( s->compareSampleRunIDs( testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID(), lr.getRunID() ) );
 
-            ensure( s->compareSampleRunIDs( testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID(), lr.getRunID() ) );
+                const bool blockTillNoPendingUpdates = true;
 
-            ensure( s->compareSampleRunIDs( testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID(), lr.getRunID() ) );
+                s->runPendingDatabaseUpdates( blockTillNoPendingUpdates );
+            }
+
+            ensure( 0 == MockConnection::totalNewSampleRuns() );
+            ensure( 1 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
 		}
 		catch( const Exception& e )
 		{
@@ -1494,7 +1500,45 @@ namespace tut
         ensure_equals( wr->getID(), -3 );
         ensure_not   ( wr.hasChildren() );
 	}
-  
+ 
+    template<>
+	template<>
+	void testForceReload::test<26>()
+	{
+		set_test_name("ForceReload - loading buddy_sample_run.group_id");
+
+        using namespace valc;
+
+        MockConnectionFactory::reset();
+
+        MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+        MockConnectionFactory::prime( PROJECTS_QRY, "-832455,reveal,ldb25,\n" );
+        MockConnectionFactory::prime( WORKLIST_QRY, 
+//rec  machine  barcode   test     group      c sample project p prof                  timestamp           seq s dil  result
+"-36846,-1019430,118507091,-1031391,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:57:49,14,C,0.000,0,\n" );
+
+        std::string testResult = 
+//bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,res ,a,date analysed      ,restx,update when      ,cbw
+"882291,118507091,27-06-2013 11:55:36,REVEAL,432560,-1019349,882432,-1031391,1.3 ,0,27-06-2013 11:57:47,1.3,27-06-2013 10:57:49,-36846,";
+
+        //                            runID, isOpen, when created       , when closed, sequence position,fao_level_one,group_id
+        std::string sampleRunData =  "   12,      1,27-06-2013 11:42:36,,882290,y,87,";
+
+        MockConnectionFactory::prime( BUDDYDB_QRY, testResult + sampleRunData + "\n" );
+
+        ForceReloadTestFixture s( true );
+
+        unsigned int numSampleRuns = std::distance( s->localBegin(), s->localEnd() );
+
+        ensure( "There should be just the one sample run", numSampleRuns == 1U );
+
+        LocalEntry localEntry = *(s->localBegin());
+
+        LocalRun lr = boost::get<LocalRun>(localEntry);
+
+        ensure_equals( lr.getGroupID(), 87 );
+    }
+ 
 };
 
 #endif

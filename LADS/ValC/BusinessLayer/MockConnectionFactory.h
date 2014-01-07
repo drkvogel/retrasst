@@ -23,7 +23,7 @@ struct SerializedRecordset
 };
 
 enum WellKnownQuery { CLUSTERS_QRY, PROJECTS_QRY, WORKLIST_QRY, BUDDYDB_QRY, TESTNAMES_QRY, NONLOCALRESULTS_QRY, RULECONFIG_QRY, 
-                        RULES_QRY, SAMPLERUNID_QRY };
+                        RULES_QRY };
 /*
 ConnectionFactory from which can be obtained connections which run 
 their queries against the data strings specified using the 

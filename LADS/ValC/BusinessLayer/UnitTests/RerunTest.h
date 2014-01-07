@@ -61,7 +61,7 @@ namespace tut
 			;
 		MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n")
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n")
 			;
 
         MockConnectionFactory::prime( "SQLStmtNextWorklistID", "223,\n" );
@@ -138,7 +138,7 @@ namespace tut
 			;
 		MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed      ,restx,update when        ,
-"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,,,,,\n")
+"882290,118507091,27-06-2013 11:42:36,REVEAL,432560,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n")
 			;
 
         MockConnectionFactory::prime( "SQLStmtNextWorklistID", "223,\n" );

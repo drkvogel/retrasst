@@ -9,10 +9,9 @@ namespace valc
 
 DBUpdateTask::DBUpdateTask()
     :
-    m_sampleRunIDResolutionService( 0 ),
-    m_log( 0 ),
-    m_connection( 0 ),
-    m_config(0)
+    log( 0 ),
+    connection( 0 ),
+    config(0)
 {
 }
 
@@ -22,49 +21,34 @@ DBUpdateTask::~DBUpdateTask()
 
 void DBUpdateTask::doStuff()
 {
-    require( m_sampleRunIDResolutionService );
-    require( m_log );
-    require( m_connection );
-    require( m_config );
+    require( snapshotUpdateHandle );
+    require( log );
+    require( connection );
+    require( config );
 
     std::string logMsg = std::string("Updating database: ") + describeUpdate();
-    LOG( logMsg );
+    log->log( logMsg );
     updateDatabase();
-}
-
-const paulst::Config* DBUpdateTask::getConfig() const
-{
-    return m_config;
-}
-
-paulstdb::DBConnection* DBUpdateTask::getConnection() const
-{
-    return m_connection;
-}
-
-SampleRunIDResolutionService* DBUpdateTask::getSampleRunIDResolutionService() const
-{
-    return m_sampleRunIDResolutionService;
 }
 
 void DBUpdateTask::setConfig( const paulst::Config* c )
 {
-    m_config = c;
+    config = c;
 }
 
 void DBUpdateTask::setConnection( paulstdb::DBConnection* c )
 {
-    m_connection = c;
+    connection = c;
 }
 
-void DBUpdateTask::setLog( paulst::LoggingService* log )
+void DBUpdateTask::setLog( paulst::LoggingService* l )
 {
-    m_log = log;
+    log = l;
 }
 
-void DBUpdateTask::setSampleRunIDResolutionService( SampleRunIDResolutionService* s )
+void DBUpdateTask::setSnapshotUpdateHandle( const SnapshotUpdateHandle& s )
 {
-    m_sampleRunIDResolutionService = s;
+    snapshotUpdateHandle = s;
 }
 
 }

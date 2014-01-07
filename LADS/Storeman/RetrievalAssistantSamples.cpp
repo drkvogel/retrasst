@@ -30,18 +30,18 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
     sgwVials->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode,    "barcode");
     sgwVials->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
-    sgwVials->addCol("vesspos",  "Pos",             28,    SampleRow::sort_asc_vesspos,    "vessel position");
+    sgwVials->addCol("vesspos",  "Pos",              28,    SampleRow::sort_asc_vesspos,    "vessel position");
     sgwVials->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel,     "vessel name");
     sgwVials->addCol("shelf",    "Shelf",            31,    SampleRow::sort_asc_shelf,      "shelf number");
-    sgwVials->addCol("structpos","Pos",             27,    SampleRow::sort_asc_structpos,  "structure position");
+    sgwVials->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos,  "structure position");
     sgwVials->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure,  "structure name");
     sgwVials->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot,       "slot");
     sgwVials->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
-    sgwVials->addCol("currpos",  "Pos",             31,    SampleRow::sort_asc_currpos,    "source box position");
+    sgwVials->addCol("currpos",  "Pos",              31,    SampleRow::sort_asc_currpos,    "source box position");
     sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
-    sgwVials->addCol("destpos",  "Pos",             25,    SampleRow::sort_asc_destpos,    "dest. box position");
+    sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
 #ifdef _DEBUG
-    sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot");
+    sgwVials->addCol("aliquot",  "Aliquot",          90);
 #endif
     sgwVials->init();
 
@@ -262,7 +262,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             int rj_box_cid;
             Chunk< SampleRow > * chunk = *it;
             for (int i = 0; i < chunk->getSize(); i++) {
-                SampleRow *         sampleRow = chunk->rowAt(i);
+                SampleRow * sampleRow = chunk->rowAt(i);
                 rj_box_cid = s.saveBox(chunk, boxes, sampleRow->dest_box_id);
                 s.saveSample(chunk, sampleRow, rj_box_cid);
                 if (NULL != sampleRow->secondary) {
@@ -443,7 +443,7 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
         LPDbCryovialStore * store   = sampleRow->store_record;
         int rw = row+1; // for stringgrid
         sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquotName().c_str();
         sgVials->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
         sgVials->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
@@ -470,7 +470,7 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
             sgDebug->Cells[sgwDebug->colNameToInt("rownum")]   [rw] = row;
             sgDebug->Cells[sgwDebug->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("sample" )]  [rw] = sampleRow->cryo_record->getSampleID();
-            sgDebug->Cells[sgwDebug->colNameToInt("aliquot")]  [rw] = sampleRow->aliquot_type_name.c_str();
+            sgDebug->Cells[sgwDebug->colNameToInt("aliquot")]  [rw] = sampleRow->aliquotName().c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
             sgDebug->Cells[sgwDebug->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
@@ -557,7 +557,6 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
             if (-1 != combo->ItemIndex) {
                 StringGridWrapper< SampleRow >::Col * col = (StringGridWrapper< SampleRow >::Col *)combo->Items->Objects[combo->ItemIndex];
                 ostringstream ss; ss<<"sorting by: "<<col->sortDescription().c_str(); debugLog(ss.str().c_str());
-                //debugLog(combo->Items->Strings[combo->ItemIndex].c_str()); debugLog();
                 chunk->sort_asc(col->name);
                 changed = true;
             }
@@ -595,7 +594,6 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     try {
         load();
     } catch (Exception & e) {
-        //debugMessage = string(e.Message.c_str()); Synchronize((TThreadMethod)&debugLog);
         debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
     } catch (...) {
         debugMessage = "unknown error"; Synchronize((TThreadMethod)&debugLog);
@@ -653,7 +651,6 @@ void LoadVialsWorkerThread::load() {
             new LPDbCryovialStore(qd),
             NULL,
             qd.readString(  "cryovial_barcode"),
-            Util::getAliquotDescription(qd.readInt("aliquot_type_cid")), // should cache
             qd.readString(  "source_name"),
             qd.readInt(     "dest_id"),
             qd.readString(  "dest_name"),
