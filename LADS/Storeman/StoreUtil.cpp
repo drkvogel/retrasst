@@ -363,7 +363,6 @@ std::string Util::getAliquotDescription(int aliquot_type_cid) { // c_object_name
 
     if (0 == aliquot_type_cid) return "Not specified";
     try {
-        // use map for speed
         std::map<int, std::string>::iterator found = cache.find(aliquot_type_cid);
         if (found != cache.end()) { // found
             return (found->second);
@@ -373,8 +372,6 @@ std::string Util::getAliquotDescription(int aliquot_type_cid) { // c_object_name
             cache[aliquot_type_cid] = description; // cache result
             return description;
         }
-//        const LCDbObject * aliquot = LCDbObjects::records().findByID(aliquot_cid);
-//        oss << aliquot->getName().c_str();
     } catch (...) {
         oss << "ID "<<aliquot_type_cid<<" not found";
     }
@@ -392,8 +389,8 @@ bool Util::secondaryIndexExists(int project_cid, std::string indexName, bool exa
     qt.setSQL(sql);
     qt.setParam("index_name", indexName);
     qt.open();
-    int count = qt.readInt(0); // LQuery::close(), only by going out of scope
-    return count >= 1; //???
+    int count = qt.readInt(0);
+    return count >= 1;
 }
 
 bool Util::statsOnColumn(int project_cid, std::string tableName, std::string colName) {
@@ -411,7 +408,7 @@ bool Util::statsOnColumn(int project_cid, std::string tableName, std::string col
     qt.setParam("table_name", tableName);
     qt.setParam("column_name", colName);
     qt.open();
-    stat_count = qt.readInt(0); // LQuery::close(), only by going out of scope
+    stat_count = qt.readInt(0);
     return stat_count == 1;
 }
 

@@ -1,5 +1,7 @@
 ﻿DEBUGSTREAM
 
+Is there a class/method for looking up aliquot type names from an aliquot ID? My big query for loading the retrieval plan crashes out on real-world size plans (e.g. 4000 samples rather than 28). Joining on c_object_name 
+
 why is the map of box_id to rj_box_id per chunk?
   within each chunk, all boxes containing the vials in that chunk will have a plan entry (rj_box_cid)
   each cryovial is linked to __a box in a particular chunk__ via rj_box_cid, which tells us which chunk the vial is in.
@@ -41,6 +43,14 @@ Part 2
  * Empty source boxes (all cryovials "accepted" or "not found") will normally be discarded.  Final stage should ask user to confirm that vessel/structure/slot is now empty, otherwise box should be referred.  All source boxes from a reorganisation task should end up empty
 
 ---
+
+## db
+
+### Session tables
+
+http://community.actian.com/forum/questions-feedback-suggestions/11359-temporary-table.html
+DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview
+ON COMMIT PRESERVE ROWS WITH NORECOVERY;
 
 ## Notes
 

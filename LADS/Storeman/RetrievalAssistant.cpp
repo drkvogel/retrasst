@@ -191,8 +191,7 @@ void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
 
 void TfrmRetrievalAssistant::init() {
     cbLog->Checked      = RETRASSTDEBUG;
-    //cbLog->Visible      = RETRASSTDEBUG;
-    cbLog->Visible      = true;
+    cbLog->Visible      = true;//= RETRASSTDEBUG;
 	panelDebug->Visible = cbLog->Checked;
 
     sgwJobs = new StringGridWrapper<LCDbCryoJob>(sgJobs, &vecJobs);
@@ -203,7 +202,6 @@ void TfrmRetrievalAssistant::init() {
     sgwJobs->addCol("secondary","Secondary Aliquot",94);
     sgwJobs->addCol("project",  "Project",          103);
     sgwJobs->addCol("reason",   "Reason",           155);
-	//sgwJobs->addCol("time",     "Timestamp",        111);
     sgwJobs->addCol("start",    "Started",          74);
     sgwJobs->addCol("finish",   "Finished",         74);
     sgwJobs->addCol("claimed",  "Claimed until",    74);
@@ -235,7 +233,6 @@ void TfrmRetrievalAssistant::loadJobs() {
         LCDbCryoJob * job = new LCDbCryoJob(); *job = *jr;
         vecJobs.push_back(job);
     }
-    //showJobs();
     Screen->Cursor = crDefault;
     sgJobs->RowCount = vecJobs.size() + 1;
     tdvecpJob::const_iterator it;
