@@ -439,7 +439,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     ql.setSQL(oss.str());
     rowCount = 0; // class variable needed for synchronise
     ql.open();
-    int curchunk = 0, chunk = 0;
+    int curchunk = 0, chunk = 0; SampleRow * previous = NULL;
     while (!ql.eof()) {
         chunk = ql.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) {
@@ -461,6 +461,21 @@ void __fastcall LoadPlanWorkerThread::Execute() {
             ql.readString(  "dest_name"),
             ql.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
+
+// something like this - don't forget to get storage
+//        if (secondary_aliquot != 0 && previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
+//            if (previous->cryo_record->getAliquotType() == row->cryo_record->getAliquotType()) {
+//                throw Exception("duplicate aliquot");
+//            } else if (row->cryo_record->getAliquotType() != secondary_aliquot) {
+//                throw Exception("spurious aliquot");
+//            } else { // secondary
+//                previous->secondary = row;
+//            }
+//        } else {
+//            frmSamples->vials.push_back(row); // new primary
+//            previous = row;
+//        }
+
         frmProcess->vials.push_back(row);
         ql.next();
         rowCount++;
@@ -480,27 +495,27 @@ void __fastcall LoadPlanWorkerThread::Execute() {
 	for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
-        frmProcess->getStorage(sample);
+        frmRetrievalAssistant->getStorage(sample);
         oss<<sample->storage_str(); loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 	}
     debugMessage = "finished load storage details";
     Synchronize((TThreadMethod)&debugLog);
 }
 
-void TfrmProcess::getStorage(SampleRow * sample) { // this could be used application-wide
-    ROSETTA result; StoreDAO dao;
-    map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
-    if (found != storageCache.end()) { // fill in box location from cache map
-        sample->copyLocation(*(found->second));
-    } else {
-        if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
-            sample->copyLocation(result);
-        } else {
-            sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
-        }
-        storageCache[sample->store_record->getBoxID()] = sample; // cache result
-    }
-}
+//void TfrmProcess::getStorage(SampleRow * sample) { // this could be used application-wide
+//    ROSETTA result; StoreDAO dao;
+//    map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
+//    if (found != storageCache.end()) { // fill in box location from cache map
+//        sample->copyLocation(*(found->second));
+//    } else {
+//        if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
+//            sample->copyLocation(result);
+//        } else {
+//            sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
+//        }
+//        storageCache[sample->store_record->getBoxID()] = sample; // cache result
+//    }
+//}
 
 void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
@@ -673,7 +688,7 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
     int rowIdx = currentChunk()->getCurrentRow();
     sample = currentChunk()->rowAt(rowIdx); // current primary
 
-    getStorage(sample->secondary);
+    frmRetrievalAssistant->getStorage(sample->secondary);
 
     // refresh sg row
     fillRow(sample->secondary, rowIdx+1);

@@ -136,7 +136,7 @@ private:
     void                                        debugLog(String s);
     bool destroying;
     string tempTableName;
-    map<int, const SampleRow *> storageCache;
+    //map<int, const SampleRow *> storageCache;
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);

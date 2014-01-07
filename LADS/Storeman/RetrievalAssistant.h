@@ -497,9 +497,13 @@ private:
     string             getAliquotDescription(int primary_aliquot);
     string             getAuditInfo(int process_cid);
     void               debugLog(String s);
+protected:
+
 public:
     __fastcall TfrmRetrievalAssistant(TComponent* Owner);
     void init();
+    map<int, const SampleRow *> storageCache;
+    void               getStorage(SampleRow * sample);
 };
 
 extern PACKAGE TfrmRetrievalAssistant *frmRetrievalAssistant;

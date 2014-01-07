@@ -9,6 +9,8 @@
 #include "RetrievalAssistantBoxes.h"
 #include "RetrievalAssistantProcess.h"
 #include "RetrievalAssistantProcessBoxes.h"
+#include "StoreUtil.h"
+#include "StoreDAO.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -254,6 +256,22 @@ void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
     qc.setParam("old", LCDbCryoJob::INPROGRESS);
     qc.execSQL();
     loadJobs();
+}
+
+void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
+    /** fill in SampleRow structure with storage details of sample */
+    ROSETTA result; StoreDAO dao;
+    static map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
+    if (found != storageCache.end()) { // fill in box location from cache map
+        sample->copyLocation(*(found->second));
+    } else {
+        if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
+            sample->copyLocation(result);
+        } else {
+            sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
+        }
+        storageCache[sample->store_record->getBoxID()] = sample; // cache result
+    }
 }
 
 //template <class T>

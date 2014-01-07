@@ -1,10 +1,21 @@
-﻿fix comboSorter - broken window
- doesn't have descending option
+﻿are there any example jobs that have the destination boxes
+search for fixme/todo/xxx
+
+## misc
 
 what are we listing?
   sample retrieval
-     samples
+     a list of samples, which come from a variety of boxes
+  box retrieval
+     a list of boxes (and their contents?)
 
+## maybe
+ 
+ sorters don't have descending option
+
+## done
+
+what about secondary aliquots?
 sgvialsfixedclick debuglog: show sorter name
     sortChunk(currentChunk(), ACol, Sorter<SampleRow *>::TOGGLE);
 curr pos sorting doing something funny, dest pos sorting not doing anything
@@ -14,10 +25,7 @@ curr pos sorting doing something funny, dest pos sorting not doing anything
 storage (site, pos, shelf, vessel, structure, slot) of which box? current or destination? both?
     does it matter for setting up the chunks, or which matters more?
     in the retrieval, will want to find storage of both?
-
-are there any example jobs that have the destination boxes
-what about secondary aliquots?
-search for fixme/todo/xxx
+fix comboSorter - broken window
 
 c_box_retrieval
   rj_box_cid PK
