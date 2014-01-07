@@ -502,21 +502,6 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     Synchronize((TThreadMethod)&debugLog);
 }
 
-//void TfrmProcess::getStorage(SampleRow * sample) { // this could be used application-wide
-//    ROSETTA result; StoreDAO dao;
-//    map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
-//    if (found != storageCache.end()) { // fill in box location from cache map
-//        sample->copyLocation(*(found->second));
-//    } else {
-//        if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
-//            sample->copyLocation(result);
-//        } else {
-//            sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
-//        }
-//        storageCache[sample->store_record->getBoxID()] = sample; // cache result
-//    }
-//}
-
 void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
@@ -611,6 +596,7 @@ void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
 
 void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
     debugLog("Save not found row"); //Application->MessageBox(L"Save not found row", L"Info", MB_OK);
+    msgbox("try secondary");
     currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
     nextRow();
 }
@@ -697,70 +683,6 @@ void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
     //labelPrimary->Enabled   = false; labelSecondary->Enabled = true;
     Screen->Cursor = crDefault; Enabled = true; DEBUGSTREAM(__FUNC__<<" finished")
     return;
-
-    // obsolete
-//    DEBUGSTREAM(__FUNC__<<" started")
-//    Screen->Cursor = crSQLWait; Enabled = false;
-//    //SampleRow * sample;//, * secondary;
-//    //int rowIdx = currentChunk()->getCurrentRow();
-//    sample = currentChunk()->rowAt(rowIdx); // current primary
-//
-//    LQuery ql(Util::projectQuery(frmProcess->job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
-//    ostringstream oss;
-//
-//    // some of these fields may be the same as the primary, might be able to get away with joining less tables?
-//    oss<<
-//        " SELECT"
-//        "     g.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status, g.box_id AS dest_id,"
-//        "     c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
-//        "     s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position, s1.record_id,"
-//        "     s1.status, s1.tube_position, s1.note_exists AS cs_note,"
-//        "     b1.external_name AS src_box, "
-//        "     b2.external_name AS dest_name,"
-//        "     s2.tube_position AS slot_number, s2.status AS dest_status"
-//        " FROM "
-//        <<tempTableName<<" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
-//        " WHERE"
-//        "     c.cryovial_barcode = g.cryovial_barcode"
-//        "     AND c.aliquot_type_cid != "<<job->getPrimaryAliquot()<<
-//        "     AND s1.cryovial_id = c.cryovial_id"
-//        "     AND s1.retrieval_cid = g.retrieval_cid"
-//        "     AND b2.box_cid = g.box_id"
-//        "     AND b1.box_cid = s1.box_cid"
-//        "     AND s2.cryovial_id = c.cryovial_id"
-//        "     AND b2.box_cid = s2.box_cid"
-//        "     AND c.sample_id = "<<sample->cryo_record->getSampleID()<< //???
-//        " ORDER BY"
-//        "     s1.retrieval_cid, chunk, g.rj_box_cid, dest_pos";
-//    ql.setSQL(oss.str());
-//    DEBUGSTREAM(oss.str())
-//    if (ql.open()) {
-//        sample->secondary = new SampleRow( // replace with secondary aliquot
-//            new LPDbCryovial(ql),
-//            new LPDbCryovialStore(ql),
-//            new LCDbCryovialRetrieval(ql), // fixme
-//            ql.readString(  "cryovial_barcode"),
-//            Util::getAliquotDescription(ql.readInt("aliquot_type_cid")),
-//            ql.readString(  "src_box"),
-//            ql.readInt(     "dest_id"),
-//            ql.readString(  "dest_name"),
-//            ql.readInt(     "dest_pos"),
-//            "", 0, "", 0, 0, "", 0 ); // no storage details yet
-//
-//        // find storage details
-//        getStorage(sample->secondary);
-//
-//        // refresh sg row
-//        fillRow(sample->secondary, rowIdx+1);
-//        showCurrentRow();
-//        showDetails(sample->secondary);
-//        labelPrimary->Enabled   = false;
-//        labelSecondary->Enabled = true;
-//    } else {
-//        Application->MessageBox(L"Couldn't find secondary aliquot", L"Info", MB_OK);
-//    }
-//Screen->Cursor = crDefault; Enabled = true;
-//    DEBUGSTREAM(__FUNC__<<" finished")
 }
 
 //    using namespace boost::local_time;

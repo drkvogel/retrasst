@@ -61,7 +61,6 @@ object frmProcess: TfrmProcess
       ParentDoubleBuffered = False
       TabOrder = 0
       OnDrawCell = sgVialsDrawCell
-      ExplicitHeight = 121
     end
     object panelLoading: TPanel
       Left = 248
@@ -89,8 +88,6 @@ object frmProcess: TfrmProcess
       BevelEdges = []
       Caption = 'panelDebug'
       TabOrder = 2
-      ExplicitLeft = 3
-      ExplicitTop = 132
       object Splitter2: TSplitter
         Left = 665
         Top = 1
@@ -146,7 +143,7 @@ object frmProcess: TfrmProcess
       ParentFont = False
     end
     object btnAccept: TButton
-      Left = 571
+      Left = 646
       Top = 15
       Width = 75
       Height = 60
@@ -154,9 +151,10 @@ object frmProcess: TfrmProcess
       Caption = 'Accept'
       TabOrder = 0
       OnClick = btnAcceptClick
+      ExplicitLeft = 571
     end
     object btnSkip: TButton
-      Left = 721
+      Left = 796
       Top = 15
       Width = 75
       Height = 60
@@ -164,6 +162,7 @@ object frmProcess: TfrmProcess
       Caption = 'Skip'
       TabOrder = 1
       OnClick = btnSkipClick
+      ExplicitLeft = 721
     end
     object editBarcode: TEdit
       Left = 159
@@ -200,7 +199,7 @@ object frmProcess: TfrmProcess
       OnClick = btnExitClick
     end
     object btnNotFound: TButton
-      Left = 796
+      Left = 721
       Top = 15
       Width = 75
       Height = 60
@@ -208,17 +207,8 @@ object frmProcess: TfrmProcess
       Caption = 'Not Found'
       TabOrder = 5
       OnClick = btnNotFoundClick
-    end
-    object btnSecondary: TButton
-      Left = 646
-      Top = 15
-      Width = 75
-      Height = 60
-      Align = alRight
-      Caption = 'Use 2nd'
-      TabOrder = 6
-      OnClick = btnSecondaryClick
-      ExplicitLeft = 652
+      ExplicitLeft = 676
+      ExplicitTop = 14
     end
   end
   object Chunks: TGroupBox
@@ -277,8 +267,8 @@ object frmProcess: TfrmProcess
         object labelPrimary: TLabel
           Left = 7
           Top = 20
-          Width = 80
-          Height = 16
+          Width = 143
+          Height = 28
           Align = alClient
           Caption = 'labelPrimary'
           Font.Charset = DEFAULT_CHARSET
@@ -288,6 +278,8 @@ object frmProcess: TfrmProcess
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 80
+          ExplicitHeight = 16
         end
       end
       object groupSecondary: TGroupBox
@@ -305,8 +297,8 @@ object frmProcess: TfrmProcess
         object labelSecondary: TLabel
           Left = 7
           Top = 20
-          Width = 99
-          Height = 16
+          Width = 143
+          Height = 31
           Margins.Left = 5
           Margins.Top = 5
           Margins.Right = 5
@@ -320,6 +312,8 @@ object frmProcess: TfrmProcess
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 99
+          ExplicitHeight = 16
         end
       end
     end

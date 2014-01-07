@@ -70,7 +70,6 @@ __published:
     TMemo *memoDebug;
     TButton *btnSimAccept;
     TButton *btnNotFound;
-    TButton *btnSecondary;
     TPanel *panelAliquots;
     TGroupBox *groupPrimary;
     TLabel *labelPrimary;
