@@ -2,7 +2,9 @@
 #define SNAPSHOTTESTFIXTUREH
 
 #include "API.h"
+#include <boost/variant/static_visitor.hpp>
 #include "ConsoleWriter.h"
+#include "LocalRunIterator.h"
 #include "LoggingService.h"
 #include "MockConfig.h"
 #include "NoLogging.h"
@@ -109,6 +111,11 @@ public:
     valc::SnapshotPtr get() const
     {
         return s;
+    }
+
+    unsigned int numLocalRuns() const
+    {
+        return std::distance( valc::LocalRunIterator( s->localBegin(), s->localEnd() ), valc::LocalRunIterator() );
     }
 
 private:

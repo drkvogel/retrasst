@@ -8,6 +8,8 @@
 namespace valc
 {
 
+typedef std::map< std::string, std::string > IDMap;
+
 /*  
     Avoid sampleRunID values from becoming stale by maintaining a mapping to their updated values.
 
@@ -28,6 +30,9 @@ namespace valc
 class SampleRunIDResolutionService
 {
 public:
+
+    friend class RunIDC14n;
+
     SampleRunIDResolutionService();
     void        addMapping( const std::string& fromCandidate, const std::string& toExisting );
     void        clear();
@@ -46,7 +51,6 @@ public:
     bool        hasMappingFor( const std::string& candidateNewSampleRunID ) const;
 private:
     paulst::CritSec m_cs;
-    typedef std::map< std::string, std::string > IDMap;
     IDMap m_idMap;
     SampleRunIDResolutionService( const SampleRunIDResolutionService& );
     SampleRunIDResolutionService& operator=( const SampleRunIDResolutionService& );

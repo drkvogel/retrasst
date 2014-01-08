@@ -50,7 +50,7 @@ void LCDbBoxStore::copyFields( const LQuery & ddbq )
 	slotID = ddbq.fieldExists( "slot_cid" ) ? ddbq.readInt( "slot_cid" ) : 0;
 	status = ddbq.readInt( "status" );
 	updated = ddbq.readDateTime( "time_stamp" );
-	processID = ddbq.readInt( "process_cid" );
+	processID = ddbq.fieldExists( "process_cid" ) ? ddbq.readInt( "process_cid" ) : 0;
 	jobID = ddbq.fieldExists( "retrieval_cid" ) ? ddbq.readInt( "retrieval_cid" ) : 0;
 	removed = (jobID != 0 && ddbq.fieldExists( "removed" )) ? ddbq.readDateTime( "removed" ) : 0;
 }

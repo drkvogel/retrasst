@@ -7,6 +7,7 @@
 #include "LocalRunImpl.h"
 #include "LoggingService.h"
 #include <memory>
+#include "RunIDC14n.h"
 #include "SampleRunGroupModel.h"
 #include "SnapshotUpdateHandle.h"
 #include "SnapshotUpdateThread.h"
@@ -81,6 +82,7 @@ private:
     WorklistRelative::Impl          m_worklistRelativeImpl;
     LocalRun::Impl                  m_localRunImpl;
     SampleRunGroupModel             m_sampleRunGroupModel;
+    RunIDC14n                       m_runIDC14n;
 };
 
 };

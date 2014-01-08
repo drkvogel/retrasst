@@ -631,7 +631,7 @@ void StoreDAO::loadBoxHistory( int box_id, int proj_id, std::vector<ROSETTA>& re
 void StoreDAO::loadSamples( int box_id, int proj_id, std::vector<ROSETTA>& results )
 {
 	std::string source_field;
-	const LPDbDescriptor * descrip = LPDbDescriptors::records().findByName( "source_name" );
+	const LPDbDescriptor * descrip = LPDbDescriptors::records( proj_id ).findByName( "source_name" );
 	if( descrip != NULL ) {
 		source_field = descrip->getSpecimenField();
 	}
@@ -642,12 +642,11 @@ void StoreDAO::loadSamples( int box_id, int proj_id, std::vector<ROSETTA>& resul
 	std::string q = "SELECT s.*, c.sample_id, cryovial_barcode, aliquot_type_cid,"
 			" sp.barcode as source_barcode, sp." + source_field + " as source_name"
 			" FROM cryovial_store s, cryovial c, specimen sp "
-			" WHERE s.box_cid = :bid AND s.status = :css "
+			" WHERE s.box_cid = :bid AND s.status in (0,1,2) "	// allocated, confirmed, expected
 			" AND s.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id";
 	LQuery pQuery( LIMSDatabase::getProjectDb( proj_id ) );
 	pQuery.setSQL( q );
 	pQuery.setParam( "bid", box_id );
-	pQuery.setParam( "css", LPDbCryovialStore::CONFIRMED );
 	results.clear();
 	for( pQuery.open(); !pQuery.eof(); pQuery.next() ) {
 		ROSETTA result = pQuery.getRecord();

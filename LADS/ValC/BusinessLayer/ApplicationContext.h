@@ -26,6 +26,7 @@ namespace valc
 {
 
 class AnalysisActivitySnapshot;
+class CompositeRuleResultPublisher;
 class Projects;
 class QCGates;
 class ResultAttributes;
@@ -52,6 +53,7 @@ struct ApplicationContext
     UserAdvisor*                            userAdvisor; // Owned by UI
     SampleRunIDResolutionService*           sampleRunIDResolutionService;
     stef::TaskExceptionHandler*             taskExceptionUserAdvisor;
+    CompositeRuleResultPublisher*           compositeRuleResultPublisher;
 
 
     ApplicationContext();

@@ -31,6 +31,7 @@ public:
     ~SampleRunGroupModel();
     void assignToGroup( const std::string& runID, bool isQC, const paulst::Nullable<int>& groupID );
     int  countGroups() const;
+    // Note that group ID values are not stable until all assignments have been made.
     int  getGroupID( const std::string& sampleRunID ) const;
     //  The SampleRunGroupModel destructor deletes idGenerator.
 private:

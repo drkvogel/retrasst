@@ -1,7 +1,6 @@
 #include <boost/bind.hpp>
 #include "Config.h"
 #include "DBQueryTask.h"
-#include "ResultAttributes.h"
 #include "RuleEngineContainer.h"
 #include "StrUtil.h"
 #include "ThreadPool.h"
@@ -33,13 +32,12 @@ RuleEngineContainer::RuleEngineContainer(
     const paulst::Config* config,
     paulstdb::AbstractConnectionFactory* connectionFactory,
     paulst::LoggingService* log,
-    ResultAttributes* resultAttributes,
+    RuleResultPublisher* resultPublisher,
     Gates* gates,
     stef::TaskExceptionHandler* defaultTaskExceptionHandler )
     :
     m_ruleEngine( 10 ),
-    m_log( log ),
-    m_resultAttributes( resultAttributes )
+    m_log( log )
 {
     m_ruleEngine.setConfig( config );
     m_ruleEngine.setConnectionFactory( connectionFactory );
@@ -49,7 +47,7 @@ RuleEngineContainer::RuleEngineContainer(
     m_ruleEngine.setLog( log );
     m_ruleEngine.setRuleLoader( &m_ruleLoader );
     m_ruleEngine.setRulesConfig( &m_rulesConfig );
-    m_ruleEngine.setResultPublisher( resultAttributes );
+    m_ruleEngine.setResultPublisher( resultPublisher );
 
     dbQueryRunner->addTask( new DBQueryTask( "QCRuleConfig", connectionFactory, config, 
         boost::bind( addConfig, _1, &m_rulesConfig ) ) ); 

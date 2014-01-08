@@ -49,6 +49,8 @@ public:
         return *this;
     }
 
+    operator bool() const { return m_ptr != NULL; }
+
     AnalysisActivitySnapshot* operator->() 
     {
         return m_ptr;

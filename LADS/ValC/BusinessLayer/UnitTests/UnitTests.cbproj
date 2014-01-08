@@ -164,6 +164,10 @@
             <DependentOn>..\BuddySampleIDKeyedOnSampleRunID.h</DependentOn>
             <BuildOrder>60</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\CompositeRuleResultPublisher.cpp">
+            <DependentOn>..\CompositeRuleResultPublisher.h</DependentOn>
+            <BuildOrder>103</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\ConnectionCache.cpp">
             <DependentOn>..\ConnectionCache.h</DependentOn>
             <BuildOrder>73</BuildOrder>
@@ -304,6 +308,10 @@
         <CppCompile Include="..\RulesConfigUsingMap.cpp">
             <DependentOn>..\RulesConfigUsingMap.h</DependentOn>
             <BuildOrder>90</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\RunIDC14n.cpp">
+            <DependentOn>..\RunIDC14n.h</DependentOn>
+            <BuildOrder>104</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\SampleRun.cpp">
             <DependentOn>..\SampleRun.h</DependentOn>

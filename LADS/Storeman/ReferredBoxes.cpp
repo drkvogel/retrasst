@@ -733,7 +733,7 @@ void __fastcall FindStorageWorkerThread::Execute() {
     } else {
         while (!qp.eof()) {
             std::stringstream ss;
-			ss << qp.readDateTime("event_date").DateTimeString().c_str() << ": " <<
+			ss << string(AnsiString(qp.readDateTime("event_date").DateTimeString()).c_str()) << ": " <<
             LCDbObjects::records().get(qp.readInt("event_cid")).getName();
             frmReferred->comboEventHistory->Items->Add(ss.str().c_str());
             qp.next();
@@ -968,7 +968,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
         qi.setParam("slot", box.slot_position);
         if (qi.open()) { // results
             int box_in_slot = qi.readInt("box_cid");
-            ostringstream out;
+            stringstream out;
             if (box_in_slot != box.box_arrival_id) { // not in use for this box
                                         //xxx box.box_arrival_id has been set correctly?
                 int status = qi.readInt("status");
@@ -977,7 +977,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
                     out <<"Position is in use.\n\nbox_cid '"<<qi.readInt("box_cid")<<"' is in "//<<endl
                         <<"structure '"<<box.rack_name<<"' ["<<box.rack_cid<<"], "//<<endl
                         <<"slot "<<box.slot_position//<<endl
-						<<" since "<<qi.readDateTime("time_stamp").DateTimeString().c_str();
+						<<" since "<<string(AnsiString(qi.readDateTime("time_stamp").DateTimeString()).c_str());
                     frmReferred->errors.push_back(out.str());
                     return; // abort
                 case LCDbBoxStore::EXPECTED:
@@ -995,7 +995,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
                 out <<"Box "<<qi.readInt("box_cid")<<" is already marked as stored in "//<<endl
                     <<"structure '"<<box.rack_name<<"' ["<<box.rack_cid<<"], "//<<endl
                     <<"slot "<<box.slot_position//<<endl
-                    <<" since "<<qi.readDateTime("time_stamp").DateTimeString().c_str()<<endl;
+                    <<" since "<<string(AnsiString(qi.readDateTime("time_stamp").DateTimeString()).c_str())<<endl;
                 frmReferred->warnings.push_back(out.str());
                 break;
             }

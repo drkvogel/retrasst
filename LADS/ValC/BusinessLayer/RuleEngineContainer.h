@@ -26,7 +26,6 @@ namespace valc
 {
 
 class Gates;
-class ResultAttributes;
 
 class RuleEngineContainer
 {
@@ -36,7 +35,7 @@ public:
         const paulst::Config* config,
         paulstdb::AbstractConnectionFactory* connectionFactory,
         paulst::LoggingService* log,
-        ResultAttributes* resultAttributes,
+        RuleResultPublisher* resultPublisher,
         Gates* gates,
         stef::TaskExceptionHandler* defaultTaskExceptionHandler );
 	void clearRulesCache();
@@ -47,7 +46,6 @@ private:
     RulesConfigUsingMap     m_rulesConfig;
     RuleLoader              m_ruleLoader;
     paulst::LoggingService* m_log;
-    ResultAttributes*       m_resultAttributes;
 };
 
 };
