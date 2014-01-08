@@ -67,21 +67,21 @@
 			<TASM_wicg>true</TASM_wicg>
 			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-			<VerInfo_Build>6</VerInfo_Build>
-			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.10.6;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
+			<VerInfo_Build>2</VerInfo_Build>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.11.2;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
 			<VerInfo_MinorVer>2</VerInfo_MinorVer>
-			<VerInfo_Release>10</VerInfo_Release>
+			<VerInfo_Release>11</VerInfo_Release>
 			<VerInfo_Locale>2057</VerInfo_Locale>
 			<_TCHARMapping>wchar_t</_TCHARMapping>
 			<ProjectType>CppVCLApplication</ProjectType>
-			<ILINK_LibraryPath>..\..\jonathanpr\RetrievalLists\;..\..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+			<ILINK_LibraryPath>RetrievalLists\;RationaliseTanks\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;..\..\paulst\;$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
 			<PackageImports>rtl;dbrtl;IndySystem;DbxClientDriver;bindcomp;DBXInterBaseDriver;xmlrtl;DbxCommonDriver;IndyProtocols;DBXMySQLDriver;dbxcds;bindengine;CustomIPTransport;IndyCore;inet;inetdbxpress;dbexpress;IPIndyImpl;$(PackageImports)</PackageImports>
 			<Multithreaded>true</Multithreaded>
 			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
 			<AllPackageLibs>rtl.lib;vcl.lib;dbrtl.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib;vcldb.lib;vclimg.lib;bdertl.lib;soaprtl.lib;xmlrtl.lib;inet.lib;dsnap.lib</AllPackageLibs>
 			<Icon_MainIcon>snowflake.ico</Icon_MainIcon>
 			<UsingDelphiRTL>true</UsingDelphiRTL>
-			<IncludePath>..\..\jonathanpr\RetrievalLists\;..\..\paulst\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;$(II_SYSTEM)\ingres\files\;$(BDSINCLUDE);$(IncludePath)</IncludePath>
+			<IncludePath>RetrievalLists\;RationaliseTanks\;..\LabsLeasing\;..\CoreUtilities\;..\LabsDAO\;..\LabsObjects\;..\LabsForms\;..\..\paulst\;$(II_SYSTEM)\ingres\files\;$(BDSINCLUDE);$(IncludePath)</IncludePath>
 			<DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
 			<DynamicRTL>true</DynamicRTL>
 			<UsePackages>true</UsePackages>
@@ -115,19 +115,19 @@
 			<ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-			<BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
-			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.10.7;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
-			<VerInfo_Build>7</VerInfo_Build>
+			<BCC_AllCodeguardOptions>false</BCC_AllCodeguardOptions>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.11.14;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
+			<VerInfo_Build>14</VerInfo_Build>
 			<LinkPackageStatics>soaprtl.lib;dsnap.lib</LinkPackageStatics>
 			<Defines>_DEBUG;$(Defines)</Defines>
 			<LinkPackageImports>rtl.bpi;vcl.bpi;dbrtl.bpi;IndyCore.bpi;IndySystem.bpi;IndyProtocols.bpi;vclx.bpi;vcldb.bpi;vclimg.bpi;bdertl.bpi;xmlrtl.bpi;inet.bpi</LinkPackageImports>
 			<BCC_MonitorThis>true</BCC_MonitorThis>
 			<BCC_InstructionSet>5</BCC_InstructionSet>
+			<BCC_InlineFunctionExpansion>true</BCC_InlineFunctionExpansion>
 			<BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
 			<BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
-			<BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
 			<VerInfo_Debug>false</VerInfo_Debug>
 			<ILINK_FullDebugInfo>false</ILINK_FullDebugInfo>
 			<BCC_SourceDebuggingOn>false</BCC_SourceDebuggingOn>
@@ -141,6 +141,8 @@
 			<TASM_Debugging>None</TASM_Debugging>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<VerInfo_Build>8</VerInfo_Build>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.11.8;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.11;Comments=</VerInfo_Keys>
 			<Defines>NDEBUG;$(Defines)</Defines>
 			<BCC_AllCodeguardOptions>false</BCC_AllCodeguardOptions>
 			<BCC_SourceDebuggingOn>false</BCC_SourceDebuggingOn>
@@ -153,42 +155,6 @@
 			<LinkPackageStatics>rtl.lib;vcl.lib;dbrtl.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib;vcldb.lib;vclimg.lib;bdertl.lib;soaprtl.lib;xmlrtl.lib;inet.lib;dsnap.lib</LinkPackageStatics>
 		</PropertyGroup>
 		<ItemGroup>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\database.cpp">
-				<BuildOrder>105</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\mainDialog.cpp">
-				<Form>frmViewListMain</Form>
-				<DependentOn>..\..\jonathanpr\RetrievalLists\mainDialog.h</DependentOn>
-				<BuildOrder>98</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\mainListDialog.cpp">
-				<Form>listDialog</Form>
-				<DependentOn>..\..\jonathanpr\RetrievalLists\mainListDialog.h</DependentOn>
-				<BuildOrder>99</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\RetrievalList.cpp">
-				<DependentOn>..\..\jonathanpr\RetrievalLists\RetrievalList.h</DependentOn>
-				<BuildOrder>100</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.cpp">
-				<Form>cryovialHistoryDialog</Form>
-				<DependentOn>..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.h</DependentOn>
-				<BuildOrder>101</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\TResultNotesDialog.cpp">
-				<Form>ResultNotesDialog</Form>
-				<DependentOn>..\..\jonathanpr\RetrievalLists\TResultNotesDialog.h</DependentOn>
-				<BuildOrder>102</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\TResultsDialog.cpp">
-				<Form>ResultsDialog</Form>
-				<DependentOn>..\..\jonathanpr\RetrievalLists\TResultsDialog.h</DependentOn>
-				<BuildOrder>103</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="..\..\jonathanpr\RetrievalLists\Utils.cpp">
-				<DependentOn>..\..\jonathanpr\RetrievalLists\Utils.h</DependentOn>
-				<BuildOrder>104</BuildOrder>
-			</CppCompile>
 			<CppCompile Include="..\CoreUtilities\rosebase.cpp">
 				<DependentOn>..\CoreUtilities\rosebase.h</DependentOn>
 				<BuildOrder>5</BuildOrder>
@@ -269,7 +235,7 @@
 			</CppCompile>
 			<CppCompile Include="..\LabsDAO\LCDbRetrieval.cpp">
 				<DependentOn>..\LabsDAO\LCDbRetrieval.h</DependentOn>
-				<BuildOrder>107</BuildOrder>
+				<BuildOrder>118</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="..\LabsDAO\LCDbTankLayout.cpp">
 				<DependentOn>..\LabsDAO\LCDbTankLayout.h</DependentOn>
@@ -515,6 +481,66 @@
 				<DependentOn>NewType.h</DependentOn>
 				<BuildOrder>95</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksBoxSelection.cpp">
+				<Form>frmRatTanksBoxSelection</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksBoxSelection.h</DependentOn>
+				<BuildOrder>99</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksBoxType.cpp">
+				<Form>frmRatTanksBoxType</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksBoxType.h</DependentOn>
+				<BuildOrder>100</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksCreateExercise.cpp">
+				<Form>frmRatTanksRetrivalExercise</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksCreateExercise.h</DependentOn>
+				<BuildOrder>101</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksCreateRetrievalJob.cpp">
+				<Form>frmRatTankCreateRetrievalJob</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksCreateRetrievalJob.h</DependentOn>
+				<BuildOrder>102</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksCtrl.cpp">
+				<DependentOn>RationaliseTanks\RatTanksCtrl.h</DependentOn>
+				<BuildOrder>103</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksDatabase.cpp">
+				<DependentOn>RationaliseTanks\RatTanksDatabase.h</DependentOn>
+				<BuildOrder>104</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksdbSelection.cpp">
+				<Form>frmRatTankDbSelectionDialog</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksdbSelection.h</DependentOn>
+				<BuildOrder>105</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksMainDialog.cpp">
+				<Form>frmRatTanksMainDialog</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksMainDialog.h</DependentOn>
+				<BuildOrder>106</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksOperatorSignedIn.cpp">
+				<DependentOn>RationaliseTanks\RatTanksOperatorSignedIn.h</DependentOn>
+				<BuildOrder>107</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksPleaseWait.cpp">
+				<Form>frmRatTankPleaseWait</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksPleaseWait.h</DependentOn>
+				<BuildOrder>108</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksSignIn.cpp">
+				<Form>frmRatTankSignIn</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksSignIn.h</DependentOn>
+				<BuildOrder>109</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="ReferredBoxes.cpp">
 				<Form>frmReferred</Form>
 				<FormType>dfm</FormType>
@@ -527,34 +553,76 @@
 				<DependentOn>ReferredBoxesSummary.h</DependentOn>
 				<BuildOrder>87</BuildOrder>
 			</CppCompile>
-			<CppCompile Include="RetrievalAssistant.cpp">
-				<Form>frmRetrievalAssistant</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>RetrievalAssistant.h</DependentOn>
-				<BuildOrder>89</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="RetrievalAssistantBoxes.cpp">
-				<Form>frmBoxes</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>RetrievalAssistantBoxes.h</DependentOn>
-				<BuildOrder>91</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="RetrievalAssistantProcess.cpp">
-				<Form>frmProcess</Form>
-				<FormType>dfm</FormType>
-				<DependentOn>RetrievalAssistantProcess.h</DependentOn>
-				<BuildOrder>92</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="RetrievalAssistantProcessBoxes.cpp">
+			<CppCompile Include="RetrAsstCollectBoxes.cpp">
 				<Form>frmProcessBoxes</Form>
-				<DependentOn>RetrievalAssistantProcessBoxes.h</DependentOn>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrAsstCollectBoxes.h</DependentOn>
 				<BuildOrder>106</BuildOrder>
 			</CppCompile>
-			<CppCompile Include="RetrievalAssistantSamples.cpp">
+			<CppCompile Include="RetrAsstCollectSamples.cpp">
+				<Form>frmProcess</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrAsstCollectSamples.h</DependentOn>
+				<BuildOrder>92</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrAsstMain.cpp">
+				<Form>frmRetrievalAssistant</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrAsstMain.h</DependentOn>
+				<BuildOrder>89</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrAsstPlanBoxes.cpp">
+				<Form>frmBoxes</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrAsstPlanBoxes.h</DependentOn>
+				<BuildOrder>91</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrAsstPlanSamples.cpp">
 				<Form>frmSamples</Form>
 				<FormType>dfm</FormType>
-				<DependentOn>RetrievalAssistantSamples.h</DependentOn>
+				<DependentOn>RetrAsstPlanSamples.h</DependentOn>
 				<BuildOrder>94</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListCryovialHistoryDialog.cpp">
+				<Form>frmRetrievalListCryovialHistoryDialog</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalLists\RetrievalListCryovialHistoryDialog.h</DependentOn>
+				<BuildOrder>110</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListCtrl.cpp">
+				<DependentOn>RetrievalLists\RetrievalListCtrl.h</DependentOn>
+				<BuildOrder>111</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListDatabase.cpp">
+				<BuildOrder>112</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListGridUtils.cpp">
+				<DependentOn>RetrievalLists\RetrievalListGridUtils.h</DependentOn>
+				<BuildOrder>113</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\retrievalListMainDialog.cpp">
+				<Form>frmRetrievalListViewListMain</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalLists\retrievalListMainDialog.h</DependentOn>
+				<BuildOrder>114</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListMainListDialog.cpp">
+				<Form>frmRetrievalListDialog</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalLists\RetrievalListMainListDialog.h</DependentOn>
+				<BuildOrder>115</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListResultNotesDialog.cpp">
+				<Form>frmRetrievalListResultNotesDialog</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalLists\RetrievalListResultNotesDialog.h</DependentOn>
+				<BuildOrder>116</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListResultsDialog.cpp">
+				<Form>frmRetrievalListResultsDialog</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalLists\RetrievalListResultsDialog.h</DependentOn>
+				<BuildOrder>117</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="RetrieveSamples.cpp">
 				<Form>frmRetrieved</Form>
@@ -631,50 +699,58 @@
 				<DependentOn>..\..\paulst\WorkerThread.h</DependentOn>
 				<BuildOrder>49</BuildOrder>
 			</CppCompile>
+			<FormResources Include="RationaliseTanks\RatTanksCreateRetrievalJob.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksCreateExercise.dfm"/>
+			<FormResources Include="NewType.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksBoxSelection.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksBoxType.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksSignIn.dfm"/>
+			<FormResources Include="ReferredBoxes.dfm"/>
+			<FormResources Include="ReferredBoxesSummary.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksPleaseWait.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksdbSelection.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksMainDialog.dfm"/>
+			<FormResources Include="NewTank.dfm"/>
 			<FormResources Include="FindSample.dfm"/>
+			<FormResources Include="DiscardSearch.dfm"/>
+			<FormResources Include="DiscardPrologue.dfm"/>
 			<FormResources Include="DiscardReason.dfm"/>
 			<FormResources Include="DiscardSamples.dfm"/>
-			<FormResources Include="DiscardSearch.dfm"/>
 			<FormResources Include="NewJob.dfm"/>
 			<FormResources Include="NewSection.dfm"/>
 			<FormResources Include="NewSite.dfm"/>
+			<FormResources Include="NewExercise.dfm"/>
 			<FormResources Include="MoveJobs.dfm"/>
 			<FormResources Include="NewBoxType.dfm"/>
-			<FormResources Include="NewExercise.dfm"/>
-			<FormResources Include="DiscardPrologue.dfm"/>
+			<FormResources Include="RetrAsstMain.dfm"/>
+			<FormResources Include="Storemain.dfm"/>
+			<FormResources Include="SMLogin.dfm"/>
+			<FormResources Include="SampleMove.dfm"/>
+			<FormResources Include="SelectSamples.dfm"/>
+			<FormResources Include="showsamples.dfm"/>
+			<FormResources Include="RetrievalLists\RetrievalListCryovialHistoryDialog.dfm"/>
+			<FormResources Include="RetrAsstPlanSamples.dfm"/>
+			<FormResources Include="RetrAsstPlanBoxes.dfm"/>
+			<FormResources Include="RetrAsstCollectSamples.dfm"/>
+			<FormResources Include="RetrAsstCollectBoxes.dfm"/>
+			<FormResources Include="RetrievalLists\RetrievalListResultsDialog.dfm"/>
+			<FormResources Include="RetrieveSamples.dfm"/>
+			<FormResources Include="SampleEntry.dfm"/>
+			<FormResources Include="RetrievalLists\RetrievalListResultNotesDialog.dfm"/>
+			<FormResources Include="RetrievalLists\retrievalListMainDialog.dfm"/>
+			<FormResources Include="RetrievalLists\RetrievalListMainListDialog.dfm"/>
 			<FormResources Include="AnalyseSamples.dfm"/>
 			<FormResources Include="BoxTransfer.dfm"/>
 			<FormResources Include="AddSpecimens.dfm"/>
-			<FormResources Include="BrowseSample.dfm"/>
 			<FormResources Include="DiscardMethod.dfm"/>
 			<FormResources Include="DiscardNote.dfm"/>
+			<FormResources Include="BrowseSample.dfm"/>
 			<FormResources Include="Configure.dfm"/>
-			<FormResources Include="Storemain.dfm"/>
-			<FormResources Include="SelectSamples.dfm"/>
-			<FormResources Include="showsamples.dfm"/>
-			<FormResources Include="SMLogin.dfm"/>
-			<FormResources Include="SampleMove.dfm"/>
-			<FormResources Include="ReferredBoxesSummary.dfm"/>
-			<FormResources Include="RetrievalAssistant.dfm"/>
-			<FormResources Include="NewTank.dfm"/>
-			<FormResources Include="NewType.dfm"/>
-			<FormResources Include="ReferredBoxes.dfm"/>
-			<FormResources Include="RetrievalAssistantBoxes.dfm"/>
-			<FormResources Include="RetrieveSamples.dfm"/>
-			<FormResources Include="SampleEntry.dfm"/>
-			<FormResources Include="RetrievalAssistantProcess.dfm"/>
-			<FormResources Include="RetrievalAssistantProcessBoxes.dfm"/>
-			<FormResources Include="RetrievalAssistantSamples.dfm"/>
-			<FormResources Include="..\..\jonathanpr\RetrievalLists\TcryovialHistoryDialog.dfm"/>
-			<FormResources Include="..\..\jonathanpr\RetrievalLists\TResultNotesDialog.dfm"/>
-			<FormResources Include="..\..\jonathanpr\RetrievalLists\mainDialog.dfm"/>
-			<FormResources Include="..\..\jonathanpr\RetrievalLists\mainListDialog.dfm"/>
-			<FormResources Include="..\..\jonathanpr\RetrievalLists\TResultsDialog.dfm"/>
+			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
+			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
 			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
-			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
-			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -701,7 +777,7 @@
 						<VersionInfo Name="MajorVer">1</VersionInfo>
 						<VersionInfo Name="MinorVer">2</VersionInfo>
 						<VersionInfo Name="Release">8</VersionInfo>
-						<VersionInfo Name="Build">23</VersionInfo>
+						<VersionInfo Name="Build">42</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -713,7 +789,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName"/>
 						<VersionInfoKeys Name="FileDescription"/>
-						<VersionInfoKeys Name="FileVersion">1.2.8.23</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">1.2.8.42</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName"/>
 						<VersionInfoKeys Name="LegalCopyright"/>
 						<VersionInfoKeys Name="LegalTrademarks"/>
@@ -742,14 +818,10 @@
 						<ProjectProperties Name="VerifyPackages">True</ProjectProperties>
 					</ProjectProperties>
 					<Excluded_Packages>
-						<Excluded_Packages Name="C:\Program Files (x86)\FastReports\LibD16\dclfrxDB16.bpl">FastReport 4.0 DB Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclFMXtee9160.bpl">TeeChart Standard FMX Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx160.bpl">Embarcadero LiveBindings Components FireMonkey</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\bcboffice2k160.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\bcbofficexp160.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclfmxstd160.bpl">Embarcadero FMX Standard Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k180.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclofficexp180.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>
 				</CPlusPlusBuilder.Personality>
 				<Deployment>
@@ -1005,7 +1077,6 @@
 				<Platforms>
 					<Platform value="Win32">True</Platform>
 				</Platforms>
-				<ModelSupport>False</ModelSupport>
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>
 		</ProjectExtensions>

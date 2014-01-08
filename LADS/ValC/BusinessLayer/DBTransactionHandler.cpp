@@ -10,7 +10,7 @@ namespace valc
 DBTransactionHandler::DBTransactionHandler( 
     paulstdb::DBConnection*                 c,
     paulst::LoggingService*                 log,
-    SampleRunIDResolutionService*           s,
+    const SnapshotUpdateHandle&             snapshotUpdateHandle,
     int                                     shutdownTimeoutSecs,
     bool                                    cancelPendingUpdatesOnShutdown,
     stef::TaskExceptionHandler*             defaultTaskExceptionHandler,
@@ -18,7 +18,7 @@ DBTransactionHandler::DBTransactionHandler(
     :
     m_connection                    ( c ),
     m_log                           ( log ),
-    m_sampleRunIDResolutionService  ( s ),
+    m_snapshotUpdateHandle          ( snapshotUpdateHandle ),
     m_threadPool                    ( new stef::ThreadPool(0, 1) ),
     m_shutdownTimeoutSecs           ( shutdownTimeoutSecs ),
     m_cancelPendingUpdatesOnShutdown( cancelPendingUpdatesOnShutdown ),
@@ -38,7 +38,7 @@ void DBTransactionHandler::queue( DBUpdateTask* t )
     t->setConfig                        ( m_config );
     t->setConnection                    ( m_connection );
     t->setLog                           ( m_log );
-    t->setSampleRunIDResolutionService  ( m_sampleRunIDResolutionService );
+    t->setSnapshotUpdateHandle          ( m_snapshotUpdateHandle );
 
     if ( ! m_threadPool->addTask( t ) )
     {

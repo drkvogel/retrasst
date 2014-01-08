@@ -18,31 +18,36 @@
 namespace valc
 {
 
-LoadBuddyDatabase::LoadBuddyDatabase( int localMachineID, paulstdb::DBConnection* con, 
-	paulst::LoggingService* log, ResultIndex* resultIndex, Projects* projects,
-	BuddyDatabase** bd, DBUpdateSchedule* dbUpdateSchedule,
-    SampleRunIDResolutionService* sampleRunIDResolutionService,
-    const std::string& sql,
-    const std::string& inclusionRule,
-    ExceptionalDataHandler* exceptionalDataHandler,
-    RuleEngineContainer* ruleEngine,
-    QCSampleDescriptorDerivationStrategy* qcsdds,
-    BuddyDatabaseEntryIndex* bdei )
+LoadBuddyDatabase::LoadBuddyDatabase( 
+    int                                     localMachineID, 
+    paulstdb::DBConnection*                 con, 
+	paulst::LoggingService*                 log, 
+    ResultIndex*                            resultIndex, 
+    Projects*                               projects,
+	BuddyDatabase**                         bd, 
+    DBUpdateSchedule*                       dbUpdateSchedule,
+    SampleRunIDResolutionService*           sampleRunIDResolutionService,
+    const std::string&                      sql,
+    const std::string&                      inclusionRule,
+    ExceptionalDataHandler*                 exceptionalDataHandler,
+    RuleEngineContainer*                    ruleEngine,
+    QCSampleDescriptorDerivationStrategy*   qcsdds,
+    BuddyDatabaseEntryIndex*                bdei )
     :
-    m_localMachineID( localMachineID ),
-    m_projects( projects ),
-    m_con( con ),
-    m_resultIndex( resultIndex ),
-	m_log( log ),
-	m_buddyDatabase(bd),
-    m_dbUpdateSchedule( dbUpdateSchedule ),
-    m_sampleRunIDResolutionService( sampleRunIDResolutionService ),
-    m_sql( sql ),
-    m_inclusionRule( inclusionRule ),
-    m_exceptionalDataHandler( exceptionalDataHandler ),
-    m_ruleEngine( ruleEngine ),
-    m_QCSampleDescriptorDerivationStrategy( qcsdds ),
-    m_buddyDatabaseEntryIndex( bdei )
+    m_localMachineID                        ( localMachineID ),
+    m_projects                              ( projects ),
+    m_con                                   ( con ),
+    m_resultIndex                           ( resultIndex ),
+    m_log                                   ( log ),
+    m_buddyDatabase                         ( bd ),
+    m_dbUpdateSchedule                      ( dbUpdateSchedule ),
+    m_sampleRunIDResolutionService          ( sampleRunIDResolutionService ),
+    m_sql                                   ( sql ),
+    m_inclusionRule                         ( inclusionRule ),
+    m_exceptionalDataHandler                ( exceptionalDataHandler ),
+    m_ruleEngine                            ( ruleEngine ),
+    m_QCSampleDescriptorDerivationStrategy  ( qcsdds ),
+    m_buddyDatabaseEntryIndex               ( bdei )
 {
 }
 

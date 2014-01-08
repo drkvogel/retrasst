@@ -184,6 +184,10 @@ public:
     LocalRun( const std::string& sampleDescriptor, const std::string& id );
     LocalRun& operator=( const LocalRun& r );
     /*
+        Returns the ID of the group/batch with which this run is associated.
+    */
+    int getGroupID() const;
+    /*
         Returns an identifier for the sample being run.
 
         To obtain worklist entries for this sample, refer to 

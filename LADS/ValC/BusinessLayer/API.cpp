@@ -32,6 +32,7 @@
 #include "ResultAttributes.h"
 #include "ResultIndex.h"
 #include "RuleEngineContainer.h"
+#include "SampleRunGroupIDGeneratorUsingDB.h"
 #include "SampleRunIDResolutionService.h"
 #include "StrUtil.h"
 #include "TaskExceptionUserAdvisor.h"
@@ -121,16 +122,6 @@ void InitialiseApplicationContext( int localMachineID, int user, const std::stri
         ac->sampleRunIDResolutionService    = new SampleRunIDResolutionService();
         ac->initialisationQueries           = new stef::ThreadPool(0, 1);
         ac->initialisationQueries->addDefaultTaskExceptionHandler( ac->taskExceptionUserAdvisor );
-        ac->databaseUpdateThread            = new DBTransactionHandler( 
-                                                    ac->connectionFactory->createConnection( 
-                                                        ac->getProperty("DBUpdateThreadConnectionString"),
-                                                        ac->getProperty("DBUpdateThreadSessionReadLockSetting") ),
-                                                    log,
-                                                    ac->sampleRunIDResolutionService,
-                                                    paulst::toInt(ac->getProperty("DBUpdateThreadShutdownTimeoutSecs")),
-                                                    std::string("true") == ac->getProperty("DBUpdateThreadCancelPendingUpdatesOnShutdown"),
-                                                    ac->taskExceptionUserAdvisor,
-                                                    ac->config  );
         ac->resultAttributes                = new ResultAttributes();
         ac->clusterIDs                      = new ClusterIDs();
         ac->projects                        = new Projects();
@@ -235,6 +226,8 @@ SnapshotPtr Load()
     BuddyDatabaseEntryIndex* buddyDatabaseEntryIndex = new BuddyDatabaseEntryIndex();
     boost::scoped_ptr<QCSampleDescriptorDerivationStrategy> QCSampleDescriptorDerivationStrategy(
         new QCSampleDescriptorDerivationStrategyImpl( resultIndex, buddyDatabaseEntryIndex, applicationContext->log ) );
+    SampleRunGroupIDGenerator* sampleRunGroupIDGenerator = 
+        new SampleRunGroupIDGeneratorUsingDB( applicationContext->connectionFactory, applicationContext->config );
 
     // Clear previously obtained RuleResults
     applicationContext->resultAttributes->clearRuleResults();
@@ -317,7 +310,8 @@ SnapshotPtr Load()
         dbUpdateSchedule, 
         applicationContext->sampleRunIDResolutionService, 
         applicationContext,
-        paulst::toInt( applicationContext->getProperty("PendingUpdateWaitTimeoutSecs") ) );
+        paulst::toInt( applicationContext->getProperty("PendingUpdateWaitTimeoutSecs") ),
+        sampleRunGroupIDGenerator );
 
     return SnapshotPtr( applicationContext->snapshot );
 }
@@ -399,6 +393,12 @@ LocalRun& LocalRun::operator=( const LocalRun& o )
     m_sampleDescriptor  = o.m_sampleDescriptor;
     m_impl              = o.m_impl;
     return *this;
+}
+
+int LocalRun::getGroupID() const
+{
+    require( m_impl );
+    return m_impl->getGroupID( m_id );
 }
 
 std::string LocalRun::getRunID() const

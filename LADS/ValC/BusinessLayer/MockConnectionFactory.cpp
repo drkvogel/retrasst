@@ -1,8 +1,11 @@
 #include "MockConnection.h"
 #include "MockConnectionFactory.h"
+#include "StrUtil.h"
 
 namespace valc
 {
+
+int nextID = 0;
 
 SerializedRecordset::SerializedRecordset( const std::string& dataString, paulstdb::FieldParsingStrategy fps )
     :
@@ -47,15 +50,22 @@ SerializedRecordset MockConnectionFactory::findRecordSetForQuery( const std::str
 {
     SerializedRecordset recordset;
 
-    for ( RecordSetsKeyedOnQueryKeyword::const_iterator i = s_recordsetsKeyedOnQueryKeyword.begin();
-            i != s_recordsetsKeyedOnQueryKeyword.end(); ++i )
+    if ( paulst::ifind( "nextval", sql ) )
     {
-        const std::string queryKeyword = i->first;
-
-        if ( paulst::ifind( queryKeyword, sql ) )
+        recordset = paulst::format( "%d,\n", ++nextID );
+    }
+    else
+    {
+        for ( RecordSetsKeyedOnQueryKeyword::const_iterator i = s_recordsetsKeyedOnQueryKeyword.begin();
+                i != s_recordsetsKeyedOnQueryKeyword.end(); ++i )
         {
-            recordset = i->second;
-            break;
+            const std::string queryKeyword = i->first;
+
+            if ( paulst::ifind( queryKeyword, sql ) )
+            {
+                recordset = i->second;
+                break;
+            }
         }
     }
 
@@ -82,7 +92,6 @@ void MockConnectionFactory::prime( WellKnownQuery query, const SerializedRecords
     case NONLOCALRESULTS_QRY: keyword = "LoadNonLocalResults"   ; break;
     case RULECONFIG_QRY     : keyword = "LoadRuleConfig"        ; break;
     case RULES_QRY          : keyword = "LoadRules"             ; break;
-    case SAMPLERUNID_QRY    : keyword = "sample_run_id.nextval" ; break;
     default:
         throw Exception( L"Not a well-known query!" );
     }
@@ -93,7 +102,7 @@ void MockConnectionFactory::prime( WellKnownQuery query, const SerializedRecords
 void MockConnectionFactory::reset()
 {
     s_recordsetsKeyedOnQueryKeyword.clear();
-    MockConnectionFactory::prime( SAMPLERUNID_QRY, "1,\n" );
+    nextID = 0;
 }
 
 }

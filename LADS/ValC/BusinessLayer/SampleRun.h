@@ -23,13 +23,14 @@ public:
     SampleRun( const SampleRun& );
 	// Note that 'closed' will be garbage if isOpen.
     SampleRun( const std::string& runID, const std::string& sampleDescriptor, bool isOpen, const TDateTime& created, const TDateTime& closed, 
-        float sequencePosition, const paulst::Nullable<int>& groupID );
+        float sequencePosition, const paulst::Nullable<int>& groupID, bool isQC );
     SampleRun&              operator=( const SampleRun& o );
     paulst::Nullable<int>   getGroupID() const;
     std::string             getID() const;
     std::string             getSampleDescriptor() const;
     float                   getSequencePosition() const;
     bool                    isOpen() const;
+    bool                    isQC() const;
 private:
     std::string             m_runID;
     std::string             m_sampleDescriptor;
@@ -38,6 +39,7 @@ private:
     TDateTime               m_closed;
     float                   m_sequencePosition;
     paulst::Nullable<int>   m_groupID;
+    bool                    m_isQC;
 };
 
 };

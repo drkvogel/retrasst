@@ -1,6 +1,7 @@
 #ifndef DBUPDATECONSUMERH
 #define DBUPDATECONSUMERH
 
+#include "SnapshotUpdateHandle.h"
 
 namespace paulst
 {
@@ -23,7 +24,6 @@ namespace valc
 {
 
 class DBUpdateTask;
-class SampleRunIDResolutionService;
 
 
 class DBTransactionHandler
@@ -32,7 +32,7 @@ public:
     DBTransactionHandler( 
         paulstdb::DBConnection*             connection,
         paulst::LoggingService*             log,
-        SampleRunIDResolutionService*       srs, 
+        const SnapshotUpdateHandle&         snapshotUpdateHandle, 
         int                                 shutdownTimeoutSecs,
         bool                                cancelPendingUpdatesOnShutdown,
         stef::TaskExceptionHandler*         defaultTaskExceptionHandler,
@@ -43,7 +43,7 @@ public:
 private:
     paulstdb::DBConnection*             m_connection;
     paulst::LoggingService*             m_log;
-    SampleRunIDResolutionService*       m_sampleRunIDResolutionService;
+    SnapshotUpdateHandle                m_snapshotUpdateHandle;
     stef::ThreadPool*                   m_threadPool;
     const int                           m_shutdownTimeoutSecs;
     const bool                          m_cancelPendingUpdatesOnShutdown;

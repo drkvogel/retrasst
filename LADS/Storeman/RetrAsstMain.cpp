@@ -1,14 +1,16 @@
 #include <vcl.h>
 #pragma hdrstop
-#include "RetrievalAssistant.h"
+#include "RetrAsstMain.h"
 #include "LCDbAuditTrail.h"
 #include "LCDbObject.h"
 #include "LCDbProject.h"
-#include "ReferredBoxes.h"
-#include "RetrievalAssistantSamples.h"
-#include "RetrievalAssistantBoxes.h"
-#include "RetrievalAssistantProcess.h"
-#include "RetrievalAssistantProcessBoxes.h"
+//#include "ReferredBoxes.h"
+#include "RetrAsstPlanSamples.h"
+#include "RetrAsstPlanBoxes.h"
+#include "RetrAsstCollectSamples.h"
+#include "RetrAsstCollectBoxes.h"
+#include "StoreUtil.h"
+#include "StoreDAO.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -162,22 +164,9 @@ string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
     }
 }
 
-// one for StoreUtil.h?
-//string TfrmRetrievalAssistant::getAliquotDescription(int aliquot_cid) { // c_object_name 6: aliquot type?
-//    ostringstream oss;
-//    if (0 == aliquot_cid) return "Not specified";
-//    try {
-//        const LCDbObject * aliquot = LCDbObjects::records().findByID(aliquot_cid);
-//        oss << aliquot->getName().c_str();
-//    } catch (...) {
-//        oss << "ID "<<aliquot_cid<<" not found";
-//    }
-//    return oss.str();
-//}
-
 string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
     // c_audit_trail
-    //LCDbCryoJob::getUserID()
+    //fixmeLCDbCryoJob::getUserID();
     return "";
 }
 
@@ -191,8 +180,7 @@ void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
 
 void TfrmRetrievalAssistant::init() {
     cbLog->Checked      = RETRASSTDEBUG;
-    //cbLog->Visible      = RETRASSTDEBUG;
-    cbLog->Visible      = true;
+    cbLog->Visible      = true;//= RETRASSTDEBUG;
 	panelDebug->Visible = cbLog->Checked;
 
     sgwJobs = new StringGridWrapper<LCDbCryoJob>(sgJobs, &vecJobs);
@@ -203,7 +191,6 @@ void TfrmRetrievalAssistant::init() {
     sgwJobs->addCol("secondary","Secondary Aliquot",94);
     sgwJobs->addCol("project",  "Project",          103);
     sgwJobs->addCol("reason",   "Reason",           155);
-	//sgwJobs->addCol("time",     "Timestamp",        111);
     sgwJobs->addCol("start",    "Started",          74);
     sgwJobs->addCol("finish",   "Finished",         74);
     sgwJobs->addCol("claimed",  "Claimed until",    74);
@@ -235,7 +222,6 @@ void TfrmRetrievalAssistant::loadJobs() {
         LCDbCryoJob * job = new LCDbCryoJob(); *job = *jr;
         vecJobs.push_back(job);
     }
-    //showJobs();
     Screen->Cursor = crDefault;
     sgJobs->RowCount = vecJobs.size() + 1;
     tdvecpJob::const_iterator it;
@@ -270,6 +256,22 @@ void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
     qc.setParam("old", LCDbCryoJob::INPROGRESS);
     qc.execSQL();
     loadJobs();
+}
+
+void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
+/** fill in SampleRow structure with storage details of sample */
+    ROSETTA result; StoreDAO dao;
+    static map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
+    if (found != storageCache.end()) { // fill in box location from cache map
+        sample->copyLocation(*(found->second));
+    } else {
+        if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
+            sample->copyLocation(result);
+        } else {
+            sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
+        }
+        storageCache[sample->store_record->getBoxID()] = sample; // cache result
+    }
 }
 
 //template <class T>

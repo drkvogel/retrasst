@@ -1,7 +1,6 @@
 #include "AbstractConnectionFactory.h"
 #include "ApplicationContext.h"
 #include "Config.h"
-#include "DBTransactionHandler.h"
 #include "Projects.h"
 #include "QCGates.h"
 #include "ResultAttributes.h"
@@ -28,7 +27,6 @@ ApplicationContext::ApplicationContext()
     projects(0),
     clusterIDs(0),
     testNames(0),
-    databaseUpdateThread(0),
     sampleRunIDResolutionService(0),
     taskExceptionUserAdvisor(0)
 {
@@ -41,7 +39,6 @@ ApplicationContext::~ApplicationContext()
         initialisationQueries->shutdown( 2000, true );
     }
 
-    delete databaseUpdateThread;
     delete snapshot;
     delete config;
     delete connectionFactory;

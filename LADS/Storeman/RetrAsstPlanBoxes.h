@@ -1,5 +1,5 @@
-#ifndef RetrievalAssistantBoxesH
-#define RetrievalAssistantBoxesH
+#ifndef RetrAsstPlanBoxesH
+#define RetrAsstPlanBoxesH
 #include <System.Classes.hpp>
 #include <Vcl.Controls.hpp>
 #include <Vcl.ExtCtrls.hpp>
@@ -7,7 +7,7 @@
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.ComCtrls.hpp>
 #include <sstream>
-#include "RetrievalAssistant.h"
+#include "RetrAsstMain.h"
 #include "LCDbJob.h"
 #include "LDbBoxStore.h"
 //#include "LPDbCryovialStore.h"

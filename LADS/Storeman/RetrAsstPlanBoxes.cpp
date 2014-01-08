@@ -1,6 +1,6 @@
 #include <vcl.h>
 #pragma hdrstop
-#include "RetrievalAssistantBoxes.h"
+#include "RetrAsstPlanBoxes.h"
 #include "ReferredBoxes.h"
 #include "StoreUtil.h"
 #include "LQuery.h"

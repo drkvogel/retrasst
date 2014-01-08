@@ -8,11 +8,12 @@ namespace valc
 SampleRun::SampleRun()
     :
     m_isOpen(false),
-    m_sequencePosition(0.0)
+    m_sequencePosition(0.0),
+    m_isQC(false)
 {
 }
 
-SampleRun::SampleRun( const std::string& runID, const std::string& sampleDescriptor, bool isOpen, const TDateTime& created, const TDateTime& closed, float sequencePosition, const paulst::Nullable<int>& groupID )
+SampleRun::SampleRun( const std::string& runID, const std::string& sampleDescriptor, bool isOpen, const TDateTime& created, const TDateTime& closed, float sequencePosition, const paulst::Nullable<int>& groupID, bool isQC )
     :
     m_runID( runID ),
     m_sampleDescriptor( sampleDescriptor ),
@@ -20,7 +21,8 @@ SampleRun::SampleRun( const std::string& runID, const std::string& sampleDescrip
     m_created( created ),
     m_closed( isOpen ? TDateTime() : closed ),
     m_sequencePosition( sequencePosition ),
-    m_groupID ( groupID )
+    m_groupID ( groupID ),
+    m_isQC( isQC )
 {
 }
 
@@ -32,7 +34,8 @@ SampleRun::SampleRun( const SampleRun& o )
     m_created           (   o.m_created         ),
     m_closed            (   o.m_closed          ),
     m_sequencePosition  (   o.m_sequencePosition),
-    m_groupID           (   o.m_groupID         )
+    m_groupID           (   o.m_groupID         ),
+    m_isQC              (   o.m_isQC            )
 {
 }
 
@@ -45,6 +48,7 @@ SampleRun& SampleRun::operator=( const SampleRun& o )
     m_closed            = o.m_closed;
     m_sequencePosition  = o.m_sequencePosition;
     m_groupID           = o.m_groupID;
+    m_isQC              = o.m_isQC;
     return *this;
 }
 
@@ -71,6 +75,11 @@ float SampleRun::getSequencePosition() const
 bool SampleRun::isOpen() const
 {
     return m_isOpen;
+}
+
+bool SampleRun::isQC() const
+{
+    return m_isQC;
 }
 
 }

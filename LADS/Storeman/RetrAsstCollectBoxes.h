@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 
-#ifndef RetrievalAssistantProcessBoxesH
-#define RetrievalAssistantProcessBoxesH
+#ifndef RetrAsstCollectBoxesH
+#define RetrAsstCollectBoxesH
 //---------------------------------------------------------------------------
 #include <System.Classes.hpp>
 #include <Vcl.Controls.hpp>

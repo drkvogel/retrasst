@@ -172,7 +172,7 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
 
         std::string sampleRunID      = hasSampleRun ? paulst::toString(srID) : sampleDescriptor;
         SampleRuns* targetCollection = hasSampleRun ? m_sampleRuns : m_candidateSampleRuns;
-        SampleRun   sampleRun( sampleRunID, sampleDescriptor, srIsOpen != 0, srCreatedWhen, srClosedWhen, srSequencePosition, srGroupID );
+        SampleRun   sampleRun( sampleRunID, sampleDescriptor, srIsOpen != 0, srCreatedWhen, srClosedWhen, srSequencePosition, srGroupID, isQC() );
 
         m_buddyDatabaseEntryIndex->add( buddySampleID, alphaSampleID, barcode, databaseName, dateAnalysed );
 

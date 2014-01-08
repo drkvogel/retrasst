@@ -45,7 +45,7 @@ protected:
     {
         try
         {
-            transaction.execute( getConnection(), getConfig() );
+            transaction.execute( connection, config );
             meetingPlace->leave( this, transaction );
         }
         catch( ... )

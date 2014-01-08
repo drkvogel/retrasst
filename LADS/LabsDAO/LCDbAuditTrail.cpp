@@ -28,6 +28,7 @@
  *  9 April 09, NG:		Bug fix: check process ID before adding record
  *  1 July 09, NG:		Encourage wider use of pre-defined message types
  *	11 June 2012, NG	Modified for C++Builder XE2
+ * 	6 Jan 2014, NG:		No need to split details: 1000 characters in db 2.7
  *-------------------------------------------------------------------------*/
 
 #include <vcl.h>
@@ -174,7 +175,7 @@ std::string LCDbAuditTrail::getIngresInfo( const std::string & param )
 //---------------------------------------------------------------------------
 //	Private class to split out consecutive lines from a long message
 //---------------------------------------------------------------------------
-
+/*
 struct LCDbAuditTrail::LineSplitter
 {
 	const char * ch;
@@ -217,7 +218,7 @@ struct LCDbAuditTrail::LineSplitter
 		}
 	}
 };
-
+*/
 //---------------------------------------------------------------------------
 //	Write the message to the audit trail in the central database
 //---------------------------------------------------------------------------
@@ -251,7 +252,7 @@ bool LCDbAuditTrail::addRecord( const std::string & message, MessageType type )
 	cQuery.setParam( "udbn", dbName );
 	cQuery.setParam( "uPName", progName );
 
-	int records = 0;
+/*	int records = 0;
 	LineSplitter lines( message.c_str() );
 	std::string part = lines.getNext();
 	while( lines.hasMore() ) {
@@ -274,7 +275,9 @@ bool LCDbAuditTrail::addRecord( const std::string & message, MessageType type )
 			records ++;
 		}
 	}
-	return (records > 0);
+	*/
+	cQuery.setParam( "uMessage", message );
+	return cQuery.execSQL();
 }
 
 //---------------------------------------------------------------------------

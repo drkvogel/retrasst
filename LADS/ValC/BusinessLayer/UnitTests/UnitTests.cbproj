@@ -309,6 +309,18 @@
             <DependentOn>..\SampleRun.h</DependentOn>
             <BuildOrder>43</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\SampleRunGroup.cpp">
+            <DependentOn>..\SampleRunGroup.h</DependentOn>
+            <BuildOrder>100</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\SampleRunGroupIDGeneratorUsingDB.cpp">
+            <DependentOn>..\SampleRunGroupIDGeneratorUsingDB.h</DependentOn>
+            <BuildOrder>102</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\SampleRunGroupModel.cpp">
+            <DependentOn>..\SampleRunGroupModel.h</DependentOn>
+            <BuildOrder>101</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\SampleRunIDResolutionService.cpp">
             <DependentOn>..\SampleRunIDResolutionService.h</DependentOn>
             <BuildOrder>45</BuildOrder>

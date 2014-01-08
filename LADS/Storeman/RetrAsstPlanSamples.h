@@ -1,5 +1,5 @@
-#ifndef RetrievalAssistantSamplesH
-#define RetrievalAssistantSamplesH
+#ifndef RetrAsstPlanSamplesH
+#define RetrAsstPlanSamplesH
 #include <System.Classes.hpp>
 #include <Vcl.Controls.hpp>
 #include <Vcl.StdCtrls.hpp>
@@ -10,7 +10,7 @@
 #include <sstream>
 #include <iterator>
 #include "LCDbJob.h"
-#include "RetrievalAssistant.h"
+#include "RetrAsstMain.h"
 
 using namespace std;
 

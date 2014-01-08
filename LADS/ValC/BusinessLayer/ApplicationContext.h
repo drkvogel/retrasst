@@ -26,7 +26,6 @@ namespace valc
 {
 
 class AnalysisActivitySnapshot;
-class DBTransactionHandler;
 class Projects;
 class QCGates;
 class ResultAttributes;
@@ -51,7 +50,6 @@ struct ApplicationContext
     ClusterIDs*                             clusterIDs;
     TestNames*                              testNames;
     UserAdvisor*                            userAdvisor; // Owned by UI
-    DBTransactionHandler*                   databaseUpdateThread;
     SampleRunIDResolutionService*           sampleRunIDResolutionService;
     stef::TaskExceptionHandler*             taskExceptionUserAdvisor;
 

@@ -1,5 +1,5 @@
-#ifndef RetrievalAssistantProcessH
-#define RetrievalAssistantProcessH
+#ifndef RetrAsstCollectSamplesH
+#define RetrAsstCollectSamplesH
 #include <System.Classes.hpp>
 #include <Vcl.Controls.hpp>
 #include <Vcl.StdCtrls.hpp>
@@ -7,7 +7,7 @@
 #include <Vcl.Grids.hpp>
 #include <Vcl.Menus.hpp>
 #include "LCDbJob.h"
-#include "RetrievalAssistant.h"
+#include "RetrAsstMain.h"
 #include <Vcl.ComCtrls.hpp>
 #include <Vcl.ExtCtrls.hpp>
 
@@ -70,7 +70,6 @@ __published:
     TMemo *memoDebug;
     TButton *btnSimAccept;
     TButton *btnNotFound;
-    TButton *btnSecondary;
     TPanel *panelAliquots;
     TGroupBox *groupPrimary;
     TLabel *labelPrimary;
@@ -136,7 +135,7 @@ private:
     void                                        debugLog(String s);
     bool destroying;
     string tempTableName;
-    map<int, const SampleRow *> storageCache;
+    //map<int, const SampleRow *> storageCache;
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);
