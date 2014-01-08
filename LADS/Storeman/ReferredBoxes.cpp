@@ -583,7 +583,7 @@ void __fastcall FindMatchesWorkerThread::Execute() {
     const char * original_query = // quicker when table has stats
         "SELECT box_cid, MIN(tube_position) AS minpos, MAX(tube_position) AS maxpos"
         " FROM cryovial_store"
-        " WHERE status= 1"
+        " WHERE status IN (0, 1, 2)"
         " AND box_cid IN ("
         "   SELECT box_cid FROM cryovial c, cryovial_store s"
         "   WHERE c.cryovial_id = s.cryovial_id AND cryovial_barcode IN (:first, :last)"
@@ -593,14 +593,14 @@ void __fastcall FindMatchesWorkerThread::Execute() {
     const char * recast_query = // quicker on tables with no stats
         "SELECT s.box_cid, MIN(tube_position) AS minpos, MAX(tube_position) AS maxpos"
         " FROM cryovial_store s JOIN cryovial c ON s.cryovial_id = c.cryovial_id"
-        " WHERE s.status= 1"
+        " WHERE s.status IN (0, 1, 2)"
         " AND cryovial_barcode IN (:first, :last)"
         " GROUP BY box_cid";
 
     const char * box_name_query =
         "SELECT box_cid, MIN(tube_position) AS minpos, MAX(tube_position) AS maxpos"
         " FROM cryovial_store"
-        " WHERE status= 1"
+        " WHERE status IN (0, 1, 2)"
         " AND box_cid IN ("
         "   SELECT box_cid FROM box_name bn"
         "   WHERE UPPER(bn.external_name) = UPPER(:boxname)"
