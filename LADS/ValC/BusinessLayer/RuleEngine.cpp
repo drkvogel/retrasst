@@ -580,12 +580,13 @@ void RuleEngine::clearRulesCache()
     
 void RuleEngine::queue( const UncontrolledResult& r )
 {
-    m_resultAssessor->addTask( new ResultAssessmentTask( r, m_errorResultCode, &m_rulesCache, m_publisher, m_log ) );
-
+    // Notify BEFORE queueing.  Don't want any risk of notification of result to precede notification of being queued.
     if ( m_queueListener )
     {
         m_queueListener->notifyQueued( r );
     }
+
+    m_resultAssessor->addTask( new ResultAssessmentTask( r, m_errorResultCode, &m_rulesCache, m_publisher, m_log ) );
 }
 
 void RuleEngine::setConfig( const paulst::Config* c )
