@@ -199,15 +199,16 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
             }
 
             UncontrolledResult r;
-            r.testID = resTestID;
-            r.resultID = resID;
-            r.machineID = machineID;
-            r.resultValue = resValue;
-            r.resultText = resText;
-            r.barcode = barcode;
-            r.projectID = projectID;
-            r.dateAnalysed = resDateAnalysed;
-            r.actionFlag = resActionFlag;
+            r.testID        = resTestID;
+            r.resultID      = resID;
+            r.machineID     = machineID;
+            r.resultValue   = resValue;
+            r.resultText    = resText;
+            r.barcode       = barcode;
+            r.projectID     = projectID;
+            r.dateAnalysed  = resDateAnalysed;
+            r.actionFlag    = resActionFlag;
+            r.runID         = sampleRunID;
 
             if ( m_ruleEngine->queue( r ) )
             {

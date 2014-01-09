@@ -2,12 +2,8 @@
 
 ## Todo
 
- * use 2ndary button - 
- * factor out storage query - getStorage?
-    * cache should be wiped at certain points to avoid errors?
  * Source/Current box - standardise name - current probably better?
  * still not showing 2ndary aliquot    
- * rename files: Retrasst[Plan|Process][Samples|Boxes]
  * port [Plan|Process]Samples to [Plan|Process]Boxes
  * speed up queries
    * profile?
@@ -39,6 +35,10 @@ DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMM
 
 ## Done
 
+ * use 2ndary button - remove
+ * factor out storage query - getStorage?
+    * cache should be wiped at certain points to avoid errors?
+ * rename files: Retrasst[Plan|Process][Samples|Boxes]
  * query is v slow - e.g. 1m30s for aliquot_type_cid != Primary; -- load primary and secondary together
  * load 2ndaries seems to work ok
  * save 2ndaries in plan

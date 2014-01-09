@@ -5,6 +5,7 @@
 #include "BuddyDatabase.h"
 #include "DBUpdateSchedule.h"
 #include "ExceptionUtil.h"
+#include "Nullable.h"
 #include "QueueBuilderParams.h"
 #include "QueuedSamplesBuilderFunction.h"
 #include "ResultAttributes.h"
@@ -52,16 +53,34 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
     m_pendingUpdateWaitTimeoutSecs  ( pendingUpdateWaitTimeoutSecs ),
     m_snapshotUpdateThread          ( &m_dbTransactionHandler, m_updateHandle, appContext->log, appContext->taskExceptionUserAdvisor ),
     m_worklistRelativeImpl          ( wl ),
-    m_sampleRunGroupModel           ( sampleRunGroupIDGenerator )
+    m_sampleRunGroupModel           ( sampleRunGroupIDGenerator ),
+    m_runIDC14n                     ( *sampleRunIDResolutionService )
 {
     m_localRunImpl.setSampleRunGroupModel( &m_sampleRunGroupModel );
 
+    // Group IDs are unstable while assignments are on-going.  (This is 
+    // demonstrated by UnitTests/SampleRunGroupModelTest, test 13.)
+    // So we build SampleRunGroupModel first, and then use it to get (reliable) group ID values.
     BOOST_FOREACH( const SampleRun& sr, *m_buddyDatabase )
     {
+        m_sampleRunGroupModel.assignToGroup( sr.getID(), sr.isQC(), sr.getGroupID() );
+    }
+
+    paulst::Nullable<int> previousGroupID;
+
+    BOOST_FOREACH( const SampleRun& sr, *m_buddyDatabase )
+    {
+        paulst::Nullable<int> groupID( m_sampleRunGroupModel.getGroupID( sr.getID() ) );
+
+        if ( groupID != previousGroupID )
+        {
+            m_localEntries.push_back( BatchDelimiter() );
+            previousGroupID = groupID;
+        }
+
         LocalRun lr( sr.getSampleDescriptor(), sr.getID() );
         m_localRunImpl.introduce( lr, sr.isOpen() );
         m_localEntries.push_back( lr );
-        m_sampleRunGroupModel.assignToGroup( sr.getID(), sr.isQC(), sr.getGroupID() );
     }
 
     QueuedSamplesBuilderFunction buildQueue( new QueueBuilderParams( bdb, wd, m_appContext->clusterIDs ) );

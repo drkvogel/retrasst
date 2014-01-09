@@ -583,7 +583,7 @@ void __fastcall FindMatchesWorkerThread::Execute() {
     const char * original_query = // quicker when table has stats
         "SELECT box_cid, MIN(tube_position) AS minpos, MAX(tube_position) AS maxpos"
         " FROM cryovial_store"
-        " WHERE status= 1"
+        " WHERE status IN (0, 1, 2)"
         " AND box_cid IN ("
         "   SELECT box_cid FROM cryovial c, cryovial_store s"
         "   WHERE c.cryovial_id = s.cryovial_id AND cryovial_barcode IN (:first, :last)"
@@ -593,14 +593,14 @@ void __fastcall FindMatchesWorkerThread::Execute() {
     const char * recast_query = // quicker on tables with no stats
         "SELECT s.box_cid, MIN(tube_position) AS minpos, MAX(tube_position) AS maxpos"
         " FROM cryovial_store s JOIN cryovial c ON s.cryovial_id = c.cryovial_id"
-        " WHERE s.status= 1"
+        " WHERE s.status IN (0, 1, 2)"
         " AND cryovial_barcode IN (:first, :last)"
         " GROUP BY box_cid";
 
     const char * box_name_query =
         "SELECT box_cid, MIN(tube_position) AS minpos, MAX(tube_position) AS maxpos"
         " FROM cryovial_store"
-        " WHERE status= 1"
+        " WHERE status IN (0, 1, 2)"
         " AND box_cid IN ("
         "   SELECT box_cid FROM box_name bn"
         "   WHERE UPPER(bn.external_name) = UPPER(:boxname)"
@@ -733,7 +733,7 @@ void __fastcall FindStorageWorkerThread::Execute() {
     } else {
         while (!qp.eof()) {
             std::stringstream ss;
-			ss << qp.readDateTime("event_date").DateTimeString().c_str() << ": " <<
+			ss << string(AnsiString(qp.readDateTime("event_date").DateTimeString()).c_str()) << ": " <<
             LCDbObjects::records().get(qp.readInt("event_cid")).getName();
             frmReferred->comboEventHistory->Items->Add(ss.str().c_str());
             qp.next();
@@ -968,7 +968,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
         qi.setParam("slot", box.slot_position);
         if (qi.open()) { // results
             int box_in_slot = qi.readInt("box_cid");
-            ostringstream out;
+            stringstream out;
             if (box_in_slot != box.box_arrival_id) { // not in use for this box
                                         //xxx box.box_arrival_id has been set correctly?
                 int status = qi.readInt("status");
@@ -977,7 +977,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
                     out <<"Position is in use.\n\nbox_cid '"<<qi.readInt("box_cid")<<"' is in "//<<endl
                         <<"structure '"<<box.rack_name<<"' ["<<box.rack_cid<<"], "//<<endl
                         <<"slot "<<box.slot_position//<<endl
-						<<" since "<<qi.readDateTime("time_stamp").DateTimeString().c_str();
+						<<" since "<<string(AnsiString(qi.readDateTime("time_stamp").DateTimeString()).c_str());
                     frmReferred->errors.push_back(out.str());
                     return; // abort
                 case LCDbBoxStore::EXPECTED:
@@ -995,7 +995,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
                 out <<"Box "<<qi.readInt("box_cid")<<" is already marked as stored in "//<<endl
                     <<"structure '"<<box.rack_name<<"' ["<<box.rack_cid<<"], "//<<endl
                     <<"slot "<<box.slot_position//<<endl
-                    <<" since "<<qi.readDateTime("time_stamp").DateTimeString().c_str()<<endl;
+                    <<" since "<<string(AnsiString(qi.readDateTime("time_stamp").DateTimeString()).c_str())<<endl;
                 frmReferred->warnings.push_back(out.str());
                 break;
             }

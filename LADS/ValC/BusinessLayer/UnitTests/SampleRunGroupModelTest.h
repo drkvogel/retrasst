@@ -46,6 +46,7 @@ namespace tut
     private: 
         int                 sequencePos;
         MockIDGenerator*    mockIDGenerator;
+        int                 lastBuilt;
     public:
         valc::SampleRuns            sampleRuns;
         valc::SampleRunGroupModel   model;
@@ -54,15 +55,18 @@ namespace tut
             : 
             sequencePos(0),
             mockIDGenerator( new MockIDGenerator() ),
-            model(mockIDGenerator)
+            model(mockIDGenerator),
+            lastBuilt(0)
         {
         }
 
         void build()
         {
-            BOOST_FOREACH( const valc::SampleRun& sr, sampleRuns )
+            while ( lastBuilt < sampleRuns.size()  )
             {
+                const valc::SampleRun& sr = sampleRuns.at(lastBuilt);
                 model.assignToGroup( sr.getID(), sr.isQC(), sr.getGroupID() );
+                ++lastBuilt;
             }
         }
 
@@ -78,7 +82,7 @@ namespace tut
         }
     };
 
-    typedef test_group<SampleRunGroupModelTestFixture, 12> SampleRunGroupModelTestGroup;
+    typedef test_group<SampleRunGroupModelTestFixture, 13> SampleRunGroupModelTestGroup;
 	SampleRunGroupModelTestGroup testGroupSampleRunGroupModel( "SampleRunGroupModel tests");
 	typedef SampleRunGroupModelTestGroup::object testSampleRunGroupModel;
 
@@ -337,6 +341,26 @@ namespace tut
         }
 
         ensure( exceptionThrown );
+    }
+
+    template<>
+	template<>
+	void testSampleRunGroupModel::test<13>()
+	{
+		set_test_name("Demonstrating instability of group ID during assignments.");
+
+		using namespace valc;
+
+        primeIDGen( 29 );
+        primeSample( "a", SRT_UNK );
+        build();
+
+        ensure_equals( model.getGroupID("a"), 29 );
+
+        primeSample( "b", SRT_UNK, 62 );
+        build();
+
+        ensure_equals( model.getGroupID("a"), 62 );
     }
 
 }

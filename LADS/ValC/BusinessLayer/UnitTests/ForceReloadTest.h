@@ -11,6 +11,7 @@
 #include <cwchar>
 #include "CSVIterator.h"
 #include <iterator>
+#include "LocalRunIterator.h"
 #include <map>
 #include "MockConnection.h"
 #include "MockConnectionFactory.h"
@@ -180,11 +181,11 @@ namespace tut
         ensure_equals( actualUpdatesOfSampleRunID, 1 );
 
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 1 );
-		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+		ensure_equals( s.numLocalRuns(), 1 );
 
-		LocalEntry localEntry = *(s->localBegin());
+        LocalRunIterator lri( s->localBegin(), s->localEnd() );
 
-		LocalRun lr = boost::get<LocalRun>(localEntry);
+		LocalRun lr = *lri;
 
 		Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -231,11 +232,12 @@ namespace tut
         ensure( 1 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
-		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
 
-		LocalEntry localEntry = *(s->localBegin());
+        LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
 
-		LocalRun lr = boost::get<LocalRun>(localEntry);
+		ensure_equals( std::distance( begin, end ), 1 );
+
+		LocalRun lr = *begin;
 
 		Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -326,13 +328,13 @@ namespace tut
 
 			ensure( "The queue should be empty", std::distance( s->queueBegin(), s->queueEnd() ) == 0 );
 
-			unsigned int numSampleRuns = std::distance( s->localBegin(), s->localEnd() );
+            LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
+
+			unsigned int numSampleRuns = std::distance( begin, end );
 
 			ensure( "There should be just the one sample run", numSampleRuns == 1U );
 
-			LocalEntry localEntry = *(s->localBegin());
-
-			LocalRun lr = boost::get<LocalRun>(localEntry);
+			LocalRun lr = *begin;
 
 			Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -408,14 +410,15 @@ namespace tut
             ensure( 1 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
 			ensure( std::distance( s->queueBegin(), s->queueEnd() ) == 0U );
-			unsigned int numSampleRuns = std::distance( s->localBegin(), s->localEnd() );
+
+            LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
+
+			unsigned int numSampleRuns = std::distance( begin, end );
 			ensure( numSampleRuns == 2U );
 
-            for ( LocalEntryIterator i = s->localBegin(); i != s->localEnd(); ++i )
+            for ( ; begin != end; ++begin )
             {
-                LocalEntry localEntry = *i;
-
-                LocalRun sampleRun = boost::get<LocalRun>(localEntry);
+                LocalRun sampleRun = *begin;
 
                 Range<WorklistEntryIterator> wles = s->getWorklistEntries( sampleRun.getSampleDescriptor() );
 
@@ -475,7 +478,9 @@ namespace tut
             ensure( 0 == MockConnection::totalNewSampleRuns() );
             ensure( 0 == MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase() );
 
-            ensure( 1 == std::distance( s->localBegin(), s->localEnd() ) );
+            LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
+
+            ensure_equals( std::distance( begin, end ), 1U );
             BuddyDatabaseEntries buddyDatabaseEntries = s->listBuddyDatabaseEntriesFor( "12" );
             ensure( 2 == buddyDatabaseEntries.size() );
             std::sort( buddyDatabaseEntries.begin(), buddyDatabaseEntries.end(), sortOnBuddySampleID );
@@ -535,7 +540,8 @@ namespace tut
                 s.init(); 
 
                 ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
-                ensure_equals( std::distance( s->localBegin(), s->localEnd() ), expectedLocalEntries[iteration] );
+                LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
+                ensure_equals( std::distance( begin, end ), expectedLocalEntries[iteration] );
             }
         }
         catch( const Exception& e )
@@ -577,10 +583,11 @@ namespace tut
         ForceReloadTestFixture s( true );
 
         ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
-        ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+        ensure_equals( s.numLocalRuns()                               , 1 );
 
-        LocalEntry localEntry = *(s->localBegin());
-        LocalRun   localRun   = boost::get<LocalRun>(localEntry);
+        LocalRunIterator begin( s->localBegin(), s->localEnd() );
+
+        LocalRun   localRun   = *begin;
         Range<WorklistEntryIterator> worklistEntries = s->getWorklistEntries( localRun.getSampleDescriptor() );
         ensure( 2 == std::distance( worklistEntries.first, worklistEntries.second ) );
         try
@@ -691,8 +698,7 @@ namespace tut
             s.init();
 
             ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
-            ensure_equals( std::distance( s->localBegin(), s->localEnd() ), i == 2 ? 1 : 0 );
-
+            ensure_equals( s.numLocalRuns(), i == 2 ? 1 : 0 );
             ensure_equals( s.userWarnings.messages.size(), i == 0 ? 4 : 0 );  
         }
     }
@@ -740,8 +746,7 @@ namespace tut
             s.init();
 
             ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
-            ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
-
+            ensure_equals( s.numLocalRuns(), 1 );
             ensure_equals( s.userWarnings.messages.size(), i ? 4 : 0 );  
         }
     }
@@ -782,7 +787,7 @@ namespace tut
         ForceReloadTestFixture s( true );
 
         ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
-        ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+        ensure_equals( s.numLocalRuns(), 1 );
 
         const bool blockTillNoPendingUpdates = true;
 
@@ -849,11 +854,10 @@ namespace tut
  
         ForceReloadTestFixture s( true, true );
 
-		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+        LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
+		ensure_equals( std::distance( begin, end ), 1 );
 
-        LocalEntry localEntry = *(s->localBegin());
-
-        LocalRun lr = boost::get<LocalRun>(localEntry);
+        LocalRun lr = *begin;
 
         Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -913,11 +917,10 @@ namespace tut
 
         s.init();
 
-		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+        LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
+		ensure_equals( std::distance( begin, end ), 1 );
 
-        LocalEntry localEntry = *(s->localBegin());
-
-        LocalRun lr = boost::get<LocalRun>(localEntry);
+        LocalRun lr = *begin;
 
         Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -1006,11 +1009,11 @@ namespace tut
  
         ForceReloadTestFixture s( true, true );
 
-		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+        LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
 
-        LocalEntry localEntry = *(s->localBegin());
+		ensure_equals( std::distance( begin, end ), 1 );
 
-        LocalRun lr = boost::get<LocalRun>(localEntry);
+        LocalRun lr = *begin;
 
         Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -1077,11 +1080,9 @@ namespace tut
 
         std::set< std::string > localRunIDs;
 
-        for ( LocalEntryIterator localEntries = s->localBegin(); localEntries != s->localEnd(); ++localEntries )
+        for ( LocalRunIterator localRuns( s->localBegin(), s->localEnd() ), end; localRuns != end; ++localRuns )
         {
-            LocalEntry localEntry = *localEntries;
-
-            LocalRun lr = boost::get<LocalRun>(localEntry);
+            LocalRun lr = *localRuns;
 
             localRunIDs.insert( lr.getRunID() );
 
@@ -1138,11 +1139,11 @@ namespace tut
 
         ForceReloadTestFixture s(true);
 
-		ensure_equals( "There should be only one local run", std::distance( s->localBegin(), s->localEnd() ), 1 );
+        LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
 
-        LocalEntry localEntry = *(s->localBegin());
+		ensure_equals( "There should be only one local run", std::distance( begin, end ), 1 );
 
-        LocalRun lr = boost::get<LocalRun>(localEntry);
+        LocalRun lr = *begin;
 
         Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -1192,11 +1193,10 @@ namespace tut
 
         ForceReloadTestFixture s(true);
 
-		ensure_equals( "There should be only one local run", std::distance( s->localBegin(), s->localEnd() ), 1 );
+        LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
+		ensure_equals( "There should be only one local run", std::distance( begin, end ), 1 );
 
-        LocalEntry localEntry = *(s->localBegin());
-
-        LocalRun lr = boost::get<LocalRun>(localEntry);
+        LocalRun lr = *begin;
 
         Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -1246,7 +1246,7 @@ namespace tut
 
         ForceReloadTestFixture s(true);
 
-		ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 2 );
+		ensure_equals( s.numLocalRuns(), 2 );
     }
 
 
@@ -1273,11 +1273,11 @@ namespace tut
 
         ForceReloadTestFixture s(true);
 
-		ensure_equals( "There should be only one local run", std::distance( s->localBegin(), s->localEnd() ), 1 );
+		ensure_equals( s.numLocalRuns(), 1 );
 
-        LocalEntry localEntry = *(s->localBegin());
+        LocalRunIterator localRuns( s->localBegin(), s->localEnd() );
 
-        LocalRun lr = boost::get<LocalRun>(localEntry);
+        LocalRun lr = *localRuns;
 
         Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -1314,11 +1314,11 @@ namespace tut
 
         ForceReloadTestFixture s(true);
 
-		ensure_equals( "There should be only one local run", std::distance( s->localBegin(), s->localEnd() ), 1 );
+		ensure_equals( "There should be only one local run", s.numLocalRuns(), 1 );
 
-        LocalEntry localEntry = *(s->localBegin());
+        LocalRunIterator localRuns( s->localBegin(), s->localEnd() );
 
-        LocalRun lr = boost::get<LocalRun>(localEntry);
+        LocalRun lr = *localRuns;
 
         Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -1366,7 +1366,7 @@ namespace tut
 
             ForceReloadTestFixture s(true);
 
-            ensure_equals( "There should be 2 local runs", std::distance( s->localBegin(), s->localEnd() ), 2 );
+            ensure_equals( "There should be 2 local runs", s.numLocalRuns(), 2 );
 
             int listPosition = 0;
             int expectedWorklistEntries [2];
@@ -1387,13 +1387,11 @@ namespace tut
                     break;
             }
 
-            for ( LocalEntryIterator localEntries = s->localBegin(); localEntries != s->localEnd(); ++localEntries )
+            for ( LocalRunIterator localRuns( s->localBegin(), s->localEnd() ), end; localRuns != end; ++localRuns )
             {
                 ensure( listPosition < 2 );
 
-                LocalEntry localEntry = *localEntries;
-
-                LocalRun lr = boost::get<LocalRun>(localEntry);
+                LocalRun lr = *localRuns;
 
                 Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
                 
@@ -1449,11 +1447,11 @@ namespace tut
         s.config.edit( "WorklistRelationQuery", "LoadWorklistRelation" );
         s.init(); 
 
-        ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 4 );
+        ensure_equals( s.numLocalRuns(), 4 );
 
-        LocalEntryIterator localEntries = s->localBegin();
+        LocalRunIterator localRuns( s->localBegin(), s->localEnd() );
 
-        LocalRun lr = boost::get<LocalRun>(*localEntries);
+        LocalRun lr = *localRuns;
 
 		Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -1488,8 +1486,8 @@ namespace tut
         ensure_not   ( wr.isBoundToWorklistEntryInstance() );
         ensure_not   ( wr.hasChildren() );
 
-        localEntries += 2;
-        lr = boost::get<LocalRun>(*localEntries);
+        localRuns += 2;
+        lr = *localRuns;
 
 		wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -1528,13 +1526,11 @@ namespace tut
 
         ForceReloadTestFixture s( true );
 
-        unsigned int numSampleRuns = std::distance( s->localBegin(), s->localEnd() );
+        ensure_equals( "There should be just the one sample run", s.numLocalRuns(), 1U );
 
-        ensure( "There should be just the one sample run", numSampleRuns == 1U );
+        LocalRunIterator localRuns( s->localBegin(), s->localEnd() );
 
-        LocalEntry localEntry = *(s->localBegin());
-
-        LocalRun lr = boost::get<LocalRun>(localEntry);
+        LocalRun lr = *localRuns;
 
         ensure_equals( lr.getGroupID(), 87 );
     }

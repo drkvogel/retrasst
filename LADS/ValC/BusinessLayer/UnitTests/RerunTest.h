@@ -2,6 +2,7 @@
 #define RERUNTESTH
 
 #include "API.h"
+#include "LocalRunIterator.h"
 #include "MockConnectionFactory.h"
 #include "SnapshotTestFixture.h"
 #include <tut.h>
@@ -71,12 +72,12 @@ namespace tut
         {
             RerunTestFixture s( true, true );
 
-            ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+            ensure_equals( s.numLocalRuns(), 1 );
             ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
 
-            LocalEntry localEntry = *(s->localBegin());
+            LocalRunIterator localRuns( s->localBegin(), s->localEnd() );
 
-            LocalRun lr = boost::get<LocalRun>(localEntry);
+            LocalRun lr = *localRuns;
 
             Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -110,7 +111,7 @@ namespace tut
 
             ensure_not( lr.isOpen() );
 
-            ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+            ensure_equals( s.numLocalRuns(), 1 );
             ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 1 );
         }
         catch( const Exception& e )
@@ -148,12 +149,12 @@ namespace tut
         {
             RerunTestFixture s( true, true );
 
-            ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+            ensure_equals( s.numLocalRuns(), 1 );
             ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
 
-            LocalEntry localEntry = *(s->localBegin());
+            LocalRunIterator localRuns( s->localBegin(), s->localEnd() );
 
-            LocalRun lr = boost::get<LocalRun>(localEntry);
+            LocalRun lr = *localRuns;
 
             Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -185,7 +186,7 @@ namespace tut
 
             ensure    ( lr.isOpen() );
 
-            ensure_equals( std::distance( s->localBegin(), s->localEnd() ), 1 );
+            ensure_equals( s.numLocalRuns(), 1 );
             ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );
         }
         catch( const Exception& e )

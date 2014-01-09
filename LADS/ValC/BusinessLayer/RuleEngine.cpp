@@ -554,12 +554,16 @@ void RulesCache::setRuleLoader( RuleLoaderInterface* l )
     m_ruleLoader = l;
 }
 
+RuleEngineQueueListener::~RuleEngineQueueListener()
+{
+}
 
 RuleEngine::RuleEngine( int maxThreads, int errorResultCode )
     :
     m_publisher(0),
     m_resultAssessor( new stef::ThreadPool( 0, maxThreads ) ),
-    m_errorResultCode( errorResultCode )
+    m_errorResultCode( errorResultCode ),
+    m_queueListener(0)
 {
     m_rulesCache.setConnectionCache( &m_connectionCache );
 }
@@ -577,6 +581,11 @@ void RuleEngine::clearRulesCache()
 void RuleEngine::queue( const UncontrolledResult& r )
 {
     m_resultAssessor->addTask( new ResultAssessmentTask( r, m_errorResultCode, &m_rulesCache, m_publisher, m_log ) );
+
+    if ( m_queueListener )
+    {
+        m_queueListener->notifyQueued( r );
+    }
 }
 
 void RuleEngine::setConfig( const paulst::Config* c )
@@ -608,6 +617,11 @@ void RuleEngine::setLog( paulst::LoggingService* l )
 {
     m_rulesCache.setLog( l );
     m_log = l;
+}
+
+void RuleEngine::setQueueListener( RuleEngineQueueListener* l )
+{
+    m_queueListener = l;
 }
 
 void RuleEngine::setRulesConfig( RulesConfig* c )

@@ -9,6 +9,7 @@
 #include "BuddyDatabase.h"
 #include "BuddyDatabaseEntryIndex.h"
 #include "ClusterIDs.h"
+#include "CompositeRuleResultPublisher.h"
 #include "Config.h"
 #include "ConnectionFactoryWithLogging.h"
 #include "Cursor.h"
@@ -126,6 +127,8 @@ void InitialiseApplicationContext( int localMachineID, int user, const std::stri
         ac->clusterIDs                      = new ClusterIDs();
         ac->projects                        = new Projects();
         ac->testNames                       = new TestNames();
+        ac->compositeRuleResultPublisher    = new CompositeRuleResultPublisher();
+        ac->compositeRuleResultPublisher->add( ac->resultAttributes );
         ac->qcGates                         = new QCGates(  
                                                     ac->initialisationQueries,
                                                     ac->config,
@@ -137,7 +140,7 @@ void InitialiseApplicationContext( int localMachineID, int user, const std::stri
                                                     ac->config,
                                                     ac->connectionFactory,
                                                     ac->log,
-                                                    ac->resultAttributes,
+                                                    ac->compositeRuleResultPublisher,
                                                     ac->qcGates,
                                                     ac->taskExceptionUserAdvisor );
         ac->initialisationQueries->addTask(

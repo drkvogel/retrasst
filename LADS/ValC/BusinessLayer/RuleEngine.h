@@ -135,6 +135,13 @@ private:
     paulst::LoggingService*     m_log;
 };
 
+class RuleEngineQueueListener
+{
+public:
+    virtual ~RuleEngineQueueListener();
+    virtual void notifyQueued( const UncontrolledResult& r ) = 0;
+};
+
 class RuleEngine
 {
 public:
@@ -153,21 +160,23 @@ public:
     void setErrorResultCode( int errorCode );
     void setGates( Gates* g );
     void setLog( paulst::LoggingService* l );
+    void setQueueListener( RuleEngineQueueListener* l );
     void setRuleLoader( RuleLoaderInterface* l );
     void setRulesConfig( RulesConfig* c );
     void setResultPublisher( RuleResultPublisher* p );
     bool waitForQueued( long timeoutMillis );
 
 private:
-    stef::ThreadPool*       m_resultAssessor;
-    paulst::CritSec         m_cs;
-    RuleResultPublisher*    m_publisher;
-    RulesCache              m_rulesCache;
-    ConnectionCache         m_connectionCache;
-    int                     m_errorResultCode;
-    paulst::LoggingService* m_log;
-    int                     m_pending;
-    HANDLE                  m_signalWhenNonPending;
+    stef::ThreadPool*           m_resultAssessor;
+    paulst::CritSec             m_cs;
+    RuleResultPublisher*        m_publisher;
+    RulesCache                  m_rulesCache;
+    ConnectionCache             m_connectionCache;
+    int                         m_errorResultCode;
+    paulst::LoggingService*     m_log;
+    int                         m_pending;
+    HANDLE                      m_signalWhenNonPending;
+    RuleEngineQueueListener*    m_queueListener;
 
     RuleEngine( const RuleEngine& );
     RuleEngine& operator=( const RuleEngine& );

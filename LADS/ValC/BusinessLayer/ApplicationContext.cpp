@@ -1,5 +1,6 @@
 #include "AbstractConnectionFactory.h"
 #include "ApplicationContext.h"
+#include "CompositeRuleResultPublisher.h"
 #include "Config.h"
 #include "Projects.h"
 #include "QCGates.h"
@@ -28,7 +29,8 @@ ApplicationContext::ApplicationContext()
     clusterIDs(0),
     testNames(0),
     sampleRunIDResolutionService(0),
-    taskExceptionUserAdvisor(0)
+    taskExceptionUserAdvisor(0),
+    compositeRuleResultPublisher(0)
 {
 }
 
@@ -50,6 +52,7 @@ ApplicationContext::~ApplicationContext()
     delete testNames;
     delete sampleRunIDResolutionService;
     delete taskExceptionUserAdvisor;
+    delete compositeRuleResultPublisher;
 }
 
 std::string ApplicationContext::getProperty( const std::string& name) const

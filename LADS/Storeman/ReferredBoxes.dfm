@@ -52,7 +52,7 @@ object frmReferred: TfrmReferred
       Width = 177
       Height = 540
       Align = alTop
-      Caption = 'Projects'
+      Caption = 'Projects (click here to deselect)'
       TabOrder = 0
       OnClick = groupboxProjectsClick
       object listboxProjects: TListBox
