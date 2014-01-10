@@ -358,9 +358,8 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     {
         LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
         oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName; // ingres doesn't like table names passed as parameters
+        debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
         qd.setSQL(oss.str());
-        debugMessage = oss.str();
-        Synchronize((TThreadMethod)&debugLog);
         qd.execSQL();
         oss.str("");
         oss<<"CREATE TABLE "<<frmProcess->tempTableName<<" AS"<<
@@ -381,8 +380,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         qd.setParam("rtid", retrieval_cid); //qd.setParam("chnk", loading0Chunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
         qd.execSQL();
     }
-    debugMessage = "finished create temp table";
-    Synchronize((TThreadMethod)&debugLog);
+    debugMessage = "finished create temp table"; Synchronize((TThreadMethod)&debugLog);
 
     // gj added a secondary index on cryovial_store (on t_ldb20 only) - how to check this?
     bool stats_c_barcode                = Util::statsOnColumn(job->getProjectID(), "cryovial",      "cryovial_barcode");
@@ -411,6 +409,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     int primary_aliquot     = job->getPrimaryAliquot();
     int secondary_aliquot   = job->getSecondaryAliquot();
 
+    debugMessage = "select sample details from plan"; Synchronize((TThreadMethod)&debugLog);
     LQuery ql(Util::projectQuery(job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
     oss.str("");
     oss<<
@@ -436,10 +435,13 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         " ORDER BY"
         "     s1.retrieval_cid, chunk, g.rj_box_cid, c.aliquot_type_cid "
         << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC");
+    debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     ql.setSQL(oss.str());
     rowCount = 0; // class variable needed for synchronise
+    debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
     ql.open();
     int curchunk = 0, chunk = 0; SampleRow * previous = NULL;
+    debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
     while (!ql.eof()) {
         chunk = ql.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) {
@@ -480,8 +482,6 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         ql.next();
         rowCount++;
     }
-
-    //DEBUGSTREAM("finished loading "<<rowCount<<"samples") //wstringstream wss; wss<<"finished loading "<<rowCount<<"samples";
     oss.str(""); oss<<"finished loading "<<rowCount<<"samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
 
     oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName;

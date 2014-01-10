@@ -3,6 +3,8 @@
 ## Todo
 
  * example cryovial retrieval - no chunks
+    * there is a plan in the temp table
+    * 
  * Source/Current box - standardise name - current probably better?
  * still not showing 2ndary aliquot    
  * port [Plan|Process]Samples to [Plan|Process]Boxes
@@ -13,6 +15,7 @@
         * save is quite slow
    * Process: 
  * allow selection of secondary aliquots 
+ * thread "save changes" in plan
  * how to save stuff? to which tables? when (ie. per row or on exit/save)?    
  * Chunk list should include a second row for each chunk if there is a secondary aliquot (second part of each chunk?)
  * Allow user to fill gaps in boxes from secondary aliquot after primary aliquot (partly?) completed
