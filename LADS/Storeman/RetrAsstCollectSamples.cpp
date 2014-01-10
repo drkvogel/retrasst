@@ -13,7 +13,7 @@ TfrmProcess *frmProcess;
 
 __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     destroying = false;
-    //sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
+
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  60);
     sgwChunks->addCol("status",   "Status",   91);
