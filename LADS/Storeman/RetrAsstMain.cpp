@@ -261,7 +261,8 @@ void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
 void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
 /** fill in SampleRow structure with storage details of sample */
     ROSETTA result; StoreDAO dao;
-    static map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
+    //static map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
+    map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
     if (found != storageCache.end()) { // fill in box location from cache map
         sample->copyLocation(*(found->second));
     } else {

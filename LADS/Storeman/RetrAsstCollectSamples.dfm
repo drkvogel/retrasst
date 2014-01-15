@@ -151,7 +151,6 @@ object frmProcess: TfrmProcess
       Caption = 'Accept'
       TabOrder = 0
       OnClick = btnAcceptClick
-      ExplicitLeft = 571
     end
     object btnSkip: TButton
       Left = 796
@@ -162,7 +161,6 @@ object frmProcess: TfrmProcess
       Caption = 'Skip'
       TabOrder = 1
       OnClick = btnSkipClick
-      ExplicitLeft = 721
     end
     object editBarcode: TEdit
       Left = 159
@@ -207,8 +205,6 @@ object frmProcess: TfrmProcess
       Caption = 'Not Found'
       TabOrder = 5
       OnClick = btnNotFoundClick
-      ExplicitLeft = 676
-      ExplicitTop = 14
     end
   end
   object Chunks: TGroupBox
@@ -267,8 +263,8 @@ object frmProcess: TfrmProcess
         object labelPrimary: TLabel
           Left = 7
           Top = 20
-          Width = 80
-          Height = 16
+          Width = 143
+          Height = 28
           Align = alClient
           Caption = 'labelPrimary'
           Font.Charset = DEFAULT_CHARSET
@@ -278,6 +274,8 @@ object frmProcess: TfrmProcess
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 80
+          ExplicitHeight = 16
         end
       end
       object groupSecondary: TGroupBox
@@ -295,8 +293,8 @@ object frmProcess: TfrmProcess
         object labelSecondary: TLabel
           Left = 7
           Top = 20
-          Width = 99
-          Height = 16
+          Width = 143
+          Height = 31
           Margins.Left = 5
           Margins.Top = 5
           Margins.Right = 5
@@ -310,6 +308,8 @@ object frmProcess: TfrmProcess
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 99
+          ExplicitHeight = 16
         end
       end
     end

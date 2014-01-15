@@ -482,11 +482,16 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         ql.next();
         rowCount++;
     }
-    oss.str(""); oss<<"finished loading "<<rowCount<<"samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+    oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
 
     oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName;
-    ql.setSQL(oss.str()); if (!RETRASSTDEBUG) ql.execSQL();
-    debugMessage = "finished drop temp table"; Synchronize((TThreadMethod)&debugLog);
+    ql.setSQL(oss.str());
+    if (!RETRASSTDEBUG) {
+        ql.execSQL();
+        debugMessage = "finished drop temp table"; Synchronize((TThreadMethod)&debugLog);
+    } else {
+        debugMessage = "didn't drop temp table in debug mode"; Synchronize((TThreadMethod)&debugLog);
+    }
 
     frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
 

@@ -2,9 +2,11 @@
 
 ## Todo
 
+ * testing would be a lot less painful if the plans loaded quicker
  * example cryovial retrieval - no chunks
     * there is a plan in the temp table
-    * 
+    * create a new plan, open - ok - plan possible made before db rebuild
+
  * Source/Current box - standardise name - current probably better?
  * still not showing 2ndary aliquot    
  * port [Plan|Process]Samples to [Plan|Process]Boxes

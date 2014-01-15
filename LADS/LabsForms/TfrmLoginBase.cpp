@@ -114,8 +114,13 @@ void __fastcall TfrmLoginBase::initialise(TObject *)
 	ebPassword -> Clear();
 	ebPassword -> Enabled = userList -> Enabled;
 	auditTrail.start();
-    userList->ItemIndex = 4;
-    ebPassword->Text = "albatross";
+    for (int i=0; i < userList->Items->Count; i++) {
+        if (0 == userList->Items->Strings[i].CompareIC("Chris Bird")) {
+            userList->ItemIndex = i;
+            ebPassword->Text = "albatross";
+        }
+    }
+    //userList->ItemIndex = 4;
 }
 
 //---------------------------------------------------------------------------
