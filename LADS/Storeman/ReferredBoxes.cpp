@@ -150,7 +150,7 @@ void TfrmReferred::init() {
     clearGridSelection(sgStorage);
     loadBoxes();
     showBoxes();
-    if (MYDEBUG) cbLog->Visible = true;
+    if (REFBOXESDEBUG) cbLog->Visible = true;
 }
 
 void __fastcall TfrmReferred::sgReferredBoxesMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y) {
@@ -389,7 +389,7 @@ void __fastcall TfrmReferred::sgStorageDrawCell(TObject *Sender, int ACol, int A
 
 void TfrmReferred::loadBoxes() {
     LQuery qc(LIMSDatabase::getCentralDb());
-    bool randomStatus = MYDEBUG && false;
+    bool randomStatus = REFBOXESDEBUG && false;
     if (randomStatus) {
         qc.setSQL("SELECT * from l_box_arrival WHERE swipe_time > DATE('now') - DATE('90 days')"); // fake
     } else {
@@ -821,8 +821,9 @@ void TfrmReferred::okOrDiscard(int status) {
         return;
     }
 
+    LQuery qc(LIMSDatabase::getCentralDb());
     if (selectedMatch->box_arrival_id != referredBox->box_arrival_id) { // the ID was wrong in l_b_a - correct it now
-        LQuery qc = Util::projectQuery(referredBox->project_cid, true);
+        //LQuery qc = Util::projectQuery(referredBox->project_cid, false);
         ostringstream out;
         out<<"Correcting l_box_arrival ID for '"<<referredBox->box_name<<"'";// [box_cid: "<<referredBox->box_arrival_id<<" --> "<<selectedMatch->box_arrival_id<<"]";
         qc.setSQL("SELECT COUNT(*) FROM l_box_arrival WHERE box_arrival_id = :baid AND project_cid = :pjid AND status = :stat");
@@ -831,8 +832,10 @@ void TfrmReferred::okOrDiscard(int status) {
         qc.setParam("stat", selectedMatch->status);
         qc.open();
         if (0 != qc.readInt(0)) { // doofus check
-            out<<"\n\nChange would clash with existing box '"<<selectedMatch->box_name<<"'" //<<"' [box_cid: "<<selectedMatch->box_arrival_id<<"]";
-                <<"\n\n[for core prog - box_cid: "<<referredBox->box_arrival_id<<" --> "<<selectedMatch->box_arrival_id<<"]";
+            out<<"\n\nChange would clash with existing box '"<<selectedMatch->box_name<<"'";
+            if (REFBOXESDEBUG) {
+                out<<"\n\n[box_cid: "<<referredBox->box_arrival_id<<" --> "<<selectedMatch->box_arrival_id<<"]";
+            }
             Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
             return;
         } else { // else { while (!qc.eof()) { qc.next();
@@ -846,7 +849,8 @@ void TfrmReferred::okOrDiscard(int status) {
         qc.setParam("rcno", referredBox->record_no);
         qc.execSQL();
 
-        // bit of a bodge - user could quit before signing off and then the lba record has been 99'd and not seen again, should be done on signoff really
+        // should be done on signoff really
+        // are there any issues if the user quits before signing off? http://127.0.0.1:8081/tktview/19ac898b957efbef2452345076c7e8f9babbb20e
         // Create a corrected record as well and update that
         qc.setSQL("INSERT INTO l_box_arrival"
 				" (laptop_cid, process_cid, box_arrival_id, project_cid, swipe_time, box_name, status,"
@@ -869,7 +873,7 @@ void TfrmReferred::okOrDiscard(int status) {
         qc.execSQL();
     }
 
-    LQuery qc(LIMSDatabase::getCentralDb());
+    //LQuery qc(LIMSDatabase::getCentralDb());
     editedBox = *selectedMatch; // initialise from canonical box_name record in case box name or ID was wrong in l_b_a
     debugLog("referredBox->str():");
     debugLog(referredBox->str().c_str());
@@ -892,8 +896,11 @@ void TfrmReferred::okOrDiscard(int status) {
         LCDbRack rackData("", editedBox.tank_cid, editedBox.rack_name);
         if (!rackData.findRack(qc)) {
             ostringstream oss;
-            oss <<"Rack not found.\n\ntank: "<<editedBox.tank_name<<"["<<editedBox.tank_cid<<"]\nrack: '"<<editedBox.rack_name<<"'";
+            oss <<"Rack not found.\n\ntank: '"<<editedBox.tank_name<<"'\nrack: '"<<editedBox.rack_name<<"'";
             oss <<"\n(Is tank correct?)";
+            if (REFBOXESDEBUG) {
+                oss<<"\n\n[tank_cid:"<<editedBox.tank_cid<<"]";
+            }
             errors.push_back(oss.str());
         }
         editedBox.rack_cid = rackData.getID();
@@ -977,8 +984,10 @@ void __fastcall CheckTRSWorkerThread::Execute() {
                 case LCDbBoxStore::SLOT_CONFIRMED:
                     out <<"Position is in use.\n\nBox '"<<box.box_name<<"' is in "//<<endl
                         <<"\nstructure '"<<box.rack_name<<"', slot "<<box.slot_position//<<endl
-						<<"\nsince "<<string(AnsiString(qi.readDateTime("time_stamp").DateTimeString()).c_str())
-                        <<"\n\n[for core prog - box_cid: "<<qi.readInt("box_cid")<<" in structure: "<<box.rack_cid<<"]";
+						<<"\nsince "<<string(AnsiString(qi.readDateTime("time_stamp").DateTimeString()).c_str());
+                    if (REFBOXESDEBUG) {
+                        out<<"\n\n[box_cid: "<<qi.readInt("box_cid")<<" in structure: "<<box.rack_cid<<"]";
+                    }
                     frmReferred->errors.push_back(out.str());
                     return; // abort
                 case LCDbBoxStore::EXPECTED:

@@ -24,7 +24,7 @@
 
 using namespace std;
 
-const bool MYDEBUG =
+const bool REFBOXESDEBUG =
 #ifdef _DEBUG
     true;
 #else
