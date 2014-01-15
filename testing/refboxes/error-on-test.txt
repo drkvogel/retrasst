@@ -1,0 +1,23 @@
+*** dummy run ***
+Processing box HPS2-THRIVE DNA(UK) 2205148 [2205148]
+Updating box_store: Found existing box_store record. Existing record is correct
+Updating box_name: box_name record with box_id 2205148 already IN_TANK
+Updating l_box_arrival: IN_TANK
+Finished processing box HPS2-THRIVE DNA(UK) 2205148
+
+Processing box HPS2-THRIVE EDTA_2_LT 2758458 [2758458]
+Updating l_box_arrival:  status 99
+Finished processing box HPS2-THRIVE EDTA_2_LT 2758458
+
+ROSETTA process_cid not found error on test (2.7.2), but OK on mirror (2.7.3)
+
+:32c747c6 ; C:\Program Files (x86)\Embarcadero\RAD Studio\9.0\bin\CC32120MT.DLL
+:32c75cf9 CC32120MT.@_ThrowExceptionLDTC$qpvt1t1t1uiuiuipuct1 + 0x31
+:004AF277 LQuery::doOpen(this=:0018C54C)
+:004AF564 LQuery::call(this=:0018C54C, function=&LQuery::doOpen, log=2 /* SELECTS */)
+:004AF163 LQuery::open(this=:0018C54C)
+:0047CD8C LDbCache<LPDbBoxName>::readData(this=:0018C978, query=:0018C54C)
+:0047E059 LPDbBoxNames::readFilled(this=:0018C978, pq={ { { :03D818F0, :03D818F0, :03D81918 }, 0 /* TEST_DATA */, :03CC9180, { 4294967295, :0018C560, 14, 15 }, 0 /* TEST_DATA */ }, { 4294967295, { "PVL\x02\0\0\0\0\x11\0\0\0\0\0\0\0", "select * from box_name b where b.status in ( :conf, :rdy ) order by box_cid" }, 75, 79 }, { true, true, true, 0, 9, true, true, true, false, { :024F8E40, :024F8E48, :024F8E48 }, NULL, :004ACD00, -9991999, -9991999, false, ... }, :024B4A90, 0, true, 2 /* SELECTS */ })
+:005F9DF8 TfrmReferredBoxesSummary::storeTRS(this=:0245BAB0, qp=:0018CF90, box=:02410E00)
+:005F827E TfrmReferredBoxesSummary::signOffBoxes(this=:0245BAB0)
+:005F796D TfrmReferredBoxesSummary::btnConfirmClick(this=:0245BAB0, Sender=:03DA7E40)

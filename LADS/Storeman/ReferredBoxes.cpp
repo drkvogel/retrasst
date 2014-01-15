@@ -826,14 +826,15 @@ void TfrmReferred::okOrDiscard(int status) {
         //LQuery qp = Util::projectQuery(referredBox->project_cid, true);
         LQuery qc = Util::projectQuery(referredBox->project_cid, true);
         ostringstream out;
-        out<<"Correcting l_box_arrival ID from "<<referredBox->box_arrival_id<<" to "<<selectedMatch->box_arrival_id;
+        out<<"Correcting l_box_arrival ID for '"<<referredBox->box_name<<"'";// [box_cid: "<<referredBox->box_arrival_id<<" --> "<<selectedMatch->box_arrival_id<<"]";
         qc.setSQL("SELECT COUNT(*) FROM l_box_arrival WHERE box_arrival_id = :baid AND project_cid = :pjid AND status = :stat");
         qc.setParam("baid", selectedMatch->box_arrival_id);
         qc.setParam("pjid", selectedMatch->project_cid);
         qc.setParam("stat", selectedMatch->status);
         qc.open();
         if (0 != qc.readInt(0)) { // doofus check
-            out<<" would clash with existing record with ID "<<selectedMatch->box_arrival_id;//"ERROR: "existing l_box_arrival record with id "<<selectedMatch->box_arrival_id;
+            out<<"\n\nChange would clash with existing box '"<<selectedMatch->box_name<<"'" //<<"' [box_cid: "<<selectedMatch->box_arrival_id<<"]";
+                <<"\n\n[for core prog - box_cid: "<<referredBox->box_arrival_id<<" --> "<<selectedMatch->box_arrival_id<<"]";
             Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
             return;
         } else { // else { while (!qc.eof()) { qc.next();
@@ -977,10 +978,9 @@ void __fastcall CheckTRSWorkerThread::Execute() {
                 switch (status) {
                 case LCDbBoxStore::SLOT_CONFIRMED:
                     out <<"Position is in use.\n\nBox '"<<box.box_name<<"' is in "//<<endl
-                        <<"structure '"<<box.rack_name<<"' ["<<box.rack_cid<<"], "//<<endl
-                        <<"slot "<<box.slot_position//<<endl
-						<<" since "<<string(AnsiString(qi.readDateTime("time_stamp").DateTimeString()).c_str())
-                        <<"\n[box_cid: "<<qi.readInt("box_cid")<<"]";
+                        <<"\nstructure '"<<box.rack_name<<"', slot "<<box.slot_position//<<endl
+						<<"\nsince "<<string(AnsiString(qi.readDateTime("time_stamp").DateTimeString()).c_str())
+                        <<"\n\n[for core prog - box_cid: "<<qi.readInt("box_cid")<<" in structure: "<<box.rack_cid<<"]";
                     frmReferred->errors.push_back(out.str());
                     return; // abort
                 case LCDbBoxStore::EXPECTED:
