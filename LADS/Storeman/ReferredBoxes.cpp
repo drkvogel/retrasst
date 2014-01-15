@@ -821,9 +821,7 @@ void TfrmReferred::okOrDiscard(int status) {
         return;
     }
 
-    //editedBox = *referredBox; // this has the old box_arrival_id, may be wrong
     if (selectedMatch->box_arrival_id != referredBox->box_arrival_id) { // the ID was wrong in l_b_a - correct it now
-        //LQuery qp = Util::projectQuery(referredBox->project_cid, true);
         LQuery qc = Util::projectQuery(referredBox->project_cid, true);
         ostringstream out;
         out<<"Correcting l_box_arrival ID for '"<<referredBox->box_name<<"'";// [box_cid: "<<referredBox->box_arrival_id<<" --> "<<selectedMatch->box_arrival_id<<"]";
