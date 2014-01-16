@@ -93,6 +93,7 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     chunks.clear();
     sgwChunks->clear();
     sgwVials->clear();
+    frmRetrievalAssistant->clearStorageCache();
     timerLoadVials->Enabled = true;
     editDestBoxSize->Text = box_size;
 

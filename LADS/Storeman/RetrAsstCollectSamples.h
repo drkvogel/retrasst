@@ -102,7 +102,7 @@ __published:
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
     void __fastcall FormResize(TObject *Sender);
-    void __fastcall btnSecondaryClick(TObject *Sender);
+    //void __fastcall btnSecondaryClick(TObject *Sender);
 
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;

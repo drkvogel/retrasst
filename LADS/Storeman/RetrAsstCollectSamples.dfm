@@ -205,6 +205,7 @@ object frmProcess: TfrmProcess
       Caption = 'Not Found'
       TabOrder = 5
       OnClick = btnNotFoundClick
+      ExplicitLeft = 727
     end
   end
   object Chunks: TGroupBox

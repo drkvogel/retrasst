@@ -78,6 +78,7 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     chunks.clear();
     sgwChunks->clear();
     sgwVials->clear();
+    frmRetrievalAssistant->clearStorageCache();
     labelSampleID->Caption  = "loading...";
     labelStorage->Caption   = "loading...";
     labelDestbox->Caption   = "loading...";
@@ -600,10 +601,29 @@ void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
 }
 
 void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
-    debugLog("Save not found row"); //Application->MessageBox(L"Save not found row", L"Info", MB_OK);
-    msgbox("try secondary");
-    currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
-    nextRow();
+    //DEBUGSTREAM(__FUNC__<<" started")
+    //Screen->Cursor = crSQLWait; Enabled = false;
+    debugLog("Save not found row");
+
+    SampleRow * sample, * secondary;
+    int rowIdx = currentChunk()->getCurrentRow();
+    sample = currentChunk()->rowAt(rowIdx); // current primary
+
+    if (sample->secondary) {
+        msgbox("have secondary");
+
+        // refresh sg row
+        frmRetrievalAssistant->getStorage(sample->secondary); // got storage already?
+        fillRow(sample->secondary, rowIdx+1);
+        showCurrentRow();
+        showDetails(sample->secondary);
+    } else {
+        msgbox("no secondary, mark NOT_FOUND");
+        currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
+        nextRow();
+    }
+
+    //Screen->Cursor = crDefault; Enabled = true; DEBUGSTREAM(__FUNC__<<" finished")
 }
 
 SampleRow * TfrmProcess::currentSample() {
@@ -671,24 +691,24 @@ void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after
     }
 }
 
-void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
-    DEBUGSTREAM(__FUNC__<<" started")
-    Screen->Cursor = crSQLWait; Enabled = false;
-
-    SampleRow * sample;//, * secondary;
-    int rowIdx = currentChunk()->getCurrentRow();
-    sample = currentChunk()->rowAt(rowIdx); // current primary
-
-    frmRetrievalAssistant->getStorage(sample->secondary);
-
-    // refresh sg row
-    fillRow(sample->secondary, rowIdx+1);
-    showCurrentRow();
-    showDetails(sample->secondary);
-    //labelPrimary->Enabled   = false; labelSecondary->Enabled = true;
-    Screen->Cursor = crDefault; Enabled = true; DEBUGSTREAM(__FUNC__<<" finished")
-    return;
-}
+//void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
+//    DEBUGSTREAM(__FUNC__<<" started")
+//    Screen->Cursor = crSQLWait; Enabled = false;
+//
+//    SampleRow * sample;//, * secondary;
+//    int rowIdx = currentChunk()->getCurrentRow();
+//    sample = currentChunk()->rowAt(rowIdx); // current primary
+//
+//    frmRetrievalAssistant->getStorage(sample->secondary);
+//
+//    // refresh sg row
+//    fillRow(sample->secondary, rowIdx+1);
+//    showCurrentRow();
+//    showDetails(sample->secondary);
+//    //labelPrimary->Enabled   = false; labelSecondary->Enabled = true;
+//    Screen->Cursor = crDefault; Enabled = true; DEBUGSTREAM(__FUNC__<<" finished")
+//    return;
+//}
 
 //    using namespace boost::local_time;
 //    //local_date_time
