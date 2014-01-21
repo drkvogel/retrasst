@@ -19,6 +19,7 @@ namespace valc
 
 class BuddyDatabase;
 class BuddyDatabaseEntryIndex;
+class ControlModel;
 class DBUpdateSchedule;
 class ExceptionalDataHandler;
 class Projects;
@@ -51,7 +52,8 @@ public:
         ExceptionalDataHandler*                 exceptionalDataHandler,
         RuleEngineContainer*                    ruleEngine,
         QCSampleDescriptorDerivationStrategy*   qcsdds,
-        BuddyDatabaseEntryIndex*                bdei );
+        BuddyDatabaseEntryIndex*                bdei,
+        const ControlModel*                     controlModel );
 protected:
 	void doStuff();
 private:
@@ -69,6 +71,7 @@ private:
     RuleEngineContainer*            m_ruleEngine;
     QCSampleDescriptorDerivationStrategy* m_QCSampleDescriptorDerivationStrategy;
     BuddyDatabaseEntryIndex*        m_buddyDatabaseEntryIndex;
+    const ControlModel* const       m_controlModel;
 };
 
 };

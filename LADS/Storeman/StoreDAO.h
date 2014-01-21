@@ -45,8 +45,8 @@ class StoreDAO
 		bool updateBox( ROSETTA& data );
 		bool signoffBox( ROSETTA& data );
 
+		void loadBoxDetails( const std::string & barcode, const std::string & box_type, int proj_id, ROSETTA & result );
 		void loadBoxDetails( int box_id, int proj_id, ROSETTA & result );
-		void loadBoxes( const std::string & num, const std::string & type, int proj_id, std::vector<ROSETTA>& results);
 		void loadBoxes( int rack_id, std::vector<ROSETTA>& results);
 		void loadBoxesByJobID( int jobID, int proj_id, std::vector<ROSETTA>& results);
 		void loadBoxHistory( int box_id, int proj_id, std::vector<ROSETTA>& results);

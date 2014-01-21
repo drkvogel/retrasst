@@ -373,17 +373,11 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
         "    cs.box_cid          = sb.box_cid "
         "ORDER BY "
         "    chunk, source_pos, rj_box_cid, aliquot_type_cid "
-        << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC");
-    int retrieval_cid = job->getID();
-    qd.setParam("rtid", retrieval_cid);
-
-    debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
-    qd.setSQL(oss.str());
-    rowCount = 0;
-    debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
+        << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"); debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+    qd.setSQL(oss.str()); debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
+    qd.setParam("rtid", job->getID()); //int retrieval_cid = job->getID();
     qd.open();
-    int curchunk = 0, chunk = 0; SampleRow * previous = NULL;
-    debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
+    rowCount = 0; int curchunk = 0, chunk = 0; SampleRow * previous = NULL; debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
     while (!qd.eof()) {
         chunk = qd.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) {

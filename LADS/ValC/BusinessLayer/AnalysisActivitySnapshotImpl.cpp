@@ -3,6 +3,7 @@
 #include "ApplicationContext.h"
 #include <boost/foreach.hpp>
 #include "BuddyDatabase.h"
+#include "ControlModel.h"
 #include "DBUpdateSchedule.h"
 #include "ExceptionUtil.h"
 #include "Nullable.h"
@@ -27,7 +28,8 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
     SampleRunIDResolutionService*   sampleRunIDResolutionService,
     ApplicationContext*             appContext,
     int                             pendingUpdateWaitTimeoutSecs,
-    SampleRunGroupIDGenerator*      sampleRunGroupIDGenerator )
+    SampleRunGroupIDGenerator*      sampleRunGroupIDGenerator,
+    ControlModel*                   controlModel )
     : 
     m_buddyDatabase                 ( bdb ),
     m_log                           ( appContext->log),
@@ -54,7 +56,8 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
     m_snapshotUpdateThread          ( &m_dbTransactionHandler, m_updateHandle, appContext->log, appContext->taskExceptionUserAdvisor ),
     m_worklistRelativeImpl          ( wl ),
     m_sampleRunGroupModel           ( sampleRunGroupIDGenerator ),
-    m_runIDC14n                     ( *sampleRunIDResolutionService )
+    m_runIDC14n                     ( *sampleRunIDResolutionService ),
+    m_controlModel                  ( controlModel )
 {
     m_localRunImpl.setSampleRunGroupModel( &m_sampleRunGroupModel );
 
@@ -82,6 +85,9 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
         m_localRunImpl.introduce( lr, sr.isOpen() );
         m_localEntries.push_back( lr );
     }
+
+    controlModel->setRunIDC14n( &m_runIDC14n );
+    controlModel->setSampleRunGroupModel( &m_sampleRunGroupModel );
 
     QueuedSamplesBuilderFunction buildQueue( new QueueBuilderParams( bdb, wd, m_appContext->clusterIDs ) );
     buildQueue( &m_queuedSamples ); 

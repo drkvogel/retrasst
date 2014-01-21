@@ -32,7 +32,8 @@ LoadBuddyDatabase::LoadBuddyDatabase(
     ExceptionalDataHandler*                 exceptionalDataHandler,
     RuleEngineContainer*                    ruleEngine,
     QCSampleDescriptorDerivationStrategy*   qcsdds,
-    BuddyDatabaseEntryIndex*                bdei )
+    BuddyDatabaseEntryIndex*                bdei,
+    const ControlModel*                     controlModel )
     :
     m_localMachineID                        ( localMachineID ),
     m_projects                              ( projects ),
@@ -47,7 +48,8 @@ LoadBuddyDatabase::LoadBuddyDatabase(
     m_exceptionalDataHandler                ( exceptionalDataHandler ),
     m_ruleEngine                            ( ruleEngine ),
     m_QCSampleDescriptorDerivationStrategy  ( qcsdds ),
-    m_buddyDatabaseEntryIndex               ( bdei )
+    m_buddyDatabaseEntryIndex               ( bdei ),
+    m_controlModel                          ( controlModel )
 {
 }
 
@@ -108,7 +110,7 @@ void LoadBuddyDatabase::doStuff()
 
     BuddyDatabaseBuilder builder(m_projects, m_resultIndex, sampleRuns.get(), candidateSampleRuns.get(), m_sampleRunIDResolutionService,
         m_dbUpdateSchedule, buddySampleIDKeyedOnSampleRunID.get(), m_buddyDatabaseEntryIndex, m_inclusionRule, m_exceptionalDataHandler,
-        m_ruleEngine, m_log, m_QCSampleDescriptorDerivationStrategy );
+        m_ruleEngine, m_log, m_QCSampleDescriptorDerivationStrategy, m_controlModel );
 
     for ( std::auto_ptr<paulstdb::Cursor> cursor( m_con->executeQuery( m_sql ) ); 
             ( ! cursor->endOfRecordSet() ) && builder.accept( cursor.get() ); cursor->next() );

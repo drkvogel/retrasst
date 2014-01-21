@@ -116,8 +116,8 @@
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
 			<BCC_AllCodeguardOptions>false</BCC_AllCodeguardOptions>
-			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.11.14;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
-			<VerInfo_Build>14</VerInfo_Build>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.11.21;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=StoreMan;ProductVersion=1.2.9;Comments=</VerInfo_Keys>
+			<VerInfo_Build>21</VerInfo_Build>
 			<LinkPackageStatics>soaprtl.lib;dsnap.lib</LinkPackageStatics>
 			<Defines>_DEBUG;$(Defines)</Defines>
 			<LinkPackageImports>rtl.bpi;vcl.bpi;dbrtl.bpi;IndyCore.bpi;IndySystem.bpi;IndyProtocols.bpi;vclx.bpi;vcldb.bpi;vclimg.bpi;bdertl.bpi;xmlrtl.bpi;inet.bpi</LinkPackageImports>
@@ -555,33 +555,28 @@
 			</CppCompile>
 			<CppCompile Include="RetrAsstCollectBoxes.cpp">
 				<Form>frmProcessBoxes</Form>
-				<FormType>dfm</FormType>
 				<DependentOn>RetrAsstCollectBoxes.h</DependentOn>
-				<BuildOrder>106</BuildOrder>
+				<BuildOrder>113</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="RetrAsstCollectSamples.cpp">
 				<Form>frmProcess</Form>
-				<FormType>dfm</FormType>
 				<DependentOn>RetrAsstCollectSamples.h</DependentOn>
-				<BuildOrder>92</BuildOrder>
+				<BuildOrder>114</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="RetrAsstMain.cpp">
 				<Form>frmRetrievalAssistant</Form>
-				<FormType>dfm</FormType>
 				<DependentOn>RetrAsstMain.h</DependentOn>
-				<BuildOrder>89</BuildOrder>
+				<BuildOrder>115</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="RetrAsstPlanBoxes.cpp">
 				<Form>frmBoxes</Form>
-				<FormType>dfm</FormType>
 				<DependentOn>RetrAsstPlanBoxes.h</DependentOn>
-				<BuildOrder>91</BuildOrder>
+				<BuildOrder>116</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="RetrAsstPlanSamples.cpp">
 				<Form>frmSamples</Form>
-				<FormType>dfm</FormType>
 				<DependentOn>RetrAsstPlanSamples.h</DependentOn>
-				<BuildOrder>94</BuildOrder>
+				<BuildOrder>117</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="RetrievalLists\RetrievalListCryovialHistoryDialog.cpp">
 				<Form>frmRetrievalListCryovialHistoryDialog</Form>
@@ -722,17 +717,12 @@
 			<FormResources Include="NewExercise.dfm"/>
 			<FormResources Include="MoveJobs.dfm"/>
 			<FormResources Include="NewBoxType.dfm"/>
-			<FormResources Include="RetrAsstMain.dfm"/>
 			<FormResources Include="Storemain.dfm"/>
 			<FormResources Include="SMLogin.dfm"/>
 			<FormResources Include="SampleMove.dfm"/>
 			<FormResources Include="SelectSamples.dfm"/>
 			<FormResources Include="showsamples.dfm"/>
 			<FormResources Include="RetrievalLists\RetrievalListCryovialHistoryDialog.dfm"/>
-			<FormResources Include="RetrAsstPlanSamples.dfm"/>
-			<FormResources Include="RetrAsstPlanBoxes.dfm"/>
-			<FormResources Include="RetrAsstCollectSamples.dfm"/>
-			<FormResources Include="RetrAsstCollectBoxes.dfm"/>
 			<FormResources Include="RetrievalLists\RetrievalListResultsDialog.dfm"/>
 			<FormResources Include="RetrieveSamples.dfm"/>
 			<FormResources Include="SampleEntry.dfm"/>
@@ -751,6 +741,11 @@
 			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
+			<FormResources Include="RetrAsstCollectBoxes.dfm"/>
+			<FormResources Include="RetrAsstCollectSamples.dfm"/>
+			<FormResources Include="RetrAsstMain.dfm"/>
+			<FormResources Include="RetrAsstPlanBoxes.dfm"/>
+			<FormResources Include="RetrAsstPlanSamples.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

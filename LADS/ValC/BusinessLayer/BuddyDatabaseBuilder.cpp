@@ -38,7 +38,8 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     ExceptionalDataHandler*             exceptionalDataHandler,
     RuleEngineContainer*                ruleEngine,
     paulst::LoggingService*             log,
-    QCSampleDescriptorDerivationStrategy* qcsdds
+    QCSampleDescriptorDerivationStrategy* qcsdds,
+    const ControlModel*                 controlModel
  )
     :
     m_projects                          ( p ),
@@ -53,7 +54,8 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     m_exceptionalDataHandler            ( exceptionalDataHandler ),
     m_ruleEngine                        ( ruleEngine ),
     m_log                               ( log ),
-    m_QCSampleDescriptorDerivationStrategy( qcsdds )
+    m_QCSampleDescriptorDerivationStrategy( qcsdds ),
+    m_controlModel                      ( controlModel )
 {
 }
 
@@ -188,7 +190,7 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
         if ( hasResult )
         {
             result = new TestResultImpl( resActionFlag, sampleDescriptor, resDateAnalysed, machineID, resID, sampleRunID, resTestID, resValue,
-                            resText );
+                            resText, isQC() ? 0 : m_controlModel );
 
             m_resultIndex->addIndexEntryForResult( result );
             m_buddyDatabaseEntryIndex->supplementEntryWithResultInfo( buddySampleID, resID, resTestID );

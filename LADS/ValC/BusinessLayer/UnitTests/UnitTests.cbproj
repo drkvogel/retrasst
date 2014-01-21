@@ -164,6 +164,10 @@
             <DependentOn>..\BuddySampleIDKeyedOnSampleRunID.h</DependentOn>
             <BuildOrder>60</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\CompositeRuleEngineQueueListener.cpp">
+            <DependentOn>..\CompositeRuleEngineQueueListener.h</DependentOn>
+            <BuildOrder>107</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\CompositeRuleResultPublisher.cpp">
             <DependentOn>..\CompositeRuleResultPublisher.h</DependentOn>
             <BuildOrder>103</BuildOrder>
@@ -171,6 +175,10 @@
         <CppCompile Include="..\ConnectionCache.cpp">
             <DependentOn>..\ConnectionCache.h</DependentOn>
             <BuildOrder>73</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\ControlModel.cpp">
+            <DependentOn>..\ControlModel.h</DependentOn>
+            <BuildOrder>105</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\DBQueryTask.cpp">
             <DependentOn>..\DBQueryTask.h</DependentOn>
@@ -257,6 +265,10 @@
         <CppCompile Include="..\Projects.cpp">
             <DependentOn>..\Projects.h</DependentOn>
             <BuildOrder>38</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\QCControlCache.cpp">
+            <DependentOn>..\QCControlCache.h</DependentOn>
+            <BuildOrder>107</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\QCGates.cpp">
             <DependentOn>..\QCGates.h</DependentOn>

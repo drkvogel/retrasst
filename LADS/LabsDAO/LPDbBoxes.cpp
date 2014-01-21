@@ -57,9 +57,11 @@ LPDbBoxName::LPDbBoxName( const LQuery & query )
 		barcode = query.readString( "barcode" );
 	}
 	if( barcode.empty() || barcode == "." ) {
-		char buff[ 16 ];
-		std::sprintf( buff, "%d", abs( getID() ) );
-		barcode = buff;
+		unsigned n = name.size();
+		while( n > 0 && isdigit( name[ n - 1 ] ) ) {
+			n --;
+		}
+		barcode = name.substr( n );
 	}
 	cryovials.resize( getSize() - query.readInt( "box_capacity" ), "?" );
 }
@@ -186,7 +188,7 @@ bool LPDbBoxName::create( const LPDbBoxType & type, LQuery pQuery, LQuery cQuery
 
 	const LCDbProject & proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() );
 	char buff[ 32 ];
-	std::sprintf( buff, "%s%0.6u", proj.getStudyCode().c_str(), code );
+	std::sprintf( buff, "%0.5u", code );
 	barcode = buff;
 	AnsiString projName = proj.getName().c_str();
 	AnsiString typeName = type.getName().c_str();

@@ -30,7 +30,7 @@ TfrmBoxList *frmBoxList;
 
 struct BoxType : public LPDbBoxType {
 	bool selected;
-	BoxType( const LPDbBoxType &other ) : LPDbBoxType( other ), selected( true )
+	BoxType( const LPDbBoxType &other ) : LPDbBoxType( other ), selected( false )
 	{}
 };
 

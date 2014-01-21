@@ -392,6 +392,24 @@ void StoreDAO::loadRackOccupancy( int rack_cid, std::set< int > & occupied )
 		occupied.insert( cQuery.readInt( 0 ) );
 }
 
+void StoreDAO::loadBoxDetails( const std::string & barcode, const std::string & box_type, int proj_id, ROSETTA & result )
+{
+	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
+	pq.setSQL( "select b.box_cid, b.box_type_cid, b.external_name, box_capacity,"
+				  " s.record_id, s.rack_cid, s.slot_position, s.retrieval_cid, s.status"
+			   " from box_store s, box_name b, box_content c"
+			   " where b.box_cid = s.box_cid and b.box_type_cid = c.box_type_cid"
+				  " and barcode = :bar and c.external_name = :bt and s.status not in ( :rmv, :del )" );
+	pq.setParam( "bar", barcode );
+	pq.setParam( "bt", box_type );
+	pq.setParam( "rmv", LCDbBoxStore::REMOVED );
+	pq.setParam( "del", LCDbBoxStore::DELETED );
+	if( pq.open() ) {
+		result = pq.getRecord();
+		result.setInt( "project_cid", proj_id );
+	}
+}
+
 void StoreDAO::loadBoxDetails( int box_id, int proj_id, ROSETTA & result )
 {
 	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
@@ -408,6 +426,7 @@ void StoreDAO::loadBoxDetails( int box_id, int proj_id, ROSETTA & result )
 	}
 }
 
+/*
 void StoreDAO::loadBoxes( const std::string & box_id, const std::string & box_type, int proj_id, std::vector<ROSETTA>& results)
 {
 	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
@@ -424,6 +443,7 @@ void StoreDAO::loadBoxes( const std::string & box_id, const std::string & box_ty
 		results.push_back( box );
 	}
 }
+*/
 
 void StoreDAO::loadBoxes( int rack_id, std::vector<ROSETTA>& results)
 {

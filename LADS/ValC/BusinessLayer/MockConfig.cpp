@@ -46,7 +46,6 @@ MockConfig::MockConfig()
 	addProperty( "QCRuleConfigConnectionString"     , "Owt" );
 	addProperty( "QCRuleSessionReadLockSetting"     , "Owt" );
 	addProperty( "QCRuleConnectionString"           , "Owt" );
-	addProperty( "RuleEngineErrorCode"              , "999" );
     addProperty( "ConnectionFactoryType"            , "Mock" );
     addProperty( "ForceReloadConnectionString"      , "Owt" );
     addProperty( "ForceReloadSessionReadLockSetting", "" );

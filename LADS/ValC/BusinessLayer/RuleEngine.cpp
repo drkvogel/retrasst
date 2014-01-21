@@ -40,11 +40,10 @@ paulstdb::DBConnection* obtainConnectionFromCache( const char* connectionString,
     return cache->getConnection( connectionString );
 }
 
-ResultAssessmentTask::ResultAssessmentTask( const UncontrolledResult& result, int errorResultCode, RulesCache* rulesCache, 
+ResultAssessmentTask::ResultAssessmentTask( const UncontrolledResult& result, RulesCache* rulesCache, 
     RuleResultPublisher* resultPublisher, paulst::LoggingService* log )
     :
     m_result            ( result ),
-    m_errorResultCode   ( errorResultCode ),
     m_rulesCache        ( rulesCache ),
     m_resultPublisher   ( resultPublisher ),
     m_log               ( log )
@@ -62,15 +61,15 @@ void ResultAssessmentTask::doStuff()
     }
     catch( const RuleApplicationFailure& raf )
     {
-        results = RuleResults( raf.getRuleDescriptor(), empty.begin(), empty.end(), m_errorResultCode, raf.getMessage() );
+        results = RuleResults( raf.getRuleDescriptor(), empty.begin(), empty.end(), RESULT_CODE_ERROR, raf.getMessage() );
     }
     catch( const Exception& e )
     {
-        results = RuleResults( RuleDescriptor(), empty.begin(), empty.end(), m_errorResultCode, AnsiString( e.Message.c_str() ).c_str() );
+        results = RuleResults( RuleDescriptor(), empty.begin(), empty.end(), RESULT_CODE_ERROR, AnsiString( e.Message.c_str() ).c_str() );
     }
     catch( ... )
     {
-        results = RuleResults( RuleDescriptor(), empty.begin(), empty.end(), m_errorResultCode, "Unspecified Exception" );
+        results = RuleResults( RuleDescriptor(), empty.begin(), empty.end(), RESULT_CODE_ERROR, "Unspecified Exception" );
     }
 
     m_resultPublisher->publish( results, m_result.resultID );
@@ -296,13 +295,13 @@ Rules::Rules( const RuleDescriptor& rd, const std::string& script, ConnectionFac
 
         lua_setglobal( L, "sleep" );
 
-        const int integerConstants[] = { test, machine, project, RuleResults::RESULT_CODE_FAIL, RuleResults::RESULT_CODE_PASS,
-            RuleResults::RESULT_CODE_BORDERLINE, RuleResults::RESULT_CODE_ERROR, RuleResults::RESULT_CODE_NO_RULES_APPLIED };
+        const int integerConstants[] = { test, machine, project, RESULT_CODE_FAIL, RESULT_CODE_PASS,
+            RESULT_CODE_BORDERLINE, RESULT_CODE_ERROR, RESULT_CODE_NO_RULES_APPLIED, RESULT_CODE_NULL };
 
         const std::string constantNames[] = { "TEST_ID", "MACHINE_ID", "PROJECT_ID", "FAIL", "PASS",
-            "BORDERLINE", "ERROR", "NO_RULES_APPLIED" };
+            "BORDERLINE", "ERROR", "NO_RULES_APPLIED", "NULL" };
 
-        const int numConstants = 8;
+        const int numConstants = 9;
 
         for ( int i = 0; i < numConstants; ++i )
         {
@@ -391,7 +390,8 @@ RuleResults Rules::applyTo( const UncontrolledResult& r )
                 RuleResult rawResult;
                 // Top of the stack is now a raw result table
                 // Now to retrieve each of 'resultCode', 'rule' and 'msg'
-                rawResult.resultCode = retrieveTableValue<int>        ( L, -1, "resultCode", lua_isnumber, lua_toInteger ); 
+                rawResult.resultCode = static_cast<ResultCode>(
+                                       retrieveTableValue<int>        ( L, -1, "resultCode", lua_isnumber, lua_toInteger ) ); 
                 rawResult.rule       = retrieveTableValue<std::string>( L, -1, "rule"      , lua_isstring, lua_toString  ); 
                 rawResult.msg        = retrieveTableValue<std::string>( L, -1, "msg"       , lua_isstring, lua_toString  ); 
 
@@ -416,7 +416,7 @@ RuleResults Rules::applyTo( const UncontrolledResult& r )
 
             require( lua_isnumber( L, -1 ) );
 
-            int summaryResultCode = lua_tointeger( L, -1 );
+            ResultCode summaryResultCode = static_cast<ResultCode>(lua_tointeger( L, -1 ));
 
             lua_pop( L, 1 );
 
@@ -558,11 +558,10 @@ RuleEngineQueueListener::~RuleEngineQueueListener()
 {
 }
 
-RuleEngine::RuleEngine( int maxThreads, int errorResultCode )
+RuleEngine::RuleEngine( int maxThreads)
     :
     m_publisher(0),
     m_resultAssessor( new stef::ThreadPool( 0, maxThreads ) ),
-    m_errorResultCode( errorResultCode ),
     m_queueListener(0)
 {
     m_rulesCache.setConnectionCache( &m_connectionCache );
@@ -586,7 +585,7 @@ void RuleEngine::queue( const UncontrolledResult& r )
         m_queueListener->notifyQueued( r );
     }
 
-    m_resultAssessor->addTask( new ResultAssessmentTask( r, m_errorResultCode, &m_rulesCache, m_publisher, m_log ) );
+    m_resultAssessor->addTask( new ResultAssessmentTask( r, &m_rulesCache, m_publisher, m_log ) );
 }
 
 void RuleEngine::setConfig( const paulst::Config* c )
@@ -602,11 +601,6 @@ void RuleEngine::setConnectionFactory( paulstdb::AbstractConnectionFactory* conF
 void RuleEngine::setDefaultTaskExceptionHandler( stef::TaskExceptionHandler* teh )
 {
     m_resultAssessor->addDefaultTaskExceptionHandler( teh );
-}
-
-void RuleEngine::setErrorResultCode( int errorResultCode )
-{
-    m_errorResultCode = errorResultCode;
 }
 
 void RuleEngine::setGates( Gates* g )

@@ -67,42 +67,23 @@ void __fastcall TfrmSelectBoxes::btnAddBoxClick(TObject *Sender)
 }
 
 //---------------------------------------------------------------------------
-//	search for box with given name or ID and check the box type matches
+//	search for box with given barcode and check the box type matches
 //---------------------------------------------------------------------------
 
 bool TfrmSelectBoxes::addBox() {
 	ROSETTA boxDetails;
-	StoreDAO dao ;
 	int projID = LCDbProjects::getCurrentID();
-	AnsiString type =  cbType->Text;
-	int boxID = txtName->Text.ToIntDef( 0 );
-	if( boxID != 0 ) {
-		// user won't distinguish +ve and -ve IDs - try both
-		dao.loadBoxDetails( boxID, projID, boxDetails );
-		if( !boxDetails.isInt( "box_cid" ) ) {
-			dao.loadBoxDetails( -boxID, projID, boxDetails );
-		}
-	}
-	if( !boxDetails.isInt( "box_cid" ) ) {
-		std::vector<ROSETTA> results;
-		// name may not match ID - try looking in the name
-		AnsiString name =  txtName->Text;
-		dao.loadBoxes( name.c_str(), type.c_str(), projID, results );
-		if( results.size() == 1 ) {
-			boxDetails = results.front();
-		}
-	}
+	AnsiString barcode = txtName->Text, type = cbType->Text;
+	StoreDAO().loadBoxDetails( barcode.c_str(), type.c_str(), projID, boxDetails );
 	int typeID = boxDetails.getIntDefault( "box_type_cid", 0 );
-	if( typeID != 0 ) {
-		const LPDbBoxType * boxType = LPDbBoxTypes::records().find( type.c_str() );
-		if( boxType != NULL && boxType->getID() == typeID ) {
-			LPDbBoxName box( boxDetails.getString( "external_name" ), typeID );
-			box.setID( boxDetails.getInt( "box_cid" ) );
-			boxes.insert( box );
-			return true;
-		}
+	if( typeID == 0 ) {
+		return false;
+	} else {
+		LPDbBoxName box( boxDetails.getString( "external_name" ), typeID );
+		box.setID( boxDetails.getInt( "box_cid" ) );
+		boxes.insert( box );
+		return true;
 	}
-	return false;
 }
 
 //---------------------------------------------------------------------------

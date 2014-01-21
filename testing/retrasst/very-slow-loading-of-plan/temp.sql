@@ -42,4 +42,29 @@ XDB error: IIAPI_ST_FAILUREInfo: ERROR '5000R' 13172743: Query cannot be closed 
 ---------------------------
 Break   Continue   Help   
 ---------------------------
+
+---------------------------
+Debugger Exception Notification
+---------------------------
+Project Storeman.exe raised exception class Exception with message 'Rosetta error: ROSETTA Error: member "dest_name" not found
+Rosetta error: ROSETTA Error: member "src_box" not found
+Rosetta error: ROSETTA Error: member "lcr_slot" not found
+Rosetta error: ROSETTA Error: member "lcr_procid" not found
+Rosetta error: ROSETTA Error: member "lcr_status" not found
+Rosetta error: ROSETTA Error: member "Cryovial_id" not found
+Rosetta error: ROSETTA Error: member "Note_Exists" not found
+Rosetta error: ROSETTA Error: member "cryovial_id" not found
+Rosetta error: ROSETTA Error: member "box_cid" not found
+Rosetta error: ROSETTA Error: member "cryovial_position" not found
+Rosetta error: ROSETTA Error: member "Cryovial_id" not found
+Rosetta error: ROSETTA Error: member "Note_Exists" not found
+Rosetta error: ROSETTA Error: member "box_cid" not found
+Rosetta error: ROSETTA Error: member "sample_id" not found
+Rosetta error: ROSETTA Error: member "record_id" not found
+Rosetta error: ROSETTA Error: member "cryovial_position" not found'.
+---------------------------
+Break   Continue   Help   
+---------------------------
+
+
 */

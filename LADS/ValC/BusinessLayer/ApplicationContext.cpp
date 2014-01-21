@@ -1,7 +1,9 @@
 #include "AbstractConnectionFactory.h"
 #include "ApplicationContext.h"
+#include "CompositeRuleEngineQueueListener.h"
 #include "CompositeRuleResultPublisher.h"
 #include "Config.h"
+#include "ControlModel.h"
 #include "Projects.h"
 #include "QCGates.h"
 #include "ResultAttributes.h"
@@ -30,7 +32,11 @@ ApplicationContext::ApplicationContext()
     testNames(0),
     sampleRunIDResolutionService(0),
     taskExceptionUserAdvisor(0),
-    compositeRuleResultPublisher(0)
+    compositeRuleResultPublisher(0),
+    controlModel(0),
+    compositeRuleEngineQueueListener(0),
+    controlModelQueueListenerAdapter(0),
+    controlModelResultPublisherAdapter(0)
 {
 }
 
@@ -53,6 +59,10 @@ ApplicationContext::~ApplicationContext()
     delete sampleRunIDResolutionService;
     delete taskExceptionUserAdvisor;
     delete compositeRuleResultPublisher;
+    delete compositeRuleEngineQueueListener;
+    delete controlModel;
+    delete controlModelQueueListenerAdapter;
+    delete controlModelResultPublisherAdapter;
 }
 
 std::string ApplicationContext::getProperty( const std::string& name) const

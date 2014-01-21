@@ -18,6 +18,7 @@ namespace valc
 
 class ApplicationContext;
 class BuddyDatabase;
+class ControlModel;
 class DBUpdateSchedule;
 class ResultAttributes;
 class ResultDirectory;
@@ -43,7 +44,8 @@ public:
         SampleRunIDResolutionService* sampleRunIDResolutionService,
         ApplicationContext* appContext,
         int pendingUpdateWaitTimeoutSecs,
-        SampleRunGroupIDGenerator* sampleRunGroupIDGenerator );
+        SampleRunGroupIDGenerator* sampleRunGroupIDGenerator,
+        ControlModel* controlModel );
     ~AnalysisActivitySnapshotImpl();
     bool                            compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID )    const;
     RuleResults                     getRuleResults( int forResultID ) const;
@@ -83,6 +85,7 @@ private:
     LocalRun::Impl                  m_localRunImpl;
     SampleRunGroupModel             m_sampleRunGroupModel;
     RunIDC14n                       m_runIDC14n;
+    ControlModel*                   m_controlModel;
 };
 
 };
