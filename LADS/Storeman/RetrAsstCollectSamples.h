@@ -19,9 +19,11 @@ protected:
     void __fastcall Execute();
 public:
     __fastcall LoadPlanWorkerThread();
+    void NotUsingTempTable();
+    void UsingTempTable();
     Chunk< SampleRow > * loadingChunk;
     LCDbCryoJob *   job;
-    int             rowCount;
+    int             rowCount; // class variable needed for synchronise
     string          loadingMessage;
     string          debugMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
