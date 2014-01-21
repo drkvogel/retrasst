@@ -355,14 +355,27 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
     LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
     oss.str("");
     oss<<
-        "SELECT "
-        "    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, cbr.status, "
-        "    cs.box_cid AS source_id, sb.external_name AS source_box, cs.tube_position AS source_pos,  "
+    /*
+        "     g.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status, g.box_id AS dest_id,"
+        "     c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
+        "     s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position, s1.record_id,"
+        "     s1.status, s1.tube_position, s1.note_exists AS cs_note,"
+        "     b1.external_name AS src_box, "
+        "     b2.external_name AS dest_name,"
+        "     s2.tube_position AS slot_number, s2.status AS dest_status" */
+
+
+        " SELECT "
+        "    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, "//cbr.status, "
+        "    cs.box_cid, sb.external_name AS src_box, cs.tube_position AS source_pos,  "
         "    cbr.box_id AS dest_id, db.external_name AS dest_box, slot_number AS dest_pos, "
-        "    lcr.process_cid, lcr.status, lcr.cryovial_barcode, lcr.aliquot_type_cid "
-        "FROM "
+        "    lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, lcr.slot_number AS lcr_slot, lcr.cryovial_barcode, lcr.aliquot_type_cid, "
+        "    cs.note_exists, cs.cryovial_id, cs.cryovial_position, cs.status, "
+        "    c.sample_id, cs.record_id, "
+        "    db.external_name AS dest_name "
+        " FROM "
         "    c_box_retrieval cbr, l_cryovial_retrieval lcr, c_box_name db, c_box_name sb, cryovial c, cryovial_store cs "
-        "WHERE "
+        " WHERE "
         "    cbr.retrieval_cid   = :rtid AND "
         "    cbr.rj_box_cid      = lcr.rj_box_cid AND "
         "    cbr.box_id          = db.box_cid AND "
@@ -371,7 +384,7 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
         "    cs.cryovial_id      = c.cryovial_id  AND "
         "    cbr.retrieval_cid   = cs.retrieval_cid AND "
         "    cs.box_cid          = sb.box_cid "
-        "ORDER BY "
+        " ORDER BY "
         "    chunk, source_pos, rj_box_cid, aliquot_type_cid "
         << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"); debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     qd.setSQL(oss.str()); debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
