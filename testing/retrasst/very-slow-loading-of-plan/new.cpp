@@ -1,5 +1,5 @@
-﻿"SELECT "
-"    section, position, cbr.rj_box_cid, cbr.status, "
+"SELECT "
+"    section AS chunk, position, cbr.rj_box_cid, cbr.status, "
 "    cs.box_cid AS source_id, sb.external_name AS source_box, cs.tube_position AS source_pos,  "
 "    cbr.box_id AS dest_id, db.external_name AS dest_box, slot_number AS dest_pos, "
 "    lcr.process_cid, lcr.status, lcr.cryovial_barcode, lcr.aliquot_type_cid "

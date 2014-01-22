@@ -14,13 +14,43 @@ So if the amount of time taken to retrieve a box was proportional to the number 
 
 The following query gives you almost all the information you need without a temporary table.
 
-select section, position, cbr.rj_box_cid, cbr.status,  cs.box_cid as source_id,  sb.external_name as source_box, cs.tube_position as source_pos,  cbr.box_id as dest_id, db.external_name as dest_box, slot_number as dest_pos, lcr.process_cid, lcr.status, lcr.cryovial_barcode, lcr.aliquot_type_cid from c_box_retrieval cbr, l_cryovial_retrieval lcr, c_box_name db, c_box_name sb, cryovial c, cryovial_store cs where cbr.rj_box_cid = lcr.rj_box_cid and cbr.box_id = db.box_cid and c.cryovial_barcode=lcr.cryovial_barcode and c.aliquot_type_cid = lcr.aliquot_type_cid  AND cs.cryovial_id = c.cryovial_id  and cbr.retrieval_cid=cs.retrieval_cid and cs.box_cid = sb.box_cid and cbr.retrieval_cid = -363636 order by section, position;
+	select 
+		section, position, cbr.rj_box_cid, cbr.status,  
+		cs.box_cid as source_id, sb.external_name as source_box, cs.tube_position as source_pos, 
+		cbr.box_id as dest_id, db.external_name as dest_box, slot_number as dest_pos, 
+		lcr.process_cid, lcr.status, lcr.cryovial_barcode, lcr.aliquot_type_cid 
+	from 
+		c_box_retrieval cbr, l_cryovial_retrieval lcr, c_box_name db, c_box_name sb, cryovial c, cryovial_store cs 
+	where 
+		cbr.rj_box_cid = lcr.rj_box_cid and 
+		cbr.box_id = db.box_cid and 
+		c.cryovial_barcode = lcr.cryovial_barcode and 
+		c.aliquot_type_cid = lcr.aliquot_type_cid and 
+		cs.cryovial_id = c.cryovial_id and 
+		cbr.retrieval_cid = cs.retrieval_cid and 
+		cs.box_cid = sb.box_cid and 
+		cbr.retrieval_cid = -363636 
+	order by 
+		section, position
 
 This still takes getting on for a minute.  Since the slowdown seems to appear when you add in the link to cryovial_store, I suspect your version is slower because it does that twice.
 
 Copying the relevant data into the central database allows a simpler query:
 
-select section, position, cbr.rj_box_cid, cbr.status, old_box_id as source_id, sb.external_name as source_box, old_position as source_pos,  cbr.box_id as dest_id, db.external_name as dest_box, new_position as dest_pos, lcr.process_cid, lcr.status, lcr.cryovial_barcode, lcr.aliquot_type_cid from c_box_retrieval cbr, l_cryovial_retrieval  lcr, c_box_name db, c_box_name sb where cbr.rj_box_cid = lcr.rj_box_cid and cbr.box_id = db.box_cid and old_box_id = sb.box_cid and cbr.retrieval_cid = -363636 order by section, position;
+	select 
+		section, position, cbr.rj_box_cid, cbr.status, 
+		old_box_id as source_id, sb.external_name as source_box, old_position as source_pos, 
+		cbr.box_id as dest_id, db.external_name as dest_box, new_position as dest_pos, 
+		lcr.process_cid, lcr.status, lcr.cryovial_barcode, lcr.aliquot_type_cid 
+	from 
+		c_box_retrieval cbr, l_cryovial_retrieval lcr, c_box_name db, c_box_name sb 
+	where 
+		cbr.rj_box_cid = lcr.rj_box_cid and 
+		cbr.box_id = db.box_cid and 
+		old_box_id = sb.box_cid and 
+		cbr.retrieval_cid = -363636 
+	order by 
+		section, position
 
 This give the near-instantaneous response you might expect.  Given Geraint's dire warnings about STAR in later versions of Ingres, I think that's the way to go
 

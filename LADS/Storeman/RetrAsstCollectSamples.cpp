@@ -140,18 +140,23 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
             int status = row->retrieval_record->getStatus();
             switch (status) {
                 case LCDbCryovialRetrieval::EXPECTED:
-                    if (NULL != row->secondary) {
-                        background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR;
-                    } else {
-                        background = RETRIEVAL_ASSISTANT_NEW_COLOUR;
-                    }
-                    break;
+                    background = RETRIEVAL_ASSISTANT_NEW_COLOUR; break;
                 case LCDbCryovialRetrieval::IGNORED:
                     background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
                 case LCDbCryovialRetrieval::COLLECTED:
                     background = RETRIEVAL_ASSISTANT_DONE_COLOUR; break;
                 case LCDbCryovialRetrieval::NOT_FOUND:
-                    background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR; break;
+                    if (NULL != row->secondary) {
+                        int secondaryStatus = row->secondary->retrieval_record->getStatus();
+                        switch (secondaryStatus) {
+                            case LCDbCryovialRetrieval::EXPECTED:
+                                background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR; break;
+                            default:
+                                background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR; break;
+                        }
+                    } else {
+                        background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR; break;
+                    }
                 default:
                     background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
             }
@@ -704,6 +709,7 @@ void TfrmProcess::accept(String barcode) {
 void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
     debugLog("Save skipped row"); //Application->MessageBox(L"Save skipped row", L"Info", MB_OK);
     currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
+    showCurrentRow();
     nextRow();
 }
 
@@ -717,15 +723,15 @@ void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
     sample = currentChunk()->rowAt(rowIdx); // current primary
 
     if (sample->secondary) {
-        msgbox("have secondary");
+        //msgbox("have secondary");
 
         // refresh sg row
-        frmRetrievalAssistant->getStorage(sample->secondary); // got storage already?
+        //frmRetrievalAssistant->getStorage(sample->secondary); // got storage already?
         fillRow(sample->secondary, rowIdx+1);
         showCurrentRow();
         showDetails(sample->secondary);
     } else {
-        msgbox("no secondary, mark NOT_FOUND");
+        //msgbox("no secondary, mark NOT_FOUND");
         currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
         nextRow();
     }
