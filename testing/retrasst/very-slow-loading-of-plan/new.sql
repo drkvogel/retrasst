@@ -19,7 +19,8 @@ ORDER BY
 
 -- This still takes getting on for a minute.  Since the slowdown seems to appear when you add in the link to cryovial_store, I suspect your version is slower because it does that twice.
 
--- Copying the relevant data into the central databASe allows a simpler query:
+-- Copying the relevant data into the central database allows a simpler query:
+-- (The necessary fields will be implemented in the next database version)
 
 SELECT 
     section, position, cbr.rj_box_cid, cbr.status, 

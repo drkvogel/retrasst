@@ -481,6 +481,7 @@
 				<DependentOn>NewType.h</DependentOn>
 				<BuildOrder>95</BuildOrder>
 			</CppCompile>
+			<None Include="Profiling\AQtimeModule1.aqt"/>
 			<CppCompile Include="RationaliseTanks\RatTanksBoxSelection.cpp">
 				<Form>frmRatTanksBoxSelection</Form>
 				<FormType>dfm</FormType>

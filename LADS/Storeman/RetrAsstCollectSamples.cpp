@@ -346,8 +346,7 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
     ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
     if (NULL == frmProcess || NULL == frmProcess->job) { throw "wtf?"; }
     loadingMessage = frmProcess->loadingMessage;
-    //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
-    job = frmProcess->job;
+    job = frmProcess->job; //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 
     int primary_aliquot = job->getPrimaryAliquot(); int secondary_aliquot = job->getSecondaryAliquot();
 
@@ -355,16 +354,6 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
     LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
     oss.str("");
     oss<<
-    /*
-        "     g.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status, g.box_id AS dest_id,"
-        "     c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
-        "     s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position, s1.record_id,"
-        "     s1.status, s1.tube_position, s1.note_exists AS cs_note,"
-        "     b1.external_name AS src_box, "
-        "     b2.external_name AS dest_name,"
-        "     s2.tube_position AS slot_number, s2.status AS dest_status" */
-
-
         " SELECT "
         "    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, "//cbr.status, "
         "    cs.box_cid, sb.external_name AS src_box, cs.tube_position AS source_pos,  "
@@ -413,23 +402,26 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
             qd.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
 
-// something like this - don't forget to get storage
-//        if (secondary_aliquot != 0 && previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
-//            if (previous->cryo_record->getAliquotType() == row->cryo_record->getAliquotType()) {
-//                throw Exception("duplicate aliquot");
-//            } else if (row->cryo_record->getAliquotType() != secondary_aliquot) {
-//                throw Exception("spurious aliquot");
-//            } else { // secondary
-//                previous->secondary = row;
-//            }
-//        } else {
-//            frmSamples->vials.push_back(row); // new primary
-//            previous = row;
-//        }
+        // something like this - don't forget to get storage
+        int currentAliquotType  = row->cryo_record->getAliquotType();
+        int previousAliquotType = previous == NULL? 0 : previous->cryo_record->getAliquotType();
+        if (secondary_aliquot != 0 && secondary_aliquot == currentAliquotType &&
+            previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
+            if (previousAliquotType == currentAliquotType) {
+                throw Exception("duplicate aliquot");
+            } else if (currentAliquotType != secondary_aliquot) {
+                throw Exception("spurious aliquot");
+            } else { // secondary
+                previous->secondary = row;
+            }
+        } else {
+            frmProcess->vials.push_back(row); // new primary
+            previous = row;
+            rowCount++; // only count primary aliquots
+        }
 
-        frmProcess->vials.push_back(row);
+        //frmProcess->vials.push_back(row);
         qd.next();
-        rowCount++;
     }
     oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
 
@@ -441,6 +433,9 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
         frmRetrievalAssistant->getStorage(sample);
+        if (NULL != sample->secondary) {
+            frmRetrievalAssistant->getStorage(sample->secondary);
+        }
         oss<<sample->storage_str(); loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 	}
     debugMessage = "finished load storage details";
