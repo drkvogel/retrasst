@@ -179,6 +179,19 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
     }
 }
 
+void __fastcall TfrmProcess::editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
+    if (VK_RETURN == Key) {
+        accept(editBarcode->Text);
+    }
+}
+
+void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after* FormDestroy
+    if (!destroying) {
+        sgwChunks->resize(); // in case has been deleted in FormDestroy
+        sgwVials->resize();
+    }
+}
+
 void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
     panelDebug->Visible = cbLog->Checked;
 }
@@ -671,9 +684,6 @@ void TfrmProcess::addChunk(int row) {
     chunks.push_back(newchunk);
 }
 
-// LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
-// LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
-
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
     accept(editBarcode->Text);
 }
@@ -722,21 +732,14 @@ void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
     int rowIdx = currentChunk()->getCurrentRow();
     sample = currentChunk()->rowAt(rowIdx); // current primary
 
-    if (sample->secondary) {
-        //msgbox("have secondary");
-
-        // refresh sg row
-        //frmRetrievalAssistant->getStorage(sample->secondary); // got storage already?
-        fillRow(sample->secondary, rowIdx+1);
-        showCurrentRow();
+    if (sample->secondary) { //msgbox("have secondary");
+        fillRow(sample->secondary, rowIdx+1); // refresh sg row
+        showCurrentRow(); //frmRetrievalAssistant->getStorage(sample->secondary); // got storage already?
         showDetails(sample->secondary);
     } else {
-        //msgbox("no secondary, mark NOT_FOUND");
         currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
         nextRow();
     }
-
-    //Screen->Cursor = crDefault; Enabled = true; DEBUGSTREAM(__FUNC__<<" finished")
 }
 
 SampleRow * TfrmProcess::currentSample() {
@@ -775,9 +778,6 @@ void TfrmProcess::nextRow() {
     }
     labelPrimary->Enabled = true; labelSecondary->Enabled = false;
     showChunks();
-
-    // fixme is there a secondary aliquot for this row?
-    //btnSecondary->Enabled   = job->getSecondaryAliquot()
     editBarcode->Clear();
     ActiveControl = editBarcode; // focus for next barcode
 }
@@ -788,19 +788,6 @@ void TfrmProcess::exit() {
         Application->MessageBox(L"Signoff form (or on open form?)", L"Info", MB_OK);
         // how to update boxes? check at save and exit that all vials in a box have been saved?
         Close();
-    }
-}
-
-void __fastcall TfrmProcess::editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
-    if (VK_RETURN == Key) {
-        accept(editBarcode->Text);
-    }
-}
-
-void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after* FormDestroy
-    if (!destroying) {
-        sgwChunks->resize(); // in case has been deleted in FormDestroy
-        sgwVials->resize();
     }
 }
 
@@ -831,3 +818,7 @@ void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after
 //    std::locale loc("");
 //    const std::time_put<char> &tput = std::use_facet< std::time_put< char > >(loc);
 //    tput.put(oss.rdbuf(), oss, _T('\0'), &tm, _T('x'));
+
+// LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
+// LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
+
