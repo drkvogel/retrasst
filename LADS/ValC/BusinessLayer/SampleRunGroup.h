@@ -14,6 +14,7 @@ public:
     bool canAcceptIDRevision( int newID ) const;
     int  getID() const;
     bool isQC() const;
+    void listRunIDs( std::vector< std::string >& out ) const;
     void push_back( const std::string& sampleRunID );
     void reviseGroupID( int newGroupID );
 private:

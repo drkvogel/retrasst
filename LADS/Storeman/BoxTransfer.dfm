@@ -3,8 +3,8 @@ object frmBoxList: TfrmBoxList
   Top = 0
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Boxes for Transfer'
-  ClientHeight = 404
-  ClientWidth = 672
+  ClientHeight = 431
+  ClientWidth = 697
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,13 +16,13 @@ object frmBoxList: TfrmBoxList
   OnResize = FormResize
   OnShow = FormShow
   DesignSize = (
-    672
-    404)
+    697
+    431)
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel
-    Left = 550
-    Top = 285
+    Left = 576
+    Top = 312
     Width = 91
     Height = 13
     Anchors = [akRight, akBottom]
@@ -36,14 +36,13 @@ object frmBoxList: TfrmBoxList
     Caption = 'Project:'
   end
   object Label3: TLabel
-    Left = 550
-    Top = 15
-    Width = 106
-    Height = 39
-    Anchors = [akTop, akRight]
+    Left = 8
+    Top = 47
+    Width = 202
+    Height = 26
     Caption = 
-      'Click headings to sort, names to select, +/- for required analys' +
-      'es.'
+      'Select box types from list. Click headings to sort, +/- for requ' +
+      'ired analyses.'
     WordWrap = True
   end
   object cbProject: TComboBox
@@ -57,7 +56,7 @@ object frmBoxList: TfrmBoxList
     OnChange = cbProjectChange
   end
   object btnPrint: TBitBtn
-    Left = 550
+    Left = 576
     Top = 135
     Width = 106
     Height = 36
@@ -81,7 +80,7 @@ object frmBoxList: TfrmBoxList
     OnClick = btnPrintClick
   end
   object btnExport: TBitBtn
-    Left = 550
+    Left = 576
     Top = 85
     Width = 106
     Height = 36
@@ -105,16 +104,16 @@ object frmBoxList: TfrmBoxList
     OnClick = btnExportClick
   end
   object ebBoxNum: TEdit
-    Left = 550
-    Top = 305
+    Left = 576
+    Top = 332
     Width = 106
     Height = 21
     Anchors = [akRight, akBottom]
     TabOrder = 3
   end
   object btnAddBox: TBitBtn
-    Left = 550
-    Top = 338
+    Left = 576
+    Top = 365
     Width = 106
     Height = 36
     Anchors = [akRight, akBottom]
@@ -138,10 +137,10 @@ object frmBoxList: TfrmBoxList
     OnClick = btnAddBoxClick
   end
   object sgBoxNames: TStringGrid
-    Left = 224
+    Left = 225
     Top = 9
-    Width = 312
-    Height = 385
+    Width = 336
+    Height = 412
     Hint = 'Click header to sort, row to include or exclude'
     Margins.Left = 0
     Margins.Top = 0
@@ -159,10 +158,10 @@ object frmBoxList: TfrmBoxList
     OnFixedCellClick = sgBoxNamesFixedCellClick
   end
   object sgBoxTypes: TStringGrid
-    Left = -8
-    Top = 85
+    Left = 8
+    Top = 79
     Width = 202
-    Height = 353
+    Height = 342
     Hint = 'Click to sort or select'
     Anchors = [akLeft, akTop, akBottom]
     ColCount = 4

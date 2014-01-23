@@ -129,10 +129,6 @@ QCRuleConfigQuery:
 InitialisationTimeoutSecs:
 5
 
-RuleEngineErrorCode:
-3
-
-
 ConnectionFactoryType:
 ADO
 

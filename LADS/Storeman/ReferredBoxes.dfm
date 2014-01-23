@@ -518,7 +518,7 @@ object frmReferred: TfrmReferred
     Height = 19
     Panels = <>
     SimplePanel = True
-    SimpleText = '<not set>'
+    SimpleText = 'Ready.'
   end
   object timerReferredBoxClicked: TTimer
     Enabled = False

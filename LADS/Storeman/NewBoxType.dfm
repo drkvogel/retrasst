@@ -2,8 +2,8 @@ object frmNewBoxType: TfrmNewBoxType
   Left = 0
   Top = 0
   Caption = 'Create New Box Type'
-  ClientHeight = 369
-  ClientWidth = 358
+  ClientHeight = 370
+  ClientWidth = 383
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -63,68 +63,68 @@ object frmNewBoxType: TfrmNewBoxType
     Caption = 'Formation:'
   end
   object txtName: TEdit
-    Left = 156
+    Left = 160
     Top = 29
-    Width = 150
+    Width = 170
     Height = 21
     MaxLength = 30
     TabOrder = 0
     OnExit = txtNameExit
   end
   object txtFull: TEdit
-    Left = 156
+    Left = 160
     Top = 69
-    Width = 150
+    Width = 170
     Height = 21
     MaxLength = 64
     TabOrder = 1
   end
   object txtExample: TEdit
-    Left = 156
+    Left = 160
     Top = 109
-    Width = 150
+    Width = 170
     Height = 21
     TabStop = False
     ReadOnly = True
     TabOrder = 2
   end
   object cbAT1: TComboBox
-    Left = 156
+    Left = 160
     Top = 149
-    Width = 150
+    Width = 170
     Height = 21
     Sorted = True
     TabOrder = 3
     OnDropDown = aliquotDropDown
   end
   object cbAT2: TComboBox
-    Left = 156
+    Left = 160
     Top = 189
-    Width = 150
+    Width = 170
     Height = 21
     Sorted = True
     TabOrder = 4
     OnDropDown = aliquotDropDown
   end
   object cbAT3: TComboBox
-    Left = 156
+    Left = 160
     Top = 229
-    Width = 150
+    Width = 170
     Height = 21
     Sorted = True
     TabOrder = 5
     OnDropDown = aliquotDropDown
   end
   object cbForm: TComboBox
-    Left = 156
+    Left = 160
     Top = 269
-    Width = 150
+    Width = 170
     Height = 21
     TabOrder = 6
     OnDropDown = cbFormDropDown
   end
   object BitBtn1: TBitBtn
-    Left = 72
+    Left = 84
     Top = 316
     Width = 92
     Height = 34
@@ -152,7 +152,7 @@ object frmNewBoxType: TfrmNewBoxType
     OnClick = BitBtn1Click
   end
   object BitBtn2: TBitBtn
-    Left = 194
+    Left = 206
     Top = 316
     Width = 92
     Height = 34

@@ -36,6 +36,7 @@ public:
         paulstdb::AbstractConnectionFactory* connectionFactory,
         paulst::LoggingService* log,
         RuleResultPublisher* resultPublisher,
+        RuleEngineQueueListener* ruleEngineQueueListener,
         Gates* gates,
         stef::TaskExceptionHandler* defaultTaskExceptionHandler );
 	void clearRulesCache();

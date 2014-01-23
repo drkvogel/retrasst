@@ -33,6 +33,7 @@ RuleEngineContainer::RuleEngineContainer(
     paulstdb::AbstractConnectionFactory* connectionFactory,
     paulst::LoggingService* log,
     RuleResultPublisher* resultPublisher,
+    RuleEngineQueueListener* ruleEngineQueueListener,
     Gates* gates,
     stef::TaskExceptionHandler* defaultTaskExceptionHandler )
     :
@@ -42,9 +43,9 @@ RuleEngineContainer::RuleEngineContainer(
     m_ruleEngine.setConfig( config );
     m_ruleEngine.setConnectionFactory( connectionFactory );
     m_ruleEngine.setDefaultTaskExceptionHandler( defaultTaskExceptionHandler );
-    m_ruleEngine.setErrorResultCode( paulst::toInt( config->get("RuleEngineErrorCode") ) );
     m_ruleEngine.setGates( gates );
     m_ruleEngine.setLog( log );
+    m_ruleEngine.setQueueListener( ruleEngineQueueListener );
     m_ruleEngine.setRuleLoader( &m_ruleLoader );
     m_ruleEngine.setRulesConfig( &m_rulesConfig );
     m_ruleEngine.setResultPublisher( resultPublisher );

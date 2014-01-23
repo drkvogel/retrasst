@@ -92,7 +92,7 @@ bool LoadNonLocalResults::loadResult( paulstdb::Cursor& c )
         std::string sampleRunID = std::string("NonLocalResult") << buddyResultID; 
 
         m_resultIndex->addIndexEntryForResult( 
-            new TestResultImpl( actionFlag, sampleDescriptor, dateAnalysed, machineID, buddyResultID, sampleRunID, testID, resValue, resText ) );
+            new TestResultImpl( actionFlag, sampleDescriptor, dateAnalysed, machineID, buddyResultID, sampleRunID, testID, resValue, resText,0));
 
         m_resultIndex->allocateResultToWorklistEntry( buddyResultID, cbwRecordNo );
 

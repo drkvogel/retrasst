@@ -19,9 +19,11 @@ protected:
     void __fastcall Execute();
 public:
     __fastcall LoadPlanWorkerThread();
+    void NotUsingTempTable();
+    void UsingTempTable();
     Chunk< SampleRow > * loadingChunk;
     LCDbCryoJob *   job;
-    int             rowCount;
+    int             rowCount; // class variable needed for synchronise
     string          loadingMessage;
     string          debugMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
@@ -102,7 +104,7 @@ __published:
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
     void __fastcall FormResize(TObject *Sender);
-    void __fastcall btnSecondaryClick(TObject *Sender);
+    //void __fastcall btnSecondaryClick(TObject *Sender);
 
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;

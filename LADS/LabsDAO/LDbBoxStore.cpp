@@ -43,16 +43,22 @@ LCDbBoxStore::LCDbBoxStore( const LQuery & project ) {
 
 void LCDbBoxStore::copyFields( const LQuery & ddbq )
 {
-	boxID = ddbq.readInt( "box_cid" );
 	setID( ddbq.fieldExists( "record_id" ) ? ddbq.readInt( "record_id" ) : boxID );
-	rackID = ddbq.readInt( "rack_cid" );
-	slot = ddbq.readInt( "slot_position" );
+	boxID = ddbq.readInt( "box_cid" );
+	rackID = ddbq.fieldExists( "rack_cid" ) ? ddbq.readInt( "rack_cid" ) : 0;
+	slot = ddbq.fieldExists( "slot_position" ) ? ddbq.readInt( "slot_position" ) : 0;
 	slotID = ddbq.fieldExists( "slot_cid" ) ? ddbq.readInt( "slot_cid" ) : 0;
-	status = ddbq.readInt( "status" );
-	updated = ddbq.readDateTime( "time_stamp" );
-	processID = ddbq.fieldExists( "process_cid" ) ? ddbq.readInt( "process_cid" ) : 0;
 	jobID = ddbq.fieldExists( "retrieval_cid" ) ? ddbq.readInt( "retrieval_cid" ) : 0;
-	removed = (jobID != 0 && ddbq.fieldExists( "removed" )) ? ddbq.readDateTime( "removed" ) : 0;
+	if( jobID != 0 && ddbq.fieldExists( "removed" ) ) {
+		removed = ddbq.readDateTime( "removed" );
+	} else {
+		removed = 0;
+	}
+	if( ddbq.fieldExists( "time_stamp" ) ) {
+		updated =  ddbq.readDateTime( "time_stamp" );
+	}
+	status = ddbq.readInt( "status" );
+	processID = ddbq.fieldExists( "process_cid" ) ? ddbq.readInt( "process_cid" ) : 0;
 }
 
 //---------------------------------------------------------------------------
@@ -202,10 +208,8 @@ bool LCDbBoxStore::updateStoreRecord( LQuery & ddbq )
 //---------------------------------------------------------------------------
 
 bool LCDbBoxStore::updateBoxRecord( LQuery & ddbq ) {
-	ddbq.setSQL( "update box_name set rack_cid = :rid, slot_position = :pos, slot_cid = :sid,"
-				" time_stamp = 'now', process_cid = :pid where box_cid = :bid" );
-	ddbq.setParam( "rid", rackID );
-	ddbq.setParam( "pos", slot );
+	ddbq.setSQL( "update box_name set slot_cid = :sid, time_stamp = 'now', process_cid = :pid"
+				" where box_cid = :bid" );
 	ddbq.setParam( "sid", slotID );
 	ddbq.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
 	ddbq.setParam( "bid", boxID );

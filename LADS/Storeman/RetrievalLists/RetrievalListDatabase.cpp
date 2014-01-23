@@ -2,6 +2,7 @@
 #include "xdb.h"
 #include "xquery.h"
 #include "xexec.h"
+#include <vector>
 #include <sstream>
 #include "RetrievalListGridUtils.h"
 #include <Soap.XSBuiltIns.hpp>
@@ -606,37 +607,41 @@ void RetrievalListDatabase::fillRichEditInfo(std::map<String,String> &cryovialIn
 	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
 	RichEdit->SelText = cryovial_StatusToString(cryovialInfo[DEFINE_CRYOVIAL_STATUS].ToInt());
 	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
-	RichEdit->SelText = L".\n\nIts last storage entery states it was put into box ";
-	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
-	RichEdit->SelText = cryovialInfo[DEFINE_BOXNAME_EXTERNAL_NAME];
-	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
-	RichEdit->SelText = L" in position ";
-	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
-	RichEdit->SelText = cryovialInfo[DEFINE_CRYOVIAL_POSITION];
-	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
-	RichEdit->SelText = L" on ";
-	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
-	if (cryovialInfo[DEFINE_CRYOVIAL_STORE_DATETIME].IsEmpty())
-		RichEdit->SelText = L"Unknown date";
-	else
-		RichEdit->SelText = cryovialInfo[DEFINE_CRYOVIAL_STORE_DATETIME];
-	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
-	if ((!cryovialInfo[DEFINE_CRYOVIAL_STORE_REMOVED].IsEmpty()) && (cryovialInfo[DEFINE_CRYOVIAL_STORE_REMOVED] != L"ERROR"))
+	if (cryovialInfo[DEFINE_BOXNAME_EXTERNAL_NAME].Length() > 0)
 	{
-		RichEdit->SelText = L" and removed on ";
+		RichEdit->SelText = L".\n\nIts last storage entery states it was put into box ";
 		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
-		RichEdit->SelText = cryovialInfo[DEFINE_CRYOVIAL_STORE_REMOVED];
-	}
-	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
+		RichEdit->SelText = cryovialInfo[DEFINE_BOXNAME_EXTERNAL_NAME];
+		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
+		RichEdit->SelText = L" in position ";
+		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
+		RichEdit->SelText = cryovialInfo[DEFINE_CRYOVIAL_POSITION];
+		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
+		RichEdit->SelText = L" on ";
+		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
+		if (cryovialInfo[DEFINE_CRYOVIAL_STORE_DATETIME].IsEmpty())
+			RichEdit->SelText = L"Unknown date";
+		else
+			RichEdit->SelText = cryovialInfo[DEFINE_CRYOVIAL_STORE_DATETIME];
+		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
+		if ((!cryovialInfo[DEFINE_CRYOVIAL_STORE_REMOVED].IsEmpty()) && (cryovialInfo[DEFINE_CRYOVIAL_STORE_REMOVED] != L"ERROR"))
+		{
+			RichEdit->SelText = L" and removed on ";
+			RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
+			RichEdit->SelText = cryovialInfo[DEFINE_CRYOVIAL_STORE_REMOVED];
+		}
+		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
 
-	if (!cryovialInfo[DEFINE_CRYOVIAL_STORE_STATUS].IsEmpty())
-	{
-		RichEdit->SelText = L" with the status ";
-		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
-		RichEdit->SelText = cryovial_store_StatusToString(cryovialInfo[DEFINE_CRYOVIAL_STORE_STATUS].ToInt());
-		RichEdit->SelText = L".\n";
+		if (!cryovialInfo[DEFINE_CRYOVIAL_STORE_STATUS].IsEmpty())
+		{
+			RichEdit->SelText = L" with the status ";
+			RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
+			RichEdit->SelText = cryovial_store_StatusToString(cryovialInfo[DEFINE_CRYOVIAL_STORE_STATUS].ToInt());
+			RichEdit->SelText = L".\n";
+		}
+		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
 	}
-	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
+
 	if (cryovialInfo[DEFINE_BOXSTORE_RACK_CID].IsEmpty())
 	{
 //		if (cryovialInfo[DEFINE_CRYOVIAL_STORE_STATUS].ToInt()==3)
@@ -679,51 +684,76 @@ void RetrievalListDatabase::fillRichEditInfo(std::map<String,String> &cryovialIn
 	else
 	{
  //		RichEdit->SelText = L"\nIt was put in that box due to a retreival job.\n";
- 		outputRetrieval_jobInfo(cryovialInfo[DEFINE_CRYOVIAL_RETRIEVAL_CID],RichEdit);
+		outputRetrieval_jobInfo(cryovialInfo[DEFINE_CRYOVIAL_RETRIEVAL_CID],RichEdit);
 	}
 	int location_count = 0;
 	std::map<int,std::map<String,String> > HistoryData;
 	{
+
 		//Get cryovail_store enteries which aren't in the current list
 		std::wstringstream sqlquery;
 		sqlquery << "select ";
-		sqlquery << " * ";
+		sqlquery << " record_id ";
 		sqlquery << " from cryovial_store";
 		sqlquery << " where cryovial_store.record_id <> '" << cryovialInfo[DEFINE_CRYOVIAL_STORE_RECORD_ID].c_str();
 		sqlquery << "' AND cryovial_id  ='" << cryovialInfo[DEFINE_CRYOVIAL_ID].c_str() << L"' ORDER BY time_stamp DESC";
+
 		XQUERY project_query( m_dbProject.get(), AnsiString(sqlquery.str().c_str()).c_str() );
 		throwUnless( project_query.open(), "Failed to retreve retrival lists" );
+
+		std::vector<int> record_ids;
 		while ( project_query.fetch() )    //any data?
-		{
-			location_count++;
-			std::map<String,String> temp;
-			String cryovial_store_record_id = System::Sysutils::IntToStr(project_query.result.getInt("record_id"));
-			String cryovial_store_box_cid = System::Sysutils::IntToStr(project_query.result.getInt("box_cid"));
+			record_ids.push_back(project_query.result.getInt("record_id"));
 
-			String cryovial_store_cryovial_position = System::Sysutils::IntToStr(project_query.result.getInt("cryovial_position"));
-			if (project_query.result.exists("tube_position"))
-				String cryovial_store_cryovial_position = System::Sysutils::IntToStr(project_query.result.getInt("tube_position"));
-
-			String cryovial_store_status = System::Sysutils::IntToStr(project_query.result.getInt("status"));
-			String cryovial_store_time_stamp = String(project_query.result.getString("time_stamp").c_str());
-			String cryovial_store_removed =  String(project_query.result.getString("removed").c_str());
-			String cryovial_store_retrieval_cid = System::Sysutils::IntToStr(project_query.result.getInt("retrieval_cid"));
-
-//show extended information/cryovile
-			cryovial_store_time_stamp=cryovial_store_time_stamp.Trim();
-			cryovial_store_removed=cryovial_store_removed.Trim();
-			toReadableDateString(cryovial_store_time_stamp);
-			toReadableDateString(cryovial_store_removed);
-			temp.insert(std::pair<String,String> ("cryovial_store_record_id",cryovial_store_record_id));
-			temp.insert(std::pair<String,String> ("cryovial_store_box_cid",cryovial_store_box_cid));
-			temp.insert(std::pair<String,String> ("cryovial_store_cryovial_position",cryovial_store_cryovial_position));
-			temp.insert(std::pair<String,String> ("cryovial_store_status",cryovial_store_status));
-			temp.insert(std::pair<String,String> ("cryovial_store_time_stamp",cryovial_store_time_stamp));
-			temp.insert(std::pair<String,String> ("cryovial_store_removed",cryovial_store_removed));
-			temp.insert(std::pair<String,String> ("cryovial_store_retrieval_cid",cryovial_store_retrieval_cid));
-			HistoryData.insert(std::pair<int,std::map<String,String> > (project_query.result.getInt(0),temp));
-		}
 		project_query.close();
+
+		//now go through each record and get the data
+		//this has been split up as some dates have times and others don't
+		//and the rosetta code can't mix them.
+		for (unsigned int i=0;i<record_ids.size();i++)
+		{
+  			//Get cryovail_store enteries which aren't in the current list
+			std::wstringstream sqlquery2;
+			sqlquery2 << "select ";
+			sqlquery2 << " * ";
+			sqlquery2 << " from cryovial_store";
+			sqlquery2 << " where record_id = " << record_ids[i];
+
+			XQUERY project_query( m_dbProject.get(), AnsiString(sqlquery2.str().c_str()).c_str() );
+			throwUnless( project_query.open(), "Failed to retreve retrival lists" );
+			while ( project_query.fetch() )    //any data?
+			{
+				location_count++;
+				std::map<String,String> temp;
+				String cryovial_store_record_id = System::Sysutils::IntToStr(project_query.result.getInt("record_id"));
+				String cryovial_store_box_cid = System::Sysutils::IntToStr(project_query.result.getInt("box_cid"));
+
+				String cryovial_store_cryovial_position = System::Sysutils::IntToStr(project_query.result.getInt("cryovial_position"));
+				if (project_query.result.exists("tube_position"))
+					String cryovial_store_cryovial_position = System::Sysutils::IntToStr(project_query.result.getInt("tube_position"));
+
+				String cryovial_store_status = System::Sysutils::IntToStr(project_query.result.getInt("status"));
+				String cryovial_store_time_stamp = String(project_query.result.getString("time_stamp").c_str());
+				String cryovial_store_removed =  String(project_query.result.getString("removed").c_str());
+				String cryovial_store_retrieval_cid = System::Sysutils::IntToStr(project_query.result.getInt("retrieval_cid"));
+
+	//show extended information/cryovile
+				cryovial_store_time_stamp=cryovial_store_time_stamp.Trim();
+				cryovial_store_removed=cryovial_store_removed.Trim();
+				toReadableDateString(cryovial_store_time_stamp);
+				toReadableDateString(cryovial_store_removed);
+ 				temp.insert(std::pair<String,String> ("cryovial_store_record_id",cryovial_store_record_id));
+				temp.insert(std::pair<String,String> ("cryovial_store_box_cid",cryovial_store_box_cid));
+				temp.insert(std::pair<String,String> ("cryovial_store_cryovial_position",cryovial_store_cryovial_position));
+				temp.insert(std::pair<String,String> ("cryovial_store_status",cryovial_store_status));
+				temp.insert(std::pair<String,String> ("cryovial_store_time_stamp",cryovial_store_time_stamp));
+				temp.insert(std::pair<String,String> ("cryovial_store_removed",cryovial_store_removed));
+				temp.insert(std::pair<String,String> ("cryovial_store_retrieval_cid",cryovial_store_retrieval_cid));
+				HistoryData.insert(std::pair<int,std::map<String,String> > (project_query.result.getInt(0),temp));
+		}
+			project_query.close();
+		}
+
 	}
 	std::wstringstream sqlquery;
 	sqlquery << "select box_name.external_name,box_store.rack_cid,box_store.slot_position from box_name LEFT JOIN box_store ON box_name.box_cid = box_store.box_cid where box_name.box_cid = '";//-34179'
@@ -881,7 +911,9 @@ void RetrievalListDatabase::fillRichEditInfo(std::map<String,String> &cryovialIn
 			outputRetrieval_jobInfo(s,RichEdit);
 		}
 	}
+
 }
+
 //---------------------------------------------------------------------------
 void RetrievalListDatabase::runcryovialSQL(std::wstring &sqlQuery,std::map<int,std::map<String,String> > &results)
 {

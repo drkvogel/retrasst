@@ -133,34 +133,10 @@ void __fastcall TfrmFind::BitBtn1Click(TObject *Sender)
 //---------------------------------------------------------------------------
 
 bool TfrmFind::findBox() {
-	StoreDAO dao ;
 	int projID = LCDbProjects::getCurrentID();
 	AnsiString barcode = txtName->Text, type = cbType->Text;
-	int boxID = barcode.ToIntDef( 0 );
-	if( boxID != 0 ) {
-		// user won't distinguish +ve and -ve IDs - try both
-		dao.loadBoxDetails( boxID, projID, boxDetails );
-		if( !boxDetails.isInt( "box_cid" ) ) {
-			dao.loadBoxDetails( -boxID, projID, boxDetails );
-		}
-	}
-	if( !boxDetails.isInt( "box_cid" ) ) {
-		// can't find ID; try the box name + type
-		std::vector<ROSETTA> results;
-		dao.loadBoxes( barcode.c_str(), type.c_str(), projID, results );
-		if( results.size() == 1 ) {
-			boxDetails = results.front();
-		}
-	}
-
-	int typeID = boxDetails.getIntDefault( "box_type_cid", 0 );
-	if( typeID != 0 ) {
-		const LPDbBoxType * boxType = LPDbBoxTypes::records().find( type.c_str() );
-		if( boxType != NULL && boxType->getID() == typeID ) {
-			return true;
-		}
-	}
-	return false;
+	StoreDAO().loadBoxDetails( barcode.c_str(), type.c_str(), projID, boxDetails );
+	return boxDetails.isInt( "box_cid");
 }
 
 //---------------------------------------------------------------------------
@@ -179,8 +155,8 @@ bool TfrmFind::findCryovial() {
 	if( cryovial == NULL ) {
 		return false;
 	}
-	StoreDAO dao ;
-	dao.loadBoxDetails( cryovial->getBoxID(), LCDbProjects::getCurrentID(), boxDetails );
+	int projID = LCDbProjects::getCurrentID();
+	StoreDAO().loadBoxDetails( cryovial->getBoxID(), projID, boxDetails );
 	return boxDetails.isInt( "box_cid" );
 }
 

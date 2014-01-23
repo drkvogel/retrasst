@@ -111,7 +111,7 @@ object frmLoginBase: TfrmLoginBase
   object timer: TTimer
     Interval = 1200
     OnTimer = initialise
-    Left = 248
+    Left = 264
     Top = 16
   end
 end

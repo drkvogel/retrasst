@@ -24,7 +24,7 @@ SampleRunGroupModel::SampleRunGroupModel( SampleRunGroupIDGenerator* idGenerator
 
 SampleRunGroupModel::~SampleRunGroupModel()
 {
-    for ( std::list< SampleRunGroup* >::iterator i = m_sampleRunGroups.begin(); i != m_sampleRunGroups.end(); ++i )
+    for ( std::vector< SampleRunGroup* >::iterator i = m_sampleRunGroups.begin(); i != m_sampleRunGroups.end(); ++i )
     {
         delete *i;
     }
@@ -65,6 +65,46 @@ int  SampleRunGroupModel::countGroups() const
     return m_sampleRunGroups.size();
 }
 
+int SampleRunGroupModel::findListPositionOfGroupIncluding( const std::string& runID ) const
+{
+    int listPosition = 0;
+
+    std::map< std::string, SampleRunGroup* >::const_iterator i = m_mapRunIDToGroup.find( runID );
+
+    if ( i == m_mapRunIDToGroup.end() )
+    {
+        paulst::exception( "Failed to map '%s' to any group", runID.c_str() );
+    }
+
+    const SampleRunGroup* matchedGroup = i->second;
+
+    if ( matchedGroup->isQC() )
+    {
+        paulst::exception( "Run '%s' maps to a QC group, not an Unknown group", runID.c_str() );
+    }
+
+    const int targetGroupID = matchedGroup->getID();
+
+    for ( std::vector< SampleRunGroup* >::const_iterator j = m_sampleRunGroups.begin(); j != m_sampleRunGroups.end(); ++j )
+    {
+        if ( (*j)->getID() == targetGroupID )
+        {
+            break;
+        }
+        else
+        {
+            ++listPosition;
+        }
+    }
+
+    if ( listPosition >= m_sampleRunGroups.size() )
+    {
+        paulst::exception( "Failed to local SampleRunGroup %d in the sequence of SampleRunGroup instances", targetGroupID );
+    }
+
+    return listPosition;
+}
+
 int  SampleRunGroupModel::getGroupID( const std::string& sampleRunID ) const
 {
     paulst::AcquireCriticalSection a(m_cs);
@@ -79,6 +119,32 @@ int  SampleRunGroupModel::getGroupID( const std::string& sampleRunID ) const
     const SampleRunGroup* group = i->second;
 
     return group->getID();
+}
+
+void SampleRunGroupModel::listFollowingQCRuns( const std::string& runID, std::vector< std::string >& out ) const
+{
+    int pos = findListPositionOfGroupIncluding( runID );
+
+    listRunIDsForSampleRunGroupLocatedAt( pos + 1, out );
+}
+
+void SampleRunGroupModel::listPrecedingQCRuns( const std::string& runID, std::vector< std::string >& out ) const
+{
+    int pos = findListPositionOfGroupIncluding( runID );
+
+    listRunIDsForSampleRunGroupLocatedAt( pos - 1, out );
+}
+
+void SampleRunGroupModel::listRunIDsForSampleRunGroupLocatedAt( int position, std::vector< std::string >& out ) const
+{
+    if ( position < 0 || position >= m_sampleRunGroups.size() )
+    {
+        return;
+    }
+
+    const SampleRunGroup* group = m_sampleRunGroups.at( position );
+
+    group->listRunIDs( out );
 }
 
 void SampleRunGroupModel::startNewGroup( const std::string& runID, bool isQC, const paulst::Nullable<int>& groupID )

@@ -313,6 +313,24 @@ struct BuddyDatabaseEntry
 
 typedef std::vector<BuddyDatabaseEntry> BuddyDatabaseEntries;
 
+enum ControlCode {
+    CONTROL_STATUS_UNCONTROLLED,
+    CONTROL_STATUS_CONFIG_ERROR_NO_RULES,
+    CONTROL_STATUS_ERROR,
+    CONTROL_STATUS_FAIL,
+    CONTROL_STATUS_BORDERLINE,
+    CONTROL_STATUS_PASS,
+};
+
+enum ResultCode { 
+    RESULT_CODE_FAIL,
+    RESULT_CODE_PASS,
+    RESULT_CODE_BORDERLINE,
+    RESULT_CODE_ERROR,
+    RESULT_CODE_NO_RULES_APPLIED = 10,
+    RESULT_CODE_NULL = 20,
+};
+
 /*
     A TestResult can be subjected to Rules in order to assess their reliability/validity.
 
@@ -321,7 +339,7 @@ typedef std::vector<BuddyDatabaseEntry> BuddyDatabaseEntries;
 struct RuleResult
 {
     /* Regarding legitimate values for resultCode, refer to RuleResults below. */
-    int         resultCode;
+    ResultCode  resultCode;
     /* The name of the rule */
     std::string rule;
     std::string msg;
@@ -329,6 +347,11 @@ struct RuleResult
 
 /*
     Identifies a row in the qc_rule table.
+
+    recordID:   qc_rule.record_cid
+    ruleID:     qc_rule.rule_cid
+    uniqueName: c_object_name.external_name
+    desc:       c_object_name.external_full
 */
 class RuleDescriptor
 {
@@ -356,17 +379,12 @@ private:
 class RuleResults
 {
 public:
-    const static int RESULT_CODE_FAIL               = 0;
-    const static int RESULT_CODE_PASS               = 1;
-    const static int RESULT_CODE_BORDERLINE         = 2;
-    const static int RESULT_CODE_ERROR              = 3;
-    const static int RESULT_CODE_NO_RULES_APPLIED   = -1;
-
+    
     typedef std::vector<RuleResult> RuleResultCollection;
     typedef RuleResultCollection::const_iterator const_iterator;
 
     RuleResults();
-    RuleResults( const RuleDescriptor& rd, const_iterator begin, const_iterator end, int summaryResultCode, const std::string& summaryMsg,
+    RuleResults( const RuleDescriptor& rd, const_iterator begin, const_iterator end, ResultCode summaryResultCode, const std::string& summaryMsg,
         const std::vector< std::string >& extraValues = std::vector< std::string >() );
     RuleResults( const RuleResults& );
     RuleResults& operator=( const RuleResults& );
@@ -376,12 +394,12 @@ public:
     const_iterator  end()                  const;
     std::string     getExtraValue(int idx) const; // zero-based index
     RuleDescriptor  getRuleDescriptor()    const;
-    /* Returns one of the RESULT_CODE constants listed above. */
-    int             getSummaryResultCode() const;
+    /* Returns one of the ResultCode constants listed above. */
+    ResultCode      getSummaryResultCode() const;
     std::string     getSummaryMsg()        const;
     int             numExtraValues()       const;
 private:
-    int                         m_summaryResultCode;
+    ResultCode                  m_summaryResultCode;
     std::string                 m_summaryMsg;
     RuleResultCollection        m_results;
     RuleDescriptor              m_ruleDescriptor;
@@ -692,6 +710,68 @@ private:
     WorklistEntry& operator=( const WorklistEntry& );
 };
 
+/*
+    A QC result that has had rules applied to it and thus exerts 
+    a controlling influence over neighbouring Unknowns.
+*/
+class QCControl
+{
+public:
+
+    QCControl( int resultID = 0, ResultCode status = RESULT_CODE_NULL );
+    QCControl( const QCControl& );
+    QCControl& operator=( const QCControl& );
+
+    int         resultID() const;
+    ResultCode  status  () const;
+private:
+    int m_resultID;
+    ResultCode m_status;
+
+};
+
+
+/*
+    A collection of QCControl instances.
+*/
+class QCControls
+{
+public:
+    QCControls( const std::vector< QCControl >& controls = std::vector< QCControl >() );
+    QCControls( const QCControls& );
+    QCControls& operator=( const QCControls& );
+    bool empty() const;
+    int  size() const;
+    const QCControl& operator[]( int i ) const;
+private:
+    std::vector< QCControl > m_controls;
+};
+
+
+/*
+    ControlStatus describes the status of an Unknown test result in terms of 
+    whether or not it has QCs controlling it and, if so, whether those QCs 
+    are good.
+*/
+class ControlStatus
+{
+public:
+    ControlStatus( const QCControls& preceding = QCControls(), const QCControls& following = QCControls() );
+    ControlStatus( const ControlStatus& );
+    ControlStatus& operator=( const ControlStatus& );
+    /*
+        Returns the worst case. If, out of 3 preceding QCControls and 4 following, there is one for which 
+        the RESULT_CODE was RESULT_CODE_NO_RULES_APPLIED, but all the others had a value of RESULT_CODE_PASS, 
+        then the summary code is CONTROL_STATUS_CONFIG_ERROR_NO_RULES.
+    */
+    ControlCode summaryCode() const;
+    const QCControls& precedingQCs() const;
+    const QCControls& followingQCs() const;
+private:
+    QCControls m_precedingQCs, m_followingQCs;
+    ControlCode m_summaryCode;
+};
+ 
 
 /*
     A TestResult represents a row in the database table buddy_result_float.
@@ -710,6 +790,12 @@ public:
         buddy_result_float.action_flag
     */
     virtual char        getActionFlag       () const = 0;
+
+    /*
+        Refer to documenation on ControlStatus.
+    */
+    virtual ControlStatus getControlStatus  () const = 0;
+
     /*
         buddy_result_float.date_analysed
     */

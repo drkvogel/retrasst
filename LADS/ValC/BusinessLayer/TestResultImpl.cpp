@@ -1,8 +1,11 @@
+#include "ControlModel.h"
 #include "TestResultImpl.h"
 #include "Trace.h"
 
 namespace valc
 {
+
+const ControlStatus TestResultImpl::UNCONTROLLED;
 
 TestResultImpl::TestResultImpl(
         char actionFlag,
@@ -13,7 +16,8 @@ TestResultImpl::TestResultImpl(
         const std::string& sampleRunID,
         int testID,
         float resultValue,
-        const std::string& resultText )
+        const std::string& resultText,
+        const ControlModel* controlModel )
     : 
     m_actionFlag(actionFlag),
     m_sampleDescriptor(sampleDescriptor),
@@ -23,7 +27,8 @@ TestResultImpl::TestResultImpl(
     m_sampleRunID(sampleRunID),
     m_testID(testID),
     m_resultValue(resultValue),
-    m_resultText(resultText)
+    m_resultText(resultText),
+    m_controlModel( controlModel )
 {
 }
 
@@ -34,6 +39,11 @@ TestResultImpl::~TestResultImpl()
 char TestResultImpl::getActionFlag() const
 {
     return m_actionFlag;
+}
+
+ControlStatus TestResultImpl::getControlStatus() const
+{
+    return m_controlModel ? m_controlModel->getControlStatus( m_testID, m_sampleRunID ) : UNCONTROLLED;
 }
 
 TDateTime TestResultImpl::getDateAnalysed() const

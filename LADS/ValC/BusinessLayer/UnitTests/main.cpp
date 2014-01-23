@@ -14,6 +14,7 @@
 
 #include "BuddyDatabaseEntryIndexTest.h"
 #include "BuddySampleIDKeyedOnSampleRunIDTest.h"
+#include "ControlModelTest.h"
 #include "ForceReloadTest.h"
 #include "QueuedSamplesFactoryTest.h"
 #include "RerunTest.h"

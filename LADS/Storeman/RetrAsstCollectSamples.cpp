@@ -13,7 +13,7 @@ TfrmProcess *frmProcess;
 
 __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     destroying = false;
-    //sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
+
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  60);
     sgwChunks->addCol("status",   "Status",   91);
@@ -78,6 +78,7 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     chunks.clear();
     sgwChunks->clear();
     sgwVials->clear();
+    frmRetrievalAssistant->clearStorageCache();
     labelSampleID->Caption  = "loading...";
     labelStorage->Caption   = "loading...";
     labelDestbox->Caption   = "loading...";
@@ -139,18 +140,23 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
             int status = row->retrieval_record->getStatus();
             switch (status) {
                 case LCDbCryovialRetrieval::EXPECTED:
-                    if (NULL != row->secondary) {
-                        background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR;
-                    } else {
-                        background = RETRIEVAL_ASSISTANT_NEW_COLOUR;
-                    }
-                    break;
+                    background = RETRIEVAL_ASSISTANT_NEW_COLOUR; break;
                 case LCDbCryovialRetrieval::IGNORED:
                     background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
                 case LCDbCryovialRetrieval::COLLECTED:
                     background = RETRIEVAL_ASSISTANT_DONE_COLOUR; break;
                 case LCDbCryovialRetrieval::NOT_FOUND:
-                    background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR; break;
+                    if (NULL != row->secondary) {
+                        int secondaryStatus = row->secondary->retrieval_record->getStatus();
+                        switch (secondaryStatus) {
+                            case LCDbCryovialRetrieval::EXPECTED:
+                                background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR; break;
+                            default:
+                                background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR; break;
+                        }
+                    } else {
+                        background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR; break;
+                    }
                 default:
                     background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
             }
@@ -332,12 +338,121 @@ void __fastcall LoadPlanWorkerThread::msgbox() {
 }
 
 void __fastcall LoadPlanWorkerThread::Execute() {
+    //UsingTempTable();
+    NotUsingTempTable();
+}
+
+void LoadPlanWorkerThread::NotUsingTempTable() {
     /** load retrieval plan
     For a box retrieval, the retrieval plan will be given by: Select * from c_box_retrieval b order by b.section, b.rj_box_cid
     For a cryovial retrieval, the retrieval plan will be: Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
 
     delete_referenced< vector<SampleRow * > >(frmProcess->vials); frmProcess->chunks.clear();
+    ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
+    if (NULL == frmProcess || NULL == frmProcess->job) { throw "wtf?"; }
+    loadingMessage = frmProcess->loadingMessage;
+    job = frmProcess->job; //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 
+    int primary_aliquot = job->getPrimaryAliquot(); int secondary_aliquot = job->getSecondaryAliquot();
+
+    debugMessage = "select sample details from plan"; Synchronize((TThreadMethod)&debugLog);
+    LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
+    oss.str("");
+    oss<<
+        " SELECT "
+        "    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, "//cbr.status, "
+        "    cs.box_cid, sb.external_name AS src_box, cs.tube_position AS source_pos,  "
+        "    cbr.box_id AS dest_id, db.external_name AS dest_box, slot_number AS dest_pos, "
+        "    lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, lcr.slot_number AS lcr_slot, lcr.cryovial_barcode, lcr.aliquot_type_cid, "
+        "    cs.note_exists, cs.cryovial_id, cs.cryovial_position, cs.status, "
+        "    c.sample_id, cs.record_id, "
+        "    db.external_name AS dest_name "
+        " FROM "
+        "    c_box_retrieval cbr, l_cryovial_retrieval lcr, c_box_name db, c_box_name sb, cryovial c, cryovial_store cs "
+        " WHERE "
+        "    cbr.retrieval_cid   = :rtid AND "
+        "    cbr.rj_box_cid      = lcr.rj_box_cid AND "
+        "    cbr.box_id          = db.box_cid AND "
+        "    c.cryovial_barcode  = lcr.cryovial_barcode AND "
+        "    c.aliquot_type_cid  = lcr.aliquot_type_cid  AND "
+        "    cs.cryovial_id      = c.cryovial_id  AND "
+        "    cbr.retrieval_cid   = cs.retrieval_cid AND "
+        "    cs.box_cid          = sb.box_cid "
+        " ORDER BY "
+        "    chunk, source_pos, rj_box_cid, aliquot_type_cid "
+        << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"); debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+    qd.setSQL(oss.str()); debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
+    qd.setParam("rtid", job->getID()); //int retrieval_cid = job->getID();
+    qd.open();
+    rowCount = 0; int curchunk = 0, chunk = 0; SampleRow * previous = NULL; debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
+    while (!qd.eof()) {
+        chunk = qd.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
+        if (chunk > curchunk) {
+            frmProcess->addChunk(rowCount);
+            curchunk = chunk;
+        }
+        if (0 == rowCount % 10) {
+            ostringstream oss; oss<<"Found "<<rowCount<<" vials";
+            loadingMessage = oss.str().c_str();
+            Synchronize((TThreadMethod)&updateStatus);
+        }
+        SampleRow * row = new SampleRow(
+            new LPDbCryovial(qd),
+            new LPDbCryovialStore(qd),
+            new LCDbCryovialRetrieval(qd), // fixme
+            qd.readString(  "cryovial_barcode"),
+            qd.readString(  "src_box"),
+            qd.readInt(     "dest_id"),
+            qd.readString(  "dest_name"),
+            qd.readInt(     "dest_pos"),
+            "", 0, "", 0, 0, "", 0 ); // no storage details yet
+
+        // something like this - don't forget to get storage
+        int currentAliquotType  = row->cryo_record->getAliquotType();
+        int previousAliquotType = previous == NULL? 0 : previous->cryo_record->getAliquotType();
+        if (secondary_aliquot != 0 && secondary_aliquot == currentAliquotType &&
+            previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
+            if (previousAliquotType == currentAliquotType) {
+                throw Exception("duplicate aliquot");
+            } else if (currentAliquotType != secondary_aliquot) {
+                throw Exception("spurious aliquot");
+            } else { // secondary
+                previous->secondary = row;
+            }
+        } else {
+            frmProcess->vials.push_back(row); // new primary
+            previous = row;
+            rowCount++; // only count primary aliquots
+        }
+
+        //frmProcess->vials.push_back(row);
+        qd.next();
+    }
+    oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+
+    frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
+
+    // find locations of source boxes
+    int rowCount2 = 0;
+	for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it, rowCount2++) {
+        SampleRow * sample = *it;
+        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
+        frmRetrievalAssistant->getStorage(sample);
+        if (NULL != sample->secondary) {
+            frmRetrievalAssistant->getStorage(sample->secondary);
+        }
+        oss<<sample->storage_str(); loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
+	}
+    debugMessage = "finished load storage details";
+    Synchronize((TThreadMethod)&debugLog);
+}
+
+void LoadPlanWorkerThread::UsingTempTable() {
+    /** load retrieval plan
+    For a box retrieval, the retrieval plan will be given by: Select * from c_box_retrieval b order by b.section, b.rj_box_cid
+    For a cryovial retrieval, the retrieval plan will be: Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
+
+    delete_referenced< vector<SampleRow * > >(frmProcess->vials); frmProcess->chunks.clear();
     ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
     if (NULL == frmProcess || NULL == frmProcess->job) { throw "wtf?"; }
     loadingMessage = frmProcess->loadingMessage;
@@ -351,16 +466,13 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     timeinfo = localtime(&rawtime);
     strftime(buffer, 80, "%Y_%m_%dT%H_%M_%S", timeinfo);
     puts(buffer);
-
     oss.str(""); oss<<"retrieval_assistant_temp_"<<pid<<"_"<<buffer;
     frmProcess->tempTableName.assign(oss.str());
-
     {
         LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
         oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName; // ingres doesn't like table names passed as parameters
+        debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
         qd.setSQL(oss.str());
-        debugMessage = oss.str();
-        Synchronize((TThreadMethod)&debugLog);
         qd.execSQL();
         oss.str("");
         oss<<"CREATE TABLE "<<frmProcess->tempTableName<<" AS"<<
@@ -381,8 +493,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         qd.setParam("rtid", retrieval_cid); //qd.setParam("chnk", loading0Chunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
         qd.execSQL();
     }
-    debugMessage = "finished create temp table";
-    Synchronize((TThreadMethod)&debugLog);
+    debugMessage = "finished create temp table"; Synchronize((TThreadMethod)&debugLog);
 
     // gj added a secondary index on cryovial_store (on t_ldb20 only) - how to check this?
     bool stats_c_barcode                = Util::statsOnColumn(job->getProjectID(), "cryovial",      "cryovial_barcode");
@@ -411,6 +522,7 @@ void __fastcall LoadPlanWorkerThread::Execute() {
     int primary_aliquot     = job->getPrimaryAliquot();
     int secondary_aliquot   = job->getSecondaryAliquot();
 
+    debugMessage = "select sample details from plan"; Synchronize((TThreadMethod)&debugLog);
     LQuery ql(Util::projectQuery(job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
     oss.str("");
     oss<<
@@ -436,10 +548,13 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         " ORDER BY"
         "     s1.retrieval_cid, chunk, g.rj_box_cid, c.aliquot_type_cid "
         << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC");
+    debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     ql.setSQL(oss.str());
     rowCount = 0; // class variable needed for synchronise
+    debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
     ql.open();
     int curchunk = 0, chunk = 0; SampleRow * previous = NULL;
+    debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
     while (!ql.eof()) {
         chunk = ql.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) {
@@ -480,13 +595,16 @@ void __fastcall LoadPlanWorkerThread::Execute() {
         ql.next();
         rowCount++;
     }
-
-    //DEBUGSTREAM("finished loading "<<rowCount<<"samples") //wstringstream wss; wss<<"finished loading "<<rowCount<<"samples";
-    oss.str(""); oss<<"finished loading "<<rowCount<<"samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+    oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
 
     oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName;
-    ql.setSQL(oss.str()); if (!RETRASSTDEBUG) ql.execSQL();
-    debugMessage = "finished drop temp table"; Synchronize((TThreadMethod)&debugLog);
+    ql.setSQL(oss.str());
+    if (!RETRASSTDEBUG) {
+        ql.execSQL();
+        debugMessage = "finished drop temp table"; Synchronize((TThreadMethod)&debugLog);
+    } else {
+        debugMessage = "didn't drop temp table in debug mode"; Synchronize((TThreadMethod)&debugLog);
+    }
 
     frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
 
@@ -591,14 +709,34 @@ void TfrmProcess::accept(String barcode) {
 void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
     debugLog("Save skipped row"); //Application->MessageBox(L"Save skipped row", L"Info", MB_OK);
     currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
+    showCurrentRow();
     nextRow();
 }
 
 void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
-    debugLog("Save not found row"); //Application->MessageBox(L"Save not found row", L"Info", MB_OK);
-    msgbox("try secondary");
-    currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
-    nextRow();
+    //DEBUGSTREAM(__FUNC__<<" started")
+    //Screen->Cursor = crSQLWait; Enabled = false;
+    debugLog("Save not found row");
+
+    SampleRow * sample, * secondary;
+    int rowIdx = currentChunk()->getCurrentRow();
+    sample = currentChunk()->rowAt(rowIdx); // current primary
+
+    if (sample->secondary) {
+        //msgbox("have secondary");
+
+        // refresh sg row
+        //frmRetrievalAssistant->getStorage(sample->secondary); // got storage already?
+        fillRow(sample->secondary, rowIdx+1);
+        showCurrentRow();
+        showDetails(sample->secondary);
+    } else {
+        //msgbox("no secondary, mark NOT_FOUND");
+        currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
+        nextRow();
+    }
+
+    //Screen->Cursor = crDefault; Enabled = true; DEBUGSTREAM(__FUNC__<<" finished")
 }
 
 SampleRow * TfrmProcess::currentSample() {
@@ -666,24 +804,24 @@ void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after
     }
 }
 
-void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
-    DEBUGSTREAM(__FUNC__<<" started")
-    Screen->Cursor = crSQLWait; Enabled = false;
-
-    SampleRow * sample;//, * secondary;
-    int rowIdx = currentChunk()->getCurrentRow();
-    sample = currentChunk()->rowAt(rowIdx); // current primary
-
-    frmRetrievalAssistant->getStorage(sample->secondary);
-
-    // refresh sg row
-    fillRow(sample->secondary, rowIdx+1);
-    showCurrentRow();
-    showDetails(sample->secondary);
-    //labelPrimary->Enabled   = false; labelSecondary->Enabled = true;
-    Screen->Cursor = crDefault; Enabled = true; DEBUGSTREAM(__FUNC__<<" finished")
-    return;
-}
+//void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
+//    DEBUGSTREAM(__FUNC__<<" started")
+//    Screen->Cursor = crSQLWait; Enabled = false;
+//
+//    SampleRow * sample;//, * secondary;
+//    int rowIdx = currentChunk()->getCurrentRow();
+//    sample = currentChunk()->rowAt(rowIdx); // current primary
+//
+//    frmRetrievalAssistant->getStorage(sample->secondary);
+//
+//    // refresh sg row
+//    fillRow(sample->secondary, rowIdx+1);
+//    showCurrentRow();
+//    showDetails(sample->secondary);
+//    //labelPrimary->Enabled   = false; labelSecondary->Enabled = true;
+//    Screen->Cursor = crDefault; Enabled = true; DEBUGSTREAM(__FUNC__<<" finished")
+//    return;
+//}
 
 //    using namespace boost::local_time;
 //    //local_date_time

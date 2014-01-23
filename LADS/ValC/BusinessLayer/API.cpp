@@ -9,9 +9,11 @@
 #include "BuddyDatabase.h"
 #include "BuddyDatabaseEntryIndex.h"
 #include "ClusterIDs.h"
+#include "CompositeRuleEngineQueueListener.h"
 #include "CompositeRuleResultPublisher.h"
 #include "Config.h"
 #include "ConnectionFactoryWithLogging.h"
+#include "ControlModel.h"
 #include "Cursor.h"
 #include "DBConnectionFactory.h"
 #include "DBQueryTask.h"
@@ -26,6 +28,7 @@
 #include "LoggingService.h"
 #include <memory>
 #include "MockConnectionFactory.h"
+#include "Nullable.h"
 #include "Projects.h"
 #include "QCGates.h"
 #include "QCSampleDescriptorDerivationStrategyImpl.h"
@@ -115,32 +118,39 @@ void InitialiseApplicationContext( int localMachineID, int user, const std::stri
         {
             ac->connectionFactory = new paulstdb::ConnectionFactoryWithLogging( ac->connectionFactory, log );
         }
-        ac->localMachineID                  = localMachineID;
-        ac->user                            = user;
-        ac->userAdvisor                     = userAdvisor;
-        ac->taskExceptionUserAdvisor        = new TaskExceptionUserAdvisor( userAdvisor, log );
-        ac->log                             = log;
-        ac->sampleRunIDResolutionService    = new SampleRunIDResolutionService();
-        ac->initialisationQueries           = new stef::ThreadPool(0, 1);
+        ac->localMachineID                      = localMachineID;
+        ac->user                                = user;
+        ac->userAdvisor                         = userAdvisor;
+        ac->taskExceptionUserAdvisor            = new TaskExceptionUserAdvisor( userAdvisor, log );
+        ac->log                                 = log;
+        ac->sampleRunIDResolutionService        = new SampleRunIDResolutionService();
+        ac->initialisationQueries               = new stef::ThreadPool(0, 1);
         ac->initialisationQueries->addDefaultTaskExceptionHandler( ac->taskExceptionUserAdvisor );
-        ac->resultAttributes                = new ResultAttributes();
-        ac->clusterIDs                      = new ClusterIDs();
-        ac->projects                        = new Projects();
-        ac->testNames                       = new TestNames();
-        ac->compositeRuleResultPublisher    = new CompositeRuleResultPublisher();
+        ac->resultAttributes                    = new ResultAttributes();
+        ac->clusterIDs                          = new ClusterIDs();
+        ac->projects                            = new Projects();
+        ac->testNames                           = new TestNames();
+        ac->controlModel                        = new ControlModelImpl();
+        ac->controlModelQueueListenerAdapter    = new ControlModel::RuleEngineQueueListenerAdapter( ac->controlModel );
+        ac->controlModelResultPublisherAdapter  = new ControlModel::RuleResultPublisherAdapter( ac->controlModel );
+        ac->compositeRuleEngineQueueListener    = new CompositeRuleEngineQueueListener();
+        ac->compositeRuleEngineQueueListener->add( ac->controlModelQueueListenerAdapter );
+        ac->compositeRuleResultPublisher        = new CompositeRuleResultPublisher();
         ac->compositeRuleResultPublisher->add( ac->resultAttributes );
-        ac->qcGates                         = new QCGates(  
+        ac->compositeRuleResultPublisher->add( ac->controlModelResultPublisherAdapter );
+        ac->qcGates                             = new QCGates(  
                                                     ac->initialisationQueries,
                                                     ac->config,
                                                     ac->connectionFactory,
                                                     ac->log,
                                                     ac->localMachineID );
-        ac->ruleEngineContainer             = new RuleEngineContainer(  
+        ac->ruleEngineContainer                 = new RuleEngineContainer(  
                                                     ac->initialisationQueries,
                                                     ac->config,
                                                     ac->connectionFactory,
                                                     ac->log,
                                                     ac->compositeRuleResultPublisher,
+                                                    ac->compositeRuleEngineQueueListener,
                                                     ac->qcGates,
                                                     ac->taskExceptionUserAdvisor );
         ac->initialisationQueries->addTask(
@@ -235,6 +245,8 @@ SnapshotPtr Load()
     // Clear previously obtained RuleResults
     applicationContext->resultAttributes->clearRuleResults();
 
+    applicationContext->controlModel->clear();
+
     stef::ThreadPool* taskRunner = new stef::ThreadPool(1,5);
 
     taskRunner->addDefaultTaskExceptionHandler( applicationContext->taskExceptionUserAdvisor );
@@ -254,7 +266,8 @@ SnapshotPtr Load()
         &exceptionalDataHandler,
         applicationContext->ruleEngineContainer,
         QCSampleDescriptorDerivationStrategy.get(),
-        buddyDatabaseEntryIndex ) );
+        buddyDatabaseEntryIndex,
+        applicationContext->controlModel ) );
 
 	wait( taskRunner, initialisationWaitTimeout );
 
@@ -314,7 +327,8 @@ SnapshotPtr Load()
         applicationContext->sampleRunIDResolutionService, 
         applicationContext,
         paulst::toInt( applicationContext->getProperty("PendingUpdateWaitTimeoutSecs") ),
-        sampleRunGroupIDGenerator );
+        sampleRunGroupIDGenerator,
+        applicationContext->controlModel );
 
     return SnapshotPtr( applicationContext->snapshot );
 }
@@ -599,12 +613,17 @@ std::string RuleDescriptor::getDesc() const
 
 
 RuleResults::RuleResults()
-    : m_summaryResultCode(0)
+    : m_summaryResultCode(RESULT_CODE_NULL)
 {
 }
 
-RuleResults::RuleResults( const RuleDescriptor& rd, RuleResults::const_iterator begin, RuleResults::const_iterator end, int summaryResultCode,
-    const std::string& summaryMsg, const std::vector<std::string>& extraValues ) 
+RuleResults::RuleResults( 
+    const RuleDescriptor&           rd, 
+    RuleResults::const_iterator     begin, 
+    RuleResults::const_iterator     end, 
+    ResultCode                      summaryResultCode,
+    const std::string&              summaryMsg, 
+    const std::vector<std::string>& extraValues ) 
     :
     m_ruleDescriptor( rd ),
     m_summaryResultCode(summaryResultCode),
@@ -639,7 +658,7 @@ RuleDescriptor RuleResults::getRuleDescriptor() const
     return m_ruleDescriptor;
 }
 
-int RuleResults::getSummaryResultCode() const
+ResultCode RuleResults::getSummaryResultCode() const
 {
     return m_summaryResultCode;
 }
@@ -669,6 +688,170 @@ int RuleResults::numExtraValues() const
 {
     return m_extraValues.size();
 }
+
+class WorstStatusCode
+{
+private:
+    paulst::Nullable<ControlCode> worst;
+
+    ControlCode mapResultCodeToControlStatus( ResultCode resultCode ) const
+    {
+        switch( resultCode )
+        {
+            case RESULT_CODE_FAIL               : return CONTROL_STATUS_FAIL;
+            case RESULT_CODE_PASS               : return CONTROL_STATUS_PASS;
+            case RESULT_CODE_BORDERLINE         : return CONTROL_STATUS_BORDERLINE;
+            case RESULT_CODE_ERROR              : return CONTROL_STATUS_ERROR;
+            case RESULT_CODE_NO_RULES_APPLIED   : return CONTROL_STATUS_CONFIG_ERROR_NO_RULES;
+            default:
+                paulst::exception( "No control status mapping for rule result code %d", resultCode );
+        }
+
+        throw Exception(L"Should never hit this code");
+    }
+
+public:
+
+    ControlCode get() const
+    {
+        require( ! worst.isNull() );
+        return worst;
+    }
+    
+    void inspect( const QCControls& controls )
+    {
+        for ( int i = 0; i < controls.size(); ++i )
+        {
+            const ControlCode controlStatus = mapResultCodeToControlStatus( controls[i].status() );
+
+            if ( worst.isNull() || ( controlStatus < worst ) )
+            {
+                worst = controlStatus;
+            }
+        }
+    }
+};
+
+QCControl::QCControl( int resultID, ResultCode status )
+    :
+    m_resultID( resultID ),
+    m_status( status )
+{
+}
+
+QCControl::QCControl( const QCControl& other )
+    :
+    m_resultID( other.m_resultID ),
+    m_status  ( other.m_status   )
+{
+}
+
+QCControl& QCControl::operator=( const QCControl& other )
+{
+    m_resultID = other.m_resultID;
+    m_status   = other.m_status;
+    return *this;
+}
+
+
+int QCControl::resultID() const
+{
+    return m_resultID;
+}
+
+ResultCode QCControl::status() const
+{
+    return m_status;
+}
+
+
+QCControls::QCControls( const std::vector< QCControl >& controls )
+    :
+    m_controls( controls )
+{
+}
+
+QCControls::QCControls( const QCControls& other )
+    :
+    m_controls( other.m_controls )
+{
+}
+
+QCControls& QCControls::operator=( const QCControls& other )
+{
+    m_controls = other.m_controls;
+    return *this;
+}
+
+bool QCControls::empty() const
+{
+    return m_controls.empty();
+}
+
+int QCControls::size() const
+{
+    return m_controls.size();
+}
+
+const QCControl& QCControls::operator[]( int i ) const
+{
+    require( i < size() );
+    return m_controls.at( i );
+}
+
+
+ControlStatus::ControlStatus( const QCControls& preceding, const QCControls& following )
+    :
+    m_precedingQCs( preceding ),
+    m_followingQCs( following )
+{
+    if ( preceding.empty() || following.empty() )
+    {
+        m_summaryCode = CONTROL_STATUS_UNCONTROLLED;
+    }
+    else
+    {
+        WorstStatusCode wsc;
+
+        wsc.inspect( preceding );
+        wsc.inspect( following );
+
+        m_summaryCode = wsc.get();
+    }
+}
+
+ControlStatus::ControlStatus( const ControlStatus& other )
+    :
+    m_summaryCode ( other.m_summaryCode ),
+    m_precedingQCs( other.m_precedingQCs ),
+    m_followingQCs( other.m_followingQCs )
+{
+}
+
+ControlStatus& ControlStatus::operator=( const ControlStatus& other )
+{
+    m_summaryCode = other.m_summaryCode;
+    m_precedingQCs = other.m_precedingQCs;
+    m_followingQCs = other.m_followingQCs;
+    return *this;
+}
+
+ControlCode ControlStatus::summaryCode() const
+{
+    return m_summaryCode;
+}
+
+const QCControls& ControlStatus::precedingQCs() const
+{
+    return m_precedingQCs;
+}
+
+const QCControls& ControlStatus::followingQCs() const
+{
+    return m_followingQCs;
+}
+
+
 
 SnapshotObserver::SnapshotObserver()
 {

@@ -979,25 +979,10 @@ void Rack::populate( ) {
 	} else if( capacity < 1 ) {
 		capacity = 99; 	// error ??
 	}
-	// read boxes from database - most racks are filled with boxes from one project
+	// allocate boxes to slots; allow more than one per slot (e.g. during box move)
 	StoreDAO dao;
 	std::vector< ROSETTA > results;
 	dao.loadBoxes( id, results );
-/*	if( isSingleProject() ) {
-		dao.loadBoxes( id, project_cid, results );
-		if( results.size() != capacity && results.size() + emptySlots != capacity ) {
-			results.clear();	// not enough from this project; should check again
-		}
-	}
-	if( results.empty() ) {
-		for( Range< LCDbProject > pr = LCDbProjects::records(); pr.isValid(); ++ pr ) {
-			if( pr->isInCurrentSystem() && !pr -> isCentral() ) {
-				dao.loadBoxes( id, pr -> getID(), results );
-			}
-		}
-	}
-*/
-	// allocate boxes to slots; allow more than one per slot (e.g. during box move)
 	std::multimap< int, Box * > boxes;
 	std::set< int > projects, boxTypes;
 	for( std::vector< ROSETTA >::const_iterator ri = results.begin(); ri != results.end(); ++ ri ) {
@@ -1080,19 +1065,20 @@ Box::Box( int p_id, std::string p_name ) : IPart( p_id, p_name ) {
 }
 
 Box::Box( const ROSETTA &data ) {
-	record_id = data.getIntDefault( "record_id", 0 );
+	if( data.isInt( "box_cid" ) ) {
+		id = data.getInt( "box_cid" );
+	} else {
+		id = data.getIntDefault( "box_id", -1 );
+	}
+	box_type_id = data.getIntDefault( "box_type_cid", -1 );
+	if( data.isInt( "record_id" ) ) {
+		record_id = data.getInt( "record_id" );
+	} else {
+		record_id = data.getIntDefault( "slot_cid", 0 );
+	}
 	rack_cid = data.getIntDefault( "rack_cid", -1 );
 	position = data.getIntDefault( "slot_position", 0 );
 	emptySlots = data.getIntDefault( "box_capacity", -1 );
-
-	if( data.isInt( "box_cid" ) ) {
-		id = data.getInt( "box_cid" );
-	} else if( data.isInt( "box_id" ) ) {
-		id = data.getInt( "box_id" );
-	} else {
-		id = -1;
-	}
-	box_type_id = data.getIntDefault( "box_type_cid", -1 );
 	retrieval_cid = data.getIntDefault( "retrieval_cid", 0 );
 
 	if( data.isString( "external_name" ) ) {
@@ -1746,7 +1732,7 @@ void AvlSite::populate( ) {
 	std::vector< ROSETTA >results;
 	StoreDAO().loadTanks( id, results );
 	std::map< int, AvlTank * > tanks;
-	for( int i = 0; i < results.size(); i++ ) {
+	for( unsigned i = 0; i < results.size(); i++ ) {
 		AvlTank * p = new AvlTank( results[ i ] );
 		p->loadTankDetails( );
 		p->readRackOccupancy();
@@ -1774,7 +1760,7 @@ void AvlTank::readRackOccupancy() {
 	}
 	std::vector< ROSETTA > results;
 	StoreDAO().loadRacks( tank_cid, results );
-	for( int i = 0; i < results.size(); i++ ) {
+	for( unsigned i = 0; i < results.size(); i++ ) {
 		Rack r( results[ i ] );
 		short filled = 1;	// empty racks are not recorded in c_rack_number
 		if( r.getEmptySlots() >= 0 ) {

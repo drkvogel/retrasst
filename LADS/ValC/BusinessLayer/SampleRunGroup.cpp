@@ -27,6 +27,11 @@ bool SampleRunGroup::isQC() const
     return m_isQC;
 }
 
+void SampleRunGroup::listRunIDs( std::vector< std::string >& out ) const
+{
+    out.insert( out.end(), m_members.begin(), m_members.end() );
+}
+
 void SampleRunGroup::push_back( const std::string& sampleRunID )
 {
     m_members.push_back( sampleRunID );

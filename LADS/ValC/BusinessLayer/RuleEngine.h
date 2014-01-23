@@ -123,13 +123,12 @@ class QCResults;
 class ResultAssessmentTask : public stef::Task
 {
 public:
-    ResultAssessmentTask( const UncontrolledResult& result, int errorResultCode, RulesCache* rulesCache, 
+    ResultAssessmentTask( const UncontrolledResult& result, RulesCache* rulesCache, 
         RuleResultPublisher* resultPublisher, paulst::LoggingService* log );
 protected:
     void doStuff();
 private:
     const UncontrolledResult    m_result;
-    const int                   m_errorResultCode;
     RulesCache*                 m_rulesCache;
     RuleResultPublisher*        m_resultPublisher;
     paulst::LoggingService*     m_log;
@@ -145,7 +144,7 @@ public:
 class RuleEngine
 {
 public:
-    RuleEngine( int maxThreads = 10, int errorResultCode = 999 );
+    RuleEngine( int maxThreads = 10 );
     ~RuleEngine();
     void clearRulesCache();
     void queue( const UncontrolledResult& r );
@@ -157,7 +156,6 @@ public:
     */
     void setConnectionFactory( paulstdb::AbstractConnectionFactory* conFac );
     void setDefaultTaskExceptionHandler( stef::TaskExceptionHandler* teh );
-    void setErrorResultCode( int errorCode );
     void setGates( Gates* g );
     void setLog( paulst::LoggingService* l );
     void setQueueListener( RuleEngineQueueListener* l );
@@ -172,7 +170,6 @@ private:
     RuleResultPublisher*        m_publisher;
     RulesCache                  m_rulesCache;
     ConnectionCache             m_connectionCache;
-    int                         m_errorResultCode;
     paulst::LoggingService*     m_log;
     int                         m_pending;
     HANDLE                      m_signalWhenNonPending;

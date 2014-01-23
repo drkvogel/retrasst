@@ -1,4 +1,5 @@
-﻿SELECT  
+﻿
+SELECT  
     s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position,  s1.record_id, c.sample_id, c.aliquot_type_cid,   s1.record_id, c.sample_id, :aliquotID AS aliquot_type_cid,   c.cryovial_barcode,  b1.box_cid as source_id,  b1.external_name as source_name,  s1.tube_position as source_pos,  s2.box_cid as dest_id,  b2.external_name as dest_name,  s2.tube_position as dest_pos 
 FROM  
     cryovial c, cryovial_store s1, box_name b1,  cryovial_store s2, box_name b2 
@@ -12,8 +13,7 @@ WHERE
 ORDER BY  
     cryovial_barcode
     
-    SELECT  
-    count(*) /* returns 1674 for job -363636 (ie. double; no. of primary is 837)
+    SELECT  count(*) /* returns 1674 for job -363636 (ie. double; no. of primary is 837)
 /*    s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position,  s1.record_id, c.sample_id, c.aliquot_type_cid,   s1.record_id, c.sample_id, c.cryovial_barcode,  b1.box_cid as source_id,  b1.external_name as source_name,  s1.tube_position as source_pos,  s2.box_cid as dest_id,  b2.external_name as dest_name,  s2.tube_position as dest_pos */
 FROM  
     cryovial c, cryovial_store s1, box_name b1,  cryovial_store s2, box_name b2 
@@ -24,8 +24,7 @@ WHERE
     s2.status = 0 AND  
     b2.box_cid = s2.box_cid AND  
     s1.retrieval_cid = -363636 
-/* ORDER BY  
-    cryovial_barcode */
+/* ORDER BY cryovial_barcode */
     
     btw how long does this count(*) query take, with no order by, compared to the real thing? is it any faster for not selecting so many columns and not ordering?
     

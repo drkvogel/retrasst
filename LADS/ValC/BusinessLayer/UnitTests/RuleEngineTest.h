@@ -149,7 +149,7 @@ struct PrintRuleResult
     }
 };
 
-valc::RuleResult buildRuleResult( int resultCode, const std::string& rule, const std::string& msg )
+valc::RuleResult buildRuleResult( valc::ResultCode resultCode, const std::string& rule, const std::string& msg )
 {
     valc::RuleResult r;
     r.resultCode = resultCode;
@@ -208,10 +208,9 @@ namespace tut
         valc::MockConfig                m_mockConfig;
         paulst::Config                  m_config;
        
-        RuleEngineTestFixture(int numThreads = 10, int errorResultCode = 999, bool logging = false, 
-            valc::RuleLoaderInterface* ruleLoaderOverride = NULL )
+        RuleEngineTestFixture(int numThreads = 10, bool logging = false, valc::RuleLoaderInterface* ruleLoaderOverride = NULL )
             : 
-            ruleEngine(numThreads, errorResultCode ), 
+            ruleEngine(numThreads ), 
             log( logging ? (paulst::Writer*) new paulst::ConsoleWriter() : (paulst::Writer*)new NoLogging() ),
             m_config( m_mockConfig.toString() )
         {
@@ -284,9 +283,9 @@ namespace tut
                 "   assert( qc.dateAnalysed.sec   == 5  )   \n"
                 "   assert( qc.dateAnalysed.msec  == 10 )   \n"
                 "   local ruleResults = {}                  \n"
-                "   local aResult = {resultCode = 42, rule = 'testRule', msg = 'hello'} \n"
+                "   local aResult = {resultCode = 2, rule = 'testRule', msg = 'hello'} \n"
                 "   table.insert( ruleResults, aResult ) \n"
-                "   local anotherResult = {resultCode = 81, rule = 'testRule2', msg = 'bye'} \n"
+                "   local anotherResult = {resultCode = 1, rule = 'testRule2', msg = 'bye'} \n"
                 "   table.insert( ruleResults, anotherResult ) \n"
                 "   return { ruleResults, 'ok', 72, 'extra info', 99 }         \n"
                 " end " );  
@@ -315,8 +314,8 @@ namespace tut
             std::copy( ruleResults.begin(), ruleResults.end(), std::back_inserter( actualRawResults ) );
             std::sort( actualRawResults.begin(), actualRawResults.end(), compareRuleResults );
             RawResults expectedRawResults;
-            expectedRawResults.push_back( buildRuleResult( 42, "testRule", "hello" ) );
-            expectedRawResults.push_back( buildRuleResult( 81, "testRule2", "bye" ) );
+            expectedRawResults.push_back( buildRuleResult( RESULT_CODE_BORDERLINE, "testRule", "hello" ) );// was 42
+            expectedRawResults.push_back( buildRuleResult( RESULT_CODE_PASS, "testRule2", "bye" ) );// was 81
             std::sort( expectedRawResults.begin(), expectedRawResults.end(), compareRuleResults );
             ensure_equals( "Expect 2 raw results", actualRawResults  .size(), 2U );
             ensure_equals( "Sanity check",         expectedRawResults.size(), 2U );
@@ -431,7 +430,6 @@ namespace tut
         ensure_equals( "expect 1 connection instance closed", connectionsClosed, 1 );
 	}
 
-/*
     template<>
 	template<>
 	void testRuleEngine::test<3>()
@@ -448,12 +446,9 @@ namespace tut
                 "   return { {}, '', 1 }                 \n"
                 " end " );  
 
-        const int ERROR_CODE = 999;
-
 		RuleEngineTestFixture testFixture;
         testFixture.ruleLoader.add( RuleDescriptor( 1, 121, "myRule", "" ), ruleScript );
         testFixture.rulesConfig.specify( 121, 2, 8, 4 );
-        testFixture.ruleEngine.setErrorResultCode( ERROR_CODE );
 
         UncontrolledResult result = aResult();
 
@@ -464,7 +459,7 @@ namespace tut
             
             ensure_equals( testFixture.countResults(), 1U );
             RuleResults ruleResults = testFixture.getResultFor( 6 );
-            ensure_equals( ruleResults.getSummaryResultCode(), ERROR_CODE );
+            ensure_equals( ruleResults.getSummaryResultCode(), RESULT_CODE_ERROR );
             ensure( ruleResults.getSummaryMsg().find("biscuits") != std::string::npos );
         }
         catch( const Exception& e )
@@ -482,10 +477,7 @@ namespace tut
 
 		using namespace valc;
 
-        const int ERROR_CODE = 999;
-
 		RuleEngineTestFixture testFixture;
-        testFixture.ruleEngine.setErrorResultCode( ERROR_CODE );
 
         UncontrolledResult result = aResult();
 
@@ -496,7 +488,7 @@ namespace tut
             
             ensure_equals( testFixture.countResults(), 1U );
             RuleResults ruleResults = testFixture.getResultFor( 6 );
-            ensure_equals( ruleResults.getSummaryResultCode(), ERROR_CODE );
+            ensure_equals( ruleResults.getSummaryResultCode(), RESULT_CODE_ERROR );
         }
         catch( const Exception& e )
         {
@@ -584,7 +576,7 @@ namespace tut
 
 		using namespace valc;
 
-		RuleEngineTestFixture testFixture( 10, 999, false );
+		RuleEngineTestFixture testFixture( 10, false );
   
         const int NUM_RESULTS = 50;
 
@@ -659,7 +651,7 @@ namespace tut
 
         MockRuleLoader ruleLoaderOverride;
 
-		RuleEngineTestFixture testFixture( 10, 999, false, &ruleLoaderOverride );
+		RuleEngineTestFixture testFixture( 10, false, &ruleLoaderOverride );
 
         const char* configScript =
             " local rule                                        \n"
@@ -737,7 +729,7 @@ namespace tut
             " context.msg        = context.msg .. 'x'           \n"
             " return { resultCode = 2, rule = '?', msg = '!' }  \n";
 
-		RuleEngineTestFixture testFixture( 10, 999, false );
+		RuleEngineTestFixture testFixture( 10, false );
         testFixture.ruleLoader.add( RuleDescriptor( 1, 121, "configRule", "" ), configScript );
         testFixture.ruleLoader.add( RuleDescriptor( 2, 122, "a", "" ), rule );
         testFixture.ruleLoader.add( RuleDescriptor( 3, 123, "b", "" ), rule );
@@ -1020,7 +1012,7 @@ namespace tut
             // resultID,barcode,result value, result text, action flag, db name, gate id, mean, stddev, source
             "  6       ,chicken,27.8        , 27.8       , 0          , ldbqc  , 23     , 3.4 , 0.2   , 1,\n" );
                 
-		RuleEngineTestFixture testFixture( 10, 999, false );
+		RuleEngineTestFixture testFixture( 10, false );
         testFixture.ruleLoader.add( RuleDescriptor( 1, 121, "configRule", "" ), ruleConfigScriptApplyingRuleThreeTwoS );
         testFixture.ruleLoader.add( RuleDescriptor( 2, 122, "3:2s"      , "" ), ruleThreeTwoS );
         testFixture.rulesConfig.specify( 121, 2, 8, 4 );
@@ -1071,7 +1063,7 @@ namespace tut
             "  4       ,fish   ,22.8        , 22.8       , 0          , ldbqc  , 25     , 22.8, 0.2   , 1,\n" 
             );
                 
-		RuleEngineTestFixture testFixture( 10, 999, false );
+		RuleEngineTestFixture testFixture( 10, false );
         testFixture.ruleLoader.add( RuleDescriptor( 1, 121, "configRule", "" ), ruleConfigScriptApplyingRuleThreeTwoS );
         testFixture.ruleLoader.add( RuleDescriptor( 2, 122, "3:2s"      , "" ), ruleThreeTwoS );
         testFixture.rulesConfig.specify( 121, 2, 8, 4 );
@@ -1121,7 +1113,7 @@ namespace tut
             "  4       ,fish   ,22.8        , 22.8       , 0          , ldbqc  , 25     , 21.8, 0.2   , 1,\n" 
             );
                 
-		RuleEngineTestFixture testFixture( 10, 999, false );
+		RuleEngineTestFixture testFixture( 10, false );
         testFixture.ruleLoader.add( RuleDescriptor( 1, 121, "configRule", "" ), ruleConfigScriptApplyingRuleThreeTwoS );
         testFixture.ruleLoader.add( RuleDescriptor( 2, 122, "3:2s"      , "" ), ruleThreeTwoS );
         testFixture.rulesConfig.specify( 121, 2, 8, 4 );
@@ -1171,7 +1163,7 @@ namespace tut
             "  4       ,fish   ,20.8        , 20.8       , 0          , ldbqc  , 25     , 21.8, 0.2   , 1,\n" 
             );
                 
-		RuleEngineTestFixture testFixture( 10, 999, false );
+		RuleEngineTestFixture testFixture( 10, false );
         testFixture.ruleLoader.add( RuleDescriptor( 1, 121, "configRule", "" ), ruleConfigScriptApplyingRuleThreeTwoS );
         testFixture.ruleLoader.add( RuleDescriptor( 2, 122, "3:2s"      , "" ), ruleThreeTwoS );
         testFixture.rulesConfig.specify( 121, 2, 8, 4 );
@@ -1198,7 +1190,6 @@ namespace tut
             ensure( ansiStr.c_str(), false );
         }
     }
-*/
 };
 
 #endif

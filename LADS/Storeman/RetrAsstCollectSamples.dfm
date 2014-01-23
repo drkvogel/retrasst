@@ -151,7 +151,6 @@ object frmProcess: TfrmProcess
       Caption = 'Accept'
       TabOrder = 0
       OnClick = btnAcceptClick
-      ExplicitLeft = 571
     end
     object btnSkip: TButton
       Left = 796
@@ -162,7 +161,6 @@ object frmProcess: TfrmProcess
       Caption = 'Skip'
       TabOrder = 1
       OnClick = btnSkipClick
-      ExplicitLeft = 721
     end
     object editBarcode: TEdit
       Left = 159
@@ -207,8 +205,6 @@ object frmProcess: TfrmProcess
       Caption = 'Not Found'
       TabOrder = 5
       OnClick = btnNotFoundClick
-      ExplicitLeft = 676
-      ExplicitTop = 14
     end
   end
   object Chunks: TGroupBox

@@ -511,12 +511,13 @@ private:
     string             getAliquotDescription(int primary_aliquot);
     string             getAuditInfo(int process_cid);
     void               debugLog(String s);
+    map<int, const SampleRow *> storageCache;
 protected:
 
 public:
     __fastcall TfrmRetrievalAssistant(TComponent* Owner);
     void init();
-    map<int, const SampleRow *> storageCache;
+    void               clearStorageCache();
     void               getStorage(SampleRow * sample);
 };
 

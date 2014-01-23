@@ -3,6 +3,7 @@
 
 #include <boost/foreach.hpp>
 #include <deque>
+#include "MockSampleRunGroupIDGenerator.h"
 #include "Nullable.h"
 #include "Require.h"
 #include "SampleRunGroupModel.h"
@@ -13,40 +14,14 @@ enum SampleRunType { SRT_UNK, SRT_QC };
 
 typedef paulst::Nullable<int> GroupID;
 
-
-class MockIDGenerator : public valc::SampleRunGroupIDGenerator
-{
-private:
-    std::deque<int>     m_sequence;
-
-public:
-
-    MockIDGenerator()
-    {
-    }
-
-    void prime( int id )
-    {
-        m_sequence.push_back( id );
-    }
-
-    int nextID()
-    {
-        require( m_sequence.size() );
-        int id = m_sequence.front();
-        m_sequence.pop_front();
-        return id;
-    }
-};
-
 namespace tut
 {
 	struct SampleRunGroupModelTestFixture
     {
     private: 
-        int                 sequencePos;
-        MockIDGenerator*    mockIDGenerator;
-        int                 lastBuilt;
+        int                             sequencePos;
+        MockSampleRunGroupIDGenerator*  mockIDGenerator;
+        int                             lastBuilt;
     public:
         valc::SampleRuns            sampleRuns;
         valc::SampleRunGroupModel   model;
@@ -54,7 +29,7 @@ namespace tut
         SampleRunGroupModelTestFixture()
             : 
             sequencePos(0),
-            mockIDGenerator( new MockIDGenerator() ),
+            mockIDGenerator( new MockSampleRunGroupIDGenerator() ),
             model(mockIDGenerator),
             lastBuilt(0)
         {

@@ -24,7 +24,7 @@
 
 using namespace std;
 
-const bool MYDEBUG =
+const bool REFBOXESDEBUG =
 #ifdef _DEBUG
     true;
 #else
@@ -56,6 +56,7 @@ public:
 
 class BoxArrivalRecord : public BoxRecord {
 public:
+    int         record_no;
 	int         laptop_cid;
 	int         process_cid;
 	int         box_arrival_id;
@@ -75,9 +76,10 @@ public:
 
     BoxArrivalRecord() {}
     BoxArrivalRecord
-		(int ltid, int psid, int baid, int pjid, TDateTime stime, string bname, int st,
+		(int recn, int ltid, int psid, int baid, int pjid, TDateTime stime, string bname, int st,
 		string firstbar, int firstpos, string lastbar, int lastpos,
 		int tankid, string racknum, int rackslot, TDateTime tstamp) :
+        record_no(recn),
         laptop_cid(ltid), process_cid(psid), box_arrival_id (baid), swipe_time(stime), status(st),
         tank_cid(tankid), rack_name(racknum), slot_position(rackslot), time_stamp(tstamp), changed(false)
     {

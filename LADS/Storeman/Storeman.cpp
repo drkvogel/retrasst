@@ -13,6 +13,9 @@
 
 
 
+
+
+
 USEFORM("RationaliseTanks\RatTanksCreateRetrievalJob.cpp", frmRatTankCreateRetrievalJob);
 USEFORM("RationaliseTanks\RatTanksCreateExercise.cpp", frmRatTanksRetrivalExercise);
 USEFORM("NewType.cpp", frmNewStoreType);
@@ -36,17 +39,12 @@ USEFORM("NewSite.cpp", frmNewSite);
 USEFORM("NewExercise.cpp", frmNewExercise);
 USEFORM("MoveJobs.cpp", frmSelectJob);
 USEFORM("NewBoxType.cpp", frmNewBoxType);
-USEFORM("RetrAsstMain.cpp", frmRetrievalAssistant);
 USEFORM("Storemain.cpp", frmStoremain);
 USEFORM("SMLogin.cpp", frmSMLogin);
 USEFORM("SampleMove.cpp", frmMove);
 USEFORM("SelectSamples.cpp", frmSelectBoxes);
 USEFORM("showsamples.cpp", frmAliquotTypes);
 USEFORM("RetrievalLists\RetrievalListCryovialHistoryDialog.cpp", frmRetrievalListCryovialHistoryDialog);
-USEFORM("RetrAsstPlanSamples.cpp", frmSamples);
-USEFORM("RetrAsstPlanBoxes.cpp", frmBoxes);
-USEFORM("RetrAsstCollectSamples.cpp", frmProcess);
-USEFORM("RetrAsstCollectBoxes.cpp", frmProcessBoxes);
 USEFORM("RetrievalLists\RetrievalListResultsDialog.cpp", frmRetrievalListResultsDialog);
 USEFORM("RetrieveSamples.cpp", frmRetrieved);
 USEFORM("SampleEntry.cpp", frmRetrieveMain);
@@ -65,6 +63,11 @@ USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
 USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
 USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
 USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
+USEFORM("RetrAsstCollectBoxes.cpp", frmProcessBoxes);
+USEFORM("RetrAsstCollectSamples.cpp", frmProcess);
+USEFORM("RetrAsstMain.cpp", frmRetrievalAssistant);
+USEFORM("RetrAsstPlanBoxes.cpp", frmBoxes);
+USEFORM("RetrAsstPlanSamples.cpp", frmSamples);
 //---------------------------------------------------------------------------
 WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
@@ -101,14 +104,9 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmFind), &frmFind);
          Application->CreateForm(__classid(TfrmSelectBoxes), &frmSelectBoxes);
          Application->CreateForm(__classid(TfrmReferredBoxesSummary), &frmReferredBoxesSummary);
-         Application->CreateForm(__classid(TfrmRetrievalAssistant), &frmRetrievalAssistant);
-         Application->CreateForm(__classid(TfrmBoxes), &frmBoxes);
-         Application->CreateForm(__classid(TfrmProcess), &frmProcess);
-         Application->CreateForm(__classid(TfrmSamples), &frmSamples);
          Application->CreateForm(__classid(TfrmReferred), &frmReferred);
          Application->CreateForm(__classid(TfrmNewStoreType), &frmNewStoreType);
          Application->CreateForm(__classid(TfrmNewBoxType), &frmNewBoxType);
-         Application->CreateForm(__classid(TfrmProcessBoxes), &frmProcessBoxes);
          Application->CreateForm(__classid(TfrmProcessBoxes), &frmProcessBoxes);
          Application->CreateForm(__classid(TfrmProcessBoxes), &frmProcessBoxes);
          Application->CreateForm(__classid(TfrmRatTanksBoxType), &frmRatTanksBoxType);
@@ -121,6 +119,11 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmRetrievalListCryovialHistoryDialog), &frmRetrievalListCryovialHistoryDialog);
          Application->CreateForm(__classid(TfrmRetrievalListViewListMain), &frmRetrievalListViewListMain);
          Application->CreateForm(__classid(TfrmRetrievalListResultNotesDialog), &frmRetrievalListResultNotesDialog);
+         Application->CreateForm(__classid(TfrmProcessBoxes), &frmProcessBoxes);
+         Application->CreateForm(__classid(TfrmProcess), &frmProcess);
+         Application->CreateForm(__classid(TfrmRetrievalAssistant), &frmRetrievalAssistant);
+         Application->CreateForm(__classid(TfrmBoxes), &frmBoxes);
+         Application->CreateForm(__classid(TfrmSamples), &frmSamples);
          Application->Run();
 	}
 	catch (Exception &exception)

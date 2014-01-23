@@ -75,7 +75,7 @@ namespace tut
         }
     };
 
-    typedef test_group<ForceReloadTestFixture, 26> ForceReloadTestGroup;
+    typedef test_group<ForceReloadTestFixture, 27> ForceReloadTestGroup;
 	ForceReloadTestGroup testGroupForceReload( "ForceReload tests");
 	typedef ForceReloadTestGroup::object testForceReload;
 
@@ -84,7 +84,6 @@ namespace tut
 		valc::Range<valc::TestResultIterator> range = wle->getTestResults();
 		ensure( std::distance( range.first, range.second ) == numExpected );
 	}
-
 
 	template<>
 	template<>
@@ -911,11 +910,7 @@ namespace tut
                     " end                                               |\n",
                 &pipeSeparatedFieldValues) );
  
-        ForceReloadTestFixture s( false, true );
-
-        s.config.edit( "RuleEngineErrorCode", "94949494" );
-
-        s.init();
+        ForceReloadTestFixture s( true );
 
         LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
 		ensure_equals( std::distance( begin, end ), 1 );
@@ -932,121 +927,121 @@ namespace tut
 
         ensure( s->hasRuleResults( resultID ) );
         RuleResults rr = s->getRuleResults( resultID );
-        ensure_equals( rr.getSummaryResultCode(), 94949494 );
+        ensure_equals( rr.getSummaryResultCode(), RESULT_CODE_ERROR );
     }
 
-    template<>
-	template<>
-	void testForceReload::test<17>()
-	{
-    	set_test_name("ForceReload - multiple result rules");
+  template<>
+  template<>
+  void testForceReload::test<17>()
+  {
+  	set_test_name("ForceReload - multiple result rules");
 
-		using namespace valc;
+  	using namespace valc;
 
-        MockConnectionFactory::reset();
+      MockConnectionFactory::reset();
 
-		MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
-		MockConnectionFactory::prime( PROJECTS_QRY, "-1234,QCs,ldbqc,\n" );
-		MockConnectionFactory::prime( WORKLIST_QRY,
+  	MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+  	MockConnectionFactory::prime( PROJECTS_QRY, "-1234,QCs,ldbqc,\n" );
+  	MockConnectionFactory::prime( WORKLIST_QRY,
 //rec  machine   barcode    test    grp c samp prj p prof                              time               seq s dil   result
 "-36845,-1019349,QCRC100355,-1031390,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,14,C,0.000,882431,\n"
 "-36847,-1019349,QCRC100355,-1031388,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,12,C,0.000,882429,\n"
 "-36846,-1019349,QCRC100355,-1031389,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,13,C,0.000,882430,\n"
 "-36848,-1019349,QCRC100355,-1031386,0,0,0,-1234,0,Randox custom QC QC level 1 707UNCM,27-06-2013 10:57:49,10,C,0.000,882427,\n" );
 
-		MockConnectionFactory::prime( BUDDYDB_QRY,
+   	MockConnectionFactory::prime( BUDDYDB_QRY,
 //bsid ,barcode  ,date analysed      ,dbname,sample,machine ,res id,test id ,result ,a,date analysed ,restx,update when        ,
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882431,-1031390,1.850  ,0,27-06-2013 11:57:47,1.85 ,27-06-2013 10:57:49,0,,\n"
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882429,-1031388,0.960  ,0,27-06-2013 11:57:47,0.96 ,27-06-2013 10:57:49,0,,\n"
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882427,-1031386,57.100 ,0,27-06-2013 11:57:47,57.1 ,27-06-2013 10:57:49,0,,\n"
 "882290,QCRC100355,27-06-2013 11:42:36,ldbqc,0,-1019349,882430,-1031389,2.360  ,0,27-06-2013 11:57:47,2.36 ,27-06-2013 10:57:49,0,,\n" );
 
-        MockConnectionFactory::prime( RULECONFIG_QRY,
-               "-1031390,-1019349,-1234,1,\n" 
-               "-1031388,-1019349,-1234,2,\n" 
-               "-1031389,-1019349,-1234,3,\n" 
-               "-1031386,-1019349,-1234,4,\n" );
+       MockConnectionFactory::prime( RULECONFIG_QRY,
+              "-1031390,-1019349,-1234,1,\n" 
+              "-1031388,-1019349,-1234,2,\n" 
+              "-1031389,-1019349,-1234,3,\n" 
+              "-1031386,-1019349,-1234,4,\n" );
 
-        const char* ruleConfigTemplate =
-                "\%d|\%d|configRule\%d|config rule \%d|             "
-                " loadedRules = {}                                  "
-                "                                                   "
-                " context = {}                                      "
-                "                                                   "
-                " ruleNames = { \%s }                               "
-                "                                                   "
-                " function onLoad(loadFunc)                         "
-                "   for i, ruleName in ipairs(ruleNames) do         "
-                "      local script = loadFunc(ruleName)            "
-                "      loadedRules[ruleName] = load(script)         "
-                "   end                                             "
-                " end                                               "
-                "                                                   "
-                " function applyRules( qc )                         "
-                "   context.total = 0                               "
-                "   local results = {}                              "
-                "   for name, rule in pairs(loadedRules) do         "
-                "     local result = rule()                         "
-                "     table.insert( results, result )               "
-                "   end                                             "
-                "   return { results, 'msg', context.total }        "
-                " end                                               |\n";
- 
-        MockConnectionFactory::prime( RULES_QRY, SerializedRecordset( 
-            paulst::format( ruleConfigTemplate, 10, 1, 1, 1, "'plus1','plus5'" ) +
-            paulst::format( ruleConfigTemplate, 20, 2, 2, 2, "'plus4','plus6'" ) +
-            paulst::format( ruleConfigTemplate, 30, 3, 3, 3, "'plus3','plus1'" ) +
-            paulst::format( ruleConfigTemplate, 40, 4, 4, 4, "'plus6','plus7'" ) +
-                std::string(
-                "101|5|plus1|plus 1| context.total = context.total + 1  return { resultCode = 1, rule = 'plus1', msg = 'OK' }|\n"
-                "109|6|plus2|plus 2| context.total = context.total + 2  return { resultCode = 2, rule = 'plus2', msg = 'OK' }|\n"
-                "102|7|plus3|plus 3| context.total = context.total + 3  return { resultCode = 3, rule = 'plus3', msg = 'OK' }|\n"
-                "107|8|plus4|plus 4| context.total = context.total + 4  return { resultCode = 4, rule = 'plus4', msg = 'OK' }|\n"
-                "103|9|plus5|plus 5| context.total = context.total + 5  return { resultCode = 5, rule = 'plus5', msg = 'OK' }|\n"
-                "105|10|plus6|plus 6| context.total = context.total + 6  return { resultCode = 6, rule = 'plus6', msg = 'OK' }|\n"
-                "108|11|plus7|plus 7| context.total = context.total + 7  return { resultCode = 7, rule = 'plus7', msg = 'OK' }|\n"),
-                &pipeSeparatedFieldValues) );
- 
-        ForceReloadTestFixture s( true, true );
+       const char* ruleConfigTemplate =
+               "\%d|\%d|configRule\%d|config rule \%d|             "
+               " loadedRules = {}                                  "
+               "                                                   "
+               " context = {}                                      "
+               "                                                   "
+               " ruleNames = { \%s }                               "
+               "                                                   "
+               " function onLoad(loadFunc)                         "
+               "   for i, ruleName in ipairs(ruleNames) do         "
+               "      local script = loadFunc(ruleName)            "
+               "      loadedRules[ruleName] = load(script)         "
+               "   end                                             "
+               " end                                               "
+               "                                                   "
+               " function applyRules( qc )                         "
+               "   context.total = 0                               "
+               "   local results = {}                              "
+               "   for name, rule in pairs(loadedRules) do         "
+               "     local result = rule()                         "
+               "     table.insert( results, result )               "
+               "   end                                             "
+               "   return { results, 'msg', context.total }        "
+               " end                                               |\n";
 
-        LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
+       MockConnectionFactory::prime( RULES_QRY, SerializedRecordset( 
+           paulst::format( ruleConfigTemplate, 10, 1, 1, 1, "'plus1','plus5'" ) +
+           paulst::format( ruleConfigTemplate, 20, 2, 2, 2, "'plus4','plus6'" ) +
+           paulst::format( ruleConfigTemplate, 30, 3, 3, 3, "'plus3','plus1'" ) +
+           paulst::format( ruleConfigTemplate, 40, 4, 4, 4, "'plus6','plus7'" ) +
+               std::string(
+               "101|5|plus1|plus 1| context.total = context.total + 1  return { resultCode = 1, rule = 'plus1', msg = 'OK' }|\n"
+               "109|6|plus2|plus 2| context.total = context.total + 2  return { resultCode = 2, rule = 'plus2', msg = 'OK' }|\n"
+               "102|7|plus3|plus 3| context.total = context.total + 3  return { resultCode = 3, rule = 'plus3', msg = 'OK' }|\n"
+               "107|8|plus4|plus 4| context.total = context.total + 4  return { resultCode = 4, rule = 'plus4', msg = 'OK' }|\n"
+               "103|9|plus5|plus 5| context.total = context.total + 5  return { resultCode = 5, rule = 'plus5', msg = 'OK' }|\n"
+               "105|10|plus6|plus 6| context.total = context.total + 6  return { resultCode = 6, rule = 'plus6', msg = 'OK' }|\n"
+               "108|11|plus7|plus 7| context.total = context.total + 7  return { resultCode = 7, rule = 'plus7', msg = 'OK' }|\n"),
+               &pipeSeparatedFieldValues) );
 
-		ensure_equals( std::distance( begin, end ), 1 );
+       ForceReloadTestFixture s( true, true );
 
-        LocalRun lr = *begin;
+       LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
 
-        Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
+       ensure_equals( std::distance( begin, end ), 1 );
 
-        ensure_equals( std::distance( wles.first, wles.second ), 4U );
+       LocalRun lr = *begin;
 
-        std::map< int, int > expectedResults;
+       Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
-        expectedResults[882431] = /*testID -1031390, configRule1*/ 6  /*plus1 plus5*/;
-        expectedResults[882429] = /*testID -1031388, configRule2*/ 10 /*plus4 plus6*/;
-        expectedResults[882427] = /*testID -1031386, configRule4*/ 13 /*plus6 plus7*/;
-        expectedResults[882430] = /*testID -1031389, configRule3*/ 4  /*plus3 plus1*/;
+       ensure_equals( std::distance( wles.first, wles.second ), 4U );
 
-        std::map< int, int > expectedRuleRecordIDs;
+       std::map< int, int > expectedResults;
 
-        expectedRuleRecordIDs[882431] = /*configRule1*/ 10;
-        expectedRuleRecordIDs[882429] = /*configRule2*/ 20;
-        expectedRuleRecordIDs[882427] = /*configRule4*/ 40;
-        expectedRuleRecordIDs[882430] = /*configRule3*/ 30;
+       expectedResults[882431] = /*testID -1031390, configRule1*/ 6  /*plus1 plus5*/;
+       expectedResults[882429] = /*testID -1031388, configRule2*/ 10 /*plus4 plus6*/;
+       expectedResults[882427] = /*testID -1031386, configRule4*/ 13 /*plus6 plus7*/;
+       expectedResults[882430] = /*testID -1031389, configRule3*/ 4  /*plus3 plus1*/;
 
-        for ( WorklistEntryIterator i = wles.first; i != wles.second; ++i )
-        {
-            const WorklistEntry* wle = *i;
-            const TestResult* tr = testResultFor(wle);
-            const int resultID = tr->getID();
+       std::map< int, int > expectedRuleRecordIDs;
 
-            ensure( s->hasRuleResults( resultID ) );
-            RuleResults rr = s->getRuleResults( resultID );
-            ensure_equals( rr.getSummaryResultCode(), expectedResults[resultID] );
+       expectedRuleRecordIDs[882431] = /*configRule1*/ 10;
+       expectedRuleRecordIDs[882429] = /*configRule2*/ 20;
+       expectedRuleRecordIDs[882427] = /*configRule4*/ 40;
+       expectedRuleRecordIDs[882430] = /*configRule3*/ 30;
 
-            RuleDescriptor rd = rr.getRuleDescriptor();
-            ensure_equals( rd.getRecordID(), expectedRuleRecordIDs[resultID] );
-        }
-    }
+       for ( WorklistEntryIterator i = wles.first; i != wles.second; ++i )
+       {
+           const WorklistEntry* wle = *i;
+           const TestResult* tr = testResultFor(wle);
+           const int resultID = tr->getID();
+
+           ensure( s->hasRuleResults( resultID ) );
+           RuleResults rr = s->getRuleResults( resultID );
+           ensure_equals( rr.getSummaryResultCode(), expectedResults[resultID] );
+
+           RuleDescriptor rd = rr.getRuleDescriptor();
+           ensure_equals( rd.getRecordID(), expectedRuleRecordIDs[resultID] );
+       }
+   }
 
     template<>
 	template<>
@@ -1533,6 +1528,83 @@ namespace tut
         LocalRun lr = *localRuns;
 
         ensure_equals( lr.getGroupID(), 87 );
+    }
+ 
+    template<>
+	template<>
+	void testForceReload::test<27>()
+	{
+		set_test_name("ForceReload - ControlStatus");
+
+        using namespace valc;
+
+        MockConnectionFactory::reset();
+
+        MockConnectionFactory::prime( CLUSTERS_QRY, "-1019430,\n" );
+
+        MockConnectionFactory::prime( PROJECTS_QRY, 
+            "-1234  ,QCs   ,ldbqc,\n"
+            "-832455,reveal,ldb25,\n" 
+            );
+
+        MockConnectionFactory::prime( WORKLIST_QRY, 
+//rec  machine  barcode,test,group     c sample project p prof                  timestamp           seq s dil  result
+"11,-1019349,QCRC100355,8888,0        ,0,     0,-1234  ,0,Randox QC level 1    ,27-06-2013 10:10:10,14,C,0.000,31,\n"
+"12,-1019430,118507091 ,8888,-12750394,0,432560,-832455,0,EDTA_1 analysis other,27-06-2013 10:10:10,14,C,0.000,32,\n" 
+"13,-1019349,QCRC100355,8888,0        ,0,     0,-1234  ,0,Randox QC level 1    ,27-06-2013 10:10:10,14,C,0.000,33,\n"
+"14,-1019430,118507092 ,8888,-12750394,0,432561,-832455,0,EDTA_1 analysis other,27-06-2013 10:10:10,14,C,0.000,34,\n" 
+"15,-1019349,QCRC100355,8888,0        ,0,     0,-1234  ,0,Randox QC level 1    ,27-06-2013 10:10:10,14,C,0.000,35,\n"
+);
+
+        MockConnectionFactory::prime( BUDDYDB_QRY,
+//bsid ,barcode  ,date analysed      ,dbname,sample,mac  ,res,test,res ,a,date analysed      ,restx,update when      ,cbw
+"21,QCRC100355,27-06-2013 10:10:10,ldbqc ,     0,-1019349,31 ,8888,1.3 ,0,27-06-2013 10:10:10,1.3,27-06-2013 10:10:10,0,,\n"
+"22,118507091 ,27-06-2013 10:10:10,REVEAL,432560,-1019349,32 ,8888,1.3 ,0,27-06-2013 10:10:10,1.3,27-06-2013 10:10:10,0,,\n"
+"23,QCRC100355,27-06-2013 10:10:10,ldbqc ,     0,-1019349,33 ,8888,1.3 ,0,27-06-2013 10:10:10,1.3,27-06-2013 10:10:10,0,,\n"
+"24,118507092 ,27-06-2013 10:10:10,REVEAL,432561,-1019349,34 ,8888,1.3 ,0,27-06-2013 10:10:10,1.3,27-06-2013 10:10:10,0,,\n"
+"25,QCRC100355,27-06-2013 10:10:10,ldbqc ,     0,-1019349,35 ,8888,113 ,0,27-06-2013 10:10:10,113,27-06-2013 10:10:10,0,,\n"
+ );
+
+        MockConnectionFactory::prime( RULECONFIG_QRY, "8888,-1019349,-1234,121,\n" );
+
+        MockConnectionFactory::prime( RULES_QRY, SerializedRecordset( 
+                "1|121|configRule|a configuration rule|"
+                    "                                               "
+                    " function onLoad(loadFunc)  end                "
+                    "                                               "
+                    " function applyRules( qc )                     "
+                    "   local result = { resultCode = PASS, msg = '', rule='rule' } "
+                    "   if ( qc.resultValue > 10 ) then result.resultCode = FAIL end "
+                    "   return { { result }, 'msg', result.resultCode }          "
+                    " end                                        |\n",
+                &pipeSeparatedFieldValues) );
+ 
+
+        try
+        {
+            ForceReloadTestFixture s( true );
+
+            ensure_equals( "There should be 5 sample runs", s.numLocalRuns(), 5U );
+
+            std::vector< LocalRun > localRuns;
+
+            std::copy( LocalRunIterator( s->localBegin(), s->localEnd() ), LocalRunIterator(), std::back_inserter( localRuns ) );
+
+            ensure_equals( localRuns.size(), 5U );
+
+		    Range<WorklistEntryIterator> wles = s->getWorklistEntries( localRuns[1].getSampleDescriptor() );
+
+            ensure_equals( testResultFor( worklistEntry( wles, 12 ) )->getControlStatus().summaryCode(), CONTROL_STATUS_PASS );
+
+		    wles = s->getWorklistEntries( localRuns[3].getSampleDescriptor() );
+
+            ensure_equals( testResultFor( worklistEntry( wles, 14 ) )->getControlStatus().summaryCode(), CONTROL_STATUS_FAIL );
+        }
+        catch( const Exception& e )
+        {
+            wprintf( e.Message.c_str() );
+            ensure( false );
+        }
     }
  
 };
