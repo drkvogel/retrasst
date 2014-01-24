@@ -27,7 +27,7 @@ public:
     string          loadingMessage;
     string          debugMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
-    void __fastcall debugLog(); // synchronized methods can't have args
+    void __fastcall debugLog();
     void __fastcall msgbox();
     bool stats;
 };
@@ -42,7 +42,7 @@ public:
     string          loadingMessage;
     string          debugMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
-    void __fastcall debugLog(); // synchronized methods can't have args
+    void __fastcall debugLog();
     void __fastcall msgbox();
     bool stats;
 };
@@ -104,20 +104,17 @@ __published:
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
     void __fastcall FormResize(TObject *Sender);
-    //void __fastcall btnSecondaryClick(TObject *Sender);
-
+    void __fastcall sgVialsClick(TObject *Sender);
 private:
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
     vector< Chunk< SampleRow > *>               chunks;
     vecpSampleRow                               vials;
-    //std::auto_ptr< StringGridWrapper< Chunk< SampleRow > > >  sgwChunks;
-    StringGridWrapper< Chunk< SampleRow > > *   sgwChunks;
+    StringGridWrapper< Chunk< SampleRow > > *   sgwChunks; //std::auto_ptr< StringGridWrapper< Chunk< SampleRow > > >  sgwChunks;
     StringGridWrapper<SampleRow> *              sgwVials;
     void                                        getStorage(SampleRow * sample);
     void                                        showChunks();
-    //void                                        loadChunk(Chunk< SampleRow > *);
     void                                        loadChunk();
     Chunk< SampleRow > *                        currentChunk();
     SampleRow *                                 currentSample();
@@ -125,19 +122,17 @@ private:
     void                                        fillRow(SampleRow * sampleRow, int rw);
     void                                        loadRows();
     void                                        addChunk(int row);
-    //void                                        addChunks();
-    void                                        process();
     void                                        showCurrentRow();
-    //void                                        showRowDetails(SampleRow * sample);
     void                                        showDetails(SampleRow * sample);
     void                                        accept(String barcode);
+    void                                        notFound();
+    void                                        skip();
     void                                        nextRow();
     void                                        exit();
     const char *                                loadingMessage;
     void                                        debugLog(String s);
     bool destroying;
     string tempTableName;
-    //map<int, const SampleRow *> storageCache;
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);

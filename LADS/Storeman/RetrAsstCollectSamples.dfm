@@ -60,6 +60,7 @@ object frmProcess: TfrmProcess
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect]
       ParentDoubleBuffered = False
       TabOrder = 0
+      OnClick = sgVialsClick
       OnDrawCell = sgVialsDrawCell
     end
     object panelLoading: TPanel
@@ -89,7 +90,7 @@ object frmProcess: TfrmProcess
       Caption = 'panelDebug'
       TabOrder = 2
       object Splitter2: TSplitter
-        Left = 665
+        Left = 1
         Top = 1
         Height = 85
         ExplicitLeft = 864
@@ -97,24 +98,30 @@ object frmProcess: TfrmProcess
         ExplicitHeight = 100
       end
       object memoDebug: TMemo
-        Left = 1
+        Left = 4
         Top = 1
-        Width = 664
+        Width = 864
         Height = 85
-        Align = alLeft
+        Align = alClient
         DoubleBuffered = False
         ParentDoubleBuffered = False
         ScrollBars = ssVertical
         TabOrder = 0
+        ExplicitLeft = 1
+        ExplicitWidth = 664
       end
       object btnSimAccept: TButton
-        Left = 736
-        Top = 8
+        Left = 868
+        Top = 1
         Width = 75
-        Height = 25
+        Height = 85
+        Align = alRight
         Caption = 'Sim Accept'
         TabOrder = 1
         OnClick = btnSimAcceptClick
+        ExplicitLeft = 736
+        ExplicitTop = 8
+        ExplicitHeight = 25
       end
     end
   end

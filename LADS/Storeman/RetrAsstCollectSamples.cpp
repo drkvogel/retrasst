@@ -9,11 +9,27 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
+/*
+ * Work through list or sub-section by giving the storage location and sample ID of each sample on the list in the order saved above (REQ 8.3.8);
+ * As each sample is retrieved its barcode should be scanned, if the scanned barcode matches that on the list
+the destination location should be displayed and the next ID/location should be displayed (REQ 8.3.9)
+ * if the ID’s do not match a warning should be displayed and re-entry of the barcode required (REQ 8.3.10).
+     what if it's the wrong sample, or it's missing? handle this
+ * When working through the list the previous five successfully entered ID’s should always be visible (REQ 8.3.11).
+ * The option to exit the process saving progress should be offered, with an “are you sure?” message in case of accidental selection (REQ 8.3.12).
+
+extra:
+ * if, at the end of processing a chunk, there are any source boxes which have become empty, the user may want to discard them instead of replacing them.
+   if so, provide an option to discard these empty boxes, recording it in the database
+
+ destination box+position, cryovial barcode and current box+position+structure+location of the primary and secondary aliquots.
+
+*/
+
 TfrmProcess *frmProcess;
 
 __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     destroying = false;
-
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  60);
     sgwChunks->addCol("status",   "Status",   91);
@@ -26,7 +42,6 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwChunks->addCol("endvial",  "Vial",     150);
     sgwChunks->addCol("size",     "Size",     87);
     sgwChunks->init();
-
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
     sgwVials->addCol("barcode",  "Barcode",          91);
     sgwVials->addCol("site",     "Site",             90);
@@ -56,6 +71,7 @@ __fastcall TfrmProcess::~TfrmProcess() {
 void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     cbLog->Checked      = RETRASSTDEBUG;
+    sgVials->Enabled    = RETRASSTDEBUG;
     panelDebug->Visible = cbLog->Checked;
     job                 = NULL;
     loadingMessage = "Loading retrieval list, please wait...";
@@ -179,31 +195,6 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
     }
 }
 
-void __fastcall TfrmProcess::editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
-    if (VK_RETURN == Key) {
-        accept(editBarcode->Text);
-    }
-}
-
-void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after* FormDestroy
-    if (!destroying) {
-        sgwChunks->resize(); // in case has been deleted in FormDestroy
-        sgwVials->resize();
-    }
-}
-
-void __fastcall TfrmProcess::cbLogClick(TObject *Sender) {
-    panelDebug->Visible = cbLog->Checked;
-}
-
-void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) {
-    exit();
-}
-
-void __fastcall TfrmProcess::btnExitClick(TObject *Sender) {
-    exit();
-}
-
 void __fastcall TfrmProcess::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
     ostringstream oss; oss << __FUNC__; oss<<sgwChunks->printColWidths()<<" clicked on col: "<<ACol<<"."; //debugLog(oss.str().c_str());
 }
@@ -212,10 +203,50 @@ void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
     int row = sgChunks->Row;
     if (row < 1) return;
     Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
-    //timerLoadPlan->Enabled = true;
-    //loadChunk(chunk);
     showChunk(chunk);
 }
+
+void __fastcall TfrmProcess::sgVialsClick(TObject *Sender) { // show details in debug window
+    SampleRow * sample = (SampleRow *)sgVials->Objects[0][sgVials->Row];
+    DEBUGSTREAM(__FUNC__
+        <<" retrieval_status: "<<sample->retrieval_record->getStatus()
+        <<" ("<<sample->retrieval_record->statusString(sample->retrieval_record->getStatus())<<")"
+        <<", cryo_status: "<<sample->cryo_record->getStatus()
+        <<", store_status: "<<sample->store_record->getStatus()
+        <<", barcode: "<<sample->cryovial_barcode.c_str()
+        <<", storage: "<<sample->storage_str().c_str()
+        <<", dest: "<<sample->dest_str().c_str()
+        )
+    //sample->retrieval_record->getStatus();
+    //int row = sgVials->Row; sgVials->Row = row; // how to put these before and after to save row clicked on?
+}
+
+void __fastcall TfrmProcess::editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
+    if (VK_RETURN == Key) { accept(editBarcode->Text); }
+}
+
+void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after* FormDestroy
+    if (!destroying) { // check in case pointers have been deleted in FormDestroy
+        sgwChunks->resize(); sgwVials->resize();
+    }
+}
+
+void __fastcall TfrmProcess::cbLogClick(TObject *Sender) { panelDebug->Visible = cbLog->Checked; }
+
+void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) { exit(); }
+
+void __fastcall TfrmProcess::btnExitClick(TObject *Sender) { exit(); }
+
+void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) { accept(editBarcode->Text); }
+
+void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) { // simulate a correct barcode scanned
+    editBarcode->Text = currentChunk()->rowAt(currentChunk()->getCurrentRow())->cryovial_barcode.c_str();
+    btnAcceptClick(this);
+}
+
+void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) { notFound(); }
+
+void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) { skip(); }
 
 void TfrmProcess::showChunks() {
     if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
@@ -274,8 +305,6 @@ void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
 }
 
 void TfrmProcess::fillRow(SampleRow * sampleRow, int rw) {
-    LPDbCryovial *      vial    = sampleRow->cryo_record;
-    LPDbCryovialStore * store   = sampleRow->store_record;
     sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
     sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = sampleRow->retrieval_record->statusString(sampleRow->retrieval_record->getStatus());
     sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquotName().c_str();
@@ -293,31 +322,9 @@ void TfrmProcess::fillRow(SampleRow * sampleRow, int rw) {
     sgVials->Objects[0][rw] = (TObject *)sampleRow;
 }
 
-void TfrmProcess::process() {
-/*
- * Work through list or sub-section by giving the storage location and sample ID of each sample on the list in the order saved above (REQ 8.3.8);
- * As each sample is retrieved its barcode should be scanned, if the scanned barcode matches that on the list
-the destination location should be displayed and the next ID/location should be displayed (REQ 8.3.9)
- * if the ID’s do not match a warning should be displayed and re-entry of the barcode required (REQ 8.3.10).
-     what if it's the wrong sample, or it's missing? handle this
- * When working through the list the previous five successfully entered ID’s should always be visible (REQ 8.3.11).
- * The option to exit the process saving progress should be offered, with an “are you sure?” message in case of accidental selection (REQ 8.3.12).
-
-extra:
- * if, at the end of processing a chunk, there are any source boxes which have become empty, the user may want to discard them instead of replacing them.
-   if so, provide an option to discard these empty boxes, recording it in the database
-
- destination box+position, cryovial barcode and current box+position+structure+location of the primary and secondary aliquots.
-
-*/
-}
-
 void __fastcall TfrmProcess::timerLoadPlanTimer(TObject *Sender) {
     timerLoadPlan->Enabled = false;
-    //loadRows();
-    //loadChunk(loadingChunk);
-    //loadChunk(currentChunk());
-    loadChunk();
+    loadChunk(); //loadRows(); //loadChunk(loadingChunk); //loadChunk(currentChunk());
 }
 
 void TfrmProcess::loadChunk() { //(Chunk< SampleRow > *) {
@@ -333,27 +340,17 @@ void TfrmProcess::loadChunk() { //(Chunk< SampleRow > *) {
     loadPlanWorkerThread->OnTerminate = &loadPlanWorkerThreadTerminated;
 }
 
-__fastcall LoadPlanWorkerThread::LoadPlanWorkerThread() : TThread(false) {
-    FreeOnTerminate = true;
-}
+__fastcall LoadPlanWorkerThread::LoadPlanWorkerThread() : TThread(false) { FreeOnTerminate = true; }
 
 void __fastcall LoadPlanWorkerThread::updateStatus() { // can't use args for synced method, don't know why
-    frmProcess->panelLoading->Caption = loadingMessage.c_str();
-    frmProcess->panelLoading->Repaint();
+    frmProcess->panelLoading->Caption = loadingMessage.c_str(); frmProcess->panelLoading->Repaint();
 }
 
-void __fastcall LoadPlanWorkerThread::debugLog() {
-    frmProcess->debugLog(debugMessage.c_str());
-}
+void __fastcall LoadPlanWorkerThread::debugLog() { frmProcess->debugLog(debugMessage.c_str()); }
 
-void __fastcall LoadPlanWorkerThread::msgbox() {
-    Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK);
-}
+void __fastcall LoadPlanWorkerThread::msgbox() { Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK); }
 
-void __fastcall LoadPlanWorkerThread::Execute() {
-    //UsingTempTable();
-    NotUsingTempTable();
-}
+void __fastcall LoadPlanWorkerThread::Execute() { NotUsingTempTable(); } //UsingTempTable();
 
 void LoadPlanWorkerThread::NotUsingTempTable() {
     /** load retrieval plan
@@ -393,7 +390,7 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
         "    cs.box_cid          = sb.box_cid "
         " ORDER BY "
         "    chunk, source_pos, rj_box_cid, aliquot_type_cid "
-        << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"); debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+        << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"); //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     qd.setSQL(oss.str()); debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
     qd.setParam("rtid", job->getID()); //int retrieval_cid = job->getID();
     qd.open();
@@ -590,20 +587,6 @@ void LoadPlanWorkerThread::UsingTempTable() {
             ql.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
 
-// something like this - don't forget to get storage
-//        if (secondary_aliquot != 0 && previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
-//            if (previous->cryo_record->getAliquotType() == row->cryo_record->getAliquotType()) {
-//                throw Exception("duplicate aliquot");
-//            } else if (row->cryo_record->getAliquotType() != secondary_aliquot) {
-//                throw Exception("spurious aliquot");
-//            } else { // secondary
-//                previous->secondary = row;
-//            }
-//        } else {
-//            frmSamples->vials.push_back(row); // new primary
-//            previous = row;
-//        }
-
         frmProcess->vials.push_back(row);
         ql.next();
         rowCount++;
@@ -684,17 +667,8 @@ void TfrmProcess::addChunk(int row) {
     chunks.push_back(newchunk);
 }
 
-void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) {
-    accept(editBarcode->Text);
-}
-
-void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) {
-    editBarcode->Text = currentChunk()->rowAt(currentChunk()->getCurrentRow())->cryovial_barcode.c_str();
-    btnAcceptClick(this);
-}
-
 void TfrmProcess::accept(String barcode) {
-    // check correct vial; could be missing, swapped etc
+    // fixme check correct vial; could be missing, swapped etc
     SampleRow * sample = currentSample();
     switch (sample->retrieval_record->getStatus()) {
         case LCDbCryovialRetrieval::EXPECTED:
@@ -716,22 +690,20 @@ void TfrmProcess::accept(String barcode) {
     }
 }
 
-void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
+//void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
+void TfrmProcess::skip() {
     debugLog("Save skipped row"); //Application->MessageBox(L"Save skipped row", L"Info", MB_OK);
     currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
     showCurrentRow();
     nextRow();
 }
 
-void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
-    //DEBUGSTREAM(__FUNC__<<" started")
-    //Screen->Cursor = crSQLWait; Enabled = false;
+//void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
+void TfrmProcess::notFound() { //DEBUGSTREAM(__FUNC__<<" started") //Screen->Cursor = crSQLWait; Enabled = false;
     debugLog("Save not found row");
-
     SampleRow * sample, * secondary;
     int rowIdx = currentChunk()->getCurrentRow();
     sample = currentChunk()->rowAt(rowIdx); // current primary
-
     if (sample->secondary) { //msgbox("have secondary");
         fillRow(sample->secondary, rowIdx+1); // refresh sg row
         showCurrentRow(); //frmRetrievalAssistant->getStorage(sample->secondary); // got storage already?
@@ -746,7 +718,12 @@ SampleRow * TfrmProcess::currentSample() {
     Chunk< SampleRow > * chunk = currentChunk();
     int current = chunk->getCurrentRow();
     SampleRow * sample = chunk->rowAt(current);
-    return  (NULL != sample->secondary) ? sample->secondary : sample;
+    if (sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && NULL != sample->secondary) {
+        return sample->secondary;
+    } else {
+        return sample;
+    }
+    //return  (NULL != sample->secondary) ? sample->secondary : sample;
 }
 
 void TfrmProcess::nextRow() {
@@ -808,7 +785,8 @@ void TfrmProcess::exit() {
 //    //labelPrimary->Enabled   = false; labelSecondary->Enabled = true;
 //    Screen->Cursor = crDefault; Enabled = true; DEBUGSTREAM(__FUNC__<<" finished")
 //    return;
-//}
+//}
+
 
 //    using namespace boost::local_time;
 //    //local_date_time
@@ -821,4 +799,5 @@ void TfrmProcess::exit() {
 
 // LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
 // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
+
 
