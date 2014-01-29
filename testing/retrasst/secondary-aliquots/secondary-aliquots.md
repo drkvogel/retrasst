@@ -7,9 +7,7 @@ class LCDbBoxRetrieval : public LCDbID
     int rj_box_cid, retrieval_cid, box_id, project_cid, section, status;
     enum Status { NEW, PART_FILLED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
 
-why are rows not changing status/colour any more?
-
-timerLoadPlanTimer()
+ timerLoadPlanTimer()
     loadChunk()
 
 loadChunk()
@@ -28,7 +26,7 @@ loadPlanWorkerThreadTerminated()
     currentChunk()->setCurrentRow(0)
     showCurrentRow()
 
-rowAt()    
+rowAt()
     return sgw->rows->at((start)+(pos))
 
 showChunks()
@@ -144,6 +142,7 @@ addChunk(row)
 
 fillRow(sampleRow, row)
     put details into sg
+    and change TObject pointer - maybe shouldn't?
 
 ## todo
 
