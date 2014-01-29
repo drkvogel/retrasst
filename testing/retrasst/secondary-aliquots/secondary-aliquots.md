@@ -7,9 +7,7 @@ class LCDbBoxRetrieval : public LCDbID
     int rj_box_cid, retrieval_cid, box_id, project_cid, section, status;
     enum Status { NEW, PART_FILLED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
 
-why are rows not changing status/colour any more?
-
-timerLoadPlanTimer()
+ timerLoadPlanTimer()
     loadChunk()
 
 loadChunk()
@@ -28,13 +26,8 @@ loadPlanWorkerThreadTerminated()
     currentChunk()->setCurrentRow(0)
     showCurrentRow()
 
-
-rowAt()    
-
-
-fillRow()
-    vial    = sampleRow->cryo_record
-    store   = sampleRow->store_record
+rowAt()
+    return sgw->rows->at((start)+(pos))
 
 showChunks()
     foreach chunk
@@ -63,8 +56,6 @@ currentSample()
     current = chunk->getCurrentRow()
     sample = chunk->rowAt(current)
     return  (NULL != sample->secondary) ? sample->secondary : sample
-
-
 
 showCurrentRow()
     rowIdx = currentChunk()->getCurrentRow()
@@ -130,6 +121,17 @@ skip()
     showCurrentRow()
     nextRow()
 
+notFound()
+    rowIdx = currentChunk()->getCurrentRow()
+    sample = currentChunk()->rowAt(rowIdx)
+    if (sample->secondary)
+        fillRow(sample->secondary, rowIdx+1)
+        showCurrentRow() # got storage already
+        showDetails(sample->secondary)
+    else
+        currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND)
+        nextRow()
+
 addChunk(row)
     if (chunks.size() == 0)  # first chunk, make default chunk from entire listrows
         newchunk = new Chunk(sgwVials, chunks.size()+1, 0, row) # empty chunk, don't know how big it will be yet
@@ -140,17 +142,17 @@ addChunk(row)
 
 fillRow(sampleRow, row)
     put details into sg
+    and change TObject pointer - maybe shouldn't?
 
 ## todo
 
-    currentSample() returns the secondary aliquot if present; now that they're all loaded if available, any changes made to the status of the 'currentSample()' are made to the secondary whether selected or not; result: it looks like nothing has happened (to the primary). This is wrong.
+ * currentSample() returns the secondary aliquot if present; now that they're all loaded if available, any changes made to the status of the 'currentSample()' are made to the secondary whether selected or not; result: it looks like nothing has happened (to the primary). This is wrong.
+ * 
 
  * changes to status not apparent
     * because currentSample() returns secondary if loaded and secondary is now loaded by default, see above
     * return secondary only if primary is NOT_FOUND?
  * save both primary and secondary to database
-    
-
 
 ## done
 

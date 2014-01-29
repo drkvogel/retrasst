@@ -217,7 +217,20 @@ void __fastcall TfrmProcess::sgVialsClick(TObject *Sender) { // show details in 
         <<", storage: "<<sample->storage_str().c_str()
         <<", dest: "<<sample->dest_str().c_str()
         )
-    //sample->retrieval_record->getStatus();
+    SampleRow * secondary = sample->secondary;
+    if (!secondary) {
+        DEBUGSTREAM(" (no secondary)")
+        return;
+    }
+    DEBUGSTREAM(
+        " (secondary) retrieval_status: "<<secondary->retrieval_record->getStatus()
+        <<" ("<<secondary->retrieval_record->statusString(secondary->retrieval_record->getStatus())<<")"
+        <<", cryo_status: "<<secondary->cryo_record->getStatus()
+        <<", store_status: "<<secondary->store_record->getStatus()
+        <<", barcode: "<<secondary->cryovial_barcode.c_str()
+        <<", storage: "<<secondary->storage_str().c_str()
+        <<", dest: "<<secondary->dest_str().c_str()
+        )
     //int row = sgVials->Row; sgVials->Row = row; // how to put these before and after to save row clicked on?
 }
 
@@ -683,6 +696,8 @@ void TfrmProcess::accept(String barcode) {
     }
     if (barcode == sample->cryovial_barcode.c_str()) { // save
         sample->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
+        //if secondary
+        //sample->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
         debugLog("Save accepted row"); //Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
         nextRow();
     } else {
@@ -698,32 +713,48 @@ void TfrmProcess::skip() {
     nextRow();
 }
 
-//void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) {
-void TfrmProcess::notFound() { //DEBUGSTREAM(__FUNC__<<" started") //Screen->Cursor = crSQLWait; Enabled = false;
-    debugLog("Save not found row");
-    SampleRow * sample, * secondary;
+void TfrmProcess::notFound() {
+    DEBUGSTREAM("Save not found row")
     int rowIdx = currentChunk()->getCurrentRow();
-    sample = currentChunk()->rowAt(rowIdx); // current primary
-    if (sample->secondary) { //msgbox("have secondary");
-        fillRow(sample->secondary, rowIdx+1); // refresh sg row
-        showCurrentRow(); //frmRetrievalAssistant->getStorage(sample->secondary); // got storage already?
-        showDetails(sample->secondary);
-    } else {
-        currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
-        nextRow();
+    SampleRow * primary = currentChunk()->rowAt(rowIdx);
+
+    if (primary->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
+        primary->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
+        if (primary->secondary) { //msgbox("have secondary");
+            if (primary->secondary->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // secondary already marked not found
+                fillRow(primary->secondary, rowIdx+1); // refresh sg row
+                showCurrentRow();
+                showDetails(primary->secondary);
+                return;
+            } else {
+                throw "secondary already NOT_FOUND";
+            }
+        } else {
+            nextRow();
+        }
+    } else {  // primary already marked not found
+        if (primary->secondary) {
+            primary->secondary->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
+            nextRow();
+        } else {
+            throw "no secondary for not found primary, should have moved on to next row";
+        }
     }
 }
 
+SampleRow * TfrmProcess::currentRow() {
+    return currentChunk()->rowAt(currentChunk()->getCurrentRow());
+}
+
 SampleRow * TfrmProcess::currentSample() {
-    Chunk< SampleRow > * chunk = currentChunk();
-    int current = chunk->getCurrentRow();
-    SampleRow * sample = chunk->rowAt(current);
-    if (sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && NULL != sample->secondary) {
-        return sample->secondary;
+    //Chunk< SampleRow > * chunk = currentChunk(); //int current = chunk->getCurrentRow(); //SampleRow * sample = chunk->rowAt(current);
+    //SampleRow * row = currentChunk()->rowAt(currentChunk()->getCurrentRow());
+    SampleRow * row = currentRow();
+    if (row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && NULL != row->secondary) {
+        return row->secondary;
     } else {
-        return sample;
+        return row;
     }
-    //return  (NULL != sample->secondary) ? sample->secondary : sample;
 }
 
 void TfrmProcess::nextRow() {

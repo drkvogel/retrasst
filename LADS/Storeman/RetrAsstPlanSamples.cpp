@@ -397,7 +397,6 @@ void TfrmSamples::showChunks() {
         sgChunks->RowCount = chunks.size() + 1;
         sgChunks->FixedRows = 1; // "Fixed row count must be LESS than row count"
     }
-
     int row = 1;
     for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
         Chunk< SampleRow > * chunk = *it;
@@ -437,7 +436,6 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->RowCount = chunk->getSize()+1;
         sgVials->FixedRows = 1;
     }
-
     for (int row=0; row < chunk->getSize(); row++) {
         SampleRow *         sampleRow = chunk->rowAt(row);
         LPDbCryovial *      vial    = sampleRow->cryo_record;
