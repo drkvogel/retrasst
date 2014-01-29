@@ -117,6 +117,7 @@ private:
     void                                        showChunks();
     void                                        loadChunk();
     Chunk< SampleRow > *                        currentChunk();
+    SampleRow *                                 currentRow();
     SampleRow *                                 currentSample();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     void                                        fillRow(SampleRow * sampleRow, int rw);

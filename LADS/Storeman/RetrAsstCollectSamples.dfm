@@ -107,8 +107,6 @@ object frmProcess: TfrmProcess
         ParentDoubleBuffered = False
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitLeft = 1
-        ExplicitWidth = 664
       end
       object btnSimAccept: TButton
         Left = 868
@@ -119,9 +117,6 @@ object frmProcess: TfrmProcess
         Caption = 'Sim Accept'
         TabOrder = 1
         OnClick = btnSimAcceptClick
-        ExplicitLeft = 736
-        ExplicitTop = 8
-        ExplicitHeight = 25
       end
     end
   end

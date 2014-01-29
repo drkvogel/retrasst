@@ -1,20 +1,11 @@
-﻿# Retrieval Assistant
+# Retrieval Assistant
 
 ## Todo
 
  * testing would be a lot less painful if the plans loaded quicker
- * example cryovial retrieval - no chunks
-    * there is a plan in the temp table
-    * create a new plan, open - ok - plan possible made before db rebuild
  * Source/Current box - standardise name - current probably better?
  * still not showing 2ndary aliquot    
  * port [Plan|Process]Samples to [Plan|Process]Boxes
- * speed up queries
-   * profile?
-   * Plan: 
-        * load primary aliquot only?
-        * save is quite slow
-   * Process: 
  * allow selection of secondary aliquots 
  * thread "save changes" in plan
  * how to save stuff? to which tables? when (ie. per row or on exit/save)?    
@@ -29,8 +20,17 @@
  * Usual sort order for each chunk: vessel position, shelf, structure, slot and current position
 
 ## Deferred
-
-* Session tables: http://community.actian.com/forum/questions-feedback-suggestions/11359-temporary-table.html
+ 
+ * speed up queries
+   * profile?
+   * Plan: 
+        * load primary aliquot only?
+        * save is quite slow
+   * Process:  
+ * example cryovial retrieval - no chunks
+    * there is a plan in the temp table
+    * create a new plan, open - ok - plan possible made before db rebuild
+ * Session tables: http://community.actian.com/forum/questions-feedback-suggestions/11359-temporary-table.html
 DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMMIT PRESERVE ROWS WITH NORECOVERY;
  * save changes thread
  * sort "aliquot aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782) shouldn't show aliquot anyway
