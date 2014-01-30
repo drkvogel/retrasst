@@ -317,22 +317,29 @@ void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
     Screen->Cursor = crDefault; Enabled = true;
 }
 
-void TfrmProcess::fillRow(SampleRow * sampleRow, int rw) {
-    sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
-    sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = sampleRow->retrieval_record->statusString(sampleRow->retrieval_record->getStatus());
-    sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquotName().c_str();
-    sgVials->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
-    sgVials->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
-    sgVials->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
-    sgVials->Cells[sgwVials->colNameToInt("vesspos")]  [rw] = sampleRow->vessel_pos;
-    sgVials->Cells[sgwVials->colNameToInt("vessel" )]  [rw] = sampleRow->vessel_name.c_str();
-    sgVials->Cells[sgwVials->colNameToInt("shelf"  )]  [rw] = sampleRow->shelf_number;
-    sgVials->Cells[sgwVials->colNameToInt("structpos")][rw] = sampleRow->structure_pos;
-    sgVials->Cells[sgwVials->colNameToInt("struct" )]  [rw] = sampleRow->structure_name.c_str();
-    sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
-    sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
-    sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
-    sgVials->Objects[0][rw] = (TObject *)sampleRow;
+void TfrmProcess::fillRow(SampleRow * row, int rw) {
+    SampleRow * sample;
+    if (    row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND
+        &&  row->secondary != NULL) {
+        sample = row->secondary;
+    } else {
+        sample = row;
+    }
+    sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sample->cryovial_barcode.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = LCDbCryovialRetrieval::statusString(sample->retrieval_record->getStatus());
+    sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sample->aliquotName().c_str();
+    sgVials->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sample->src_box_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sample->store_record->getPosition();
+    sgVials->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sample->site_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("vesspos")]  [rw] = sample->vessel_pos;
+    sgVials->Cells[sgwVials->colNameToInt("vessel" )]  [rw] = sample->vessel_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("shelf"  )]  [rw] = sample->shelf_number;
+    sgVials->Cells[sgwVials->colNameToInt("structpos")][rw] = sample->structure_pos;
+    sgVials->Cells[sgwVials->colNameToInt("struct" )]  [rw] = sample->structure_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sample->box_pos;
+    sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sample->dest_box_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sample->dest_cryo_pos;
+    sgVials->Objects[0][rw] = (TObject *)row; // keep all data, primary and secondary
 }
 
 void __fastcall TfrmProcess::timerLoadPlanTimer(TObject *Sender) {
@@ -722,7 +729,7 @@ void TfrmProcess::notFound() {
         primary->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
         if (primary->secondary) { //msgbox("have secondary");
             if (primary->secondary->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // secondary already marked not found
-                fillRow(primary->secondary, rowIdx+1); // refresh sg row
+                fillRow(primary, rowIdx+1); // refresh sg row - now keeps pointer to primary
                 showCurrentRow();
                 showDetails(primary->secondary);
                 return;
@@ -746,12 +753,14 @@ SampleRow * TfrmProcess::currentRow() {
     return currentChunk()->rowAt(currentChunk()->getCurrentRow());
 }
 
-SampleRow * TfrmProcess::currentSample() {
-    //Chunk< SampleRow > * chunk = currentChunk(); //int current = chunk->getCurrentRow(); //SampleRow * sample = chunk->rowAt(current);
-    //SampleRow * row = currentChunk()->rowAt(currentChunk()->getCurrentRow());
+SampleRow * TfrmProcess::currentSample() { //Chunk< SampleRow > * chunk = currentChunk(); //int current = chunk->getCurrentRow(); //SampleRow * sample = chunk->rowAt(current); //SampleRow * row = currentChunk()->rowAt(currentChunk()->getCurrentRow());
     SampleRow * row = currentRow();
-    if (row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && NULL != row->secondary) {
-        return row->secondary;
+    if (row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND) {
+        if (NULL == row->secondary) {
+            return NULL;
+        } else {
+            return row->secondary;
+        }
     } else {
         return row;
     }
