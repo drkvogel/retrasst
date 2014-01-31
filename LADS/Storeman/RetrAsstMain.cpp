@@ -66,7 +66,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
             background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR;
             break;
         case LCDbCryoJob::Status::DONE:
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
+            background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
             break;
         case LCDbCryoJob::Status::DELETED:
             background = RETRIEVAL_ASSISTANT_DELETED_COLOUR;

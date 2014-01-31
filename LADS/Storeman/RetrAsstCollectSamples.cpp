@@ -121,7 +121,7 @@ void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
                 case Chunk< SampleRow >::INPROGRESS:
                     background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR; break;
                 case Chunk< SampleRow >::DONE:
-                    background = RETRIEVAL_ASSISTANT_DONE_COLOUR; break;
+                    background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR; break;
                 default:
                     background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; break;
             }
@@ -160,19 +160,24 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
                 case LCDbCryovialRetrieval::IGNORED:
                     background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
                 case LCDbCryovialRetrieval::COLLECTED:
-                    background = RETRIEVAL_ASSISTANT_DONE_COLOUR; break;
+                    background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR; break;
                 case LCDbCryovialRetrieval::NOT_FOUND:
                     if (NULL != row->secondary) {
                         int secondaryStatus = row->secondary->retrieval_record->getStatus();
                         switch (secondaryStatus) {
                             case LCDbCryovialRetrieval::EXPECTED:
                                 background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR; break;
+                            case LCDbCryovialRetrieval::IGNORED:
+                                background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
+                            case LCDbCryovialRetrieval::COLLECTED:
+                                background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR; break;
                             default:
                                 background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR; break;
                         }
                     } else {
                         background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR; break;
                     }
+                    break;
                 default:
                     background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
             }
@@ -437,7 +442,6 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
             qd.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
 
-        // something like this - don't forget to get storage
         int currentAliquotType  = row->cryo_record->getAliquotType();
         int previousAliquotType = previous == NULL? 0 : previous->cryo_record->getAliquotType();
         if (secondary_aliquot != 0 && secondary_aliquot == currentAliquotType &&
@@ -454,11 +458,8 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
             previous = row;
             rowCount++; // only count primary aliquots
         }
-
-        //frmProcess->vials.push_back(row);
         qd.next();
-    }
-    oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+    } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
 
     frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
 
@@ -689,7 +690,7 @@ void TfrmProcess::addChunk(int row) {
 
 void TfrmProcess::accept(String barcode) {
     // fixme check correct vial; could be missing, swapped etc
-    SampleRow * sample = currentSample();
+    SampleRow * sample = currentAliquot();
     switch (sample->retrieval_record->getStatus()) {
         case LCDbCryovialRetrieval::EXPECTED:
         case LCDbCryovialRetrieval::IGNORED:
@@ -715,7 +716,7 @@ void TfrmProcess::accept(String barcode) {
 //void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
 void TfrmProcess::skip() {
     debugLog("Save skipped row"); //Application->MessageBox(L"Save skipped row", L"Info", MB_OK);
-    currentSample()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
+    currentAliquot()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
     showCurrentRow();
     nextRow();
 }
@@ -753,7 +754,7 @@ SampleRow * TfrmProcess::currentRow() {
     return currentChunk()->rowAt(currentChunk()->getCurrentRow());
 }
 
-SampleRow * TfrmProcess::currentSample() { //Chunk< SampleRow > * chunk = currentChunk(); //int current = chunk->getCurrentRow(); //SampleRow * sample = chunk->rowAt(current); //SampleRow * row = currentChunk()->rowAt(currentChunk()->getCurrentRow());
+SampleRow * TfrmProcess::currentAliquot() { //Chunk< SampleRow > * chunk = currentChunk(); //int current = chunk->getCurrentRow(); //SampleRow * sample = chunk->rowAt(current); //SampleRow * row = currentChunk()->rowAt(currentChunk()->getCurrentRow());
     SampleRow * row = currentRow();
     if (row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND) {
         if (NULL == row->secondary) {
@@ -769,7 +770,7 @@ SampleRow * TfrmProcess::currentSample() { //Chunk< SampleRow > * chunk = curren
 void TfrmProcess::nextRow() {
     Chunk< SampleRow > * chunk = currentChunk();
     int current = chunk->getCurrentRow();
-    SampleRow * sample = currentSample(); // which may be the secondary aliquot //    SampleRow * sample = chunk->rowAt(current);
+    SampleRow * sample = currentAliquot(); // which may be the secondary aliquot //    SampleRow * sample = chunk->rowAt(current);
 
     // save both primary and secondary
     //sample->retrieval_record->saveRecord(LIMSDatabase::getProjectDb());
