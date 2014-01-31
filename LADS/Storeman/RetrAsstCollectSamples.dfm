@@ -132,10 +132,11 @@ object frmProcess: TfrmProcess
       948
       77)
     object Label1: TLabel
-      Left = 14
-      Top = 32
+      Left = 2
+      Top = 15
       Width = 139
-      Height = 25
+      Height = 60
+      Align = alLeft
       Caption = 'Enter barcode:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -143,32 +144,38 @@ object frmProcess: TfrmProcess
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
+      ExplicitLeft = 14
+      ExplicitTop = 32
+      ExplicitHeight = 25
     end
     object btnAccept: TButton
-      Left = 646
+      Left = 541
       Top = 15
       Width = 75
       Height = 60
-      Align = alRight
+      Align = alLeft
       Caption = 'Accept'
       TabOrder = 0
       OnClick = btnAcceptClick
+      ExplicitLeft = 646
     end
     object btnSkip: TButton
-      Left = 796
+      Left = 391
       Top = 15
       Width = 75
       Height = 60
-      Align = alRight
+      Align = alLeft
       Caption = 'Skip'
       TabOrder = 1
       OnClick = btnSkipClick
+      ExplicitLeft = 796
     end
     object editBarcode: TEdit
-      Left = 159
-      Top = 16
+      Left = 141
+      Top = 15
       Width = 250
-      Height = 53
+      Height = 60
+      Align = alLeft
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -37
@@ -177,6 +184,9 @@ object frmProcess: TfrmProcess
       ParentFont = False
       TabOrder = 2
       OnKeyUp = editBarcodeKeyUp
+      ExplicitLeft = 159
+      ExplicitTop = 16
+      ExplicitHeight = 53
     end
     object cbLog: TCheckBox
       Left = 14
@@ -199,14 +209,15 @@ object frmProcess: TfrmProcess
       OnClick = btnExitClick
     end
     object btnNotFound: TButton
-      Left = 721
+      Left = 466
       Top = 15
       Width = 75
       Height = 60
-      Align = alRight
+      Align = alLeft
       Caption = 'Not Found'
       TabOrder = 5
       OnClick = btnNotFoundClick
+      ExplicitLeft = 721
     end
   end
   object Chunks: TGroupBox

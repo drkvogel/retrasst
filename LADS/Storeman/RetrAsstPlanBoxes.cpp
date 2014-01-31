@@ -171,9 +171,9 @@ void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow,
         Chunk< BoxRow > * chunk = NULL;
         chunk = (Chunk< BoxRow > *)sgChunks->Objects[0][ARow];
         if (NULL == chunk) {
-            background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
         }
     }
     TCanvas * cnv = sgChunks->Canvas;
@@ -202,9 +202,9 @@ void __fastcall TfrmBoxes::sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, 
         Chunk< BoxRow > * chunk = NULL;
         chunk = (Chunk< BoxRow > *)sgBoxes->Objects[0][ARow];
         if (NULL == chunk) {
-            background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
         }
     }
     TCanvas * cnv = sgBoxes->Canvas;

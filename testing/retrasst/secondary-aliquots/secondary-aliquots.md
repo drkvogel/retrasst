@@ -52,10 +52,7 @@ btnSkipClick()
     nextRow()
 
 currentSample()
-    chunk = currentChunk()
-    current = chunk->getCurrentRow()
-    sample = chunk->rowAt(current)
-    return  (NULL != sample->secondary) ? sample->secondary : sample
+    returns primary if !NOT_FOUND, secondary if !NULL, or NULL from current row
 
 showCurrentRow()
     rowIdx = currentChunk()->getCurrentRow()
@@ -142,7 +139,7 @@ addChunk(row)
 
 fillRow(sampleRow, row)
     put details into sg
-    and change TObject pointer - maybe shouldn't?
+    and change TObject pointer - maybe shouldn't? can't tell that it's 2nd rather than 1st
 
 ## todo
 

@@ -2,34 +2,25 @@
 #include "LCDbRetrieval.h"
 #pragma package(smart_init)
 
-LCDbBoxRetrieval::LCDbBoxRetrieval(const LQuery & query) {
-    //statusStrings = {"NEW", "PART_FILLED, COLLECTED, NOT_FOUND, DELETED"};
-}
+LCDbBoxRetrieval::LCDbBoxRetrieval(const LQuery & query) {}
 
 const char * LCDbBoxRetrieval::statusString(int st) {
     static const char * statusStrings[] = { "Expected", "In progress", "Completed", "Not found", "Deleted" };
+    if (DELETED == st) return "Deleted";
     return st < LCDbBoxRetrieval::Status::NUM_STATUSES ? statusStrings[st] : "Invalid";
 };
 
-LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query)
- :
-// int rj_box_cid, position, aliquot_type_cid, slot_number, process_cid; int status; TDateTime time_stamp;
-//fixme LPDbID(query.readInt("rj_box_cid")),
-   //LDbNoteCount( query.readInt( "Note_Exists" ) ),
+LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query) :
    position(query.readInt("dest_pos")), //??
    aliquot_type_cid(query.readInt("aliquot_type_cid")),
    slot_number(query.readInt("lcr_slot")),
    process_cid(query.readInt("lcr_procid")),
-   status(query.readInt("lcr_status"))
-{
-    //statusStrings[] = {"NEW, PART_FILLED, COLLECTED, NOT_FOUND, DELETED"};
-}
+   status(query.readInt("lcr_status")) {}
 
 const char * LCDbCryovialRetrieval::statusString(int st) {
-    // EXPECTED, IGNORED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
-    //static const char * statusStrings[] = { "Expected", "Ignored", "Collected", "Not found", "Deleted" };
-    // EXPECTED, IGNORED, COLLECTED, PROCESSED, DISPOSED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
-    static const char * statusStrings[] = { "Expected", "Ignored", "Collected", "Processed", "Disposed", "Not found", "Deleted" };
+    // enum Status { EXPECTED, IGNORED, COLLECTED, COLLECTED_SECONDARY, PROCESSED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };
+    static const char * statusStrings[] = { "Expected", "Ignored", "Collected", "Collected secondary", "Processed", "Disposed", "Not found" };
+    if (DELETED == st) return "Deleted";
     return st < LCDbCryovialRetrieval::Status::NUM_STATUSES ? statusStrings[st] : "Invalid";
 };
 

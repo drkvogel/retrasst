@@ -54,8 +54,7 @@ class LCDbCryovialRetrieval : public LCDbID//, public LDbNames
 public:
     LCDbCryovialRetrieval(const LQuery & query);
     bool saveRecord(LQuery query);
-    //enum Status { EXPECTED, IGNORED, COLLECTED, PROCESSED, DISPOSED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
-    enum Status { EXPECTED, IGNORED, COLLECTED, COLLECTED_SECONDARY, PROCESSED, DISPOSED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
+    enum Status { EXPECTED, IGNORED, COLLECTED, COLLECTED_SECONDARY, PROCESSED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };
     static const char * statusString(int st);
     int getStatus() { return status; }
     void setStatus(int s) { status = s; }

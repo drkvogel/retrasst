@@ -129,11 +129,10 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
         background = clBtnFace;
     } else {
         Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][ARow];
-        background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == chunk) {
-            background = clWindow; //RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = RETRIEVAL_ASSISTANT_PLANNED_COLOUR;
         }
     }
     TCanvas * cnv = sgChunks->Canvas;
@@ -159,11 +158,10 @@ void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
         background = clBtnFace;
     } else {
         SampleRow * row = (SampleRow *)sgVials->Objects[0][ARow];
-        background = RETRIEVAL_ASSISTANT_DONE_COLOUR; //break;
         if (NULL == row) {
-            background = clWindow;
+            background = clWindow;//RETRIEVAL_ASSISTANT_ERROR_COLOUR???
         } else {
-            background = RETRIEVAL_ASSISTANT_DONE_COLOUR;
+            background = RETRIEVAL_ASSISTANT_PLANNED_COLOUR;
         }
     }
     TCanvas * cnv = sgVials->Canvas;
