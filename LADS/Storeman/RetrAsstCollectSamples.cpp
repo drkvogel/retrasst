@@ -688,19 +688,16 @@ void TfrmProcess::addChunk(int row) {
     chunks.push_back(newchunk);
 }
 
-void TfrmProcess::accept(String barcode) {
-    // fixme check correct vial; could be missing, swapped etc
+void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be missing, swapped etc
     SampleRow * sample = currentAliquot();
     switch (sample->retrieval_record->getStatus()) {
         case LCDbCryovialRetrieval::EXPECTED:
         case LCDbCryovialRetrieval::IGNORED:
             break; // ok, carry on
         case LCDbCryovialRetrieval::COLLECTED:
-            msgbox("Already collected"); return;
+            msgbox("Already collected - please inform Core Programming"); return;
         case LCDbCryovialRetrieval::NOT_FOUND:
-            if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) {
-                return;
-            }
+            if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) return;
     }
     if (barcode == sample->cryovial_barcode.c_str()) { // save
         sample->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
@@ -713,9 +710,8 @@ void TfrmProcess::accept(String barcode) {
     }
 }
 
-//void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) {
 void TfrmProcess::skip() {
-    debugLog("Save skipped row"); //Application->MessageBox(L"Save skipped row", L"Info", MB_OK);
+    debugLog("Save skipped row");
     currentAliquot()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
     showCurrentRow();
     nextRow();
@@ -724,25 +720,26 @@ void TfrmProcess::skip() {
 void TfrmProcess::notFound() {
     DEBUGSTREAM("Save not found row")
     int rowIdx = currentChunk()->getCurrentRow();
-    SampleRow * primary = currentChunk()->rowAt(rowIdx);
-
-    if (primary->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
-        primary->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
-        if (primary->secondary) { //msgbox("have secondary");
-            if (primary->secondary->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // secondary already marked not found
-                fillRow(primary, rowIdx+1); // refresh sg row - now keeps pointer to primary
+    SampleRow * row = currentChunk()->rowAt(rowIdx);
+    if (row->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
+        row->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
+        if (row->secondary) {
+            msgbox("Secondary aliquot found");
+            if (row->secondary->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // secondary already marked not found
+                fillRow(row, rowIdx+1); // refresh sg row - now keeps pointer to row
                 showCurrentRow();
-                showDetails(primary->secondary);
+                showDetails(row->secondary);
                 return;
             } else {
                 throw "secondary already NOT_FOUND";
             }
         } else {
+            msgbox("No secondary aliquot exists, continuing to next sample");
             nextRow();
         }
     } else {  // primary already marked not found
-        if (primary->secondary) {
-            primary->secondary->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
+        if (row->secondary) {
+            row->secondary->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
             nextRow();
         } else {
             throw "no secondary for not found primary, should have moved on to next row";
@@ -750,12 +747,12 @@ void TfrmProcess::notFound() {
     }
 }
 
-SampleRow * TfrmProcess::currentRow() {
+SampleRow * TfrmProcess::currentSample() { //Chunk< SampleRow > * chunk = currentChunk(); //int current = chunk->getCurrentRow(); //SampleRow * sample = chunk->rowAt(current); //SampleRow * row = currentChunk()->rowAt(currentChunk()->getCurrentRow());
     return currentChunk()->rowAt(currentChunk()->getCurrentRow());
 }
 
 SampleRow * TfrmProcess::currentAliquot() { //Chunk< SampleRow > * chunk = currentChunk(); //int current = chunk->getCurrentRow(); //SampleRow * sample = chunk->rowAt(current); //SampleRow * row = currentChunk()->rowAt(currentChunk()->getCurrentRow());
-    SampleRow * row = currentRow();
+    SampleRow * row = currentSample();
     if (row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND) {
         if (NULL == row->secondary) {
             return NULL;
@@ -769,12 +766,14 @@ SampleRow * TfrmProcess::currentAliquot() { //Chunk< SampleRow > * chunk = curre
 
 void TfrmProcess::nextRow() {
     Chunk< SampleRow > * chunk = currentChunk();
-    int current = chunk->getCurrentRow();
-    SampleRow * sample = currentAliquot(); // which may be the secondary aliquot //    SampleRow * sample = chunk->rowAt(current);
+    int current = chunk->getCurrentRow(); //SampleRow * sample = currentAliquot(); // which may be the secondary aliquot //
+    SampleRow * sample = chunk->rowAt(current);
 
     // save both primary and secondary
-    //sample->retrieval_record->saveRecord(LIMSDatabase::getProjectDb());
-    //sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getProjectDb());
+    sample->retrieval_record->saveRecord(LIMSDatabase::getProjectDb());
+    if (sample->secondary) {
+        sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getProjectDb());
+    }
     if (current < chunk->getSize()-1) {
         int lookAhead = sgVials->VisibleRowCount/2;
         if (current+lookAhead < chunk->getSize()-1) {
@@ -802,32 +801,15 @@ void TfrmProcess::nextRow() {
 
 void TfrmProcess::exit() {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
+    /* Ask the relevant question(s) from the URS when they’re ready to finish
+  and update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
+
         Application->MessageBox(L"Save completed boxes", L"Info", MB_OK);
         Application->MessageBox(L"Signoff form (or on open form?)", L"Info", MB_OK);
         // how to update boxes? check at save and exit that all vials in a box have been saved?
         Close();
     }
 }
-
-//void __fastcall TfrmProcess::btnSecondaryClick(TObject *Sender) {
-//    DEBUGSTREAM(__FUNC__<<" started")
-//    Screen->Cursor = crSQLWait; Enabled = false;
-//
-//    SampleRow * sample;//, * secondary;
-//    int rowIdx = currentChunk()->getCurrentRow();
-//    sample = currentChunk()->rowAt(rowIdx); // current primary
-//
-//    frmRetrievalAssistant->getStorage(sample->secondary);
-//
-//    // refresh sg row
-//    fillRow(sample->secondary, rowIdx+1);
-//    showCurrentRow();
-//    showDetails(sample->secondary);
-//    //labelPrimary->Enabled   = false; labelSecondary->Enabled = true;
-//    Screen->Cursor = crDefault; Enabled = true; DEBUGSTREAM(__FUNC__<<" finished")
-//    return;
-//}
-
 
 //    using namespace boost::local_time;
 //    //local_date_time
