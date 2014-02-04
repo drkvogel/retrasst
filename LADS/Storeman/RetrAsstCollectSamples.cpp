@@ -689,8 +689,9 @@ void TfrmProcess::addChunk(int row) {
 }
 
 void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be missing, swapped etc
-    SampleRow * sample = currentAliquot();
-    switch (sample->retrieval_record->getStatus()) {
+    SampleRow * sample  = currentSample();
+    SampleRow * aliquot = currentAliquot();
+    switch (aliquot->retrieval_record->getStatus()) {
         case LCDbCryovialRetrieval::EXPECTED:
         case LCDbCryovialRetrieval::IGNORED:
             break; // ok, carry on
@@ -699,11 +700,11 @@ void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be
         case LCDbCryovialRetrieval::NOT_FOUND:
             if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) return;
     }
-    if (barcode == sample->cryovial_barcode.c_str()) { // save
-        sample->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
+    if (barcode == aliquot->cryovial_barcode.c_str()) { // save
+        aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
         //if secondary
         //sample->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
-        debugLog("Save accepted row"); //Application->MessageBox(L"Save accepted row", L"Info", MB_OK);
+        debugLog("Save accepted row");
         nextRow();
     } else {
         Application->MessageBox(L"Barcode not matched", L"Info", MB_OK);
