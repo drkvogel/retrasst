@@ -130,7 +130,7 @@ void __fastcall TfrmSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
     } else {
         Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][ARow];
         if (NULL == chunk) {
-            background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+            background = clWindow; // for when loading, not RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
             background = RETRIEVAL_ASSISTANT_PLANNED_COLOUR;
         }
@@ -608,6 +608,20 @@ void LoadVialsWorkerThread::load() {
     int secondary_aliquot   = job->getSecondaryAliquot();
 
     LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
+
+    // quick check to avoid wasting time
+    oss.str(""); oss <<
+        //"SELECT COUNT(*) FROM cryovial_store s1 WHERE s1.retrieval_cid = :jobID";
+        "SELECT COUNT(*) FROM cryovial_store s1, cryovial_store s2"
+        " WHERE s1.cryovial_id = s2.cryovial_id AND s2.status = 0 AND s1.retrieval_cid = :jobID";
+    qd.setSQL(oss.str()); //debugMessage = qd.getSQL(); Synchronize((TThreadMethod)&debugLog);
+    qd.setParam("jobID", job->getID());
+    qd.open(); //debugMessage = "query open"; Synchronize((TThreadMethod)&debugLog);
+    rowCount = qd.readInt(0);
+    //if (0 == qd.readInt(0)) return;
+    if (0 == rowCount) return;
+
+    // actual query now we know there are some rows
     oss.str(""); oss <<
         "SELECT"
         "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
@@ -702,7 +716,8 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     sgwChunks->clear();
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
     if (0 == vials.size()) {
-        if (IDYES == Application->MessageBox(L"No samples found, exit?", L"Info", MB_YESNO)) { Close(); }
+        //if (IDYES == Application->MessageBox(L"No samples found, exit?", L"Info", MB_YESNO)) { Close(); }
+        Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK); Close();
         return;
     }
     int box_id = vials[0]->dest_box_id; // look at base list, chunk might not have been created
