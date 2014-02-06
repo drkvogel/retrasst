@@ -28,7 +28,6 @@ public:
     int getStatus() { return status; }
     void setStatus(int s) { status = s; }
     static const char * statusString(int i); // cannot use status without an object
-    //std::string statusString() { return statusStrings[status]; }
 };
 
 class LCDbBoxRetrievals : public LDbCache< LCDbBoxRetrieval >, public LCDbSingleton< LCDbBoxRetrieval >

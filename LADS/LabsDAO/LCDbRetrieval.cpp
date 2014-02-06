@@ -28,7 +28,7 @@ bool LCDbCryovialRetrieval::saveRecord(LQuery query) {
     throw "todo";
 	if (!saved) {
 		claimNextID(query);
-//		query.setSQL( "insert into cryovial_store (record_id, cryovial_id, box_cid,"
+		//query.setSQL( "insert into cryovial_store (record_id, cryovial_id, box_cid,"
 //					 " tube_position, time_stamp, status, note_exists, process_cid, retrieval_cid)"
 //					 " values ( :rid, :cid, :bid, :pos, 'now', :sts, 0, :pid, :jcid )" );
 //		query.setParam( "cid", getID() );
