@@ -1945,11 +1945,11 @@ void PartFactory::loadBoxes( const LCDbCryoJob &job ) {
 	std::vector< ROSETTA >results;
 	int projID = job.getProjectID();	 // 0 => multiple; -1 => unknown
 	if( projID != 0 && projID != -1 ) {
-		dao.loadBoxesByJobID( job.getID(), projID, results );
+		dao.loadBoxesByJobID( job.getID(), projID, lhs, results );
 	} else {
 		for( Range< LCDbProject > pr = LCDbProjects::records(); pr.isValid(); ++ pr ) {
 			if( pr -> isInCurrentSystem() && !pr -> isCentral() ) {
-				dao.loadBoxesByJobID( job.getID(), pr->getID(), results );
+				dao.loadBoxesByJobID( job.getID(), pr->getID(), lhs, results );
 			}
 		}
 	}

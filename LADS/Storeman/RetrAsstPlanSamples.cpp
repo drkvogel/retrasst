@@ -237,7 +237,7 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         }
     };
 
-    for (int i=0; i<chunks.size(); i++) {
+    for (unsigned   int i=0; i<chunks.size(); i++) {
         if (chunks[i]->getSize() > MAX_CHUNK_SIZE) {
             wstringstream oss; oss<<"Maximum chunk size is "<<MAX_CHUNK_SIZE;
             Application->MessageBox(oss.str().c_str(), L"Error", MB_OK);

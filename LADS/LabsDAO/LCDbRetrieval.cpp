@@ -2,7 +2,16 @@
 #include "LCDbRetrieval.h"
 #pragma package(smart_init)
 
-LCDbBoxRetrieval::LCDbBoxRetrieval(const LQuery & query) {}
+//-------- LCDbBoxRetrieval ---------
+
+LCDbBoxRetrieval::LCDbBoxRetrieval(const LQuery & query)
+// :
+//    int rj_box_cid, position, aliquot_type_cid, old_box_cid, old_position, new_position, process_cid, status;
+//    std::string cryovial_barcode;
+//    TDateTime time_stamp;
+{
+
+}
 
 const char * LCDbBoxRetrieval::statusString(int st) {
     static const char * statusStrings[] = { "Expected", "In progress", "Completed", "Not found", "Deleted" };
@@ -10,12 +19,19 @@ const char * LCDbBoxRetrieval::statusString(int st) {
     return st < LCDbBoxRetrieval::Status::NUM_STATUSES ? statusStrings[st] : "Invalid";
 };
 
+
+
+//-------- LCDbCryovialRetrieval ---------
+
 LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query) :
    position(query.readInt("dest_pos")), //??
    aliquot_type_cid(query.readInt("aliquot_type_cid")),
-   slot_number(query.readInt("lcr_slot")),
+   //slot_number(query.readInt("lcr_slot")),
    process_cid(query.readInt("lcr_procid")),
-   status(query.readInt("lcr_status")) {}
+   status(query.readInt("lcr_status"))
+{
+
+}
 
 const char * LCDbCryovialRetrieval::statusString(int st) {
     // enum Status { EXPECTED, IGNORED, COLLECTED, COLLECTED_SECONDARY, PROCESSED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };

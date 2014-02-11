@@ -16,6 +16,7 @@
 #include <System.DateUtils.hpp>
 #include <System.SysUtils.hpp>
 #include "assert.h"
+#include <cstdio>
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 

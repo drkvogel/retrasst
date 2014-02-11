@@ -48,7 +48,7 @@ class StoreDAO
 		void loadBoxDetails( const std::string & barcode, const std::string & box_type, int proj_id, ROSETTA & result );
 		void loadBoxDetails( int box_id, int proj_id, ROSETTA & result );
 		void loadBoxes( int rack_id, std::vector<ROSETTA>& results);
-		void loadBoxesByJobID( int jobID, int proj_id, std::vector<ROSETTA>& results);
+		void loadBoxesByJobID( int job_id, int proj_id, bool lhs, std::vector<ROSETTA>& results);
 		void loadBoxHistory( int box_id, int proj_id, std::vector<ROSETTA>& results);
 		void loadSamples( int box_id, int proj_id, std::vector<ROSETTA>& results);
 

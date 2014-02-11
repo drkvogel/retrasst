@@ -504,13 +504,16 @@ void StoreDAO::loadBoxes( int rack_id, std::vector<ROSETTA>& results)
 	*/
 }
 
-void StoreDAO::loadBoxesByJobID( int job_id, int proj_id, std::vector<ROSETTA>& results )
+void StoreDAO::loadBoxesByJobID( int job_id, int proj_id, bool lhs, std::vector<ROSETTA>& results )
 {
+	std::string sql = lhs ? "SELECT s1.*" : "SELECT s2.*";
+	sql += ", box_capacity, box_type_cid, external_name"
+		  " from box_store s1, box_name b, box_store s2"
+		  " where b.box_cid = s1.box_cid and b.box_cid = s2.box_cid"
+		  " and s1.retrieval_cid = :job and s2.retrieval_cid = 0"
+		  " ORDER BY slot_position";
 	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
-	pq.setSQL( "select s.record_id, s.rack_cid, s.slot_position, b.box_cid, box_capacity,"
-			  " box_type_cid, s.retrieval_cid, b.external_name, s.status"
-			  " from box_store s, box_name b where b.box_cid = s.box_cid"
-			  " and retrieval_cid = :job" );
+	pq.setSQL( sql );
 	pq.setParam( "job", job_id );
 	for( pq.open(); !pq.eof(); pq.next() ) {
 		ROSETTA box = pq.getRecord();
@@ -565,7 +568,7 @@ bool StoreDAO::addBoxToRHSJobList( ROSETTA& data )
 	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
 	LCDbBoxStore st( id, tank_id, rack_name, pos );
 	st.setRackID(rack_id);
-	st.setJobID(retrieval_cid);
+//	st.setJobID(retrieval_cid);
 	st.setStatus(LCDbBoxStore::EXPECTED);
 	st.setBox(proj_id, box_cid);
 	return st.saveRecord( pq );
