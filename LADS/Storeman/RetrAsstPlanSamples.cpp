@@ -222,18 +222,31 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             return rj_box_cid;
         }
         void saveSample(Chunk< SampleRow > * chunk, SampleRow * sampleRow, int rj_box_cid) {
-            qc.setSQL(
-                "INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status)"
-                " VALUES (:rjid, :pos, :barc, :aliq, :slot, :pid, 'now', :st)"
+            //should use saveRecord
+            LCDbCryovialRetrieval vial(
+                rj_box_cid,
+                sampleRow->dest_cryo_pos,
+                sampleRow->cryo_record->getBarcode(),
+                sampleRow->cryo_record->getAliquotType(),
+                sampleRow->store_record->getBoxID(),  //???oldbox id,
+                sampleRow->store_record->getPosition(), //???oldpos,
+                sampleRow->box_pos, //???newpos,
+                pid,
+                LCDbCryovialRetrieval::Status::EXPECTED,
+                0 //??slot
             );
-            qc.setParam("rjid", rj_box_cid);
-            qc.setParam("pos",  sampleRow->dest_cryo_pos); //?? //qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
-            qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
-            qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
-            qc.setParam("slot", sampleRow->box_pos); //??? // rename box_pos to dest_pos?
-            qc.setParam("pid",  pid);
-            qc.setParam("st",   LCDbCryovialRetrieval::Status::EXPECTED); //??
-            qc.execSQL();
+//            qc.setSQL(
+//                "INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status)"
+//                " VALUES (:rjid, :pos, :barc, :aliq, :slot, :pid, 'now', :st)"
+//            );
+//            qc.setParam("rjid", rj_box_cid);
+//            qc.setParam("pos",  sampleRow->dest_cryo_pos); //?? //qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
+//            qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
+//            qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
+//            qc.setParam("slot", sampleRow->box_pos); //??? // rename box_pos to dest_pos?
+//            qc.setParam("pid",  pid);
+//            qc.setParam("st",   LCDbCryovialRetrieval::Status::EXPECTED); //??
+//            qc.execSQL();
         }
     };
 

@@ -24,13 +24,15 @@ const char * LCDbBoxRetrieval::statusString(int st) {
 //-------- LCDbCryovialRetrieval ---------
 
 LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query) :
-   position(query.readInt("dest_pos")), //??
-   aliquot_type_cid(query.readInt("aliquot_type_cid")),
-   //slot_number(query.readInt("lcr_slot")),
-   process_cid(query.readInt("lcr_procid")),
-   status(query.readInt("lcr_status"))
+    //LCDbID(1),
+    //saved(true),
+    position(query.readInt("dest_pos")), //??
+    aliquot_type_cid(query.readInt("aliquot_type_cid")),
+    //slot_number(query.readInt("lcr_slot")),
+    process_cid(query.readInt("lcr_procid")),
+    status(query.readInt("lcr_status"))
 {
-
+    saved = true;
 }
 
 const char * LCDbCryovialRetrieval::statusString(int st) {
@@ -41,17 +43,22 @@ const char * LCDbCryovialRetrieval::statusString(int st) {
 };
 
 bool LCDbCryovialRetrieval::saveRecord(LQuery query) {
-    throw "todo";
+    //throw "todo";
 	if (!saved) {
 		claimNextID(query);
-		//query.setSQL( "insert into cryovial_store (record_id, cryovial_id, box_cid,"
-//					 " tube_position, time_stamp, status, note_exists, process_cid, retrieval_cid)"
-//					 " values ( :rid, :cid, :bid, :pos, 'now', :sts, 0, :pid, :jcid )" );
-//		query.setParam( "cid", getID() );
-//		query.setParam( "bid", boxID );
-//		query.setParam( "pos", position );
+        query.setSQL(
+            "INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status)"
+            " VALUES (:rjbid, :pos, :barc, :aliq, :slot, :pid, 'now', :st)"
+        );
+        rj_box_cid = getID(); //???
+
 	} else { // update
-		std::stringstream fields;
+        query.setSQL(
+            "UPDATE l_cryovial_retrieval"
+            " SET cryovial_barcode = :barc, aliquot_type_cid = :aliq, slot_number = :slot, process_cid = :pid, time_stamp = 'now', status = :st)"
+            " WHERE rj_box_cid = :rjbid AND position = :pos"
+        );
+//		std::stringstream fields;
 //		fields << "update cryovial_store set status = :sts, retrieval_cid = jcid, process_cid = :pid";
 //		switch( status ) {
 //			case ALLOCATED:
@@ -66,12 +73,16 @@ bool LCDbCryovialRetrieval::saveRecord(LQuery query) {
 //			fields << ", sample_volume = " << volume;
 //		}
 //		fields << " where record_id = :rid";
-		query.setSQL(fields.str());
+//		query.setSQL(fields.str());
 	}
-//	query.setParam( "sts", status);
-//	query.setParam( "jcid", retrievalID);
-//	query.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID());
-//	query.setParam( "rid", getID());
+    query.setParam("rjbid", rj_box_cid);
+    query.setParam("pos",  position); //?? //qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
+    query.setParam("barc", cryovial_barcode); //??
+    query.setParam("aliq", aliquot_type_cid);
+    query.setParam("slot", new_position); // new pos or old pos?
+    query.setParam("pid",  process_cid);
+    query.setParam("st",   status); //??
+
 	if (query.execSQL()) {
         saved = true;
 		return true;

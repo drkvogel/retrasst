@@ -54,6 +54,14 @@ class LCDbCryovialRetrieval : public LCDbID//, public LDbNames
 {
 /**
     l_cryovial_retrieval
+
+         qc.setParam("rjid", rj_box_cid);
+        qc.setParam("pos",  sampleRow->dest_cryo_pos); //?? //qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
+        qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
+        qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
+        qc.setParam("slot", sampleRow->box_pos); //??? // rename box_pos to dest_pos?
+        qc.setParam("pid",  pid);
+        qc.setParam("st",   LCDbCryovialRetrieval::Status::EXPECTED);
 */
     int rj_box_cid, position, aliquot_type_cid, old_box_cid, old_position, new_position, process_cid, status;
     std::string cryovial_barcode;
@@ -61,6 +69,9 @@ class LCDbCryovialRetrieval : public LCDbID//, public LDbNames
     int slot_number; // deprecated
 public:
     LCDbCryovialRetrieval(const LQuery & query);
+    LCDbCryovialRetrieval(int rjbid, int pos, std::string barcode, int aliq, int oldbid, int oldpos, int newpos, int pid, int st, int slot) //TDateTime time_stamp;  int slot_number; // deprecated);
+        : rj_box_cid(rjbid), position(pos), aliquot_type_cid(aliq), old_box_cid(oldbid), old_position(oldpos), new_position(newpos), process_cid(pid), status(st)
+        {}
     bool saveRecord(LQuery query);
     enum Status { EXPECTED, IGNORED, COLLECTED, COLLECTED_SECONDARY, PROCESSED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };
     static const char * statusString(int st);
