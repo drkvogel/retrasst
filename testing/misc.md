@@ -10,11 +10,18 @@
 
 saveRecord()
 
+ not saving barcode, so collect query doesn't join
+
+slot number?
+
+
+
  * Usual sort order before chunking: destination box and position
  * Usual sort order for each chunk: vessel position, shelf, structure, slot and current position
 
- * does LCDbCryovialRetrieval::saveRecord() insert work?
- * 
+ * does LCDbCryovialRetrieval::saveRecord() insert work? - it does now
+ * check cryo/store old/new params are correct for LCDbCryovialRetrieval
+ * should use saveRecord for LCDbBoxRetrieval
  * signoff form
  * secondary aliquots should always saved if present
 

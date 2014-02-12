@@ -73,7 +73,7 @@ class LCDbCryovialRetrieval : public LCDbID//, public LDbNames
 public:
     LCDbCryovialRetrieval(const LQuery & query);
     LCDbCryovialRetrieval(int rjbid, int pos, std::string barcode, int aliq, int oldbid, int oldpos, int newpos, int pid, int st, int slot) //TDateTime time_stamp;  int slot_number; // deprecated);
-        : rj_box_cid(rjbid), position(pos), aliquot_type_cid(aliq), old_box_cid(oldbid), old_position(oldpos), new_position(newpos), process_cid(pid), status(st)
+        : rj_box_cid(rjbid), position(pos), cryovial_barcode(barcode), aliquot_type_cid(aliq), old_box_cid(oldbid), old_position(oldpos), new_position(newpos), process_cid(pid), status(st), slot_number(slot)
         {}
     bool saveRecord(LQuery query);
     enum Status { EXPECTED, IGNORED, COLLECTED, COLLECTED_SECONDARY, PROCESSED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };
