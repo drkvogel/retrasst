@@ -61,7 +61,7 @@ protected:
         dbt.userID = m_user;
         dbt.sampleRunID = snapshot.getDatabaseIDForSampleRun(m_sampleRunID);
 
-        m_meetingPlace = new MeetingPlace< SnapshotUpdateTaskQRerun, DBUpdateTaskRerun, int, DBTransactionRerun >();
+        m_meetingPlace = new paulst::MeetingPlace< SnapshotUpdateTaskQRerun, DBUpdateTaskRerun, int, DBTransactionRerun >();
 
         m_meetingPlace->arrive( this );
 
@@ -100,7 +100,7 @@ private:
     HANDLE               m_dbUpdateCallbackEvent;
     const    std::string m_sampleRunID;
     const    std::string m_sampleDescriptor;
-    MeetingPlace< SnapshotUpdateTaskQRerun, DBUpdateTaskRerun, int, DBTransactionRerun >* m_meetingPlace;
+    paulst::MeetingPlace< SnapshotUpdateTaskQRerun, DBUpdateTaskRerun, int, DBTransactionRerun >* m_meetingPlace;
 };
 
 void leaveMeetingPlace( SnapshotUpdateTaskQRerun* s )

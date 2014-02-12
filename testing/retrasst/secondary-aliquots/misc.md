@@ -1,18 +1,16 @@
-save progress
-signoff
-allow going back over skipped
+ * save progress
+ * signoff
+ * allow going back over skipped
+ * Insert a record into c_box_retrieval for each box in turn and update c_retrieval_job: set status=in progress (1)
+ * Note: a sample retrieval can include boxes that do not have their current locations recorded in the database.
+ * Tick each cryovial off in the retrieval plan as you go along.
+ * Ask the relevant question(s) from the URS when they’re ready to finish and 
+ * update cryovial_store (old and new, primary and secondary) when they enter their password to confirm
 
-Insert a record into c_box_retrieval for each box in turn and update c_retrieval_job: set status=in progress (1)
+## misc
 
-Note: a sample retrieval can include boxes that do not have their current locations recorded in the database.
-
-Tick each cryovial off in the retrieval plan as you go along.
-
-Ask the relevant question(s) from the URS when they’re ready to finish 
-  and update cryovial_store (old and new, primary and secondary) when they enter their password to confirm
-
-http://www.thefreedictionary.com/aliquot
-  a sample can be divided into aliquot parts
+ * accept(): if primary aliquot !collected   # expected, ignored (previously skipped), not found (now found?)
+ * http://www.thefreedictionary.com/aliquot: a sample can be divided into aliquot parts
 
 ## 8.3 Retrieval assistant
 

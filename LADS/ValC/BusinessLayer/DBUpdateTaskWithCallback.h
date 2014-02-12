@@ -15,16 +15,17 @@ class DBUpdateTaskWithCallback : public DBUpdateTask
 {
 private:
     DBTransaction       transaction;
-    MeetingPlace<   Callback, 
-                    DBUpdateTaskWithCallback < Callback, DBTransaction >, 
-                    int, 
-                    DBTransaction >* meetingPlace;
+    paulst::MeetingPlace<   
+        Callback, 
+        DBUpdateTaskWithCallback < Callback, DBTransaction >, 
+        int, 
+        DBTransaction 
+        >* meetingPlace;
 
 public:
 
     DBUpdateTaskWithCallback( 
-        MeetingPlace< Callback, DBUpdateTaskWithCallback < Callback, DBTransaction >, int, DBTransaction >* mp, 
-        DBTransaction t )
+        paulst::MeetingPlace< Callback, DBUpdateTaskWithCallback < Callback, DBTransaction >, int, DBTransaction >* mp, DBTransaction t )
         :
         transaction ( t ),
         meetingPlace( mp )

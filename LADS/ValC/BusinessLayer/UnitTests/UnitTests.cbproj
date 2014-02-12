@@ -489,6 +489,10 @@
             <DependentOn>..\..\..\..\paulst\db\StringBackedCursor.h</DependentOn>
             <BuildOrder>66</BuildOrder>
         </CppCompile>
+        <CppCompile Include="..\..\..\..\paulst\Event.cpp">
+            <DependentOn>..\..\..\..\paulst\Event.h</DependentOn>
+            <BuildOrder>108</BuildOrder>
+        </CppCompile>
         <CppCompile Include="..\..\..\..\paulst\ExceptionUtil.cpp">
             <DependentOn>..\..\..\..\paulst\ExceptionUtil.h</DependentOn>
             <BuildOrder>95</BuildOrder>

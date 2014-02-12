@@ -59,7 +59,6 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
 }
 
 void TfrmSamples::debugLog(String s) {
-    //frmSamples->memoDebug->Lines->Add(s); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
     String tmp = Now().CurrentDateTime().DateTimeString() + ": " + s;
     memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
 }
@@ -200,44 +199,39 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             int rj_box_cid;
             map<int, int>::iterator found = boxes.find(dest_box_id);
             if (found == boxes.end()) { // not added yet, add record and cache
-                { // must go out of scope otherwise read locks db with "no mst..."
-                    LQuery qt(LIMSDatabase::getCentralDb()); LCDbID myLCDbID;
-                    rj_box_cid = myLCDbID.claimNextID(qt); // SQL: "next value for c_id_sequence"
-                } //int rtid = job->getID(); int sect = chunk->getSection(); int bid  = sampleRow->store_record->getBoxID(); // debug
-                qc.setSQL(
-                    "INSERT INTO c_box_retrieval (rj_box_cid, retrieval_cid, box_id, project_cid, section, status)"
-                    " VALUES (:rjbid, :rtid, :bxid, :prid, :sect, :stat)"
-                );
-                qc.setParam("rjbid",rj_box_cid); // Unique ID for this retrieval list entry (also determines retrieval order for box retrievals)
-                qc.setParam("rtid", job->getID());
-                qc.setParam("bxid", dest_box_id); // The box being retrieved (for box retrieval/disposal) or retrieved into (for sample retrieval/disposal)
-                qc.setParam("prid", job->getProjectID());
-                qc.setParam("sect", chunk->getSection()); // 0 = retrieve all boxes in parallel
-                qc.setParam("stat", LCDbBoxRetrieval::Status::NEW); // 0: new record; 1: part-filled, 2: collected; 3: not found; 99: record deleted
-                qc.execSQL();
-                boxes[dest_box_id] = rj_box_cid; // cache result
+                LCDbBoxRetrieval box(
+                    //rj_box_cid,
+                    job->getID(),
+                    dest_box_id,
+                    job->getProjectID(),
+                    chunk->getSection(),
+                    LCDbBoxRetrieval::Status::NEW);
+                box.saveRecord(qc);
+                //boxes[dest_box_id] = rj_box_cid; // cache result
+                rj_box_cid = boxes[dest_box_id] = box.getRJBId();
             } else {
                 rj_box_cid = found->second;
             }
             return rj_box_cid;
         }
         void saveSample(Chunk< SampleRow > * chunk, SampleRow * sampleRow, int rj_box_cid) {
-            qc.setSQL(
-                "INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status)"
-                " VALUES (:rjid, :pos, :barc, :aliq, :slot, :pid, 'now', :st)"
+            LCDbCryovialRetrieval vial(
+                rj_box_cid,
+                sampleRow->dest_cryo_pos,
+                sampleRow->cryo_record->getBarcode(),
+                sampleRow->cryo_record->getAliquotType(),
+                sampleRow->store_record->getBoxID(),  //???oldbox id,
+                sampleRow->store_record->getPosition(), //???oldpos,
+                sampleRow->box_pos, //???newpos,
+                pid,
+                LCDbCryovialRetrieval::Status::EXPECTED,
+                0 //??slot
             );
-            qc.setParam("rjid", rj_box_cid);
-            qc.setParam("pos",  sampleRow->dest_cryo_pos); //?? //qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
-            qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
-            qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
-            qc.setParam("slot", sampleRow->box_pos); //??? // rename box_pos to dest_pos?
-            qc.setParam("pid",  pid);
-            qc.setParam("st",   LCDbCryovialRetrieval::Status::EXPECTED); //??
-            qc.execSQL();
+            vial.saveRecord(qc);
         }
     };
 
-    for (int i=0; i<chunks.size(); i++) {
+    for (unsigned   int i=0; i<chunks.size(); i++) {
         if (chunks[i]->getSize() > MAX_CHUNK_SIZE) {
             wstringstream oss; oss<<"Maximum chunk size is "<<MAX_CHUNK_SIZE;
             Application->MessageBox(oss.str().c_str(), L"Error", MB_OK);
@@ -248,12 +242,10 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
         std::set<int> projects; projects.insert(job->getProjectID());
         const int pid = LCDbAuditTrail::getCurrent().getProcessID();
-
         frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
-        if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) return
-        debugLog("starting save plan");
+        if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) return;
 
-        Screen->Cursor = crSQLWait; Enabled = false;
+        Screen->Cursor = crSQLWait; Enabled = false; debugLog("starting save plan");
         LQuery qc(LIMSDatabase::getCentralDb());
         Saver s(job, qc, pid);
         for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) {
@@ -408,7 +400,7 @@ void TfrmSamples::showChunks() {
         sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
-    //sgChunks->Row = sgChunks->RowCount-1; // make it the current chunk
+    //??? sgChunks->Row = sgChunks->RowCount-1; // make it the current chunk
     sgwVials->clearSelection();
 }
 
@@ -481,27 +473,21 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
 }
 
 void __fastcall TfrmSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
-    //ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str()); debugLog(oss.str().c_str());
+    //fixme ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str()); debugLog(oss.str().c_str());
 }
 
 void __fastcall TfrmSamples::sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value) {
-    //ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str());
-    //debugLog(oss.str().c_str());
+    //fixme ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str()); //debugLog(oss.str().c_str());
 }
 
 void TfrmSamples::autoChunk() {
 /** initialise box size with size of first box in list
     box_name.box_type_cid -> box_content.box_size_cid -> c_box_size.box_capacity */
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
-
-    //int box_id = vials[0]->store_record->getBoxID(); // look at base list, chunk might not have been created
-    int box_id = vials[0]->dest_box_id;//->getBoxID(); // look at base list, chunk might not have been created
+    int box_id = vials[0]->dest_box_id;//->getBoxID(); // ???look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL)
         throw "box not found";
-//    frmAutoChunk->setBoxSize(found->getSize());
-//    frmAutoChunk->Visible = false; // http://www.delphipages.com/forum/showthread.php?t=69616
-//    frmAutoChunk->ShowModal();
 }
 
 //-------------- sorters --------------
@@ -521,11 +507,11 @@ void __fastcall TfrmSamples::btnApplySortClick(TObject *Sender) {
 void TfrmSamples::addSorter() {
     ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
     TComboBox * combo = new TComboBox(this);
-    combo->Parent = groupSort; // new combo is last created, aligned to left. put in right order: take them all out, sort and put back in in reverse order?
-    combo->Width = 170;
-    combo->Align = alRight; // bodge
-    combo->Align = alLeft;  // now the new combo is last (rightmost) in the list, rather than first (leftmost)
-    combo->Style = csDropDownList; // csDropDownList
+    combo->Parent = groupSort;      // new combo is last created, aligned to left. put in right order: take them all out, sort and put back in in reverse order?
+    combo->Width = 170;             //
+    combo->Align = alRight;         // bodge
+    combo->Align = alLeft;          // now the new combo is last (rightmost) in the list, rather than first (leftmost)
+    combo->Style = csDropDownList;  // csDropDownList
     for (int i=0; i<sgwVials->colCount(); i++) {
         combo->AddItem(sgwVials->cols[i].sortDescription().c_str(), (TObject *)&sgwVials->cols[i]);
     }
@@ -611,14 +597,12 @@ void LoadVialsWorkerThread::load() {
 
     // quick check to avoid wasting time
     oss.str(""); oss <<
-        //"SELECT COUNT(*) FROM cryovial_store s1 WHERE s1.retrieval_cid = :jobID";
         "SELECT COUNT(*) FROM cryovial_store s1, cryovial_store s2"
         " WHERE s1.cryovial_id = s2.cryovial_id AND s2.status = 0 AND s1.retrieval_cid = :jobID";
     qd.setSQL(oss.str()); //debugMessage = qd.getSQL(); Synchronize((TThreadMethod)&debugLog);
     qd.setParam("jobID", job->getID());
     qd.open(); //debugMessage = "query open"; Synchronize((TThreadMethod)&debugLog);
     rowCount = qd.readInt(0);
-    //if (0 == qd.readInt(0)) return;
     if (0 == rowCount) return;
 
     // actual query now we know there are some rows
@@ -716,8 +700,7 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     sgwChunks->clear();
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
     if (0 == vials.size()) {
-        //if (IDYES == Application->MessageBox(L"No samples found, exit?", L"Info", MB_YESNO)) { Close(); }
-        Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK); Close();
+        Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK); Close(); //if (IDYES == Application->MessageBox(L"No samples found, exit?", L"Info", MB_YESNO)) { Close(); }
         return;
     }
     int box_id = vials[0]->dest_box_id; // look at base list, chunk might not have been created
@@ -792,4 +775,25 @@ void __fastcall TfrmSamples::FormResize(TObject *Sender) {
     sgwVials->resize();
 }
 
+//                { // must go out of scope otherwise read locks db with "no mst..."
+//                    LQuery qt(LIMSDatabase::getCentralDb()); LCDbID myLCDbID;
+//                    rj_box_cid = myLCDbID.claimNextID(qt); // SQL: "next value for c_id_sequence"
+//                } //int rtid = job->getID(); int sect = chunk->getSection(); int bid  = sampleRow->store_record->getBoxID(); // debug
+                //should use saveRecord
+//    frmAutoChunk->setBoxSize(found->getSize());
+//    frmAutoChunk->Visible = false; // http://www.delphipages.com/forum/showthread.php?t=69616
+//    frmAutoChunk->ShowModal();
+
+//            qc.setSQL(
+//                "INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status)"
+//                " VALUES (:rjid, :pos, :barc, :aliq, :slot, :pid, 'now', :st)"
+//            );
+//            qc.setParam("rjid", rj_box_cid);
+//            qc.setParam("pos",  sampleRow->dest_cryo_pos); //?? //qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
+//            qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
+//            qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
+//            qc.setParam("slot", sampleRow->box_pos); //??? // rename box_pos to dest_pos?
+//            qc.setParam("pid",  pid);
+//            qc.setParam("st",   LCDbCryovialRetrieval::Status::EXPECTED); //??
+//            qc.execSQL();
 
