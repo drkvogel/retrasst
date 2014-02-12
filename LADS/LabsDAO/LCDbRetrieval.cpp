@@ -79,7 +79,7 @@ bool LCDbCryovialRetrieval::saveRecord(LQuery query) {
         //rj_box_cid = getID(); //???
 	} else { // update
         query.setSQL(
-            "UPDATE l_cryovial_retrieval"
+            "UPDATE l_cryovial_retrieval "
             "SET cryovial_barcode = :barc, aliquot_type_cid = :aliq, slot_number = :slot, process_cid = :pid, time_stamp = 'now', status = :st "
             "WHERE rj_box_cid = :rjbid AND position = :pos"
         );
