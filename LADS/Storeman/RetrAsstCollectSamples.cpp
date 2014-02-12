@@ -461,6 +461,10 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
         qd.next();
     } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
 
+    if (0 == rowCount || 0 == frmProcess->chunks.size()) { // something wrong here...
+        return;
+    }
+
     frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
 
     // find locations of source boxes
@@ -771,9 +775,9 @@ void TfrmProcess::nextRow() {
     SampleRow * sample = chunk->rowAt(current);
 
     // save both primary and secondary
-    sample->retrieval_record->saveRecord(LIMSDatabase::getProjectDb());
+    sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb());
     if (sample->secondary) {
-        sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getProjectDb());
+        sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getCentralDb());
     }
     if (current < chunk->getSize()-1) {
         int lookAhead = sgVials->VisibleRowCount/2;
@@ -804,7 +808,6 @@ void TfrmProcess::exit() {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
     /* Ask the relevant question(s) from the URS when they’re ready to finish
   and update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
-
         Application->MessageBox(L"Save completed boxes", L"Info", MB_OK);
         Application->MessageBox(L"Signoff form (or on open form?)", L"Info", MB_OK);
         // how to update boxes? check at save and exit that all vials in a box have been saved?

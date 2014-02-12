@@ -15,9 +15,9 @@ bool LPDbX::saveRecord(LQuery query) {
 			return false;
 	}
 
-	LPDbCryovialStore store( storeID, getID(), boxID, position );
-	store.setStatus( LPDbCryovialStore::Status(status) );
-	return store.saveRecord( query );
+	LPDbCryovialStore store(storeID, getID(), boxID, position);
+	store.setStatus(LPDbCryovialStore::Status(status));
+	return store.saveRecord(query);
 }
 
 
