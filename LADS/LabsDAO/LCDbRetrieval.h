@@ -57,14 +57,6 @@ class LCDbCryovialRetrieval : public LCDbID//, public LDbNames
 {
 /**
     l_cryovial_retrieval
-
-         qc.setParam("rjid", rj_box_cid);
-        qc.setParam("pos",  sampleRow->dest_cryo_pos); //?? //qc.setParam("pos",  sampleRow->store_record->getPosition()); //??
-        qc.setParam("barc", sampleRow->cryo_record->getBarcode()); //??
-        qc.setParam("aliq", sampleRow->cryo_record->getAliquotType());
-        qc.setParam("slot", sampleRow->box_pos); //??? // rename box_pos to dest_pos?
-        qc.setParam("pid",  pid);
-        qc.setParam("st",   LCDbCryovialRetrieval::Status::EXPECTED);
 */
     int rj_box_cid, position, aliquot_type_cid, old_box_cid, old_position, new_position, process_cid, status;
     std::string cryovial_barcode;
