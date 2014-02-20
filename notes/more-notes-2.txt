@@ -83,4 +83,27 @@ DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMM
      does it matter for setting up the chunks, or which matters more?
      in the retrieval, will want to find storage of both?
  * fix comboSorter - broken window
- 
+  * OnClick: show details
+ * process() # not used, remove
+ * currentSample() returns the secondary aliquot if present; now that they're all loaded if available, any changes made to the status of the 'currentSample()' are made to the secondary whether selected or not; result: it looks like nothing has happened (to the primary). This is wrong.
+ * changes to status not apparent
+    * because currentSample() returns secondary if loaded and secondary is now loaded by default, see above
+    * return secondary only if primary is NOT_FOUND?
+ * save both primary and secondary to database
+
+## c++ into python-like pseudocode:
+    strip out 
+        {}, ;
+        .c_str()
+        type declarations
+        return types (void etc)
+    -> into .
+    // comments into #
+    /* */ into """
+
+### language options
+
+ * python (st2 plugin)
+ * javascript (in browser)
+ * PHP
+ * regex
