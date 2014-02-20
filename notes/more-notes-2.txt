@@ -2,16 +2,18 @@
 
 ## Todo
 
- * testing would be a lot less painful if the plans loaded quicker
+ 
  * Source/Current box - standardise name - current probably better?
- * still not showing 2ndary aliquot    
  * port [Plan|Process]Samples to [Plan|Process]Boxes
  * allow selection of secondary aliquots 
  * thread "save changes" in plan
  * how to save stuff? to which tables? when (ie. per row or on exit/save)?    
  * Chunk list should include a second row for each chunk if there is a secondary aliquot (second part of each chunk?)
  * Allow user to fill gaps in boxes from secondary aliquot after primary aliquot (partly?) completed
- * Empty source boxes (all cryovials "accepted" or "not found") will normally be discarded.  Final stage should ask user to confirm that vessel/structure/slot is now empty, otherwise box should be referred.  All source boxes from a reorganisation task should end up empty
+ * Empty source boxes (all vials "accepted" or "not found") will normally be discarded
+   * Final stage: ask user to confirm that vessel/structure/slot is now empty
+      * otherwise box should be referred
+   * All source boxes from a reorganisation task should end up empty
 
 ## misc
 
@@ -21,6 +23,7 @@
 
 ## Deferred
  
+ * testing would be a lot less painful if the plans loaded quicker
  * speed up queries
    * profile?
    * Plan: 
@@ -40,6 +43,7 @@ DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMM
 
 ## Done
 
+ * still not showing 2ndary aliquot    
  * use 2ndary button - remove
  * factor out storage query - getStorage?
     * cache should be wiped at certain points to avoid errors?

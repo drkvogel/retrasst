@@ -1,6 +1,7 @@
  * save progress
  * signoff
  * allow going back over skipped
+ * load in collected/not found/ignored samples as well to return to in progress chunk
  * Insert a record into c_box_retrieval for each box in turn and update c_retrieval_job: set status=in progress (1)
  * Note: a sample retrieval can include boxes that do not have their current locations recorded in the database.
  * Tick each cryovial off in the retrieval plan as you go along.

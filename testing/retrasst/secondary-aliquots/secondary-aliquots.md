@@ -144,8 +144,6 @@ fillRow(sampleRow, row)
 ## todo
 
  * currentSample() returns the secondary aliquot if present; now that they're all loaded if available, any changes made to the status of the 'currentSample()' are made to the secondary whether selected or not; result: it looks like nothing has happened (to the primary). This is wrong.
- * 
-
  * changes to status not apparent
     * because currentSample() returns secondary if loaded and secondary is now loaded by default, see above
     * return secondary only if primary is NOT_FOUND?
@@ -153,11 +151,8 @@ fillRow(sampleRow, row)
 
 ## done
 
-OnClick
-    show details
-
-process() 
-    # not used, remove
+ * OnClick: show details
+ * process() # not used, remove
 
 ## c++ into python-like pseudocode:
     strip out 

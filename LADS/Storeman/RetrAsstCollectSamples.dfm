@@ -144,12 +144,10 @@ object frmProcess: TfrmProcess
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
-      ExplicitLeft = 14
-      ExplicitTop = 32
       ExplicitHeight = 25
     end
     object btnAccept: TButton
-      Left = 541
+      Left = 391
       Top = 15
       Width = 75
       Height = 60
@@ -157,18 +155,19 @@ object frmProcess: TfrmProcess
       Caption = 'Accept'
       TabOrder = 0
       OnClick = btnAcceptClick
-      ExplicitLeft = 646
+      ExplicitLeft = 365
     end
     object btnSkip: TButton
-      Left = 391
+      Left = 541
       Top = 15
       Width = 75
       Height = 60
       Align = alLeft
-      Caption = 'Skip'
+      Caption = 'Defer'
       TabOrder = 1
       OnClick = btnSkipClick
-      ExplicitLeft = 796
+      ExplicitLeft = 554
+      ExplicitTop = 14
     end
     object editBarcode: TEdit
       Left = 141
@@ -184,8 +183,6 @@ object frmProcess: TfrmProcess
       ParentFont = False
       TabOrder = 2
       OnKeyUp = editBarcodeKeyUp
-      ExplicitLeft = 159
-      ExplicitTop = 16
       ExplicitHeight = 53
     end
     object cbLog: TCheckBox
@@ -217,7 +214,6 @@ object frmProcess: TfrmProcess
       Caption = 'Not Found'
       TabOrder = 5
       OnClick = btnNotFoundClick
-      ExplicitLeft = 721
     end
   end
   object Chunks: TGroupBox
