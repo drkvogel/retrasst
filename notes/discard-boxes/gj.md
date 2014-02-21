@@ -1,23 +1,6 @@
 ﻿select * from c_box_retrieval where rj_box_cid = 2057
 
-select * from c_box_retrieval cbr, l_cryovial_retrieval lcr where cbr.rj_box_cid = lcr.rj_box_cid
-    
-## Done    
-
- * scroll to show at least 5 next samples - ScrollBy doesn't seem to work! but worked out a bodge
- * show storage location
- * show sample ID (barcode)?
- * if identical barcode entered into signoff box
-    * mark signed off
-    * refresh - different colour for signed off    
-    
- when loading chunks, boxes, vials, pay attention to their state (
-    // Chunk? Must be calculated? NEW|PART_PROCESSED|COMPLETED
-        // NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED
-    // LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
-    // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
- ) and colour accordingly
- 
+select * from c_box_retrieval cbr, l_cryovial_retrieval lcr where cbr.rj_box_cid = lcr.rj_box_cid 
  
  DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview
 ON COMMIT PRESERVE ROWS WITH NORECOVERY;

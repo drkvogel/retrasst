@@ -44,8 +44,6 @@ sample - can be split into cryovials
  * Debug symbols do not seem to be generated for templated code, meaning breakpoints cannot be set. I don't know if this can be changed in the options.
  * Windows' API debug function is `OutputDebugString()` and is captured by the Event Log tab in C++ Builder
  * Use it like this: `OutputDebugString(L"string")` or like this: `wstringstream oss; oss<<__FUNC__<<"text"<<var; OutputDebugString(oss.str().c_str());`
- * Churchill canteen food is OK and cheap, good for recovering.
- * Andrew Weatherall's Vice Mix is quite good.
 
 Labs Doxygen: C:\Users\cbird\Projects\lims-generic\doxygen\html
 

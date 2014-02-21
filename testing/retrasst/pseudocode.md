@@ -141,3 +141,21 @@ fillRow(sampleRow, row)
     put details into sg
     and change TObject pointer - maybe shouldn't? can't tell that it's 2nd rather than 1st
 
+
+timerLoadPlanTimer
+    loadChunk()
+    
+loadChunk()
+    new LoadPlanWorkerThread()
+    
+LoadPlanWorkerThread::Execute()     
+
+sgChunksClick()
+    Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
+    showChunk(chunk)
+
+showChunk(Chunk< SampleRow > * chunk)
+    ...
+
+showChunks()
+    showChunk()
