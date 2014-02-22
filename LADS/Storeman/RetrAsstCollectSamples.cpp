@@ -716,7 +716,7 @@ void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be
 }
 
 void TfrmProcess::skip() {
-    debugLog("Save skipped row");
+    debugLog("Save deferred row");
     currentAliquot()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
     showCurrentRow();
     nextRow();

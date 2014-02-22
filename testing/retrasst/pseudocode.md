@@ -141,37 +141,21 @@ fillRow(sampleRow, row)
     put details into sg
     and change TObject pointer - maybe shouldn't? can't tell that it's 2nd rather than 1st
 
-## todo
 
- * currentSample() returns the secondary aliquot if present; now that they're all loaded if available, any changes made to the status of the 'currentSample()' are made to the secondary whether selected or not; result: it looks like nothing has happened (to the primary). This is wrong.
- * 
+timerLoadPlanTimer
+    loadChunk()
+    
+loadChunk()
+    new LoadPlanWorkerThread()
+    
+LoadPlanWorkerThread::Execute()     
 
- * changes to status not apparent
-    * because currentSample() returns secondary if loaded and secondary is now loaded by default, see above
-    * return secondary only if primary is NOT_FOUND?
- * save both primary and secondary to database
+sgChunksClick()
+    Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
+    showChunk(chunk)
 
-## done
+showChunk(Chunk< SampleRow > * chunk)
+    ...
 
-OnClick
-    show details
-
-process() 
-    # not used, remove
-
-## c++ into python-like pseudocode:
-    strip out 
-        {}, ;
-        .c_str()
-        type declarations
-        return types (void etc)
-    -> into .
-    // comments into #
-    /* */ into """
-
-### language options
-
- * python (st2 plugin)
- * javascript (in browser)
- * PHP
- * regex
+showChunks()
+    showChunk()

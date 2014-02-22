@@ -2,16 +2,18 @@
 
 ## Todo
 
- * testing would be a lot less painful if the plans loaded quicker
+ 
  * Source/Current box - standardise name - current probably better?
- * still not showing 2ndary aliquot    
  * port [Plan|Process]Samples to [Plan|Process]Boxes
  * allow selection of secondary aliquots 
  * thread "save changes" in plan
  * how to save stuff? to which tables? when (ie. per row or on exit/save)?    
  * Chunk list should include a second row for each chunk if there is a secondary aliquot (second part of each chunk?)
  * Allow user to fill gaps in boxes from secondary aliquot after primary aliquot (partly?) completed
- * Empty source boxes (all cryovials "accepted" or "not found") will normally be discarded.  Final stage should ask user to confirm that vessel/structure/slot is now empty, otherwise box should be referred.  All source boxes from a reorganisation task should end up empty
+ * Empty source boxes (all vials "accepted" or "not found") will normally be discarded
+   * Final stage: ask user to confirm that vessel/structure/slot is now empty
+      * otherwise box should be referred
+   * All source boxes from a reorganisation task should end up empty
 
 ## misc
 
@@ -21,6 +23,7 @@
 
 ## Deferred
  
+ * testing would be a lot less painful if the plans loaded quicker
  * speed up queries
    * profile?
    * Plan: 
@@ -40,6 +43,7 @@ DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMM
 
 ## Done
 
+ * still not showing 2ndary aliquot    
  * use 2ndary button - remove
  * factor out storage query - getStorage?
     * cache should be wiped at certain points to avoid errors?
@@ -79,4 +83,40 @@ DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMM
      does it matter for setting up the chunks, or which matters more?
      in the retrieval, will want to find storage of both?
  * fix comboSorter - broken window
- 
+  * OnClick: show details
+ * process() # not used, remove
+ * currentSample() returns the secondary aliquot if present; now that they're all loaded if available, any changes made to the status of the 'currentSample()' are made to the secondary whether selected or not; result: it looks like nothing has happened (to the primary). This is wrong.
+ * changes to status not apparent
+    * because currentSample() returns secondary if loaded and secondary is now loaded by default, see above
+    * return secondary only if primary is NOT_FOUND?
+ * save both primary and secondary to database
+ * scroll to show at least 5 next samples - ScrollBy doesn't seem to work! but worked out a bodge
+ * show storage location
+ * show sample ID (barcode)?
+ * if identical barcode entered into signoff box
+    * mark signed off
+    * refresh - different colour for signed off    
+    
+ when loading chunks, boxes, vials, pay attention to their state (
+    // Chunk? Must be calculated? NEW|PART_PROCESSED|COMPLETED
+        // NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED
+    // LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
+    // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
+ ) and colour accordingly
+
+## c++ into python-like pseudocode:
+    strip out 
+        {}, ;
+        .c_str()
+        type declarations
+        return types (void etc)
+    -> into .
+    // comments into #
+    /* */ into """
+
+### language options
+
+ * python (st2 plugin)
+ * javascript (in browser)
+ * PHP
+ * regex
