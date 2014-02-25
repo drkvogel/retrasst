@@ -440,7 +440,7 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
             qd.readInt(     "dest_id"),
             qd.readString(  "dest_name"),
             qd.readInt(     "dest_pos"),
-            "", 0, "", 0, 0, "", 0 ); // no storage details yet
+            "", 0, "", 0, 0, "", 0); // no storage details yet
 
         int currentAliquotType  = row->cryo_record->getAliquotType();
         int previousAliquotType = previous == NULL? 0 : previous->cryo_record->getAliquotType();
@@ -775,9 +775,9 @@ void TfrmProcess::nextRow() {
     SampleRow * sample = chunk->rowAt(current);
 
     // save both primary and secondary
-    sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb());
+    if (!sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw "saveRecord() failed"; }
     if (sample->secondary) {
-        sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getCentralDb());
+        if (!sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw "saveRecord() failed for secondary"; }
     }
     if (current < chunk->getSize()-1) {
         int lookAhead = sgVials->VisibleRowCount/2;

@@ -1,0 +1,172 @@
+ * load in collected/not found/ignored samples as well to return to in progress chunk
+
+where's the plan being loaded?
+	LoadPlanWorkerThread::NotUsingTempTable() 
+
+
+accept()
+    aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
+skip()
+    currentAliquot()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
+notFound()
+	retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND)
+nextRow()
+    sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())
+    if (sample->secondary) 
+        sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())
+
+
+saveRecord doesn't seem to have done anything - there are 1674 = 2 * 837 aliquots ie the whole job in l_cryovial_retrieval, 
+none with status != 0
+
+first row is 112155048
+	saveRecord()
+		rj_box_cid = 38
+		position = 10
+		trying to update l_cryovial_retrieval WHERE rj_box_cid = 38 AND position = 10
+		 	- ain't no such thing
+		 	(rj_box_cid = 38??) no. 
+		 	sample->retrieval_record
+
+
+    RetrievalRow(
+    	string srcnm, 
+    	int dstid, 
+    	string dstnm, 
+    	string site, 
+    	int vsps, 
+    	string vsnm, 
+    	int shlf, 
+    	int stps, 
+    	string stnm, 
+    	int bxps) :
+        src_box_name(srcnm), 
+        dest_box_id(dstid), 
+        dest_box_name(dstnm),
+        site_name(site), 
+        vessel_pos(vsps), 
+        vessel_name(vsnm), 
+        shelf_number(shlf), 
+        structure_pos(stps), 
+        structure_name(stnm), 
+        box_pos(bxps) 
+
+    LCDbCryovialRetrieval(
+    	int rjbid, 
+    	int pos, 
+    	std::string barcode, 
+    	int aliq, 
+    	int oldbid, 
+    	int oldpos, 
+    	int newpos, 
+    	int pid, 
+    	int st, 
+    	int slot) //TDateTime time_stamp;  int slot_number; // deprecated : 
+    	rj_box_cid(rjbid), 
+    	position(pos), 
+    	cryovial_barcode(barcode), 
+    	aliquot_type_cid(aliq), 
+    	old_box_cid(oldbid), 
+    	old_position(oldpos), 
+    	new_position(newpos), 
+    	process_cid(pid), 
+    	status(st), 
+    	slot_number(slot)
+
+    	// st2 replace all: ctrl-alt-enter
+
+            cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, //cbr.status, 
+            cs.box_cid, sb.external_name AS src_box, cs.tube_position AS source_pos,  
+            cbr.box_id AS dest_id, db.external_name AS dest_box, slot_number AS dest_pos, 
+            lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, lcr.slot_number AS lcr_slot, lcr.cryovial_barcode, lcr.aliquot_type_cid, 
+            cs.note_exists, cs.cryovial_id, cs.cryovial_position, cs.status, 
+            c.sample_id, cs.record_id, 
+            db.external_name AS dest_name 
+
+		int rjbid, 
+    	int pos, 
+    	std::string barcode, 
+    	#int aliq, 
+    	int oldbid, 
+    	int oldpos, 
+    	#int newpos, 
+    	#int pid, 
+    	#int st, 
+    	int slot            
+ 
+ LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query)
+  	// doesn't fill in half the fields!!!
+    position(query.readInt("dest_pos")), //??
+    aliquot_type_cid(query.readInt("aliquot_type_cid")), //???slot_number(query.readInt("lcr_slot")),
+    process_cid(query.readInt("lcr_procid")),
+    status(query.readInt("lcr_status"))
+
+    filled in missing fields, still not sure about 'position'/src pos/dest pos...
+
+now:
+    SELECT * FROM  l_cryovial_retrieval WHERE rj_box_cid = 4146617 AND position = 50
+
+    returns a row, but 
+     aliquot type is -31782
+     select * from c_object_name where object_cid = -31782 # EDTA_2, EDTA_1 is -31781
+    so if it updated anything (it didn't), it was the 2nd ali
+
+    SampleRow(  LPDbCryovial * cryo_rec, 
+    			LPDbCryovialStore * store_rec, 
+    			LCDbCryovialRetrieval * retrieval_rec,
+                string barc, 
+                string srcnm, 
+                int dstid, 
+                string dstnm, 
+                int dstps,
+                string site, 
+                int vsps, 
+                string vsnm, 
+                int shlf, 
+                int stps, 
+                string stnm, 
+                int bxps) :
+                RetrievalRow(
+                	srcnm, 
+                	dstid, 
+                	dstnm, 
+                	site, 
+                	vsps, 
+                	vsnm, 
+                	shlf, 
+                	stps, 
+                	stnm, 
+                	bxps),
+                cryo_record(cryo_rec), 
+                store_record(store_rec), 
+                retrieval_record(retrieval_rec), 
+                cryovial_barcode(barc), 
+                dest_cryo_pos(dstps), 
+                secondary(NULL) {
+    }
+
+
+
+ SELECT 
+    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, 
+    cs.box_cid, sb.external_name AS src_box, cs.tube_position AS source_pos,  
+    cbr.box_id AS dest_id, db.external_name AS dest_box, slot_number AS dest_pos, 
+    lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, lcr.slot_number AS lcr_slot, lcr.cryovial_barcode, lcr.aliquot_type_cid, 
+    cs.note_exists, cs.cryovial_id, cs.cryovial_position, cs.status, 
+    c.sample_id, cs.record_id, 
+    db.external_name AS dest_name 
+ FROM 
+    c_box_retrieval cbr, l_cryovial_retrieval lcr, c_box_name db, c_box_name sb, cryovial c, cryovial_store cs 
+ WHERE 
+    cbr.retrieval_cid   = -363636 AND 
+    cbr.rj_box_cid      = lcr.rj_box_cid AND 
+    cbr.box_id          = db.box_cid AND 
+    c.cryovial_barcode  = lcr.cryovial_barcode AND 
+    c.aliquot_type_cid  = lcr.aliquot_type_cid  AND 
+    cs.cryovial_id      = c.cryovial_id  AND 
+    cbr.retrieval_cid   = cs.retrieval_cid AND 
+    cs.box_cid          = sb.box_cid 
+ ORDER BY 
+    chunk, source_pos, rj_box_cid, aliquot_type_cid 	
+
+ project -149662 (thrive), t_ldb20
