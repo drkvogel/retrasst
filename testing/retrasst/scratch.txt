@@ -95,7 +95,7 @@ first row is 112155048
     	int slot            
  
  LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query)
-  	// doesn't fill in half the fields!!!
+  	// doesn't fill in half the fields!!! it did say 'fixme'....
     position(query.readInt("dest_pos")), //??
     aliquot_type_cid(query.readInt("aliquot_type_cid")), //???slot_number(query.readInt("lcr_slot")),
     process_cid(query.readInt("lcr_procid")),
@@ -110,6 +110,18 @@ now:
      aliquot type is -31782
      select * from c_object_name where object_cid = -31782 # EDTA_2, EDTA_1 is -31781
     so if it updated anything (it didn't), it was the 2nd ali
+    the rj_box_cid is that of the 2ndary aliquot, not the primary
+
+    no mention/use of job->primaryaliquot? yes there is, they're defined already
+    are they in the right order in the query, i.e. does my 
+    	aliquot_type_cid (primary_aliquot < secondary_aliquot ? "ASC" : "DESC")
+    thing work?
+    # EDTA_1 is -31781, EDTA_2 is -31782, both -ve, so primary_aliquot < secondary_aliquot is NOT true, so it would be DESC, meaning...
+    EDTA_1 -31781
+    EDTA_2 -31782
+    ...which looks right
+    and it is DESC irl...
+    
 
     SampleRow(  LPDbCryovial * cryo_rec, 
     			LPDbCryovialStore * store_rec, 

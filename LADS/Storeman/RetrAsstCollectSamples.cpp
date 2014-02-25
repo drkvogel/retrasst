@@ -442,10 +442,22 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
             qd.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0); // no storage details yet
 
-        int currentAliquotType  = row->cryo_record->getAliquotType();
+        int currentAliquotType = row->cryo_record->getAliquotType();
+
+        // primary_aliquot and secondary_aliquot are already defined
+
+//        if (job->getPrimaryAliquot() == currentAliquotType) {
+//
+//        } else if (job->getSecondaryAliquot() == currentAliquotType) {
+//
+//        } else {
+//            throw "definite error";
+//        }
         int previousAliquotType = previous == NULL? 0 : previous->cryo_record->getAliquotType();
-        if (secondary_aliquot != 0 && secondary_aliquot == currentAliquotType &&
-            previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
+        if (secondary_aliquot != 0 &&
+            secondary_aliquot == currentAliquotType &&
+            previous != NULL &&
+            previous->cryovial_barcode == row->cryovial_barcode) { // secondary aliquot, previous was primary of same sample
             if (previousAliquotType == currentAliquotType) {
                 throw Exception("duplicate aliquot");
             } else if (currentAliquotType != secondary_aliquot) {
