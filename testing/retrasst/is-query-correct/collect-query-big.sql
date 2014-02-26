@@ -1,4 +1,4 @@
-﻿SELECT    
+SELECT    
 cbr.retrieval_cid,
 cbr.section,
 cbr.box_id,
@@ -62,5 +62,5 @@ AND     cs.cryovial_id      = c.cryovial_id
 AND     cbr.retrieval_cid   = cs.retrieval_cid 
 AND     cs.box_cid          = sb.box_cid  
 AND     section = 1
-ORDER BY     chunk, source_pos, rj_box_cid, aliquot_type_cid DESC
+ORDER BY cbr.section, cs.tube_position, cbr.rj_box_cid, lcr.aliquot_type_cid DESC
 \g

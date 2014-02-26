@@ -2,7 +2,9 @@
 
 ## todo
 
- * load in collected/not found/ignored samples as well to return to in progress chunk
+ * load in collected/not found/ignored samples as well to return to in progress chunk-
+ * fast forward to first unactioned sample...
+ * what about deferred samples?
  * save progress
  * signoff
  * allow going back over skipped

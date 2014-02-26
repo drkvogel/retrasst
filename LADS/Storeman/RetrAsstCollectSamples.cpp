@@ -395,10 +395,12 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
     oss.str("");
     oss<<
         " SELECT "
-        "    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, "//cbr.status, "
+        "    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, cbr.box_id AS dest_id, "//cbr.status, "
+        "    lcr.position AS lcr_position, lcr.cryovial_barcode, lcr.aliquot_type_cid, "
+        "    lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, lcr.slot_number AS lcr_slot, "
+        "    lcr.slot_number AS dest_pos, "
         "    cs.box_cid, sb.external_name AS src_box, cs.tube_position AS source_pos,  "
-        "    cbr.box_id AS dest_id, db.external_name AS dest_box, slot_number AS dest_pos, "
-        "    lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, lcr.slot_number AS lcr_slot, lcr.cryovial_barcode, lcr.aliquot_type_cid, "
+        "    db.external_name AS dest_box, "
         "    cs.note_exists, cs.cryovial_id, cs.cryovial_position, cs.status, "
         "    c.sample_id, cs.record_id, "
         "    db.external_name AS dest_name "
@@ -659,7 +661,20 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     Screen->Cursor = crDefault;
     try {
         showChunks();
-        currentChunk()->setCurrentRow(0); //currentChunk = 0;
+        unsigned row; // when would getStart() not be 0?
+        for (row = currentChunk()->getStart(); row < currentChunk()->getEnd(); row++) {
+            SampleRow * sample = currentChunk()->rowAt(row);
+            if (sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
+                break;
+            } else if (
+                        sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::NOT_FOUND &&
+                        sample->secondary != NULL &&
+                        sample->secondary->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
+                break;
+            }
+            // else carry on
+        }
+        currentChunk()->setCurrentRow(row);
         showCurrentRow();
     } catch (Exception & e) {
         msgbox(e.Message);

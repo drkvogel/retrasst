@@ -65,7 +65,7 @@ LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query) : //LCDbID(1)
     	#int st,
     	int slot   */
     rj_box_cid(query.readInt("rj_box_cid")),
-    position(query.readInt("cryovial_position")), //???
+    position(query.readInt("lcr_position")), // NOT cryovial_position - this is the position in the plan
     cryovial_barcode(query.readString("cryovial_barcode")),
     aliquot_type_cid(query.readInt("aliquot_type_cid")),
     old_box_cid(query.readInt("box_cid")),
