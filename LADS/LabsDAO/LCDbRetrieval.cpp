@@ -54,10 +54,28 @@ bool LCDbBoxRetrieval::saveRecord(LQuery query) {
 //-------- LCDbCryovialRetrieval ---------
 
 LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query) : //LCDbID(1), //saved(true),
-    position(query.readInt("dest_pos")), //??
-    aliquot_type_cid(query.readInt("aliquot_type_cid")), //???slot_number(query.readInt("lcr_slot")),
+/* 		int rjbid,
+    	int pos,
+    	std::string barcode,
+    	#int aliq,
+    	int oldbid,
+    	int oldpos,
+    	#int newpos,
+    	#int pid,
+    	#int st,
+    	int slot   */
+    rj_box_cid(query.readInt("rj_box_cid")),
+    position(query.readInt("lcr_position")), // NOT cryovial_position - this is the position in the plan
+    cryovial_barcode(query.readString("cryovial_barcode")),
+    aliquot_type_cid(query.readInt("aliquot_type_cid")),
+    old_box_cid(query.readInt("box_cid")),
+    old_position(query.readInt("source_pos")),
+    new_position(query.readInt("dest_pos")), //???
     process_cid(query.readInt("lcr_procid")),
-    status(query.readInt("lcr_status"))
+    status(query.readInt("lcr_status")),
+    slot_number(query.readInt("lcr_slot"))
+    //TDateTime time_stamp(query.read(""));
+    //position(query.readInt("dest_pos")), //??
 {
     saved = true;
 }

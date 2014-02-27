@@ -1,0 +1,26 @@
+
+Generic Comms released in April and now in regular use by the labs.
+
+STIG repair/rebuild from Python to PHP because Ingres upgrade broke Python ODBC driver. on xrat - 27 jun?
+[cp@xrat stig]$ pwd
+/user/cp/nova-import/src/stig
+	Jun 26  2013 index.php
+
+Looks like big sort out of nova-import/Stimpy as well, late jun 2013
+
+In May I repaired a critical fault in the SMS system which was caused by a change to the server configuration. I was able to find, debug and repair the problem quickly so that there was minimal interruption to the service.
+
+Meeting with Martin: June 28th
+ discussed Retrieval Assistant
+
+Full retrasst spec mid-July
+
+The release date for the whole of Storeman was originally 1st Oct, but I don't think anyone's work was ready by then.
+
+I think I would have been able to have the Retrieval Assistant completed by the end of 2013, had it not been for several database upgrades which have disrupted things for everyone working on Storeman, however I can see that those upgrades were necessary.  and though it was frustrating having to repair previously working code on both Retrieval Assistant and Referred Boxes to get back to where they were before the upgrades, those problems have been dealt with those programs are now future-proofed (hopefully) for the coming versions of the live database.
+
+Also, ongoing occasional duties such as administering CVS repositories, help with Linux server configuration, changes to the EBCTCG website.
+
+
+There is always room for improvement of course, and I have been affected by some difficult personal circumstances and some underlying health problems, which I have had various degrees of success in overcoming. I am aware that some projects have taken rather a long time, but I would also say that the projects that I complete generally work very well and rarely need further attention - I prefer to get things right the first time rather than rush things.
+

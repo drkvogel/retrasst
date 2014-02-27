@@ -1,10 +1,13 @@
 # Retrieval Assistant
 
 ## todo
+
+ * load in collected/not found/ignored samples as well to return to in progress chunk-
+ * fast forward to first unactioned sample...
+ * what about deferred samples?
  * save progress
  * signoff
  * allow going back over skipped
- * load in collected/not found/ignored samples as well to return to in progress chunk
  * Insert a record into c_box_retrieval for each box in turn and update c_retrieval_job: set status=in progress (1)
  * Note: a sample retrieval can include boxes that do not have their current locations recorded in the database.
  * Tick each cryovial off in the retrieval plan as you go along.
@@ -16,7 +19,7 @@
  * signoff form
  * secondary aliquots should always be saved if present
  * slot number? (what about it?)
- //* C_box_retrieval: set time_stamp, status = 1 
+ * C_box_retrieval: set time_stamp, status = 1 
  * If the user exits without finishing the job, once they've signed off: 
     * Cryovial_store: 
         * Primary, source: if found update removed, status = 5, otherwise status = 7 
@@ -58,6 +61,11 @@
         - set secondary dest CONFIRMED?
     * should probably do a truth table of primary/secondary src/dest cryovial_store/l_cryovial_retrieval
     * make sure both aliquots are dealt with whatever happens
+ * currentSample() returns the secondary aliquot if present; now that they're all loaded if available, any changes made to the status of the 'currentSample()' are made to the secondary whether selected or not; result: it looks like nothing has happened (to the primary). This is wrong.
+ * changes to status not apparent
+    * because currentSample() returns secondary if loaded and secondary is now loaded by default, see above
+    * return secondary only if primary is NOT_FOUND?
+ * save both primary and secondary to database
 
 ## misc
 
