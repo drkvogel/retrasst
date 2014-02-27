@@ -304,4 +304,14 @@ void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
 //        return INPROGRESS;
 //    }
 //}
+//    using namespace boost::local_time;
+//    //local_date_time
+//
+//    time_t t(time(NULL)); // current time
+//    tm tm(*localtime(&t));
+//    std::locale loc("");
+//    const std::time_put<char> &tput = std::use_facet< std::time_put< char > >(loc);
+//    tput.put(oss.rdbuf(), oss, _T('\0'), &tm, _T('x'));
 
+// LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
+// LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND

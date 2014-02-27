@@ -20,7 +20,7 @@ protected:
 public:
     __fastcall LoadPlanWorkerThread();
     void NotUsingTempTable();
-    void UsingTempTable();
+    //void UsingTempTable();
     Chunk< SampleRow > * loadingChunk;
     LCDbCryoJob *   job;
     int             rowCount; // class variable needed for synchronise
@@ -129,6 +129,7 @@ private:
     void                                        notFound();
     void                                        skip();
     void                                        nextRow();
+    void                                        collectEmpties();
     void                                        exit();
     const char *                                loadingMessage;
     void                                        debugLog(String s);
