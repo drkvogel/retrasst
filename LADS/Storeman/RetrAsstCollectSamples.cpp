@@ -447,14 +447,6 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
         int currentAliquotType = row->cryo_record->getAliquotType();
 
         // primary_aliquot and secondary_aliquot are already defined
-
-//        if (job->getPrimaryAliquot() == currentAliquotType) {
-//
-//        } else if (job->getSecondaryAliquot() == currentAliquotType) {
-//
-//        } else {
-//            throw "definite error";
-//        }
         int previousAliquotType = previous == NULL? 0 : previous->cryo_record->getAliquotType();
         if (secondary_aliquot != 0 &&
             secondary_aliquot == currentAliquotType &&
@@ -496,165 +488,6 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
     Synchronize((TThreadMethod)&debugLog);
 }
 
-void LoadPlanWorkerThread::UsingTempTable() {
-    /** load retrieval plan
-    For a box retrieval, the retrieval plan will be given by: Select * from c_box_retrieval b order by b.section, b.rj_box_cid
-    For a cryovial retrieval, the retrieval plan will be: Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
-
-    delete_referenced< vector<SampleRow * > >(frmProcess->vials); frmProcess->chunks.clear();
-    ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
-    if (NULL == frmProcess || NULL == frmProcess->job) { throw "wtf?"; }
-    loadingMessage = frmProcess->loadingMessage;
-    const int pid = LCDbAuditTrail::getCurrent().getProcessID();
-    job = frmProcess->job;
-
-    time_t rawtime;
-    struct tm * timeinfo;
-    char buffer [80];
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
-    strftime(buffer, 80, "%Y_%m_%dT%H_%M_%S", timeinfo);
-    puts(buffer);
-    oss.str(""); oss<<"retrieval_assistant_temp_"<<pid<<"_"<<buffer;
-    frmProcess->tempTableName.assign(oss.str());
-    {
-        LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
-        oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName; // ingres doesn't like table names passed as parameters
-        debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
-        qd.setSQL(oss.str());
-        qd.execSQL();
-        oss.str("");
-        oss<<"CREATE TABLE "<<frmProcess->tempTableName<<" AS"<<
-            "   SELECT"
-            "       cbr.section AS chunk, cbr.rj_box_cid, cbr.retrieval_cid, cbr.status AS cbr_status, cbr.box_id,"
-            "       lcr.position AS dest_pos, lcr.slot_number AS lcr_slot, lcr.process_cid AS lcr_procid, lcr.status AS lcr_status,"
-            "       lcr.cryovial_barcode, lcr.aliquot_type_cid"
-            "   FROM"
-            "       c_box_retrieval cbr, l_cryovial_retrieval lcr"
-            "   WHERE"
-            "       cbr.retrieval_cid = :rtid"
-            "   AND"
-            "       lcr.rj_box_cid = cbr.rj_box_cid";
-        debugMessage = oss.str();
-        Synchronize((TThreadMethod)&debugLog);
-        qd.setSQL(oss.str());
-        int retrieval_cid = job->getID();
-        qd.setParam("rtid", retrieval_cid); //qd.setParam("chnk", loading0Chunk->getSection()); //frmProcess->currentChunk()->getSection()); //frmProcess->chunk); //
-        qd.execSQL();
-    }
-    debugMessage = "finished create temp table"; Synchronize((TThreadMethod)&debugLog);
-
-    // gj added a secondary index on cryovial_store (on t_ldb20 only) - how to check this?
-    bool stats_c_barcode                = Util::statsOnColumn(job->getProjectID(), "cryovial",      "cryovial_barcode");
-    bool stats_c_aliquot                = Util::statsOnColumn(job->getProjectID(), "cryovial",      "aliquot_type_cid");
-    bool stats_cs_cryovial_id           = Util::statsOnColumn(job->getProjectID(), "cryovial_store","cryovial_id");
-    bool stats_cs_status                = Util::statsOnColumn(job->getProjectID(), "cryovial_store","status");
-    bool stats_cs_retrieval_cid         = Util::statsOnColumn(job->getProjectID(), "cryovial_store","retrieval_cid");
-
-    stats = stats_c_barcode && stats_c_aliquot && stats_cs_cryovial_id && stats_cs_status && stats_cs_retrieval_cid;
-
-    if (!stats) {
-        oss.str(""); oss<<"missing stats on "
-            <<(stats_c_barcode        ? "cryovial_barcode" : "")
-            <<(stats_c_aliquot        ? "aliquot_type_cid" : "")
-            <<(stats_cs_cryovial_id   ? "cryovial_id"      : "")
-            <<(stats_cs_status        ? "status"           : "")
-            <<(stats_cs_retrieval_cid ? "retrieval_cid"    : "");
-        debugMessage = oss.str();
-        Synchronize((TThreadMethod)&msgbox);
-        Synchronize((TThreadMethod)&debugLog);
-    } else {
-        debugMessage = "have stats";
-        Synchronize((TThreadMethod)&debugLog);
-    }
-
-    int primary_aliquot     = job->getPrimaryAliquot();
-    int secondary_aliquot   = job->getSecondaryAliquot();
-
-    debugMessage = "select sample details from plan"; Synchronize((TThreadMethod)&debugLog);
-    LQuery ql(Util::projectQuery(job->getProjectID(), true)); // must have ddb to see temp table just created in ddb
-    oss.str("");
-    oss<<
-        " SELECT"
-        "     g.retrieval_cid, g.chunk, g.rj_box_cid, g.cbr_status, g.dest_pos, g.lcr_slot, g.lcr_procid, g.lcr_status, g.box_id AS dest_id,"
-        "     c.cryovial_barcode, c.sample_id, c.aliquot_type_cid, c.note_exists AS cryovial_note,"
-        "     s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position, s1.record_id,"
-        "     s1.status, s1.tube_position, s1.note_exists AS cs_note,"
-        "     b1.external_name AS src_box, "
-        "     b2.external_name AS dest_name,"
-        "     s2.tube_position AS slot_number, s2.status AS dest_status"
-        " FROM "
-        <<frmProcess->tempTableName<<" g, cryovial c, cryovial_store s1, cryovial_store s2, box_name b1, box_name b2"
-        " WHERE"
-        "     c.cryovial_barcode = g.cryovial_barcode"
-        "     AND c.aliquot_type_cid = g.aliquot_type_cid"
-        "     AND s1.cryovial_id = c.cryovial_id"
-        "     AND s1.retrieval_cid = g.retrieval_cid"
-        "     AND b2.box_cid = g.box_id"
-        "     AND b1.box_cid = s1.box_cid"
-        "     AND s2.cryovial_id = c.cryovial_id"
-        "     AND b2.box_cid = s2.box_cid"
-        " ORDER BY"
-        "     s1.retrieval_cid, chunk, g.rj_box_cid, c.aliquot_type_cid "
-        << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC");
-    debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
-    ql.setSQL(oss.str());
-    rowCount = 0; // class variable needed for synchronise
-    debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
-    ql.open();
-    int curchunk = 0, chunk = 0; SampleRow * previous = NULL;
-    debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
-    while (!ql.eof()) {
-        chunk = ql.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
-        if (chunk > curchunk) {
-            frmProcess->addChunk(rowCount);
-            curchunk = chunk;
-        }
-        if (0 == rowCount % 10) {
-            ostringstream oss; oss<<"Found "<<rowCount<<" vials";
-            loadingMessage = oss.str().c_str();
-            Synchronize((TThreadMethod)&updateStatus);
-        }
-        SampleRow * row = new SampleRow(
-            new LPDbCryovial(ql),
-            new LPDbCryovialStore(ql),
-            new LCDbCryovialRetrieval(ql), // fixme
-            ql.readString(  "cryovial_barcode"),
-            ql.readString(  "src_box"),
-            ql.readInt(     "dest_id"),
-            ql.readString(  "dest_name"),
-            ql.readInt(     "dest_pos"),
-            "", 0, "", 0, 0, "", 0 ); // no storage details yet
-
-        frmProcess->vials.push_back(row);
-        ql.next();
-        rowCount++;
-    }
-    oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
-
-    oss.str(""); oss<<"DROP TABLE IF EXISTS "<<frmProcess->tempTableName;
-    ql.setSQL(oss.str());
-    if (!RETRASSTDEBUG) {
-        ql.execSQL();
-        debugMessage = "finished drop temp table"; Synchronize((TThreadMethod)&debugLog);
-    } else {
-        debugMessage = "didn't drop temp table in debug mode"; Synchronize((TThreadMethod)&debugLog);
-    }
-
-    frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
-
-    // find locations of source boxes
-    int rowCount2 = 0;
-	for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it, rowCount2++) {
-        SampleRow * sample = *it;
-        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
-        frmRetrievalAssistant->getStorage(sample);
-        oss<<sample->storage_str(); loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
-	}
-    debugMessage = "finished load storage details";
-    Synchronize((TThreadMethod)&debugLog);
-}
-
 void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
@@ -685,13 +518,21 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
 
 void TfrmProcess::showCurrentRow() {
     SampleRow * sample;
-    int rowIdx = currentChunk()->getCurrentRow();
-    if (rowIdx == currentChunk()->getSize()) {  // ie. past the end, chunk completed
+    Chunk<SampleRow> * chunk = currentChunk();
+    int row = chunk->getCurrentRow();
+
+    if (row == chunk->getSize()) {  // ie. past the end, chunk completed
         sample = NULL;              // no details to show
-        sgVials->Row = rowIdx;      // just show the last row
+        sgVials->Row = row;      // just show the last row
     } else {
-        sample = currentChunk()->rowAt(rowIdx);
-        sgVials->Row = rowIdx+1;    // allow for header row
+        int lookAhead = sgVials->VisibleRowCount/2;
+        if (row+lookAhead < chunk->getSize()-1) {
+            sgVials->Row = row+lookAhead+1; // bodge to scroll next few samples into view; ScrollBy doesn't seem to work
+        } else {
+            sgVials->Row = sgVials->RowCount-1;
+        }
+        sample = chunk->rowAt(row);
+        sgVials->Row = row+1;    // allow for header row
     }
     showDetails(sample);
 }
@@ -807,12 +648,6 @@ void TfrmProcess::nextRow() {
         if (!sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw "saveRecord() failed for secondary"; }
     }
     if (current < chunk->getSize()-1) {
-        int lookAhead = sgVials->VisibleRowCount/2;
-        if (current+lookAhead < chunk->getSize()-1) {
-            sgVials->Row = current+lookAhead+1; // bodge to scroll next few samples into view; ScrollBy doesn't seem to work
-        } else {
-            sgVials->Row = sgVials->RowCount-1;
-        }
         chunk->setCurrentRow(current+1);
         showCurrentRow();
     } else { // skipped last row
@@ -822,13 +657,19 @@ void TfrmProcess::nextRow() {
             sgChunks->Row = sgChunks->Row+1; // next chunk
         } else {
             if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
-            Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
+
         }
     }
     labelPrimary->Enabled = true; labelSecondary->Enabled = false;
     showChunks();
     editBarcode->Clear();
     ActiveControl = editBarcode; // focus for next barcode
+}
+
+void TfrmProcess::collectEmpties() {
+    /** if, at the end of processing a chunk, there are any source boxes which have become empty, the user may want to discard them instead of replacing them.
+    if so, provide an option to discard these empty boxes, recording it in the database */
+    Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
 }
 
 void TfrmProcess::exit() {
@@ -842,16 +683,6 @@ void TfrmProcess::exit() {
     }
 }
 
-//    using namespace boost::local_time;
-//    //local_date_time
-//
-//    time_t t(time(NULL)); // current time
-//    tm tm(*localtime(&t));
-//    std::locale loc("");
-//    const std::time_put<char> &tput = std::use_facet< std::time_put< char > >(loc);
-//    tput.put(oss.rdbuf(), oss, _T('\0'), &tm, _T('x'));
 
-// LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
-// LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
 
 
