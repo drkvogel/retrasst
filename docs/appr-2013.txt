@@ -10,6 +10,8 @@ In June I had to repair or rather rebuild the Steering file Information Generato
 
 In July Martin, Nick and I agreed that Referred Boxes was finished and I could move on to the next part of Storeman, the Retrieval Assistant. The spec for this developed over the next few months following quite a lot of discussion. The release date for the whole of Storeman was originally 1st Oct, but various database upgrades have pushed everyone's work back considerably, so at the end of the year Retrieval Assistant was almost complete but not quite. I hope to have it completed very soon. Also, these upgrades broke the previous project, Referred Boxes, and I had to spend some time adapting it to the new database structure, so that took time out of Retrieval Assistant development.
 
+In September I had to move house again, which disrupted things somewhat. I had a lot of problems in the previous house with some troublesome housemates, including an assault on me, police being called due to noise, and the threat of eviction - none of which were my fault! Suffice to say, my work was almost certainly affected to some degree. I am much better settled now though.
+
 I think I would have been able to have the Retrieval Assistant completed by the end of 2013, had it not been for several database upgrades which have disrupted things for everyone working on Storeman, however I can see that those upgrades were necessary.  and though it was frustrating having to repair previously working code on both Retrieval Assistant and Referred Boxes to get back to where they were before the upgrades, those problems have been dealt with those programs are now future-proofed (hopefully) for the coming versions of the live database.
 
 Also, I have taken care of ongoing occasional duties such as administering CVS repositories, helping with Linux server configuration, and making changes to the EBCTCG website.
@@ -27,3 +29,7 @@ In June 28th
  discussed Retrieval Assistant
 
 Full retrasst spec mid-July
+
+--
+
+Discard Boxes
