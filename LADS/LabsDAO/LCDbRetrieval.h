@@ -17,15 +17,13 @@ public:
     LCDbBoxRetrieval(const LQuery & query); // from query
     LCDbBoxRetrieval(int rj, int bid, int prj, int sec, int st) : //int rjb, int typ,
         rj_box_cid(0), retrieval_cid(rj), box_id(bid), project_cid(prj), section(sec), status(st)
-    {}; // rj_box_cid = rjb; retrieval_type = typ;
-    enum Status { NEW, PART_FILLED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
-    bool saveRecord(LQuery query);
+	{};
+	enum Status { NEW, PART_FILLED, COLLECTED, NOT_FOUND, DELETED = 99, NUM_STATUSES };
+	bool saveRecord(LQuery query);
     int     getRJBId() { return rj_box_cid; }
     void    setRJBId(int i) { rj_box_cid = i; }
     int     getRJId() { return retrieval_cid; }
-    void    setRJId(int i) { retrieval_cid = i; }
-//    int     getType() { return retrieval_type; }
-//    void    setType(int t) { retrieval_type = t; }
+	void    setRJId(int i) { retrieval_cid = i; }
     int     getBoxID() { return box_id; }
     void    setBoxID(int i) { box_id = i; }
     int     getProjId() { return project_cid; }

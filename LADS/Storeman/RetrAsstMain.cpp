@@ -4,7 +4,6 @@
 #include "LCDbAuditTrail.h"
 #include "LCDbObject.h"
 #include "LCDbProject.h"
-//#include "ReferredBoxes.h"
 #include "RetrAsstPlanSamples.h"
 #include "RetrAsstPlanBoxes.h"
 #include "RetrAsstCollectSamples.h"
@@ -138,7 +137,6 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
         break;
     default:
         msgbox("Cannot process a job with this status"); return;
-        //throw Exception("Unknown status");
     }
 }
 
