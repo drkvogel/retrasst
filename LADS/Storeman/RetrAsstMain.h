@@ -399,15 +399,15 @@ public:
     }
     int     getSection()    { return section; }
     int     getStart()      { return start; }
-    //int     getStartPos()   { return start+1; } // 1-indexed, human-readable
     T *     getStartRow()   { return sgw->rows->at(start); }
     string  getStartBox()   { return sgw->rows->at(start)->dest_box_name; }
     string  getStartVial()  { return sgw->rows->at(start)->cryo_record->getBarcode(); }
     int     getEnd()        { return end; }
-    //int     getEndPos()     { return end+1; }   // 1-indexed, human-readable
     string  getEndBox()     { return sgw->rows->at(end)->dest_box_name; }
     string  getEndVial()    { return sgw->rows->at(end)->cryo_record->getBarcode(); }
-    int     getCurrentRow() { return currentRowIdx; }
+    //int     getCurrentRow() { return currentRowIdx; }
+    int     getRowAbs() { return currentRowIdx; }
+    int     getRowRel() { return currentRowIdx - start; }
     int     getSize()       { return end - start + 1; } //OutputDebugString(L"test"); // oldrowscheme
     //int     getSize()       { return end - start; } // newrowscheme
     void    setStart(int s) {
@@ -424,9 +424,11 @@ public:
     }
     void    setEndBox(string s) { endBox = s; }
     void    setEndVial(string v) { endVial = v; }
-    void    setCurrentRow(int row) { currentRowIdx = row; }
+    //void    setCurrentRow(int row) { currentRowIdx = row; }
+    void    setRowAbs(int row) { currentRowIdx = row; }
+    void    setRowRel(int row) { currentRowIdx = start + row; }
     T *     currentRow() { return rowAt(currentRowIdx); }
-    T *     rowAt(int pos) {
+    T *     rowAtRel(int pos) {
         if (pos > getSize())
             throw "out of range";
         return sgw->rows->at((start)+(pos)); }

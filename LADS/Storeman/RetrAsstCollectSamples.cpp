@@ -525,9 +525,12 @@ void TfrmProcess::showCurrentRow() {
             break;
         } // else carry on
     }
-    currentChunk()->setCurrentRow(row);
+    //currentChunk()->setCurrentRow(row);
+    //currentChunk()->setRowAbs(row);
+    chunk()->setRowAbs(row);
 
-    row -= chunk->getStart(); // index of row in chunk
+    //row -= chunk->getStart(); // index of row in chunk
+    row = chunk->getRowRel();
 
     if (row == chunk->getSize()) {  // ie. past the end, chunk completed
         sample = NULL;              // no details to show
@@ -601,7 +604,8 @@ void TfrmProcess::skip() {
 
 void TfrmProcess::notFound() {
     DEBUGSTREAM("Save not found row")
-    int rowIdx = currentChunk()->getCurrentRow();
+    //int rowIdx = currentChunk()->getCurrentRow();
+    int rowIdx = currentChunk()->getRowAbs();
     SampleRow * row = currentChunk()->rowAt(rowIdx);
     if (row->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
         row->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
