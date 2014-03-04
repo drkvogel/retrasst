@@ -399,7 +399,7 @@ public:
     }
     int     getSection()    { return section; }
     int     getStart()      { return start; }
-    int     getStartPos()   { return start+1; } // 1-indexed, human-readable
+    //int     getStartPos()   { return start+1; } // 1-indexed, human-readable
     T *     getStartRow()   { return sgw->rows->at(start); }
     string  getStartBox()   { return sgw->rows->at(start)->dest_box_name; }
     string  getStartVial()  { return sgw->rows->at(start)->cryo_record->getBarcode(); }
@@ -408,8 +408,8 @@ public:
     string  getEndBox()     { return sgw->rows->at(end)->dest_box_name; }
     string  getEndVial()    { return sgw->rows->at(end)->cryo_record->getBarcode(); }
     int     getCurrentRow() { return currentRowIdx; }
-    //int     getSize()       { return end - start + 1; } //OutputDebugString(L"test"); // oldrowscheme
-    int     getSize()       { return end - start; } // newrowscheme
+    int     getSize()       { return end - start + 1; } //OutputDebugString(L"test"); // oldrowscheme
+    //int     getSize()       { return end - start; } // newrowscheme
     void    setStart(int s) {
         if (s < 0 || s > end)
             throw "invalid chunk start value";

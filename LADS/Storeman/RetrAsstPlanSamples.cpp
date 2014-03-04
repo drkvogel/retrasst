@@ -362,8 +362,8 @@ bool TfrmSamples::addChunk(unsigned int offset) {
         if (curchunk->getStart()+offset > vials.size()) { // current last chunk is too small to be split at this offset
             return false; // e.g. for auto-chunk to stop chunking
         }
-        //curchunk->setEnd(curchunk->getStart()+offset-1); // row above start of new chunk - oldrowscheme
-        curchunk->setEnd(curchunk->getStart()+offset); // ??? newrowscheme
+        curchunk->setEnd(curchunk->getStart()+offset-1); // row above start of new chunk - oldrowscheme
+        //curchunk->setEnd(curchunk->getStart()+offset); // ??? newrowscheme
         newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStart()+offset, vials.size()-1);
     }
     chunks.push_back(newchunk);
@@ -391,11 +391,12 @@ void TfrmSamples::showChunks() {
     for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
         Chunk< SampleRow > * chunk = *it;
         sgChunks->Cells[sgwChunks->colNameToInt("section")]   [row] = chunk->getSection();
-        sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStartPos();
+        //sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStartPos();
+        sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStart()+1;
         sgChunks->Cells[sgwChunks->colNameToInt("startbox")]  [row] = chunk->getStartBox().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("startvial")] [row] = chunk->getStartVial().c_str();
         //sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEndPos(); // oldrowscheme
-        sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEnd(); // newrowscheme
+        sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEnd()+1; // newrowscheme
         sgChunks->Cells[sgwChunks->colNameToInt("endbox")]    [row] = chunk->getEndBox().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("endvial")]   [row] = chunk->getEndVial().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();
@@ -727,8 +728,8 @@ void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
         chunks.pop_back();
         oss<<" after pop: "<<chunks.size();
         debugLog(oss.str().c_str());
-        //(*(chunks.end()-1))->setEnd(vials.size()-1); // oldrowscheme
-        (*(chunks.end()-1))->setEnd(vials.size()); // newrowscheme
+        (*(chunks.end()-1))->setEnd(vials.size()-1); // oldrowscheme
+        //(*(chunks.end()-1))->setEnd(vials.size()); // newrowscheme
         showChunks();
         showChunk();
     }
