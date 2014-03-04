@@ -258,7 +258,8 @@ void __fastcall TfrmProcess::btnExitClick(TObject *Sender) { exit(); }
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) { accept(editBarcode->Text); }
 
 void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) { // simulate a correct barcode scanned
-    editBarcode->Text = currentChunk()->rowAt(currentChunk()->getCurrentRow())->cryovial_barcode.c_str();
+    //editBarcode->Text = currentChunk()->rowAt(currentChunk()->getCurrentRow())->cryovial_barcode.c_str();
+    editBarcode->Text = (currentChunk()->currentRow())->cryovial_barcode.c_str();
     btnAcceptClick(this);
 }
 
@@ -471,7 +472,8 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
         return;
     }
 
-    frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1);
+    //frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1); // oldrowscheme
+    frmProcess->chunks[frmProcess->chunks.size()-1]->setEnd(frmProcess->vials.size()-1); // newrowscheme
 
     // find locations of source boxes
     int rowCount2 = 0;
@@ -494,20 +496,6 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     Screen->Cursor = crDefault;
     try {
         showChunks();
-        unsigned row; // when would getStart() not be 0?
-        for (row = currentChunk()->getStart(); row < currentChunk()->getEnd(); row++) {
-            SampleRow * sample = currentChunk()->rowAt(row);
-            if (sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
-                break;
-            } else if (
-                        sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::NOT_FOUND &&
-                        sample->secondary != NULL &&
-                        sample->secondary->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
-                break;
-            }
-            // else carry on
-        }
-        currentChunk()->setCurrentRow(row);
         showCurrentRow();
     } catch (Exception & e) {
         msgbox(e.Message);
@@ -519,7 +507,27 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
 void TfrmProcess::showCurrentRow() {
     SampleRow * sample;
     Chunk<SampleRow> * chunk = currentChunk();
-    int row = chunk->getCurrentRow();
+
+    int start = chunk->getStart();
+    int end   = chunk->getEnd();
+    int size  = chunk->getSize();
+
+    // fast-forward to first non-dealt-with row
+    unsigned row;
+    for (row = chunk->getStart(); row < chunk->getEnd(); row++) {
+        sample = chunk->rowAt(row);
+        if (sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
+            break;
+        } else if (
+                sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::NOT_FOUND &&
+                sample->secondary != NULL &&
+                sample->secondary->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
+            break;
+        } // else carry on
+    }
+    currentChunk()->setCurrentRow(row);
+
+    row -= chunk->getStart(); // index of row in chunk
 
     if (row == chunk->getSize()) {  // ie. past the end, chunk completed
         sample = NULL;              // no details to show
@@ -554,7 +562,8 @@ void TfrmProcess::addChunk(int row) {
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
         newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, 0, row); // empty chunk, don't know how big it will be yet
     } else {
-        chunks[chunks.size()-1]->setEnd(row-1);
+        //chunks[chunks.size()-1]->setEnd(row-1); // oldrowscheme
+        chunks[chunks.size()-1]->setEnd(row-1); // newrowscheme
         newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, row, row);
     }
     chunks.push_back(newchunk);

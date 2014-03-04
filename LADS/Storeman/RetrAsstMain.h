@@ -19,17 +19,6 @@
 #include <iomanip>
 #include <boost/date_time.hpp>
 
-#define DEBUGSTREAM(x) {wstringstream oss; oss<<x; debugLog(oss.str().c_str());}
-
-using namespace std;
-
-const bool RETRASSTDEBUG =
-#ifdef _DEBUG
-    true;
-#else
-    false;
-#endif
-
 #define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
 #define RETRIEVAL_ASSISTANT_NEW_COLOUR          clMoneyGreen
 #define RETRIEVAL_ASSISTANT_SECONDARY_COLOUR    clYellow
@@ -41,11 +30,18 @@ const bool RETRASSTDEBUG =
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
 #define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clPurple
 
-// LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
-// LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND|DELETED
-
 #define DEFAULT_BOX_SIZE 100
 #define MAX_CHUNK_SIZE 1001
+#define DEBUGSTREAM(x) {wstringstream oss; oss<<x; debugLog(oss.str().c_str());}
+
+const bool RETRASSTDEBUG =
+#ifdef _DEBUG
+    true;
+#else
+    false;
+#endif
+
+using namespace std;
 
 void msgbox(char * main, char * title="Info") {
     Application->MessageBoxW(String(main).w_str(), String(title).w_str(), MB_OK);
@@ -353,7 +349,6 @@ class Chunk { // not recorded in database
     string              endBox;
     string              endDescrip;
     int                 currentRowIdx;
-    //char *              statusString[] = {"NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED"};
 public:
     Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e), currentRowIdx(0) { }
     enum Status { NOT_STARTED, INPROGRESS, DONE, /*REJECTED, DELETED = 99,*/ NUM_STATUSES };// status;
@@ -374,7 +369,6 @@ public:
     }
     string progressString() {
         ostringstream oss;
-        //float percent = ((float)currentRowIdx/((float)getSize()))*100;
         float percent = getProgress()*100;
         oss<<currentRowIdx<<"/"<<getSize()<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
         return oss.str();
@@ -410,11 +404,12 @@ public:
     string  getStartBox()   { return sgw->rows->at(start)->dest_box_name; }
     string  getStartVial()  { return sgw->rows->at(start)->cryo_record->getBarcode(); }
     int     getEnd()        { return end; }
-    int     getEndPos()     { return end+1; }   // 1-indexed, human-readable
+    //int     getEndPos()     { return end+1; }   // 1-indexed, human-readable
     string  getEndBox()     { return sgw->rows->at(end)->dest_box_name; }
     string  getEndVial()    { return sgw->rows->at(end)->cryo_record->getBarcode(); }
     int     getCurrentRow() { return currentRowIdx; }
-    int     getSize()       { return end - start + 1; } //OutputDebugString(L"test");
+    //int     getSize()       { return end - start + 1; } //OutputDebugString(L"test"); // oldrowscheme
+    int     getSize()       { return end - start; } // newrowscheme
     void    setStart(int s) {
         if (s < 0 || s > end)
             throw "invalid chunk start value";
