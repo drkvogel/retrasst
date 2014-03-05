@@ -122,7 +122,7 @@ private:
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     void                                        fillRow(SampleRow * sampleRow, int rw);
     void                                        loadRows();
-    void                                        addChunk(int row);
+    void                                        addChunk(int number, int row);
     void                                        showCurrentRow();
     void                                        showDetails(SampleRow * sample);
     void                                        accept(String barcode);

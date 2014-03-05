@@ -1,0 +1,86 @@
+void    setCurrentRow(int row) { currentRowIdx = row; }
+int     getCurrentRow() { return currentRowIdx; }
+T *     currentRow() { return rowAt(currentRowIdx); }
+
+void showCurrentRow();
+
+void TfrmProcess::showCurrentRow() {
+    SampleRow * sample;
+    int rowIdx = currentChunk()->getCurrentRow();
+    if (rowIdx == currentChunk()->getSize()) {  // ie. past the end, chunk completed
+        sample = NULL;              // no details to show
+        sgVials->Row = rowIdx;      // just show the last row
+    } else {
+        sample = currentChunk()->rowAt(rowIdx);
+        sgVials->Row = rowIdx+1;    // allow for header row
+    }
+    showDetails(sample);
+}
+
+last chunk crash on statusString
+has to iter thru all samples to get status - off the end?
+
+chunk->getStatus() called in 
+	showChunks
+	and sgChunksDrawCell <-- necessary?
+
+
+
+
+look for ??? /newrow
+
+though for last chunk, there is no row after
+reverse changes: end is last row, not one after
+why can't I inspect chunk?
+
+in collect, chunk sizes are fubar: 215, 237, 229, 252, 37
+
+select count(*) from c_box_retrieval br, l_cryovial_retrieval cr where br.rj_box_cid = cr.rj_box_cid and br.section = 1/2/3/4/5
+
+shows correct(?) sizes per chunk: 400 (200 of both aliquots)
+aliquots: -31782,1
+
+doing (e.g.)
+ select count(*) from c_box_retrieval br, l_cryovial_retrieval cr where br.rj_box_cid = cr.rj_box_cid and br.section = 3 and cr.aliquot_type_cid = -31781
+
+we can see there is the correct (200) number of each aliquot in each chunk of the plan - something is going awry on loading the plan into memory
+
+the join is probably including extra store records created on previous saves
+
+the plan looks ok 1674 = 2 * 837 rows, chunks of 200
+
+run /testing/retrasst/is-query-correct/go.sh again -> out.txt -> out.xlsx
+
+count(*) of big query gives 1674! the query is ok
+
+rowCount = 217
+	when
+rowCountTemp = 400
+
+rowCount is wrong
+2ndary aliquot code not right
+only two types currently (select distinct(aliquot_type_cid) from l_cryovial_retrieval)
+
+
+
+sgChunksClick
+	showChunk
+		showCurrentRow # just once
+
+
+
+skip
+	nextRow
+		showCurrentRow
+
+skip
+	nextRow
+		showChunks
+			showChunk
+				showCurrentRow
+
+showCurrentRow get triggered twice
+
+at the start of the second chunk, progress is shown as 91%, 216/237 - 216 is the real position of the first row
+
+currentRowIdx is now the absolute row index rather than relative

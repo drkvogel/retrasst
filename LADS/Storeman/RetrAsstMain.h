@@ -331,26 +331,22 @@ public:
 		cols[col].sortAsc ? sort_asc(col, start, end) : sort_dsc(col, start, end);
         cols[col].sortAsc = !cols[col].sortAsc; // toggle
 	}
-
-//    void sort_toggle(string colName, int start, int end) {
-//        sort_toggle(colNameToInt(colName), start, end);
-//    }
 };
 
 template < class T >
 class Chunk { // not recorded in database
 	StringGridWrapper< T > * sgw;
 	int                 section;
-    int                 start;
+    int                 startAbs;
 	string              startVial;
 	string              startBox;
-    int                 end;
+    int                 endAbs;
     string              endVial;
     string              endBox;
     string              endDescrip;
-    int                 currentRowIdx;
+    int                 rowRel;
 public:
-    Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), start(s), end(e), currentRowIdx(0) { }
+    Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), startAbs(s), endAbs(e), rowRel(0) { }
     enum Status { NOT_STARTED, INPROGRESS, DONE, /*REJECTED, DELETED = 99,*/ NUM_STATUSES };// status;
     string statusString() {
         switch (getStatus()) {
@@ -364,20 +360,18 @@ public:
                 throw "unknown status";
         }
     }
-    float getProgress() {
-        return ((float)currentRowIdx/((float)getSize()));
-    }
+    float getProgress() { return ((float)rowRel/((float)getSize())); }
     string progressString() {
         ostringstream oss;
         float percent = getProgress()*100;
-        oss<<currentRowIdx<<"/"<<getSize()<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
+        oss<<rowRel<<"/"<<getSize()<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
         return oss.str();
     }
-    int getStatus() { // http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates
+    int getStatus() { // return DONE|NOT_STARTED|INPROGRESS
         bool complete = true;
         bool not_started = true;
         for (int i=0; i<getSize(); i++) {
-            int status = rowAt(i)->retrieval_record->getStatus();
+            int status = objectAtRel(i)->retrieval_record->getStatus();
             switch (status) {
                 case LCDbCryovialRetrieval::EXPECTED:
                     complete = false; break;
@@ -389,53 +383,39 @@ public:
                     throw "unexpected LCDbCryovialRetrieval status";
             }
         }
-        if (complete) {
-            return DONE;
-        } else if (not_started) {
-            return NOT_STARTED;
-        } else {
-            return INPROGRESS;
-        }
+        if (complete) { return DONE; } else if (not_started) { return NOT_STARTED; } else { return INPROGRESS; }
     }
     int     getSection()    { return section; }
-    int     getStart()      { return start; }
-    T *     getStartRow()   { return sgw->rows->at(start); }
-    string  getStartBox()   { return sgw->rows->at(start)->dest_box_name; }
-    string  getStartVial()  { return sgw->rows->at(start)->cryo_record->getBarcode(); }
-    int     getEnd()        { return end; }
-    string  getEndBox()     { return sgw->rows->at(end)->dest_box_name; }
-    string  getEndVial()    { return sgw->rows->at(end)->cryo_record->getBarcode(); }
-    //int     getCurrentRow() { return currentRowIdx; }
-    int     getRowAbs() { return currentRowIdx; }
-    int     getRowRel() { return currentRowIdx - start; }
-    int     getSize()       { return end - start + 1; } //OutputDebugString(L"test"); // oldrowscheme
-    //int     getSize()       { return end - start; } // newrowscheme
-    void    setStart(int s) {
-        if (s < 0 || s > end)
-            throw "invalid chunk start value";
-        start = s;
-    }
+    int     getStartAbs()   { return startAbs; }
+    int     getStartRel()   { return 0; }
+    T *     getStartRow()   { return sgw->rows->at(startAbs); }
+    string  getStartBox()   { return sgw->rows->at(startAbs)->dest_box_name; }
+    string  getStartVial()  { return sgw->rows->at(startAbs)->cryo_record->getBarcode(); }
+    int     getEndAbs()     { return endAbs; }
+    int     getEndRel()     { return endAbs - startAbs; }
+    string  getEndBox()     { return sgw->rows->at(endAbs)->dest_box_name; }
+    string  getEndVial()    { return sgw->rows->at(endAbs)->cryo_record->getBarcode(); }
+    int     getRowRel()     { return rowRel; }
+    int     getRowAbs()     { return startAbs + rowRel; }
+    int     getSize()       { return endAbs - startAbs + 1; }
+    void    setStartAbs(int s) { if (s < 0 || s > endAbs) throw "invalid chunk start value"; startAbs = s; }
     void    setStartBox(string s) { startBox = s; }
     void    setStartVial(string v) { startVial = v; }
-    void    setEnd(int e) {
-        if (e > sgw->rowCount()-1)
-            throw "invalid chunk end value";
-        end = e;
-    }
+    void    setEndAbs(int e) { if (e >= sgw->rowCount()) throw "invalid chunk end value"; endAbs = e; }
     void    setEndBox(string s) { endBox = s; }
     void    setEndVial(string v) { endVial = v; }
-    //void    setCurrentRow(int row) { currentRowIdx = row; }
-    void    setRowAbs(int row) { currentRowIdx = row; }
-    void    setRowRel(int row) { currentRowIdx = start + row; }
-    T *     currentRow() { return rowAt(currentRowIdx); }
-    T *     rowAtRel(int pos) {
-        if (pos > getSize())
-            throw "out of range";
-        return sgw->rows->at((start)+(pos)); }
-    void sort_asc(string colName) { sgw->sort_asc(colName, start, end); }
-    void sort_dsc(string colName) { sgw->sort_dsc(colName, start, end); }
-    void sortToggle(int col) { sgw->sort_toggle(col, start, end); }
-    void sortToggle(string colName) { sgw->sort_toggle(colName, start, end); } // n.b. uninstantiated code in templates is not compiled
+    //void    setRowAbs(int row) { rowRel = row - start; }
+    void    setRowRel(int i) { rowRel = i; }
+    void    setRowAbs(int i) { rowRel = starrow; }
+    T *     currentObject() { return objectAtRel(rowRel); }
+    T *     objectAtRel(int posRel) {
+        if (posRel >= getSize()) throw "out of range"; return objectAtAbs((startAbs)+(posRel)); }
+    T *     objectAtAbs(int posAbs) {
+        if (posAbs >= sgw->rowCount()) throw "out of range"; return sgw->rows->at(posAbs); }
+    void sort_asc(string colName) { sgw->sort_asc(colName, startAbs, endAbs); }
+    void sort_dsc(string colName) { sgw->sort_dsc(colName, startAbs, endAbs); }
+    void sortToggle(int col) { sgw->sort_toggle(col, startAbs, endAbs); }
+    void sortToggle(string colName) { sgw->sort_toggle(colName, startAbs, endAbs); } // n.b. uninstantiated code in templates is not compiled
 };
 
 typedef std::vector< Chunk * > vecpChunk;
@@ -521,3 +501,5 @@ public:
 
 extern PACKAGE TfrmRetrievalAssistant *frmRetrievalAssistant;
 #endif
+
+// http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates

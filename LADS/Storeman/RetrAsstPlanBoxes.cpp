@@ -236,7 +236,7 @@ void __fastcall TfrmBoxes::btnSaveClick(TObject *Sender) {
             //for (vecpBoxRow::const_iterator it = chunk->begin(); it != chunk->end(); it++) { // vecpDataRow?
             for (int i = 1; i < chunk->getSize(); i++) {
                 //pBoxRow boxRow = (pBoxRow)*it;
-                pBoxRow boxRow = chunk->rowAt(i);
+                pBoxRow boxRow = chunk->objectAtRel(i);
                 //LPDbCryovialStore * vial = sampleRow->store_record;
             }
             /*
