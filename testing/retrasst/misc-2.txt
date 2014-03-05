@@ -24,9 +24,6 @@ chunk->getStatus() called in
 	showChunks
 	and sgChunksDrawCell <-- necessary?
 
-
-
-
 look for ??? /newrow
 
 though for last chunk, there is no row after
@@ -35,39 +32,27 @@ why can't I inspect chunk?
 
 in collect, chunk sizes are fubar: 215, 237, 229, 252, 37
 
-select count(*) from c_box_retrieval br, l_cryovial_retrieval cr where br.rj_box_cid = cr.rj_box_cid and br.section = 1/2/3/4/5
-
-shows correct(?) sizes per chunk: 400 (200 of both aliquots)
-aliquots: -31782,1
-
-doing (e.g.)
- select count(*) from c_box_retrieval br, l_cryovial_retrieval cr where br.rj_box_cid = cr.rj_box_cid and br.section = 3 and cr.aliquot_type_cid = -31781
-
-we can see there is the correct (200) number of each aliquot in each chunk of the plan - something is going awry on loading the plan into memory
-
-the join is probably including extra store records created on previous saves
-
-the plan looks ok 1674 = 2 * 837 rows, chunks of 200
-
-run /testing/retrasst/is-query-correct/go.sh again -> out.txt -> out.xlsx
-
-count(*) of big query gives 1674! the query is ok
-
-rowCount = 217
-	when
-rowCountTemp = 400
-
-rowCount is wrong
-2ndary aliquot code not right
-only two types currently (select distinct(aliquot_type_cid) from l_cryovial_retrieval)
-
+	select count(*) from c_box_retrieval br, l_cryovial_retrieval cr where br.rj_box_cid = cr.rj_box_cid and br.section = 1/2/3/4/5
+		shows correct(?) sizes per chunk: 400 (200 of both aliquots: -31782,1)
+	select count(*) from c_box_retrieval br, l_cryovial_retrieval cr where br.rj_box_cid = cr.rj_box_cid and br.section = 3 and cr.aliquot_type_cid = -31781
+		there is the correct (200) number of each aliquot in each chunk of the plan - something is going awry on loading the plan into memory
+	the join is probably including extra store records created on previous saves - no
+	the plan looks ok 1674 = 2 * 837 rows, chunks of 200
+	run /testing/retrasst/is-query-correct/go.sh again -> out.txt -> out.xlsx
+	count(*) of big query gives 1674! the query is ok
+	rowCount = 217 	when rowCountTemp = 400
+	rowCount is wrong
+	2ndary aliquot code not right
+		assumes aliquots alternate, sometimes they are grouped together
+	or sort order not right
+		only two types currently (select distinct(aliquot_type_cid) from l_cryovial_retrieval)
+		some secondaries must get counted as primaries
+		yes, sort by lcr_position, not source_pos - lcr_position is the order they are put in the plan, source_pos *may* be the same order sometimes, but not always, depending on how you sort the plan - previously I had been saving the plan as-is without sorting, and source_pos worked, but recently have been sorting by destination box and position - hence recent funny behaviour. sort by lcr_position and now it's *almost* right - 1st chunk 1 too big, last 1 too small...
 
 
 sgChunksClick
 	showChunk
 		showCurrentRow # just once
-
-
 
 skip
 	nextRow

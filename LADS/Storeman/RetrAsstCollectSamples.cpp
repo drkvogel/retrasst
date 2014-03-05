@@ -417,7 +417,7 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
         "    cbr.retrieval_cid   = cs.retrieval_cid AND "
         "    cs.box_cid          = sb.box_cid "
         " ORDER BY "
-        "    chunk, source_pos, rj_box_cid, aliquot_type_cid "
+        "    chunk, rj_box_cid, lcr_position, aliquot_type_cid "
         << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"); //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     qd.setSQL(oss.str()); debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
     qd.setParam("rtid", job->getID()); //int retrieval_cid = job->getID();
