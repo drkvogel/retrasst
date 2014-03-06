@@ -258,7 +258,6 @@ void __fastcall TfrmProcess::btnExitClick(TObject *Sender) { exit(); }
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) { accept(editBarcode->Text); }
 
 void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) { // simulate a correct barcode scanned
-    //editBarcode->Text = currentChunk()->rowAt(currentChunk()->getCurrentRow())->cryovial_barcode.c_str();
     editBarcode->Text = (currentChunk()->currentObject())->cryovial_barcode.c_str();
     btnAcceptClick(this);
 }
@@ -276,10 +275,10 @@ void TfrmProcess::showChunks() {
         sgChunks->Cells[sgwChunks->colNameToInt("section")]   [row] = chunk->getSection();
         sgChunks->Cells[sgwChunks->colNameToInt("status")]    [row] = chunk->statusString().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("progress")]  [row] = chunk->progressString().c_str();
-        sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStartAbs();
+        sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStartAbs() + 1;
         sgChunks->Cells[sgwChunks->colNameToInt("startbox")]  [row] = chunk->getStartBox().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("startvial")] [row] = chunk->getStartVial().c_str();
-        sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEndAbs();
+        sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEndAbs() + 1;
         sgChunks->Cells[sgwChunks->colNameToInt("endbox")]    [row] = chunk->getEndBox().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("endvial")]   [row] = chunk->getEndVial().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();
@@ -376,13 +375,12 @@ void __fastcall LoadPlanWorkerThread::debugLog() { frmProcess->debugLog(debugMes
 
 void __fastcall LoadPlanWorkerThread::msgbox() { Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK); }
 
-void __fastcall LoadPlanWorkerThread::Execute() { NotUsingTempTable(); } //UsingTempTable();
+void __fastcall LoadPlanWorkerThread::Execute() { NotUsingTempTable(); }
 
 void LoadPlanWorkerThread::NotUsingTempTable() {
     /** load retrieval plan
     For a box retrieval, the retrieval plan will be given by: Select * from c_box_retrieval b order by b.section, b.rj_box_cid
     For a cryovial retrieval, the retrieval plan will be: Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
-
     delete_referenced< vector<SampleRow * > >(frmProcess->vials); frmProcess->chunks.clear();
     ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
     if (NULL == frmProcess || NULL == frmProcess->job) { throw "wtf?"; }
@@ -431,7 +429,7 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
 
         chunk = qd.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) { // new chunk, add the previous one
-            frmProcess->addChunk(curchunk, rowCount);
+            frmProcess->addChunk(curchunk, rowCount-1);
             curchunk = chunk;
         }
 
@@ -469,12 +467,8 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
         qd.next();
         rowCountTemp++;
     } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
-
     frmProcess->addChunk(curchunk, rowCount-1); // the last chunk
-
     if (0 == rowCount || 0 == frmProcess->chunks.size()) { return; } // something wrong here...
-
-    //frmProcess->chunks[frmProcess->chunks.size()-1]->setEndAbs(frmProcess->vials.size()-1); // end of last chunk is size of vector
 
     // find locations of source boxes
     int rowCount2 = 0;
@@ -506,40 +500,17 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
 void TfrmProcess::showCurrentRow() {
     SampleRow * sample;
     Chunk<SampleRow> * chunk = currentChunk();
+    chunk->setRowAbs(chunk->nextUnresolvedAbs()); // fast-forward to first non-dealt-with row
+    int rowRel = chunk->getRowRel();
 
-    int start = chunk->getStartAbs();
-    int end   = chunk->getEndAbs();
-    int size  = chunk->getSize();
-
-    // fast-forward to first non-dealt-with row
-    //unsigned rowAbs,
-    unsigned rowRel;
-    for (rowRel = chunk->getStartRel(); rowRel < chunk->getEndRel(); rowRel++) {
-        sample = chunk->objectAtRel(rowRel);
-        if (sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
-            break;
-        } else if (
-                sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::NOT_FOUND &&
-                sample->secondary != NULL &&
-                sample->secondary->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
-            break;
-        } // else carry on
-    }
-
-    //chunk->setRowRel(row);
-    chunk->setRowRel(rowRel);
-
-
-    rowRel = chunk->getRowRel();
-
-    if (rowRel == chunk->getSize()) {  // ie. past the end, chunk completed
-        sample = NULL;              // no details to show
-        sgVials->Row = rowRel;      // just show the last row
+    if (rowRel == chunk->getSize()) {   // ie. past the end, chunk completed
+        sample = NULL;                  // no details to show
+        sgVials->Row = rowRel;          // just show the last row
     } else {
         int lookAhead = sgVials->VisibleRowCount / 2;
         if (rowRel + lookAhead < chunk->getSize() - 1) {
-            sgVials->Row = rowRel + lookAhead + 1; // bodge to scroll next few samples into view; ScrollBy doesn't seem to work
-        } else {
+            sgVials->Row = rowRel + lookAhead + 1;  // bodge to scroll next few samples into view; ScrollBy doesn't seem to work
+        } else {                                    // fixme put into class
             sgVials->Row = sgVials->RowCount - 1;
         }
         sample = chunk->objectAtRel(rowRel);
@@ -560,15 +531,12 @@ void TfrmProcess::showDetails(SampleRow * sample) {
     }
 }
 
-void TfrmProcess::addChunk(int number, int endRowAbs) { // should be passed chunk number instead of assuming it's the next number?
+void TfrmProcess::addChunk(int number, int endRowAbs) { // don't assume chunk/section numbers instead of assuming it's the next number?
 /** add chunk with section = number, start row = end of previous chunk + 1, end row = endRowAbs */
-    Chunk< SampleRow > * newchunk;
-    // Chunk(sgw, section, startAbs, endAbs, rowRel(0))
-    if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-        newchunk = new Chunk< SampleRow >(sgwVials, number, 0, endRowAbs); // empty chunk, don't know how big it will be yet
+    Chunk< SampleRow > * newchunk; // Chunk(sgw, section, startAbs, endAbs, rowRel(0))
+    if (chunks.size() == 0) { // first chunk
+        newchunk = new Chunk< SampleRow >(sgwVials, number, 0, endRowAbs);
     } else {
-        //chunks[chunks.size()-1]->setEndAbs(endRowAbs-1); // set end of previous chunk
-        //newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, endRowAbs, endRowAbs);
         int previousEnd = chunks[chunks.size() - 1]->getEndAbs();
         newchunk = new Chunk< SampleRow >(sgwVials, number, previousEnd + 1, endRowAbs);
     }
@@ -590,6 +558,7 @@ void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be
     if (barcode == aliquot->cryovial_barcode.c_str()) { // save
         aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
         //if secondary
+        msgbox("save secondary");
         //sample->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
         debugLog("Save accepted row");
         nextRow();
@@ -608,16 +577,16 @@ void TfrmProcess::skip() {
 void TfrmProcess::notFound() {
     DEBUGSTREAM("Save not found row")
     //int rowIdx = currentChunk()->getCurrentRow();
-    int rowIdx = currentChunk()->getRowAbs();
-    SampleRow * row = currentChunk()->objectAtRel(rowIdx);
-    if (row->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
-        row->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
-        if (row->secondary) {
+    int rowAbs = currentChunk()->getRowAbs();
+    SampleRow * sample = currentChunk()->objectAtRel(rowAbs);
+    if (sample->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
+        sample->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
+        if (sample->secondary) {
             msgbox("Secondary aliquot found");
-            if (row->secondary->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // secondary already marked not found
-                fillRow(row, rowIdx+1); // refresh sg row - now keeps pointer to row
+            if (sample->secondary->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // secondary already marked not found
+                fillRow(sample, rowAbs + 1); // refresh sg row - now keeps pointer to row
                 showCurrentRow();
-                showDetails(row->secondary);
+                showDetails(sample->secondary);
                 return;
             } else {
                 throw "secondary already NOT_FOUND";
@@ -627,8 +596,8 @@ void TfrmProcess::notFound() {
             nextRow();
         }
     } else {  // primary already marked not found
-        if (row->secondary) {
-            row->secondary->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
+        if (sample->secondary) {
+            sample->secondary->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
             nextRow();
         } else {
             throw "no secondary for not found primary, should have moved on to next row";
@@ -636,12 +605,11 @@ void TfrmProcess::notFound() {
     }
 }
 
-SampleRow * TfrmProcess::currentSample() { //Chunk< SampleRow > * chunk = currentChunk(); //int current = chunk->getCurrentRow(); //SampleRow * sample = chunk->rowAt(current); //SampleRow * row = currentChunk()->rowAt(currentChunk()->getCurrentRow());
-    return currentChunk()->objectAtRel(currentChunk()->getRowRel());
-    //return currentChunk()->currentObject();
+SampleRow * TfrmProcess::currentSample() {
+    return currentChunk()->objectAtRel(currentChunk()->getRowRel());  //return currentChunk()->currentObject();
 }
 
-SampleRow * TfrmProcess::currentAliquot() { //Chunk< SampleRow > * chunk = currentChunk(); //int current = chunk->getCurrentRow(); //SampleRow * sample = chunk->rowAt(current); //SampleRow * row = currentChunk()->rowAt(currentChunk()->getCurrentRow());
+SampleRow * TfrmProcess::currentAliquot() {
     SampleRow * row = currentSample();
     if (row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND) {
         if (NULL == row->secondary) {
@@ -657,7 +625,6 @@ SampleRow * TfrmProcess::currentAliquot() { //Chunk< SampleRow > * chunk = curre
 void TfrmProcess::nextRow() {
     Chunk< SampleRow > * chunk = currentChunk();
     int current = chunk->getRowRel(); //SampleRow * sample = currentAliquot(); // which may be the secondary aliquot //
-    //SampleRow * sample = chunk->objectAtRel(current);
     SampleRow * sample = chunk->currentObject();
 
     // save both primary and secondary
@@ -666,10 +633,11 @@ void TfrmProcess::nextRow() {
         if (!sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw "saveRecord() failed for secondary"; }
     }
     if (current < chunk->getSize()-1) {
-        chunk->setRowRel(current+1);
+        chunk->setRowAbs(chunk->nextUnresolvedAbs()); // fast-forward to first non-dealt-with row
         showCurrentRow();
-    } else { // skipped last row
-        chunk->setRowRel(current+1); // past end to show complete?
+    } else { // last row
+        //chunk->setRowRel(current+1); // past end to show complete?
+        msgbox("review");
         debugLog("Save chunk"); // no, don't save - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
         if (chunk->getSection() < (int)chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk
@@ -700,7 +668,4 @@ void TfrmProcess::exit() {
         Close();
     }
 }
-
-
-
 

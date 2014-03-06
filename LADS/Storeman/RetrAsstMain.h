@@ -348,6 +348,52 @@ class Chunk { // not recorded in database
 public:
     Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), startAbs(s), endAbs(e), rowRel(0) { }
     enum Status { NOT_STARTED, INPROGRESS, DONE, /*REJECTED, DELETED = 99,*/ NUM_STATUSES };// status;
+    int     getSection()    { return section; }
+    int     getStartAbs()   { return startAbs; }
+    int     getStartRel()   { return 0; }
+    T *     getStartRow()   { return sgw->rows->at(startAbs); }
+    string  getStartBox()   { return sgw->rows->at(startAbs)->dest_box_name; }
+    string  getStartVial()  { return sgw->rows->at(startAbs)->cryo_record->getBarcode(); }
+    int     getEndAbs()     { return endAbs; }
+    int     getEndRel()     { return endAbs - startAbs; }
+    string  getEndBox()     { return sgw->rows->at(endAbs)->dest_box_name; }
+    string  getEndVial()    { return sgw->rows->at(endAbs)->cryo_record->getBarcode(); }
+    int     getRowRel()     { return rowRel; }
+    int     getRowAbs()     { return startAbs + rowRel; }
+    int     getSize()       { return endAbs - startAbs + 1; }
+    void    setStartAbs(int s) { if (s < 0 || s > endAbs) throw "invalid chunk start value"; startAbs = s; }
+    void    setStartBox(string s) { startBox = s; }
+    void    setStartVial(string v) { startVial = v; }
+    void    setEndAbs(int e) { if (e >= sgw->rowCount()) throw "invalid chunk end value"; endAbs = e; }
+    void    setEndBox(string s) { endBox = s; }
+    void    setEndVial(string v) { endVial = v; }
+    void    setRowRel(int i) { rowRel = i; }
+    void    setRowAbs(int i) { rowRel = i - startAbs; }
+    T *     currentObject() { return objectAtRel(rowRel); }
+    T *     objectAtRel(int posRel) {
+        if (posRel >= getSize()) throw "out of range"; return objectAtAbs((startAbs)+(posRel)); }
+    T *     objectAtAbs(int posAbs) {
+        if (posAbs >= sgw->rowCount()) throw "out of range"; return sgw->rows->at(posAbs); }
+    void    sort_asc(string colName) { sgw->sort_asc(colName, startAbs, endAbs); }
+    void    sort_dsc(string colName) { sgw->sort_dsc(colName, startAbs, endAbs); }
+    void    sortToggle(int col) { sgw->sort_toggle(col, startAbs, endAbs); }
+    void    sortToggle(string colName) { sgw->sort_toggle(colName, startAbs, endAbs); } // n.b. uninstantiated code in templates is not compiled
+    int     nextUnresolvedAbs() {
+        int rowAbs;
+        SampleRow * sample;
+        for (rowAbs = startAbs; rowAbs < endAbs; rowAbs++) {
+            sample = objectAtAbs(rowAbs);
+            if (sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
+                break;
+            } else if (
+                    sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::NOT_FOUND &&
+                    sample->secondary != NULL &&
+                    sample->secondary->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
+                break;
+            } // else carry on
+        }
+        return rowAbs;
+    }
     string statusString() {
         switch (getStatus()) {
             case NOT_STARTED:
@@ -385,37 +431,6 @@ public:
         }
         if (complete) { return DONE; } else if (not_started) { return NOT_STARTED; } else { return INPROGRESS; }
     }
-    int     getSection()    { return section; }
-    int     getStartAbs()   { return startAbs; }
-    int     getStartRel()   { return 0; }
-    T *     getStartRow()   { return sgw->rows->at(startAbs); }
-    string  getStartBox()   { return sgw->rows->at(startAbs)->dest_box_name; }
-    string  getStartVial()  { return sgw->rows->at(startAbs)->cryo_record->getBarcode(); }
-    int     getEndAbs()     { return endAbs; }
-    int     getEndRel()     { return endAbs - startAbs; }
-    string  getEndBox()     { return sgw->rows->at(endAbs)->dest_box_name; }
-    string  getEndVial()    { return sgw->rows->at(endAbs)->cryo_record->getBarcode(); }
-    int     getRowRel()     { return rowRel; }
-    int     getRowAbs()     { return startAbs + rowRel; }
-    int     getSize()       { return endAbs - startAbs + 1; }
-    void    setStartAbs(int s) { if (s < 0 || s > endAbs) throw "invalid chunk start value"; startAbs = s; }
-    void    setStartBox(string s) { startBox = s; }
-    void    setStartVial(string v) { startVial = v; }
-    void    setEndAbs(int e) { if (e >= sgw->rowCount()) throw "invalid chunk end value"; endAbs = e; }
-    void    setEndBox(string s) { endBox = s; }
-    void    setEndVial(string v) { endVial = v; }
-    //void    setRowAbs(int row) { rowRel = row - start; }
-    void    setRowRel(int i) { rowRel = i; }
-    void    setRowAbs(int i) { rowRel = starrow; }
-    T *     currentObject() { return objectAtRel(rowRel); }
-    T *     objectAtRel(int posRel) {
-        if (posRel >= getSize()) throw "out of range"; return objectAtAbs((startAbs)+(posRel)); }
-    T *     objectAtAbs(int posAbs) {
-        if (posAbs >= sgw->rowCount()) throw "out of range"; return sgw->rows->at(posAbs); }
-    void sort_asc(string colName) { sgw->sort_asc(colName, startAbs, endAbs); }
-    void sort_dsc(string colName) { sgw->sort_dsc(colName, startAbs, endAbs); }
-    void sortToggle(int col) { sgw->sort_toggle(col, startAbs, endAbs); }
-    void sortToggle(string colName) { sgw->sort_toggle(colName, startAbs, endAbs); } // n.b. uninstantiated code in templates is not compiled
 };
 
 typedef std::vector< Chunk * > vecpChunk;
