@@ -509,6 +509,7 @@ void TfrmProcess::showCurrentRow() {
     } else {
         int lookAhead = sgVials->VisibleRowCount / 2;
         if (rowRel + lookAhead < chunk->getSize() - 1) {
+            sgVials->Row = 1;
             sgVials->Row = rowRel + lookAhead + 1;  // bodge to scroll next few samples into view; ScrollBy doesn't seem to work
         } else {                                    // fixme put into class
             sgVials->Row = sgVials->RowCount - 1;
