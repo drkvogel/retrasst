@@ -2,21 +2,16 @@
 
 ## todo
 
- * load in collected/not found/ignored samples as well to return to in progress chunk-
- * fast forward to first unactioned sample...
-    * only works for 1st chunk
-    * what about deferred samples?
- * save progress
  * signoff
  * allow going back over skipped
  * Insert a record into c_box_retrieval for each box in turn and update c_retrieval_job: set status=in progress (1)
  * Note: a sample retrieval can include boxes that do not have their current locations recorded in the database.
- * Tick each cryovial off in the retrieval plan as you go along.
+
  * Ask the relevant question(s) from the URS when they’re ready to finish and 
  * update cryovial_store (old and new, primary and secondary) when they enter their password to confirm
- * does it load previously saved/altered rows?
+
  * check cryo/store old/new params are correct for LCDbCryovialRetrieval
- * should use saveRecord for LCDbBoxRetrieval
+
  * signoff form
  * secondary aliquots should always be saved if present
  * slot number? (what about it?)
@@ -42,8 +37,6 @@
     * do I now use c_box_name in one of my queries? yes, because it speeds things up
     * in which case, box changes should be made to both c_box_name, and box_name (if a box_name record is present - not always the case). The cron job should be able to cope with this (up to date c_box_name entries already existing)
     * setting the timestamps correctly (to 'now') is crucial 
- * reported chunk sizes look wrong (not 200)
- * changes to l_cryovial_retrieval should be saved on the fly
  * changes to c_box_retrieval, cryovial_store should be done on signoff and exit
  * there should be 4 cryovial_store records for each requested sample: source and destination for primary and secondary aliquots
     * NOT_FOUND will be a new status
@@ -75,6 +68,16 @@
 
 ## done
 
+ * reported chunk sizes look wrong (not 200)
+ * changes to l_cryovial_retrieval should be saved on the fly
+ * Tick each cryovial off in the retrieval plan as you go along.
+ * does it load previously saved/altered rows?
+ * should use saveRecord for LCDbBoxRetrieval
+ * fast forward to first unactioned sample...
+    * only works for 1st chunk
+    * what about deferred samples?
+ * save progress
+ * load in collected/not found/ignored samples as well to return to in progress chunk-
 * accept button should be next to text box
 * "Defer" would be a better name than "Skip" for passing over a sample
 * does LCDbCryovialRetrieval::saveRecord() insert work? - it does now

@@ -18,6 +18,8 @@ Also, I have taken care of ongoing occasional duties such as administering CVS r
 
 There is always room for improvement of course, and I have been affected by some difficult personal circumstances and some underlying health problems, which I have had various degrees of success in overcoming. I am aware that some projects have taken rather a long time, but I would also say that the projects that I complete generally work very well and rarely need further attention - I prefer to get things right the first time rather than rush things.
 
+The next labs task for me will be Discard Boxes 
+
 ---
 
 STIG repair/rebuild from Python to PHP because 
@@ -32,4 +34,3 @@ Full retrasst spec mid-July
 
 --
 
-Discard Boxes

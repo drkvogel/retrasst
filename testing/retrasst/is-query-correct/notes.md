@@ -11,7 +11,6 @@ these are different:
     lcr.position, # 'Where this entry appears in the relevant chunk of the retrieval plan - samples are retrieved in this order'
     lcr.time_stamp, # 25/02/2014 15:15 - yesterday. 
 
-Program error? Insert instead of update?
 Reset jobs
 Load job shows 1674 = 2 * 837 vials found (primary and secondary) - correct
  * Usual sort order before chunking: destination box and position
@@ -20,9 +19,6 @@ Load job shows 1674 = 2 * 837 vials found (primary and secondary) - correct
 
 not sure if now correct but loads up previously saved rows, inc secondaries, looks ok
 need to skip forwards now
-
-derrick
-beltram dance terminal
 
 from 
 cbr.retrieval_cid,

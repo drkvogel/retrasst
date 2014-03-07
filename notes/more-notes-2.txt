@@ -1,14 +1,10 @@
 # Retrieval Assistant
 
 ## Todo
-
  
- * Source/Current box - standardise name - current probably better?
+ * Source/Current box - standardise name - source better
  * port [Plan|Process]Samples to [Plan|Process]Boxes
- * allow selection of secondary aliquots 
- * thread "save changes" in plan
  * how to save stuff? to which tables? when (ie. per row or on exit/save)?    
- * Chunk list should include a second row for each chunk if there is a secondary aliquot (second part of each chunk?)
  * Allow user to fill gaps in boxes from secondary aliquot after primary aliquot (partly?) completed
  * Empty source boxes (all vials "accepted" or "not found") will normally be discarded
    * Final stage: ask user to confirm that vessel/structure/slot is now empty
@@ -36,6 +32,7 @@
  * Session tables: http://community.actian.com/forum/questions-feedback-suggestions/11359-temporary-table.html
 DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMMIT PRESERVE ROWS WITH NORECOVERY;
  * save changes thread
+ * thread "save changes" in plan-/ 
  * sort "aliquot aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782) shouldn't show aliquot anyway
  * up/down arrows to show column sort
  * Only read the currently selected chunk/aliquot from the database when it is selected ?
@@ -43,6 +40,8 @@ DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMM
 
 ## Done
 
+ * Chunk list should include a second row for each chunk if there is a secondary aliquot (second part of each chunk?)
+ * allow selection of secondary aliquots 
  * still not showing 2ndary aliquot    
  * use 2ndary button - remove
  * factor out storage query - getStorage?

@@ -78,6 +78,7 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
 }
 
 void __fastcall TfrmProcess::FormClose(TObject *Sender, TCloseAction &Action) {
+    exit();
     delete_referenced< vector <SampleRow * > >(vials);
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
 }
@@ -253,7 +254,7 @@ void __fastcall TfrmProcess::cbLogClick(TObject *Sender) { panelDebug->Visible =
 
 void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) { exit(); }
 
-void __fastcall TfrmProcess::btnExitClick(TObject *Sender) { exit(); }
+void __fastcall TfrmProcess::btnExitClick(TObject *Sender) { Close(); } //exit(); }
 
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) { accept(editBarcode->Text); }
 
