@@ -4,7 +4,6 @@ LCDbProject::isInCurrentSystem()
 not new, but...
 Tank::getVessel()? // Inventory.h
 TfrmNewJob::createJob
-NewTank methods
 SampleEntry
 StoreDAO::findBox, addToRetrieval
 ---

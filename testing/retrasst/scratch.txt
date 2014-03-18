@@ -1,8 +1,5 @@
  * load in collected/not found/ignored samples as well to return to in progress chunk
-
-where's the plan being loaded?
-	LoadPlanWorkerThread::NotUsingTempTable() 
-
+    * what about secondaries?
 
 accept()
     aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
@@ -14,7 +11,6 @@ nextRow()
     sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())
     if (sample->secondary) 
         sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())
-
 
 saveRecord doesn't seem to have done anything - there are 1674 = 2 * 837 aliquots ie the whole job in l_cryovial_retrieval, 
 none with status != 0

@@ -1,102 +1,227 @@
-﻿misc
-    a sample retrieval can include boxes that do not have their current locations recorded
-sorting
-    sorters
-    Nick's sorter in SampleEntry.cpp/h
-    check sorting works properly 
-    sort racks using rack position instead of name?
-    P.P.S. I ended up using the c_rack_number.position to sort the structures.  Different layouts follow different naming conventions
-find number of boxes
-    current box
-    destination box?
-    what do we mean by 'size' of a chunk - number of boxes
-chunks
-    chunk/section number should begin at 1, not 0, as 0 means 'no chunk'
-    chunks fill in situ if manual
-    select row - 'chunk here'?
-    auto chunk - populate chunks only when ok is pressed
-    chunks "start, end" - use real values
-    section - Cannot Be Changed 
-    start
-        1st chunk: CBC
-        Others:
-    end:
-        1st chunk: 
-    size:
-        calculate end (max if not valid)
-    specify in samples or boxes depending on job
-    highlight current sample/box
-    double-click sample/box
-        current chunks upper boundary is here (check valid)
-        next chunk (if present) lower boundary is here
-  
-#### Create List
+﻿## todo
 
- * Any aliquot type used by a project can be selected as the primary; the secondary cannot match the primary
- * Creating a new sample retrieval list will always create new box name records and (provisionally) allocate cryovial positions
- * A source file may be pre-sorted and may include box numbers and positions as well as the barcode
- * The retrieval list can be re-sorted on screen but this will only affect the destination positions if the source was not pre-sorted
- * Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position
- * Rejected tasks can be modified (re-using existing box name records) or deleted
- * Finding where all the cryovials are can take a long time; users must wait for the information to be available 
+ * Source/Current box - standardise name - source better
+ * port [Plan|Process]Samples to [Plan|Process]Boxes
+ * how to save stuff? to which tables? when (ie. per row or on exit/save)?    
+ * Allow user to fill gaps in boxes from secondary aliquot after primary aliquot (partly?) completed
+ * Empty source boxes (all vials "accepted" or "not found") will normally be discarded
+   * Final stage: ask user to confirm that vessel/structure/slot is now empty
+      * otherwise box should be referred
+   * All source boxes from a reorganisation task should end up empty
 
-### Retrieval Assistant
+chunk->getStatus() called in showChunks and sgChunksDrawCell - necessary?
+look for ??? /newrow
+though for last chunk, there is no row after
+why can't I inspect chunk?
+deferred boxes are not saved as such...
+collect empties
+put lookAhead into chunk class
+notFound() crash
+chunk progress not shown at first
+    loadVialsWorkerThreadTerminated
+        showChunks()
+            progressString()
+                getProgress()
+                    rowRel/((float)getSize()
+    showChunks should fast forward to first unresolved
 
- * General
-    * Box Retrieval
-        * Select * from c_box_retrieval b order by b.section, b.rj_box_cid
-    * Sample (cryovial) Retrieval
-        * Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position  
+
+showCurrentRow get triggered twice
+    sgChunksClick
+        showChunk
+            showCurrentRow # just once
+
+    skip
+        nextRow
+            showCurrentRow
+
+    skip
+        nextRow
+            showChunks
+                showChunk
+                    showCurrentRow
+
+    void    setCurrentRow(int row) { currentRowIdx = row; }
+    int     getCurrentRow() { return currentRowIdx; }
+    T *     currentRow() { return rowAt(currentRowIdx); }
+
+    void TfrmProcess::showCurrentRow() {
+        SampleRow * sample;
+        int rowIdx = currentChunk()->getCurrentRow();
+        if (rowIdx == currentChunk()->getSize()) {  // ie. past the end, chunk completed
+            sample = NULL;              // no details to show
+            sgVials->Row = rowIdx;      // just show the last row
+        } else {
+            sample = currentChunk()->rowAt(rowIdx);
+            sgVials->Row = rowIdx+1;    // allow for header row
+        }
+        showDetails(sample);
+    }
+
+ * closing window with x exits without save
+ * signoff
+ * allow going back over skipped
+ * Insert a record into c_box_retrieval for each box in turn and update c_retrieval_job: set status=in progress (1)
+ * Note: a sample retrieval can include boxes that do not have their current locations recorded in the database.
+ * Ask the relevant question(s) from the URS when they’re ready to finish and 
+ * update cryovial_store (old and new, primary and secondary) when they enter their password to confirm
+ * check cryo/store old/new params are correct for LCDbCryovialRetrieval
+ * signoff form
+ * secondary aliquots should always be saved if present
+ * slot number? (what about it?)
+ * C_box_retrieval: set time_stamp, status = 1 
+ * If the user exits without finishing the job, once they've signed off: 
+    * Cryovial_store: 
+        * Primary, source: if found update removed, status = 5, otherwise status = 7 
+        * Primary, destination: if found update time_stamp, status = 1, otherwise status = 99 
+        * Secondary, source: if primary found clear retrieval_cid, status = 1, otherwise if secondary found update removed, status = 5, otherwise set status = 7 
+        * Secondary, destination: if primary found set status = 99, otherwise if secondary found update time_stamp, status = 1, otherwise status = 99 
+    * Box_name (if record found): 
+        * update time_stamp, box_capacity, status = 1 
+    * C_box_name (if record found): 
+        * update time_stamp, box_capacity, status = 1 
+ * At the end of a job, once they've signed off: 
+     * C_box_retrieval: set time_stamp, status = 2 
+     * Cryovial_store: as above 
+     * Box_name (if record found): update time_stamp, box_capacity, status = 2 
+     * C_box_name (if record found): update time_stamp, box_capacity, status = 2 
+     * C_retrieval_job: update finish_date, status = 2 
+ * "source" and "destination" (boxes) > "old"/"new" or "current"/"future"
+  * c_box_name is copied from box_name by a cron job
+    * do I now use c_box_name in one of my queries? yes, because it speeds things up
+    * in which case, box changes should be made to both c_box_name, and box_name (if a box_name record is present - not always the case). The cron job should be able to cope with this (up to date c_box_name entries already existing)
+    * setting the timestamps correctly (to 'now') is crucial 
+ * changes to c_box_retrieval, cryovial_store should be done on signoff and exit
+ * there should be 4 cryovial_store records for each requested sample: source and destination for primary and secondary aliquots
+    * NOT_FOUND will be a new status
+    * currently ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, DELETED = 99
+    * no IGNORED status?
+    * if primary aliquot is found:
+        - set primary src TRANSFERRED?
+        - set primary dest CONFIRMED?
+        - set secondary src CONFIRMED?
+        - set secondary dest DELETED?
+        - set l_cryo 
+    * if secondary aliquot is found:
+        - set primary src NOT_FOUND?
+        - set primary dest DELETED?
+        - set secondary src TRANSFERRED?
+        - set secondary dest CONFIRMED?
+    * should probably do a truth table of primary/secondary src/dest cryovial_store/l_cryovial_retrieval
+    * make sure both aliquots are dealt with whatever happens
+ * changes to status not apparent
+    * because currentSample() returns secondary if loaded and secondary is now loaded by default, see above
+    * return secondary only if primary is NOT_FOUND?
+ * save both primary and secondary to database
+ * accept(): if primary aliquot !collected   # expected, ignored (previously skipped), not found (now found?)
+
+
+'move forward'
+chunk: should add/change store records?
+
+ * Emails from Nick/Martin
+    * Another minor feature to add to the retrieval assistant when you’re implementing the final part: when you’ve finished retrieving samples from a box, check if it’s empty.  That’s unlikely to be necessary for tasks I’ve created but anyone using Jonathan’s utility to rationalise tanks may end up throwing the old boxes away
+    This means we’ll be demonstrating next week using the mirror system, just in case it makes any difference Nick (I'm happy for it to be split I f that makes more sense. Martin)
+    * As I mentioned earlier, there's a bit of a problem including boxes in a retrieval if we don't know where they are.  Our current thinking is that we'll ask the user about such boxes when they create a retrieval list and add dummy/incomplete box_store records.  I'm about to add such records for existing jobs.  Please ignore any integrity errors that result
+    * This doesn't seem to have caused any problems.  The dummy box_store records have a status of 1 (unconfirmed), rack_cid=0 and slot_position=0.  StoreDAO::findBox() will still return false because it looks for the rack_cid in c_rack_number
+ * define behaviour for manual chunk split in landlocked chunk-
+ * factor out chunk logic?
+ * consolidate notes (move to separate windows and compare)
+ * select for process samples - 'no chunks' - in testing/q2.sql
+ * boxes form doesn't work properly - turn the handle (but not for demo)
+ * new requirement is to check at the end of processing each chunk (pt II) if any source boxes are now empty, in which case they might want to discard them rather than put them back
+
+## Misc
+
+ * use DEBUGSTREAM
+ * Usual sort order before chunking: destination box and position
+ * Usual sort order for each chunk: vessel position, shelf, structure, slot and current position
+
+## Deferred
+
+ * something to bear in mind for processing when it eventually goes live is that the database might not reflect reality perfectly - vials might be missing or swapped etc.
+   won't come up till live testing, but worth thinking about at this stage of development
+ * demo possible; email martin. make sure there are sufficient example jobs - e.g. "1743 THRIVE boxes - few (EDTA1 & EDTA2)"- 
+
+ * Retrieval Assistant
+    * save changes with the option of going back to re-order if necessary.
+        * TODO
+    * Cryogenics staff can reject a retrieval list if it does not have a retrieval plan
+
+ 
+ * speed up queries
+   * profile?
+   * Plan: 
+        * load primary aliquot only?
+        * save is quite slow
+   * Process:  
+ * example cryovial retrieval - no chunks
+    * there is a plan in the temp table
+    * create a new plan, open - ok - plan possible made before db rebuild
+ * Session tables: http://community.actian.com/forum/questions-feedback-suggestions/11359-temporary-table.html
+DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMMIT PRESERVE ROWS WITH NORECOVERY;
+ * save changes thread
+ * thread "save changes" in plan-/ 
+ * sort "aliquot aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782) shouldn't show aliquot anyway
+ * up/down arrows to show column sort
+ * Only read the currently selected chunk/aliquot from the database when it is selected ?
+ * canned searches - save, delete e.g. site name, vessel pos, structure pos, slot, source box pos
+
+## ???
+
+* Create List
+     * Any aliquot type used by a project can be selected as the primary; the secondary cannot match the primary
+     * Creating a new sample retrieval list will always create new box name records and (provisionally) allocate cryovial positions
+     * A source file may be pre-sorted and may include box numbers and positions as well as the barcode
+     * The retrieval list can be re-sorted on screen but this will only affect the destination positions if the source was not pre-sorted
+     * Rejected tasks can be modified (re-using existing box name records) or deleted
+ * a sample retrieval can include boxes that do not have their current locations recorded
  * As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box
- * If required, the secondary aliquots appear at the end of the retrieval plan for each chunk – they may never be needed
-    * TODO
- * a panel displaying sort order for both Create List and Retrieval Assistant
-    * Kind of
- * sort by location
-    * Via column clicks and/or sorter panel
 
- * chunking -  Allow the user to divide up the list
-    * TODO
- * save changes with the option of going back to re-order if necessary.
-    * TODO
- * Cryogenics staff can reject a retrieval list if it does not have a retrieval plan
-    * TODO
+## done
 
----to sort---
-Looking at your Sorter again, I still couldn’t get it to do what I wanted it to, e.g. sorting by Vessel then rack left it in rack order, rather than Vessel+rack.  I have therefore created my own Sorter (in SampleEntry.cpp) but I’d be happy to merge it with yours – it would make more sense if all the screens worked in the same way
----done---
-find destination boxes - faster method using sequence?
-    nick's method - 
-        build map of boxes first, groups of many samples will map to each box
-            TfrmRetrieveMain::btnLocateClick
-                if(dao.findBox())  
- * location should include site+position+name+layout, as it does in StoreMan’s storage browser.-
-    * OK
-invalid pointer operation on click retrieval assistant open 1st time only- nick has sorted
-diff btwn specs in notes/spec-comparison
-sample query- gets src and dest boxes in one projectdb-only query - but not storage details, these can be looked up after and cached in a map for efficiency
-a sample retrieval can include boxes that do not have their current locations recorded
-export/edit/import? maybe
-option of rejecting whole task
-ukes reminder-
-xe2-
-sits:vision-
-StoreUtil class -> namespace? hmm
-sorter combos - populate/implement-/
-populating LCDbBoxStore * store_record by LQuery contructor is inefficient?: no
-LCDbBoxStore::copyFields(); LQuery::readInt() // etc ROSETTA &LQuery::getRecord( ) // pulls the fields out of the current cursor, without new query, so ok
-retrasst objectives for next meeting >> workblog >> stf eml
-get rid of maxrows maximum-
-show rows - show all by default
-retrasst emails -> folder
-find destination boxes 1st-
-restructure DataRow etc to be more like/same as nick's GridEntry-
-Columns should be displayed in Russian doll order, left to right: site, location, vessel, shelf, structure, slot, box, position
----todo---
-whsmiths food
-contact ucu about ay anyway
----dealt with---
-splitter for memodebug-
-job title/description on chunking form-
-are we finding the destination boxes correctly? looks like it 
+in <done.md>
+
+## misc
+
+ when loading chunks, boxes, vials, pay attention to their state (
+    // Chunk? Must be calculated? NEW|PART_PROCESSED|COMPLETED
+        // NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED
+    // LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
+    // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
+ ) and colour accordingly
+
+## c++ into python-like pseudocode:
+
+    strip out 
+        {}, ;
+        .c_str()
+        type declarations
+        return types (void etc)
+    -> into .
+    // comments into #
+    /* */ into """
+
+### language options
+
+ * python (st2 plugin)
+ * javascript (in browser)
+ * PHP
+ * regex
+
+ * HR
+    * worried about ay?
+        * talk to ana about it - moving house, being tired
+        * talk to occ health about that
+        * talk to union
+        * get nick to verify that ref boxes was ready ages ago and generic comms is in use
+        * get rg to verify that stig is working and in use
+        * tell all concerned that it is only because I am worried that ay is looking for ways to discredit me that I am doing this.
 ---
+Labs Doxygen: C:\Users\cbird\Projects\lims-generic\doxygen\html
+select * from c_permission where operator_cid = -31438
+#define     LEASEE_STOREMAN        100
+http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
+---
+
+[fact remains I work a lot better when AY is not there - why can this not be addressed somehow?]
