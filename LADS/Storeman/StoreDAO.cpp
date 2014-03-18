@@ -394,35 +394,34 @@ void StoreDAO::loadRackOccupancy( int rack_cid, std::set< int > & occupied )
 
 void StoreDAO::loadBoxDetails( const std::string & barcode, const std::string & box_type, int proj_id, ROSETTA & result )
 {
-	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
-	pq.setSQL( "select b.box_cid, b.box_type_cid, b.external_name, box_capacity,"
-				  " s.record_id, s.rack_cid, s.slot_position, s.retrieval_cid, s.status"
-			   " from box_store s, box_name b, box_content c"
+	LQuery cq( LIMSDatabase::getCentralDb() );
+	cq.setSQL( "select b.box_cid, barcode, b.external_name, b.project_cid, box_capacity, s.*, c.box_type_cid"
+			   " from c_slot_allocation s, c_box_name b, c_box_content c"
 			   " where b.box_cid = s.box_cid and b.box_type_cid = c.box_type_cid"
-				  " and barcode = :bar and c.external_name = :bt and s.status not in ( :rmv, :del )" );
-	pq.setParam( "bar", barcode );
-	pq.setParam( "bt", box_type );
-	pq.setParam( "rmv", LCDbBoxStore::REMOVED );
-	pq.setParam( "del", LCDbBoxStore::DELETED );
-	if( pq.open() ) {
-		result = pq.getRecord();
-		result.setInt( "project_cid", proj_id );
+			   " and barcode = :bar and b.project_cid = :proj and c.external_name = :bt"
+			   " and s.status not in ( :rmv, :del )" );
+	cq.setParam( "bar", barcode );
+	cq.setParam( "bt", box_type );
+	cq.setParam( "proj", proj_id );
+	cq.setParam( "rmv", LCDbBoxStore::REMOVED );
+	cq.setParam( "del", LCDbBoxStore::DELETED );
+	if( cq.open() ) {
+		result = cq.getRecord();
 	}
 }
 
 void StoreDAO::loadBoxDetails( int box_id, int proj_id, ROSETTA & result )
 {
-	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
-	pq.setSQL( "select b.box_cid, b.box_type_cid, b.external_name, box_capacity,"
-				  " s.record_id, s.rack_cid, s.slot_position, s.retrieval_cid, s.status"
-			   " from box_store s, box_name b where b.box_cid = s.box_cid"
-				  " and b.box_cid = :bid and s.status not in ( :rmv, :del )" );
-	pq.setParam( "bid", box_id );
-	pq.setParam( "rmv", LCDbBoxStore::REMOVED );
-	pq.setParam( "del", LCDbBoxStore::DELETED );
-	if( pq.open() ) {
-		result = pq.getRecord();
-		result.setInt( "project_cid", proj_id );
+	LQuery cq( LIMSDatabase::getCentralDb() );
+	cq.setSQL( "select b.box_cid, barcode, b.external_name, b.project_cid, box_capacity, s.*, c.box_type_cid"
+			   " from c_slot_allocation s, c_box_name b where b.box_cid = s.box_cid"
+			   " and b.box_cid = :bid and b.project_cid = :proj and s.status not in ( :rmv, :del )" );
+	cq.setParam( "bid", box_id );
+	cq.setParam( "rmv", LCDbBoxStore::REMOVED );
+	cq.setParam( "del", LCDbBoxStore::DELETED );
+	cq.setParam( "proj", proj_id );
+	if( cq.open() ) {
+		result = cq.getRecord();
 	}
 }
 
@@ -448,7 +447,7 @@ void StoreDAO::loadBoxes( const std::string & box_id, const std::string & box_ty
 void StoreDAO::loadBoxes( int rack_id, std::vector<ROSETTA>& results)
 {
 	LQuery cq( LIMSDatabase::getCentralDb() );
-	cq.setSQL( "select b.box_cid, b.box_type_cid, b.external_name, b.box_capacity, s.*"
+	cq.setSQL( "select b.box_cid, barcode, box_type_cid, external_name, box_capacity, s.*"
 			  "	from c_slot_allocation s, c_box_name b"
 			  " where b.box_cid = s.box_cid"
 			  " and s.rack_cid = :rid and s.status not in ( :rmv, :del )" );
@@ -507,7 +506,7 @@ void StoreDAO::loadBoxes( int rack_id, std::vector<ROSETTA>& results)
 void StoreDAO::loadBoxesByJobID( int job_id, int proj_id, bool lhs, std::vector<ROSETTA>& results )
 {
 	std::string sql = lhs ? "SELECT s1.*" : "SELECT s2.*";
-	sql += ", box_capacity, box_type_cid, external_name"
+	sql += ", box_capacity, box_type_cid, barcode, external_name"
 		  " from box_store s1, box_name b, box_store s2"
 		  " where b.box_cid = s1.box_cid and b.box_cid = s2.box_cid"
 		  " and s1.retrieval_cid = :job and s2.retrieval_cid = 0"
@@ -756,7 +755,7 @@ bool StoreDAO::loadCryovials( short source, const std::string & id, int primary,
 {
 	std::stringstream q;
 	q << "SELECT c.cryovial_id, c.aliquot_type_cid, c.cryovial_barcode, t.external_name as aliquot,"
-			" c.sample_id, sp.barcode, cs.box_cid, b.external_name as box_name, cs.tube_position"
+			" c.sample_id, sp.barcode, cs.box_cid, b.external_name as box_name, cs.cryovial_position"
 			" FROM cryovial_store cs, cryovial c, specimen sp, box_name b, c_object_name t"
 			" WHERE cs.status = 1 " 	// position confirmed
 			" AND cs.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id "
@@ -817,7 +816,7 @@ bool StoreDAO::addToRetrieval( int jobID, int cryovial_id, int proj_id, int box_
 	}
 	std::stringstream q2;
 	q2 << "INSERT INTO cryovial_store"
-		" (record_id, cryovial_id, box_cid, tube_position, time_stamp, status, note_exists, process_cid)"
+		" (record_id, cryovial_id, box_cid, cryovial_position, time_stamp, status, note_exists, process_cid)"
 		" VALUES (next value for id_sequence, " << cryovial_id << ", " << box_cid << ", " << pos
 	   << ", 'now', 0,"		// space allocated in new box
 	   << " 0, " << LCDbAuditTrail::getCurrent().getProcessID() << ")";
@@ -831,7 +830,7 @@ bool StoreDAO::findBox( int box_id, int proj_id, ROSETTA & result )
 {
 	std::string sql = "SELECT v.external_full as vessel_name, shelf_number, r.position as rack_pos,"
 			" r.external_name as structure, slot_position, m.position as tank_pos, l.external_name as site_name"
-			" FROM box_store bs, c_rack_number r, c_tank_map m, c_object_name v, c_object_name l "
+			" FROM c_slot_allocation bs, c_rack_number r, c_tank_map m, c_object_name v, c_object_name l "
 			" WHERE box_cid = :bid AND bs.status in (1, 2, 6)" 		// current box position
 			" AND bs.rack_cid = r.rack_cid AND r.tank_cid = m.tank_cid AND m.storage_cid = v.object_cid"
 			" AND m.location_cid = l.object_cid AND m.status=0"; 	// population on-line

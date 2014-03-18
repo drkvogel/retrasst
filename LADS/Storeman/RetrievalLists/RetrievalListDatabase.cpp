@@ -77,8 +77,14 @@ RetrievalListDatabase::RetrievalListDatabase()
 //---------------------------------------------------------------------------
 
 RetrievalListDatabase::~RetrievalListDatabase()
-{
+{}
 
+//---------------------------------------------------------------------------
+
+static bool dbErrorCallback( const std::string object, const int instance,const int ecount, const int ecode, const std::string error_txt )
+{
+	onError( error_txt );
+	return( true );
 }
 //---------------------------------------------------------------------------
 
@@ -727,11 +733,7 @@ void RetrievalListDatabase::fillRichEditInfo(std::map<String,String> &cryovialIn
 				std::map<String,String> temp;
 				String cryovial_store_record_id = System::Sysutils::IntToStr(project_query.result.getInt("record_id"));
 				String cryovial_store_box_cid = System::Sysutils::IntToStr(project_query.result.getInt("box_cid"));
-
 				String cryovial_store_cryovial_position = System::Sysutils::IntToStr(project_query.result.getInt("cryovial_position"));
-				if (project_query.result.exists("tube_position"))
-					String cryovial_store_cryovial_position = System::Sysutils::IntToStr(project_query.result.getInt("tube_position"));
-
 				String cryovial_store_status = System::Sysutils::IntToStr(project_query.result.getInt("status"));
 				String cryovial_store_time_stamp = String(project_query.result.getString("time_stamp").c_str());
 				String cryovial_store_removed =  String(project_query.result.getString("removed").c_str());
@@ -979,17 +981,8 @@ void RetrievalListDatabase::runcryovialSQL(std::wstring &sqlQuery,std::map<int,s
 				ss << query2.result.getInt("box_cid"); //cryovial_store.box_cid
 				MapInfo.insert(std::pair<String,String> (DEFINE_CRYOVIAL_BOX_ID,String(ss.str().c_str())));
 				ss.str( std::wstring() ); ss.clear();
-
-				if (query2.result.exists("tube_position"))
-				{
-					ss << query2.result.getInt("tube_position"); //cryovial_store.cryovial_position
-					MapInfo.insert(std::pair<String,String> (DEFINE_CRYOVIAL_POSITION,String(ss.str().c_str())));
-				}
-				else
-				{
 					ss << query2.result.getInt("cryovial_position"); //cryovial_store.cryovial_position
 					MapInfo.insert(std::pair<String,String> (DEFINE_CRYOVIAL_POSITION,String(ss.str().c_str())));
-				}
 				ss.str( std::wstring() ); ss.clear();
 				MapInfo.insert(std::pair<String,String> (DEFINE_CRYOVIAL_STORE_NOTES_EXISTS,System::Sysutils::IntToStr(query2.result.getInt("note_exists")).c_str()));
 				ss << query2.result.getInt("status");
@@ -1734,9 +1727,4 @@ void onError( const std::string& msg )
 }
 //---------------------------------------------------------------------------
 
-bool dbErrorCallback( const std::string object, const int instance,const int ecount, const int ecode, const std::string error_txt )
-{
-	onError( error_txt );
-	return( true );
-}
 

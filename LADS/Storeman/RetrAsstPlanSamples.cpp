@@ -324,7 +324,7 @@ void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
     if (sgVials->Row <= 1)
         return; // header or silly chunk
     if (sgChunks->Row < sgChunks->RowCount-1) {
-        msgbox("Only the last chunk can be split");
+		TfrmRetrievalAssistant::msgbox("Only the last chunk can be split");
         return;
     }
     addChunk(sgVials->Row-1); // allowing for fixed header row
@@ -338,7 +338,7 @@ void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
         showChunks();
         showChunk();
     } else {
-        msgbox("Chosen chunk size is too big for current list");
+        TfrmRetrievalAssistant::msgbox("Chosen chunk size is too big for current list");
     }
 }
 
@@ -607,15 +607,15 @@ void LoadVialsWorkerThread::load() {
     // actual query now we know there are some rows
     oss.str(""); oss <<
         "SELECT"
-        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
+		"  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
         "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
         "  c.cryovial_barcode,"
         "  b1.box_cid as source_id,"
         "  b1.external_name as source_name,"
-        "  s1.tube_position as source_pos,"
+		"  s1.cryovial_position as source_pos,"
         "  s2.box_cid as dest_id,"
         "  b2.external_name as dest_name,"
-        "  s2.tube_position as dest_pos"
+        "  s2.cryovial_position as dest_pos"
         " FROM"
         "  cryovial c, cryovial_store s1, box_name b1,"
         "  cryovial_store s2, box_name b2"
@@ -758,7 +758,7 @@ void __fastcall TfrmSamples::timerCalculateTimer(TObject *Sender) {
 
 void TfrmSamples::calcSizes() {
 /** calculate possible chunk (section) sizes
-slot/box (where c_box_size.box_size_cid = box_content.box_size_cid) (where does box_content come from?)
+slot/box (where c_box_size.box_size_cid = c_box_content.box_size_cid) (where does box_content come from?)
 As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box */
     comboSectionSize->Clear();
     int possibleChunkSize = box_size; // smallest chunk

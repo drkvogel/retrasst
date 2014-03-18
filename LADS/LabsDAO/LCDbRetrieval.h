@@ -45,9 +45,9 @@ public:
 	//void setCurrent(const LCDbBoxRetrieval & job) { currentID = job.getID(); }
 	const LCDbBoxRetrieval * readRecord(LQuery cQuery, int sid);
 	//bool read( LQuery cQuery, LCDbBoxRetrieval::JobKind type = LCDbBoxRetrieval::UNKNOWN, bool all = false );
-	const LCDbBoxRetrieval * findByName(const std::string & name) const {
-		return findMatch(LDbNames::LCMatcher(name));
-	}
+//	const LCDbBoxRetrieval * findByName(const std::string & name) const {
+//		return findMatch(LDbNames::LCMatcher(name));
+//	}
 };
 
 class LCDbCryovialRetrieval : public LCDbID//, public LDbNames
@@ -99,9 +99,9 @@ public:
 	//void setCurrent(const LCDbCryovialRetrieval & job) { currentID = job.getID(); }
 	const LCDbCryovialRetrieval * readRecord(LQuery cQuery, int sid);
 	//bool read( LQuery cQuery, LCDbCryovialRetrieval::JobKind type = LCDbCryovialRetrieval::UNKNOWN, bool all = false );
-	const LCDbCryovialRetrieval * findByName(const std::string & name) const {
-		return findMatch(LDbNames::LCMatcher(name));
-	}
+//	const LCDbCryovialRetrieval * findByName(const std::string & name) const {
+//		return findMatch(LDbNames::LCMatcher(name));
+// 	}
 };
 
 #endif

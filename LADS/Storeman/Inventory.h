@@ -335,13 +335,14 @@ class Rack : public IPart  	// Structure: id = rack_cid; name = c_rack_number.ex
 class Box : public IPart	// Formation: id from box_name/store; name = box_name.external_name
 {
    protected:
-		int record_id;      // from latest box_store
+		int record_id;      // from latest box_store or c_slot_allocation
 		int rack_cid;
 		int retrieval_cid;
 		int project_cid;
 		int box_type_id;
 		short status;
 		int emptySlots;		// -1 if not yet known; 0 if full
+		std::string barcode;
 
 	public:
 
@@ -352,6 +353,7 @@ class Box : public IPart	// Formation: id from box_name/store; name = box_name.e
 		virtual const char * getTypeStr() const { return "Box"; }
 		virtual std::string getName() const;
 		virtual std::string getFullName() const;
+		virtual std::string getBarcode() const { return barcode; }
 
 		int getRackCID() const { return rack_cid; }
 		void setRackCID( int p_rack_cid ){ rack_cid = p_rack_cid; }

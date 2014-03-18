@@ -31,7 +31,7 @@
 
 //---------------------------------------------------------------------------
 
-LDbResult::LDbResult( int test, const String & result, TDateTime when, int machine,
+LDbResult::LDbResult( int test, const std::string & result, TDateTime when, int machine,
 					int process, bool hide, short notes, int person1, int person2 )
  : ResultValue( result ), LDbStage( NEW_ENTRY ), LDbNoteCount( notes ), analysed( when ), testID( test ),
    machineID( machine ), processID( process ), valop1id( person1 ), valop2id( person2 ), internal( hide )
@@ -41,7 +41,7 @@ LDbResult::LDbResult( int test, const String & result, TDateTime when, int machi
 //	buddy_result_float constructors - from analyser output or database
 //---------------------------------------------------------------------------
 
-LBDbResult::LBDbResult( int testID, const String & result, TDateTime analysed, int analysisID )
+LBDbResult::LBDbResult( int testID, const std::string & result, TDateTime analysed, int analysisID )
  : LDbResult( testID, result, analysed, 0, 0, false, 0, 0, 0 ), bsid( analysisID ), modified( false )
 {}
 
@@ -54,14 +54,14 @@ LBDbResult::LBDbResult( const LQuery & cluster )
 			  cluster.readDateTime( "date_analysed" ),
 			  cluster.readInt( "machine_cid" ),
 			  cluster.readInt( "process_id" ),
-			  cluster.readShort( "is_private" ) != 0,
-			  cluster.readShort( "note_exists" ),
+			  cluster.readInt( "is_private" ) != 0,
+			  cluster.readInt( "note_exists" ),
 			  cluster.readInt( "person1_validate" ),
 			  cluster.readInt( "person2_validate" ) ),
    bsid( cluster.readInt( "buddy_sample_id" ) ),
-   modified( cluster.readShort( "result_edited" ) != 0 )
+   modified( cluster.readInt( "result_edited" ) != 0 )
 {
-	setStage( makeStage( cluster.readChar( "action_flag" ) ) );
+	setStage( makeStage( cluster.readString( "action_flag" )[0] ) );
    	setUnitCode( cluster.readString( "unit_code" ) );
 
 	// Validation still uses res_value rather than res_text
@@ -100,7 +100,7 @@ bool LBDbResult::createRecord( LQuery cluster )
 		setMachineID( LCDbAnalysers::getCurrentID() );
 
 	if( getProcessID() == 0 )
-		processID = LCDbAuditTrail::getProcessID();
+		processID = LCDbAuditTrail::getCurrent().getProcessID();
 
 	cluster.setSQL( "INSERT into buddy_result_float (Buddy_Result_ID, Buddy_Sample_ID,"
 					"  machine_cid, Test_id, Res_value, Action_Flag, person1_validate,"
@@ -113,7 +113,7 @@ bool LBDbResult::createRecord( LQuery cluster )
 	cluster.setParam( "mid", getMachineID() );
 	cluster.setParam( "tid", getTestID() );
 	cluster.setParam( "rval", asDouble() );
-	cluster.setParam( "udw", Now() );
+	cluster.setParam( "udw", XTIME() );
 	cluster.setParam( "flg", action( getStage() ) );
 	cluster.setParam( "op1", getFirstValOpID() );
 	cluster.setParam( "op2", getSecondValOpID() );
@@ -147,7 +147,7 @@ bool LBDbResult::updateRecord( LQuery cluster )
 	cluster.setParam( "pid", getProcessID() );
 	cluster.setParam( "nex", notes );
 	cluster.setParam( "flg", action( getStage() ) );
-	cluster.setParam( "udw", Now() );
+	cluster.setParam( "udw", XTIME() );
 	cluster.setParam( "op1", getFirstValOpID() );
 	cluster.setParam( "op2", getSecondValOpID() );
 	cluster.setParam( "red", modified ? 1 : 0 );
@@ -224,8 +224,8 @@ LPDbResult::LPDbResult( const LQuery & pQuery )
 			  pQuery.readDateTime( "time_stamp" ),
 			  pQuery.readInt( "machine_cid" ),
 			  pQuery.readInt( "process_cid" ),
-			  pQuery.readShort( "status" ) == 2,
-			  pQuery.readShort( "note_exists" ),
+			  pQuery.readInt( "status" ) == 2,
+			  pQuery.readInt( "note_exists" ),
 			  pQuery.readInt( "person1_validate" ),
 			  pQuery.readInt( "person2_validate" ) ),
    sampleID( pQuery.readInt( "sample_id" ) ),
@@ -254,8 +254,8 @@ LPDbInternal::LPDbInternal( const LQuery & pQuery )
 			  pQuery.readDateTime( "time_stamp" ),
 			  pQuery.readInt( "machine_cid" ),
 			  pQuery.readInt( "process_cid" ),
-			  pQuery.readShort( "status" ) == 2,
-			  pQuery.readShort( "note_exists" ),
+			  pQuery.readInt( "status" ) == 2,
+			  pQuery.readInt( "note_exists" ),
 			  pQuery.readInt( "person1_validate" ),
 			  pQuery.readInt( "person2_validate" ) ),
    sampleID( pQuery.readInt( "sample_id" ) ),
@@ -369,7 +369,7 @@ short LPDbInternal::makeStatus( Stage stage )
 //	Copy result into the buddy_result_audit table after it has been saved
 //---------------------------------------------------------------------------
 
-void LPDbResult::addAuditEntry( LQuery cluster, int buddyResultID, const String & barcode )
+void LPDbResult::addAuditEntry( LQuery cluster, int buddyResultID, const std::string & barcode )
 {
 	if( getID() == 0 )
 		throw Exception( "Result has not yet been saved" );
@@ -385,8 +385,8 @@ void LPDbResult::addAuditEntry( LQuery cluster, int buddyResultID, const String 
 	cluster.setParam( "mid", getMachineID() );
 	cluster.setParam( "bar", barcode );
 	cluster.setParam( "val", asDouble() );
-	cluster.setParam( "sdt", Now() );
-	cluster.setParam( "pid", LCDbAuditTrail::getProcessID() );
+	cluster.setParam( "sdt", XTIME() );
+	cluster.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
 	cluster.execSQL();
 }
 
@@ -431,9 +431,9 @@ unsigned LBDbResults::deleteOld( LQuery cluster, TDateTime flagged, TDateTime ol
 	cluster.setSQL( "delete from buddy_result_float"
 					" where (delete_status = 2 and update_when < :fdt)"
 					" or (update_when < :old and action_flag <> :hld)" );
-	cluster.setParam( "old", oldest );
-	cluster.setParam( "hld", LBDbResult::action( LDbStage::L0_HELD ) );
-	cluster.setParam( "fdt", flagged );
+	cluster.setParam( "old", XTIME(oldest) );
+	cluster.setParam( "hld", LBDbSource::action( LDbStage::L0_HELD ) );
+	cluster.setParam( "fdt", XTIME(flagged) );
 	return cluster.execSQL();
 }
 

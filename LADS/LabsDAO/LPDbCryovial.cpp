@@ -35,15 +35,9 @@ LPDbCryovial::LPDbCryovial( const LQuery & query )
    boxID( query.readInt( "box_cid" ) ),
    status( query.readInt( "status" ) ),
    LDbNoteCount( query.readInt( "Note_Exists" ) ),
-   retrievalID( query.readInt( "retrieval_cid" ) )
-{
-	if( query.fieldExists( "tube_position" ) ) {
-		position = query.readInt( "tube_position" );
-	} else {
-		position = query.readInt( "cryovial_position" );
-	}
-
-}
+   retrievalID( query.readInt( "retrieval_cid" ) ),
+   position( query.readInt( "cryovial_position" ) )
+{}
 
 //---------------------------------------------------------------------------
 //	Record the current cryovial in the database, ready to be allocated
@@ -105,7 +99,7 @@ const LPDbCryovial * LPDbCryovials::readRecord( LQuery pQuery, const std::string
 
 const LPDbCryovial * LPDbCryovials::readRecord( LQuery pQuery, int box, short pos )
 {
-	pQuery.setSQL( selectFields() + " and s.box_cid = :bid and s.tube_position = :pos" );
+	pQuery.setSQL( selectFields() + " and s.box_cid = :bid and s.cryovial_position = :pos" );
 	pQuery.setParam( "bid", box );
 	pQuery.setParam( "pos", pos );
 	return pQuery.open() ? insert( LPDbCryovial( pQuery ) ) : NULL;

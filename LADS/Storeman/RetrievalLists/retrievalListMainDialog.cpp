@@ -213,9 +213,9 @@ bool TfrmRetrievalListViewListMain::loadBarCodesFile(String &filename, std::vect
 	int lineNo = 1;
 	TStreamReader* reader = NULL;
 
-    __try
+	__try
 	{
-		__try
+		try
 		{
 			reader = new TStreamReader(filename);//, TEncoding::UTF8);
 			while (!reader->EndOfStream)

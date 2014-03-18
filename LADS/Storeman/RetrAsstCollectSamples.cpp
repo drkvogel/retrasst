@@ -492,7 +492,7 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
         showChunks();
         showCurrentRow();
     } catch (Exception & e) {
-        msgbox(e.Message);
+		TfrmRetrievalAssistant::msgbox(e.Message);
     }
     Enabled = true;
     DEBUGSTREAM(__FUNC__<<"loadRows for job "<<job->getID()<<" finished")
@@ -553,14 +553,14 @@ void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be
         case LCDbCryovialRetrieval::IGNORED:
             break; // ok, carry on
         case LCDbCryovialRetrieval::COLLECTED:
-            msgbox("Already collected - please inform Core Programming"); return;
+			TfrmRetrievalAssistant::msgbox("Already collected - please inform Core Programming"); return;
         case LCDbCryovialRetrieval::NOT_FOUND:
             if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) return;
     }
     if (barcode == aliquot->cryovial_barcode.c_str()) { // save
         aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
         //if secondary
-        msgbox("save secondary");
+        TfrmRetrievalAssistant::msgbox("save secondary");
         //sample->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
         debugLog("Save accepted row");
         nextRow();
@@ -584,7 +584,7 @@ void TfrmProcess::notFound() {
     if (sample->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
         sample->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
         if (sample->secondary) {
-            msgbox("Secondary aliquot found");
+            TfrmRetrievalAssistant::msgbox("Secondary aliquot found");
             if (sample->secondary->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // secondary already marked not found
                 fillRow(sample, rowAbs + 1); // refresh sg row - now keeps pointer to row
                 showCurrentRow();
@@ -594,7 +594,7 @@ void TfrmProcess::notFound() {
                 throw "secondary already NOT_FOUND";
             }
         } else {
-            msgbox("No secondary aliquot exists, continuing to next sample");
+            TfrmRetrievalAssistant::msgbox("No secondary aliquot exists, continuing to next sample");
             nextRow();
         }
     } else {  // primary already marked not found
@@ -639,7 +639,7 @@ void TfrmProcess::nextRow() {
         showCurrentRow();
     } else { // last row
         //chunk->setRowRel(current+1); // past end to show complete?
-        msgbox("review");
+        TfrmRetrievalAssistant::msgbox("review");
         debugLog("Save chunk"); // no, don't save - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
         if (chunk->getSection() < (int)chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk

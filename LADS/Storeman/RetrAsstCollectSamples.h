@@ -138,7 +138,7 @@ private:
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);
-    __fastcall TfrmProcess::~TfrmProcess();
+    __fastcall ~TfrmProcess();
 };
 
 extern PACKAGE TfrmProcess *frmProcess;

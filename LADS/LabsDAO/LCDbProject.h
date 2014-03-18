@@ -89,7 +89,12 @@ template< typename Values > struct LPDbCacheMap
 		static std::map< int, Values > shared;
 		Values & cache = shared[ projID ];
 		if( cache.empty() ) {
-			cache.read( LIMSDatabase::getProjectDb( projID ) );
+			LCDbProjects & projList = LCDbProjects::records();
+			const LCDbProject & proj = projList.get( projID );
+			if( projID != projList.getCurrentID() ) {
+				projList.setCurrent( proj );
+			}
+			cache.read( LIMSDatabase::getProjectDb( proj.getDbName(), true ) );
 		}
 		return cache;
 	}

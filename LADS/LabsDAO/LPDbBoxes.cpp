@@ -18,6 +18,7 @@
  *  5 Feb 2013, NG:		set new status (ANALYSED) if ready to be transferred
  * 20 September 2013:	ignore events - no longer required; add barcode
  * 12 December, NG:		Check box_cid not already used in another project
+ * 12 March 2014, NG:	Prefer c_box_content for most queries (db 2.7.2)
  *---------------------------------------------------------------------------*/
 
 #include <vcl.h>
@@ -160,7 +161,7 @@ bool LPDbBoxNames::readFilled( LQuery pq )
 	{
 	}
 	else
-	{	ddq.setSQL( "select b.* from box_name b, box_content c"
+	{	ddq.setSQL( "select b.* from box_name b, c_box_content c"
 				" where c.box_type_cid = b.box_type_cid and b.status = :conf and box_capacity = 0"
 				" and (expected_use in (:sts,:lts) or (expected_use=:stl and box_cid not in"
 				" (select box_cid from cryovial_store where cryovial_id not in"
@@ -346,6 +347,7 @@ bool LPDbBoxName::needsNewID( LQuery & cQuery ) const
 
 //---------------------------------------------------------------------------
 //	compare position of cryovials in this box with others in the same group
+//	(don't use c_box_content - distributed database may be far too slow)
 //---------------------------------------------------------------------------
 
 bool LPDbBoxName::matchesGroup( LQuery pQuery )
@@ -358,7 +360,7 @@ bool LPDbBoxName::matchesGroup( LQuery pQuery )
 				" and t2.box_set_link = t1.box_set_link and n2.box_type_cid = t2.box_type_cid"
 				" and s2.box_cid = n2.box_cid and c2.cryovial_id = s2.cryovial_id"
 				" and c1.cryovial_barcode = c2.cryovial_barcode"
-				" and s1.tube_position <> s2.tube_position" );
+				" and s1.cryovial_position <> s2.cryovial_position" );
 	pQuery.setParam( "bid", getID() );
 	return pQuery.open() && pQuery.readInt( 0 ) == 0;
 }

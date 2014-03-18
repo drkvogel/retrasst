@@ -355,10 +355,7 @@ GridEntry::GridEntry( const ROSETTA & row )
 {
 	static unsigned nextRecord = 1;
 	record_number = nextRecord ++;
-	old_pos = row.getIntDefault("tube_position", -1);
-	if( old_pos < 1 ) {
-		old_pos = row.getIntDefault("cryovial_position", -1);
-	}
+	old_pos = row.getIntDefault("cryovial_position", -1);
 }
 
 //---------------------------------------------------------------------------

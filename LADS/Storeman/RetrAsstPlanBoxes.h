@@ -14,7 +14,7 @@
 //#include "LPDbCryovial.h"
 
 /*
-select * from box_content bc, c_box_size bs where bc.box_size_cid = bs.box_size_cid
+select * from c_box_content bc, c_box_size bs where bc.box_size_cid = bs.box_size_cid
 
 select * from c_retrieval_job rj, cryovial_store cs where rj.retrieval_cid = cs.retrieval_cid
 

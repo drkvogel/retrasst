@@ -43,17 +43,6 @@ const bool RETRASSTDEBUG =
 
 using namespace std;
 
-void msgbox(char * main, char * title="Info") {
-    Application->MessageBoxW(String(main).w_str(), String(title).w_str(), MB_OK);
-}
-
-void msgbox(string main, string title="Info") { // ridiculous contrivance to use stdstring in message box
-    Application->MessageBoxW(String(main.c_str()).c_str(), String(title.c_str()).c_str(), MB_OK);
-}
-
-void msgbox(String main, string title="Info") {
-    Application->MessageBoxW(main.w_str(), String(title.c_str()).c_str(), MB_OK);
-}
 
 class RetrievalRow {
 public: //protected: ?
@@ -228,7 +217,7 @@ class StringGridWrapper {
 public:
     class Col {
     public:
-        Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(true), vec(NULL), initialised(false) { }
+ //	FIXME - C++ compiler error:	     Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(true), vec(NULL), initialised(false) { }
         Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL, string d="")
             : name(n), title(t), width(w), sort_func_asc(f), descrip(d), sortAsc(true) {}
         string  sortDescription() {
@@ -291,35 +280,29 @@ public:
         ostringstream oss; oss << sg->Name.c_str() << ": {";
         for (int i=0; i<sg->ColCount; i++) { oss << sg->ColWidths[i] << ", "; }
         oss << "};"; return oss.str();
+    }
+    void clearSelection() {
+        TGridRect myRect;
+        myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
+        sg->Selection = myRect;
+    }
+    void clear() {
+        clearSelection();
+        sg->FixedRows = 0; sg->RowCount = 0; sg->RowCount = 2; sg->FixedRows = 1;
+        for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
+        sg->Cells[0][1] = "No results.";
+    }
+    void sort_asc(int col, int start, int end) {
+ //	FIXME - C++ compiler error:	          frmSamples->debugLog("ascending");
+		stable_sort(rows->begin()+start, rows->begin()+end+1, cols[col].sort_func_asc);
 	}
-
-	void clearSelection() {
-		TGridRect myRect;
-		myRect.Left = 0; myRect.Top = 0; myRect.Right = 0; myRect.Bottom = 0;
-		sg->Selection = myRect;
-	}
-
-	void clear() {
-		clearSelection();
-		sg->FixedRows = 0; sg->RowCount = 0; sg->RowCount = 2; sg->FixedRows = 1;
-		for (int i = 0; i < sg->ColCount; i++) { sg->Cells[i][1] = ""; sg->Objects[i][1] = NULL; }
-		sg->Cells[0][1] = "No results.";
-	}
-
-	void sort_asc(int col, int start, int end) {
-        frmSamples->debugLog("ascending");
-        stable_sort(rows->begin()+start, rows->begin()+end+1, cols[col].sort_func_asc);
-	}
-
 	void sort_dsc(int col, int start, int end) {
-        frmSamples->debugLog("descending");
-        stable_sort(rows->rend()-end-1, rows->rend()-start, cols[col].sort_func_asc);
-	}
-
-	void sort_asc(string colName, int start, int end) {
-		sort_asc(colNameToInt(colName), start, end);
-	}
-
+ //	FIXME - C++ compiler error:	  		frmSamples->debugLog("descending");
+		stable_sort(rows->rend()-end-1, rows->rend()-start, cols[col].sort_func_asc);
+    }
+    void sort_asc(string colName, int start, int end) {
+        sort_asc(colNameToInt(colName), start, end);
+    }
 //    void sort_dsc(string colName, int start, int end) {
 //        sort_dsc(colNameToInt(colName), start, end);
 //    }
@@ -433,7 +416,7 @@ public:
     }
 };
 
-typedef std::vector< Chunk * > vecpChunk;
+ //	FIXME - C++ compiler error:	  typedef std::vector< Chunk * > vecpChunk;
 
 //???
 //class RetrievalList {
@@ -511,7 +494,12 @@ public:
     __fastcall TfrmRetrievalAssistant(TComponent* Owner);
     void init();
     void               clearStorageCache();
-    void               getStorage(SampleRow * sample);
+	void               getStorage(SampleRow * sample);
+
+	// made into class methods, NG, 17/3/14, to avoid linker error
+	static void msgbox(const char * main, const char * title="Info");
+	static void msgbox(string main, string title="Info");
+	static void msgbox(String main, string title="Info");
 };
 
 extern PACKAGE TfrmRetrievalAssistant *frmRetrievalAssistant;

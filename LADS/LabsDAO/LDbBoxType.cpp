@@ -4,12 +4,13 @@
  *      17 March 2006		Read box types from ldbc or project as necessary
  *      14 Jun 08, NG:		Always use project database for box content
  *		20 Nov 12, NG:		Add number of analyses required before storage
+ *      12 March 14, NG:	Prefer central database where possible (db2.7.2)
  *
  *--------------------------------------------------------------------------*/
 
 #include <vcl.h>
 #include <stdlib.h>
-
+#include <sstream>
 #include "LQuery.h"
 #include "LDbBoxType.h"
 #include "LCDbProject.h"
@@ -48,16 +49,15 @@ LPDbBoxType::LPDbBoxType( const LQuery & query )
 //  Read list types for current project, if it exist, otherwise central
 //---------------------------------------------------------------------------
 
-bool LPDbBoxTypes::read( LQuery pQuery, bool readAll )
-{
-	if( readAll )
-		pQuery.setSQL( "select * from box_content order by box_type_cid" );
-	else
-	{	pQuery.setSQL( "select * from box_content where status <> :sts"
-					  " order by box_type_cid" );
-		pQuery.setParam( "sts", LPDbBoxType::DELETED );
+bool LPDbBoxTypes::read( LQuery query, bool readAll ) {
+	std::stringstream sql;
+	sql << "select * from c_box_content where project_cid in (" << LCDbProjects::getCurrentID() << ",0)";
+	if( !readAll ) {
+		sql << " and status <> " << LPDbBoxType::DELETED;
 	}
-	return readData( pQuery );
+	sql << " order by box_type_cid";
+	query.setSQL( sql.str() );
+	return readData( query );
 }
 
 //---------------------------------------------------------------------------
@@ -86,36 +86,35 @@ bool LPDbBoxType::hasAliquot( int atid ) const
 //	Create or update the given box content record; copy into the cache
 //---------------------------------------------------------------------------
 
-bool LPDbBoxType::saveRecord( LQuery pq )
+bool LPDbBoxType::saveRecord( LQuery query )
 {
 	if( saved ) {
-		pq.setSQL( "Update box_content set external_name = :nam, description = :desc, status = :sts,"
+		query.setSQL( "Update c_box_content set external_name = :nam, description = :desc, status = :sts,"
 					  " expected_use = :eu, box_size_cid = :bs, box_order = :ord, box_set_link = :lnk,"
 					  " aliquot_type1 = :at1, aliquot_type2 = :at2, aliquot_type3 = :at3"
 					  " where box_type_cid = :cid" );
 	} else {
 		while( needsNewID() ) {
-			claimNextID( pq );
+			claimNextID( query );
 		}
-		pq.setSQL( "Insert into box_content (box_type_cid, external_name, description, status, expected_use,"
+		query.setSQL( "Insert into c_box_content (box_type_cid, external_name, description, status, expected_use,"
 					  " box_size_cid, box_order, aliquot_type1, aliquot_type2, aliquot_type3, box_set_link)"
 					  " values ( :cid, :nam, :desc, :sts, :eu, :bs, :ord, :at1, :at2, :at3, :lnk )" );
 	}
 
-	pq.setParam( "nam", getName() );
-	pq.setParam( "desc", getDescription() );
-	pq.setParam( "sts", status );
-	pq.setParam( "eu", uses );
-	pq.setParam( "bs", sizeID );
-	pq.setParam( "ord", position );
-	pq.setParam( "lnk", group );
-	pq.setParam( "cid", getID() );
-
+	query.setParam( "nam", getName() );
+	query.setParam( "desc", getDescription() );
+	query.setParam( "sts", status );
+	query.setParam( "eu", uses );
+	query.setParam( "bs", sizeID );
+	query.setParam( "ord", position );
+	query.setParam( "lnk", group );
+	query.setParam( "cid", getID() );
 	std::vector< int >::const_iterator alr = content.begin();
-	pq.setParam( "at1", alr == content.end() ? 0 : *alr ++ );
-	pq.setParam( "at2", alr == content.end() ? 0 : *alr ++ );
-	pq.setParam( "at3", alr == content.end() ? 0 : *alr ++ );
-	if( pq.execSQL() ) {
+	query.setParam( "at1", alr == content.end() ? 0 : *alr ++ );
+	query.setParam( "at2", alr == content.end() ? 0 : *alr ++ );
+	query.setParam( "at3", alr == content.end() ? 0 : *alr ++ );
+	if( query.execSQL() ) {
 		saved = true;
 		LPDbBoxTypes::records().insert( *this );
 		return true;

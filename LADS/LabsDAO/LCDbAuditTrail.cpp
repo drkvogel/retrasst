@@ -29,6 +29,7 @@
  *  1 July 09, NG:		Encourage wider use of pre-defined message types
  *	11 June 2012, NG	Modified for C++Builder XE2
  * 	6 Jan 2014, NG:		No need to split details: 1000 characters in db 2.7
+ *
  *-------------------------------------------------------------------------*/
 
 #include <vcl.h>
@@ -39,7 +40,6 @@
 #include "LCDbOperator.h"
 #include "LCDbProject.h"
 #include "LCDbAnalyser.h"
-#include "XMLFile.h"
 #include "LIMSDatabase.h"
 
 #pragma hdrstop

@@ -381,9 +381,9 @@ std::string Util::getAliquotDescription(int aliquot_type_cid) { // c_object_name
 bool Util::secondaryIndexExists(int project_cid, std::string indexName, bool exactMatch) {
     const char * sql;
     if (exactMatch) {
-        sql  = "select count(*) from iitables where table_owner=dbmsinfo('dba') and table_type='I' and index_name = ':index_name'\p\g";
+		sql  = "select count(*) from iitables where table_owner=dbmsinfo('dba') and table_type='I' and index_name = ':index_name'";
     } else {
-        sql  = "select count(*) from iitables where table_owner=dbmsinfo('dba') and table_type='I' and index_name like '%:index_name%'\p\g";
+        sql  = "select count(*) from iitables where table_owner=dbmsinfo('dba') and table_type='I' and index_name like '%:index_name%'";
     }
 	LQuery qt(Util::projectQuery(project_cid));
     qt.setSQL(sql);

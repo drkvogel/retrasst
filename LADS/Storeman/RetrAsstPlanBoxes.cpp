@@ -23,8 +23,8 @@ void __fastcall LoadBoxesWorkerThread::Execute() {
 /*  c_retrieval_job.status = new job (0); job type = box retrieval (2) or disposal (3)
 
 Find where the boxes are supposed to be:
-    Select ... from box_name n, box_store bs, c_rack_number r, c_tank_map m
-    where n.box_cid=bs.box_cid and bs.rack_cid=r.rack_cid and r.tank_cid=m.tank_cid
+	Select ... from c_box_name n, box_store bs, c_rack_number r, c_tank_map m
+	where n.box_cid=bs.box_cid and bs.rack_cid=r.rack_cid and r.tank_cid=m.tank_cid
     and bs.retrieval_cid = jobID; */
 
 /*
@@ -141,7 +141,7 @@ void __fastcall TfrmBoxes::FormClose(TObject *Sender, TCloseAction &Action) {
 
 VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime) { //cout << "CALLBACK " << dwTime << '\n'; cout.flush();
     KillTimer(NULL, frmBoxes->TimerId);
-    msgbox("Win Timer finished");
+    TfrmRetrievalAssistant::msgbox("Win Timer finished");
     frmBoxes->loadRows();
 }
 
@@ -275,7 +275,8 @@ void __fastcall TfrmBoxes::btnDelChunkClick(TObject *Sender) {
 void __fastcall TfrmBoxes::btnDecrClick(TObject *Sender) {
     //
 }
-void __fastcall TfrmBoxes::btnIncrClick(TObject *Sender) {    //
+void __fastcall TfrmBoxes::btnIncrClick(TObject *Sender) {
+    //
 }
 
 void __fastcall TfrmBoxes::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
