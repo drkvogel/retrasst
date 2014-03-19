@@ -8,8 +8,6 @@
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
 #include <Grids.hpp>
-#include <DB.hpp>
-#include <DBTables.hpp>
 #include "LCDbJob.h"
 
 //---------------------------------------------------------------------------

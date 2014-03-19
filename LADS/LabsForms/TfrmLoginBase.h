@@ -8,17 +8,12 @@
 #include <Controls.hpp>
 #include <ExtCtrls.hpp>
 #include <StdCtrls.hpp>
-#include <DBTables.hpp>
-#include <DB.hpp>
-#include "IdExplicitTLSClientServerBase.hpp"
-#include "IdSMTPBase.hpp"
 #include <IdBaseComponent.hpp>
 #include <IdComponent.hpp>
 #include <IdMessageClient.hpp>
 #include <IdSMTP.hpp>
 #include <IdTCPClient.hpp>
 #include <IdTCPConnection.hpp>
-
 #include "LCDbOperator.h"
 #include "LCDbProject.h"
 #include "LCDbAuditTrail.h"

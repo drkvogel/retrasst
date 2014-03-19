@@ -14,6 +14,9 @@ inherited frmSMLogin: TfrmSMLogin
     ExplicitLeft = 48
     ExplicitTop = 185
   end
+  inherited exitButton: TBitBtn
+    Kind = bkCustom
+  end
   inherited ebPassword: TEdit
     Top = 182
     ExplicitTop = 182

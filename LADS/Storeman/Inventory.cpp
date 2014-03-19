@@ -1401,15 +1401,12 @@ void Sample::populate( ) {
 		TDateTime when = hi->getTime( "time_stamp" ).outputTDateTime();
 		std::stringstream detail;
 		detail << hi->getString( "box_name" );
-		int position = hi->getIntDefault( "tube_position", -1 );
-		if( position < 1 ) {
-			position = hi->getIntDefault( "cryovial_position", -1 );
-		}
-		if( position >= 1 ) {
+		int position = hi->getIntDefault( "cryovial_position", -1 );
+		if( position > 0 ) {
 			detail << ", position " << position;
 		}
 		float volume = hi->getRealDefault( "sample_volume", -1 );
-		if( volume >= 0 ) {
+		if( volume > 0 ) {
             detail << ": " << volume << "ml";
         }
 		history[ when ] = detail.str( );

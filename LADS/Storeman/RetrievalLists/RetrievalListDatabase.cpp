@@ -5,8 +5,8 @@
 #include <vector>
 #include <sstream>
 #include "RetrievalListGridUtils.h"
-#include <Soap.XSBuiltIns.hpp>
 #include "RetrievalListMainListDialog.h"
+
 #pragma package(smart_init)
 
 const String RetrievalListDatabase::DEFINE_RETRIEVAL_CID = "retrieval_cid";
@@ -88,11 +88,17 @@ static bool dbErrorCallback( const std::string object, const int instance,const 
 }
 //---------------------------------------------------------------------------
 
+#if _WIN64
+static const char * vnode = "vnode_vlab_64";
+#elif _WIN32
+static const char * vnode = "vnode_vlab";
+#endif
+
 void RetrievalListDatabase::connect(String &selectDB)
 {
 	try
 	{
-		String dbName = "vnode_vlab::" + selectDB;
+		String dbName = String(vnode) + "::" + selectDB;
 		m_dbCentral = std::auto_ptr<XDB>( new XDB( AnsiString(dbName.c_str()).c_str() ) );
 		m_dbCentral->setErrorCallBack( dbErrorCallback );
 		throwUnless ( m_dbCentral->open(), "Failed to connect!" );
@@ -110,8 +116,8 @@ void RetrievalListDatabase::connect(String &selectDB)
 
 void RetrievalListDatabase::connectProject(String &projectName)
 {
-	std::string connectionString = std::string("vnode_vlab::") + AnsiString(projectName.c_str()).c_str();
-	m_dbProject = std::auto_ptr<XDB>( new XDB( connectionString ) );
+	AnsiString connectionString = AnsiString(vnode) + "::" + projectName;
+	m_dbProject = std::auto_ptr<XDB>( new XDB( connectionString.c_str() ) );
 	try
 	{
 		m_dbProject->setErrorCallBack( dbErrorCallback );
@@ -564,15 +570,12 @@ void RetrievalListDatabase::toReadableDateString(String &dateString)
 		dateString = "unknown";
 		return;
 	}
-	TXSDateTime *DT;
-	try
-	{
 		try
-		{
-			DT = new TXSDateTime();
-			DT->XSToNative(dateString);
-			TDateTime TTDT = DT->AsDateTime;
-			dateString = DateToStr(TTDT);
+		{	char buff[ 30 ];
+			XTIME dt( dateString );
+			std::sprintf( buff, "%d:%.2d %d-%s-%d",
+				dt.getHour(), dt.getMinute(), dt.getDay(), dt.getMonthName().c_str(), dt.getYear() );
+			dateString = buff;
 		}
 		catch (EConvertError &E)
 		{
@@ -583,12 +586,8 @@ void RetrievalListDatabase::toReadableDateString(String &dateString)
 			//some other problem...
 			dateString = "unknown";
 		}
-	}
-	__finally
-	{
-		delete DT;
-	}
 }
+
 //---------------------------------------------------------------------------
 
 void RetrievalListDatabase::fillRichEditInfo(std::map<String,String> &cryovialInfo,TRichEdit *RichEdit)

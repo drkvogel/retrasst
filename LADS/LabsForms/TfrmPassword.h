@@ -10,10 +10,6 @@
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
 #include <Buttons.hpp>
-#include <Db.hpp>
-#include <DBTables.hpp>
-#include <DB.hpp>
-
 #include "LCDbOperator.h"
 
 //---------------------------------------------------------------------------

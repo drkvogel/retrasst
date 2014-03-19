@@ -61,11 +61,17 @@ static bool dbErrorCallback( const std::string object, const int instance,const 
 
 //---------------------------------------------------------------------------
 
+#if _WIN64
+static const char * vnode = "vnode_vlab_64";
+#elif _WIN32
+static const char * vnode = "vnode_vlab";
+#endif
+
 void database::connect(String &selectDB,TMemo *debugMemo)
 {
 	try
 	{
-		String dbName = "vnode_vlab::" + selectDB;
+		String dbName = String(vnode) + "::" + selectDB;
 		m_dbCentral = std::unique_ptr<XDB>( new XDB( AnsiString(dbName.c_str()).c_str() ) );
 		m_dbCentral->setErrorCallBack( dbErrorCallback );
 		throwUnless ( m_dbCentral->open(), "Failed to connect!" );
@@ -97,7 +103,7 @@ bool database::connectProject(std::string projectName)
 		}
 	}
 
-	std::string connectionString = std::string("vnode_vlab::") + projectName;
+	std::string connectionString = std::string(vnode) + "::" + projectName;
 	m_pCurrentProject = new XDB(connectionString);
 
 	try

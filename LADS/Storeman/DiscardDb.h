@@ -1,7 +1,6 @@
 #ifndef DiscardDbH
 #define DiscardDbH
 
-#include <DBTables.hpp>
 #include "LCdbProject.h"
 #include "LCdbJob.h"
 #include "LCdbOperator.h"

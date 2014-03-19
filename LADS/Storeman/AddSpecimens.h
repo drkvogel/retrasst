@@ -12,8 +12,6 @@
 #include <Grids.hpp>
 #include "dvSelector.h"
 #include <ExtCtrls.hpp>
-#include <DB.hpp>
-#include <DBTables.hpp>
 #include "SampleList.h"
 #include <Buttons.hpp>
 

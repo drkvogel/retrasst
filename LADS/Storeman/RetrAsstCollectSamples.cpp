@@ -401,7 +401,7 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
         "    lcr.position AS lcr_position, lcr.cryovial_barcode, lcr.aliquot_type_cid, "
         "    lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, lcr.slot_number AS lcr_slot, "
         "    lcr.slot_number AS dest_pos, "
-        "    cs.box_cid, sb.external_name AS src_box, cs.tube_position AS source_pos,  "
+        "    cs.box_cid, sb.external_name AS src_box, cs.cryovial_position AS source_pos,  "
         "    db.external_name AS dest_box, "
         "    cs.note_exists, cs.cryovial_id, cs.cryovial_position, cs.status, "
         "    c.sample_id, cs.record_id, "

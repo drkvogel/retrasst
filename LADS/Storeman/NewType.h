@@ -8,8 +8,6 @@
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
 #include <ComCtrls.hpp>
-#include <DB.hpp>
-#include <DBTables.hpp>
 #include <memory>
 #include "Inventory.h"
 
