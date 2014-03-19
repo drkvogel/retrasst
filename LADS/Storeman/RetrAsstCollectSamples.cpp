@@ -51,8 +51,8 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("structpos","Pos",              27);
     sgwVials->addCol("struct",   "Structure",        100);
     sgwVials->addCol("boxpos",   "Slot",             26);
-    sgwVials->addCol("currbox",  "Current box",      257);
-    sgwVials->addCol("currpos",  "Pos",              31);
+    sgwVials->addCol("srcbox",   "Source box",      257);
+    sgwVials->addCol("srcpos",   "Pos",              31);
     sgwVials->addCol("destbox",  "Destination box",  240);
     sgwVials->addCol("destpos",  "Pos",              25);
 #ifdef _DEBUG
@@ -334,8 +334,8 @@ void TfrmProcess::fillRow(SampleRow * row, int rw) {
     sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sample->cryovial_barcode.c_str();
     sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = LCDbCryovialRetrieval::statusString(sample->retrieval_record->getStatus());
     sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sample->aliquotName().c_str();
-    sgVials->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sample->src_box_name.c_str();
-    sgVials->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sample->store_record->getPosition();
+    sgVials->Cells[sgwVials->colNameToInt("srcbox")]   [rw] = sample->src_box_name.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("srcpos")]   [rw] = sample->store_record->getPosition();
     sgVials->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sample->site_name.c_str();
     sgVials->Cells[sgwVials->colNameToInt("vesspos")]  [rw] = sample->vessel_pos;
     sgVials->Cells[sgwVials->colNameToInt("vessel" )]  [rw] = sample->vessel_name.c_str();

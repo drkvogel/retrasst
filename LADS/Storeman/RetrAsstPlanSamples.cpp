@@ -35,8 +35,8 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos,  "structure position");
     sgwVials->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure,  "structure name");
     sgwVials->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot,       "slot");
-    sgwVials->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
-    sgwVials->addCol("currpos",  "Pos",              31,    SampleRow::sort_asc_currpos,    "source box position");
+    sgwVials->addCol("srcbox",   "Source box",       257,   SampleRow::sort_asc_srcbox,     "source box name");
+    sgwVials->addCol("srcpos",   "Pos",              31,    SampleRow::sort_asc_srcpos,     "source box position");
     sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
     sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
 #ifdef _DEBUG
@@ -49,8 +49,8 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwDebug->addCol("barcode",  "Barcode",          91);
     sgwDebug->addCol("sample",   "Sample ID",        91);
     sgwDebug->addCol("aliquot",  "Aliquot",          90);
-    sgwDebug->addCol("currbox",  "Current box",      257);
-    sgwDebug->addCol("currpos",  "Pos",              31);
+    sgwDebug->addCol("srcbox",   "Source box",      257);
+    sgwDebug->addCol("srcpos",   "Pos",              31);
     sgwDebug->addCol("boxpos",   "Slot",             26);
     sgwDebug->addCol("destbox",  "Destination box",  267);
     sgwDebug->addCol("destpos",  "Pos",              25);
@@ -432,8 +432,8 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
         int rw = row+1; // for stringgrid
         sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
         sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquotName().c_str();
-        sgVials->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
+        sgVials->Cells[sgwVials->colNameToInt("srcbox")]   [rw] = sampleRow->src_box_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("srcpos")]   [rw] = sampleRow->store_record->getPosition();
         sgVials->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("vesspos")]  [rw] = sampleRow->vessel_pos;
         sgVials->Cells[sgwVials->colNameToInt("vessel" )]  [rw] = sampleRow->vessel_name.c_str();
@@ -459,8 +459,8 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
             sgDebug->Cells[sgwDebug->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("sample" )]  [rw] = sampleRow->cryo_record->getSampleID();
             sgDebug->Cells[sgwDebug->colNameToInt("aliquot")]  [rw] = sampleRow->aliquotName().c_str();
-            sgDebug->Cells[sgwDebug->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
-            sgDebug->Cells[sgwDebug->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
+            sgDebug->Cells[sgwDebug->colNameToInt("srcbox")]   [rw] = sampleRow->src_box_name.c_str();
+            sgDebug->Cells[sgwDebug->colNameToInt("srcpos")]   [rw] = sampleRow->store_record->getPosition();
             sgDebug->Cells[sgwDebug->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
             sgDebug->Cells[sgwDebug->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;

@@ -117,7 +117,7 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     sgwChunks->init();
 
     sgwBoxes  = new StringGridWrapper< BoxRow >(sgBoxes, &boxes);
-    sgwBoxes->addCol("boxname","Box name",     266,    BoxRow::sort_asc_currbox);
+    sgwBoxes->addCol("boxname","Box name",     266,    BoxRow::sort_asc_srcbox);
     sgwBoxes->addCol("site",   "Site",         156,    BoxRow::sort_asc_site);
     sgwBoxes->addCol("shelf",  "Shelf",        74,     BoxRow::sort_asc_shelf);
     sgwBoxes->addCol("vessel", "Vessel",       262,    BoxRow::sort_asc_vessel);
