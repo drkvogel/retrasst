@@ -47,6 +47,7 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwChunks->addCol("size",     "Size",     87);
     sgwChunks->init();
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
+    sgwVials->addCol("item",     "Item",             30);
     sgwVials->addCol("barcode",  "Barcode",          91);
     sgwVials->addCol("site",     "Site",             90);
     sgwVials->addCol("vesspos",  "Pos",              28);
@@ -158,6 +159,7 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
         } else {
             int status = row->retrieval_record->getStatus();
             switch (status) {
+                // could use currentAliquot() here?
                 case LCDbCryovialRetrieval::EXPECTED:
                     background = RETRIEVAL_ASSISTANT_NEW_COLOUR; break;
                 case LCDbCryovialRetrieval::IGNORED:
@@ -333,6 +335,7 @@ void TfrmProcess::fillRow(SampleRow * row, int rw) {
     } else {
         sample = row;
     }
+    sgVials->Cells[sgwVials->colNameToInt("item")]     [rw] = rw;//??sample->cryovial_barcode.c_str();
     sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sample->cryovial_barcode.c_str();
     sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = LCDbCryovialRetrieval::statusString(sample->retrieval_record->getStatus());
     sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sample->aliquotName().c_str();

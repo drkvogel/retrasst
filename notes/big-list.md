@@ -1,20 +1,15 @@
 ﻿## todo
 
- * Allow user to fill gaps in boxes from secondary aliquot after primary aliquot (partly?) completed
  * Empty source boxes (all vials "accepted" or "not found") will normally be discarded
  * Final stage: ask user to confirm that vessel/structure/slot is now empty
     * otherwise box should be referred
  * All source boxes from a reorganisation task should end up empty
-
-chunk->getStatus() called in showChunks and sgChunksDrawCell - necessary?
-look for ??? /newrow
-though for last chunk, there is no row after
-why can't I inspect chunk?
-deferred boxes are not saved as such...
-collect empties
-put lookAhead into chunk class
-notFound() crash
-chunk progress not shown at first
+ * show row numbers (e.g. 1,2,3... for each in chunk)
+ * deferred boxes are not saved as such...
+ * collect empties
+ * put lookAhead into chunk class
+ * notFound() crash
+ * chunk progress not shown at first
     loadVialsWorkerThreadTerminated
         showChunks()
             progressString()
@@ -23,10 +18,11 @@ chunk progress not shown at first
     showChunks should fast forward to first unresolved
 
 
-showCurrentRow get triggered twice
+showCurrentRow gets triggered twice
     sgChunksClick
         showChunk
-            showCurrentRow # just once
+            #showCurrentRow # just once
+            # now not at all
 
     skip
         nextRow
@@ -136,6 +132,8 @@ chunk: should add/change store records?
 
 ## Deferred
 
+why can't I inspect chunk?
+look for ??? /newrow
  * port [Plan|Process]Samples to [Plan|Process]Boxes
  * something to bear in mind for processing when it eventually goes live is that the database might not reflect reality perfectly - vials might be missing or swapped etc.
    won't come up till live testing, but worth thinking about at this stage of development
@@ -194,3 +192,6 @@ in <done.md>
 * Source/Current box - standardise name - source better
 * how to save stuff? to which tables? when (ie. per row or on exit/save)?
     * save *_retrieval per row, others on exit/signoff
+ * Allow user to fill gaps in boxes from secondary aliquot after primary aliquot (partly?) completed
+ * though for last chunk, there is no row after
+ chunk->getStatus() called in showChunks and sgChunksDrawCell - necessary?

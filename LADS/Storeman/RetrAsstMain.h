@@ -389,7 +389,26 @@ public:
                 throw "unknown status";
         }
     }
-    float getProgress() { return ((float)rowRel/((float)getSize())); }
+    float getProgress() {
+        //return ((float)rowRel/((float)getSize())); // no - there could be gaps (previously deferred vials). Gotta count.
+        int processed = 0;
+        for (int i=0; i<getSize(); i++) {
+            int status = objectAtRel(i)->retrieval_record->getStatus();
+            //EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };
+            switch (status) {
+                case LCDbCryovialRetrieval::EXPECTED:
+                case LCDbCryovialRetrieval::IGNORED:
+                    break;
+                case LCDbCryovialRetrieval::COLLECTED:
+                case LCDbCryovialRetrieval::NOT_FOUND:
+                case LCDbCryovialRetrieval::DISPOSED:
+                    processed++; break;
+                default:
+                    throw "unexpected LCDbCryovialRetrieval status";
+            }
+        }
+        return ((float)processed/((float)getSize()));
+    }
     string progressString() {
         ostringstream oss;
         float percent = getProgress()*100;
@@ -407,6 +426,7 @@ public:
                 case LCDbCryovialRetrieval::IGNORED:
                 case LCDbCryovialRetrieval::COLLECTED:
                 case LCDbCryovialRetrieval::NOT_FOUND:
+                case LCDbCryovialRetrieval::DISPOSED:
                     not_started = false; break;
                 default:
                     throw "unexpected LCDbCryovialRetrieval status";

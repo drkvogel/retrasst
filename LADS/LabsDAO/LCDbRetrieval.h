@@ -65,7 +65,8 @@ public:
         : rj_box_cid(rjbid), position(pos), cryovial_barcode(barcode), aliquot_type_cid(aliq), old_box_cid(oldbid), old_position(oldpos), new_position(newpos), process_cid(pid), status(st), slot_number(slot)
         {}
     bool saveRecord(LQuery query);
-    enum Status { EXPECTED, IGNORED, COLLECTED, COLLECTED_SECONDARY, PROCESSED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };
+    //enum Status { EXPECTED, IGNORED, COLLECTED, COLLECTED_SECONDARY, PROCESSED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };
+    enum Status { EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 }; //??? COLLECTED_SECONDARY
     static const char * statusString(int st);
     int     getRJBId() { return rj_box_cid; }
     void    setRJBId(int i) { rj_box_cid = i; }

@@ -82,7 +82,8 @@ LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query) : //LCDbID(1)
 
 const char * LCDbCryovialRetrieval::statusString(int st) {
     // enum Status { EXPECTED, IGNORED, COLLECTED, COLLECTED_SECONDARY, PROCESSED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };
-    static const char * statusStrings[] = { "Expected", "Ignored", "Collected", "Collected secondary", "Processed", "Disposed", "Not found" };
+    //static const char * statusStrings[] = { "Expected", "Ignored", "Collected", "Collected secondary", "Processed", "Disposed", "Not found" };
+    static const char * statusStrings[] = { "Expected", "Ignored", "Collected", "Disposed", "Not found" };
     if (DELETED == st) return "Deleted";
     return st < LCDbCryovialRetrieval::Status::NUM_STATUSES ? statusStrings[st] : "Invalid";
 };
