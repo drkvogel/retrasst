@@ -1,7 +1,6 @@
 object frmProcess: TfrmProcess
   Left = 0
   Top = 0
-  AutoSize = True
   Caption = 'Process Retrieval Job'
   ClientHeight = 615
   ClientWidth = 948
