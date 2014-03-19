@@ -130,11 +130,11 @@ private:
     void                                        skip();
     void                                        nextRow();
     void                                        collectEmpties();
-    void                                        exit();
     const char *                                loadingMessage;
     void                                        debugLog(String s);
-    bool destroying;
-    string tempTableName;
+    void                                        checkExit();
+    void                                        exit();
+    bool                                        destroying; // for FormResize
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);

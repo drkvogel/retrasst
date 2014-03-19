@@ -1,13 +1,10 @@
 ﻿## todo
 
- * Source/Current box - standardise name - source better
- * port [Plan|Process]Samples to [Plan|Process]Boxes
- * how to save stuff? to which tables? when (ie. per row or on exit/save)?    
  * Allow user to fill gaps in boxes from secondary aliquot after primary aliquot (partly?) completed
  * Empty source boxes (all vials "accepted" or "not found") will normally be discarded
-   * Final stage: ask user to confirm that vessel/structure/slot is now empty
-      * otherwise box should be referred
-   * All source boxes from a reorganisation task should end up empty
+ * Final stage: ask user to confirm that vessel/structure/slot is now empty
+    * otherwise box should be referred
+ * All source boxes from a reorganisation task should end up empty
 
 chunk->getStatus() called in showChunks and sgChunksDrawCell - necessary?
 look for ??? /newrow
@@ -139,6 +136,7 @@ chunk: should add/change store records?
 
 ## Deferred
 
+ * port [Plan|Process]Samples to [Plan|Process]Boxes
  * something to bear in mind for processing when it eventually goes live is that the database might not reflect reality perfectly - vials might be missing or swapped etc.
    won't come up till live testing, but worth thinking about at this stage of development
  * demo possible; email martin. make sure there are sufficient example jobs - e.g. "1743 THRIVE boxes - few (EDTA1 & EDTA2)"- 
@@ -191,37 +189,8 @@ in <done.md>
     // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
  ) and colour accordingly
 
-## c++ into python-like pseudocode:
 
-    strip out 
-        {}, ;
-        .c_str()
-        type declarations
-        return types (void etc)
-    -> into .
-    // comments into #
-    /* */ into """
 
-### language options
-
- * python (st2 plugin)
- * javascript (in browser)
- * PHP
- * regex
-
- * HR
-    * worried about ay?
-        * talk to ana about it - moving house, being tired
-        * talk to occ health about that
-        * talk to union
-        * get nick to verify that ref boxes was ready ages ago and generic comms is in use
-        * get rg to verify that stig is working and in use
-        * tell all concerned that it is only because I am worried that ay is looking for ways to discredit me that I am doing this.
----
-Labs Doxygen: C:\Users\cbird\Projects\lims-generic\doxygen\html
-select * from c_permission where operator_cid = -31438
-#define     LEASEE_STOREMAN        100
-http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
----
-
-[fact remains I work a lot better when AY is not there - why can this not be addressed somehow?]
+* Source/Current box - standardise name - source better
+* how to save stuff? to which tables? when (ie. per row or on exit/save)?
+    * save *_retrieval per row, others on exit/signoff

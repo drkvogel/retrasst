@@ -27,7 +27,7 @@ private:	// User declarations
 
 public:		// User declarations
 
-	enum Pages { ANY, CONFIGURE, MOVE, DISCARD, REFERRED };		// permissions
+	enum Pages { ANY, CONFIGURE, MOVE, DISCARD, REFERRED, RETRIEVE };		// permissions
 
 	__fastcall TfrmSMLogin(TComponent* Owner);
 };

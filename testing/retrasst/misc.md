@@ -46,3 +46,20 @@ http://www.soulseekqt.net/SoulseekQT/Linux/SoulseekQt-2013-11-6.tgz
  * javascript (in browser)
  * PHP
  * regex
+
+ * HR
+    * worried about ay?
+        * talk to ana about it - moving house, being tired
+        * talk to occ health about that
+        * talk to union
+        * get nick to verify that ref boxes was ready ages ago and generic comms is in use
+        * get rg to verify that stig is working and in use
+        * tell all concerned that it is only because I am worried that ay is looking for ways to discredit me that I am doing this.
+---
+Labs Doxygen: C:\Users\cbird\Projects\lims-generic\doxygen\html
+select * from c_permission where operator_cid = -31438
+#define     LEASEE_STOREMAN        100
+http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
+---
+
+[fact remains I work a lot better when AY is not there - why can this not be addressed somehow?]

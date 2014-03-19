@@ -3,8 +3,12 @@
 #include "StoreDAO.h"
 #include "RetrAsstCollectSamples.h"
 #include "LCDbAuditTrail.h"
-#include <ctime>      // struct tm
-#include <locale>     // locale, time_put
+#include <ctime>
+    // struct tm
+#include <locale>
+    // locale, time_put
+#include "TfrmConfirm.h"
+#include "SMLogin.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -79,8 +83,6 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
 
 void __fastcall TfrmProcess::FormClose(TObject *Sender, TCloseAction &Action) {
     exit();
-    delete_referenced< vector <SampleRow * > >(vials);
-    delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
 }
 
 void TfrmProcess::debugLog(String s) {
@@ -252,9 +254,9 @@ void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after
 
 void __fastcall TfrmProcess::cbLogClick(TObject *Sender) { panelDebug->Visible = cbLog->Checked; }
 
-void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) { exit(); }
+void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) { checkExit(); }
 
-void __fastcall TfrmProcess::btnExitClick(TObject *Sender) { Close(); } //exit(); }
+void __fastcall TfrmProcess::btnExitClick(TObject *Sender) { checkExit(); } //exit(); }
 
 void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) { accept(editBarcode->Text); }
 
@@ -660,14 +662,74 @@ void TfrmProcess::collectEmpties() {
     Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
 }
 
-void TfrmProcess::exit() {
+void TfrmProcess::checkExit() {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
-    /* Ask the relevant question(s) from the URS when they’re ready to finish
-  and update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
-        Application->MessageBox(L"Save completed boxes", L"Info", MB_OK);
-        Application->MessageBox(L"Signoff form (or on open form?)", L"Info", MB_OK);
-        // how to update boxes? check at save and exit that all vials in a box have been saved?
-        Close();
+        exit();
     }
+}
+
+void TfrmProcess::exit() { // definitely exiting
+/* Ask the relevant question(s) from the URS when they’re ready to finish
+and update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
+    Application->MessageBox(L"Save completed boxes", L"Info", MB_OK);
+    //Application->MessageBox(L"Signoff form (or on open form?)", L"Info", MB_OK);
+    // how to update boxes? check at save and exit that all vials in a box have been saved?
+    //frmReferredBoxesSummary->summaryBoxes.clear();
+    //tdvecpBoxArrivalRecord::const_iterator it;
+    //for (affected samples) {
+    // should thread perhaps
+    std::set<int> projects;
+    projects.insert(job->getProjectID());
+//    for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
+//        SampleRow * sample = *it;
+//        int status  = sample->retrieval_record->getStatus();
+//        if (status != LCDbCryovialRetrieval::EXPECTED & status != LCDbCryovialRetrieval::IGNORED) { // changed
+//            projects.insert(job->getProjectID());
+//        }
+//    }
+    frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
+    Screen->Cursor = crSQLWait;
+    if (mrOk != frmConfirm->ShowModal()) {
+        Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
+        // what now?
+    }
+//    debugLog(dummyRun ? "*** dummy run ***" : "*** live run ***");
+//    if (!dummyRun && mrOk != frmConfirm->ShowModal()) return; // require re-login
+//    if (!dummyRun) btnConfirm->Enabled = false;
+
+    vector<string> info;
+    vector<string> warnings;
+    vector<string> errors;
+
+    try {
+        //signOff();
+        for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
+            SampleRow * sample = *it;
+            int status  = sample->retrieval_record->getStatus();
+            if (status != LCDbCryovialRetrieval::EXPECTED & status != LCDbCryovialRetrieval::IGNORED) { // changed
+                // change stuff
+            }
+        }
+	} catch(Exception & e) {
+		AnsiString msg = e.Message;
+		errors.push_back(msg.c_str());
+    } catch(char * e) {
+        errors.push_back(e);
+    } catch (...) {
+        errors.push_back("Unknown error");
+    }
+    Screen->Cursor = crDefault;
+    vector<string>::const_iterator strIt;
+    if (errors.size() > 0) {
+        ostringstream out;
+        for (strIt = errors.begin(); strIt != errors.end(); strIt++) { out<<*strIt<<endl; }
+        Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
+        return;
+    }
+
+
+    delete_referenced< vector <SampleRow * > >(vials);
+    delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
+    Close(); //necesssary???
 }
 
