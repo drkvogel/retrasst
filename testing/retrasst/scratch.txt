@@ -1,20 +1,11 @@
  * load in collected/not found/ignored samples as well to return to in progress chunk
+    * what about secondaries?
 
-where's the plan being loaded?
-	LoadPlanWorkerThread::NotUsingTempTable() 
-
-
-accept()
-    aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
-skip()
-    currentAliquot()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
-notFound()
-	retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND)
-nextRow()
-    sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())
-    if (sample->secondary) 
-        sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())
-
+accept(): aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
+skip(): currentAliquot()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
+notFound(): retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND)
+nextRow(): sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())
+    if (sample->secondary): sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())
 
 saveRecord doesn't seem to have done anything - there are 1674 = 2 * 837 aliquots ie the whole job in l_cryovial_retrieval, 
 none with status != 0
@@ -27,7 +18,6 @@ first row is 112155048
 		 	- ain't no such thing
 		 	(rj_box_cid = 38??) no. 
 		 	sample->retrieval_record
-
 
     RetrievalRow(
     	string srcnm, 

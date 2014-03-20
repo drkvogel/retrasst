@@ -40,7 +40,7 @@ __published:	// IDE-managed Components
 	void __fastcall BitBtn1Click(TObject *Sender);
 
 private:	// User declarations
-	String TfrmNewBoxType::checkDetails();
+	String checkDetails();
 	bool addAliquot( std::vector< int > & aliquotIDs, TComboBox * cbType );
 
 public:		// User declarations

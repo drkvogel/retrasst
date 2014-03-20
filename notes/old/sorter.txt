@@ -1,62 +1,8 @@
-﻿sql to delete plan
-
-still the mystery of the missing list:
- list I made with create list has no rows
- select * from c_retrieval_job
- retrieval_cid 1223
-
-select * from cryovial_store where retrieval_cid = 1223
-gives one row and
-select * box_store where retrieval_cid = 1223
-gives none on t_ldb20
-then, if I run the query on the ddb, I get
-
-    E_LQ002E The 'rollback' query has been issued outside of a DBMS session (t_ldb20_ddb)
-
-and then when I go back to the project database:
-
-    E_LQ002E The 'prepare' query has been issued outside of a DBMS session (t_ldb20)
-    
-selecting from -1015 (select * from cryovial_store where retrieval_cid = -1015) gives lots of rows.
-
-job -1015 THRIVE Lp(a) baseline (496 boxes, 3972 cryovials)
- select count(*) from c_box_retrieval where retrieval_cid = -1015: 496 boxes
- select count(*) from l_cryovial_retrieval: 3972 cryovials
- 
-process: doesn't load chunks/rows
+﻿ 
 chunk: should add/change store records?
-autochunk: thread/wait pointer
-autochunk: goes over last vial
-chunks: put in db-
-vials: select 1st row/scroll to top when new chunk created
-chunks: sizes are wrong - 1 too high
-chunks: can go over end of vials - check
-can only double click to split chunk on last chunk?
-sorting slow
-496 boxes
-3972 cryovials
 
-sample - can be split into cryovials
 
-### Cultural learnings of 2013-09-28
 
- * Templated code is not compiled until it is instantiated - i.e. if there is part of your template that is not used, it will not throw a compile error even if bad syntax
- * Debug symbols do not seem to be generated for templated code, meaning breakpoints cannot be set. I don't know if this can be changed in the options.
- * Windows' API debug function is `OutputDebugString()` and is captured by the Event Log tab in C++ Builder
- * Use it like this: `OutputDebugString(L"string")` or like this: `wstringstream oss; oss<<__FUNC__<<"text"<<var; OutputDebugString(oss.str().c_str());`
-
-Labs Doxygen: C:\Users\cbird\Projects\lims-generic\doxygen\html
-
- * Chunks: 
-    * what is a chunk? it's a bit of the whole list. If The Whole List is an object, we shouldn't duplicate it in any way. either:
-        * move all the contents of the initial list into chunks, or 
-        * keep the list, but chunks context indexes into it, and do partial_sorts of its contents.
-            * then again, the StringGridWrapper should be shy - just display and sort sth, without knowing whether that list is a part or a whole
- * StringGridWrapper
-    * Have implemented the StringGridWrapper, but sorting is no longer working. Must rembember that at all times, even if the chunk is a default chunk containing all rows, we should be sorting a chunk and not the underlying vector of rows.
-    * That means the 'rows' of the StringGridWrapper should be set to be the rows of whichever chunk is currently selected?
-    * At which point (which routine) should we do this? Something smells wrong about the current way chunks are handled.
-    * Pragmatic - forget sorting for now, fire some tracer bullets - get some visual stuff up and database inserts going
  * Emails from Nick/Martin
     * Another minor feature to add to the retrieval assistant when you’re implementing the final part: when you’ve finished retrieving samples from a box, check if it’s empty.  That’s unlikely to be necessary for tasks I’ve created but anyone using Jonathan’s utility to rationalise tanks may end up throwing the old boxes away
     This means we’ll be demonstrating next week using the mirror system, just in case it makes any difference Nick (I'm happy for it to be split I f that makes more sense. Martin)
@@ -70,14 +16,31 @@ Labs Doxygen: C:\Users\cbird\Projects\lims-generic\doxygen\html
         * get nick to verify that ref boxes was ready ages ago and generic comms is in use
         * get rg to verify that stig is working and in use
         * tell all concerned that it is only because I am worried that ay is looking for ways to discredit me that I am doing this.
-        
 ---
+Labs Doxygen: C:\Users\cbird\Projects\lims-generic\doxygen\html
 select * from c_permission where operator_cid = -31438
 #define 	LEASEE_STOREMAN		   100
 http://www.forbes.com/pictures/efkk45emdjk/16-things-you-should-do-at-the-start-of-every-work-day/
 ---
 
 # Done
+
+sql to delete plan
+
+still the mystery of the missing list:
+ list I made with create list has no rows
+ select * from c_retrieval_job
+ retrieval_cid 1223
+
+select * from cryovial_store where retrieval_cid = 1223
+gives one row and
+select * box_store where retrieval_cid = 1223
+gives none on t_ldb20
+then, if I run the query on the ddb, I get
+    E_LQ002E The 'rollback' query has been issued outside of a DBMS session (t_ldb20_ddb)
+and then when I go back to the project database:
+    E_LQ002E The 'prepare' query has been issued outside of a DBMS session (t_ldb20)
+selecting from -1015 (select * from cryovial_store where retrieval_cid = -1015) gives lots of rows.
 
 click on chunk - show wait cursor while loading-
 sample grid - shelf and vessel wrong way round-dn
@@ -171,3 +134,35 @@ dblclick: highlighted chunk is second-to last, not last-
 addchunk: new start and end are wrong (-ve) - were uninitialised
 sorting works again! OMG! sorting by shelf doesn't seem to do anything it is quite slow though...
 show log if in debug-
+job -1015 THRIVE Lp(a) baseline (496 boxes, 3972 cryovials)
+ select count(*) from c_box_retrieval where retrieval_cid = -1015: 496 boxes
+ select count(*) from l_cryovial_retrieval: 3972 cryovials
+autochunk: thread/wait pointer
+process: doesn't load chunks/rows
+autochunk: goes over last vial
+chunks: put in db-
+vials: select 1st row/scroll to top when new chunk created
+chunks: sizes are wrong - 1 too high
+chunks: can go over end of vials - check
+can only double click to split chunk on last chunk?
+sorting slow
+496 boxes
+3972 cryovials
+ * Chunks: 
+    * what is a chunk? it's a bit of the whole list. If The Whole List is an object, we shouldn't duplicate it in any way. either:
+        * move all the contents of the initial list into chunks, or 
+        * keep the list, but chunks context indexes into it, and do partial_sorts of its contents.
+            * then again, the StringGridWrapper should be shy - just display and sort sth, without knowing whether that list is a part or a whole
+ * StringGridWrapper
+    * Have implemented the StringGridWrapper, but sorting is no longer working. Must rembember that at all times, even if the chunk is a default chunk containing all rows, we should be sorting a chunk and not the underlying vector of rows.
+    * That means the 'rows' of the StringGridWrapper should be set to be the rows of whichever chunk is currently selected?
+    * At which point (which routine) should we do this? Something smells wrong about the current way chunks are handled.
+    * Pragmatic - forget sorting for now, fire some tracer bullets - get some visual stuff up and database inserts going
+sample - can be split into cryovials (aliquots)
+
+### Cultural learnings of 2013-09-28
+
+ * Templated code is not compiled until it is instantiated - i.e. if there is part of your template that is not used, it will not throw a compile error even if bad syntax
+ * Debug symbols do not seem to be generated for templated code, meaning breakpoints cannot be set. I don't know if this can be changed in the options.
+ * Windows' API debug function is `OutputDebugString()` and is captured by the Event Log tab in C++ Builder
+ * Use it like this: `OutputDebugString(L"string")` or like this: `wstringstream oss; oss<<__FUNC__<<"text"<<var; OutputDebugString(oss.str().c_str());`

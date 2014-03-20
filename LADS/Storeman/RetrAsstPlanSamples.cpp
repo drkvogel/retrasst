@@ -35,8 +35,8 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos,  "structure position");
     sgwVials->addCol("struct",   "Structure",        123,   SampleRow::sort_asc_structure,  "structure name");
     sgwVials->addCol("boxpos",   "Slot",             26,    SampleRow::sort_asc_slot,       "slot");
-    sgwVials->addCol("currbox",  "Current box",      257,   SampleRow::sort_asc_currbox,    "source box name");
-    sgwVials->addCol("currpos",  "Pos",              31,    SampleRow::sort_asc_currpos,    "source box position");
+    sgwVials->addCol("srcbox",   "Source box",       257,   SampleRow::sort_asc_srcbox,     "source box name");
+    sgwVials->addCol("srcpos",   "Pos",              31,    SampleRow::sort_asc_srcpos,     "source box position");
     sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
     sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
 #ifdef _DEBUG
@@ -49,8 +49,8 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwDebug->addCol("barcode",  "Barcode",          91);
     sgwDebug->addCol("sample",   "Sample ID",        91);
     sgwDebug->addCol("aliquot",  "Aliquot",          90);
-    sgwDebug->addCol("currbox",  "Current box",      257);
-    sgwDebug->addCol("currpos",  "Pos",              31);
+    sgwDebug->addCol("srcbox",   "Source box",      257);
+    sgwDebug->addCol("srcpos",   "Pos",              31);
     sgwDebug->addCol("boxpos",   "Slot",             26);
     sgwDebug->addCol("destbox",  "Destination box",  267);
     sgwDebug->addCol("destpos",  "Pos",              25);
@@ -239,9 +239,11 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     }
 
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
-        std::set<int> projects; projects.insert(job->getProjectID());
         const int pid = LCDbAuditTrail::getCurrent().getProcessID();
-        frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
+        //std::set<int> projects; projects.insert(job->getProjectID());
+        //frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
+        frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan");  // don't need //status???
+
         if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) return;
 
         Screen->Cursor = crSQLWait; Enabled = false; debugLog("starting save plan");
@@ -324,7 +326,7 @@ void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
     if (sgVials->Row <= 1)
         return; // header or silly chunk
     if (sgChunks->Row < sgChunks->RowCount-1) {
-        msgbox("Only the last chunk can be split");
+		TfrmRetrievalAssistant::msgbox("Only the last chunk can be split");
         return;
     }
     addChunk(sgVials->Row-1); // allowing for fixed header row
@@ -338,7 +340,7 @@ void __fastcall TfrmSamples::btnAddChunkClick(TObject *Sender) {
         showChunks();
         showChunk();
     } else {
-        msgbox("Chosen chunk size is too big for current list");
+        TfrmRetrievalAssistant::msgbox("Chosen chunk size is too big for current list");
     }
 }
 
@@ -432,8 +434,8 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
         int rw = row+1; // for stringgrid
         sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
         sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquotName().c_str();
-        sgVials->Cells[sgwVials->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
+        sgVials->Cells[sgwVials->colNameToInt("srcbox")]   [rw] = sampleRow->src_box_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("srcpos")]   [rw] = sampleRow->store_record->getPosition();
         sgVials->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sampleRow->site_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("vesspos")]  [rw] = sampleRow->vessel_pos;
         sgVials->Cells[sgwVials->colNameToInt("vessel" )]  [rw] = sampleRow->vessel_name.c_str();
@@ -459,8 +461,8 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
             sgDebug->Cells[sgwDebug->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("sample" )]  [rw] = sampleRow->cryo_record->getSampleID();
             sgDebug->Cells[sgwDebug->colNameToInt("aliquot")]  [rw] = sampleRow->aliquotName().c_str();
-            sgDebug->Cells[sgwDebug->colNameToInt("currbox")]  [rw] = sampleRow->src_box_name.c_str();
-            sgDebug->Cells[sgwDebug->colNameToInt("currpos")]  [rw] = sampleRow->store_record->getPosition();
+            sgDebug->Cells[sgwDebug->colNameToInt("srcbox")]   [rw] = sampleRow->src_box_name.c_str();
+            sgDebug->Cells[sgwDebug->colNameToInt("srcpos")]   [rw] = sampleRow->store_record->getPosition();
             sgDebug->Cells[sgwDebug->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
             sgDebug->Cells[sgwDebug->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
             sgDebug->Cells[sgwDebug->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
@@ -607,15 +609,15 @@ void LoadVialsWorkerThread::load() {
     // actual query now we know there are some rows
     oss.str(""); oss <<
         "SELECT"
-        "  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.tube_position," // for LPDbCryovialStore
+		"  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
         "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
         "  c.cryovial_barcode,"
         "  b1.box_cid as source_id,"
         "  b1.external_name as source_name,"
-        "  s1.tube_position as source_pos,"
+		"  s1.cryovial_position as source_pos,"
         "  s2.box_cid as dest_id,"
         "  b2.external_name as dest_name,"
-        "  s2.tube_position as dest_pos"
+        "  s2.cryovial_position as dest_pos"
         " FROM"
         "  cryovial c, cryovial_store s1, box_name b1,"
         "  cryovial_store s2, box_name b2"
@@ -758,7 +760,7 @@ void __fastcall TfrmSamples::timerCalculateTimer(TObject *Sender) {
 
 void TfrmSamples::calcSizes() {
 /** calculate possible chunk (section) sizes
-slot/box (where c_box_size.box_size_cid = box_content.box_size_cid) (where does box_content come from?)
+slot/box (where c_box_size.box_size_cid = c_box_content.box_size_cid) (where does box_content come from?)
 As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box */
     comboSectionSize->Clear();
     int possibleChunkSize = box_size; // smallest chunk

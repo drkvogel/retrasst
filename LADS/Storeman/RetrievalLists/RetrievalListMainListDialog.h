@@ -26,22 +26,22 @@ private:
 	retrievalList *m_pRetrievalList;
 	int *m_ProgessCounter;
 public:
-	bgWorkerThreadTask::bgWorkerThreadTask()
+	bgWorkerThreadTask()
 	{
 	}
 
-	bgWorkerThreadTask::~bgWorkerThreadTask()
+	~bgWorkerThreadTask()
 	{
 	}
 
-	void bgWorkerThreadTask::setUp(std::map<int,std::map<String,String> > &workingDataSet,retrievalList *pRetrievalList, int &progessCounter)
+	void setUp(std::map<int,std::map<String,String> > &workingDataSet,retrievalList *pRetrievalList, int &progessCounter)
 	{
 		m_ProgessCounter = &progessCounter;
 		m_pWorkingDataSet = &workingDataSet;
 		m_pRetrievalList = pRetrievalList;
 	}
 
-	bool bgWorkerThreadTask::execute()
+	bool execute()
 	{
 		m_pRetrievalList->fillCryovialStatus(*m_pWorkingDataSet,m_ProgessCounter,this);
 		return true;

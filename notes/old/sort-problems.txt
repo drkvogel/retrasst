@@ -1,4 +1,11 @@
-﻿test job: Retrieval_2018 : A few THRIVE EDTA_2 cryovials
+﻿
+    
+## Done
+
+ * what happens if you double click in a chunk in the middle of other chunks? prevent it-
+ * which way round should the sorters be done? backwards
+    white october mail?
+test job: Retrieval_2018 : A few THRIVE EDTA_2 cryovials
 
  * descending sort not working
     * descending sort only works on last chunk?
@@ -38,9 +45,3 @@ either:
     negate
  * how does create list do it?
     frmRetrieveMain: SampleEntry.cpp
-    
-## Done
-
- * what happens if you double click in a chunk in the middle of other chunks? prevent it-
- * which way round should the sorters be done? backwards
-    white october mail?

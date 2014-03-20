@@ -10,9 +10,8 @@
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
 #include <Buttons.hpp>
-#include <DB.hpp>
-#include <DBTables.hpp>
 #include <ExtCtrls.hpp>
+#include <Vcl.Imaging.PngLang.hpp>
 #include "TfrmLoginBase.h"
 
 //---------------------------------------------------------------------------
@@ -27,7 +26,7 @@ private:	// User declarations
 
 public:		// User declarations
 
-	enum Pages { ANY, CONFIGURE, MOVE, DISCARD, REFERRED };		// permissions
+	enum Pages { ANY, CONFIGURE, MOVE, DISCARD, REFERRED, RETRIEVE };		// permissions
 
 	__fastcall TfrmSMLogin(TComponent* Owner);
 };

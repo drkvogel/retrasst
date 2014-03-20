@@ -1,6 +1,6 @@
 
-            #ifndef __util_Holder.h
-#define __util_Holder.h
+#ifndef __util_Holder
+#define __util_Holder
 
 #include <vector>
 #include <map>

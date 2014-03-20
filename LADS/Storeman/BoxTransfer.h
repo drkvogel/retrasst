@@ -9,8 +9,6 @@
 #include <Controls.hpp>
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
-#include <DB.hpp>
-#include <DBTables.hpp>
 #include <ExtCtrls.hpp>
 #include <Grids.hpp>
 #include <Buttons.hpp>

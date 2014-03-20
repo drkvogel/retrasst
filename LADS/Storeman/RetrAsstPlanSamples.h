@@ -14,7 +14,7 @@
 
 using namespace std;
 
-// cryovial barcode, destination box, position, current box, position, structure and location of the primary and secondary
+// cryovial barcode, destination box, position, source box, position, structure and location of the primary and secondary
 // secondary aliquots: if defined, will be separate rows after all primary aliquots
 // if any primaries fail, these will be marked to make a new chunk of replacements
 

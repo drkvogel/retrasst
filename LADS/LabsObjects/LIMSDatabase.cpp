@@ -128,6 +128,12 @@ std::string LIMSDatabase::getDbName( ) const {
 // 	Switch to current system and connect (using installation password)
 //---------------------------------------------------------------------------
 
+#if _WIN64
+static std::string vnode = "vnode_vlab_64";
+#elif _WIN32
+static std::string vnode = "vnode_vlab";
+#endif
+
 XDB *LIMSDatabase::connect( bool readLocks ) {
 	if( isConnected() && dbs != current ) {
 		xdb->close();
@@ -135,10 +141,10 @@ XDB *LIMSDatabase::connect( bool readLocks ) {
 		xdb = NULL;
 	}
 	if( !isConnected() ) {
-		std::string vnode = "vnode_vlab::" + getPrefix( current ) + name;
-		xdb = new XDB( vnode );
+		std::string dbName = vnode + "::" + getPrefix( current ) + name;
+		xdb = new XDB( dbName );
 		if( !xdb->open( ) ) {
-			throw Exception( String( "Cannot open " ) + vnode.c_str( ) );
+			throw Exception( String( "Cannot open " ) + dbName.c_str( ) );
 		}
 		if( !readLocks ) {
 			XEXEC lockMode( xdb, "set lockmode session where readlock=nolock" );

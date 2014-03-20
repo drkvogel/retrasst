@@ -97,7 +97,7 @@ object frmAboutBox: TfrmAboutBox
   end
   object okButton: TBitBtn
     Left = 120
-    Top = 168
+    Top = 169
     Width = 80
     Height = 32
     Kind = bkOK

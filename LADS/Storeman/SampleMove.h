@@ -14,8 +14,6 @@
 #include <Graphics.hpp>
 #include <Dialogs.hpp>
 #include <ExtDlgs.hpp>
-#include <DB.hpp>
-#include <DBTables.hpp>
 #include <string>
 #include <vector>
 #include <stdio.h>

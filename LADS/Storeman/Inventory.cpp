@@ -1084,6 +1084,9 @@ Box::Box( const ROSETTA &data ) {
 	if( data.isString( "external_name" ) ) {
 		name = data.getString( "external_name" );
 	}
+	if( data.isString( "barcode" ) ) {
+		barcode = data.getString( "barcode" );
+	}
 	project_cid = data.getIntDefault( "project_cid", -1 );
 	if( project_cid == -1 && data.isString( "db_name" ) ) {
 		std::string db_name = data.getString("db_name");
@@ -1135,7 +1138,7 @@ std::auto_ptr< ROSETTA >Box::getProperties( ) {
 	if( content != NULL ) {
 		r->setString( "content", content->getDescription( ) );
 	}
-	// r->setInt( "slot_position", position );
+	r->setString( "barcode", barcode );
 
 	const char *statusStr;
 	switch( status ) {
@@ -1178,7 +1181,7 @@ std::auto_ptr< ROSETTA >Box::getObjectData( ) {
 	r->setInt( "slot_position", position );
 	r->setInt( "rack_position", ( (Rack *)parent )->getPosition( ) );
 	r->setInt( "project_cid", project_cid );
-	//	r->setString( "db_name", db_name );
+	r->setString( "barcode", barcode );
 	r->setInt( "status", status );
 	return r;
 }
@@ -1351,17 +1354,12 @@ Sample::Sample( int p_id, std::string p_name ) : IPart( p_id, p_name ) {
 
 Sample::Sample( const ROSETTA &data ) {
 	id = data.getIntDefault( "cryovial_id", 0 );
-	if( data.isInt( "tube_position" ) ) {
-		position = data.getInt( "tube_position" );
-	} else {
-		position = data.getIntDefault( "cryovial_position", -1 );
-	}
+	position = data.getIntDefault( "cryovial_position", -1 );
+	project_cid = data.getIntDefault( "project_cid", -1 );
+	sample_id = data.getIntDefault( "sample_id", 0 );
 	if( data.isTime( "time_stamp" ) ) {
 		stamp = data.getTime( "time_stamp" );
 	}
-	project_cid = data.getIntDefault( "project_cid", -1 );
-	sample_id = data.getIntDefault( "sample_id", 0 );
-
 	if( data.isString( "cryovial_barcode" ) ) {
 		name = data.getString( "cryovial_barcode" );
 	}
@@ -1403,15 +1401,12 @@ void Sample::populate( ) {
 		TDateTime when = hi->getTime( "time_stamp" ).outputTDateTime();
 		std::stringstream detail;
 		detail << hi->getString( "box_name" );
-		int position = hi->getIntDefault( "tube_position", -1 );
-		if( position < 1 ) {
-			position = hi->getIntDefault( "cryovial_position", -1 );
-		}
-		if( position >= 1 ) {
+		int position = hi->getIntDefault( "cryovial_position", -1 );
+		if( position > 0 ) {
 			detail << ", position " << position;
 		}
 		float volume = hi->getRealDefault( "sample_volume", -1 );
-		if( volume >= 0 ) {
+		if( volume > 0 ) {
             detail << ": " << volume << "ml";
         }
 		history[ when ] = detail.str( );

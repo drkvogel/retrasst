@@ -201,8 +201,6 @@ object frmProcess: TfrmProcess
       Caption = 'Exit'
       TabOrder = 4
       OnClick = btnExitClick
-      ExplicitLeft = 870
-      ExplicitTop = 14
     end
     object btnNotFound: TButton
       Left = 466

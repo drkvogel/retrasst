@@ -49,13 +49,29 @@ database::~database()
 		m_dbProjects.erase(it);
 	}
 }
+
 //---------------------------------------------------------------------------
+
+static bool dbErrorCallback( const std::string object, const int instance,const int ecount, const int ecode, const std::string error_txt )
+{
+	if (!database::m_bQuitting)
+		onError( error_txt );
+	return( true );
+}
+
+//---------------------------------------------------------------------------
+
+#if _WIN64
+static const char * vnode = "vnode_vlab_64";
+#elif _WIN32
+static const char * vnode = "vnode_vlab";
+#endif
 
 void database::connect(String &selectDB,TMemo *debugMemo)
 {
 	try
 	{
-		String dbName = "vnode_vlab::" + selectDB;
+		String dbName = String(vnode) + "::" + selectDB;
 		m_dbCentral = std::unique_ptr<XDB>( new XDB( AnsiString(dbName.c_str()).c_str() ) );
 		m_dbCentral->setErrorCallBack( dbErrorCallback );
 		throwUnless ( m_dbCentral->open(), "Failed to connect!" );
@@ -87,7 +103,7 @@ bool database::connectProject(std::string projectName)
 		}
 	}
 
-	std::string connectionString = std::string("vnode_vlab::") + projectName;
+	std::string connectionString = std::string(vnode) + "::" + projectName;
 	m_pCurrentProject = new XDB(connectionString);
 
 	try
@@ -379,7 +395,7 @@ int database::getNoVialForAliquot(const std::string &alquoit_cid,const std::stri
 void database::getVialsForAliquot(std::map<int, std::map<std::string,std::string> > &returnInfo,const std::string &alquoit_cid,const std::string &box_cid)
 {
 	std::vector<std::string> what;
-	what.push_back("cryovial_store.tube_position");
+	what.push_back("cryovial_store.cryovial_position");
 	what.push_back("cryovial_store.record_id");
 	what.push_back("cryovial_store.cryovial_id");
 	what.push_back("cryovial_store.sample_volume");
@@ -1387,7 +1403,7 @@ void database::analyseVessel(TMemo *Memo, std::string &project_cid,std::string &
 					FullCount++;
 					itbox = BoxSizeList.erase(itbox);
 				}
-				else if (((*itbox).NoVials == 0))   //no vials.. probably does, just they are not in the system yet. so ignore the box
+				else if ((*itbox).NoVials == 0)   //no vials.. probably does, just they are not in the system yet. so ignore the box
 				{
 					ProblemCount++;
 					itbox = BoxSizeList.erase(itbox);
@@ -1540,6 +1556,9 @@ std::string database::getDefaultBoxType()
 	return m_SelectedTargetBox;
 }
 //---------------------------------------------------------------------------
+
+// moved from header file - NG, 17/03/14: linker error from 64-bit XE4
+	bool mysortfunction (BoxSizeStruct i,BoxSizeStruct j) { return (i.NoVials < j.NoVials); }
 
 bool database::compileResults(const std::string &distination_box_size_cid)
 {
@@ -1977,7 +1996,7 @@ void database::createRetrievalList(const std::string &external_name,const std::s
 							std::string cryovial_store_record_id = CroStoreVial["cryovial_store.record_id"];
 							std::string cryovial_store_cryovial_id = CroStoreVial["cryovial_store.cryovial_id"];
 							std::string cryovial_store_sample_volume = CroStoreVial["cryovial_store.sample_volume"];
-							std::string cryovial_store_tube_position = CroStoreVial["cryovial_store.tube_position"];
+							std::string cryovial_store_tube_position = CroStoreVial["cryovial_store.cryovial_position"];
 							if (NextFreePos == EmptyPosition)
 								NextFreePos++;
 							if (NextFreePos > LastFreeSpace)
@@ -2018,7 +2037,7 @@ void database::createRetrievalList(const std::string &external_name,const std::s
 							std::string record_id = getNextProjectIdSequence();
 							std::stringstream insertQuery;
 							insertQuery << "INSERT INTO cryovial_store ";
-							insertQuery << "(record_id,cryovial_id,box_cid,tube_position,sample_volume,status,note_exists,process_cid,retrieval_cid,time_stamp )";
+							insertQuery << "(record_id,cryovial_id,box_cid,cryovial_position,sample_volume,status,note_exists,process_cid,retrieval_cid,time_stamp )";
 							insertQuery << "VALUES('" << record_id << "','" << cryovial_store_cryovial_id << "','" << new_box_cid;
 							insertQuery << "','" << NextFreePos << "','" << cryovial_store_sample_volume << "','0','0','" << m_c_id_sequence << "','0','')";
 							XEXEC execInsertSql(m_pCurrentProject,insertQuery.str());
@@ -2404,12 +2423,5 @@ void onError( const std::string msg )
 		throw String(msg.c_str());
 }
 //---------------------------------------------------------------------------
-
-bool dbErrorCallback( const std::string object, const int instance,const int ecount, const int ecode, const std::string error_txt )
-{
-	if (!database::m_bQuitting)
-		onError( error_txt );
-	return( true );
-}
 
 

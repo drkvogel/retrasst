@@ -7,8 +7,6 @@
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
 #include <Buttons.hpp>
-#include <DB.hpp>
-#include <DBTables.hpp>
 #include <ExtCtrls.hpp>
 #include <IdBaseComponent.hpp>
 #include <IdComponent.hpp>
@@ -17,6 +15,7 @@
 #include <IdTCPClient.hpp>
 #include <IdTCPConnection.hpp>
 #include <Vcl.Graphics.hpp>
+#include <Vcl.Imaging.PngLang.hpp>
 
 //----------------------------------------------------------------------------
 

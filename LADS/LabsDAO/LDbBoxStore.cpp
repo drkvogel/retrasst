@@ -13,7 +13,7 @@
 //		28 July, 2010:	Added job ID as link to owner (LCDbRetrievalJob)
 //		15 Nov 2012:    Don't use storeman_ddb after all - it's unreliable
 //						Use box_store + c_slot_allocation for compatibility
-//      16 Dec 13, NG:	Updated to use c_ tables for database v2.7.2
+//      16 Dec 13, NG:	Updated to use c_ tables again for database v2.7.2
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
@@ -228,17 +228,17 @@ bool LCDbBoxStore::setJobRef( LQuery ddbq, int jobRef, Status reason )
 	if( jobRef != 0 && jobID != 0 )
 		return false;					// already part of another job
 
-	if( saved ) {
 	/// fixme - switch to c_slot_allocation (but not yet as no retrieval_cid)
-		ddbq.setSQL( "update box_store"
+	std::string table = "box_store";
+	if( saved ) {
+		ddbq.setSQL( "update " + table +
 					" set retrieval_cid = :newJob, process_cid = :pid, status = :st"
 					" where record_id = :myid and retrieval_cid = :oldJob" );
 		ddbq.setParam( "oldJob", jobID );
 	}
 	else
 	{	claimNextID( ddbq );
-	/// fixme - switch to c_slot_allocation (but not yet as no retrieval_cid)
-		ddbq.setSQL( "insert into box_store (record_id, box_cid, rack_cid,"
+		ddbq.setSQL( "insert into " + table + " (record_id, box_cid, rack_cid,"
 					" slot_position, status, time_stamp, retrieval_cid, process_cid)"
 					" values ( :myid, :box, :rid, :pos, :st, 'now', :newJob, :pid )" );
 		ddbq.setParam( "box", boxID );

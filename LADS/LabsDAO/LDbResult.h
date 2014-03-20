@@ -17,14 +17,14 @@ class LDbResult : public ResultValue, public LDbStage, public LDbNoteCount
 	int machineID;
 	int valop1id, valop2id;
 	bool internal;
-	String unitCode;
+	std::string unitCode;
 
 protected:
 
 	int testID, processID;
-	TDateTime analysed;
+	XTIME analysed;
 
-	LDbResult( int test, const String & result, TDateTime when, int machine,
+	LDbResult( int test, const std::string & result, TDateTime when, int machine,
 				int process, bool hide, short notes, int person1, int person2 );
 
 	LDbResult()
@@ -35,7 +35,7 @@ protected:
 
 public:
 
-	TDateTime getTimeStamp() const { return analysed; }
+	XTIME getTimeStamp() const { return analysed; }
 	int getTestID() const { return testID; }
 	int getMachineID() const { return machineID; }
 	int getProcessID() const { return processID; }
@@ -43,8 +43,8 @@ public:
 	int getSecondValOpID() const { return valop2id; }
 	bool isPrivate() const { return internal; }
 	void setPrivate( bool hide ) { internal = hide; }
-	void setUnitCode( const String & s ){ unitCode = s.Trim(); }
-	String getUnitCode() const { return unitCode; }
+	void setUnitCode( const std::string & s ){ unitCode = s; }
+	std::string getUnitCode() const { return unitCode; }
 };
 
 //---------------------------------------------------------------------------
@@ -61,7 +61,7 @@ protected:
 
 public:
 
-	LBDbResult( int testID, const String & result, TDateTime analysed, int analysisID = 0 );
+	LBDbResult( int testID, const std::string & result, TDateTime analysed, int analysisID = 0 );
 
 	explicit LBDbResult( const LQuery & cluster );
 	bool createRecord( LQuery cluster );
@@ -100,7 +100,7 @@ public:
 
 	explicit LPDbResult( const LQuery & project );
 	bool createRecord( LQuery project );
-	void addAuditEntry( LQuery cluster, int buddyResultID, const String & barcode );
+	void addAuditEntry( LQuery cluster, int buddyResultID, const std::string & barcode );
 };
 
 //---------------------------------------------------------------------------

@@ -30,7 +30,7 @@ public:
 	{}
 
 	LPDbBoxType( const LQuery & query );
-	bool saveRecord( LQuery pQuery );
+	bool saveRecord( LQuery query );
 
 	bool isActive() const { return status != DELETED; }
 	Expectation getUse() const { return Expectation( status ); }
@@ -55,7 +55,7 @@ public:
 class LPDbBoxTypes : public LDbCache< LPDbBoxType >, public LPDbCacheMap< LPDbBoxTypes >
 {
 public:
-	bool read( LQuery pQuery, bool readAll = false );
+	bool read( LQuery query, bool readAll = false );
 	const LPDbBoxType * find( const std::string & name ) const {
 		return findMatch( LDbNames::LCMatcher( name ) );
 	}

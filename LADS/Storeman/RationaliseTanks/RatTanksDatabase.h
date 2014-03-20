@@ -16,7 +16,6 @@
 class TCreateRetrievalJobForm;
 
 void onError( const std::string msg );
-bool dbErrorCallback( const std::string object, const int instance,const int ecount, const int ecode, const std::string error_txt );
 
 namespace RationaliseTanks
 {
@@ -50,8 +49,6 @@ namespace RationaliseTanks
 			BoxTypeInfo = src.BoxTypeInfo;
 		}
 	};
-	bool mysortfunction (BoxSizeStruct i,BoxSizeStruct j) { return (i.NoVials < j.NoVials); }
-
 
 class database
 {
@@ -224,7 +221,7 @@ private:
 
 	void extractBoxInformation(std::string rack_id,rackProjectData *thisrack_info);
 	int getNoVialForAliquot(const std::string &alquoit_cid,const std::string &box_cid);
-	void database::analiseVialsInABox(std::map<std::string,std::string> &boxstoreInfo, int BoxTotalCap);
+	void analiseVialsInABox(std::map<std::string,std::string> &boxstoreInfo, int BoxTotalCap);
 	void throwUnless( bool condition, const String& msg );
 
 	String runQuery(const std::vector<std::string> &what,const std::string &tablename,const std::string &where,std::map<std::string, std::map<std::string,std::string> > &returnInfo);

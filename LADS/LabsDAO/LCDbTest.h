@@ -21,7 +21,7 @@ class LCDbTest : public LCDbID, public LDbNames, public LDbValid
 	std::string sampleType;   		/// obsolete - moved to c_test_machine
 	short precision, dataType;
 
-	static const REAL_DATA = 4, STRING_DATA = 8, REQUIRED_DATA_POINTS = 1;
+	static const short REAL_DATA = 4, STRING_DATA = 8, REQUIRED_DATA_POINTS = 1;
 	static const short ANALYSED = 1, CALCULATED = 2, AS_NOTE = 4;
 
 public:
