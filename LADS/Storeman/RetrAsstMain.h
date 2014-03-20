@@ -328,6 +328,7 @@ class Chunk { // not recorded in database
     string              endBox;
     string              endDescrip;
     int                 rowRel;
+    int                 processed;
 public:
     Chunk(StringGridWrapper< T > * w, int sc, int s, int e) : sgw(w), section(sc), startAbs(s), endAbs(e), rowRel(0) { }
     enum Status { NOT_STARTED, INPROGRESS, DONE, /*REJECTED, DELETED = 99,*/ NUM_STATUSES };// status;
@@ -391,7 +392,7 @@ public:
     }
     float getProgress() {
         //return ((float)rowRel/((float)getSize())); // no - there could be gaps (previously deferred vials). Gotta count.
-        int processed = 0;
+        processed = 0;
         for (int i=0; i<getSize(); i++) {
             int status = objectAtRel(i)->retrieval_record->getStatus();
             //EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };
@@ -405,6 +406,7 @@ public:
                     processed++; break;
                 default:
                     throw "unexpected LCDbCryovialRetrieval status";
+                        // e.g. if status enum in LCDbCryovialRetrieval changed and plan using old scheme loaded
             }
         }
         return ((float)processed/((float)getSize()));
@@ -412,7 +414,7 @@ public:
     string progressString() {
         ostringstream oss;
         float percent = getProgress()*100;
-        oss<<rowRel<<"/"<<getSize()<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
+        oss<<processed<<"/"<<getSize()<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
         return oss.str();
     }
     int getStatus() { // return DONE|NOT_STARTED|INPROGRESS

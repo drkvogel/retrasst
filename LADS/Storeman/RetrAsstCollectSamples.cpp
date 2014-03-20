@@ -551,7 +551,7 @@ void TfrmProcess::addChunk(int number, int endRowAbs) { // don't assume chunk/se
 }
 
 void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be missing, swapped etc
-    SampleRow * sample  = currentSample();
+    SampleRow * primary = currentSample();
     SampleRow * aliquot = currentAliquot();
     switch (aliquot->retrieval_record->getStatus()) {
         case LCDbCryovialRetrieval::EXPECTED:
@@ -564,7 +564,13 @@ void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be
     }
     if (barcode == aliquot->cryovial_barcode.c_str()) { // save
         aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
-        //if secondary
+        if (aliquot == primary) {
+
+        } else { // secondary
+
+        }
+
+
         TfrmRetrievalAssistant::msgbox("save secondary");
         //sample->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
         debugLog("Save accepted row");
