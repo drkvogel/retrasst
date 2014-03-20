@@ -83,7 +83,7 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
 }
 
 void __fastcall TfrmProcess::FormClose(TObject *Sender, TCloseAction &Action) {
-    exit();
+    //exit(); //???
 }
 
 void TfrmProcess::debugLog(String s) {
@@ -698,10 +698,8 @@ and update cryovial_store (old and new, primary and secondary) when they enter t
 //    }
     frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
     Screen->Cursor = crSQLWait;
-    if (mrOk != frmConfirm->ShowModal()) {
-        Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
-        // what now?
-    }
+    if (mrOk != frmConfirm->ShowModal()) { Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK); return; } // what now?
+
 //    debugLog(dummyRun ? "*** dummy run ***" : "*** live run ***");
 //    if (!dummyRun && mrOk != frmConfirm->ShowModal()) return; // require re-login
 //    if (!dummyRun) btnConfirm->Enabled = false;
@@ -711,7 +709,6 @@ and update cryovial_store (old and new, primary and secondary) when they enter t
     vector<string> errors;
 
     try {
-        //signOff();
         for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
             SampleRow * sample = *it;
             int status  = sample->retrieval_record->getStatus();
@@ -735,8 +732,6 @@ and update cryovial_store (old and new, primary and secondary) when they enter t
         Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
         return;
     }
-
-
     delete_referenced< vector <SampleRow * > >(vials);
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
     Close(); //necesssary???

@@ -239,9 +239,11 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
     }
 
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
-        std::set<int> projects; projects.insert(job->getProjectID());
         const int pid = LCDbAuditTrail::getCurrent().getProcessID();
-        frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
+        //std::set<int> projects; projects.insert(job->getProjectID());
+        //frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
+        frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan");  // don't need //status???
+
         if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) return;
 
         Screen->Cursor = crSQLWait; Enabled = false; debugLog("starting save plan");
