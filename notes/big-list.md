@@ -1,5 +1,6 @@
 ﻿## todo
 
+ * IGNORED status shouldn't be saved?
  * update cryovial_store (old and new, primary and secondary) when they enter their password to confirm
  * save secondary as 'IGNORED' if not required? primary was 
     * secondary aliquots should always be saved if present
@@ -7,17 +8,6 @@
  * collect empties (all vials "accepted" or "not found") for discard
     * ask user to confirm that vessel/structure/slot is now empty
     * otherwise box should be referred
- * put lookAhead into chunk class
-
-showCurrentRow gets triggered twice
-    sgChunksClick
-        showChunk
-            #showCurrentRow # just once
-            # now not at all
-
-    skip --> nextRow --> showCurrentRow --> 
-    skip --> nextRow --> showChunks --> showChunk --> showCurrentRow
-
  * Insert a record into c_box_retrieval for each box in turn and update c_retrieval_job: set status=in progress (1)
  * Ask the relevant question(s) from the URS when they’re ready to finish and 
  * check cryo/store old/new params are correct for LCDbCryovialRetrieval
@@ -65,7 +55,6 @@ showCurrentRow gets triggered twice
  * save both primary and secondary to database
  * accept(): if primary aliquot !collected   # expected, ignored (previously skipped), not found (now found?)
 
-
 chunk: should add/change store records?
 
  * Emails from Nick/Martin
@@ -74,14 +63,14 @@ chunk: should add/change store records?
     * As I mentioned earlier, there's a bit of a problem including boxes in a retrieval if we don't know where they are.  Our current thinking is that we'll ask the user about such boxes when they create a retrieval list and add dummy/incomplete box_store records.  I'm about to add such records for existing jobs.  Please ignore any integrity errors that result
     * This doesn't seem to have caused any problems.  The dummy box_store records have a status of 1 (unconfirmed), rack_cid=0 and slot_position=0.  StoreDAO::findBox() will still return false because it looks for the rack_cid in c_rack_number
  
- * factor out chunk logic?
- * consolidate notes (move to separate windows and compare)
- * select for process samples - 'no chunks' - in testing/q2.sql
- * boxes form doesn't work properly - turn the handle (but not for demo)
- * new requirement is to check at the end of processing each chunk (pt II) if any source boxes are now empty, in which case they might want to discard them rather than put them back
+## Dupes
+
+* new requirement is to check at the end of processing each chunk (pt II) if any source boxes are now empty, in which case they might want to discard them rather than put them back
+
 
 ## Misc
 
+ * select for process samples - 'no chunks' - in testing/q2.sql
  * use DEBUGSTREAM
  * Usual sort order before chunking: destination box and position
  * Usual sort order for each chunk: vessel position, shelf, structure, slot and current position
@@ -89,6 +78,9 @@ chunk: should add/change store records?
 
 ## Deferred
 
+ * boxes form doesn't work properly - turn the handle (but not for demo)
+ * put lookAhead into chunk class
+ * factor out chunk logic?
  * Note: a sample retrieval can include boxes that do not have their current locations recorded in the database.
  * deferred boxes are not saved as such...
 why can't I inspect chunk?
@@ -163,3 +155,10 @@ in <done.md>
  * changes to status not apparent
     * because currentSample() returns secondary if loaded and secondary is now loaded by default, see above
     * return secondary only if primary is NOT_FOUND?
+ * showCurrentRow gets triggered twice, no, three times!
+        sgChunksClick --> showChunk --> showCurrentRow # just once
+                # now not at all
+        //btnSkipclick --> skip --> showCurrentRow // not necessary
+        btnSkipclick --> skip --> nextRow --> showCurrentRow
+        btnSkipclick --> skip --> nextRow --> showChunks --> showChunk --> showCurrentRow
+ * consolidate notes (move to separate windows and compare)

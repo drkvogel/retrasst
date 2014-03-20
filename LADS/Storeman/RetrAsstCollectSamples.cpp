@@ -495,7 +495,7 @@ void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
     Screen->Cursor = crDefault;
     try {
         showChunks();
-        showCurrentRow();
+        //showCurrentRow();
     } catch (Exception & e) {
 		TfrmRetrievalAssistant::msgbox(e.Message);
     }
@@ -583,13 +583,12 @@ void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be
 void TfrmProcess::skip() {
     debugLog("Save deferred row");
     currentAliquot()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
-    showCurrentRow();
+    //showCurrentRow();
     nextRow();
 }
 
 void TfrmProcess::notFound() {
     DEBUGSTREAM("Save not found row")
-    //int rowIdx = currentChunk()->getCurrentRow();
     int rowAbs = currentChunk()->getRowAbs();
     SampleRow * sample = currentChunk()->objectAtRel(rowAbs);
     if (sample->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
@@ -647,7 +646,7 @@ void TfrmProcess::nextRow() {
     }
     if (current < chunk->getSize()-1) {
         chunk->setRowAbs(chunk->nextUnresolvedAbs()); // fast-forward to first non-dealt-with row
-        showCurrentRow();
+        //showCurrentRow();
     } else { // last row
         //chunk->setRowRel(current+1); // past end to show complete?
         TfrmRetrievalAssistant::msgbox("review");
@@ -660,7 +659,7 @@ void TfrmProcess::nextRow() {
         }
     }
     labelPrimary->Enabled = true; labelSecondary->Enabled = false;
-    showChunks();
+    showChunks(); // calls showCurrentRow();
     editBarcode->Clear();
     ActiveControl = editBarcode; // focus for next barcode
 }
@@ -681,33 +680,20 @@ void TfrmProcess::exit() { // definitely exiting
 /* Ask the relevant question(s) from the URS when they’re ready to finish
 and update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
     Application->MessageBox(L"Save completed boxes", L"Info", MB_OK);
-    //Application->MessageBox(L"Signoff form (or on open form?)", L"Info", MB_OK);
     // how to update boxes? check at save and exit that all vials in a box have been saved?
-    //frmReferredBoxesSummary->summaryBoxes.clear();
-    //tdvecpBoxArrivalRecord::const_iterator it;
-    //for (affected samples) {
     // should thread perhaps
     std::set<int> projects;
     projects.insert(job->getProjectID());
-//    for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
-//        SampleRow * sample = *it;
-//        int status  = sample->retrieval_record->getStatus();
-//        if (status != LCDbCryovialRetrieval::EXPECTED & status != LCDbCryovialRetrieval::IGNORED) { // changed
-//            projects.insert(job->getProjectID());
-//        }
-//    }
     frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
-    Screen->Cursor = crSQLWait;
-    if (mrOk != frmConfirm->ShowModal()) { Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK); return; } // what now?
 
-//    debugLog(dummyRun ? "*** dummy run ***" : "*** live run ***");
-//    if (!dummyRun && mrOk != frmConfirm->ShowModal()) return; // require re-login
-//    if (!dummyRun) btnConfirm->Enabled = false;
+    Screen->Cursor = crSQLWait;
+    if (!RETRASSTDEBUG) {
+        if (mrOk != frmConfirm->ShowModal()) { Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK); return; } // what now?
+    }
 
     vector<string> info;
     vector<string> warnings;
     vector<string> errors;
-
     try {
         for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
             SampleRow * sample = *it;
