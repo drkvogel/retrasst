@@ -32,10 +32,24 @@ public:
     __fastcall LoadVialsWorkerThread();
 };
 
+class SavePlanThread : public TThread {
+protected:
+    void __fastcall Execute();
+    void save();
+    //LCDbCryoJob *   job;
+    int             rowCount;
+    string          loadingMessage;
+    void __fastcall updateStatus(); // synchronized methods can't have args
+    string          debugMessage;
+    void __fastcall debugLog(); // synchronized methods can't have args
+public:
+    __fastcall SavePlanThread();
+};
+
 class TfrmSamples : public TForm {
     friend class LoadVialsWorkerThread;
+    friend class SavePlanThread;
     friend class TfrmAutoChunk;
-    //friend class TfrmAutoChunk;
 __published:
     TSplitter *Splitter1;
     TTimer *timerLoadVials;
@@ -109,6 +123,8 @@ __published:
 private:
     LoadVialsWorkerThread *                     loadVialsWorkerThread;
     void __fastcall                             loadVialsWorkerThreadTerminated(TObject *Sender);
+    SavePlanThread *                            savePlanThread;
+    void __fastcall                             savePlanThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
     vecpSampleRow                               vials;
     vector< Chunk< SampleRow > *>               chunks;
@@ -125,9 +141,6 @@ private:
     void                                        showChunks();
     void                                        loadRows();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
-    //void                                        saveSampleToPlan(int box_cid);
-    //int                                         insertBox(int dest_box_id);
-    //void                                        insertSample(int box_cid);
     const char *                                loadingMessage;
     void                                        calcSizes();
     int                                         section_size;

@@ -89,6 +89,9 @@ const char * LCDbCryovialRetrieval::statusString(int st) {
 };
 
 bool LCDbCryovialRetrieval::saveRecord(LQuery query) {
+    if (IGNORED == status) { // don't save, so will revert back to EXPECTED on next load of plan
+        return true; // not an error
+    }
 	if (!saved) {
 		// claimNextID(query); // NO! rj_box_cid must be an existing id in c_box_retrieval
         query.setSQL(

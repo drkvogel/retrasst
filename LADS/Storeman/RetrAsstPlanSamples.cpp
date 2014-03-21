@@ -66,6 +66,10 @@ void __fastcall LoadVialsWorkerThread::debugLog() {
     frmSamples->debugLog(debugMessage.c_str());
 }
 
+void __fastcall SavePlanThread::debugLog() {
+    frmSamples->debugLog(debugMessage.c_str());
+}
+
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Checked      = RETRASSTDEBUG;
     cbLog->Visible      = RETRASSTDEBUG;
@@ -94,17 +98,6 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
     frmRetrievalAssistant->clearStorageCache();
     timerLoadVials->Enabled = true;
     editDestBoxSize->Text = box_size;
-
-//	LIMSParams & params = LIMSParams::instance();
-//	if( params.openSection( "sorters", true ) )
-//		params.setValue( ",,,", categoryID );
-//	params.saveSize( this );
-
-//    	regKey = new TRegistry;
-//	openSection( "", false );
-//	buddyID = findValue( "Buddy ID", 0 );
-//    LIMSParams::openSection();
-
 }
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
@@ -186,9 +179,60 @@ void __fastcall TfrmSamples::sgChunksFixedCellClick(TObject *Sender, int ACol, i
 }
 
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
-    /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
-    and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
+    for (unsigned   int i=0; i<chunks.size(); i++) { // check chunk sizes?
+        if (chunks[i]->getSize() > MAX_CHUNK_SIZE) {
+            wstringstream oss; oss<<"Maximum chunk size is "<<MAX_CHUNK_SIZE; Application->MessageBox(oss.str().c_str(), L"Error", MB_OK); return;
+        }
+    }
+    frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan");  // , projects); don't need project ids??? //status??? //std::set<int> projects; projects.insert(job->getProjectID());
+    if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)
+            && (RETRASSTDEBUG || mrOk == frmConfirm->ShowModal())) {
+        Screen->Cursor = crSQLWait;
+        Enabled = false;
+        debugLog("starting save plan");
+        panelLoading->Caption = loadingMessage;
+        panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
+        panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+        panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+        progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
 
+        savePlanThread = new SavePlanThread();
+        savePlanThread->OnTerminate = &savePlanThreadTerminated;
+    } else { // start again
+        chunks.clear();
+        addChunk(0);
+        showChunks();
+        showChunk();
+    }
+}
+
+__fastcall SavePlanThread::SavePlanThread() : TThread(false) {
+    FreeOnTerminate = true;
+}
+
+void __fastcall SavePlanThread::updateStatus() { // can't use args for synced method, don't know why
+    frmSamples->panelLoading->Caption = loadingMessage.c_str();
+    frmSamples->panelLoading->Repaint();
+}
+
+void __fastcall SavePlanThread::Execute() {
+/** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
+and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
+    try {
+        save();
+        frmSamples->job->setStatus(LCDbCryoJob::INPROGRESS);
+        frmSamples->job->saveRecord(LIMSDatabase::getCentralDb());
+        frmSamples->ModalResult = mrOk; // save and close here rather than OnTerminate in case of exception
+    } catch (Exception & e) {
+        debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
+    } catch (...) {
+        debugMessage = "unknown error"; Synchronize((TThreadMethod)&debugLog);
+    }
+}
+
+void SavePlanThread::save() {
+/** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
+and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
     struct Saver { // encapsulate in order to re-use for secondary aliquot
         LCDbCryoJob * job;
         LQuery & qc;
@@ -198,16 +242,14 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             int rj_box_cid;
             map<int, int>::iterator found = boxes.find(dest_box_id);
             if (found == boxes.end()) { // not added yet, add record and cache
-                LCDbBoxRetrieval box(
-                    //rj_box_cid,
+                LCDbBoxRetrieval box(//rj_box_cid,
                     job->getID(),
                     dest_box_id,
                     job->getProjectID(),
                     chunk->getSection(),
                     LCDbBoxRetrieval::Status::NEW);
                 box.saveRecord(qc);
-                //boxes[dest_box_id] = rj_box_cid; // cache result
-                rj_box_cid = boxes[dest_box_id] = box.getRJBId();
+                rj_box_cid = boxes[dest_box_id] = box.getRJBId(); // cache result
             } else {
                 rj_box_cid = found->second;
             }
@@ -230,51 +272,37 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         }
     };
 
-    for (unsigned   int i=0; i<chunks.size(); i++) {
-        if (chunks[i]->getSize() > MAX_CHUNK_SIZE) {
-            wstringstream oss; oss<<"Maximum chunk size is "<<MAX_CHUNK_SIZE;
-            Application->MessageBox(oss.str().c_str(), L"Error", MB_OK);
-            return;
-        }
-    }
+    const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 
-    if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
-        const int pid = LCDbAuditTrail::getCurrent().getProcessID();
-        //std::set<int> projects; projects.insert(job->getProjectID());
-        //frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan", projects);  //status???
-        frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan");  // don't need //status???
-
-        if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) return;
-
-        Screen->Cursor = crSQLWait; Enabled = false; debugLog("starting save plan");
-        LQuery qc(LIMSDatabase::getCentralDb());
-        Saver s(job, qc, pid);
-        for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) {
-            map<int, int> boxes; // box_id to rj_box_id, per chunk
-            int rj_box_cid;
-            Chunk< SampleRow > * chunk = *it;
-            for (int i = 0; i < chunk->getSize(); i++) {
-                SampleRow * sampleRow = chunk->objectAtRel(i);
-                rj_box_cid = s.saveBox(chunk, boxes, sampleRow->dest_box_id);
-                s.saveSample(chunk, sampleRow, rj_box_cid);
-                if (NULL != sampleRow->secondary) {
-                    rj_box_cid = s.saveBox(chunk, boxes, sampleRow->secondary->dest_box_id);
-                    s.saveSample(chunk, sampleRow->secondary, rj_box_cid);
-                }
+    LQuery qc(LIMSDatabase::getCentralDb());
+    Saver s(frmSamples->job, qc, pid);
+    for (vector< Chunk< SampleRow > * >::const_iterator it = frmSamples->chunks.begin(); it != frmSamples->chunks.end(); it++) {
+        map<int, int> boxes; // box_id to rj_box_id, per chunk
+        int rj_box_cid;
+        Chunk< SampleRow > * chunk = *it;
+        for (int i = 0; i < chunk->getSize(); i++) {
+            SampleRow * sampleRow = chunk->objectAtRel(i);
+            rj_box_cid = s.saveBox(chunk, boxes, sampleRow->dest_box_id); // crash here
+            s.saveSample(chunk, sampleRow, rj_box_cid);
+            ostringstream oss; oss<<"Saving chunk "<<chunk->getSection()
+            <<" - Primary: '"<<sampleRow->cryovial_barcode<<"'";
+            if (NULL != sampleRow->secondary) {
+                rj_box_cid = s.saveBox(chunk, boxes, sampleRow->secondary->dest_box_id);
+                s.saveSample(chunk, sampleRow->secondary, rj_box_cid);
+                oss<<", Secondary: '"<<sampleRow->secondary->cryovial_barcode<<"'";
             }
+            oss <<" ["<<i<<"/"<<chunk->getSize()<<"]";
+            loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
         }
-        btnSave->Enabled = false;
-        job->setStatus(LCDbCryoJob::INPROGRESS);
-        job->saveRecord(LIMSDatabase::getCentralDb());
-        debugLog("finshed save plan");
-        Screen->Cursor = crDefault; Enabled = true;
-        ModalResult = mrOk;
-    } else { // start again
-        chunks.clear();
-        addChunk(0);
-        showChunks();
-        showChunk();
     }
+
+}
+
+void __fastcall TfrmSamples::savePlanThreadTerminated(TObject *Sender) {
+    debugLog("finished save plan");
+    Screen->Cursor = crDefault;
+    btnSave->Enabled = false;
+    Enabled = true;
 }
 
 void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
@@ -289,8 +317,7 @@ void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
-    //ostringstream oss; oss << __FUNC__; oss<<sgwVials->printColWidths()<<" sorting by col: "<<ACol<<"."; debugLog(oss.str().c_str());
-    Enabled = false;
+    Enabled = false; //ostringstream oss; oss << __FUNC__; oss<<sgwVials->printColWidths()<<" sorting by col: "<<ACol<<"."; debugLog(oss.str().c_str());
     if (chunks.size() == 0) return; // fix bug where double-click on main screen leaks through to this form on show
     currentChunk()->sortToggle(ACol);
     showChunk();
@@ -319,8 +346,6 @@ void __fastcall TfrmSamples::btnRejectClick(TObject *Sender) {
         rejectList();
     }
 }
-
-//-----chunks-------
 
 void __fastcall TfrmSamples::sgVialsDblClick(TObject *Sender) {
     if (sgVials->Row <= 1)
@@ -355,11 +380,11 @@ bool TfrmSamples::addChunk(unsigned int offset) {
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
         newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, 0, vials.size()-1); // 0-indexed // size is calculated
     } else {
-        if (offset <= 0 || offset > vials.size()) {
+        if (offset <= 0 || offset > vials.size()) { // ok only for first chunk
             Application->MessageBox(L"Invalid chunk size", L"Info", MB_OK);
             return false;
-        } //throw "invalid offset"; // ok only for first chunk
-        curchunk = chunks[chunks.size()-1]; //curchunk = currentChunk();
+        }
+        curchunk = chunks[chunks.size()-1];
         int currentchunksize = curchunk->getSize(); // no chunks until first added
         if (curchunk->getStartAbs()+offset > vials.size()) { // current last chunk is too small to be split at this offset
             return false; // e.g. for auto-chunk to stop chunking
@@ -401,7 +426,6 @@ void TfrmSamples::showChunks() {
         sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
-    //??? sgChunks->Row = sgChunks->RowCount-1; // make it the current chunk
     sgwVials->clearSelection();
 }
 
@@ -491,8 +515,6 @@ void TfrmSamples::autoChunk() {
         throw "box not found";
 }
 
-//-------------- sorters --------------
-
 void __fastcall TfrmSamples::btnAddSortClick(TObject *Sender) {
     addSorter();
 }
@@ -551,8 +573,6 @@ void TfrmSamples::applySort() { // loop through sorters and apply each selected 
     if (changed) showChunk();
 }
 
-//-------------- samples --------------
-
 void TfrmSamples::loadRows() {
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
@@ -596,18 +616,16 @@ void LoadVialsWorkerThread::load() {
 
     LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
 
-    // quick check to avoid wasting time
-    oss.str(""); oss <<
+    oss.str(""); oss << // quick check to avoid wasting time
         "SELECT COUNT(*) FROM cryovial_store s1, cryovial_store s2"
         " WHERE s1.cryovial_id = s2.cryovial_id AND s2.status = 0 AND s1.retrieval_cid = :jobID";
-    qd.setSQL(oss.str()); //debugMessage = qd.getSQL(); Synchronize((TThreadMethod)&debugLog);
+    qd.setSQL(oss.str());
     qd.setParam("jobID", job->getID());
-    qd.open(); //debugMessage = "query open"; Synchronize((TThreadMethod)&debugLog);
+    qd.open();
     rowCount = qd.readInt(0);
     if (0 == rowCount) return;
 
-    // actual query now we know there are some rows
-    oss.str(""); oss <<
+    oss.str(""); oss << // actual query now we know there are some rows
         "SELECT"
 		"  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
         "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
@@ -701,7 +719,7 @@ void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
     sgwChunks->clear();
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
     if (0 == vials.size()) {
-        Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK); Close(); //if (IDYES == Application->MessageBox(L"No samples found, exit?", L"Info", MB_YESNO)) { Close(); }
+        Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK); Close();
         return;
     }
     int box_id = vials[0]->dest_box_id; // look at base list, chunk might not have been created
@@ -759,9 +777,9 @@ void __fastcall TfrmSamples::timerCalculateTimer(TObject *Sender) {
 }
 
 void TfrmSamples::calcSizes() {
-/** calculate possible chunk (section) sizes
-slot/box (where c_box_size.box_size_cid = c_box_content.box_size_cid) (where does box_content come from?)
-As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box */
+    /** calculate possible chunk (section) sizes
+    slot/box (where c_box_size.box_size_cid = c_box_content.box_size_cid) (where does box_content come from?)
+    As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box */
     comboSectionSize->Clear();
     int possibleChunkSize = box_size; // smallest chunk
     while (possibleChunkSize <= editMaxSize->Text.ToIntDef(0)) {
@@ -798,3 +816,12 @@ void __fastcall TfrmSamples::FormResize(TObject *Sender) {
 //            qc.setParam("st",   LCDbCryovialRetrieval::Status::EXPECTED); //??
 //            qc.execSQL();
 
+//	LIMSParams & params = LIMSParams::instance();
+//	if( params.openSection( "sorters", true ) )
+//		params.setValue( ",,,", categoryID );
+//	params.saveSize( this );
+
+//    	regKey = new TRegistry;
+//	openSection( "", false );
+//	buddyID = findValue( "Buddy ID", 0 );
+//    LIMSParams::openSection();
