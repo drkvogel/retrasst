@@ -646,7 +646,6 @@ void TfrmProcess::nextRow() {
     }
     if (current < chunk->getSize()-1) {
         chunk->setRowAbs(chunk->nextUnresolvedAbs()); // fast-forward to first non-dealt-with row
-        //showCurrentRow();
     } else { // last row
         //chunk->setRowRel(current+1); // past end to show complete?
         TfrmRetrievalAssistant::msgbox("review");

@@ -1,6 +1,5 @@
 ﻿## todo
 
- * IGNORED status shouldn't be saved?
  * update cryovial_store (old and new, primary and secondary) when they enter their password to confirm
  * save secondary as 'IGNORED' if not required? primary was 
     * secondary aliquots should always be saved if present
@@ -162,3 +161,4 @@ in <done.md>
         btnSkipclick --> skip --> nextRow --> showCurrentRow
         btnSkipclick --> skip --> nextRow --> showChunks --> showChunk --> showCurrentRow
  * consolidate notes (move to separate windows and compare)
+ * IGNORED status shouldn't be saved?
