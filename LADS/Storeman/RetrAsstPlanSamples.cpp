@@ -66,6 +66,10 @@ void __fastcall LoadVialsWorkerThread::debugLog() {
     frmSamples->debugLog(debugMessage.c_str());
 }
 
+void __fastcall SavePlanThread::debugLog() {
+    frmSamples->debugLog(debugMessage.c_str());
+}
+
 void __fastcall TfrmSamples::FormCreate(TObject *Sender) {
     cbLog->Checked      = RETRASSTDEBUG;
     cbLog->Visible      = RETRASSTDEBUG;
@@ -186,9 +190,34 @@ void __fastcall TfrmSamples::sgChunksFixedCellClick(TObject *Sender, int ACol, i
 }
 
 void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
-    /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
-    and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
 
+    for (unsigned   int i=0; i<chunks.size(); i++) { // check chunk sizes?
+        if (chunks[i]->getSize() > MAX_CHUNK_SIZE) {
+            wstringstream oss; oss<<"Maximum chunk size is "<<MAX_CHUNK_SIZE; Application->MessageBox(oss.str().c_str(), L"Error", MB_OK); return;
+        }
+    }
+
+    frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan");  // , projects); don't need project ids??? //status??? //std::set<int> projects; projects.insert(job->getProjectID());
+    if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)
+            && (RETRASSTDEBUG || mrOk == frmConfirm->ShowModal())) {
+        Screen->Cursor = crSQLWait;
+        Enabled = false;
+        debugLog("starting save plan");
+        panelLoading->Caption = loadingMessage;
+        panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
+        panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+        panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+        progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+
+        savePlanThread = new SavePlanThread();
+        savePlanThread->OnTerminate = &savePlanThreadTerminated;
+    } else { // start again
+        chunks.clear();
+        addChunk(0);
+        showChunks();
+        showChunk();
+    }
+/*
     struct Saver { // encapsulate in order to re-use for secondary aliquot
         LCDbCryoJob * job;
         LQuery & qc;
@@ -198,16 +227,14 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
             int rj_box_cid;
             map<int, int>::iterator found = boxes.find(dest_box_id);
             if (found == boxes.end()) { // not added yet, add record and cache
-                LCDbBoxRetrieval box(
-                    //rj_box_cid,
+                LCDbBoxRetrieval box(//rj_box_cid,
                     job->getID(),
                     dest_box_id,
                     job->getProjectID(),
                     chunk->getSection(),
                     LCDbBoxRetrieval::Status::NEW);
                 box.saveRecord(qc);
-                //boxes[dest_box_id] = rj_box_cid; // cache result
-                rj_box_cid = boxes[dest_box_id] = box.getRJBId();
+                rj_box_cid = boxes[dest_box_id] = box.getRJBId(); // cache result
             } else {
                 rj_box_cid = found->second;
             }
@@ -274,7 +301,109 @@ void __fastcall TfrmSamples::btnSaveClick(TObject *Sender) {
         addChunk(0);
         showChunks();
         showChunk();
+    }*/
+}
+
+__fastcall SavePlanThread::SavePlanThread() : TThread(false) {
+    FreeOnTerminate = true;
+}
+
+void __fastcall SavePlanThread::updateStatus() { // can't use args for synced method, don't know why
+    frmSamples->panelLoading->Caption = loadingMessage.c_str();
+    frmSamples->panelLoading->Repaint();
+}
+
+void __fastcall SavePlanThread::Execute() {
+    /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
+    and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
+    try {
+        save();
+        frmSamples->job->setStatus(LCDbCryoJob::INPROGRESS);
+        frmSamples->job->saveRecord(LIMSDatabase::getCentralDb());
+        frmSamples->ModalResult = mrOk;
+    } catch (Exception & e) {
+        debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
+    } catch (...) {
+        debugMessage = "unknown error"; Synchronize((TThreadMethod)&debugLog);
     }
+}
+
+void SavePlanThread::save() {
+    /** Insert an entry into c_box_retrieval for each destination box, recording the chunk it is in,
+    and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
+    struct Saver { // encapsulate in order to re-use for secondary aliquot
+        LCDbCryoJob * job;
+        LQuery & qc;
+        int pid;
+        Saver(LCDbCryoJob * _job, LQuery & _qc, int _pid) : job(_job), qc(_qc), pid(_pid) {} //, chunk(chunk), sampleRow(sampleRow) { }
+        int saveBox(Chunk< SampleRow > * chunk, map<int, int> & boxes, int dest_box_id) {
+            int rj_box_cid;
+            map<int, int>::iterator found = boxes.find(dest_box_id);
+            if (found == boxes.end()) { // not added yet, add record and cache
+                LCDbBoxRetrieval box(//rj_box_cid,
+                    job->getID(),
+                    dest_box_id,
+                    job->getProjectID(),
+                    chunk->getSection(),
+                    LCDbBoxRetrieval::Status::NEW);
+                box.saveRecord(qc);
+                rj_box_cid = boxes[dest_box_id] = box.getRJBId(); // cache result
+            } else {
+                rj_box_cid = found->second;
+            }
+            return rj_box_cid;
+        }
+        void saveSample(Chunk< SampleRow > * chunk, SampleRow * sampleRow, int rj_box_cid) {
+            LCDbCryovialRetrieval vial(
+                rj_box_cid,
+                sampleRow->dest_cryo_pos,
+                sampleRow->cryo_record->getBarcode(),
+                sampleRow->cryo_record->getAliquotType(),
+                sampleRow->store_record->getBoxID(),  //???oldbox id,
+                sampleRow->store_record->getPosition(), //???oldpos,
+                sampleRow->box_pos, //???newpos,
+                pid,
+                LCDbCryovialRetrieval::Status::EXPECTED,
+                0 //??slot
+            );
+            vial.saveRecord(qc);
+        }
+    };
+
+    const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+
+    LQuery qc(LIMSDatabase::getCentralDb());
+    Saver s(frmSamples->job, qc, pid);
+    for (vector< Chunk< SampleRow > * >::const_iterator it = frmSamples->chunks.begin(); it != frmSamples->chunks.end(); it++) {
+        map<int, int> boxes; // box_id to rj_box_id, per chunk
+        int rj_box_cid;
+        Chunk< SampleRow > * chunk = *it;
+        for (int i = 0; i < chunk->getSize(); i++) {
+            SampleRow * sampleRow = chunk->objectAtRel(i);
+            rj_box_cid = s.saveBox(chunk, boxes, sampleRow->dest_box_id); // crash here
+            s.saveSample(chunk, sampleRow, rj_box_cid);
+            ostringstream oss; oss<<"Saving chunk "<<chunk->getSection()
+            <<" - Primary: '"<<sampleRow->cryovial_barcode<<"'";
+            if (NULL != sampleRow->secondary) {
+                rj_box_cid = s.saveBox(chunk, boxes, sampleRow->secondary->dest_box_id);
+                s.saveSample(chunk, sampleRow->secondary, rj_box_cid);
+                oss<<", Secondary: '"<<sampleRow->secondary->cryovial_barcode<<"'";
+            }
+            oss <<" ["<<i<<"/"<<chunk->getSize()<<"]";
+            loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
+        }
+    }
+
+}
+
+void __fastcall TfrmSamples::savePlanThreadTerminated(TObject *Sender) {
+    //job->setStatus(LCDbCryoJob::INPROGRESS);
+    //job->saveRecord(LIMSDatabase::getCentralDb());
+    debugLog("finished save plan");
+    Screen->Cursor = crDefault;
+    btnSave->Enabled = false;
+    Enabled = true;
+    //ModalResult = mrOk;
 }
 
 void __fastcall TfrmSamples::sgChunksClick(TObject *Sender) {

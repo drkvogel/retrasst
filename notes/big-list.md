@@ -121,15 +121,10 @@ DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMM
 
 in <done.md>
 
-## misc
-
- when loading chunks, boxes, vials, pay attention to their state (
-    // Chunk? Must be calculated? NEW|PART_PROCESSED|COMPLETED
-        // NOT_STARTED, INPROGRESS, DONE, REJECTED, DELETED
-    // LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
-    // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
- ) and colour accordingly
-
+ * when loading chunks, boxes, vials, colour accordingly to state:
+    Chunk (calculated?): NOT_STARTED|INPROGRESS|DONE // REJECTED|DELETED
+    LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
+    LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
 * Source/Current box - standardise name - source better
 * how to save stuff? to which tables? when (ie. per row or on exit/save)?
     * save *_retrieval per row, others on exit/signoff
