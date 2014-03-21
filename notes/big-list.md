@@ -87,22 +87,8 @@ look for ??? /newrow
  * Retrieval Assistant
     * save changes with the option of going back to re-order if necessary.
     * Cryogenics staff can reject a retrieval list if it does not have a retrieval plan
- * speed up queries
-   * profile?
-   * Plan: 
-        * load primary aliquot only?
-        * save is quite slow
-   * Process:  
- * example cryovial retrieval - no chunks
-    * there is a plan in the temp table
-    * create a new plan, open - ok - plan possible made before db rebuild
- * Session tables: http://community.actian.com/forum/questions-feedback-suggestions/11359-temporary-table.html
-DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMMIT PRESERVE ROWS WITH NORECOVERY;
- * save changes thread
- * thread "save changes" in plan-/ 
- * sort "aliquot aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782) shouldn't show aliquot anyway
  * up/down arrows to show column sort
- * Only read the currently selected chunk/aliquot from the database when it is selected ?
+ * Only read currently selected chunk/aliquot from db when selected?
  * canned searches - save, delete e.g. site name, vessel pos, structure pos, slot, source box pos
  * define behaviour for manual chunk split in landlocked chunk-
 
@@ -152,3 +138,17 @@ in <done.md>
  * Insert a record into c_box_retrieval for each box in turn and update c_retrieval_job: set status=in progress (1)
  * "source" and "destination" (boxes) > "old"/"new" or "current"/"future"
  * deferred boxes are not saved as such...
+ * example cryovial retrieval - no chunks
+    * there is a plan in the temp table
+    * create a new plan, open - ok - plan possible made before db rebuild
+ * Session tables: http://community.actian.com/forum/questions-feedback-suggestions/11359-temporary-table.html
+DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMMIT PRESERVE ROWS WITH NORECOVERY;
+ * sort "aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782) shouldn't show aliquot anyway
+ * speed up queries
+   * profile?
+   * Plan: 
+        * load primary aliquot only?
+        * save is quite slow
+   * Process:  
+ * save changes thread
+ * thread "save changes" in plan-/ 
