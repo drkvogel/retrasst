@@ -590,7 +590,8 @@ void TfrmProcess::skip() {
 void TfrmProcess::notFound() {
     DEBUGSTREAM("Save not found row")
     int rowAbs = currentChunk()->getRowAbs();
-    SampleRow * sample = currentChunk()->objectAtRel(rowAbs);
+    //SampleRow * sample = currentChunk()->objectAtRel(rowAbs);
+    SampleRow * sample = currentChunk()->objectAtAbs(rowAbs);
     if (sample->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
         sample->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
         if (sample->secondary) {
