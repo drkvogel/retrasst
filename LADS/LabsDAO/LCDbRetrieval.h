@@ -11,10 +11,10 @@ using namespace std;
 
 class LCDbBoxRetrieval : public LCDbID//, public LDbNames
 {
-    int rj_box_cid, retrieval_cid, box_id, project_cid, section, status; //retrieval_type,
+	int rj_box_cid, retrieval_cid, box_id, project_cid, section, status;
     TDateTime time_stamp;
 public:
-    LCDbBoxRetrieval(const LQuery & query); // from query
+	LCDbBoxRetrieval(const LQuery & query);
     LCDbBoxRetrieval(int rj, int bid, int prj, int sec, int st) : //int rjb, int typ,
         rj_box_cid(0), retrieval_cid(rj), box_id(bid), project_cid(prj), section(sec), status(st)
 	{};
@@ -52,9 +52,7 @@ public:
 
 class LCDbCryovialRetrieval : public LCDbID//, public LDbNames
 {
-/**
-    l_cryovial_retrieval
-*/
+
     int rj_box_cid, position, aliquot_type_cid, old_box_cid, old_position, new_position, process_cid, status;
     std::string cryovial_barcode;
     TDateTime time_stamp;
@@ -65,7 +63,6 @@ public:
         : rj_box_cid(rjbid), position(pos), cryovial_barcode(barcode), aliquot_type_cid(aliq), old_box_cid(oldbid), old_position(oldpos), new_position(newpos), process_cid(pid), status(st), slot_number(slot)
         {}
     bool saveRecord(LQuery query);
-    //enum Status { EXPECTED, IGNORED, COLLECTED, COLLECTED_SECONDARY, PROCESSED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };
     enum Status { EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 }; //??? COLLECTED_SECONDARY
     static const char * statusString(int st);
     int     getRJBId() { return rj_box_cid; }

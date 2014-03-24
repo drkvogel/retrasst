@@ -106,6 +106,9 @@ __published:
     void __fastcall FormResize(TObject *Sender);
     void __fastcall sgVialsClick(TObject *Sender);
 private:
+	vector<string> 								info;
+	vector<string> 								warnings;
+	vector<string> 								errors;
     LoadPlanWorkerThread *                      loadPlanWorkerThread;
     void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
@@ -133,7 +136,9 @@ private:
     const char *                                loadingMessage;
     void                                        debugLog(String s);
     void                                        checkExit();
-    void                                        exit();
+	void                                        exit();
+	void 										storeSample(SampleRow * sample);
+	void										jobFinished();
     bool                                        destroying; // for FormResize
 public:
     void setJob(LCDbCryoJob * ajob) { job = ajob; }

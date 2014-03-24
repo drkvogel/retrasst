@@ -640,6 +640,12 @@ void TfrmProcess::nextRow() {
     int current = chunk->getRowRel(); //SampleRow * sample = currentAliquot(); // which may be the secondary aliquot //
     SampleRow * sample = chunk->currentObject();
 
+/*  * make sure both aliquots are dealt with whatever happens
+    * save both primary and secondary - secondary aliquots should always be saved if present
+    * accept():
+        * if primary aliquot !collected # expected, ignored, not found (now found?)
+    * save secondary as `IGNORED` if not required? primary was */
+
     // save both primary and secondary
     if (!sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw "saveRecord() failed"; }
     if (sample->secondary) {
@@ -666,7 +672,14 @@ void TfrmProcess::nextRow() {
 
 void TfrmProcess::collectEmpties() {
     /** if, at the end of processing a chunk, there are any source boxes which have become empty, the user may want to discard them instead of replacing them.
-    if so, provide an option to discard these empty boxes, recording it in the database */
+	if so, provide an option to discard these empty boxes, recording it in the database */
+
+/*  * collect empties (all vials "accepted" or "not found") for discard
+    * at the end of processing each chunk, if source boxes are now empty
+    * unlikely for test tasks but rat tanks may throw old boxes away
+    * all source boxes from a reorganisation task should end up empty
+    * ask user to confirm that vessel/structure/slot is now empty
+    * otherwise box should be referred */
     Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
 }
 
@@ -676,39 +689,85 @@ void TfrmProcess::checkExit() {
     }
 }
 
+void TfrmProcess::storeSample(SampleRow * sample) {
+/* * should be 4 cryovial_store recs/sample: src + dest * primary + secondary
+	* new `NOT_FOUND` status (ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, NOT_FOUND, DELETED = 99) (no IGNORED status?)
+	* NOT_FOUND will be 6, not 7 - unless there is supposed to be another new status?
+	* if primary aliquot found:
+		- primary src TRANSFERRED?
+		- primary dest CONFIRMED?
+		- secondary src CONFIRMED?
+		- secondary dest DELETED?
+		- l_cryo
+	* if secondary aliquot found:
+        - primary src NOT_FOUND?
+        - primary dest DELETED?
+        - secondary src TRANSFERRED?
+		- secondary dest CONFIRMED?
+	* `cryovial_store` (source and dest, primary and secondary)
+		* Primary, source:
+			* if found: update `removed`, `status=5` (TRANSFERRED)
+			* else `status=7` (NOT_FOUND??)
+        * Primary, dest:
+			* if found: update `time_stamp`, `status=1` (STORED)
+            * else `status=99`
+        * Secondary, src:
+            * if primary found: clear `retrieval_cid`, `status=1`
+            * else if secondary found update `removed`, `status=5`,
+			* else `status=7` (NOT_FOUND)
+        * Secondary, dest:
+            * if primary found: `status=99`
+            * else if secondary found: update `time_stamp`, `status=1`,
+			* else `status=99` */
+}
+
 void TfrmProcess::exit() { // definitely exiting
-/* Ask the relevant question(s) from the URS when they’re ready to finish
+/* * Ask the relevant question(s) from the URS when they’re ready to finish
 and update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
-    Application->MessageBox(L"Save completed boxes", L"Info", MB_OK);
-    // how to update boxes? check at save and exit that all vials in a box have been saved?
-    // should thread perhaps
-    std::set<int> projects;
-    projects.insert(job->getProjectID());
-    frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
 
-    Screen->Cursor = crSQLWait;
-    if (!RETRASSTDEBUG) {
-        if (mrOk != frmConfirm->ShowModal()) { Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK); return; } // what now?
-    }
+	Screen->Cursor = crSQLWait;
+/*	* check cryo/store old/new params correct for `LCDbCryovialRetrieval`
+	* `c_box_retrieval`: set `time_stamp`, `status` = 1 (part-filled)
 
-    vector<string> info;
-    vector<string> warnings;
-    vector<string> errors;
-    try {
+
+    * `box_name` (if record): update `time_stamp`, `box_capacity`, `status=1`
+	* `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1`
+
+     how to update boxes? check at save and exit that all vials in a box have been saved?
+	 should thread perhaps
+ */
+
+//	std::set<int> projects; projects.insert(job->getProjectID());
+//	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
+	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes");
+	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
+		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
+		return; // what now?
+	}
+
+	bool notFinished = false; info.clear(); warnings.clear(); errors.clear();
+	try {
+		std::set<int> boxes; // check for completed boxes
         for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
             SampleRow * sample = *it;
-            int status  = sample->retrieval_record->getStatus();
-            if (status != LCDbCryovialRetrieval::EXPECTED & status != LCDbCryovialRetrieval::IGNORED) { // changed
-                // change stuff
-            }
+			int status  = sample->retrieval_record->getStatus();
+			if (status != LCDbCryovialRetrieval::EXPECTED && status != LCDbCryovialRetrieval::IGNORED) { // changed
+				// change stuff
+				storeSample(sample);
+			} else {
+				notFinished = true;
+			}
         }
 	} catch(Exception & e) {
 		AnsiString msg = e.Message;
 		errors.push_back(msg.c_str());
+		notFinished = true;
     } catch(char * e) {
-        errors.push_back(e);
-    } catch (...) {
-        errors.push_back("Unknown error");
+		errors.push_back(e);
+		notFinished = true;
+	} catch (...) {
+		errors.push_back("Unknown error");
+		notFinished = true;
     }
     Screen->Cursor = crDefault;
     vector<string>::const_iterator strIt;
@@ -717,9 +776,21 @@ and update cryovial_store (old and new, primary and secondary) when they enter t
         for (strIt = errors.begin(); strIt != errors.end(); strIt++) { out<<*strIt<<endl; }
         Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
         return;
-    }
+	}
+
+	if (!notFinished) { // job finished
+		jobFinished();
+	}
     delete_referenced< vector <SampleRow * > >(vials);
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
     Close(); //necesssary???
 }
 
+void TfrmProcess::jobFinished() {
+/*   * `c_box_retrieval`: set `time_stamp`, `status=2` (collected)
+     * `cryovial_store`: as above
+	 * `box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2`
+	 * `c_box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2`
+	 * `c_retrieval_job`: update `finish_date`, `status` = 2  */
+
+}
