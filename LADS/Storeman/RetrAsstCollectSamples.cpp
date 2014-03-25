@@ -752,12 +752,12 @@ and update cryovial_store (old and new, primary and secondary) when they enter t
             SampleRow * sample = *it;
 			int status  = sample->retrieval_record->getStatus();
 			if (status != LCDbCryovialRetrieval::EXPECTED && status != LCDbCryovialRetrieval::IGNORED) { // changed
-				// change stuff
 				storeSample(sample);
 			} else {
 				notFinished = true;
 			}
         }
+        collectEmpties();
 	} catch(Exception & e) {
 		AnsiString msg = e.Message;
 		errors.push_back(msg.c_str());
@@ -783,7 +783,7 @@ and update cryovial_store (old and new, primary and secondary) when they enter t
 	}
     delete_referenced< vector <SampleRow * > >(vials);
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
-    Close(); //necesssary???
+    Close();
 }
 
 void TfrmProcess::jobFinished() {

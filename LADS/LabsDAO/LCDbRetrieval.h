@@ -53,14 +53,20 @@ public:
 class LCDbCryovialRetrieval : public LCDbID//, public LDbNames
 {
 
-    int rj_box_cid, position, aliquot_type_cid, old_box_cid, old_position, new_position, process_cid, status;
+    int rj_box_cid, position, aliquot_type_cid,
+    ///old_box_cid, old_position, new_position,
+    process_cid, status;
     std::string cryovial_barcode;
     TDateTime time_stamp;
     int slot_number; // deprecated
 public:
     LCDbCryovialRetrieval(const LQuery & query);
-    LCDbCryovialRetrieval(int rjbid, int pos, std::string barcode, int aliq, int oldbid, int oldpos, int newpos, int pid, int st, int slot) //TDateTime time_stamp;  int slot_number; // deprecated);
-        : rj_box_cid(rjbid), position(pos), cryovial_barcode(barcode), aliquot_type_cid(aliq), old_box_cid(oldbid), old_position(oldpos), new_position(newpos), process_cid(pid), status(st), slot_number(slot)
+    LCDbCryovialRetrieval(int rjbid, int pos, std::string barcode, int aliq,
+            //int oldbid, int oldpos, int newpos,
+            int pid, int st, int slot) //TDateTime time_stamp;  int slot_number; // deprecated);
+        : rj_box_cid(rjbid), position(pos), cryovial_barcode(barcode), aliquot_type_cid(aliq),
+        //old_box_cid(oldbid), old_position(oldpos), new_position(newpos),
+        process_cid(pid), status(st), slot_number(slot)
         {}
     bool saveRecord(LQuery query);
     enum Status { EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 }; //??? COLLECTED_SECONDARY
@@ -73,14 +79,14 @@ public:
     void    setBarcode(string b) { cryovial_barcode = b; }
     int     getAliType() { return aliquot_type_cid; }
     void    setAliType(int i) { aliquot_type_cid = i; }
-    int     getOldBox() { return position; }
-    void    setOldBox(int i) { position = i; }
-    int     getOldPosition() { return position; }
-    void    setOldPosition(int i) { position = i; }
-    int     getNewPosition() { return position; }
-    void    setNewPosition(int i) { position = i; }
-//    int     getSlot() { return slot_number; }
-//    void    setSlot(int i) { slot_number = i; }
+//    int     getOldBox() { return position; }
+//    void    setOldBox(int i) { position = i; }
+//    int     getOldPosition() { return position; }
+//    void    setOldPosition(int i) { position = i; }
+//    int     getNewPosition() { return position; }
+//    void    setNewPosition(int i) { position = i; }
+    int     getSlot() { return slot_number; }
+    void    setSlot(int i) { slot_number = i; }
     int     getProcessId() { return process_cid; }
     void    setProcessId(int i) { process_cid = i; }
     int     getStatus() { return status; }

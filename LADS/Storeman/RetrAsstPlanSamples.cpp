@@ -261,9 +261,9 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
                 sampleRow->dest_cryo_pos,
                 sampleRow->cryo_record->getBarcode(),
                 sampleRow->cryo_record->getAliquotType(),
-                sampleRow->store_record->getBoxID(),  //???oldbox id,
-                sampleRow->store_record->getPosition(), //???oldpos,
-                sampleRow->box_pos, //???newpos,
+//                sampleRow->store_record->getBoxID(),  //???oldbox id,
+//                sampleRow->store_record->getPosition(), //???oldpos,
+//                sampleRow->box_pos, //???newpos,
                 pid,
                 LCDbCryovialRetrieval::Status::EXPECTED,
                 0 //??slot
