@@ -29,11 +29,13 @@ public:
     void __fastcall msgbox();
 };
 
-class SaveChunksThread : public TThread {
+class SaveProgressThread : public TThread {
 protected:
     void __fastcall Execute();
 public:
-    __fastcall SaveChunksThread();
+    __fastcall SaveProgressThread();
+    void            storeSample(SampleRow * sample);
+    void            jobFinished();
     int             rowCount;
     string          loadingMessage;
     string          debugMessage;
@@ -44,6 +46,7 @@ public:
 
 class TfrmProcess : public TForm {
     friend class LoadPlanThread;
+    friend class SaveProgressThread;
 __published:
     TGroupBox *groupRetrievalList;
     TGroupBox *groupSignOff;
@@ -104,8 +107,10 @@ private:
 	vector<string> 								info;
 	vector<string> 								warnings;
 	vector<string> 								errors;
-    LoadPlanThread *                      loadPlanThread;
+    LoadPlanThread *                            loadPlanThread;
     void __fastcall                             loadPlanThreadTerminated(TObject *Sender);
+    SaveProgressThread *                        saveProgressThread;
+    void __fastcall                             saveProgressThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
     vector< Chunk< SampleRow > *>               chunks;
     vecpSampleRow                               vials;
@@ -113,7 +118,7 @@ private:
     StringGridWrapper<SampleRow> *              sgwVials;
     void                                        getStorage(SampleRow * sample);
     void                                        showChunks();
-    void                                        loadChunk();
+    void                                        loadPlan();
     Chunk< SampleRow > *                        currentChunk();
     SampleRow *                                 currentSample();
     SampleRow *                                 currentAliquot();
@@ -134,9 +139,10 @@ private:
 	void                                        exit();
 	void 										storeSample(SampleRow * sample);
 	void										jobFinished();
-    bool                                        destroying; // for FormResize
+    bool                                        destroying;  // for FormResize
+    bool                                        unactionedSamples;
 public:
-    void setJob(LCDbCryoJob * ajob) { job = ajob; }
+    void                                        setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmProcess(TComponent* Owner);
     __fastcall ~TfrmProcess();
 };

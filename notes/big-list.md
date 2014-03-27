@@ -1,7 +1,7 @@
 ﻿## todo
 
  * crashes on release build?
- * `c_box_retrieval.time_stamp` should default to 'now'?
+ * `l_cryovial_retrieval.time_stamp` should default to 'now'?
  * make sure both aliquots are dealt with whatever happens
     * save both primary and secondary - secondary aliquots should always be saved if present
     * accept(): 
@@ -154,3 +154,4 @@ DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMM
    * Process:  
  * save changes thread
  * thread "save changes" in plan-/ 
+ * should thread perhaps

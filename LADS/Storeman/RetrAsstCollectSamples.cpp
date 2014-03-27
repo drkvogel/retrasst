@@ -355,10 +355,10 @@ void TfrmProcess::fillRow(SampleRow * row, int rw) {
 
 void __fastcall TfrmProcess::timerLoadPlanTimer(TObject *Sender) {
     timerLoadPlan->Enabled = false;
-    loadChunk(); //loadRows(); //loadChunk(loadingChunk); //loadChunk(currentChunk());
+    loadPlan();
 }
 
-void TfrmProcess::loadChunk() { //(Chunk< SampleRow > *) {
+void TfrmProcess::loadPlan() {
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
     panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
@@ -373,7 +373,13 @@ void TfrmProcess::loadChunk() { //(Chunk< SampleRow > *) {
 
 __fastcall LoadPlanThread::LoadPlanThread() : TThread(false) { FreeOnTerminate = true; }
 
+__fastcall SaveProgressThread::SaveProgressThread() : TThread(false) { FreeOnTerminate = true; }
+
 void __fastcall LoadPlanThread::updateStatus() { // can't use args for synced method, don't know why
+    frmProcess->panelLoading->Caption = loadingMessage.c_str(); frmProcess->panelLoading->Repaint();
+}
+
+void __fastcall SaveProgressThread::updateStatus() {
     frmProcess->panelLoading->Caption = loadingMessage.c_str(); frmProcess->panelLoading->Repaint();
 }
 
@@ -687,7 +693,63 @@ void TfrmProcess::checkExit() {
     }
 }
 
-void TfrmProcess::storeSample(SampleRow * sample) {
+void TfrmProcess::exit() { // definitely exiting
+/*  * Ask the relevant question(s) from the URS when they’re ready to finish
+    * update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
+
+	Screen->Cursor = crSQLWait;
+/*	* check cryo/store old/new params correct for `LCDbCryovialRetrieval`
+	* `c_box_retrieval`: set `time_stamp`, `status` = 1 (part-filled)
+    * `box_name` (if record): update `time_stamp`, `box_capacity`, `status=1`
+	* `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1`
+     how to update boxes? check at save and exit that all vials in a box have been saved?
+ */
+
+	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
+	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
+		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
+		return; // what now?
+	}
+
+    saveProgressThread = new SaveProgressThread();
+    saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
+}
+void __fastcall SaveProgressThread::Execute() {
+	frmProcess->unactionedSamples = false; frmProcess->info.clear(); frmProcess->warnings.clear(); frmProcess->errors.clear();
+	try {
+		std::set<int> boxes; // check for completed boxes
+        for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
+            SampleRow * sample = *it;
+			int status  = sample->retrieval_record->getStatus();
+			if (status != LCDbCryovialRetrieval::EXPECTED && status != LCDbCryovialRetrieval::IGNORED) { // changed
+				storeSample(sample);
+			} else {
+				frmProcess->unactionedSamples = true;
+			}
+            if (NULL != sample->secondary) {
+                storeSample(sample->secondary);
+            }
+        }
+        //collectEmpties();
+	} catch(Exception & e) {
+		AnsiString msg = e.Message;
+		frmProcess->errors.push_back(msg.c_str());
+		frmProcess->unactionedSamples = true;
+    } catch(char * e) {
+		frmProcess->errors.push_back(e);
+		frmProcess->unactionedSamples = true;
+	} catch (...) {
+		frmProcess->errors.push_back("Unknown error");
+		frmProcess->unactionedSamples = true;
+    }
+
+
+	if (!frmProcess->unactionedSamples) { // job finished
+		jobFinished();
+	}
+}
+
+void SaveProgressThread::storeSample(SampleRow * sample) {
 /* * should be 4 cryovial_store recs/sample: src + dest * primary + secondary
 	* new `NOT_FOUND` status (ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, NOT_FOUND, DELETED = 99) (no IGNORED status?)
 	* NOT_FOUND will be 6, not 7 - unless there is supposed to be another new status?
@@ -719,89 +781,21 @@ void TfrmProcess::storeSample(SampleRow * sample) {
 			* else `status=99` */
 }
 
-void TfrmProcess::exit() { // definitely exiting
-/* * Ask the relevant question(s) from the URS when they’re ready to finish
-and update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
-
-	Screen->Cursor = crSQLWait;
-/*	* check cryo/store old/new params correct for `LCDbCryovialRetrieval`
-	* `c_box_retrieval`: set `time_stamp`, `status` = 1 (part-filled)
-
-
-    * `box_name` (if record): update `time_stamp`, `box_capacity`, `status=1`
-	* `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1`
-
-     how to update boxes? check at save and exit that all vials in a box have been saved?
-	 should thread perhaps
- */
-
-    // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
-	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes");
-	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
-		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
-		return; // what now?
-	}
-
-	bool notFinished = false; info.clear(); warnings.clear(); errors.clear();
-	try {
-		std::set<int> boxes; // check for completed boxes
-        for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
-            SampleRow * sample = *it;
-			int status  = sample->retrieval_record->getStatus();
-			if (status != LCDbCryovialRetrieval::EXPECTED && status != LCDbCryovialRetrieval::IGNORED) { // changed
-				storeSample(sample);
-			} else {
-				notFinished = true;
-			}
-            if (NULL != sample->secondary) {
-                storeSample(sample->secondary);
-            }
-        }
-        collectEmpties();
-	} catch(Exception & e) {
-		AnsiString msg = e.Message;
-		errors.push_back(msg.c_str());
-		notFinished = true;
-    } catch(char * e) {
-		errors.push_back(e);
-		notFinished = true;
-	} catch (...) {
-		errors.push_back("Unknown error");
-		notFinished = true;
-    }
-    Screen->Cursor = crDefault;
-    vector<string>::const_iterator strIt;
-    if (errors.size() > 0) {
-        ostringstream out;
-        for (strIt = errors.begin(); strIt != errors.end(); strIt++) { out<<*strIt<<endl; }
-        Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
-        return;
-	}
-
-	if (!notFinished) { // job finished
-		jobFinished();
-	}
-    delete_referenced< vector <SampleRow * > >(vials);
-    delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
-    Close();
-}
-
-void TfrmProcess::jobFinished() {
-    LQuery qp(Util::projectQuery(job->getProjectID(), false));
-    //LQuery qd(Util::projectQuery(job->getProjectID(), true));
-    LQuery qd(LIMSDatabase::getCentralDb());
+void SaveProgressThread::jobFinished() {
+    LQuery qp(Util::projectQuery(frmProcess->job->getProjectID(), false)); //LQuery qd(Util::projectQuery(job->getProjectID(), true));
+    LQuery qc(LIMSDatabase::getCentralDb());
 
     // all boxes must be finished if here (ie. all samples are finished)
-    qd.setSQL("SELECT * FROM c_box_retrieval WHERE retrieval_cid = :rtid");
-    qd.setParam("rtid", job->getID());
-    qd.open();
-    while (!qd.eof()) {
+    qc.setSQL("SELECT * FROM c_box_retrieval WHERE retrieval_cid = :rtid");
+    qc.setParam("rtid", frmProcess->job->getID());
+    qc.open();
+    while (!qc.eof()) {
         // `c_box_retrieval`: set `time_stamp`, `status=2` (collected)
-        LCDbBoxRetrieval cbr(qd);
+        LCDbBoxRetrieval cbr(qc);
         cbr.setStatus(LCDbBoxRetrieval::COLLECTED);
-        cbr.saveRecord(LIMSDatabase::getCentralDb());
-        // time_stamp set by default?
-        //qd.readInt
+        cbr.saveRecord(LIMSDatabase::getCentralDb()); // time_stamp set by default - should be in 2.7.2
+
+        //qc.readInt
 
         // `cryovial_store`: as above (dealt with already?)
 
@@ -810,8 +804,29 @@ void TfrmProcess::jobFinished() {
         // `c_box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2`
 
     }
-
-
     // `c_retrieval_job`: update `finish_date`, `status` = 2
+    frmProcess->job->setStatus(LCDbCryoJob::DONE);
+    frmProcess->job->saveRecord(qc); // finish date is updated by this method
+}
 
+void __fastcall TfrmProcess::saveProgressThreadTerminated(TObject *Sender) {
+    progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false; Screen->Cursor = crDefault;
+    try {
+        // anything more to do?
+    } catch (Exception & e) {
+		TfrmRetrievalAssistant::msgbox(e.Message);
+    }
+    Enabled = true; DEBUGSTREAM(__FUNC__<<"save plan for job "<<job->getID()<<" finished")
+
+    vector<string>::const_iterator strIt;
+    if (frmProcess->errors.size() > 0) {
+        ostringstream out;
+        for (strIt = errors.begin(); strIt != errors.end(); strIt++) { out<<*strIt<<endl; }
+        Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
+        return;
+	} else {
+        delete_referenced< vector <SampleRow * > >(vials);
+        delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
+        Close();
+    }
 }
