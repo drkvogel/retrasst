@@ -35,6 +35,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.mail.Flags.Flag;
 
 /**
  * If you need greater then 128key length in java. You need "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files". 
@@ -62,7 +63,7 @@ public class fileOperations
 
 	}
 	
-	/**
+/*
 	 * @param filename
 	 * @return The password from the file
 	 * @throws IOException 
@@ -271,6 +272,10 @@ public class fileOperations
 		mEcipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 		mEcipher.init(Cipher.ENCRYPT_MODE, secret);
 		AlgorithmParameters params = mEcipher.getParameters();
+		
+		Cipher t =(Cipher) params.getParameterSpec(IvParameterSpec.class);
+
+	
 
 		// get the initialisation vector and store as member var
 		mInitVec = ((Cipher) params.getParameterSpec(IvParameterSpec.class)).getIV();

@@ -32,37 +32,8 @@ public class varValidation
 											// char(10), varchar(100)
 
 	private HashMap m_VarData;  //<String, Vector<Vector<String>>>
-	
-	private String m_SectionStrings[][] =
-	{
-			{}, //section 0 which doesn't exist, adding to make array indexing simpler
-			{}, //section 1 which has nothing to check
-			{}, //section 2 which has nothing to check
-			{
-				"buttonf_","buttonn_","elapsed_","leftimg_","rightimg_","selected_"
-				//"buttonf_","buttonn_","elapsed_","leftimg_","rightimg_","selectted_"
-			},
-			{
-				"elapsed_","expected_","qname_","selected_","trialtype_"
-				//"elapsed_","expected_","qname_","selected_","trialtype_"
-			},
-			{
-				//
-				"elapsed_","expected_","match_","part_","selected_"
-			},
-			{
-				//"elapsed_","expected_","rsi_","selected_","symbol_","trialtype_","valid_"
-				"valid_", "trialtype_", "symbol_", "selected_", "rsi_", "expected_", "elapsed_"
-			},
-			{
-//					"firstcolumn_","firstimg_", "firstrow_", "secondcolumn_", "secondelap_", "secondimg_", "secondrow_"
-					"firstcolumn_","firstelap_","firstimg_","firstrow_","secondcolumn_","secondelap_","secondimg_","secondrow_"			
-			},
-			{
-//					"enterelap_", "input_", "inputelap_", "match_", "pauseelap_", "showelap_", "stimulus_", "timedout_"
-					"blankelap_","digitstream_","enterelap_","input_","inputelap_","match_","pauseelap_","showelap_","stimulus_","timedout_"
-			}
-	};
+
+	private Vector m_SectionStringsTest[];  
 	
 			
 	public varValidation()
@@ -88,6 +59,7 @@ public class varValidation
 		StringBuilder StringBuild = new StringBuilder();
 		BufferedReader in = null;
 		boolean firstLine = true;
+		boolean secondLine = true;
 		String line = null;
 		int lineCounter = 0;
 		try
@@ -103,17 +75,31 @@ public class varValidation
 				}
 				// System.out.println(line);
 				String[] output = line.split(";");
-				if ((output.length < 5) || (output.length > 6))
+				if ((output.length < 6) || (output.length > 7))
 					throw new XMLParseException("Error in validation data file: " + filename + " -@ line: " + lineCounter);
 
+				if (secondLine)
+				{
+					int noSections = Integer.parseInt(output[0].trim());
+					m_SectionStringsTest = new Vector[noSections];
+					for (int i=0;i<noSections;i++)
+						m_SectionStringsTest[i] = new Vector();
+					secondLine = false;
+					continue;
+				}
+												
 				lineCounter++;
-
 				Vector data = new Vector();
 				data.add(output[1].trim()); // REGEX EXPRESSION TO MATCH AGAINST
 				data.add(output[2].trim()); // TYPE (INT, FLOAT, etc)
 				data.add(output[3].trim()); // MIN VALUE or ENUM
 				data.add(output[4].trim()); // MAX VALUE RANGE ALLOWED [1,4][a,d]
 
+				if (output[5].trim().compareTo("1")==0)
+				{
+					int Section = Integer.parseInt(output[0].trim())-1;
+					m_SectionStringsTest[Section].add(output[1].trim());
+				}
 				// check for copy or reference? we obviously don't want a copy..
 				Vector old = (Vector) m_VarData.get(output[0]);
 				if (old == null)
@@ -223,6 +209,8 @@ public class varValidation
 				String type = (String) boundryInfo.get(1);
 				if (type.compareTo("int") == 0)
 					return new Integer(0);
+				else if (type.compareTo("long") == 0)
+					return new Long(0);
 				else if (type.compareTo("float") == 0)
 					return new Float(1.1f);
 				else if (type.compareTo("isodate") == 0)
@@ -318,9 +306,96 @@ public class varValidation
 	 */
 	public String validateSectionData(String sectionID, TreeMap SectionData) throws XMLParseException
 	{
-		int isectionID = Integer.parseInt(sectionID);
+		return "OK";
+/*		
+		DISABLED TEST, AS IT SEAMS TOO UNDEFINED TO HAVE IN.
+		
+		int isectionID = Integer.parseInt(sectionID)-1;
 	
-		if (m_SectionStrings[isectionID].length == 0) //quit if no strings to check
+		if (m_SectionStringsTest[isectionID].size() == 0) //quit if no strings to check
+			return "OK";
+		
+		// fill in min/max
+		int Mins[][] = new int[m_SectionStringsTest[isectionID].size()][3]; 
+		int Maxs[][] = new int[m_SectionStringsTest[isectionID].size()][3];
+		for (int s=0;s<m_SectionStringsTest[isectionID].size();s++)
+		{
+			Mins[s][0] = Integer.MAX_VALUE;
+			Maxs[s][0] = Integer.MIN_VALUE;
+			Mins[s][1] = Integer.MAX_VALUE;
+			Maxs[s][1] = Integer.MIN_VALUE;
+			Mins[s][2] = Integer.MAX_VALUE;
+			Maxs[s][2] = Integer.MIN_VALUE;
+		}
+		
+		int Totals[] = new int[m_SectionStringsTest[isectionID].size()];
+		String NumberList[][] = new String[m_SectionStringsTest[isectionID].size()][3];
+
+		Iterator keyIt = SectionData.keySet().iterator();
+		while (keyIt.hasNext())
+		{
+			String keyValue = (String) keyIt.next();
+			for (int i = 0; i < m_SectionStringsTest[isectionID].size(); i++)
+			{
+				String RegEx = (String) m_SectionStringsTest[isectionID].get(i);
+				
+				if (keyValue.matches(RegEx))
+					updateMinMaxTotals(i, keyValue, Mins, Maxs, Totals, NumberList);
+			}
+		}
+
+		int TotalsTotal = Totals[0]; //counter to see if we have any user imput present. I have found data where there is none.
+		
+		// check we have the same number of Var types..
+		for (int i = 1; i < m_SectionStringsTest[isectionID].size(); i++)
+		{
+			TotalsTotal+=Totals[i]; 
+			if (Totals[0] != Totals[i])
+			{ // TOTALS DON'T MATCH
+				String Err = "";
+				for (int j = 0; j < m_SectionStringsTest[isectionID].size(); j++)
+				{	
+					Err += "[" + m_SectionStringsTest[isectionID].get(j) + ":" + Totals[j] + "]";
+				}
+				return "Array totals don't match" + Err;
+			}
+		}
+		
+		if (TotalsTotal == 0)
+			return "OK"; //no user data, but that is OK. User was asleep..
+
+		// check we run from min to max with each var
+		for (int i = 0; i < m_SectionStringsTest[isectionID].size(); i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				String[] Nums = NumberList[i][j].split(",");
+		
+				int min = Mins[i][j];
+				int max = Maxs[i][j];
+
+				boolean found = false;
+				for (int toCheck = min; toCheck <= max; toCheck++)
+				{
+					found = false;
+					String ToFind = String.valueOf(toCheck);
+					for (int k = 0; k < Nums.length; k++)
+					{
+						if (ToFind.compareTo(Nums[k]) == 0)
+						{
+							found = true;
+							break;
+						}
+					}
+					if (!found) // WE DIDN'T FIND WHAT WE WERE LOOKING FOR.
+								// SOMETHING IS MISSING
+						return "Missing part of an array[" + m_SectionStringsTest[isectionID].get(i) + NumberList[i][j]+"]" ;
+				}
+			}
+		}
+		return "OK";
+*/		
+/*		if (m_SectionStrings[isectionID].length == 0) //quit if no strings to check
 			return "OK";
 		
 		// fill in min/max
@@ -400,7 +475,7 @@ public class varValidation
 			}
 		}
 		return "OK";
-
+*/
 	}
 
 	/**
@@ -454,8 +529,13 @@ public class varValidation
 		String type = (String) boundryInfo.get(1);
 		if (type.compareTo("int") == 0)
 		{
-			int min = Integer.parseInt((String) boundryInfo.get(2));
-			int max = Integer.parseInt((String) boundryInfo.get(3));
+			int min = Integer.MIN_VALUE;
+			int max = Integer.MAX_VALUE;
+			
+			if (((String) boundryInfo.get(2)).length() != 0)
+				min = Integer.parseInt((String) boundryInfo.get(2));
+			if (((String) boundryInfo.get(3)).length() != 0)
+				max = Integer.parseInt((String) boundryInfo.get(3));
 			int var = 0;
 			try
 			{
@@ -464,6 +544,33 @@ public class varValidation
 			catch (NumberFormatException e)
 			{
 				// obviously it LIES! it is no INT!
+				return false;
+			}
+
+			if (var < min)
+				return false;
+			if (var > max)
+				return false;
+			return true;
+		}
+		if (type.compareTo("long") == 0)
+		{
+			long min = Long.MIN_VALUE;	
+			long max = Long.MAX_VALUE;	
+			
+			if (((String) boundryInfo.get(2)).length() != 0)
+				min = Long.parseLong((String) boundryInfo.get(2));
+			
+			if (((String) boundryInfo.get(3)).length() != 0)
+				max = Long.parseLong((String) boundryInfo.get(3));
+			long var = 0;
+			try
+			{
+				var = Long.parseLong(DataHeld);
+			}
+			catch (NumberFormatException e)
+			{
+				// obviously it LIES! it is no LONG!
 				return false;
 			}
 

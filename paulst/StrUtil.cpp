@@ -1,11 +1,14 @@
 #include "StrUtil.h"
 
+#include <algorithm>
 #include <cmath>
-
+#include <cctype>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
+#include "ExceptionUtil.h"
 #include <fstream>
+#include <boost/functional.hpp>
 #include <iterator>
 #include <sstream>
 #include <SysUtils.hpp>
@@ -117,6 +120,22 @@ bool isDigit( char c )
     return std::isdigit( c );
 }
 
+bool isInt( const std::string& s )
+{
+	const int numDigits = std::count_if( s.begin(), s.end(), isDigit );
+	const int size = s.size();
+
+	return numDigits && (
+		(numDigits == size)
+		||
+		(
+			( numDigits == ( size - 1 ) )
+			&&
+			( '-' == s.at(0) )
+		)
+		);
+}
+
 bool isSpace( char c )
 {
     return std::isspace( c );
@@ -206,8 +225,104 @@ void trim( std::string& s )
 
 int toInt( const std::string& s )
 {
+    const int strLen = s.size();
+
+    if( strLen == 0 )
+    {
+        throw Exception( "Cannot convert an emtpy string to an integer value" );
+    }
+
+    const char& firstChar = s.at(0);
+
+    if ( ! ( 
+        ( firstChar == '-' ) 
+        ||
+        ( firstChar == '+' ) 
+        ||
+        std::isdigit( firstChar )
+        ) )
+    {
+        paulst::exception( "First charact must be '-', '+' or a digit: '%s'", s.c_str() );
+    }
+
+    for ( int i = 1; i < strLen; ++i )
+    {
+        if ( ! std::isdigit( s.at(i) ) )
+        {
+            paulst::exception( "Cannot convert to integer because encountered a non-digit character: '%s'", s.c_str() );
+        }
+    }
+
     return std::atoi( s.c_str() );
 }
+
+
+void dateParseException( const std::string& s ) { paulst::exception( "Failed to parse string '%s' as a date.", s.c_str() ); }
+
+
+TDateTime toDate( const std::string& s )
+{
+    std::string segments[3];
+
+    int i = 0;
+
+    for ( std::string::const_iterator c = s.begin(); c != s.end(); ++c )
+    {
+        if ( *c == '/' )
+        {
+            if ( ++i > 2 )
+            {
+                dateParseException( s );
+            }
+
+            continue;
+        }
+
+        segments[i].push_back( *c );
+    }
+
+
+    if ( 
+        ( segments[0].empty() || segments[0].size() > 2 ) 
+        ||
+        ( segments[1].empty() || segments[1].size() > 2 ) 
+        ||
+        ( segments[2].size() != 4 ) 
+        )
+    {
+        dateParseException( s );
+    }
+        
+
+    for ( i = 0; i < 3; ++i )
+    {
+        if ( std::count_if( segments[i].begin(), segments[i].end(), boost::not1( isDigit ) ) )
+        {
+            dateParseException( s );
+        }
+
+        // Erase leading zeros
+        while ( segments[i].size() && ( '0' == *(segments[i].begin()) ) )
+        {
+            segments[i].erase( segments[i].begin() );
+        }
+
+        if ( segments[i].empty() )
+        {
+            dateParseException( s );
+        }
+    }
+
+    int dayMonthYear[3] = { 0, 0, 0 };
+
+    for ( i = 0; i < 3; ++i )
+    {
+        dayMonthYear[i] = toInt(segments[i]);
+    }
+
+    return TDateTime( dayMonthYear[2], dayMonthYear[1], dayMonthYear[0] );
+}
+
 
 TDateTime toDateTime( const std::string& s, const TDateTime& defaultVal )
 {

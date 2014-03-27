@@ -11,6 +11,7 @@ class CursorADO : public Cursor
 {
 public:
     CursorADO( Adodb_tlb::_Recordset* r );
+    ~CursorADO();
     void close();
     bool endOfRecordSet() const;
     bool isNull( int col );

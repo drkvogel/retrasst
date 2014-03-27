@@ -23,12 +23,14 @@ std::string format( const char* format, ... );
 std::string getErrorMessage( unsigned long windowsErrorCode );
 bool        ifind( const std::string& findWhat, const std::string& inWhat );
 bool        isDigit( char c );
+bool        isInt  ( const std::string& s );
 bool        isSpace( char c );
 std::string loadContentsOf( const std::string& filePath );
 bool        notSpace( char c );
 std::string stdstring( const UnicodeString& s );
 bool        strip_prefix( char* str, const char* prefix );
 void        trim( std::string& value );
+TDateTime   toDate( const std::string& s ); // Expected input format DD/MM/YYYY
 TDateTime   toDateTime( const std::string& s, const TDateTime& defaultVal = TDateTime( 1900, 1, 1, 0, 0, 0, 0) );
 int         toInt( const std::string& s );
 std::string toString( int i );

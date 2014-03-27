@@ -79,7 +79,7 @@ std::string ThreadPool::getLastError() const
     return errorString;
 }
 
-void ThreadPool::handleException( Task* t, const char* msg )
+void ThreadPool::handleException( Task* t, const char* msg ) throw()
 {
     lastError.store( msg );
 }

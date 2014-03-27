@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -128,7 +129,7 @@ public class ToDatabaseXMLParser extends DefaultHandler
 			final String SectionName = (String) m_SectionData.get(globals.DEFINE_SECTION_ID_NAME);
 			final String SessionID = (String) m_SectionData.get(globals.DEFINE_SESSIONID_NAME);
 			final String PersonID = (String) m_SectionData.get(globals.DEFINE_PARTID_NAME);
-		
+					
 			//is this in the ACK file as status 1? i.e. is OK to put in the db		
 			if (!m_ValidatedAckXML.isSessionValid(PersonID,SessionID,SectionName))
 				return; //not a valid section.
@@ -154,6 +155,10 @@ public class ToDatabaseXMLParser extends DefaultHandler
 				}
 				
 				m_databaseAccess.addVaribleInformation(rec_id,m_RespData,SectionName);
+				
+				final String dateCompleted = (String)m_SectionData.get(globals.DEFINE_DATECOMPLETED_NAME);
+				m_databaseAccess.addDateVaribleInformation(rec_id, globals.DEFINE_DATECOMPLETED_NAME,dateCompleted);
+
 			}
 			catch (SQLException e1)
 			{

@@ -1,39 +1,28 @@
 ﻿[Closed Files]
-File_0=TSourceModule,'C:\jonathanpr\RetrievalLists\CoreUtilities\rosetta.cpp',0,1,1103,23,925,0,0,,
-File_1=TSourceModule,'C:\jonathanpr\RetrievalLists\CoreUtilities\xquery.cpp',0,1,746,1,766,0,0,,
-File_2=TSourceModule,'C:\jonathanpr\RetrievalLists\util_Holder.h',0,1,21,1,41,0,0,,
-File_3=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\dinkumware\map',0,1,82,1,102,0,0,,
-File_4=TSourceModule,'C:\jonathanpr\RetrievalLists\mainDialog.cpp',0,1,396,103,413,0,0,,
+File_0=TSourceModule,'C:\jonathanpr\RetrievalLists\RetrievalList.cpp',0,1,1,1,26,0,0,,
+File_1=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\source\soap\Soap.XSBuiltIns.pas',0,1,1321,1,1340,0,0,,
+File_2=TSourceModule,'C:\jonathanpr\RetrievalLists\CoreUtilities\rosetta.cpp',0,1,272,23,925,0,0,,
+File_3=TSourceModule,'C:\jonathanpr\RetrievalLists\util_Holder.h',0,1,21,1,41,0,0,,
+File_4=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\dinkumware\map',0,1,82,1,102,0,0,,
 File_5=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\dinkumware\xtree',0,1,452,1,472,0,0,,
-File_6=TSourceModule,'C:\jonathanpr\RetrievalLists\database.cpp',0,1,1834,24,1860,0,0,,
-File_7=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\dinkumware\xmemory',0,1,1,1,19,0,0,,
-File_8=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\dinkumware\utility',0,1,24,1,53,0,0,,
-File_9=TSourceModule,'C:\jonathanpr\RetrievalLists\RetrievalList.cpp',0,1,92,1,109,0,0,,
-File_10=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\windows\rtl\ustring.h',0,1,143,1,163,0,0,,
-File_11=TSourceModule,'C:\jonathanpr\RetrievalLists\CoreUtilities\rosebase.cpp',0,1,921,1,944,0,0,,
-File_12=TSourceModule,'C:\jonathanpr\RetrievalLists\CoreUtilities\xtime.cpp',0,1,68,1,95,0,0,,
+File_6=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\dinkumware\xmemory',0,1,1,1,19,0,0,,
+File_7=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\dinkumware\utility',0,1,24,1,53,0,0,,
+File_8=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\windows\rtl\ustring.h',0,1,143,1,163,0,0,,
+File_9=TSourceModule,'C:\jonathanpr\RetrievalLists\CoreUtilities\rosebase.cpp',0,1,921,1,944,0,0,,
+File_10=TSourceModule,'C:\jonathanpr\RetrievalLists\CoreUtilities\xtime.cpp',0,1,68,1,95,0,0,,
 
 [Modules]
-Module0=C:\jonathanpr\RetrievalLists\TResultsDialog.cpp
-Module1=C:\jonathanpr\RetrievalLists\mainListDialog.cpp
-Count=2
+Module0=C:\code\jonathanpr\RetrievalLists\winmain.cbproj
+Count=1
 EditWindowCount=1
 
-[C:\jonathanpr\RetrievalLists\TResultsDialog.cpp]
-ModuleType=TSourceModule
-FormState=1
-FormOnTop=0
-
-[C:\jonathanpr\RetrievalLists\mainListDialog.cpp]
-ModuleType=TSourceModule
-FormState=1
-FormOnTop=0
+[C:\code\jonathanpr\RetrievalLists\winmain.cbproj]
+ModuleType=TBaseProject
 
 [EditWindow0]
-ViewCount=2
-CurrentEditView=C:\jonathanpr\RetrievalLists\TResultsDialog.cpp
+ViewCount=1
+CurrentEditView=C:\code\jonathanpr\RetrievalLists\winmain.cpp
 View0=0
-View1=1
 PercentageSizes=1
 Create=1
 Visible=1
@@ -41,21 +30,21 @@ Docked=1
 State=0
 Left=0
 Top=0
-Width=10000
-Height=9228
+Width=8805
+Height=7856
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=10000
-ClientHeight=9228
+ClientWidth=8805
+ClientHeight=7856
 DockedToMainForm=1
 BorlandEditorCodeExplorer=BorlandEditorCodeExplorer@EditWindow0
 TopPanelSize=0
 LeftPanelSize=1891
 LeftPanelClients=PropertyInspector,DockSite3
-LeftPanelData=00000800010100000000B61B0000000000000163070000000000000100000000580E000009000000446F636B53697465330100000000A32200001100000050726F7065727479496E73706563746F72FFFFFFFF
+LeftPanelData=0000080001010000000097170000000000000163070000000000000100000000580E000009000000446F636B536974653301000000007D1D00001100000050726F7065727479496E73706563746F72FFFFFFFF
 RightPanelSize=2000
 RightPanelClients=DockSite2,DockSite4
-RightPanelData=00000800010100000000B61B00000000000001D00700000000000001000000004612000009000000446F636B53697465320100000000A322000009000000446F636B5369746534FFFFFFFF
+RightPanelData=00000800010100000000971700000000000001D00700000000000001000000004612000009000000446F636B536974653201000000007D1D000009000000446F636B5369746534FFFFFFFF
 BottomPanelSize=0
 BottomPanelClients=DockSite1,MessageView
 BottomPanelData=0000080001020200000009000000446F636B53697465310F0000004D65737361676556696577466F726D1234000000000000022406000000000000FFFFFFFF
@@ -65,25 +54,14 @@ BottomMiddelPanelData=0000080001020200000009000000446F636B5369746530100000004772
 
 [View0]
 CustomEditViewType=TEditView
-Module=C:\jonathanpr\RetrievalLists\mainListDialog.cpp
-CursorX=26
-CursorY=355
-TopLine=345
-LeftCol=1
-Elisions=
-Bookmarks=
-EditViewName=C:\jonathanpr\RetrievalLists\mainListDialog.cpp
-
-[View1]
-CustomEditViewType=TEditView
-Module=C:\jonathanpr\RetrievalLists\TResultsDialog.cpp
+Module=C:\code\jonathanpr\RetrievalLists\winmain.cpp
 CursorX=1
-CursorY=78
-TopLine=3
+CursorY=1
+TopLine=1
 LeftCol=1
 Elisions=
 Bookmarks=
-EditViewName=C:\jonathanpr\RetrievalLists\TResultsDialog.cpp
+EditViewName=C:\code\jonathanpr\RetrievalLists\winmain.cpp
 
 [Watches]
 Count=7
@@ -117,15 +95,17 @@ Dockable=1
 StayOnTop=0
 
 [Breakpoints]
-Count=8
+Count=10
 Breakpoint0='C:\jonathanpr\RetrievalLists\Alan_lib\xquery.cpp',766,'',0,1,'',1,0,0,'',1,'','','',0,''
-Breakpoint1='C:\jonathanpr\RetrievalLists\TResultNotesDialog.cpp',24,'',0,1,'',1,0,0,'',1,'','','',0,''
-Breakpoint2='C:\jonathanpr\RetrievalLists\TResultsDialog.cpp',140,'',0,1,'',1,0,0,'',1,'','','',0,''
-Breakpoint3='C:\jonathanpr\RetrievalLists\TResultsDialog.cpp',78,'',0,1,'',1,0,0,'',1,'','','',0,''
-Breakpoint4='C:\jonathanpr\RetrievalLists\CoreUtilities\xquery.cpp',277,'',0,1,'',1,0,0,'',1,'','','',0,''
-Breakpoint5='C:\jonathanpr\RetrievalLists\database.cpp',1891,'',0,1,'',1,0,0,'',1,'','','',0,''
-Breakpoint6='C:\jonathanpr\RetrievalLists\TDbSelectionDialog.cpp',44,'',0,1,'',1,0,0,'',1,'','','',0,''
-Breakpoint7='C:\jonathanpr\RetrievalLists\mainListDialog.cpp',545,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint1='C:\jonathanpr\RetrievalLists\TResultsDialog.cpp',78,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint2='C:\jonathanpr\RetrievalLists\CoreUtilities\xquery.cpp',277,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint3='C:\jonathanpr\RetrievalLists\database.cpp',1909,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint4='C:\jonathanpr\RetrievalLists\TDbSelectionDialog.cpp',44,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint5='C:\jonathanpr\RetrievalLists\mainListDialog.cpp',545,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint6='C:\jonathanpr\RetrievalLists\mainDialog.cpp',30,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint7='C:\jonathanpr\RetrievalLists\mainDialog.cpp',51,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint8='C:\jonathanpr\RetrievalLists\mainDialog.cpp',83,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint9='C:\jonathanpr\RetrievalLists\mainDialog.cpp',81,'',0,1,'',1,0,0,'',1,'','','',0,''
 
 [EmbarcaderoWin32Debugger_AddressBreakpoints]
 Count=0
@@ -144,18 +124,16 @@ PercentageSizes=1
 Create=1
 Visible=1
 Docked=0
-State=2
-Left=141
-Top=274
+State=0
+Left=10000
+Top=600
 Width=8930
 Height=8516
 MaxLeft=-8
 MaxTop=-10
-MaxWidth=8930
-MaxHeight=8516
-ClientWidth=10000
-ClientHeight=9776
-BottomPanelSize=8867
+ClientWidth=8805
+ClientHeight=8130
+BottomPanelSize=7549
 BottomPanelClients=EditWindow0
 BottomPanelData=0000080000000000000000000000000000000000000000000000000100000000000000000C0000004564697457696E646F775F30FFFFFFFF
 
@@ -206,11 +184,11 @@ State=0
 Left=0
 Top=0
 Width=2000
-Height=4126
+Height=2754
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2000
-ClientHeight=4126
+ClientHeight=2754
 TBDockHeight=7154
 LRDockWidth=2000
 Dockable=1
@@ -225,11 +203,11 @@ State=0
 Left=0
 Top=399
 Width=1891
-Height=5173
+Height=3801
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1891
-ClientHeight=5173
+ClientHeight=3801
 TBDockHeight=8974
 LRDockWidth=1891
 Dockable=1
@@ -729,11 +707,11 @@ State=0
 Left=0
 Top=502
 Width=2000
-Height=4126
+Height=2754
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2000
-ClientHeight=4126
+ClientHeight=2754
 TBDockHeight=8974
 LRDockWidth=2000
 Dockable=1

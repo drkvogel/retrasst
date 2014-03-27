@@ -1,0 +1,211 @@
+  #content {
+	font-family: Verdana, Geneva, sans-serif;
+	background-color: #FFFFFF;
+	padding: 5px;
+	width: 75%;
+	border-top-style: none;
+	border-right-style: none;
+	border-bottom-style: none;
+	border-left-style: none;
+	border-top-color: #FFF;
+	border-right-color: #FFF;
+	border-bottom-color: #FFF;
+	border-left-color: #FFF;
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+label {
+    float:left;
+    width:17em;
+}
+
+select {
+    width:20em;
+}
+
+.right {
+    float:right;
+}
+
+.alignleft {
+    text-align:left;
+    }
+
+.left {
+    float:left;
+}
+
+.warn {
+	background-color: red;
+    color:red;
+	margin: 10px 5px; padding: 5px; border: double rgb(102, 102, 102); font-family: Verdana, Geneva, sans-serif; background-color: rgb(238, 238, 238);
+}
+
+.red {
+    color:red;
+}
+
+body {
+	margin: 0em; padding: 0em; font-family: Arial, Verdana, sans-serif; background-color: rgb(0, 33, 71);
+}
+div.upper {
+	margin: 0em auto; padding: 0.5em; min-height: 78px; max-width: 866px; background-repeat: no-repeat;
+}
+div.main {
+	background-position: right top; margin: 0em auto; padding: 0.5em; border-radius: 8px; border: 1px solid rgb(0, 33, 71); min-height: 100px; max-width: 90%; background-repeat: no-repeat; background-color: white;
+}
+div.ctsu_title {
+	text-align: left;
+}
+h1.ctsu_title {
+	font: 24pt/normal Verdana, Geneva, sans-serif; font-size-adjust: none; font-stretch: normal;
+}
+h2.ctsu_title {
+	font: 12pt/normal Verdana, Geneva, sans-serif; margin: 0px; letter-spacing: 1px; font-size-adjust: none; font-stretch: normal;
+}
+h3.ctsu_title {
+	font: 12pt/normal Verdana, Geneva, sans-serif; margin: 0px; letter-spacing: 1px; font-size-adjust: none; font-stretch: normal;
+}
+div.univ_link {
+	text-align: right; float: right;
+}
+div.spacer {
+	height: 20px;
+}
+a {
+	text-decoration: none;
+}
+a:hover {
+	color: rgb(139, 0, 0);
+}
+a.menu:link {
+	color: rgb(0, 33, 71);
+}
+a.menu:visited {
+	color: rgb(0, 33, 71);
+}
+a.menu:hover {
+	color: rgb(139, 0, 0);
+}
+a.ctsu_link:link {
+	color: white;
+}
+a.ctsu_link:visited {
+	color: white;
+}
+a.ctsu_link:hover {
+	color: rgb(204, 204, 102);
+}
+li.open {
+	
+}
+li.restricted {
+	list-style-type: circle;
+}
+span.tnow {
+	color: rgb(128, 128, 128);
+}
+span.error_msg {
+	color: rgb(255, 0, 0); font-size: 120%;
+}
+span.action {
+	width: 400px; text-align: left; padding-right: 10px; float: right;
+}
+
+.tablecss
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	margin: 45px;
+	width: 90%;
+	text-align: left;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+th:first-child {
+    border-radius: 26px 0 0 0;
+}
+
+th:last-child {
+    border-radius: 0 26px 0 0;
+}
+
+th:only-child{
+    border-radius: 26px 26px 0 0;
+}
+.tablecss th
+{
+	font-size: 13px;
+	font-weight: normal;
+	padding: 8px;
+	background: #b9c9fe;
+	border-top: 4px solid #aabcfe;
+	border-bottom: 1px solid #fff;
+	color: #039;
+
+}
+.tablecss td
+{
+	padding: 8px;
+	background: #e8edff; 
+	border-bottom: 1px solid #fff;
+	color: #669;
+	border-top: 1px solid transparent;
+}
+.tablecss tr:hover td
+{
+	background: #d0dafd;
+	color: #339;
+}
+
+.AleBox {
+	font-family: Verdana, Geneva, sans-serif;
+	background-color: #EEE;
+	border: medium double #666;
+	padding: 5px;
+	margin-top: 10px;
+	margin-right: 5px;
+	margin-bottom: 10px;
+	margin-left: 5px;
+	width: 80%;
+	margin-left:auto;
+margin-right:auto;
+	text-align: center;
+}
+
+.classtable
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	margin: 45px;
+	width: 90%;
+	text-align: left;
+	border-collapse: collapse;
+}
+.classtable th
+{
+	font-size: 13px;
+	font-weight: normal;
+	padding: 8px;
+	background: #b9c9fe;
+	border-top: 4px solid #aabcfe;
+	border-bottom: 1px solid #fff;
+	color: #039;
+}
+.classtable td
+{
+	padding: 8px;
+	background: #e8edff; 
+	border-bottom: 1px solid #fff;
+	color: #669;
+	border-top: 1px solid transparent;
+}
+.classtable tr:hover td
+{
+	background: #d0dafd;
+	color: #339;
+}
+

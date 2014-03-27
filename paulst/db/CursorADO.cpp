@@ -10,6 +10,11 @@ CursorADO::CursorADO( Adodb_tlb::_Recordset* r )
 {
 }
 
+CursorADO::~CursorADO()
+{
+    close();
+}
+
 void CursorADO::close()
 {
     if ( m_recordSet )

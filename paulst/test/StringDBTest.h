@@ -11,7 +11,7 @@ namespace tut
     {
     };
 
-    typedef test_group<StringDBTestFixture, 4> StringDBTestGroup;
+    typedef test_group<StringDBTestFixture, 5> StringDBTestGroup;
 	StringDBTestGroup testGroupStringDB(
 							"StringDB tests");
 	typedef StringDBTestGroup::object testStringDB;
@@ -113,6 +113,20 @@ namespace tut
         ensure_equals( c->get("thing"), std::string("2")      );
         ensure_equals( c->get("name") , std::string("Beagle") );
         ensure_not( c->next() );
+    }
+
+    template<>
+    template<>
+	void testStringDB::test<5>()
+    {
+        set_test_name("Cursor: empty DB");
+
+        using namespace paulst;
+
+        StringDB db;
+        
+        std::auto_ptr<LineByLineCursor> c( db.newCursor() );
+        ensure( c->exhausted() );
     }
 
 };

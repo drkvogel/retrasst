@@ -62,18 +62,15 @@ typedef Cursor< CSVIterator<'\n'> > LineByLineCursor;
 class StringDB
 {
 public:
-    StringDB( const std::string& csvAttributeValuePairs, const std::string& rowIDAttribute );
+    StringDB( const std::string& csvAttributeValuePairs = "", const std::string& rowIDAttribute = "" );
     void        appendData( const std::string& moreCSVAttributeValuePairs );
     std::string getData() const;
-    void updateAttribute( const std::string& rowIdValue,
-        const std::string& whichAttribute, const std::string& newValue );
+    void        reset( const std::string& csvAttributeValuePairs, const std::string& rowIDAttribute ); 
+    void        updateAttribute( const std::string& rowIdValue, const std::string& whichAttribute, const std::string& newValue );
     LineByLineCursor* newCursor();    
 private:
     std::string m_data;
     std::string m_primaryKey;
-    
-    StringDB( const StringDB& );
-    StringDB& operator=( const StringDB& );
 };
 
 };

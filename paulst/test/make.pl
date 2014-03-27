@@ -24,7 +24,7 @@ $exe =~ s/cbproj/exe/;
 
 print "Running $exe...\n";
 
-system("Win64/$config/$exe"); 
+system("Win32/$config/$exe"); 
 
 1;
 

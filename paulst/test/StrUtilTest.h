@@ -9,9 +9,46 @@ namespace tut
 {
 	class StrUtilTestFixture
     {
+    public:
+        void testToDate( const std::string& input, bool expectException = true )
+        {
+            bool exceptionThrown = false;
+
+            try
+            {
+                paulst::toDate(input);
+            }
+            catch( const Exception& e )
+            {
+                exceptionThrown = true;
+                // std::wprintf( L"%ls\n", e.Message.c_str() );
+            }
+
+            if ( expectException )
+            {
+                ensure( exceptionThrown );
+            }
+            else
+            {
+                ensure_not( exceptionThrown );
+            }
+        }
+
+        void testToDate( const std::string& input, int expectedDay, int expectedMonth, int expectedYear )
+        {
+            TDateTime d = paulst::toDate( input );
+
+            unsigned short dayMonthYear[3] = { 0, 0, 0 };
+
+            d.DecodeDate( dayMonthYear + 2, dayMonthYear + 1, dayMonthYear );
+
+            ensure_equals( dayMonthYear[0], expectedDay );
+            ensure_equals( dayMonthYear[1], expectedMonth );
+            ensure_equals( dayMonthYear[2], expectedYear );
+        }
     };
 
-    typedef test_group<StrUtilTestFixture, 24> StrUtilTestGroup;
+    typedef test_group<StrUtilTestFixture, 33> StrUtilTestGroup;
 	StrUtilTestGroup testGroupStrUtil( "StrUtil tests");
 	typedef StrUtilTestGroup::object testStrUtil;
 
@@ -284,6 +321,80 @@ namespace tut
         ensure_equals( format( "abc%sdef%dghi", "cat", 34 ), std::string("abccatdef34ghi") );
     }
 
+    template<>
+    template<>
+	void testStrUtil::test<25>()
+    {
+        set_test_name("toDate 13/01/1967");
+
+        testToDate( "13/01/1967", 13, 1, 1967 );
+    }
+
+    template<>
+    template<>
+	void testStrUtil::test<26>()
+    {
+        set_test_name("toDate 13/1/1967");
+
+        testToDate( "13/1/1967", 13, 1, 1967 );
+    }
+
+    template<>
+    template<>
+	void testStrUtil::test<27>()
+    {
+        set_test_name("toDate 13/00/1967");
+
+        testToDate( "13/00/1967", true );
+    }
+
+    template<>
+    template<>
+	void testStrUtil::test<28>()
+    {
+        set_test_name("toDate 13/00/196");
+        testToDate( "13/00/196", true );
+    }
+
+    template<>
+    template<>
+	void testStrUtil::test<29>()
+    {
+        set_test_name("toDate /00/196");
+        testToDate( "/00/196", true );
+    }
+
+    template<>
+    template<>
+	void testStrUtil::test<30>()
+    {
+        set_test_name("toDate 12/12/19641");
+        testToDate( "12/12/19641", true );
+    }
+
+    template<>
+    template<>
+	void testStrUtil::test<31>()
+    {
+        set_test_name("toDate 1/5/1964");
+        testToDate( "1/5/1964", 1, 5, 1964 );
+    }
+
+    template<>
+    template<>
+	void testStrUtil::test<32>()
+    {
+        set_test_name("toDate 121/12/1964");
+        testToDate( "121/12/1964", true );
+    }
+
+    template<>
+    template<>
+	void testStrUtil::test<33>()
+    {
+        set_test_name("toDate: empty string");
+        testToDate( "", true );
+    }
 };
  
 #endif

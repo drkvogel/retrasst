@@ -73,7 +73,7 @@
 			<VerInfo_Release>12</VerInfo_Release>
 			<VerInfo_Build>4</VerInfo_Build>
 			<ILINK_LibraryPath>RetrievalLists\;RationaliseTanks\;C:\Program Files\Actian\IngresIJ\ingres\files\;..\LabsLeasing\;..\..\paulst\;..\LabsDAO\;..\LabsObjects\;..\CoreUtilities\;..\LabsForms\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
-			<IncludePath>RetrievalLists\;RationaliseTanks\;C:\Program Files\Actian\IngresIJ\ingres\files\;..\LabsLeasing\;..\..\paulst\;..\LabsDAO\;..\LabsObjects\;..\CoreUtilities\;..\LabsForms\;$(IncludePath)</IncludePath>
+			<IncludePath>RetrievalLists\;RationaliseTanks\;..\LabsLeasing\;..\..\paulst\;..\LabsDAO\;..\LabsObjects\;..\CoreUtilities\;..\LabsForms\;$(IncludePath)</IncludePath>
 			<ProjectType>CppVCLApplication</ProjectType>
 			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
 			<Multithreaded>true</Multithreaded>
@@ -98,7 +98,7 @@
 			<PackageImports>rtl;vcl;vclimg;vclx;$(PackageImports)</PackageImports>
 			<ILINK_LibraryPath>C:\Users\nicholas\Documents\RAD Studio\Projects\LIMS\CoreUtilities\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
 			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-			<IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
+			<IncludePath>$(BDSINCLUDE)\windows\vcl;C:\Program Files (x86)\Ingres\IngresII\ingres\files;$(IncludePath)</IncludePath>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1)'!=''">
 			<VerInfo_Debug>true</VerInfo_Debug>
@@ -140,7 +140,7 @@
 			<LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib</LinkPackageStatics>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-			<LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib</LinkPackageStatics>
+			<LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib</LinkPackageStatics>
 		</PropertyGroup>
 		<ItemGroup>
 			<None Include="C:\Program Files\Actian\IngresIJ\ingres\files\Iiapi.h">
@@ -872,47 +872,14 @@
 						<ProjectProperties Name="VerifyPackages">True</ProjectProperties>
 					</ProjectProperties>
 					<Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\bcbie180.bpl">Embarcadero C++Builder Internet Explorer Components Package</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclsmpedit180.bpl">Embarcadero Editor Script Enhancements</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclDBXDrivers180.bpl">Embarcadero Driver Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclIPIndyImpl180.bpl">IP Abstraction Indy Implementation Design Time</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclIndyProtocols180.bpl">Indy 10 Protocols Design Time</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\MobileWizardExpert180.bpl">Embarcadero Mobile Wizard Help</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclfmxstd180.bpl">Embarcadero FMX Standard Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclbcbsmp180.bpl">C++Builder Sample Components Package</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\svnide180.bpl">Embarcadero Subversion Integration</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\applet180.bpl">Embarcadero Control Panel Applet Package</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx180.bpl">Embarcadero LiveBindings Components FireMonkey</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclbindcompvcl180.bpl">Embarcadero LiveBindings Components VCL</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dcl31w180.bpl">Delphi 1.0 Compatibility Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclact180.bpl">Embarcadero ActionBar Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclemacsedit180.bpl">Embarcadero Editor Emacs Enhancements</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclmlwiz180.bpl">Embarcadero Markup Language Wizards</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclMetropolisUILiveTile180.bpl">Embarcadero Metropolis UI Live Tile Standard Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dcltouch180.bpl">Embarcadero Touch Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\samplevisualizers180.bpl">Embarcadero Sample Debugger Visualizers</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclado180.bpl">Embarcadero ADO DB Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclIntraweb_140_180.bpl">IntraWeb 14.0 Design Package for RAD Studio XE3</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclie180.bpl">Internet Explorer Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclwbm180.bpl">Embarcadero InternetExpress Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclsoap180.bpl">Embarcadero SOAP Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclribbon180.bpl">Embarcadero Ribbon Controls</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclDBXDriversInt180.bpl">Embarcadero Intro Driver Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclbindcompdbx180.bpl">LiveBindings Expression Components DbExpress</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dcldbxcds180.bpl">Embarcadero SimpleDataset Component (DBX)</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\DataExplorerDBXPlugin180.bpl">DBExpress Data Explorer Integration</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclCloudService180.bpl">Embarcadero Cloud management components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclmcn180.bpl">Embarcadero DataSnap Connection Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclFMXtee9180.bpl">TeeChart Lite FMX Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dcltee9180.bpl">TeeChart Standard VCL Components</Excluded_Packages>
-						<Excluded_Packages Name="C:\Program Files (x86)\Raize\CS5\Bin\CodeSiteExpressPkg_Design180.bpl">CodeSite Express 5.1.3</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclsmp180.bpl">Embarcadero Sample Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclbde180.bpl">Embarcadero BDE DB Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclib180.bpl">Embarcadero InterBase Express Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k180.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclofficexp180.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\FastReports\LibD16\dclfrxDB16.bpl">FastReport 4.0 DB Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclFMXtee9160.bpl">TeeChart Standard FMX Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx160.bpl">Embarcadero LiveBindings Components FireMonkey</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcboffice2k160.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcbofficexp160.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclfmxstd160.bpl">Embarcadero FMX Standard Components</Excluded_Packages>
 					</Excluded_Packages>
 				</CPlusPlusBuilder.Personality>
 				<Deployment/>

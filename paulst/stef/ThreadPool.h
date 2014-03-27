@@ -25,9 +25,9 @@ public:
     // The last error of which ThreadPool was made aware via the 'handleException' callback.
     std::string getLastError() const;
     // Implementation of the TaskExceptionHandler interface.
-    void        handleCancellation( Task* t ) {}
+	void        handleCancellation( Task* t ) throw() {}
     // Implementation of the TaskExceptionHandler interface.  ThreadPool likes to know about Task execution exceptions.
-    void        handleException( Task* t, const char* msg );
+    void        handleException( Task* t, const char* msg ) throw();
     // Returns false if failed to clear backlog of added Tasks within the specified time limit.
     bool        shutdown( long millis, bool cancelPending );
     // Returns true if queue cleared within the specified time limit

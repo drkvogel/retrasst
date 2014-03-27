@@ -25,34 +25,54 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyEngine;
 
-import com.icoserve.ws.client.dms.VA15_DocumentManipulationServiceStub;
-import com.icoserve.ws.client.qs.VA15_QueryServiceStub;
-import com.icoserve.ws.client.types.Attachment;
-import com.icoserve.ws.client.types.DicomDocumentFuzzySearch;
-import com.icoserve.ws.client.types.DicomDocumentFuzzySearchResult;
-import com.icoserve.ws.client.types.DicomImage;
-import com.icoserve.ws.client.types.DicomImportResult;
-import com.icoserve.ws.client.types.DicomOrgUnitImportRequest;
-import com.icoserve.ws.client.types.DicomSeries;
-import com.icoserve.ws.client.types.DicomStudy;
-import com.icoserve.ws.client.types.DocumentInfo;
-import com.icoserve.ws.client.types.ExportDicomImageRequest;
-import com.icoserve.ws.client.types.ExportFilesForReferencePointerRequest;
-import com.icoserve.ws.client.types.FindDicomDocumentsRequest;
-import com.icoserve.ws.client.types.FindGenericDocumentsRequest;
-import com.icoserve.ws.client.types.FindPatientsRequest;
-import com.icoserve.ws.client.types.GenericDocumentFuzzySearch;
-import com.icoserve.ws.client.types.GenericDocumentFuzzySearchResult;
-import com.icoserve.ws.client.types.GenericFileInfo;
-import com.icoserve.ws.client.types.GenericImportResult;
-import com.icoserve.ws.client.types.GenericOrgUnitImportRequest;
-import com.icoserve.ws.client.types.GetDicomImagesForDicomSeriesRequest;
-import com.icoserve.ws.client.types.GetDicomSeriesForDicomStudyRequest;
-import com.icoserve.ws.client.types.GetDicomStudyRequest;
-import com.icoserve.ws.client.types.GetDicomStudyResponse;
-import com.icoserve.ws.client.types.Patient;
-import com.icoserve.ws.client.types.PatientFuzzySearch;
-import com.icoserve.ws.client.types.PatientSearch;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.Attachment;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.ChangeDocumentEntityRequest;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.ChangeDocumentOrganizationalUnitRequest;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.ChangeDocumentPatientRequest;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.ChangeDocumentPatientResponse;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.CopyDocumentRequest;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.CopyDocumentResponse;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.DicomImportResult;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.DicomOrgUnitImportRequest;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.DocumentInfo;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.ExportDicomImageRequest;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.ExportFilesForReferencePointerRequest;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.GenericFileInfo;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.GenericImportResult;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.GenericOrgUnitImportRequest;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.PatientSearch;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.VisitSearch;
+import com.icoserve.www.va20_documentmanipulationservice.WsFault;
+import com.icoserve.www.va20_keywordservice.VA20_KeywordServiceStub;
+import com.icoserve.www.va20_keywordservice.VA20_KeywordServiceStub.AddKeywordsToDicomStudyRequest;
+import com.icoserve.www.va20_keywordservice.VA20_KeywordServiceStub.DicomSeriesKeywords;
+import com.icoserve.www.va20_keywordservice.VA20_KeywordServiceStub.DicomStudyKeywords;
+import com.icoserve.www.va20_keywordservice.VA20_KeywordServiceStub.KeywordAddInformation;
+import com.icoserve.www.va20_keywordservice.VA20_KeywordServiceStub.RetrieveKeywordsForDicomSeriesRequest;
+import com.icoserve.www.va20_keywordservice.VA20_KeywordServiceStub.RetrieveKeywordsForDicomStudiesRequest;
+import com.icoserve.www.va20_keywordservice.VA20_KeywordServiceStub.RetrieveKeywordsForDicomStudiesResponse;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomDocumentFuzzySearch;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomDocumentFuzzySearchResult;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomImage;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomSeries;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomStudy;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DocumentFuzzySearch;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.FindDicomDocumentsRequest;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.FindGenericDocumentsRequest;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.FindPatientsRequest;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GenericDocumentFuzzySearch;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GenericDocumentFuzzySearchResult;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GetDicomImagesForDicomSeriesRequest;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GetDicomSeriesForDicomStudyRequest;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GetDicomStudyRequest;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GetDirectAccessUrlForPatientResponse;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.KeywordSearch;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.Patient;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.PatientFuzzySearch;
+
+
 
 public class PACSComms
 {
@@ -60,21 +80,26 @@ public class PACSComms
 	 * The endpoint of the service that should be called. Can be retrieved in
 	 * webadmin (Tools -> Webservices).
 	 */
-	private static final String SERVICE_EPR_QUERYSERICE = "https://syngoshare.ith-icoserve.com/ws_api/services/DEMO/VA15/QueryService";
-	private static final String SERVICE_EPR_DOCMANIPULATION = "https://syngoshare.ith-icoserve.com/ws_api/services/DEMO/VA15/DocumentManipulationService";
 
+	private static final String SERVICE_EPR_QUERYSERICE = "https://syngo.ndph.ox.ac.uk/ws_api/services/BIOBANK/VA20/QueryService";
+	private static final String SERVICE_EPR_DOCMANIPULATION = "https://syngo.ndph.ox.ac.uk/ws_api/services/BIOBANK/VA20/DocumentManipulationService";
+	private static final String SERVICE_EPR_KEYWORDSERICE = "https://syngo.ndph.ox.ac.uk/ws_api/services/BIOBANK/VA20/KeywordService";
+
+	/*	
+	private static final String SERVICE_EPR_QUERYSERICE = "https://163.1.206.34/ws_api/services/BIOBANK/VA20/QueryService";
+	private static final String SERVICE_EPR_DOCMANIPULATION = "https://163.1.206.34/ws_api/services/BIOBANK/VA20/DocumentManipulationService";
+	private static final String SERVICE_EPR_KEYWORDSERICE = "https://163.1.206.34/ws_api/services/BIOBANK/VA20/KeywordService";
+	*/
 	// The login of the webservice user.
-	private static final String USERLOGIN = "Biobank";
-	private static final String PASSWORD = "Biobank";
+	private static String USERLOGIN = "webapi";
+	private static String PASSWORD = "webapi_bio";
 
 	// The path of the server certificate. Can be retrieved in webadmin (Tools
 	// -> Webservices).
-//	private static final String KEYSTORE_PATH = "C:\\keys\\webservice_api.jks";
 	private static final String KEYSTORE_PATH = "webservice_api.jks";
 
-	// The password of the keystore containing the server certificate (Must be
-	// specified when downloading the keystore from webadmin).
-	private static final String KEYSTORE_PASSWORD = "biobank";
+	// The password of the keystore containing the server certificate (Must be specified when downloading the keystore from webadmin).
+	private static final String KEYSTORE_PASSWORD = "reallybadkeystorepassword";
 
 	// Path where the eclipse project is contained. (The "modules" and "policy"
 	// directories must be directly under the given directory).
@@ -82,135 +107,132 @@ public class PACSComms
 	private static final String WORKING_DIR = ".";
 
 	// Path where axis2 is allowed to cache receiving files.
-	private static final String LOCALE_FILE_CACHING_DIR = "C:\\temp";
-	private static final String FILE_OUTPUT_DIR = "C:\\temp\\export";
+	private static final String LOCALE_FILE_CACHING_DIR = "temp";
+	private static final String FILE_OUTPUT_DIR = "temp";
 
 	private static final int CLIENT_TIMEOUT_MILLIS = 600000; // 10 minutes
 
+	VA20_QueryServiceStub m_queryService = null;
+	VA20_DocumentManipulationServiceStub m_documentManipulationService = null;
+	VA20_KeywordServiceStub m_keywordService = null;
 	
-	public String downLoadAll(String PatientID) throws XMLStreamException, IOException
+	public boolean signin()
 	{
-		final VA15_QueryServiceStub queryService = createServiceStub_QueryServic();
-		final VA15_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Searching for non-dicom
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//FOR NOW I SHALL ASSUME ALL DATA IN THE PACS IS DICOM FORMATTED
-//SO EXPORT DICOM ISN'T A NECESSARY 		
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
-//Searching for dicom
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//		System.out.println("Now searching for patient:" + PatientID + " studies");
-
-		final DicomDocumentFuzzySearch dicomFuzzySearch = new DicomDocumentFuzzySearch();
-		final PatientFuzzySearch patientFuzzySearch = new PatientFuzzySearch();
-		patientFuzzySearch.setPatientId(PatientID);
-		dicomFuzzySearch.setPatientFuzzySearch(patientFuzzySearch);
-		dicomFuzzySearch.setMaximumResults(20);
-		FindDicomDocumentsRequest FDDR = new FindDicomDocumentsRequest();
-		FDDR.setDicomDocumentFuzzySearch(dicomFuzzySearch);
-
+		return signin(USERLOGIN,PASSWORD);
+	}
+		
+	public boolean signin(String username, String password)
+	{
+		USERLOGIN = username;
+		PASSWORD = password;
 		try
 		{
-			final DicomDocumentFuzzySearchResult[] DicomStudyResults = queryService.findDicomDocuments(FDDR).get_return();
+			m_queryService = createServiceStub_QueryService();
+			m_documentManipulationService = createServiceStub_DocumentManipulationService();
+			m_keywordService = createServiceStub_KeywordService();
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	public void downLoadAll(String PatientID) throws Exception
+	{
+		try
+		{		
+	//		final VA20_QueryServiceStub queryService = createServiceStub_QueryServic();
+	//		final VA20_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Searching for non-dicom
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	//FOR NOW I SHALL ASSUME ALL DATA IN THE PACS IS DICOM FORMATTED
+	//SO EXPORT DICOM ISN'T A NECESSARY 		
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
+	//Searching for dicom
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//		System.out.println("Now searching for patient:" + PatientID + " studies");
+	
+			final DicomDocumentFuzzySearch dicomFuzzySearch = new DicomDocumentFuzzySearch();
+			final PatientFuzzySearch patientFuzzySearch = new PatientFuzzySearch();
+			patientFuzzySearch.setPatientId(PatientID);
+			dicomFuzzySearch.setPatientFuzzySearch(patientFuzzySearch);
+			dicomFuzzySearch.setMaximumResults(20);
+			FindDicomDocumentsRequest FDDR = new FindDicomDocumentsRequest();
+			FDDR.setDicomDocumentFuzzySearch(dicomFuzzySearch);
+
+			final DicomDocumentFuzzySearchResult[] DicomStudyResults = m_queryService.findDicomDocuments(FDDR).get_return();
 			if (DicomStudyResults == null)
-				return "No Dicom found with PatientID " + PatientID;
+				return;
 			if (DicomStudyResults.length == 0)
-				return "No Dicom found with PatientID " + PatientID;
+				return;
 			
 			for (int StudyCount=0;StudyCount<DicomStudyResults.length;StudyCount++)
 			{
 				for (int i=0;i<DicomStudyResults[StudyCount].getDicomStudy().getNumSeries();i++)
 				{
-//					System.out.println("Now searching for series: " + DicomStudyResults[StudyCount].getDicomStudy().getStudyInstanceUid());
-	
 					GetDicomSeriesForDicomStudyRequest dicomStudyID = new GetDicomSeriesForDicomStudyRequest();
 					dicomStudyID.setDicomStudyPk(DicomStudyResults[StudyCount].getDicomStudy().getId());
-					try
+
+					DicomSeries[] DicomStudy = m_queryService.getDicomSeriesForDicomStudy(dicomStudyID).get_return();
+
+					System.out.println("Found " + ((DicomStudy == null) ? "0" : DicomStudy.length) + " Dicom(s)");
+					for (int k = 0; k < DicomStudy.length; k++)
 					{
-						DicomSeries[] DicomStudy = queryService.getDicomSeriesForDicomStudy(dicomStudyID).get_return();
-	
-						System.out.println("Found " + ((DicomStudy == null) ? "0" : DicomStudy.length) + " Dicom(s)");
-						for (int k = 0; k < DicomStudy.length; k++)
-						{
-							System.out.println("SeriesInstanceUID: " + DicomStudy[k].getSeriesInstanceUid());
-							System.out.println("Num Images: " + DicomStudy[k].getNumImages());
-//							System.out.println("Now searching for dicom images");
+						System.out.println("SeriesInstanceUID: " + DicomStudy[k].getSeriesInstanceUid());
+						System.out.println("Num Images: " + DicomStudy[k].getNumImages());
+					
+						GetDicomImagesForDicomSeriesRequest dicomSeriesID = new GetDicomImagesForDicomSeriesRequest();
+						dicomSeriesID.setDicomSeriesPk(DicomStudy[k].getId());
 						
-							GetDicomImagesForDicomSeriesRequest dicomSeriesID = new GetDicomImagesForDicomSeriesRequest();
-							dicomSeriesID.setDicomSeriesPk(DicomStudy[k].getId());
-							
+						final DicomImage[] ImageResults = m_queryService.getDicomImagesForDicomSeries(dicomSeriesID).get_return();
+						System.out.println("Found " + ((ImageResults == null) ? "0" : ImageResults.length) + " Dicom(s)");
+						for (int j = 0;j < ImageResults.length; j++)
+						{
+							// Exporting files for given reference pointer.
+							System.out.println("Now exporting dicom");
+
+							final ExportDicomImageRequest request = new ExportDicomImageRequest();
+							request.setDicomImagePk(ImageResults[j].getId());
+
+							final Attachment attachment = m_documentManipulationService.exportDicomImage(request).get_return();
+							System.out.println("Successfully exported dicom image");
+
+							OutputStream out = null;
 							try
 							{
-								final DicomImage[] ImageResults = queryService.getDicomImagesForDicomSeries(dicomSeriesID).get_return();
-								System.out.println("Found " + ((ImageResults == null) ? "0" : ImageResults.length) + " Dicom(s)");
-								for (int j = 0;j < ImageResults.length; j++)
-								{
-									// Exporting files for given reference pointer.
-									System.out.println("Now exporting dicom");
-	
-									final ExportDicomImageRequest request = new ExportDicomImageRequest();
-									request.setDicomImagePk(ImageResults[j].getId());
-	
-									try
-									{
-										final Attachment attachment = documentManipulationService.exportDicomImage(request).get_return();
-										System.out.println("Successfully exported dicom image");
-	
-										OutputStream out = null;
-										try
-										{
-											String FilePath = FILE_OUTPUT_DIR + "/" + DicomStudyResults[i].getDicomStudy().getStudyInstanceUid() + "/" + DicomStudy[k].getSeriesInstanceUid();
-											
-											File file = new File(FilePath + "\\" + attachment.getFileName());
-											file.getParentFile().mkdirs();
-	
-											out = new FileOutputStream(file);
-											attachment.getData().writeTo(out);
-										}
-										finally
-										{
-											if (out != null)
-											{
-												out.close();
-											}
-										}									
-									}
-									catch (final com.icoserve.ws.client.dms.WsFault e)
-									{
-										System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-										e.printStackTrace();
-									}
-								}	
+								String FilePath = FILE_OUTPUT_DIR + "/" + DicomStudyResults[i].getDicomStudy().getStudyInstanceUid() + "/" + DicomStudy[k].getSeriesInstanceUid();
+								
+								File file = new File(FilePath + "\\" + attachment.getFileName());
+								file.getParentFile().mkdirs();
+								out = new FileOutputStream(file);
+								attachment.getData().writeTo(out);
 							}
-							catch (final com.icoserve.ws.client.qs.WsFault e)
+							finally
 							{
-								System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-								e.printStackTrace();
-							}
+								if (out != null)
+									out.close();
+							}									
 						}	
-					}
-					catch (final com.icoserve.ws.client.qs.WsFault e)
-					{
-						System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-						e.printStackTrace();
-					}				
+					}	
 				}
 			}
 		}
-		catch (final com.icoserve.ws.client.qs.WsFault e)
+		catch (Exception e)
 		{
-			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-			e.printStackTrace();
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
 		}
-		return null;
 	}
 	
-	public DicomImportResult importDicomToPatient(String dicomfileToImport) throws FileNotFoundException, XMLStreamException, RemoteException
+	public DicomImportResult importDicomToPatient(String dicomfileToImport) throws Exception 
 	{
-		final VA15_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();
+	//	final VA20_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();
 
 		System.out.println("Now importing file");
 
@@ -220,103 +242,148 @@ public class PACSComms
 
 		try
 		{
-			final DicomImportResult result = documentManipulationService.importDicomImageIntoOrgUnit(request).get_return();
+			final DicomImportResult result = m_documentManipulationService.importDicomImageIntoOrgUnit(request).get_return();
 			System.out.println("Successfully imported new dicom file. New Reference pointer is: " + result.getReferencePointer());
 			return result;
 		}
-		catch (com.icoserve.ws.client.dms.WsFault e)
+		catch (com.icoserve.www.va20_documentmanipulationservice.WsFault e)
 		{
-			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
 		}
-		return null;
+		catch (RemoteException e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}
 	}
 	
-	// fileToImport = "C:\\temp\\testupload.cvs";
-	public GenericImportResult importFile(String fileToImport, String PID, String FName, String LName, String Desc, String ArchiveFileName) throws FileNotFoundException, XMLStreamException, RemoteException
+	public GenericImportResult importFile(String fileToImport, String PID, String Desc, String ArchiveFileName, long userPID) throws Exception 
 	{
-		final VA15_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();
-
-		System.out.println("Now importing file");
-
 		final PatientSearch patientSearch = new PatientSearch();
-		patientSearch.setPatientId(PID);//"20500");
-		patientSearch.setFirstName(FName);//"Mangala");
-		patientSearch.setLastName(LName);//"Donald");
-		//patientSearch.setSex("F");
-		// patientSearch.setBirthDate(Calendar.getInstance("1953.03.15"));
-
+		patientSearch.setPatientId(PID);
+		
 		final DocumentInfo documentInfo = new DocumentInfo();
 		documentInfo.setDescription(Desc);
 		documentInfo.setCreationTimestamp(Calendar.getInstance());		
 
 		final GenericFileInfo fileInfo = new GenericFileInfo();
-		fileInfo.setDescription("What happens to this?"); 
+		fileInfo.setDescription("BioBank Clinincal Information"); 
 		fileInfo.setArchiveFileName(ArchiveFileName);
-				
+		fileInfo.setFileName(ArchiveFileName);		
+		fileInfo.setExternalFileId(ArchiveFileName);
+			
 		final GenericOrgUnitImportRequest request = new GenericOrgUnitImportRequest();
 		request.setPatientSearch(patientSearch);
 		request.setDocumentInfo(documentInfo);
 		request.setGenericFileInfo(fileInfo);
 		request.setData(new DataHandler(new FileDataSource(fileToImport)));
-		request.setOrganizationalUnitName("BIOBANK");
+		request.setOrganizationalUnitName("BIOBANK_PSI");
 		
-		
-		try
-		{
-			final GenericImportResult result = documentManipulationService.importGenericFileIntoOrgUnit(request).get_return();
-			System.out.println("Successfully imported new file. New Reference pointer is: " + result.getReferencePointer());
-			return result;
-		}
-		catch (com.icoserve.ws.client.dms.WsFault e)
-		{
-			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+		//the documentation seams to say this throws if it fails!
+		final GenericImportResult result = m_documentManipulationService.importGenericFileIntoOrgUnit(request).get_return();	
+		ChangeDocumentPatientRequest changeDocumentPatientRequest = new ChangeDocumentPatientRequest();
+		changeDocumentPatientRequest.setDocumentPk(result.getDocumentPk());
+		changeDocumentPatientRequest.setPatientPk(userPID);
+		ChangeDocumentPatientResponse cdr = m_documentManipulationService.changeDocumentPatient(changeDocumentPatientRequest);
+		return result;
 	}
 	
-	public DicomImage[] searchForDicomInSeries(long SeriesID) throws FileNotFoundException, XMLStreamException, RemoteException
+	public DicomImage[] searchForDicomInSeries(long SeriesID) throws Exception
 	{
-		final VA15_QueryServiceStub queryService = createServiceStub_QueryServic();
-
-		// Searching for patients
-//		System.out.println("Now searching for dicom images");
-	
+//		final VA20_QueryServiceStub queryService = createServiceStub_QueryServic();
 		GetDicomImagesForDicomSeriesRequest dicomSeriesID = new GetDicomImagesForDicomSeriesRequest();
 		dicomSeriesID.setDicomSeriesPk(SeriesID);
 		
 		try
 		{
-			final DicomImage[] DicomResults = queryService.getDicomImagesForDicomSeries(dicomSeriesID).get_return();
-/*			System.out.println("Found " + ((DicomResults == null) ? "0" : DicomResults.length) + " Dicom(s)");
-			for (int i = 0; i < DicomResults.length; i++)
-			{
-				System.out.println("DicomSopInstanceUID: " + DicomResults[i].getSopInstanceUid());
-				System.out.println("Bits Stored: " + DicomResults[i].getBitsStored());
-			}
-*/			return DicomResults;
+			final DicomImage[] DicomResults = m_queryService.getDicomImagesForDicomSeries(dicomSeriesID).get_return();
+			return DicomResults;
 		}
-		catch (final com.icoserve.ws.client.qs.WsFault e)
+		catch (com.icoserve.www.va20_queryservice.WsFault e)
 		{
-			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-			e.printStackTrace();
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
 		}
-		return null;
+		catch (RemoteException e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}
 	}
 	
-	public DicomDocumentFuzzySearchResult[] searchForPatientStudies(String PatientID) throws FileNotFoundException, XMLStreamException, RemoteException
+	public DicomDocumentFuzzySearchResult[] searchForStudiesAfterInsertDate(Calendar insertdate,String OUName) throws Exception
 	{
-		final VA15_QueryServiceStub queryService = createServiceStub_QueryServic();
+		final DicomDocumentFuzzySearch dicomFuzzySearch = new DicomDocumentFuzzySearch();
+		final DocumentFuzzySearch docFuzzySearch = new DocumentFuzzySearch();
+		
+		docFuzzySearch.addOrganizationalUnitNames(OUName);	
+		docFuzzySearch.setInsertionDateFrom(insertdate);
+	
+		dicomFuzzySearch.setDocumentFuzzySearch(docFuzzySearch);
+				
+		KeywordSearch keywordsearch = new KeywordSearch(); 
+		dicomFuzzySearch.addKeywordSearches(keywordsearch);
+//		dicomFuzzySearch.setMaximumResults(20); no restriction, as we don't know if it returns oldest first, randomly.. or what.
+		FindDicomDocumentsRequest FDDR = new FindDicomDocumentsRequest();
+		FDDR.setDicomDocumentFuzzySearch(dicomFuzzySearch);
 
-		// Searching for patients
-//		System.out.println("Now searching for patients");
+		try
+		{
+			final DicomDocumentFuzzySearchResult[] DicomResults = m_queryService.findDicomDocuments(FDDR).get_return();
+			return DicomResults;
+		}
+		catch (com.icoserve.www.va20_queryservice.WsFault e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}
+	}
+	
+	public DicomDocumentFuzzySearchResult[] searchForPatientStudies(Calendar studydate,Calendar tonow,String []OUName) throws Exception
+	{
+		final DicomDocumentFuzzySearch dicomFuzzySearch = new DicomDocumentFuzzySearch();
+		final DocumentFuzzySearch docFuzzySearch = new DocumentFuzzySearch();
+		
+		if (OUName != null)
+			docFuzzySearch.setOrganizationalUnitNames(OUName);	
+		
+		//give some overlap to our searches.
+		Calendar studydateback1hour = studydate;
+		studydateback1hour.add(Calendar.HOUR, -24*14); //scan the last 2 weeks.
 
+		docFuzzySearch.setInsertionDateFrom(studydateback1hour);
+		docFuzzySearch.setInsertionDateTo(tonow);
+	
+		dicomFuzzySearch.setDocumentFuzzySearch(docFuzzySearch);
+		dicomFuzzySearch.setMaximumResults(Long.MAX_VALUE);
+		FindDicomDocumentsRequest FDDR = new FindDicomDocumentsRequest();
+		FDDR.setDicomDocumentFuzzySearch(dicomFuzzySearch);
+
+		try
+		{
+			final DicomDocumentFuzzySearchResult[] DicomResults = m_queryService.findDicomDocuments(FDDR).get_return();
+			return DicomResults;
+		}
+		catch (com.icoserve.www.va20_queryservice.WsFault e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}
+	}
+	
+	public DicomDocumentFuzzySearchResult[] searchForPatientStudies(String PatientID,String OUName) throws Exception
+	{
+//		final VA20_QueryServiceStub queryService = createServiceStub_QueryServic();
 		final DicomDocumentFuzzySearch dicomFuzzySearch = new DicomDocumentFuzzySearch();
 		final PatientFuzzySearch patientFuzzySearch = new PatientFuzzySearch();
+		final DocumentFuzzySearch docFuzzySearch = new DocumentFuzzySearch();
+		
+		docFuzzySearch.addOrganizationalUnitNames(OUName);	
 		patientFuzzySearch.setPatientId(PatientID);
+	
+		dicomFuzzySearch.setDocumentFuzzySearch(docFuzzySearch);
+		
 		dicomFuzzySearch.setPatientFuzzySearch(patientFuzzySearch);
 		dicomFuzzySearch.setMaximumResults(20);
 		FindDicomDocumentsRequest FDDR = new FindDicomDocumentsRequest();
@@ -324,71 +391,199 @@ public class PACSComms
 
 		try
 		{
-			final DicomDocumentFuzzySearchResult[] DicomResults = queryService.findDicomDocuments(FDDR).get_return();
-/*			System.out.println("Found " + ((DicomResults == null) ? "0" : DicomResults.length) + " Dicom(s)");
-			for (int i = 0; i < DicomResults.length; i++)
-			{
-				System.out.println("StudyInstanceUID: " + DicomResults[i].getDicomStudy().getStudyInstanceUid());
-				System.out.println("Study Modality: " + DicomResults[i].getDicomStudy().getAllModalities());
-				System.out.println("Series in Study: " + DicomResults[i].getDicomStudy().getNumSeries());
-			}
-*/			return DicomResults;
+			final DicomDocumentFuzzySearchResult[] DicomResults = m_queryService.findDicomDocuments(FDDR).get_return();
+			return DicomResults;
 		}
-		catch (final com.icoserve.ws.client.qs.WsFault e)
+		catch (com.icoserve.www.va20_queryservice.WsFault e)
 		{
-			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-			e.printStackTrace();
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
 		}
-		return null;
-	}
-
-	public DicomStudy getDicomStudy(long studyPK) throws RemoteException, FileNotFoundException, XMLStreamException
-	{
-		final VA15_QueryServiceStub queryService = createServiceStub_QueryServic();
-		
-		GetDicomStudyRequest dicomStudyID = new GetDicomStudyRequest();
-		dicomStudyID.setDicomStudyPk(studyPK);
-		try
-		{
-			DicomStudy DS = queryService.getDicomStudy(dicomStudyID).get_return();
-			return DS;
-		}
-		catch (final com.icoserve.ws.client.qs.WsFault e)
-		{
-			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-			e.printStackTrace();
-		}
-		return null;
-		
 	}
 	
-	public DicomSeries[] searchForPatientSeries(long StudyPK) throws FileNotFoundException, XMLStreamException, RemoteException
+	public DicomStudyKeywords[] getForPatientStudyKeyWords(long studyPK) throws Exception
 	{
-		final VA15_QueryServiceStub queryService = createServiceStub_QueryServic();
+		RetrieveKeywordsForDicomStudiesRequest request = new RetrieveKeywordsForDicomStudiesRequest();
+		try
+		{
+			long keys[] = new long[1];
+			keys[0] = studyPK;
+			request.setDicomStudyPks(keys);
+			DicomStudyKeywords[] keywordResults = m_keywordService.retrieveKeywordsForDicomStudies(request).get_return();
+			return keywordResults;		
+		}
+		catch (com.icoserve.www.va20_keywordservice.WsFault e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}		
+	}
+	
+	public DicomSeriesKeywords[] getForPatientSeriesKeyWords(long seriesPK) throws Exception
+	{
+		RetrieveKeywordsForDicomSeriesRequest request = new RetrieveKeywordsForDicomSeriesRequest();
+		try
+		{
+			long keys[] = new long[1];
+			keys[0] = seriesPK;
+			request.setDicomSeriesPks(keys);
+			DicomSeriesKeywords[] keywordResults = m_keywordService.retrieveKeywordsForDicomSeries(request).get_return();
+			return keywordResults;		
+		}
+		catch (com.icoserve.www.va20_keywordservice.WsFault e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}		
+	}
+	
+	public boolean addPatientStudyKeyWord(long studyPK,long pkKeyWord) throws Exception
+	{
+		AddKeywordsToDicomStudyRequest request = new AddKeywordsToDicomStudyRequest();
+		try
+		{
+			KeywordAddInformation param = new KeywordAddInformation();
+			param.setFieldTypeName("ctsu");
+			param.setKeywordGroupName("ctsu");
+			param.setKeywordPk(pkKeyWord);
+			request.setDicomStudyPk(studyPK);
+			request.addKeywords(param);
+			return m_keywordService.addKeywordsToDicomStudy(request).get_return();
+		}
+		catch (com.icoserve.www.va20_keywordservice.WsFault e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}
+	}
+		
+	public boolean changeOrganizationalUnit(long documentPk, String OUName) throws Exception 
+	{
+	//	final VA20_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();		
+		ChangeDocumentOrganizationalUnitRequest cr = new ChangeDocumentOrganizationalUnitRequest();
+		cr.setDocumentPk(documentPk);
+		cr.setOrganizationalUnitName(OUName);
+		try
+		{
+			return m_documentManipulationService.changeDocumentOrganizationalUnit(cr).get_return();
+		}
+		catch (RemoteException e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}	
+		catch (WsFault e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}	
+	}
+	
+	public boolean copyToOrganizationalUnit(long documentPk, String OUName) throws Exception
+	{
+//		final VA20_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();		
+		CopyDocumentRequest cdr = new CopyDocumentRequest();
+		cdr.setDocumentPk(documentPk);
+		cdr.setOrganizationalUnitName(OUName);
+		try
+		{
+			return m_documentManipulationService.copyDocument(cdr).get_return();
+		}
+		catch (RemoteException e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}
+		catch (WsFault e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}
+	}
+		
+	//Gets the PatientIDs from BIOBANK_PSI.
+	//All scans in here, we know need data added, once added, they will be moved to BIOBANK_PSI/NEW
+	//Study timestamps can be got some the returned data.
+	public DicomDocumentFuzzySearchResult[] searchForScans(String org) throws Exception
+	{
+//		final VA20_QueryServiceStub queryService = createServiceStub_QueryServic();
+		final DicomDocumentFuzzySearch dicomFuzzySearch = new DicomDocumentFuzzySearch();
+		final DocumentFuzzySearch docFuzzySearch = new DocumentFuzzySearch();
+		
+		docFuzzySearch.addOrganizationalUnitNames(org);  //("BIOBANK_QA")  //("BIOBANK")  //("BIOBANK_PSI")		
+		dicomFuzzySearch.setMaximumResults(50);		
+		dicomFuzzySearch.setDocumentFuzzySearch(docFuzzySearch);
+		FindDicomDocumentsRequest FDDR = new FindDicomDocumentsRequest();
+		FDDR.setDicomDocumentFuzzySearch(dicomFuzzySearch);
 
+		try
+		{
+			final DicomDocumentFuzzySearchResult[] DicomResults = m_queryService.findDicomDocuments(FDDR).get_return();
+			return DicomResults;
+		}
+		catch (com.icoserve.www.va20_queryservice.WsFault e)
+		{
+			throw new Exception("Error returned from webservice_api",e);
+		}
+	}
+	
+	public String getDirectAccessUrlForPatient(long patientPk) throws Exception
+	{
+//		final VA20_QueryServiceStub queryService = createServiceStub_QueryServic();	
+		com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GetDirectAccessUrlForPatientRequest PR = new com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GetDirectAccessUrlForPatientRequest();
+		PR.setPatientPk(patientPk);
+		
+		try
+		{
+			return m_queryService.getDirectAccessUrlForPatient(PR).get_return();
+		}
+		catch (com.icoserve.www.va20_queryservice.WsFault e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}
+	}
+
+	public DicomStudy getDicomStudy(long studyPK) throws Exception
+	{
+//		final VA20_QueryServiceStub queryService = createServiceStub_QueryServic();		
+		GetDicomStudyRequest dicomStudyID = new GetDicomStudyRequest();
+		dicomStudyID.setDicomStudyPk(studyPK);
+		
+		try
+		{
+			DicomStudy DS = m_queryService.getDicomStudy(dicomStudyID).get_return();
+			return DS;
+		}
+		catch (com.icoserve.www.va20_queryservice.WsFault e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api: " + e.getMessage());
+		}
+	}
+	
+	public DicomSeries[] searchForPatientSeries(long StudyPK) throws Exception
+	{
+//		final VA20_QueryServiceStub queryService = createServiceStub_QueryServic();
 		GetDicomSeriesForDicomStudyRequest dicomStudyID = new GetDicomSeriesForDicomStudyRequest();
 		dicomStudyID.setDicomStudyPk(StudyPK);
 		
+		
 		try
 		{
-			DicomSeries[] DS = queryService.getDicomSeriesForDicomStudy(dicomStudyID).get_return();
+			DicomSeries[] DS = m_queryService.getDicomSeriesForDicomStudy(dicomStudyID).get_return();
 			return DS;
 		}
-		catch (final com.icoserve.ws.client.qs.WsFault e)
+		catch (com.icoserve.www.va20_queryservice.WsFault e)
 		{
-			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-			e.printStackTrace();
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
 		}
-		return null;
 	}
 
-	public Patient[] searchForPatients(String firstName, String LastName, String PatientID) throws FileNotFoundException, XMLStreamException, RemoteException
+	public Patient[] searchForPatients(String firstName, String LastName, String PatientID) throws Exception
 	{
-		final VA15_QueryServiceStub queryService = createServiceStub_QueryServic();
-
-		// Searching for patients
-//		System.out.println("Now searching for patients");
-
+//		final VA20_QueryServiceStub queryService = createServiceStub_QueryServic();
 		final PatientFuzzySearch patientFuzzySearch = new PatientFuzzySearch();
 		patientFuzzySearch.setLastName(LastName);
 		patientFuzzySearch.setFirstName(firstName);
@@ -398,96 +593,76 @@ public class PACSComms
 
 		try
 		{
-			final Patient[] patients = queryService.findPatients(request).get_return();
-			System.out.println("Found " + ((patients == null) ? "0" : patients.length) + " patient(s)");
+			final Patient[] patients = m_queryService.findPatients(request).get_return();
 			return patients;
 		}
-		catch (final com.icoserve.ws.client.qs.WsFault e)
+		catch (com.icoserve.www.va20_queryservice.WsFault e)
 		{
-			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-			e.printStackTrace();
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
 		}
-		return null;
 	}
 	
 
-	public void ExportDicomImage(long dicomImagePK,String destination) throws XMLStreamException, IOException
+	public String ExportDicomImage(long dicomImagePK,String destination) throws Exception
 	{
-		final VA15_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();
-
-		// Exporting files for given reference pointer.
+//		final VA20_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();
 		final ExportDicomImageRequest request = new ExportDicomImageRequest();
 		request.setDicomImagePk(dicomImagePK);
 
 		try
 		{
-			final Attachment attachment = documentManipulationService.exportDicomImage(request).get_return();
-			writeAttachmentToDisk(attachment,destination);
+			final Attachment attachment = m_documentManipulationService.exportDicomImage(request).get_return();
+			return writeAttachmentToDisk(attachment,destination);
 		}
-		catch (final com.icoserve.ws.client.dms.WsFault e)
+		catch (com.icoserve.www.va20_documentmanipulationservice.WsFault e)
 		{
-			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-			e.printStackTrace();
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
 		}
 	}
 	
-	public boolean ExportDicomImage(long dicomImagePK) throws XMLStreamException, IOException
+	public void ExportDicomImage(long dicomImagePK) throws Exception
 	{
-		final VA15_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();
-
-		// Exporting files for given reference pointer.
-	//	System.out.println("Now exporting dicom");
-
+//		final VA20_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();
 		final ExportDicomImageRequest request = new ExportDicomImageRequest();
 		request.setDicomImagePk(dicomImagePK);
 
 		try
 		{
-			final Attachment attachment = documentManipulationService.exportDicomImage(request).get_return();
-//			System.out.println("Successfully exported dicom image");
-
+			final Attachment attachment = m_documentManipulationService.exportDicomImage(request).get_return();
 			writeAttachmentToDisk(attachment);
-			return true;
 		}
-		catch (final com.icoserve.ws.client.dms.WsFault e)
+		catch (com.icoserve.www.va20_documentmanipulationservice.WsFault e)
 		{
-			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-			e.printStackTrace();
+/////			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
 		}
-		return false;
 	}
 
-
-	public boolean ExportFile(String FileReferencePtr) throws XMLStreamException, IOException
+	public void ExportFile(String FileReferencePtr) throws Exception
 	{
-		final VA15_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();
-
-		// Exporting files for given reference pointer.
-		System.out.println("Now exporting files");
-
+//		final VA20_DocumentManipulationServiceStub documentManipulationService = createServiceStub_DocumentManipulationServic();
 		final ExportFilesForReferencePointerRequest request = new ExportFilesForReferencePointerRequest();
 		request.setReferencePointer(FileReferencePtr);
 
 		try
 		{
-			final Attachment[] attachments = documentManipulationService.exportFilesForReferencePointer(request).get_return();
+			final Attachment[] attachments = m_documentManipulationService.exportFilesForReferencePointer(request).get_return();
 
 			for (int i=0;i<attachments.length;i++)
 				writeAttachmentToDisk(attachments[i]);
-			return true;
 		}
-		catch (final com.icoserve.ws.client.dms.WsFault e)
+		catch (final com.icoserve.www.va20_documentmanipulationservice.WsFault e)
 		{
-			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-			e.printStackTrace();
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
 		}
-		return false;
 	}
 
 	private static void writeAttachmentToDisk(final Attachment attachment) throws IOException
 	{
-		//OUTPUT STUDY_ID/SERIES_ID_/FILENAME
-		
+		//OUTPUT STUDY_ID/SERIES_ID_/FILENAME		
 		System.out.println("Writing new file to disk. File name is: " + attachment.getFileName());
 		OutputStream out = null;
 		try
@@ -498,16 +673,12 @@ public class PACSComms
 		finally
 		{
 			if (out != null)
-			{
 				out.close();
-			}
 		}
 	}
 	
-	private static void writeAttachmentToDisk(final Attachment attachment,final String destination) throws IOException
+	private static String writeAttachmentToDisk(final Attachment attachment,final String destination) throws Exception
 	{
-		//OUTPUT STUDY_ID/SERIES_ID_/FILENAME
-		System.out.println("Saving: " + attachment.getFileName());
 		OutputStream out = null;
 		try
 		{
@@ -515,30 +686,27 @@ public class PACSComms
 			dir.mkdirs();
 			out = new FileOutputStream(destination + attachment.getFileName());
 			attachment.getData().writeTo(out);
+			return destination + attachment.getFileName();
 		}
 		catch (FileNotFoundException e)
 		{
-			System.out.println("Error saving:[FileNotFoundException] " + destination + attachment.getFileName());	
+			throw new Exception("Error saving:[FileNotFoundException] " + destination + attachment.getFileName()+ ":" + e.getMessage());	
 		}
 		catch (IOException e)
 		{
-			System.out.println("Error saving:[IOException] " + destination + attachment.getFileName());				
+			throw new Exception("Error saving:[IOException] " + destination + attachment.getFileName()+ ":" + e.getMessage());	
 		}
 		finally
 		{
 			if (out != null)
-			{
 				out.close();
-			}
 		}
 	}
 
 
-	public GenericDocumentFuzzySearchResult[] searchForDocument(String firstName, String LastName, String PatientID) throws FileNotFoundException, XMLStreamException, RemoteException
+	public GenericDocumentFuzzySearchResult[] searchForDocument(String firstName, String LastName, String PatientID) throws Exception 
 	{
-		final VA15_QueryServiceStub queryService = createServiceStub_QueryServic();
-
-//		System.out.println("Now searching for documents");
+//		final VA20_QueryServiceStub queryService = createServiceStub_QueryServic();
 
 		final PatientFuzzySearch patientFuzzySearch = new PatientFuzzySearch();
 		patientFuzzySearch.setPatientId(PatientID);
@@ -553,43 +721,108 @@ public class PACSComms
 
 		try
 		{
-			final GenericDocumentFuzzySearchResult[] result = queryService.findGenericDocuments(request).get_return();
+			final GenericDocumentFuzzySearchResult[] result = m_queryService.findGenericDocuments(request).get_return();
 			System.out.println("Found " + ((result == null) ? "0" : result.length) + " document(s)");
 			return result;
 		}
-		catch (final com.icoserve.ws.client.qs.WsFault e)
+		catch (com.icoserve.www.va20_queryservice.WsFault e)
 		{
-			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
-			e.printStackTrace();
+//			e.printStackTrace();
+			throw new Exception("Error returned from webservice_api",e);
+		}		
+	}
+
+	private static VA20_DocumentManipulationServiceStub createServiceStub_DocumentManipulationService() throws Exception
+	{
+		try
+		{
+			final ConfigurationContext configContext = ConfigurationContextFactory.createConfigurationContextFromFileSystem(WORKING_DIR);
+			final VA20_DocumentManipulationServiceStub queryService = new VA20_DocumentManipulationServiceStub(configContext, SERVICE_EPR_DOCMANIPULATION);
+	
+			// Setting up Rampart for WSS username token authentication
+			final StAXOMBuilder builder = new StAXOMBuilder(WORKING_DIR + "/policy/UsernameTokenPolicy.xml");
+			final Policy rampartPolicy = PolicyEngine.getPolicy(builder.getDocumentElement());
+			final ServiceClient serviceClient = queryService._getServiceClient();
+			setUpStub(rampartPolicy, serviceClient);
+			return queryService;
 		}
-		return null;
+		catch (AxisFault e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error setting up Document Manipulation Service stub: ", e);
+		}
+		catch (FileNotFoundException e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error setting up Document Manipulation Service stub: ", e);
+		}
+		catch (XMLStreamException e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error setting up Document Manipulation Service stub: ", e);
+		}
 	}
 
-	private static VA15_DocumentManipulationServiceStub createServiceStub_DocumentManipulationServic() throws AxisFault, XMLStreamException, FileNotFoundException
+	private static VA20_QueryServiceStub createServiceStub_QueryService() throws Exception
 	{
-		final ConfigurationContext configContext = ConfigurationContextFactory.createConfigurationContextFromFileSystem(WORKING_DIR);
-
-		final VA15_DocumentManipulationServiceStub queryService = new VA15_DocumentManipulationServiceStub(configContext, SERVICE_EPR_DOCMANIPULATION);
-
-		// Setting up Rampart for WSS username token authentication
-		final StAXOMBuilder builder = new StAXOMBuilder(WORKING_DIR + "/policy/UsernameTokenPolicy.xml");
-		final Policy rampartPolicy = PolicyEngine.getPolicy(builder.getDocumentElement());
-		final ServiceClient serviceClient = queryService._getServiceClient();
-		setUpStub(rampartPolicy, serviceClient);
-		return queryService;
+		try
+		{
+			final ConfigurationContext configContext = ConfigurationContextFactory.createConfigurationContextFromFileSystem(WORKING_DIR);
+			final VA20_QueryServiceStub queryService = new VA20_QueryServiceStub(configContext, SERVICE_EPR_QUERYSERICE);
+	
+			// Setting up Rampart for WSS username token authentication
+			final StAXOMBuilder builder = new StAXOMBuilder(WORKING_DIR + "/policy/UsernameTokenPolicy.xml");
+			final Policy rampartPolicy = PolicyEngine.getPolicy(builder.getDocumentElement());
+			final ServiceClient serviceClient = queryService._getServiceClient();
+			setUpStub(rampartPolicy, serviceClient);
+			return queryService;
+		}
+		catch (AxisFault e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error setting up Query Service stub: ",e);
+		}
+		catch (FileNotFoundException e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error setting up Query Service stub: ",e);
+		}
+		catch (XMLStreamException e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error setting up Query Service stub: ",e);
+		}
 	}
-
-	private static VA15_QueryServiceStub createServiceStub_QueryServic() throws AxisFault, XMLStreamException, FileNotFoundException
+	
+	private static VA20_KeywordServiceStub createServiceStub_KeywordService() throws Exception
 	{
-		final ConfigurationContext configContext = ConfigurationContextFactory.createConfigurationContextFromFileSystem(WORKING_DIR);
-		final VA15_QueryServiceStub queryService = new VA15_QueryServiceStub(configContext, SERVICE_EPR_QUERYSERICE);
-
-		// Setting up Rampart for WSS username token authentication
-		final StAXOMBuilder builder = new StAXOMBuilder(WORKING_DIR + "/policy/UsernameTokenPolicy.xml");
-		final Policy rampartPolicy = PolicyEngine.getPolicy(builder.getDocumentElement());
-		final ServiceClient serviceClient = queryService._getServiceClient();
-		setUpStub(rampartPolicy, serviceClient);
-		return queryService;
+		try
+		{
+			final ConfigurationContext configContext = ConfigurationContextFactory.createConfigurationContextFromFileSystem(WORKING_DIR);
+			final VA20_KeywordServiceStub queryService = new VA20_KeywordServiceStub(configContext, SERVICE_EPR_KEYWORDSERICE);
+	
+			// Setting up Rampart for WSS username token authentication
+			final StAXOMBuilder builder = new StAXOMBuilder(WORKING_DIR + "/policy/UsernameTokenPolicy.xml");
+			final Policy rampartPolicy = PolicyEngine.getPolicy(builder.getDocumentElement());
+			final ServiceClient serviceClient = queryService._getServiceClient();
+			setUpStub(rampartPolicy, serviceClient);
+			return queryService;
+		}
+		catch (AxisFault e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error setting up Query Service stub: ",e);
+		}
+		catch (FileNotFoundException e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error setting up Query Service stub: ",e);
+		}
+		catch (XMLStreamException e)
+		{
+//			e.printStackTrace();
+			throw new Exception("Error setting up Query Service stub: ",e);
+		}
 	}
 
 	private static void setUpStub(final Policy rampartPolicy, final ServiceClient serviceClient) throws AxisFault

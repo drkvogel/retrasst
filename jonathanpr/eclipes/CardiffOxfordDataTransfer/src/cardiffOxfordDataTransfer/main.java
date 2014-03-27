@@ -29,7 +29,7 @@ public class main
 			//TEMP CODE TO SET THE EMAIL PASSWORD
 			try
 			{
-				ErrorReporting.m_PWD = Utils.ReadPWDFromFile("c:\\temp\\pwd.txt");
+				ErrorReporting.m_PWD = Utils.ReadPWDFromFile("pwd.txt");
 			}
 			catch (IOException e2)
 			{
@@ -79,7 +79,7 @@ public class main
 				ErrorReporting.reportCritical(e);
 				return;
 			}
-			
+/*			
 			try
 			{
 				DatabaseParser.setUp(decrptedXML_FILENAME, AckXML,varValidator);
@@ -104,7 +104,7 @@ public class main
 				e1.printStackTrace();
 				ErrorReporting.reportCritical(e1);			
 			}
-	
+	*/
 			//check the number of sections are correct,
 			if (AckXML.getNumberOfAcks() != XML.getXMLnumSections())
 			{

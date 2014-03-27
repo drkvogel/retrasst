@@ -81,7 +81,6 @@ void centre::readList( XDB *db )
 	{
 		while( qp.fetch( ) )
 		{
-
 			int id = qp.result.getInt( "centre_id" );
 
 			std::stringstream ss;

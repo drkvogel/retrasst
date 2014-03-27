@@ -20,13 +20,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import com.icoserve.ws.client.types.DicomDocumentFuzzySearchResult;
-import com.icoserve.ws.client.types.DicomImage;
-import com.icoserve.ws.client.types.DicomImportResult;
-import com.icoserve.ws.client.types.DicomSeries;
-import com.icoserve.ws.client.types.GenericDocumentFuzzySearchResult;
-import com.icoserve.ws.client.types.GenericImportResult;
-import com.icoserve.ws.client.types.Patient;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.DicomImportResult;
+import com.icoserve.www.va20_documentmanipulationservice.VA20_DocumentManipulationServiceStub.GenericImportResult;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomDocumentFuzzySearchResult;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomImage;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomSeries;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GenericDocumentFuzzySearchResult;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.Patient;
+
 
 class PACSClient extends JPanel implements ActionListener
 {
@@ -352,10 +353,10 @@ class PACSClient extends JPanel implements ActionListener
 		try
 		{
 			PACSComms PC = new PACSComms();
-	
 			if (ae.getActionCommand() == "DownLoadAll")
 			{
-				JOptionPane.showMessageDialog(this, PC.downLoadAll(m_DownLoadPatientID.getText()));
+				PC.downLoadAll(m_DownLoadPatientID.getText());
+				JOptionPane.showMessageDialog(this,"OK" );
 			}
 			else if (ae.getActionCommand() == "SearchPatient")
 			{		
@@ -397,11 +398,12 @@ class PACSClient extends JPanel implements ActionListener
 				m_SearchSerieslist.clear(); m_DicomSeriesResults = null;
 				m_SearchDicomlist.clear(); m_DicomResults = null;
 
-				m_DicomStudyResults = PC.searchForPatientStudies(m_Patients[Index].getPatientId());
+//				m_DicomStudyResults = PC.searchForPatientStudies(m_Patients[Index].getPatientId(),"BIOBANK");
+				if (m_DicomStudyResults == null)
+					return;
+				
 				for (int i=0;i<m_DicomStudyResults.length;i++)
-				{
-					m_SearchStudylist.addElement("StudyInstanceUID: " + m_DicomStudyResults[i].getDicomStudy().getStudyInstanceUid()+" Study Modality: "+ m_DicomStudyResults[i].getDicomStudy().getAllModalities()+" Series in Study: " + m_DicomStudyResults[i].getDicomStudy().getNumSeries());
-				}	
+					m_SearchStudylist.addElement("StudyInstanceUID: " + m_DicomStudyResults[i].getDicomStudy().getStudyInstanceUid()+" Study Modality: "+ m_DicomStudyResults[i].getDicomStudy().getAllModalities()+" Series in Study: " + m_DicomStudyResults[i].getDicomStudy().getNumSeries());	
 			}
 			else if (ae.getActionCommand() == "GetPatientFileList")
 			{
@@ -418,10 +420,11 @@ class PACSClient extends JPanel implements ActionListener
 				m_SearchDicomlist.clear(); m_DicomResults = null;
 				
 				m_NonDicomSearchResults = PC.searchForDocument(m_textField_FirstName.getText(),m_textField_LastName.getText(),m_textField_PatientId.getText());
-				for (int pats = 0; pats < m_NonDicomSearchResults.length; pats++)
-				{				
-					m_SearchPatientlist.addElement("File " + pats + ": " + m_NonDicomSearchResults[pats].getGenericContainer().getArchiveContainerName() +" Disc: "+ m_NonDicomSearchResults[pats].getDocument().getDescription());
-				}
+				if (m_NonDicomSearchResults == null)
+					return;
+					
+				for (int pats = 0; pats < m_NonDicomSearchResults.length; pats++)				
+					m_SearchPatientlist.addElement("File " + pats + ": " + m_NonDicomSearchResults[pats].getGenericContainer().getArchiveContainerName() +" Disc: "+ m_NonDicomSearchResults[pats].getDocument().getDescription());		
 			}
 			else if (ae.getActionCommand() == "GetSeriesList")
 			{
@@ -443,9 +446,8 @@ class PACSClient extends JPanel implements ActionListener
 				m_SearchDicomlist.clear(); m_DicomResults = null;
 				m_DicomSeriesResults = PC.searchForPatientSeries(m_DicomStudyResults[selectedIndex].getDicomStudy().getId());				
 				for (int i=0;i<m_DicomStudyResults.length;i++)
-				{
 					m_SearchSerieslist.addElement("SeriesInstanceUID: " + m_DicomSeriesResults[i].getSeriesInstanceUid());
-				}	
+					
 			}
 			else if (ae.getActionCommand() == "GetDicomList")
 			{
@@ -465,9 +467,8 @@ class PACSClient extends JPanel implements ActionListener
 				m_SearchDicomlist.clear();
 				m_DicomResults = PC.searchForDicomInSeries(m_DicomSeriesResults[selectedIndex].getId());				
 				for (int i=0;i<m_DicomResults.length;i++)
-				{
 					m_SearchDicomlist.addElement("DicomSopInstanceUID: " + m_DicomResults[i].getSopInstanceUid());
-				}	
+					
 			}
 			else if (ae.getActionCommand() == "SaveDicom")
 			{
@@ -484,10 +485,8 @@ class PACSClient extends JPanel implements ActionListener
 					return;
 				}
 				
-				if (PC.ExportDicomImage(m_DicomResults[selectedIndex].getId()))
-					JOptionPane.showMessageDialog(this, "File exorted, check c:\\temp\\export\\"); 
-				else
-					JOptionPane.showMessageDialog(this, "Error exporting DICOM file!"); 
+				PC.ExportDicomImage(m_DicomResults[selectedIndex].getId());
+				JOptionPane.showMessageDialog(this, "File exorted, check c:\\temp\\export\\"); 
 			}	
 			else if (ae.getActionCommand() == "SaveNonDicomFile")
 			{
@@ -503,10 +502,8 @@ class PACSClient extends JPanel implements ActionListener
 					return;
 				}
 				
-				if (PC.ExportFile(m_NonDicomSearchResults[selectedIndex].getDocument().getReferencePointer()))
-					JOptionPane.showMessageDialog(this, "File exorted, check c:\\temp\\export\\"); 
-				else
-					JOptionPane.showMessageDialog(this, "Error exporting file!"); 
+				PC.ExportFile(m_NonDicomSearchResults[selectedIndex].getDocument().getReferencePointer());
+				JOptionPane.showMessageDialog(this, "File exorted, check c:\\temp\\export\\"); 
 			}
 			else if (ae.getActionCommand() == "FindLocalFile")
 			{
@@ -573,7 +570,7 @@ class PACSClient extends JPanel implements ActionListener
 					return;
 				}
 
-				GenericImportResult result = PC.importFile(m_DirectoryAndFileNameNonDICOM, m_PatientIDTextField.getText(), m_PatientFirstNameTextField.getText(),m_PatientLastNameTextField.getText(),m_FileDescriptionTextField.getText(), m_ArchiveFileNameTextField.getText());
+				GenericImportResult result = null;//PC.importFile(m_DirectoryAndFileNameNonDICOM, m_PatientIDTextField.getText(),/* m_PatientFirstNameTextField.getText(),m_PatientLastNameTextField.getText(),*/m_FileDescriptionTextField.getText(), m_ArchiveFileNameTextField.getText());
 				if (result != null)
 					JOptionPane.showMessageDialog(this,"Successfully imported file. New Reference pointer is: " + result.getReferencePointer()); 
 				else
@@ -582,7 +579,7 @@ class PACSClient extends JPanel implements ActionListener
 		}
 		catch (Exception e)
 		{
-			// TODO: handle exception
+			JOptionPane.showMessageDialog(this, e); 
 		}
 	}
 }

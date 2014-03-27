@@ -2,9 +2,10 @@ package ctsu.pacs.test;
 
 import javax.swing.JFrame;
 
+
 public class main
 {
-	public static void main(String[] a)
+	public static void main(String[] a) 
 	{
 		JFrame f = new JFrame();
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	

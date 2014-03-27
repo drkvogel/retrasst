@@ -58,8 +58,35 @@ public class databaseAccess
         m_conn = DriverManager.getConnection( demoDbUrl2 );
         m_stmt = m_conn.createStatement();
         
+//        testCode();        
         m_conn.setAutoCommit(false);
 	}
+	
+	
+	private void testCode()
+	{
+		String sql = "select result from cardat";
+		
+		ResultSet result;
+		try
+		{
+			result = m_stmt.executeQuery(sql);
+			while (result.next())
+			{	
+				String s = result.getString("result");
+				System.out.println(s);
+			}
+			result.close();		
+		}
+		catch (SQLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+	}
+	
 	
 	/**
 	 *
@@ -125,7 +152,7 @@ public class databaseAccess
 		{		
 			pstmt.execute();
 		}
-		catch(java.sql.SQLIntegrityConstraintViolationException e)
+		catch(Exception e)
 		{
 			throw new SQLException("Error executing statment : " + e.getMessage());
 		}
@@ -150,8 +177,17 @@ public class databaseAccess
         //add this
         
         query = "UPDATE cardat SET cksum_row = '" + md5 + "' WHERE rec_id = '" + rec_id + "'";
-        m_stmt.executeUpdate( query );
-		return rec_id;
+
+        try
+        {
+        	m_stmt.executeUpdate( query );
+        }
+        catch(SQLException e)
+        {
+        	System.out.println( e.getMessage() );
+			throw new SQLException("Error executing statment : " + e.getMessage());      	
+        }        
+        return rec_id;
  	}
 	
 	/**
@@ -265,6 +301,26 @@ public class databaseAccess
 //		        System.out.println( "Query: " + query );
 		        m_stmt.executeUpdate( query );
 			}
+			else if (o instanceof Long)
+			{
+		        String query = "INSERT INTO rawdata_longs (rec_id,field_name,value)";
+		        query += " VALUES ('" + rec_id_string + "','" + key + "','" + val + "')";
+		        
+//		        System.out.println( "Query: " + query );
+		        m_stmt.executeUpdate( query );				
+			}
 		}
+	}
+	
+	//special case, as for some reason we get date started in the varible list, but date complete in the header.
+	//this is to enter the date from the header
+	public void addDateVaribleInformation(int rec_id, String key, String val) throws SQLException, ParseException
+	{		
+		String rec_id_string = String.valueOf(rec_id);
+		//add the control fields
+		java.sql.Timestamp IgresDate  = new java.sql.Timestamp(Utils.ISODateStringToDate(val).getTime());
+        String query = "INSERT INTO rawdata_date (rec_id,field_name,value)";
+        query += " VALUES ('" + rec_id_string + "','" + key + "','" + IgresDate + "')";
+        m_stmt.executeUpdate( query );
 	}
 }

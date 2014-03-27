@@ -11,6 +11,8 @@
 #include "CSVIteratorTest.h"
 #include "FixedCapacityBufferTest.h"
 #include "ConfigTest.h"
+#include "LuaFuncTest.h"
+#include "NullableTest.h"
 #include "PropertiesTest.h"
 #include "RequireTest.h"
 #include "StringBuilderTest.h"

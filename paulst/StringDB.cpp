@@ -59,6 +59,11 @@ struct AttributeNameEquals
     }
 };
 
+void StringDB::reset( const std::string& csvAttributeValuePairs, const std::string& rowIDAttribute )
+{
+    m_data = csvAttributeValuePairs;
+    m_primaryKey = rowIDAttribute;
+}
 
 void StringDB::updateAttribute( const std::string& rowIDValue,
     const std::string& whichAttribute, const std::string& newValue )

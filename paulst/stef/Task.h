@@ -48,6 +48,8 @@ private:
     typedef std::vector<TaskExceptionHandler*> TaskExceptionHandlers;
     TaskExceptionHandlers m_exceptionHandlers;
 
+    Task( const Task& );
+    Task& operator=( const Task& );
     void handleException( const char* msg );
 };
 

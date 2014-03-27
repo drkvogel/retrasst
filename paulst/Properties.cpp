@@ -1,3 +1,4 @@
+#include "ExceptionUtil.h"
 #include "Properties.h"
 #include "Require.h"
 #include "StrUtil.h"
@@ -42,6 +43,18 @@ Properties::Properties( const std::string& nameValuePairs )
                 break;
         }
     }
+}
+
+int Properties::getIntValue( const std::string& name ) const
+{
+    std::string stringValue = getValue( name );
+
+    if ( stringValue.empty() )
+    {
+        paulst::exception( "Obtained empty value for property '%s'. Conversion to integer not possible.", name.c_str() );
+    }
+
+    return toInt( stringValue );
 }
 
 std::string Properties::getValue( const std::string& name ) const
