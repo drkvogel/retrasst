@@ -11,16 +11,14 @@
 #include <Vcl.ComCtrls.hpp>
 #include <Vcl.ExtCtrls.hpp>
 
-#define DEFAULT_NUMROWS 25
+#define PlanThread 25
 
-//class LoadSamplesWorkerThread : public TThread {
-class LoadPlanWorkerThread : public TThread {
+class LoadPlanThread : public TThread {
 protected:
     void __fastcall Execute();
 public:
-    __fastcall LoadPlanWorkerThread();
+    __fastcall LoadPlanThread();
     void NotUsingTempTable();
-    //void UsingTempTable();
     Chunk< SampleRow > * loadingChunk;
     LCDbCryoJob *   job;
     int             rowCount; // class variable needed for synchronise
@@ -29,26 +27,23 @@ public:
     void __fastcall updateStatus(); // synchronized methods can't have args
     void __fastcall debugLog();
     void __fastcall msgbox();
-    bool stats;
 };
 
-class LoadChunksWorkerThread : public TThread {
+class SaveChunksThread : public TThread {
 protected:
     void __fastcall Execute();
 public:
-    __fastcall LoadChunksWorkerThread();
-    Chunk< SampleRow > * loadingChunk;
+    __fastcall SaveChunksThread();
     int             rowCount;
     string          loadingMessage;
     string          debugMessage;
-    void __fastcall updateStatus(); // synchronized methods can't have args
+    void __fastcall updateStatus();
     void __fastcall debugLog();
     void __fastcall msgbox();
-    bool stats;
 };
 
 class TfrmProcess : public TForm {
-    friend class LoadPlanWorkerThread;
+    friend class LoadPlanThread;
 __published:
     TGroupBox *groupRetrievalList;
     TGroupBox *groupSignOff;
@@ -109,8 +104,8 @@ private:
 	vector<string> 								info;
 	vector<string> 								warnings;
 	vector<string> 								errors;
-    LoadPlanWorkerThread *                      loadPlanWorkerThread;
-    void __fastcall                             loadPlanWorkerThreadTerminated(TObject *Sender);
+    LoadPlanThread *                      loadPlanThread;
+    void __fastcall                             loadPlanThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
     vector< Chunk< SampleRow > *>               chunks;
     vecpSampleRow                               vials;

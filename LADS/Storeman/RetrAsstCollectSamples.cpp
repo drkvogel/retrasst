@@ -367,23 +367,23 @@ void TfrmProcess::loadChunk() { //(Chunk< SampleRow > *) {
     Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
     DEBUGSTREAM("loadRows for job "<<job->getID()<<" started")
     Enabled = false;
-    loadPlanWorkerThread = new LoadPlanWorkerThread();
-    loadPlanWorkerThread->OnTerminate = &loadPlanWorkerThreadTerminated;
+    loadPlanThread = new LoadPlanThread();
+    loadPlanThread->OnTerminate = &loadPlanThreadTerminated;
 }
 
-__fastcall LoadPlanWorkerThread::LoadPlanWorkerThread() : TThread(false) { FreeOnTerminate = true; }
+__fastcall LoadPlanThread::LoadPlanThread() : TThread(false) { FreeOnTerminate = true; }
 
-void __fastcall LoadPlanWorkerThread::updateStatus() { // can't use args for synced method, don't know why
+void __fastcall LoadPlanThread::updateStatus() { // can't use args for synced method, don't know why
     frmProcess->panelLoading->Caption = loadingMessage.c_str(); frmProcess->panelLoading->Repaint();
 }
 
-void __fastcall LoadPlanWorkerThread::debugLog() { frmProcess->debugLog(debugMessage.c_str()); }
+void __fastcall LoadPlanThread::debugLog() { frmProcess->debugLog(debugMessage.c_str()); }
 
-void __fastcall LoadPlanWorkerThread::msgbox() { Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK); }
+void __fastcall LoadPlanThread::msgbox() { Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK); }
 
-void __fastcall LoadPlanWorkerThread::Execute() { NotUsingTempTable(); }
+void __fastcall LoadPlanThread::Execute() { NotUsingTempTable(); }
 
-void LoadPlanWorkerThread::NotUsingTempTable() {
+void LoadPlanThread::NotUsingTempTable() {
     /** load retrieval plan
     For a box retrieval, the retrieval plan will be given by: Select * from c_box_retrieval b order by b.section, b.rj_box_cid
     For a cryovial retrieval, the retrieval plan will be: Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
@@ -489,7 +489,7 @@ void LoadPlanWorkerThread::NotUsingTempTable() {
 	} debugMessage = "finished load storage details"; Synchronize((TThreadMethod)&debugLog);
 }
 
-void __fastcall TfrmProcess::loadPlanWorkerThreadTerminated(TObject *Sender) {
+void __fastcall TfrmProcess::loadPlanThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
@@ -583,14 +583,12 @@ void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be
 void TfrmProcess::skip() {
     debugLog("Save deferred row");
     currentAliquot()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
-    //showCurrentRow();
     nextRow();
 }
 
 void TfrmProcess::notFound() {
     DEBUGSTREAM("Save not found row")
     int rowAbs = currentChunk()->getRowAbs();
-    //SampleRow * sample = currentChunk()->objectAtRel(rowAbs);
     SampleRow * sample = currentChunk()->objectAtAbs(rowAbs);
     if (sample->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
         sample->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
@@ -737,8 +735,7 @@ and update cryovial_store (old and new, primary and secondary) when they enter t
 	 should thread perhaps
  */
 
-//	std::set<int> projects; projects.insert(job->getProjectID());
-//	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
+    // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
 	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes");
 	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
 		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
@@ -756,6 +753,9 @@ and update cryovial_store (old and new, primary and secondary) when they enter t
 			} else {
 				notFinished = true;
 			}
+            if (NULL != sample->secondary) {
+                storeSample(sample->secondary);
+            }
         }
         collectEmpties();
 	} catch(Exception & e) {
