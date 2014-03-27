@@ -1,5 +1,6 @@
 ﻿## todo
 
+ * crashes on release build?
  * `c_box_retrieval.time_stamp` should default to 'now'?
  * make sure both aliquots are dealt with whatever happens
     * save both primary and secondary - secondary aliquots should always be saved if present
