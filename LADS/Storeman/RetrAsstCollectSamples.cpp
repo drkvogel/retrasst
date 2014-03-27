@@ -387,9 +387,7 @@ void __fastcall LoadPlanThread::debugLog() { frmProcess->debugLog(debugMessage.c
 
 void __fastcall LoadPlanThread::msgbox() { Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK); }
 
-void __fastcall LoadPlanThread::Execute() { NotUsingTempTable(); }
-
-void LoadPlanThread::NotUsingTempTable() {
+void __fastcall LoadPlanThread::Execute() { 
     /** load retrieval plan
     For a box retrieval, the retrieval plan will be given by: Select * from c_box_retrieval b order by b.section, b.rj_box_cid
     For a cryovial retrieval, the retrieval plan will be: Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
@@ -697,29 +695,37 @@ void TfrmProcess::exit() { // definitely exiting
 /*  * Ask the relevant question(s) from the URS when they’re ready to finish
     * update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
 
-	Screen->Cursor = crSQLWait;
-/*	* check cryo/store old/new params correct for `LCDbCryovialRetrieval`
-	* `c_box_retrieval`: set `time_stamp`, `status` = 1 (part-filled)
-    * `box_name` (if record): update `time_stamp`, `box_capacity`, `status=1`
-	* `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1`
-     how to update boxes? check at save and exit that all vials in a box have been saved?
- */
-
 	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
 	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
 		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
-		return; // what now?
+		return; // fixme what now?
 	}
+
+    panelLoading->Caption = loadingMessage;
+    panelLoading->Visible = true;
+    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+
+    Screen->Cursor = crSQLWait; Enabled = false; DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
 
     saveProgressThread = new SaveProgressThread();
     saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
 }
 void __fastcall SaveProgressThread::Execute() {
+
+/*	* check cryo/store old/new params correct for `LCDbCryovialRetrieval`
+	* `c_box_retrieval`: set `time_stamp`, `status` = 1 (PART_FILLED)
+    * `box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
+	* `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
+    * how to update boxes? check at save and exit that all vials in a box have been saved? */
+
 	frmProcess->unactionedSamples = false; frmProcess->info.clear(); frmProcess->warnings.clear(); frmProcess->errors.clear();
 	try {
 		std::set<int> boxes; // check for completed boxes
         for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
             SampleRow * sample = *it;
+            ostringstream oss; oss<<"blah blah blah"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 			int status  = sample->retrieval_record->getStatus();
 			if (status != LCDbCryovialRetrieval::EXPECTED && status != LCDbCryovialRetrieval::IGNORED) { // changed
 				storeSample(sample);
@@ -799,11 +805,12 @@ void SaveProgressThread::jobFinished() {
 
         // `cryovial_store`: as above (dealt with already?)
 
-        // `box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2`
+        // `box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2` (CONFIRMED)
 
-        // `c_box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2`
+        // `c_box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2` (CONFIRMED)
 
     }
+
     // `c_retrieval_job`: update `finish_date`, `status` = 2
     frmProcess->job->setStatus(LCDbCryoJob::DONE);
     frmProcess->job->saveRecord(qc); // finish date is updated by this method

@@ -18,8 +18,7 @@ protected:
     void __fastcall Execute();
 public:
     __fastcall LoadPlanThread();
-    void NotUsingTempTable();
-    Chunk< SampleRow > * loadingChunk;
+    //Chunk< SampleRow > * loadingChunk;
     LCDbCryoJob *   job;
     int             rowCount; // class variable needed for synchronise
     string          loadingMessage;
