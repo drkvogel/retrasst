@@ -1,918 +1,928 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <PropertyGroup>
-        <ProjectGuid>{8ACE822C-0984-45CB-98DE-88CAE7B2E7E2}</ProjectGuid>
-        <ProjectVersion>14.6</ProjectVersion>
-        <FrameworkType>VCL</FrameworkType>
-        <AppType>Application</AppType>
-        <MainSource>StoreMan.cpp</MainSource>
-        <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
-        <TargetedPlatforms>3</TargetedPlatforms>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
-        <Base_Win32>true</Base_Win32>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
-        <Base_Win64>true</Base_Win64>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
-        <Cfg_1>true</Cfg_1>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
-        <Cfg_1_Win32>true</Cfg_1_Win32>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
-        <Cfg_1_Win64>true</Cfg_1_Win64>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
-        <Cfg_2>true</Cfg_2>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
-        <Cfg_2_Win64>true</Cfg_2_Win64>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base)'!=''">
-        <AllPackageLibs>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib</AllPackageLibs>
-        <Defines>X_ING;$(Defines)</Defines>
-        <ShowGeneralMessages>true</ShowGeneralMessages>
-        <BCC_InstructionSet>5</BCC_InstructionSet>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.12.4;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_MinorVer>2</VerInfo_MinorVer>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <VerInfo_PreRelease>true</VerInfo_PreRelease>
-        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Locale>2057</VerInfo_Locale>
-        <VerInfo_Release>12</VerInfo_Release>
-        <VerInfo_Build>4</VerInfo_Build>
-        <ILINK_LibraryPath>RetrievalLists\;RationaliseTanks\;C:\Program Files\Actian\IngresIJ\ingres\files\;..\LabsLeasing\;..\..\paulst\;..\LabsDAO\;..\LabsObjects\;..\CoreUtilities\;..\LabsForms\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
-        <IncludePath>RetrievalLists\;RationaliseTanks\;C:\Program Files\Actian\IngresIJ\ingres\files\;..\LabsLeasing\;..\..\paulst\;..\LabsDAO\;..\LabsObjects\;..\CoreUtilities\;..\LabsForms\;$(IncludePath)</IncludePath>
-        <ProjectType>CppVCLApplication</ProjectType>
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <Multithreaded>true</Multithreaded>
-        <Icon_MainIcon>snowflake.ico</Icon_MainIcon>
-        <_TCHARMapping>wchar_t</_TCHARMapping>
-        <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
-        <IntermediateOutputDir>.\$(Platform)\$(Config)</IntermediateOutputDir>
-        <FinalOutputDir>.\$(Platform)\$(Config)</FinalOutputDir>
-        <BCC_wpar>false</BCC_wpar>
-        <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
-        <BCC_ExtendedErrorInfo>true</BCC_ExtendedErrorInfo>
-        <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\release\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <PackageImports>rtl;vcl;vclimg;vclx;$(PackageImports)</PackageImports>
-        <ILINK_LibraryPath>C:\Users\nicholas\Documents\RAD Studio\Projects\LIMS\CoreUtilities\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <PackageImports>rtl;vcl;vclimg;vclx;$(PackageImports)</PackageImports>
-        <ILINK_LibraryPath>C:\Users\nicholas\Documents\RAD Studio\Projects\LIMS\CoreUtilities\;C:\Users\nicholas\Documents\RAD Studio\Projects\LIMS\Storeman\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
-        <BCC_PCHName_Clang>StoreMan64PCH1.h</BCC_PCHName_Clang>
-        <IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1)'!=''">
-        <VerInfo_Debug>true</VerInfo_Debug>
-        <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
-        <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
-        <DCC_Optimize>false</DCC_Optimize>
-        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
-        <Defines>_DEBUG;$(Defines)</Defines>
-        <BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
-        <BCC_UseRegisterVariables>None</BCC_UseRegisterVariables>
-        <DCC_Define>DEBUG</DCC_Define>
-        <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
-        <TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
-        <BCC_StackFrames>true</BCC_StackFrames>
-        <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
-        <TASM_Debugging>Full</TASM_Debugging>
-        <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
-        <BCC_EnableCPPExceptions>true</BCC_EnableCPPExceptions>
-        <BCC_DisableFramePtrElimOpt>true</BCC_DisableFramePtrElimOpt>
-        <BCC_DisableSpellChecking>true</BCC_DisableSpellChecking>
-        <CLANG_UnwindTables>true</CLANG_UnwindTables>
-        <ILINK_LibraryPath>$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
-        <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <LinkPackageStatics>IndyCore.lib;IndySystem.lib;IndyProtocols.lib;xmlrtl.lib;inet.lib;dsnap.lib</LinkPackageStatics>
-        <LinkPackageImports>rtl.bpi;vcl.bpi;vclx.bpi;vclimg.bpi</LinkPackageImports>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-        <LinkPackageStatics>IndyCore.lib;IndySystem.lib;IndyProtocols.lib;xmlrtl.lib;inet.lib;dsnap.lib</LinkPackageStatics>
-        <LinkPackageImports>rtl.bpi;vcl.bpi;vclx.bpi;vclimg.bpi</LinkPackageImports>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2)'!=''">
-        <UsePackages>false</UsePackages>
-        <Defines>NDEBUG;$(Defines)</Defines>
-        <TASM_Debugging>None</TASM_Debugging>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib</LinkPackageStatics>
-    </PropertyGroup>
-    <ItemGroup>
-        <None Include="C:\Program Files\Actian\IngresIJ\ingres\files\Iiapi.h">
-            <BuildOrder>100</BuildOrder>
-        </None>
-        <LibFiles Include="..\CoreUtilities\iiapi_bc.lib" Condition="'$(Platform)'=='Win32'">
-            <BuildOrder>130</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
-        <LibFiles Include="..\CoreUtilities\iiapi_w64.a" Condition="'$(Platform)'=='Win64'">
-            <BuildOrder>116</BuildOrder>
-            <IgnorePath>true</IgnorePath>
-        </LibFiles>
-        <CppCompile Include="..\CoreUtilities\rosebase.cpp">
-            <DependentOn>..\CoreUtilities\rosebase.h</DependentOn>
-            <BuildOrder>52</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\CoreUtilities\rosetta.cpp">
-            <DependentOn>..\CoreUtilities\rosetta.h</DependentOn>
-            <BuildOrder>53</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\CoreUtilities\xB36Code.cpp">
-            <DependentOn>..\CoreUtilities\xB36Code.h</DependentOn>
-            <BuildOrder>121</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\CoreUtilities\xbinob.cpp">
-            <DependentOn>..\CoreUtilities\xbinob.h</DependentOn>
-            <BuildOrder>114</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\CoreUtilities\xdb.cpp">
-            <DependentOn>..\CoreUtilities\xdb.h</DependentOn>
-            <BuildOrder>54</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\CoreUtilities\xencode.cpp">
-            <BuildOrder>126</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\CoreUtilities\xerror.cpp">
-            <DependentOn>..\CoreUtilities\xerror.h</DependentOn>
-            <BuildOrder>55</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\CoreUtilities\xexec.cpp">
-            <DependentOn>..\CoreUtilities\xexec.h</DependentOn>
-            <BuildOrder>118</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\CoreUtilities\xMD5.cpp">
-            <BuildOrder>128</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\CoreUtilities\XMLFile.cpp">
-            <DependentOn>..\CoreUtilities\XMLFile.h</DependentOn>
-            <BuildOrder>56</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\CoreUtilities\xquery.cpp">
-            <DependentOn>..\CoreUtilities\xquery.h</DependentOn>
-            <BuildOrder>57</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\CoreUtilities\xsql.cpp">
-            <DependentOn>..\CoreUtilities\xsql.h</DependentOn>
-            <BuildOrder>58</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\CoreUtilities\xtime.cpp">
-            <DependentOn>..\CoreUtilities\xtime.h</DependentOn>
-            <BuildOrder>115</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LCDbAnalyser.cpp">
-            <DependentOn>..\LabsDAO\LCDbAnalyser.h</DependentOn>
-            <BuildOrder>63</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LCDbAuditTrail.cpp">
-            <DependentOn>..\LabsDAO\LCDbAuditTrail.h</DependentOn>
-            <BuildOrder>64</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LCDbJob.cpp">
-            <DependentOn>..\LabsDAO\LCDbJob.h</DependentOn>
-            <BuildOrder>66</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LCDbObject.cpp">
-            <DependentOn>..\LabsDAO\LCDbObject.h</DependentOn>
-            <BuildOrder>67</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LCDbOperator.cpp">
-            <DependentOn>..\LabsDAO\LCDbOperator.h</DependentOn>
-            <BuildOrder>68</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LCDbProject.cpp">
-            <DependentOn>..\LabsDAO\LCDbProject.h</DependentOn>
-            <BuildOrder>69</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LCDbRack.cpp">
-            <DependentOn>..\LabsDAO\LCDbRack.h</DependentOn>
-            <BuildOrder>71</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LCDbRetrieval.cpp">
-            <DependentOn>..\LabsDAO\LCDbRetrieval.h</DependentOn>
-            <BuildOrder>72</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LCDbStoreDetail.cpp">
-            <DependentOn>..\LabsDAO\LCDbStoreDetail.h</DependentOn>
-            <BuildOrder>73</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LCDbTankLayout.cpp">
-            <BuildOrder>127</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LCDbTankMap.cpp">
-            <DependentOn>..\LabsDAO\LCDbTankMap.h</DependentOn>
-            <BuildOrder>75</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LDbBoxSize.cpp">
-            <DependentOn>..\LabsDAO\LDbBoxSize.h</DependentOn>
-            <BuildOrder>77</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LDbBoxStore.cpp">
-            <DependentOn>..\LabsDAO\LDbBoxStore.h</DependentOn>
-            <BuildOrder>78</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LDbBoxType.cpp">
-            <DependentOn>..\LabsDAO\LDbBoxType.h</DependentOn>
-            <BuildOrder>79</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LDbIdClasses.cpp">
-            <DependentOn>..\LabsDAO\LDbIdClasses.h</DependentOn>
-            <BuildOrder>80</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LDbNameBase.cpp">
-            <DependentOn>..\LabsDAO\LDbNameBase.h</DependentOn>
-            <BuildOrder>81</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LDbNotes.cpp">
-            <DependentOn>..\LabsDAO\LDbNotes.h</DependentOn>
-            <BuildOrder>82</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LDbResult.cpp">
-            <DependentOn>..\LabsDAO\LDbResult.h</DependentOn>
-            <BuildOrder>129</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LDbSource.cpp">
-            <DependentOn>..\LabsDAO\LDbSource.h</DependentOn>
-            <BuildOrder>122</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LDbStage.cpp">
-            <DependentOn>..\LabsDAO\LDbStage.h</DependentOn>
-            <BuildOrder>87</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LDbValid.cpp">
-            <DependentOn>..\LabsDAO\LDbValid.h</DependentOn>
-            <BuildOrder>88</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LPDbBoxes.cpp">
-            <DependentOn>..\LabsDAO\LPDbBoxes.h</DependentOn>
-            <BuildOrder>90</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LPDbCryovial.cpp">
-            <DependentOn>..\LabsDAO\LPDbCryovial.h</DependentOn>
-            <BuildOrder>92</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LPDbCryovialStore.cpp">
-            <DependentOn>..\LabsDAO\LPDbCryovialStore.h</DependentOn>
-            <BuildOrder>93</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LPDbDescriptor.cpp">
-            <DependentOn>..\LabsDAO\LPDbDescriptor.h</DependentOn>
-            <BuildOrder>94</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LPDbProfile.cpp">
-            <DependentOn>..\LabsDAO\LPDbProfile.h</DependentOn>
-            <BuildOrder>95</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsDAO\LPDbProfileMap.cpp">
-            <DependentOn>..\LabsDAO\LPDbProfileMap.h</DependentOn>
-            <BuildOrder>96</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsForms\dvSelector.cpp">
-            <Form>selectorFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-            <DependentOn>..\LabsForms\dvSelector.h</DependentOn>
-            <BuildOrder>46</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsForms\TfrmAboutBox.cpp">
-            <Form>frmAboutBox</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>..\LabsForms\TfrmAboutBox.h</DependentOn>
-            <BuildOrder>47</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsForms\TfrmConfirm.cpp">
-            <Form>frmConfirm</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>..\LabsForms\TfrmConfirm.h</DependentOn>
-            <BuildOrder>48</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsForms\TfrmLoginBase.cpp">
-            <Form>frmLoginBase</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>..\LabsForms\TfrmLoginBase.h</DependentOn>
-            <BuildOrder>50</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsForms\TfrmPassword.cpp">
-            <Form>frmPassword</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>..\LabsForms\TfrmPassword.h</DependentOn>
-            <BuildOrder>51</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsObjects\LIMSDatabase.cpp">
-            <DependentOn>..\LabsObjects\LIMSDatabase.h</DependentOn>
-            <BuildOrder>59</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsObjects\LIMSParams.cpp">
-            <DependentOn>..\LabsObjects\LIMSParams.h</DependentOn>
-            <BuildOrder>60</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsObjects\LQuery.cpp">
-            <DependentOn>..\LabsObjects\LQuery.h</DependentOn>
-            <BuildOrder>61</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsObjects\TestRange.cpp">
-            <DependentOn>..\LabsObjects\TestRange.h</DependentOn>
-            <BuildOrder>129</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsObjects\ValueFields.cpp">
-            <DependentOn>..\LabsObjects\ValueFields.h</DependentOn>
-            <BuildOrder>130</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="AddSpecimens.cpp">
-            <Form>frmAddSpecimens</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>AddSpecimens.h</DependentOn>
-            <BuildOrder>26</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="AnalyseSamples.cpp">
-            <Form>frmAnalyseSpecimens</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>AnalyseSamples.h</DependentOn>
-            <BuildOrder>27</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="BoxSummary.cpp">
-            <DependentOn>BoxSummary.h</DependentOn>
-            <BuildOrder>28</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="BoxTransfer.cpp">
-            <Form>frmBoxList</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>BoxTransfer.h</DependentOn>
-            <BuildOrder>29</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="BrowseSample.cpp">
-            <Form>frmBrowse</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>BrowseSample.h</DependentOn>
-            <BuildOrder>30</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Configure.cpp">
-            <Form>frmConfigure</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>Configure.h</DependentOn>
-            <BuildOrder>31</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DiscardContext.cpp">
-            <DependentOn>DiscardContext.h</DependentOn>
-            <BuildOrder>10</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DiscardDb.cpp">
-            <DependentOn>DiscardDb.h</DependentOn>
-            <BuildOrder>11</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DiscardLogic.cpp">
-            <DependentOn>DiscardLogic.h</DependentOn>
-            <BuildOrder>12</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DiscardMethod.cpp">
-            <Form>frmDiscardMethod</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>DiscardMethod.h</DependentOn>
-            <BuildOrder>13</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DiscardNote.cpp">
-            <Form>frmDiscardNote</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>DiscardNote.h</DependentOn>
-            <BuildOrder>14</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DiscardPrologue.cpp">
-            <Form>frmDiscardPrologue</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>DiscardPrologue.h</DependentOn>
-            <BuildOrder>32</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DiscardReason.cpp">
-            <Form>frmDiscardReason</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>DiscardReason.h</DependentOn>
-            <BuildOrder>15</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DiscardSamples.cpp">
-            <Form>frmDiscardSamples</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>DiscardSamples.h</DependentOn>
-            <BuildOrder>16</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DiscardSearch.cpp">
-            <Form>frmSearch</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>DiscardSearch.h</DependentOn>
-            <BuildOrder>17</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DiscardSef.cpp">
-            <DependentOn>DiscardSef.h</DependentOn>
-            <BuildOrder>18</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DiscardUtil.cpp">
-            <DependentOn>DiscardUtil.h</DependentOn>
-            <BuildOrder>19</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="FindSample.cpp">
-            <Form>frmFind</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>FindSample.h</DependentOn>
-            <BuildOrder>33</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Inventory.cpp">
-            <DependentOn>Inventory.h</DependentOn>
-            <BuildOrder>34</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="MoveJobs.cpp">
-            <Form>frmSelectJob</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>MoveJobs.h</DependentOn>
-            <BuildOrder>35</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="NewBoxType.cpp">
-            <Form>frmNewBoxType</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>NewBoxType.h</DependentOn>
-            <BuildOrder>23</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="NewExercise.cpp">
-            <Form>frmNewExercise</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>NewExercise.h</DependentOn>
-            <BuildOrder>24</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="NewJob.cpp">
-            <Form>frmNewJob</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>NewJob.h</DependentOn>
-            <BuildOrder>36</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="NewSection.cpp">
-            <Form>frmNewSection</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>NewSection.h</DependentOn>
-            <BuildOrder>37</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="NewSite.cpp">
-            <Form>frmNewSite</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>NewSite.h</DependentOn>
-            <BuildOrder>38</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="NewTank.cpp">
-            <Form>frmNewTank</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>NewTank.h</DependentOn>
-            <BuildOrder>39</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="NewType.cpp">
-            <Form>frmNewStoreType</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>NewType.h</DependentOn>
-            <BuildOrder>40</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RationaliseTanks\RatTanksBoxSelection.cpp">
-            <Form>frmRatTanksBoxSelection</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RationaliseTanks\RatTanksBoxSelection.h</DependentOn>
-            <BuildOrder>95</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RationaliseTanks\RatTanksBoxType.cpp">
-            <Form>frmRatTanksBoxType</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RationaliseTanks\RatTanksBoxType.h</DependentOn>
-            <BuildOrder>96</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RationaliseTanks\RatTanksCreateExercise.cpp">
-            <Form>frmRatTanksRetrivalExercise</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RationaliseTanks\RatTanksCreateExercise.h</DependentOn>
-            <BuildOrder>97</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RationaliseTanks\RatTanksCreateRetrievalJob.cpp">
-            <Form>frmRatTankCreateRetrievalJob</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RationaliseTanks\RatTanksCreateRetrievalJob.h</DependentOn>
-            <BuildOrder>98</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RationaliseTanks\RatTanksCtrl.cpp">
-            <DependentOn>RationaliseTanks\RatTanksCtrl.h</DependentOn>
-            <BuildOrder>99</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RationaliseTanks\RatTanksDatabase.cpp">
-            <DependentOn>RationaliseTanks\RatTanksDatabase.h</DependentOn>
-            <BuildOrder>100</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RationaliseTanks\RatTanksdbSelection.cpp">
-            <Form>frmRatTankDbSelectionDialog</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RationaliseTanks\RatTanksdbSelection.h</DependentOn>
-            <BuildOrder>101</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RationaliseTanks\RatTanksMainDialog.cpp">
-            <Form>frmRatTanksMainDialog</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RationaliseTanks\RatTanksMainDialog.h</DependentOn>
-            <BuildOrder>102</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RationaliseTanks\RatTanksOperatorSignedIn.cpp">
-            <DependentOn>RationaliseTanks\RatTanksOperatorSignedIn.h</DependentOn>
-            <BuildOrder>103</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RationaliseTanks\RatTanksPleaseWait.cpp">
-            <Form>frmRatTankPleaseWait</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RationaliseTanks\RatTanksPleaseWait.h</DependentOn>
-            <BuildOrder>104</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RationaliseTanks\RatTanksSignIn.cpp">
-            <Form>frmRatTankSignIn</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RationaliseTanks\RatTanksSignIn.h</DependentOn>
-            <BuildOrder>105</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="ReferredBoxes.cpp">
-            <Form>frmReferred</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>ReferredBoxes.h</DependentOn>
-            <BuildOrder>8</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="ReferredBoxesSummary.cpp">
-            <Form>frmReferredBoxesSummary</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>ReferredBoxesSummary.h</DependentOn>
-            <BuildOrder>25</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrAsstCollectBoxes.cpp">
-            <Form>frmProcessBoxes</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RetrAsstCollectBoxes.h</DependentOn>
-            <BuildOrder>9</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrAsstCollectSamples.cpp">
-            <Form>frmProcess</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RetrAsstCollectSamples.h</DependentOn>
-            <BuildOrder>4</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrAsstMain.cpp">
-            <Form>frmRetrievalAssistant</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RetrAsstMain.h</DependentOn>
-            <BuildOrder>5</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrAsstPlanBoxes.cpp">
-            <Form>frmBoxes</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RetrAsstPlanBoxes.h</DependentOn>
-            <BuildOrder>6</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrAsstPlanSamples.cpp">
-            <Form>frmSamples</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RetrAsstPlanSamples.h</DependentOn>
-            <BuildOrder>7</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrievalLists\RetrievalListCryovialHistoryDialog.cpp">
-            <Form>frmRetrievalListCryovialHistoryDialog</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RetrievalLists\RetrievalListCryovialHistoryDialog.h</DependentOn>
-            <BuildOrder>106</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrievalLists\RetrievalListCtrl.cpp">
-            <DependentOn>RetrievalLists\RetrievalListCtrl.h</DependentOn>
-            <BuildOrder>107</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrievalLists\RetrievalListDatabase.cpp">
-            <BuildOrder>130</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrievalLists\RetrievalListGridUtils.cpp">
-            <DependentOn>RetrievalLists\RetrievalListGridUtils.h</DependentOn>
-            <BuildOrder>109</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrievalLists\retrievalListMainDialog.cpp">
-            <Form>frmRetrievalListViewListMain</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RetrievalLists\retrievalListMainDialog.h</DependentOn>
-            <BuildOrder>110</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrievalLists\RetrievalListMainListDialog.cpp">
-            <Form>frmRetrievalListDialog</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RetrievalLists\RetrievalListMainListDialog.h</DependentOn>
-            <BuildOrder>111</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrievalLists\RetrievalListResultNotesDialog.cpp">
-            <Form>frmRetrievalListResultNotesDialog</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RetrievalLists\RetrievalListResultNotesDialog.h</DependentOn>
-            <BuildOrder>112</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrievalLists\RetrievalListResultsDialog.cpp">
-            <Form>frmRetrievalListResultsDialog</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RetrievalLists\RetrievalListResultsDialog.h</DependentOn>
-            <BuildOrder>113</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RetrieveSamples.cpp">
-            <Form>frmRetrieved</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>RetrieveSamples.h</DependentOn>
-            <BuildOrder>41</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="SampleEntry.cpp">
-            <Form>frmRetrieveMain</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>SampleEntry.h</DependentOn>
-            <BuildOrder>20</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="SampleList.cpp">
-            <DependentOn>SampleList.h</DependentOn>
-            <BuildOrder>42</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="SampleMove.cpp">
-            <Form>frmMove</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>SampleMove.h</DependentOn>
-            <BuildOrder>43</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="SelectSamples.cpp">
-            <Form>frmSelectBoxes</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>SelectSamples.h</DependentOn>
-            <BuildOrder>44</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="showsamples.cpp">
-            <Form>frmAliquotTypes</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>showsamples.h</DependentOn>
-            <BuildOrder>45</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="SMLogin.cpp">
-            <Form>frmSMLogin</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>SMLogin.h</DependentOn>
-            <BuildOrder>129</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="StoreDAO.cpp">
-            <DependentOn>StoreDAO.h</DependentOn>
-            <BuildOrder>22</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Storemain.cpp">
-            <Form>frmStoremain</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>Storemain.h</DependentOn>
-            <BuildOrder>119</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="StoreMan.cpp">
-            <BuildOrder>0</BuildOrder>
-        </CppCompile>
-        <PCHCompile Include="StoreMan64PCH1.h">
-            <BuildOrder>1</BuildOrder>
-            <PCH>true</PCH>
-        </PCHCompile>
-        <CppCompile Include="StoreUtil.cpp">
-            <BuildOrder>129</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\paulst\AcquireCriticalSection.cpp">
-            <DependentOn>..\..\paulst\AcquireCriticalSection.h</DependentOn>
-            <BuildOrder>119</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\paulst\CritSec.cpp">
-            <DependentOn>..\..\paulst\CritSec.h</DependentOn>
-            <BuildOrder>98</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\paulst\Event.cpp">
-            <DependentOn>..\..\paulst\Event.h</DependentOn>
-            <BuildOrder>120</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\paulst\ExceptionUtil.cpp">
-            <DependentOn>..\..\paulst\ExceptionUtil.h</DependentOn>
-            <BuildOrder>128</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\paulst\Properties.cpp">
-            <DependentOn>..\..\paulst\Properties.h</DependentOn>
-            <BuildOrder>124</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\paulst\StrBuilder.cpp">
-            <DependentOn>..\..\paulst\StrBuilder.h</DependentOn>
-            <BuildOrder>125</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\paulst\StringDB.cpp">
-            <DependentOn>..\..\paulst\StringDB.h</DependentOn>
-            <BuildOrder>126</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\paulst\StrUtil.cpp">
-            <DependentOn>..\..\paulst\StrUtil.h</DependentOn>
-            <BuildOrder>127</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\paulst\Thread.cpp">
-            <DependentOn>..\..\paulst\Thread.h</DependentOn>
-            <BuildOrder>123</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\..\paulst\WorkerThread.cpp">
-            <DependentOn>..\..\paulst\WorkerThread.h</DependentOn>
-            <BuildOrder>120</BuildOrder>
-        </CppCompile>
-        <FormResources Include="RationaliseTanks\RatTanksMainDialog.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksdbSelection.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksBoxType.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksBoxSelection.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksCreateRetrievalJob.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksCreateExercise.dfm"/>
-        <FormResources Include="RetrAsstCollectBoxes.dfm"/>
-        <FormResources Include="ReferredBoxesSummary.dfm"/>
-        <FormResources Include="RetrAsstMain.dfm"/>
-        <FormResources Include="RetrAsstCollectSamples.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksPleaseWait.dfm"/>
-        <FormResources Include="ReferredBoxes.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksSignIn.dfm"/>
-        <FormResources Include="FindSample.dfm"/>
-        <FormResources Include="DiscardReason.dfm"/>
-        <FormResources Include="DiscardPrologue.dfm"/>
-        <FormResources Include="DiscardSearch.dfm"/>
-        <FormResources Include="DiscardSamples.dfm"/>
-        <FormResources Include="NewSite.dfm"/>
-        <FormResources Include="NewSection.dfm"/>
-        <FormResources Include="NewType.dfm"/>
-        <FormResources Include="NewTank.dfm"/>
-        <FormResources Include="NewBoxType.dfm"/>
-        <FormResources Include="MoveJobs.dfm"/>
-        <FormResources Include="NewJob.dfm"/>
-        <FormResources Include="NewExercise.dfm"/>
-        <FormResources Include="SMLogin.dfm"/>
-        <FormResources Include="Storemain.dfm"/>
-        <FormResources Include="RetrievalLists\RetrievalListMainListDialog.dfm"/>
-        <FormResources Include="RetrievalLists\retrievalListMainDialog.dfm"/>
-        <FormResources Include="RetrAsstPlanSamples.dfm"/>
-        <FormResources Include="RetrAsstPlanBoxes.dfm"/>
-        <FormResources Include="RetrievalLists\RetrievalListCryovialHistoryDialog.dfm"/>
-        <FormResources Include="SampleMove.dfm"/>
-        <FormResources Include="showsamples.dfm"/>
-        <FormResources Include="SelectSamples.dfm"/>
-        <FormResources Include="RetrievalLists\RetrievalListResultsDialog.dfm"/>
-        <FormResources Include="RetrievalLists\RetrievalListResultNotesDialog.dfm"/>
-        <FormResources Include="SampleEntry.dfm"/>
-        <FormResources Include="RetrieveSamples.dfm"/>
-        <FormResources Include="AddSpecimens.dfm"/>
-        <FormResources Include="AnalyseSamples.dfm"/>
-        <FormResources Include="DiscardNote.dfm"/>
-        <FormResources Include="DiscardMethod.dfm"/>
-        <FormResources Include="BrowseSample.dfm"/>
-        <FormResources Include="BoxTransfer.dfm"/>
-        <FormResources Include="Configure.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
-        <FormResources Include="..\LabsForms\dvSelector.dfm"/>
-        <BuildConfiguration Include="Release">
-            <Key>Cfg_2</Key>
-            <CfgParent>Base</CfgParent>
-        </BuildConfiguration>
-        <BuildConfiguration Include="Base">
-            <Key>Base</Key>
-        </BuildConfiguration>
-        <BuildConfiguration Include="Debug">
-            <Key>Cfg_1</Key>
-            <CfgParent>Base</CfgParent>
-        </BuildConfiguration>
-    </ItemGroup>
-    <ProjectExtensions>
-        <Borland.Personality>CPlusPlusBuilder.Personality.12</Borland.Personality>
-        <Borland.ProjectType>CppVCLApplication</Borland.ProjectType>
-        <BorlandProject>
-            <CPlusPlusBuilder.Personality>
-                <Source>
-                    <Source Name="MainSource">StoreMan.cpp</Source>
-                </Source>
-                <VersionInfo>
-                    <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
-                    <VersionInfo Name="AutoIncBuild">False</VersionInfo>
-                    <VersionInfo Name="MajorVer">1</VersionInfo>
-                    <VersionInfo Name="MinorVer">0</VersionInfo>
-                    <VersionInfo Name="Release">0</VersionInfo>
-                    <VersionInfo Name="Build">0</VersionInfo>
-                    <VersionInfo Name="Debug">False</VersionInfo>
-                    <VersionInfo Name="PreRelease">False</VersionInfo>
-                    <VersionInfo Name="Special">False</VersionInfo>
-                    <VersionInfo Name="Private">False</VersionInfo>
-                    <VersionInfo Name="DLL">False</VersionInfo>
-                    <VersionInfo Name="Locale">2057</VersionInfo>
-                    <VersionInfo Name="CodePage">1252</VersionInfo>
-                </VersionInfo>
-                <VersionInfoKeys>
-                    <VersionInfoKeys Name="CompanyName"/>
-                    <VersionInfoKeys Name="FileDescription"/>
-                    <VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
-                    <VersionInfoKeys Name="InternalName"/>
-                    <VersionInfoKeys Name="LegalCopyright"/>
-                    <VersionInfoKeys Name="LegalTrademarks"/>
-                    <VersionInfoKeys Name="OriginalFilename"/>
-                    <VersionInfoKeys Name="ProductName"/>
-                    <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
-                    <VersionInfoKeys Name="Comments"/>
-                    <VersionInfoKeys Name="CFBundleName"/>
-                    <VersionInfoKeys Name="CFBundleDisplayName"/>
-                    <VersionInfoKeys Name="UIDeviceFamily"/>
-                    <VersionInfoKeys Name="CFBundleIdentifier"/>
-                    <VersionInfoKeys Name="CFBundleVersion"/>
-                    <VersionInfoKeys Name="CFBundlePackageType"/>
-                    <VersionInfoKeys Name="CFBundleSignature"/>
-                    <VersionInfoKeys Name="CFBundleAllowMixedLocalizations"/>
-                    <VersionInfoKeys Name="UISupportedInterfaceOrientations"/>
-                    <VersionInfoKeys Name="CFBundleExecutable"/>
-                    <VersionInfoKeys Name="CFBundleResourceSpecification"/>
-                    <VersionInfoKeys Name="LSRequiresIPhoneOS"/>
-                    <VersionInfoKeys Name="CFBundleInfoDictionaryVersion"/>
-                    <VersionInfoKeys Name="CFBundleDevelopmentRegion"/>
-                </VersionInfoKeys>
-                <ProjectProperties>
-                    <ProjectProperties Name="AutoShowDeps">False</ProjectProperties>
-                    <ProjectProperties Name="ManagePaths">True</ProjectProperties>
-                    <ProjectProperties Name="VerifyPackages">True</ProjectProperties>
-                </ProjectProperties>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbie180.bpl">Embarcadero C++Builder Internet Explorer Components Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclsmpedit180.bpl">Embarcadero Editor Script Enhancements</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclDBXDrivers180.bpl">Embarcadero Driver Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclIPIndyImpl180.bpl">IP Abstraction Indy Implementation Design Time</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclIndyProtocols180.bpl">Indy 10 Protocols Design Time</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\MobileWizardExpert180.bpl">Embarcadero Mobile Wizard Help</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclfmxstd180.bpl">Embarcadero FMX Standard Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclbcbsmp180.bpl">C++Builder Sample Components Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\svnide180.bpl">Embarcadero Subversion Integration</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\applet180.bpl">Embarcadero Control Panel Applet Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx180.bpl">Embarcadero LiveBindings Components FireMonkey</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompvcl180.bpl">Embarcadero LiveBindings Components VCL</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcl31w180.bpl">Delphi 1.0 Compatibility Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclact180.bpl">Embarcadero ActionBar Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclemacsedit180.bpl">Embarcadero Editor Emacs Enhancements</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclmlwiz180.bpl">Embarcadero Markup Language Wizards</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclMetropolisUILiveTile180.bpl">Embarcadero Metropolis UI Live Tile Standard Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcltouch180.bpl">Embarcadero Touch Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\samplevisualizers180.bpl">Embarcadero Sample Debugger Visualizers</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclado180.bpl">Embarcadero ADO DB Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclIntraweb_140_180.bpl">IntraWeb 14.0 Design Package for RAD Studio XE3</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclie180.bpl">Internet Explorer Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclwbm180.bpl">Embarcadero InternetExpress Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclsoap180.bpl">Embarcadero SOAP Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclribbon180.bpl">Embarcadero Ribbon Controls</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclDBXDriversInt180.bpl">Embarcadero Intro Driver Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclbindcompdbx180.bpl">LiveBindings Expression Components DbExpress</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcldbxcds180.bpl">Embarcadero SimpleDataset Component (DBX)</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\DataExplorerDBXPlugin180.bpl">DBExpress Data Explorer Integration</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclCloudService180.bpl">Embarcadero Cloud management components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclmcn180.bpl">Embarcadero DataSnap Connection Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclFMXtee9180.bpl">TeeChart Lite FMX Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcltee9180.bpl">TeeChart Standard VCL Components</Excluded_Packages>
-                    <Excluded_Packages Name="C:\Program Files (x86)\Raize\CS5\Bin\CodeSiteExpressPkg_Design180.bpl">CodeSite Express 5.1.3</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclsmp180.bpl">Embarcadero Sample Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclbde180.bpl">Embarcadero BDE DB Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclib180.bpl">Embarcadero InterBase Express Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k180.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp180.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-                </Excluded_Packages>
-            </CPlusPlusBuilder.Personality>
-            <Deployment/>
-            <Platforms>
-                <Platform value="Win32">True</Platform>
-                <Platform value="Win64">True</Platform>
-            </Platforms>
-        </BorlandProject>
-        <ProjectFileVersion>12</ProjectFileVersion>
-    </ProjectExtensions>
-    <Import Project="$(BDS)\Bin\CodeGear.Cpp.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Cpp.Targets')"/>
-    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
-</Project>
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{8ACE822C-0984-45CB-98DE-88CAE7B2E7E2}</ProjectGuid>
+			<ProjectVersion>14.6</ProjectVersion>
+			<FrameworkType>VCL</FrameworkType>
+			<AppType>Application</AppType>
+			<MainSource>StoreMan.cpp</MainSource>
+			<Base>True</Base>
+			<Config Condition="'$(Config)'==''">Release</Config>
+			<Platform Condition="'$(Platform)'==''">Win32</Platform>
+			<TargetedPlatforms>3</TargetedPlatforms>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+			<Base_Win64>true</Base_Win64>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+			<Base_Win32>true</Base_Win32>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
+			<Cfg_1>true</Cfg_1>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
+			<Cfg_1_Win64>true</Cfg_1_Win64>
+			<CfgParent>Cfg_1</CfgParent>
+			<Cfg_1>true</Cfg_1>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+			<Cfg_1_Win32>true</Cfg_1_Win32>
+			<CfgParent>Cfg_1</CfgParent>
+			<Cfg_1>true</Cfg_1>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
+			<Cfg_2>true</Cfg_2>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+			<Cfg_2_Win64>true</Cfg_2_Win64>
+			<CfgParent>Cfg_2</CfgParent>
+			<Cfg_2>true</Cfg_2>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+			<Cfg_2_Win32>true</Cfg_2_Win32>
+			<CfgParent>Cfg_2</CfgParent>
+			<Cfg_2>true</Cfg_2>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base)'!=''">
+			<UsingDelphiRTL>true</UsingDelphiRTL>
+			<AllPackageLibs>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib</AllPackageLibs>
+			<Defines>X_ING;$(Defines)</Defines>
+			<ShowGeneralMessages>true</ShowGeneralMessages>
+			<BCC_InstructionSet>5</BCC_InstructionSet>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.12.4;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+			<VerInfo_MinorVer>2</VerInfo_MinorVer>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+			<VerInfo_PreRelease>true</VerInfo_PreRelease>
+			<VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
+			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+			<VerInfo_Locale>2057</VerInfo_Locale>
+			<VerInfo_Release>12</VerInfo_Release>
+			<VerInfo_Build>4</VerInfo_Build>
+			<ILINK_LibraryPath>RetrievalLists\;RationaliseTanks\;C:\Program Files\Actian\IngresIJ\ingres\files\;..\LabsLeasing\;..\..\paulst\;..\LabsDAO\;..\LabsObjects\;..\CoreUtilities\;..\LabsForms\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+			<IncludePath>RetrievalLists\;RationaliseTanks\;C:\Program Files\Actian\IngresIJ\ingres\files\;..\LabsLeasing\;..\..\paulst\;..\LabsDAO\;..\LabsObjects\;..\CoreUtilities\;..\LabsForms\;$(IncludePath)</IncludePath>
+			<ProjectType>CppVCLApplication</ProjectType>
+			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
+			<Multithreaded>true</Multithreaded>
+			<Icon_MainIcon>snowflake.ico</Icon_MainIcon>
+			<_TCHARMapping>wchar_t</_TCHARMapping>
+			<DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
+			<IntermediateOutputDir>.\$(Platform)\$(Config)</IntermediateOutputDir>
+			<FinalOutputDir>.\$(Platform)\$(Config)</FinalOutputDir>
+			<BCC_wpar>false</BCC_wpar>
+			<BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
+			<BCC_ExtendedErrorInfo>true</BCC_ExtendedErrorInfo>
+			<ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\release\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base_Win64)'!=''">
+			<PackageImports>rtl;vcl;vclimg;vclx;$(PackageImports)</PackageImports>
+			<ILINK_LibraryPath>C:\Users\nicholas\Documents\RAD Studio\Projects\LIMS\CoreUtilities\;C:\Users\nicholas\Documents\RAD Studio\Projects\LIMS\Storeman\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+			<BCC_PCHName_Clang>StoreMan64PCH1.h</BCC_PCHName_Clang>
+			<IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base_Win32)'!=''">
+			<PackageImports>rtl;vcl;vclimg;vclx;$(PackageImports)</PackageImports>
+			<ILINK_LibraryPath>C:\Users\nicholas\Documents\RAD Studio\Projects\LIMS\CoreUtilities\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+			<IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1)'!=''">
+			<VerInfo_Debug>true</VerInfo_Debug>
+			<BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
+			<BCC_DisableOptimizations>true</BCC_DisableOptimizations>
+			<DCC_Optimize>false</DCC_Optimize>
+			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+			<Defines>_DEBUG;$(Defines)</Defines>
+			<BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
+			<BCC_UseRegisterVariables>None</BCC_UseRegisterVariables>
+			<DCC_Define>DEBUG</DCC_Define>
+			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
+			<TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
+			<BCC_StackFrames>true</BCC_StackFrames>
+			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+			<TASM_Debugging>Full</TASM_Debugging>
+			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+			<BCC_EnableCPPExceptions>true</BCC_EnableCPPExceptions>
+			<BCC_DisableFramePtrElimOpt>true</BCC_DisableFramePtrElimOpt>
+			<BCC_DisableSpellChecking>true</BCC_DisableSpellChecking>
+			<CLANG_UnwindTables>true</CLANG_UnwindTables>
+			<ILINK_LibraryPath>$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+			<ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+			<LinkPackageStatics>IndyCore.lib;IndySystem.lib;IndyProtocols.lib;xmlrtl.lib;inet.lib;dsnap.lib</LinkPackageStatics>
+			<LinkPackageImports>rtl.bpi;vcl.bpi;vclx.bpi;vclimg.bpi</LinkPackageImports>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<LinkPackageStatics>IndyCore.lib;IndySystem.lib;IndyProtocols.lib;xmlrtl.lib;inet.lib;dsnap.lib</LinkPackageStatics>
+			<LinkPackageImports>rtl.bpi;vcl.bpi;vclx.bpi;vclimg.bpi</LinkPackageImports>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<UsePackages>false</UsePackages>
+			<Defines>NDEBUG;$(Defines)</Defines>
+			<TASM_Debugging>None</TASM_Debugging>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+			<LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib</LinkPackageStatics>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib</LinkPackageStatics>
+		</PropertyGroup>
+		<ItemGroup>
+			<None Include="C:\Program Files\Actian\IngresIJ\ingres\files\Iiapi.h">
+				<BuildOrder>100</BuildOrder>
+			</None>
+			<LibFiles Condition="'$(Platform)'=='Win32'" Include="..\CoreUtilities\iiapi_bc.lib">
+				<BuildOrder>130</BuildOrder>
+				<IgnorePath>true</IgnorePath>
+			</LibFiles>
+			<LibFiles Condition="'$(Platform)'=='Win64'" Include="..\CoreUtilities\iiapi_w64.a">
+				<BuildOrder>116</BuildOrder>
+				<IgnorePath>true</IgnorePath>
+			</LibFiles>
+			<CppCompile Include="..\CoreUtilities\rosebase.cpp">
+				<DependentOn>..\CoreUtilities\rosebase.h</DependentOn>
+				<BuildOrder>52</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\CoreUtilities\rosetta.cpp">
+				<DependentOn>..\CoreUtilities\rosetta.h</DependentOn>
+				<BuildOrder>53</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\CoreUtilities\xB36Code.cpp">
+				<DependentOn>..\CoreUtilities\xB36Code.h</DependentOn>
+				<BuildOrder>121</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\CoreUtilities\xbinob.cpp">
+				<DependentOn>..\CoreUtilities\xbinob.h</DependentOn>
+				<BuildOrder>114</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\CoreUtilities\xdb.cpp">
+				<DependentOn>..\CoreUtilities\xdb.h</DependentOn>
+				<BuildOrder>54</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\CoreUtilities\xencode.cpp">
+				<BuildOrder>126</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\CoreUtilities\xerror.cpp">
+				<DependentOn>..\CoreUtilities\xerror.h</DependentOn>
+				<BuildOrder>55</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\CoreUtilities\xexec.cpp">
+				<DependentOn>..\CoreUtilities\xexec.h</DependentOn>
+				<BuildOrder>118</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\CoreUtilities\xMD5.cpp">
+				<BuildOrder>128</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\CoreUtilities\XMLFile.cpp">
+				<DependentOn>..\CoreUtilities\XMLFile.h</DependentOn>
+				<BuildOrder>56</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\CoreUtilities\xquery.cpp">
+				<DependentOn>..\CoreUtilities\xquery.h</DependentOn>
+				<BuildOrder>57</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\CoreUtilities\xsql.cpp">
+				<DependentOn>..\CoreUtilities\xsql.h</DependentOn>
+				<BuildOrder>58</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\CoreUtilities\xtime.cpp">
+				<DependentOn>..\CoreUtilities\xtime.h</DependentOn>
+				<BuildOrder>115</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LCDbAnalyser.cpp">
+				<DependentOn>..\LabsDAO\LCDbAnalyser.h</DependentOn>
+				<BuildOrder>63</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LCDbAuditTrail.cpp">
+				<DependentOn>..\LabsDAO\LCDbAuditTrail.h</DependentOn>
+				<BuildOrder>64</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LCDbJob.cpp">
+				<DependentOn>..\LabsDAO\LCDbJob.h</DependentOn>
+				<BuildOrder>66</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LCDbObject.cpp">
+				<DependentOn>..\LabsDAO\LCDbObject.h</DependentOn>
+				<BuildOrder>67</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LCDbOperator.cpp">
+				<DependentOn>..\LabsDAO\LCDbOperator.h</DependentOn>
+				<BuildOrder>68</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LCDbProject.cpp">
+				<DependentOn>..\LabsDAO\LCDbProject.h</DependentOn>
+				<BuildOrder>69</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LCDbRack.cpp">
+				<DependentOn>..\LabsDAO\LCDbRack.h</DependentOn>
+				<BuildOrder>71</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LCDbRetrieval.cpp">
+				<DependentOn>..\LabsDAO\LCDbRetrieval.h</DependentOn>
+				<BuildOrder>72</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LCDbStoreDetail.cpp">
+				<DependentOn>..\LabsDAO\LCDbStoreDetail.h</DependentOn>
+				<BuildOrder>73</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LCDbTankLayout.cpp">
+				<BuildOrder>127</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LCDbTankMap.cpp">
+				<DependentOn>..\LabsDAO\LCDbTankMap.h</DependentOn>
+				<BuildOrder>75</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LDbBoxSize.cpp">
+				<DependentOn>..\LabsDAO\LDbBoxSize.h</DependentOn>
+				<BuildOrder>77</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LDbBoxStore.cpp">
+				<DependentOn>..\LabsDAO\LDbBoxStore.h</DependentOn>
+				<BuildOrder>78</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LDbBoxType.cpp">
+				<DependentOn>..\LabsDAO\LDbBoxType.h</DependentOn>
+				<BuildOrder>79</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LDbIdClasses.cpp">
+				<DependentOn>..\LabsDAO\LDbIdClasses.h</DependentOn>
+				<BuildOrder>80</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LDbNameBase.cpp">
+				<DependentOn>..\LabsDAO\LDbNameBase.h</DependentOn>
+				<BuildOrder>81</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LDbNotes.cpp">
+				<DependentOn>..\LabsDAO\LDbNotes.h</DependentOn>
+				<BuildOrder>82</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LDbResult.cpp">
+				<DependentOn>..\LabsDAO\LDbResult.h</DependentOn>
+				<BuildOrder>129</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LDbSource.cpp">
+				<DependentOn>..\LabsDAO\LDbSource.h</DependentOn>
+				<BuildOrder>122</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LDbStage.cpp">
+				<DependentOn>..\LabsDAO\LDbStage.h</DependentOn>
+				<BuildOrder>87</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LDbValid.cpp">
+				<DependentOn>..\LabsDAO\LDbValid.h</DependentOn>
+				<BuildOrder>88</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LPDbBoxes.cpp">
+				<DependentOn>..\LabsDAO\LPDbBoxes.h</DependentOn>
+				<BuildOrder>90</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LPDbCryovial.cpp">
+				<DependentOn>..\LabsDAO\LPDbCryovial.h</DependentOn>
+				<BuildOrder>92</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LPDbCryovialStore.cpp">
+				<DependentOn>..\LabsDAO\LPDbCryovialStore.h</DependentOn>
+				<BuildOrder>93</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LPDbDescriptor.cpp">
+				<DependentOn>..\LabsDAO\LPDbDescriptor.h</DependentOn>
+				<BuildOrder>94</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LPDbProfile.cpp">
+				<DependentOn>..\LabsDAO\LPDbProfile.h</DependentOn>
+				<BuildOrder>95</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsDAO\LPDbProfileMap.cpp">
+				<DependentOn>..\LabsDAO\LPDbProfileMap.h</DependentOn>
+				<BuildOrder>96</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsForms\dvSelector.cpp">
+				<Form>selectorFrame</Form>
+				<FormType>dfm</FormType>
+				<DesignClass>TFrame</DesignClass>
+				<DependentOn>..\LabsForms\dvSelector.h</DependentOn>
+				<BuildOrder>46</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsForms\TfrmAboutBox.cpp">
+				<Form>frmAboutBox</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>..\LabsForms\TfrmAboutBox.h</DependentOn>
+				<BuildOrder>47</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsForms\TfrmConfirm.cpp">
+				<Form>frmConfirm</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>..\LabsForms\TfrmConfirm.h</DependentOn>
+				<BuildOrder>48</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsForms\TfrmLoginBase.cpp">
+				<Form>frmLoginBase</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>..\LabsForms\TfrmLoginBase.h</DependentOn>
+				<BuildOrder>50</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsForms\TfrmPassword.cpp">
+				<Form>frmPassword</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>..\LabsForms\TfrmPassword.h</DependentOn>
+				<BuildOrder>51</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsObjects\LIMSDatabase.cpp">
+				<DependentOn>..\LabsObjects\LIMSDatabase.h</DependentOn>
+				<BuildOrder>59</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsObjects\LIMSParams.cpp">
+				<DependentOn>..\LabsObjects\LIMSParams.h</DependentOn>
+				<BuildOrder>60</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsObjects\LQuery.cpp">
+				<DependentOn>..\LabsObjects\LQuery.h</DependentOn>
+				<BuildOrder>61</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsObjects\TestRange.cpp">
+				<DependentOn>..\LabsObjects\TestRange.h</DependentOn>
+				<BuildOrder>129</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\LabsObjects\ValueFields.cpp">
+				<DependentOn>..\LabsObjects\ValueFields.h</DependentOn>
+				<BuildOrder>130</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="AddSpecimens.cpp">
+				<Form>frmAddSpecimens</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>AddSpecimens.h</DependentOn>
+				<BuildOrder>26</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="AnalyseSamples.cpp">
+				<Form>frmAnalyseSpecimens</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>AnalyseSamples.h</DependentOn>
+				<BuildOrder>27</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="BoxSummary.cpp">
+				<DependentOn>BoxSummary.h</DependentOn>
+				<BuildOrder>28</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="BoxTransfer.cpp">
+				<Form>frmBoxList</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>BoxTransfer.h</DependentOn>
+				<BuildOrder>29</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="BrowseSample.cpp">
+				<Form>frmBrowse</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>BrowseSample.h</DependentOn>
+				<BuildOrder>30</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="Configure.cpp">
+				<Form>frmConfigure</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>Configure.h</DependentOn>
+				<BuildOrder>31</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="DiscardContext.cpp">
+				<DependentOn>DiscardContext.h</DependentOn>
+				<BuildOrder>10</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="DiscardDb.cpp">
+				<DependentOn>DiscardDb.h</DependentOn>
+				<BuildOrder>11</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="DiscardLogic.cpp">
+				<DependentOn>DiscardLogic.h</DependentOn>
+				<BuildOrder>12</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="DiscardMethod.cpp">
+				<Form>frmDiscardMethod</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>DiscardMethod.h</DependentOn>
+				<BuildOrder>13</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="DiscardNote.cpp">
+				<Form>frmDiscardNote</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>DiscardNote.h</DependentOn>
+				<BuildOrder>14</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="DiscardPrologue.cpp">
+				<Form>frmDiscardPrologue</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>DiscardPrologue.h</DependentOn>
+				<BuildOrder>32</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="DiscardReason.cpp">
+				<Form>frmDiscardReason</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>DiscardReason.h</DependentOn>
+				<BuildOrder>15</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="DiscardSamples.cpp">
+				<Form>frmDiscardSamples</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>DiscardSamples.h</DependentOn>
+				<BuildOrder>16</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="DiscardSearch.cpp">
+				<Form>frmSearch</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>DiscardSearch.h</DependentOn>
+				<BuildOrder>17</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="DiscardSef.cpp">
+				<DependentOn>DiscardSef.h</DependentOn>
+				<BuildOrder>18</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="DiscardUtil.cpp">
+				<DependentOn>DiscardUtil.h</DependentOn>
+				<BuildOrder>19</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="FindSample.cpp">
+				<Form>frmFind</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>FindSample.h</DependentOn>
+				<BuildOrder>33</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="Inventory.cpp">
+				<DependentOn>Inventory.h</DependentOn>
+				<BuildOrder>34</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="MoveJobs.cpp">
+				<Form>frmSelectJob</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>MoveJobs.h</DependentOn>
+				<BuildOrder>35</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="NewBoxType.cpp">
+				<Form>frmNewBoxType</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>NewBoxType.h</DependentOn>
+				<BuildOrder>23</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="NewExercise.cpp">
+				<Form>frmNewExercise</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>NewExercise.h</DependentOn>
+				<BuildOrder>24</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="NewJob.cpp">
+				<Form>frmNewJob</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>NewJob.h</DependentOn>
+				<BuildOrder>36</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="NewSection.cpp">
+				<Form>frmNewSection</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>NewSection.h</DependentOn>
+				<BuildOrder>37</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="NewSite.cpp">
+				<Form>frmNewSite</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>NewSite.h</DependentOn>
+				<BuildOrder>38</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="NewTank.cpp">
+				<Form>frmNewTank</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>NewTank.h</DependentOn>
+				<BuildOrder>39</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="NewType.cpp">
+				<Form>frmNewStoreType</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>NewType.h</DependentOn>
+				<BuildOrder>40</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksBoxSelection.cpp">
+				<Form>frmRatTanksBoxSelection</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksBoxSelection.h</DependentOn>
+				<BuildOrder>95</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksBoxType.cpp">
+				<Form>frmRatTanksBoxType</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksBoxType.h</DependentOn>
+				<BuildOrder>96</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksCreateExercise.cpp">
+				<Form>frmRatTanksRetrivalExercise</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksCreateExercise.h</DependentOn>
+				<BuildOrder>97</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksCreateRetrievalJob.cpp">
+				<Form>frmRatTankCreateRetrievalJob</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksCreateRetrievalJob.h</DependentOn>
+				<BuildOrder>98</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksCtrl.cpp">
+				<DependentOn>RationaliseTanks\RatTanksCtrl.h</DependentOn>
+				<BuildOrder>99</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksDatabase.cpp">
+				<DependentOn>RationaliseTanks\RatTanksDatabase.h</DependentOn>
+				<BuildOrder>100</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksdbSelection.cpp">
+				<Form>frmRatTankDbSelectionDialog</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksdbSelection.h</DependentOn>
+				<BuildOrder>101</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksMainDialog.cpp">
+				<Form>frmRatTanksMainDialog</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksMainDialog.h</DependentOn>
+				<BuildOrder>102</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksOperatorSignedIn.cpp">
+				<DependentOn>RationaliseTanks\RatTanksOperatorSignedIn.h</DependentOn>
+				<BuildOrder>103</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksPleaseWait.cpp">
+				<Form>frmRatTankPleaseWait</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksPleaseWait.h</DependentOn>
+				<BuildOrder>104</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RationaliseTanks\RatTanksSignIn.cpp">
+				<Form>frmRatTankSignIn</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RationaliseTanks\RatTanksSignIn.h</DependentOn>
+				<BuildOrder>105</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="ReferredBoxes.cpp">
+				<Form>frmReferred</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>ReferredBoxes.h</DependentOn>
+				<BuildOrder>8</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="ReferredBoxesSummary.cpp">
+				<Form>frmReferredBoxesSummary</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>ReferredBoxesSummary.h</DependentOn>
+				<BuildOrder>25</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrAsstCollectBoxes.cpp">
+				<Form>frmProcessBoxes</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrAsstCollectBoxes.h</DependentOn>
+				<BuildOrder>9</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrAsstCollectSamples.cpp">
+				<Form>frmProcess</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrAsstCollectSamples.h</DependentOn>
+				<BuildOrder>4</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrAsstMain.cpp">
+				<Form>frmRetrievalAssistant</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrAsstMain.h</DependentOn>
+				<BuildOrder>5</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrAsstPlanBoxes.cpp">
+				<Form>frmBoxes</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrAsstPlanBoxes.h</DependentOn>
+				<BuildOrder>6</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrAsstPlanSamples.cpp">
+				<Form>frmSamples</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrAsstPlanSamples.h</DependentOn>
+				<BuildOrder>7</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListCryovialHistoryDialog.cpp">
+				<Form>frmRetrievalListCryovialHistoryDialog</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalLists\RetrievalListCryovialHistoryDialog.h</DependentOn>
+				<BuildOrder>106</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListCtrl.cpp">
+				<DependentOn>RetrievalLists\RetrievalListCtrl.h</DependentOn>
+				<BuildOrder>107</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListDatabase.cpp">
+				<BuildOrder>130</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListGridUtils.cpp">
+				<DependentOn>RetrievalLists\RetrievalListGridUtils.h</DependentOn>
+				<BuildOrder>109</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\retrievalListMainDialog.cpp">
+				<Form>frmRetrievalListViewListMain</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalLists\retrievalListMainDialog.h</DependentOn>
+				<BuildOrder>110</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListMainListDialog.cpp">
+				<Form>frmRetrievalListDialog</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalLists\RetrievalListMainListDialog.h</DependentOn>
+				<BuildOrder>111</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListResultNotesDialog.cpp">
+				<Form>frmRetrievalListResultNotesDialog</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalLists\RetrievalListResultNotesDialog.h</DependentOn>
+				<BuildOrder>112</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrievalLists\RetrievalListResultsDialog.cpp">
+				<Form>frmRetrievalListResultsDialog</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrievalLists\RetrievalListResultsDialog.h</DependentOn>
+				<BuildOrder>113</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="RetrieveSamples.cpp">
+				<Form>frmRetrieved</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrieveSamples.h</DependentOn>
+				<BuildOrder>41</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="SampleEntry.cpp">
+				<Form>frmRetrieveMain</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>SampleEntry.h</DependentOn>
+				<BuildOrder>20</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="SampleList.cpp">
+				<DependentOn>SampleList.h</DependentOn>
+				<BuildOrder>42</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="SampleMove.cpp">
+				<Form>frmMove</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>SampleMove.h</DependentOn>
+				<BuildOrder>43</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="SelectSamples.cpp">
+				<Form>frmSelectBoxes</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>SelectSamples.h</DependentOn>
+				<BuildOrder>44</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="showsamples.cpp">
+				<Form>frmAliquotTypes</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>showsamples.h</DependentOn>
+				<BuildOrder>45</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="SMLogin.cpp">
+				<Form>frmSMLogin</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>SMLogin.h</DependentOn>
+				<BuildOrder>129</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="StoreDAO.cpp">
+				<DependentOn>StoreDAO.h</DependentOn>
+				<BuildOrder>22</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="Storemain.cpp">
+				<Form>frmStoremain</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>Storemain.h</DependentOn>
+				<BuildOrder>119</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="StoreMan.cpp">
+				<BuildOrder>0</BuildOrder>
+			</CppCompile>
+			<PCHCompile Include="StoreMan64PCH1.h">
+				<PCH>true</PCH>
+				<BuildOrder>1</BuildOrder>
+			</PCHCompile>
+			<CppCompile Include="StoreUtil.cpp">
+				<BuildOrder>129</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\AcquireCriticalSection.cpp">
+				<DependentOn>..\..\paulst\AcquireCriticalSection.h</DependentOn>
+				<BuildOrder>119</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\CritSec.cpp">
+				<DependentOn>..\..\paulst\CritSec.h</DependentOn>
+				<BuildOrder>98</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\Event.cpp">
+				<DependentOn>..\..\paulst\Event.h</DependentOn>
+				<BuildOrder>120</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\ExceptionUtil.cpp">
+				<DependentOn>..\..\paulst\ExceptionUtil.h</DependentOn>
+				<BuildOrder>128</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\Properties.cpp">
+				<DependentOn>..\..\paulst\Properties.h</DependentOn>
+				<BuildOrder>124</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\StrBuilder.cpp">
+				<DependentOn>..\..\paulst\StrBuilder.h</DependentOn>
+				<BuildOrder>125</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\StringDB.cpp">
+				<DependentOn>..\..\paulst\StringDB.h</DependentOn>
+				<BuildOrder>126</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\StrUtil.cpp">
+				<DependentOn>..\..\paulst\StrUtil.h</DependentOn>
+				<BuildOrder>127</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\Thread.cpp">
+				<DependentOn>..\..\paulst\Thread.h</DependentOn>
+				<BuildOrder>123</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="..\..\paulst\WorkerThread.cpp">
+				<DependentOn>..\..\paulst\WorkerThread.h</DependentOn>
+				<BuildOrder>120</BuildOrder>
+			</CppCompile>
+			<FormResources Include="RationaliseTanks\RatTanksMainDialog.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksdbSelection.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksBoxType.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksBoxSelection.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksCreateRetrievalJob.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksCreateExercise.dfm"/>
+			<FormResources Include="RetrAsstCollectBoxes.dfm"/>
+			<FormResources Include="ReferredBoxesSummary.dfm"/>
+			<FormResources Include="RetrAsstMain.dfm"/>
+			<FormResources Include="RetrAsstCollectSamples.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksPleaseWait.dfm"/>
+			<FormResources Include="ReferredBoxes.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksSignIn.dfm"/>
+			<FormResources Include="FindSample.dfm"/>
+			<FormResources Include="DiscardReason.dfm"/>
+			<FormResources Include="DiscardPrologue.dfm"/>
+			<FormResources Include="DiscardSearch.dfm"/>
+			<FormResources Include="DiscardSamples.dfm"/>
+			<FormResources Include="NewSite.dfm"/>
+			<FormResources Include="NewSection.dfm"/>
+			<FormResources Include="NewType.dfm"/>
+			<FormResources Include="NewTank.dfm"/>
+			<FormResources Include="NewBoxType.dfm"/>
+			<FormResources Include="MoveJobs.dfm"/>
+			<FormResources Include="NewJob.dfm"/>
+			<FormResources Include="NewExercise.dfm"/>
+			<FormResources Include="SMLogin.dfm"/>
+			<FormResources Include="Storemain.dfm"/>
+			<FormResources Include="RetrievalLists\RetrievalListMainListDialog.dfm"/>
+			<FormResources Include="RetrievalLists\retrievalListMainDialog.dfm"/>
+			<FormResources Include="RetrAsstPlanSamples.dfm"/>
+			<FormResources Include="RetrAsstPlanBoxes.dfm"/>
+			<FormResources Include="RetrievalLists\RetrievalListCryovialHistoryDialog.dfm"/>
+			<FormResources Include="SampleMove.dfm"/>
+			<FormResources Include="showsamples.dfm"/>
+			<FormResources Include="SelectSamples.dfm"/>
+			<FormResources Include="RetrievalLists\RetrievalListResultsDialog.dfm"/>
+			<FormResources Include="RetrievalLists\RetrievalListResultNotesDialog.dfm"/>
+			<FormResources Include="SampleEntry.dfm"/>
+			<FormResources Include="RetrieveSamples.dfm"/>
+			<FormResources Include="AddSpecimens.dfm"/>
+			<FormResources Include="AnalyseSamples.dfm"/>
+			<FormResources Include="DiscardNote.dfm"/>
+			<FormResources Include="DiscardMethod.dfm"/>
+			<FormResources Include="BrowseSample.dfm"/>
+			<FormResources Include="BoxTransfer.dfm"/>
+			<FormResources Include="Configure.dfm"/>
+			<FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
+			<FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
+			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
+			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
+			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
+			<BuildConfiguration Include="Release">
+				<Key>Cfg_2</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Debug">
+				<Key>Cfg_1</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>CPlusPlusBuilder.Personality.12</Borland.Personality>
+			<Borland.ProjectType>CppVCLApplication</Borland.ProjectType>
+			<BorlandProject>
+				<CPlusPlusBuilder.Personality>
+					<Source>
+						<Source Name="MainSource">StoreMan.cpp</Source>
+					</Source>
+					<VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
+						<VersionInfo Name="MajorVer">1</VersionInfo>
+						<VersionInfo Name="MinorVer">0</VersionInfo>
+						<VersionInfo Name="Release">0</VersionInfo>
+						<VersionInfo Name="Build">0</VersionInfo>
+						<VersionInfo Name="Debug">False</VersionInfo>
+						<VersionInfo Name="PreRelease">False</VersionInfo>
+						<VersionInfo Name="Special">False</VersionInfo>
+						<VersionInfo Name="Private">False</VersionInfo>
+						<VersionInfo Name="DLL">False</VersionInfo>
+						<VersionInfo Name="Locale">2057</VersionInfo>
+						<VersionInfo Name="CodePage">1252</VersionInfo>
+					</VersionInfo>
+					<VersionInfoKeys>
+						<VersionInfoKeys Name="CompanyName"/>
+						<VersionInfoKeys Name="FileDescription"/>
+						<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="InternalName"/>
+						<VersionInfoKeys Name="LegalCopyright"/>
+						<VersionInfoKeys Name="LegalTrademarks"/>
+						<VersionInfoKeys Name="OriginalFilename"/>
+						<VersionInfoKeys Name="ProductName"/>
+						<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="Comments"/>
+						<VersionInfoKeys Name="CFBundleName"/>
+						<VersionInfoKeys Name="CFBundleDisplayName"/>
+						<VersionInfoKeys Name="UIDeviceFamily"/>
+						<VersionInfoKeys Name="CFBundleIdentifier"/>
+						<VersionInfoKeys Name="CFBundleVersion"/>
+						<VersionInfoKeys Name="CFBundlePackageType"/>
+						<VersionInfoKeys Name="CFBundleSignature"/>
+						<VersionInfoKeys Name="CFBundleAllowMixedLocalizations"/>
+						<VersionInfoKeys Name="UISupportedInterfaceOrientations"/>
+						<VersionInfoKeys Name="CFBundleExecutable"/>
+						<VersionInfoKeys Name="CFBundleResourceSpecification"/>
+						<VersionInfoKeys Name="LSRequiresIPhoneOS"/>
+						<VersionInfoKeys Name="CFBundleInfoDictionaryVersion"/>
+						<VersionInfoKeys Name="CFBundleDevelopmentRegion"/>
+					</VersionInfoKeys>
+					<ProjectProperties>
+						<ProjectProperties Name="AutoShowDeps">False</ProjectProperties>
+						<ProjectProperties Name="ManagePaths">True</ProjectProperties>
+						<ProjectProperties Name="VerifyPackages">True</ProjectProperties>
+					</ProjectProperties>
+					<Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcbie180.bpl">Embarcadero C++Builder Internet Explorer Components Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclsmpedit180.bpl">Embarcadero Editor Script Enhancements</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclDBXDrivers180.bpl">Embarcadero Driver Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclIPIndyImpl180.bpl">IP Abstraction Indy Implementation Design Time</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclIndyProtocols180.bpl">Indy 10 Protocols Design Time</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\MobileWizardExpert180.bpl">Embarcadero Mobile Wizard Help</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclfmxstd180.bpl">Embarcadero FMX Standard Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclbcbsmp180.bpl">C++Builder Sample Components Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\svnide180.bpl">Embarcadero Subversion Integration</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\applet180.bpl">Embarcadero Control Panel Applet Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx180.bpl">Embarcadero LiveBindings Components FireMonkey</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclbindcompvcl180.bpl">Embarcadero LiveBindings Components VCL</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcl31w180.bpl">Delphi 1.0 Compatibility Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclact180.bpl">Embarcadero ActionBar Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclemacsedit180.bpl">Embarcadero Editor Emacs Enhancements</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclmlwiz180.bpl">Embarcadero Markup Language Wizards</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclMetropolisUILiveTile180.bpl">Embarcadero Metropolis UI Live Tile Standard Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcltouch180.bpl">Embarcadero Touch Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\samplevisualizers180.bpl">Embarcadero Sample Debugger Visualizers</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclado180.bpl">Embarcadero ADO DB Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclIntraweb_140_180.bpl">IntraWeb 14.0 Design Package for RAD Studio XE3</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclie180.bpl">Internet Explorer Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclwbm180.bpl">Embarcadero InternetExpress Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclsoap180.bpl">Embarcadero SOAP Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclribbon180.bpl">Embarcadero Ribbon Controls</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclDBXDriversInt180.bpl">Embarcadero Intro Driver Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclbindcompdbx180.bpl">LiveBindings Expression Components DbExpress</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcldbxcds180.bpl">Embarcadero SimpleDataset Component (DBX)</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\DataExplorerDBXPlugin180.bpl">DBExpress Data Explorer Integration</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclCloudService180.bpl">Embarcadero Cloud management components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclmcn180.bpl">Embarcadero DataSnap Connection Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclFMXtee9180.bpl">TeeChart Lite FMX Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcltee9180.bpl">TeeChart Standard VCL Components</Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\Raize\CS5\Bin\CodeSiteExpressPkg_Design180.bpl">CodeSite Express 5.1.3</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclsmp180.bpl">Embarcadero Sample Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclbde180.bpl">Embarcadero BDE DB Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclib180.bpl">Embarcadero InterBase Express Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k180.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclofficexp180.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+					</Excluded_Packages>
+				</CPlusPlusBuilder.Personality>
+				<Deployment/>
+				<Platforms>
+					<Platform value="Win64">True</Platform>
+					<Platform value="Win32">True</Platform>
+				</Platforms>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Cpp.Targets')" Project="$(BDS)\Bin\CodeGear.Cpp.Targets"/>
+		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
+	</Project>

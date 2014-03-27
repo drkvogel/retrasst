@@ -787,10 +787,31 @@ and update cryovial_store (old and new, primary and secondary) when they enter t
 }
 
 void TfrmProcess::jobFinished() {
-/*   * `c_box_retrieval`: set `time_stamp`, `status=2` (collected)
-     * `cryovial_store`: as above
-	 * `box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2`
-	 * `c_box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2`
-	 * `c_retrieval_job`: update `finish_date`, `status` = 2  */
+    LQuery qp(Util::projectQuery(job->getProjectID(), false));
+    //LQuery qd(Util::projectQuery(job->getProjectID(), true));
+    LQuery qd(LIMSDatabase::getCentralDb());
+
+    // all boxes must be finished if here (ie. all samples are finished)
+    qd.setSQL("SELECT * FROM c_box_retrieval WHERE retrieval_cid = :rtid");
+    qd.setParam("rtid", job->getID());
+    qd.open();
+    while (!qd.eof()) {
+        // `c_box_retrieval`: set `time_stamp`, `status=2` (collected)
+        LCDbBoxRetrieval cbr(qd);
+        cbr.setStatus(LCDbBoxRetrieval::COLLECTED);
+        cbr.saveRecord(LIMSDatabase::getCentralDb());
+        // time_stamp set by default?
+        //qd.readInt
+
+        // `cryovial_store`: as above (dealt with already?)
+
+        // `box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2`
+
+        // `c_box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2`
+
+    }
+
+
+    // `c_retrieval_job`: update `finish_date`, `status` = 2
 
 }

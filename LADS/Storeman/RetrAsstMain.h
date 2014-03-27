@@ -391,7 +391,7 @@ public:
         }
     }
     float getProgress() {
-        //return ((float)rowRel/((float)getSize())); // no - there could be gaps (previously deferred vials). Gotta count.
+        // there could be gaps (previously deferred vials). Gotta count 'em.
         processed = 0;
         for (int i=0; i<getSize(); i++) {
             int status = objectAtRel(i)->retrieval_record->getStatus();
