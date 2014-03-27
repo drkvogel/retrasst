@@ -672,19 +672,6 @@ void TfrmProcess::nextRow() {
     ActiveControl = editBarcode; // focus for next barcode
 }
 
-void TfrmProcess::collectEmpties() {
-    /** if, at the end of processing a chunk, there are any source boxes which have become empty, the user may want to discard them instead of replacing them.
-	if so, provide an option to discard these empty boxes, recording it in the database */
-
-/*  * collect empties (all vials "accepted" or "not found") for discard
-    * at the end of processing each chunk, if source boxes are now empty
-    * unlikely for test tasks but rat tanks may throw old boxes away
-    * all source boxes from a reorganisation task should end up empty
-    * ask user to confirm that vessel/structure/slot is now empty
-    * otherwise box should be referred */
-    Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
-}
-
 void TfrmProcess::checkExit() {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
         exit();
@@ -692,8 +679,7 @@ void TfrmProcess::checkExit() {
 }
 
 void TfrmProcess::exit() { // definitely exiting
-/*  * Ask the relevant question(s) from the URS when they’re ready to finish
-    * update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
+/*  * update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
 
 	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
 	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
@@ -720,6 +706,24 @@ void __fastcall SaveProgressThread::Execute() {
 	* `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
     * how to update boxes? check at save and exit that all vials in a box have been saved? */
 
+            /*int rj_box_cid;
+            map<int, int> boxes; // box_id to rj_box_id, per chunk
+            map<int, int>::iterator found = boxes.find(dest_box_id);
+            if (found == boxes.end()) { // not added yet, add record and cache
+                LCDbBoxRetrieval box(//rj_box_cid,
+                    job->getID(),
+                    dest_box_id,
+                    job->getProjectID(),
+                    chunk->getSection(),
+                    LCDbBoxRetrieval::Status::NEW);
+                box.saveRecord(qc);
+                rj_box_cid = boxes[dest_box_id] = box.getRJBId(); // cache result
+            } else {
+                rj_box_cid = found->second;
+            }
+            return rj_box_cid;*/
+
+
 	frmProcess->unactionedSamples = false; frmProcess->info.clear(); frmProcess->warnings.clear(); frmProcess->errors.clear();
 	try {
 		std::set<int> boxes; // check for completed boxes
@@ -736,7 +740,6 @@ void __fastcall SaveProgressThread::Execute() {
                 storeSample(sample->secondary);
             }
         }
-        //collectEmpties();
 	} catch(Exception & e) {
 		AnsiString msg = e.Message;
 		frmProcess->errors.push_back(msg.c_str());
@@ -748,7 +751,6 @@ void __fastcall SaveProgressThread::Execute() {
 		frmProcess->errors.push_back("Unknown error");
 		frmProcess->unactionedSamples = true;
     }
-
 
 	if (!frmProcess->unactionedSamples) { // job finished
 		jobFinished();
@@ -820,6 +822,7 @@ void __fastcall TfrmProcess::saveProgressThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false; Screen->Cursor = crDefault;
     try {
         // anything more to do?
+        collectEmpties();
     } catch (Exception & e) {
 		TfrmRetrievalAssistant::msgbox(e.Message);
     }
@@ -837,3 +840,28 @@ void __fastcall TfrmProcess::saveProgressThreadTerminated(TObject *Sender) {
         Close();
     }
 }
+
+void TfrmProcess::collectEmpties() {
+    /** if, at the end of processing a chunk, there are any source boxes which have become empty,
+        the user may want to discard them instead of replacing them.
+	    if so, provide an option to discard these empty boxes, recording it in the database */
+
+    // find out if there are any
+
+    if (IDYES != Application->MessageBox(L"There are empty boxes. Would you like to mark these as discarded?", L"Info", MB_YESNO)) return;
+
+    for
+
+
+/*  * collect empties (all vials "accepted" or "not found") for discard
+    * at the end of processing each chunk, if source boxes are now empty
+    * unlikely for test tasks but rat tanks may throw old boxes away
+    * all source boxes from a reorganisation task should end up empty
+    * ask user to confirm that vessel/structure/slot is now empty
+    * otherwise box should be referred */
+    Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
+}
+
+//* Ask the relevant question(s) from the URS when they’re ready to finish
+//    * only this: "). The option to exit the process saving progress should be offered, with an “are you sure?” message in case of accidental selection (REQ 8.3.12)."
+
