@@ -707,28 +707,46 @@ void __fastcall SaveProgressThread::Execute() {
     * how to update boxes? check at save and exit that all vials in a box have been saved? */
 
             /*int rj_box_cid;
-            map<int, int> boxes; // box_id to rj_box_id, per chunk
-            map<int, int>::iterator found = boxes.find(dest_box_id);
-            if (found == boxes.end()) { // not added yet, add record and cache
-                LCDbBoxRetrieval box(//rj_box_cid,
+			map<int, int> boxes; // box_id to rj_box_id, per chunk
+			map<int, int>::iterator found = boxes.find(dest_box_id);
+			if (found == boxes.end()) { // not added yet, add record and cache
+				LCDbBoxRetrieval box(//rj_box_cid,
                     job->getID(),
-                    dest_box_id,
+					dest_box_id,
                     job->getProjectID(),
                     chunk->getSection(),
                     LCDbBoxRetrieval::Status::NEW);
-                box.saveRecord(qc);
-                rj_box_cid = boxes[dest_box_id] = box.getRJBId(); // cache result
+				box.saveRecord(qc);
+				rj_box_cid = boxes[dest_box_id] = box.getRJBId(); // cache result
             } else {
-                rj_box_cid = found->second;
-            }
-            return rj_box_cid;*/
-
+				rj_box_cid = found->second;
+			}
+			return rj_box_cid;*/
+	typedef std::set< SampleRow * > SetOfVials;
+	typedef std::map< int, SetOfVials > VialsInBoxesMap;
+	VialsInBoxesMap boxes;
+	VialsInBoxesMap::iterator found;
 
 	frmProcess->unactionedSamples = false; frmProcess->info.clear(); frmProcess->warnings.clear(); frmProcess->errors.clear();
 	try {
-		std::set<int> boxes; // check for completed boxes
-        for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
-            SampleRow * sample = *it;
+		for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
+			SampleRow * sample = *it;
+
+			// build a map of source box ID to a set of vials contained in that box
+			int sourceBox = sample->store_record->getBoxID();
+            // should get id of secondary box as well and add it to map, we are checking for all empty boxes
+
+
+			found = boxes.find(sourceBox);
+			if (found == boxes.end()) { // not added yet
+				SetOfVials setOfVials;
+				setOfVials.insert(sample);
+
+				boxes[sourceBox] = setOfVials;
+			} else { // already in map
+				found->second.insert(sample);
+			}
+
             ostringstream oss; oss<<"blah blah blah"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 			int status  = sample->retrieval_record->getStatus();
 			if (status != LCDbCryovialRetrieval::EXPECTED && status != LCDbCryovialRetrieval::IGNORED) { // changed
@@ -739,7 +757,30 @@ void __fastcall SaveProgressThread::Execute() {
             if (NULL != sample->secondary) {
                 storeSample(sample->secondary);
             }
-        }
+		}
+
+		// now check for completed boxes
+		for (found = boxes.begin(); found != boxes.end(); found++) { // for each source box
+			bool vialRemains = false;
+			SetOfVials & setOfVials = found->second;
+			SetOfVials::const_iterator it;
+			for (it = setOfVials.begin(); it != setOfVials.end(); it++) { // for each vial in the box
+				SampleRow * sample;
+				switch (sample->retrieval_record->getStatus()) { // what about secondaries?
+				case LCDbCryovialRetrieval::EXPECTED:
+					vialRemains = true;
+                default:
+                    ;
+				}
+			}
+
+			if (!vialRemains) { // empty/completed box, discard
+				// ???
+			}
+		}
+
+
+
 	} catch(Exception & e) {
 		AnsiString msg = e.Message;
 		frmProcess->errors.push_back(msg.c_str());
@@ -850,7 +891,7 @@ void TfrmProcess::collectEmpties() {
 
     if (IDYES != Application->MessageBox(L"There are empty boxes. Would you like to mark these as discarded?", L"Info", MB_YESNO)) return;
 
-    for
+//    for
 
 
 /*  * collect empties (all vials "accepted" or "not found") for discard

@@ -1,5 +1,7 @@
 ﻿## todo
 
+ * overallStatus() or sampleStatus() method for a sample - e.g. status of the primary, or if the primary was not found, and there is a secondary, the status of the secondary?
+ * sample, vial, aliquot - settle on maybe two of thse (sample and aliquot; or sample and vial?)
  * crashes on release build?
  * `l_cryovial_retrieval.time_stamp` should default to 'now'?
  * make sure both aliquots are dealt with whatever happens
