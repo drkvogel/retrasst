@@ -780,7 +780,6 @@ void __fastcall SaveProgressThread::Execute() {
 		}
 
 
-
 	} catch(Exception & e) {
 		AnsiString msg = e.Message;
 		frmProcess->errors.push_back(msg.c_str());
