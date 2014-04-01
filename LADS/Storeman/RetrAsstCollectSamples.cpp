@@ -569,7 +569,8 @@ void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be
     if (barcode == aliquot->cryovial_barcode.c_str()) { // save
         aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
         if (aliquot == primary) {
-
+            //
+            //sample->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
         } else { // secondary
 
         }

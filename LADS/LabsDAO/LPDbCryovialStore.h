@@ -16,8 +16,16 @@ class LPDbCryovialStore : public LPDbID, public LDbNoteCount
 	float volume;
 
 public:
-
-	enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, NOT_FOUND, DELETED = 99 };
+               // 0 = space allocated,
+                          // 1 = position confirmed,
+                                     // 2 = removal expected,
+                                                    // 3 = removed for disposal (note gives reason),
+                                                               // 4 = removed for analysis,
+                                                                         // 5 = moved to another box,
+                                                                                      // 6 = sub-aliquots taken,
+                                                                                                 // 7 = not found
+                                                                                                            // 99 = record invalid/deleted
+	enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, SUB_TAKEN, NOT_FOUND, DELETED = 99 };
 
 	LPDbCryovialStore() : LDbNoteCount( 0 ), status( ALLOCATED ),
 		 cryovialID( 0 ), retrievalID( 0 ), boxID( 0 ), position( 0 ), volume( -1 )

@@ -1,5 +1,3 @@
-
- 
 ## Done
 
  * auto-chunk prompt - silly because list might not be sorted at correctly at this point. remind to hit auto-chunk or manually chunk by double-clicking on rows

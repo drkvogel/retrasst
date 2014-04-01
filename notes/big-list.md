@@ -1,23 +1,26 @@
 ﻿## todo
 
- * overallStatus() or sampleStatus() method for a sample - e.g. status of the primary, or if the primary was not found, and there is a secondary, the status of the secondary?
- * sample, vial, aliquot - settle on maybe two of thse (sample and aliquot; or sample and vial?)
- * crashes on release build?
- * `l_cryovial_retrieval.time_stamp` should default to 'now'?
+ * overallStatus() or sampleStatus() method for a sample
+    * e.g. status of the primary, or if the primary was not found, and there is a secondary, the status of the secondary?
+
+ * sample, vial, aliquot - settle on maybe two of these words 
+    * (sample and aliquot; or sample and vial?)
+
  * make sure both aliquots are dealt with whatever happens
     * save both primary and secondary - secondary aliquots should always be saved if present
     * accept(): 
         * if primary aliquot !collected # expected, ignored, not found (now found?)
     * save secondary as `IGNORED` if not required? primary was 
+
  * collect empties (all vials "accepted" or "not found") for discard
     * at the end of processing each chunk, if source boxes are now empty
     * unlikely for test tasks but rat tanks may throw old boxes away
     * all source boxes from a reorganisation task should end up empty
     * ask user to confirm that vessel/structure/slot is now empty
     * otherwise box should be referred
+
  * sign off on exit (complete or not): 
-    * Ask the relevant question(s) from the URS
-    * check cryo/store old/new params correct for `LCDbCryovialRetrieval`
+    * check cryo/store old/new params correct for `LCDbCryovialRetrieval`?
     * `c_box_retrieval`: set `time_stamp`, `status` = 1 (part-filled)
     * changes to `c_box_retrieval`, `cryovial_store` 
     * update `cryovial_store` (old and new, primary and secondary)
@@ -37,6 +40,7 @@
             * else `status=99`
     * `box_name` (if record): update `time_stamp`, `box_capacity`, `status=1`
     * `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1`
+
  * job finished: 
      * `c_box_retrieval`: set `time_stamp`, `status=2` (collected)
      * `cryovial_store`: as above 
@@ -45,10 +49,12 @@
      * `c_box_name`
         * (if record): update `time_stamp`, `box_capacity`, `status=2` 
      * `c_retrieval_job`
-        * update `finish_date`, `status` = 2 
+        * update `finish_date`, `status` = 2
+
  * use `c_box_name` in some queries to speeds things up (`c_box_name` is copied from `box_name` by a cron job)
     * box changes should be made to both `c_box_name`, and `box_name` (if a `box_name` record is present - not always the case). The cron job should be able to cope with this (up to date `c_box_name` entries already existing)
     * setting the timestamps correctly (to 'now') is crucial 
+
  * should be 4 cryovial_store recs/sample: src + dest * primary + secondary
     * new `NOT_FOUND` status (ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, DELETED = 99) (no IGNORED status?)
     * if primary aliquot found:
@@ -63,6 +69,7 @@
         - secondary src TRANSFERRED?
         - secondary dest CONFIRMED?
     * should probably do a truth table of primary/secondary src/dest `cryovial_store`/`l_cryovial_retrieval`
+
  * chunk: should add/change store records? (???)
     * there's a bit of a problem including boxes in a retrieval if we don't know where they are. current thinking is ask the user about such boxes when they create a retrieval list and add dummy/incomplete box_store records. I'm about to add such records for existing jobs.
     * dummy `box_store` records
@@ -78,6 +85,7 @@
 
 ## Deferred
 
+ * crashes on release build?
  * boxes form doesn't work properly - turn the handle (but not for demo)
  * put lookAhead into chunk class
  * factor out chunk logic?
@@ -157,3 +165,5 @@ DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMM
  * save changes thread
  * thread "save changes" in plan-/ 
  * should thread perhaps
+ * `l_cryovial_retrieval.time_stamp` should default to 'now'? -yes
+    * Ask the relevant question(s) from the URS
