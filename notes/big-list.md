@@ -4,12 +4,10 @@
     * e.g. status of the primary, or if the primary was not found, and there is a secondary, the status of the secondary?
 
  * sample, vial, aliquot - settle on maybe two of these words 
-    * (sample and aliquot; or sample and vial?)
+    * (sample and aliquot; or sample and vial?) - sample and vial
 
  * make sure both aliquots are dealt with whatever happens
-    * save both primary and secondary - secondary aliquots should always be saved if present
-    * accept(): 
-        * if primary aliquot !collected # expected, ignored, not found (now found?)
+    * save both primary and secondary (if present)
     * save secondary as `IGNORED` if not required? primary was 
 
  * collect empties (all vials "accepted" or "not found") for discard
@@ -17,39 +15,52 @@
     * unlikely for test tasks but rat tanks may throw old boxes away
     * all source boxes from a reorganisation task should end up empty
     * ask user to confirm that vessel/structure/slot is now empty
+        * so need to check if v/st/sl is empty as well?
     * otherwise box should be referred
+
+at end of chunk
+ signoff
+ update cryo store records
+ calc empty boxes
+ create tick list of boxes, empty/otherwise
+ or switch list
+
+ if error, create referred box (INVALID/EXTRA/MISSING CONTENT) in c_box_name and/or c_slot_allocation
+
+ ref boxes could look in c_box_name and c_slot_allocation as well as l_box_arrival
+
+ c_box_name and c_slot_allocation fields together == l_box_arrival
 
  * sign off on exit (complete or not): 
     * check cryo/store old/new params correct for `LCDbCryovialRetrieval`?
     * `c_box_retrieval`: set `time_stamp`, `status` = 1 (part-filled)
-    * changes to `c_box_retrieval`, `cryovial_store` 
-    * update `cryovial_store` (old and new, primary and secondary)
+    * `cryovial_store` (old and new, primary and secondary):
         * Primary, source: 
-            * if found: update `removed`, `status=5`
-            * else `status=7` 
+            * if found: update `removed`, `status=5` (TRANSFERRED)
+            * else `status=7` (NOT_FOUND)
         * Primary, dest: 
-            * if found update `time_stamp`, `status=1`
-            * else `status=99` 
+            * if found update `time_stamp`, `status=1` (CONFIRMED)
+            * else `status=99` (DELETED)
         * Secondary, src: 
-            * if primary found: clear `retrieval_cid`, `status=1` 
-            * else if secondary found update `removed`, `status=5`, 
-            * else `status=7`
+            * if primary found: clear `retrieval_cid`, `status=1` (CONFIRMED) 
+            * else if secondary found update `removed`, `status=5`, (TRANSFERRED)
+            * else `status=7` (NOT_FOUND)
         * Secondary, dest: 
-            * if primary found: `status=99`
-            * else if secondary found: update `time_stamp`, `status=1`, 
-            * else `status=99`
-    * `box_name` (if record): update `time_stamp`, `box_capacity`, `status=1`
-    * `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1`
+            * if primary found: `status=99` (DELETED)
+            * else if secondary found: update `time_stamp`, `status=1`, (CONFIRMED)
+            * else `status=99` (DELETED)
+    * `box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
+    * `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
 
  * job finished: 
-     * `c_box_retrieval`: set `time_stamp`, `status=2` (collected)
      * `cryovial_store`: as above 
+     * `c_box_retrieval`: set `time_stamp`, `status=2` (COLLECTED)     
      * `box_name`
-        * (if record): update `time_stamp`, `box_capacity`, `status=2`
+        * (if record): update `time_stamp`, `box_capacity`, `status=2` (CONFIRMED)
      * `c_box_name`
-        * (if record): update `time_stamp`, `box_capacity`, `status=2` 
+        * (if record): update `time_stamp`, `box_capacity`, `status=2` (CONFIRMED)
      * `c_retrieval_job`
-        * update `finish_date`, `status` = 2
+        * update `finish_date`, `status=2` (DONE)
 
  * use `c_box_name` in some queries to speeds things up (`c_box_name` is copied from `box_name` by a cron job)
     * box changes should be made to both `c_box_name`, and `box_name` (if a `box_name` record is present - not always the case). The cron job should be able to cope with this (up to date `c_box_name` entries already existing)

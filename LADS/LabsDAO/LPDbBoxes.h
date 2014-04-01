@@ -28,8 +28,7 @@ class LPDbBoxName : public LPDbID
 
 public:
 
-	enum Status { EMPTY = 0, IN_USE = 1, CONFIRMED = 2, ANALYSED = 3, IN_TANK = 4,
-				  DESTROYED = 8, DELETED = 99 };
+	enum Status { EMPTY = 0, IN_USE = 1, CONFIRMED = 2, ANALYSED = 3, IN_TANK = 4, DESTROYED = 8, DELETED = 99 };
 
 	LPDbBoxName( const LQuery & query );
 
