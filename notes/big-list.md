@@ -1,5 +1,75 @@
 ﻿## todo
 
+### chunk finished
+
+At the end of chunk, check if the chunk is actually finished (no REFERRED vials).
+If finished:
+    * Require user to sign off
+    * update cryo store records
+    * calculate if there are any empty boxes
+    * create tick list or switch list of boxes, empty/otherwise
+    * ask user to comfirm that empty boxes are in fact empty
+    * if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
+
+### allow marking of boxes as invalid (REFERRED) in Collect Empties
+
+When collecting empty boxes as determined by the database, boxes may be found that are not actually empty, or there may boxes that are supposed to have vials in that are actually empty. We proposed that such boxes would be marked with some 'invalid' status and, as this is likely an unusual and tricky situation to deal with, rather than try to make Retrieval Assistant able to deal with such situations, or indeed Referred Boxes, mark them as REFERRED and allow Referred Boxes to pick them up, and flag as invalid in some way so that they can be dealt with manually - and then probably discarded from Referred Boxes. 
+
+As such erroneous boxes have already 'arrived' by this point, `l_box_arrival` is probably not the best place to add them - though Referred Boxes currently only looks at `l_box_arrival` for referred boxes, and that table is added to only by Box Reception via Storage Sync. 
+
+So we proposed adding invalid boxes from Retrieval Assistant to `c_box_name` and/or `c_slot_allocation`, and have Referred Boxes pick up boxes from those tables _as well_.
+
+#### pick up invalid boxes in Referred Boxes
+
+`c_box_name` and `c_slot_allocation` fields together == `l_box_arrival`
+
+> Markdown Extra implements definition lists. Definition lists are made of terms and definitions of these terms, much like in a dictionary. A simple definition list in Markdown Extra is made of a single-line term followed by a colon and the definition for that term.
+
+`C_BOX_NAME`
+
+> Box names are copied into this table from each of the projects each night but it also lists boxes shared between projects. Programs modifying this table should apply the same changes to the relevant box_name entry if there is one.
+
+`box_cid`
+:   A unique ID for this record
+`project_cid` (`c_project`)
+:   The project that uses this box (0 = shared by several projects)
+`barcode`
+:   The ID to be printed on the container (usually a number, often `project code` + `box_cid`)
+`box_type_cid` (`c_box_content`)
+:   The formation of aliquot types stored in this container
+`box_capacity`
+:   The number of cryovials that can still be added (0 = full box; -1 = not known)
+`external_name`
+:   A unique label for this box. Usually `project name` `box type` `box number`
+`status`
+:   0 = new/empty, 1 = cryovials added, 2 = content confirmed, 3 = ready to store, 4 = stored, 8 = destroyed, 99 = invalid
+`time_stamp`
+:   When this record was last updated
+`process_cid` (`c_audit_trail`)
+:   The program run that created or updated this record
+
+`C_SLOT_ALLOCATION`
+
+> A record of where each box is likely to be stored. See box_store in the relevant project database for further information if the box contains cryovials from a single project.
+
+`slot_cid`
+:   The ID for this record
+`rack_cid` (`c_rack_number`)
+:   The rack this slot is part of
+`slot_position`
+:   The position of this slot in that rack
+`project_cid` (`c_project`)
+:   The project this slot currently belongs to (obsolete?)
+`box_cid`
+:   The internal ID of the box in this slot
+`status`
+:   0: slot reserved (by StoreMan), 1: unconfirmed (imported data), 2: removal expected, 3: removed, 5: slot allocated (by Box Reception), 6: confirmed, 7: referred 99: deleted
+`retrieval_cid` (`c_retrieval_job`)
+:   `status=2`: box will be moved as part of this task; `status=3`: box was moved by that task
+`time_stamp` 
+:   When this record was updated, i.e. when the box was stored or removed
+
+
  * overallStatus() or sampleStatus() method for a sample
     * e.g. status of the primary, or if the primary was not found, and there is a secondary, the status of the secondary?
 
@@ -18,18 +88,6 @@
         * so need to check if v/st/sl is empty as well?
     * otherwise box should be referred
 
-at end of chunk
- signoff
- update cryo store records
- calc empty boxes
- create tick list of boxes, empty/otherwise
- or switch list
-
- if error, create referred box (INVALID/EXTRA/MISSING CONTENT) in c_box_name and/or c_slot_allocation
-
- ref boxes could look in c_box_name and c_slot_allocation as well as l_box_arrival
-
- c_box_name and c_slot_allocation fields together == l_box_arrival
 
  * sign off on exit (complete or not): 
     * check cryo/store old/new params correct for `LCDbCryovialRetrieval`?

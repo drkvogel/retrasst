@@ -193,7 +193,6 @@ void TfrmReferred::setTRS(BoxArrivalRecord * box) {
     comboRack->AddItem(box->rack_name.c_str(), (TObject *)0); //xxx(LCDbRack::records().findByName(box.rack_name).getID()));
     comboRack->ItemIndex = 0;
     editSlot->Text = box->slot_position;
-    //editSlot->Text = n2s(box->slot_position).c_str();
 }
 
 void __fastcall TfrmReferred::timerReferredBoxClickedTimer(TObject *Sender) {
@@ -388,17 +387,14 @@ void __fastcall TfrmReferred::sgStorageDrawCell(TObject *Sender, int ACol, int A
 }
 
 void TfrmReferred::loadBoxes() {
-    LQuery qc(LIMSDatabase::getCentralDb());
-    bool randomStatus = REFBOXESDEBUG && false;
-    if (randomStatus) {
-        qc.setSQL("SELECT * from l_box_arrival WHERE swipe_time > DATE('now') - DATE('90 days')"); // fake
-    } else {
-        qc.setSQL("SELECT * from l_box_arrival WHERE status <> 99 AND status <> 4 ORDER BY status DESC, box_name ASC"); // real
-    }
-    // XXX boxes in l_box_arrival are for real projects not dev_<project>
-    qc.open();
     delete_referenced<tdvecpBoxArrivalRecord>(totalReferred);
-    srand(time(NULL)); // initialize random seed
+    LQuery qc(LIMSDatabase::getCentralDb());
+
+    // n.b. boxes in l_box_arrival are for real projects not dev_<project>
+
+    // l_box_arrival
+    qc.setSQL("SELECT * from l_box_arrival WHERE status <> 99 AND status <> 4 ORDER BY status DESC, box_name ASC");
+    qc.open();
     while (!qc.eof()) {
         BoxArrivalRecord * box = new BoxArrivalRecord(
             qc.readInt("record_no"),
@@ -408,7 +404,6 @@ void TfrmReferred::loadBoxes() {
             qc.readInt("project_cid"),
             qc.readDateTime("swipe_time"),
             qc.readString("box_name"),
-            randomStatus ? (rand() % 3 + 5) : // random status between 5 and 7
             qc.readInt("status"), // 5 = allocated, 6 = slot confirmed, 7 = referred
             qc.readString("first_barcode"), qc.readInt("first_position"),
             qc.readString("last_barcode"),  qc.readInt("last_position"),
@@ -416,6 +411,38 @@ void TfrmReferred::loadBoxes() {
             qc.readString("rack_number"),
             qc.readInt("slot_position"),
             qc.readDateTime("time_stamp"));
+        totalReferred.push_back(box);
+        qc.next();
+    }
+
+    // c_box_name + c_slot_allocation
+    qc.setSQL(
+        "SELECT bn.process_cid, sa.project_cid, bn.time_stamp AS bn_stamp, bn.external_name AS box_name,"
+        " bn.status AS bn_status,"
+        " sa.slot_position, sa.time_stamp AS sa_stamp"
+        " FROM c_box_name bn, c_slot_allocation sa,"// c_object_name on"
+        " WHERE status = :referred"
+        //" AND" - join on c_object_name for tank, rack?
+        " ORDER BY box_name ASC");
+    qc.open();
+    while (!qc.eof()) {
+        BoxArrivalRecord * box = new BoxArrivalRecord(
+            0, //qc.readInt(""), // record_no
+            0, //qc.readInt(""), // laptop_cid
+            qc.readInt("process_cid"), // c_box_name
+            0, //qc.readInt(""), // box_arrival_id
+            qc.readInt("project_cid"), // c_slot_allocation
+            qc.readDateTime("sa_stamp"), // swipe_time - c_box_name.time_stamp or c_slot_allocation.time_stamp
+            qc.readString("box_name"), // box_name - c_box_name.external_name
+            qc.readInt("bn_status"), // c_box_name.status or c_slot_allocation.status
+            "unknown", //qc.readString(""), // first_barcode
+            0, //qc.readInt(""), // first_position
+            "unknown", //qc.readString(""), // last_barcode
+            0, //qc.readInt(""), // last_position
+            0, //fixme qc.readInt(""), // tank_cid - c_object_name.object_cid where object_type = 16?
+            0, //fixme qc.readString(""), // rack_number
+            qc.readInt("slot_position"), // c_slot_allocation.slot_position
+            qc.readDateTime("bn_stamp")); // c_box_name.time_stamp or c_slot_allocation.time_stamp
         totalReferred.push_back(box);
         qc.next();
     }
@@ -1164,4 +1191,20 @@ void __fastcall TfrmReferred::comboRackDropDown(TObject *Sender) {
     Screen->Cursor = crDefault;
 }
 
+/*
 
+    // insert random statuses for testing
+    bool randomStatus = REFBOXESDEBUG && false;
+    if (randomStatus) {
+        srand(time(NULL)); // initialize random seed
+        qc.setSQL("SELECT * from l_box_arrival WHERE swipe_time > DATE('now') - DATE('90 days')"); // fake
+    } else {
+
+    }
+
+    ...
+    randomStatus ? (rand() % 3 + 5) : // random status between 5 and 7
+    ...
+*/
+
+//editSlot->Text = n2s(box->slot_position).c_str();

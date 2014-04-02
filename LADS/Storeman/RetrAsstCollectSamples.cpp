@@ -662,6 +662,7 @@ void TfrmProcess::nextRow() {
         debugLog("Save chunk"); // no, don't save - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
         if (chunk->getSection() < (int)chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk
+            collectEmpties();
         } else {
             if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
 
