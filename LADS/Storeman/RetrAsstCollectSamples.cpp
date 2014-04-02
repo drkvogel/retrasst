@@ -9,6 +9,7 @@
     // locale, time_put
 #include "TfrmConfirm.h"
 #include "SMLogin.h"
+#include "LPDbBoxes.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -79,7 +80,7 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     sgVials->Enabled    = RETRASSTDEBUG;
     panelDebug->Visible = cbLog->Checked;
     job                 = NULL;
-    loadingMessage = "Loading retrieval list, please wait...";
+    progressMessage = "Loading retrieval list, please wait...";
 }
 
 void __fastcall TfrmProcess::FormClose(TObject *Sender, TCloseAction &Action) {
@@ -94,7 +95,7 @@ void TfrmProcess::debugLog(String s) {
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
     Caption = oss.str().c_str();
-    panelLoading->Caption = loadingMessage;
+    panelLoading->Caption = progressMessage;
     chunks.clear();
     sgwChunks->clear();
     sgwVials->clear();
@@ -359,7 +360,7 @@ void __fastcall TfrmProcess::timerLoadPlanTimer(TObject *Sender) {
 }
 
 void TfrmProcess::loadPlan() {
-    panelLoading->Caption = loadingMessage;
+    panelLoading->Caption = progressMessage;
     panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
     panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
@@ -392,9 +393,9 @@ void __fastcall LoadPlanThread::Execute() {
     For a box retrieval, the retrieval plan will be given by: Select * from c_box_retrieval b order by b.section, b.rj_box_cid
     For a cryovial retrieval, the retrieval plan will be: Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
     delete_referenced< vector<SampleRow * > >(frmProcess->vials); frmProcess->chunks.clear();
-    ostringstream oss; oss<<frmProcess->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
+    ostringstream oss; oss<<frmProcess->progressMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
     if (NULL == frmProcess || NULL == frmProcess->job) { throw "wtf?"; }
-    loadingMessage = frmProcess->loadingMessage;
+    loadingMessage = frmProcess->progressMessage;
     job = frmProcess->job; //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 
     int primary_aliquot = job->getPrimaryAliquot(); int secondary_aliquot = job->getSecondaryAliquot();
@@ -658,11 +659,12 @@ void TfrmProcess::nextRow() {
         chunk->setRowAbs(chunk->nextUnresolvedAbs()); // fast-forward to first non-dealt-with row
     } else { // last row
         //chunk->setRowRel(current+1); // past end to show complete?
-        TfrmRetrievalAssistant::msgbox("review");
-        debugLog("Save chunk"); // no, don't save - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
+        //TfrmRetrievalAssistant::msgbox("review");
+
+        //debugLog("Save chunk"); // no, don't save - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
         if (chunk->getSection() < (int)chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk
-            collectEmpties();
+            checkChunkComplete();
         } else {
             if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
 
@@ -672,6 +674,54 @@ void TfrmProcess::nextRow() {
     showChunks(); // calls showCurrentRow();
     editBarcode->Clear();
     ActiveControl = editBarcode; // focus for next barcode
+}
+
+void TfrmProcess::checkChunkComplete() {
+/*
+At the end of chunk, check if the chunk is actually finished (no REFERRED vials).
+If finished:
+    * Require user to sign off
+    * update cryo store records
+    * calculate if there are any empty boxes
+    * create tick list or switch list of boxes, empty/otherwise
+    * ask user to comfirm that empty boxes are in fact empty
+    * if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
+*/
+    // check if the chunk is actually finished (no REFERRED vials)
+
+    // If not finished
+
+
+    // Require user to sign off
+	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
+	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
+		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
+		return; // fixme what now?
+	}
+
+
+//
+//    Screen->Cursor = crSQLWait; Enabled = false; DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
+//
+//    saveProgressThread = new SaveProgressThread();
+//    saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
+
+    // update cryo store records
+    // calculate if there are any empty boxes
+    collectEmpties();
+    // create tick list or switch list of boxes, empty/otherwise
+    // ask user to comfirm that empty boxes are in fact empty
+    // if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
+    // `c_box_name` and `c_slot_allocation` fields together == `l_box_arrival`
+
+}
+
+void TfrmProcess::prepareProgressMessage(const char * loadingMessage) {
+    panelLoading->Caption = loadingMessage;
+    panelLoading->Visible = true;
+    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
 }
 
 void TfrmProcess::checkExit() {
@@ -689,7 +739,7 @@ void TfrmProcess::exit() { // definitely exiting
 		return; // fixme what now?
 	}
 
-    panelLoading->Caption = loadingMessage;
+    panelLoading->Caption = progressMessage;
     panelLoading->Visible = true;
     panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
@@ -734,16 +784,13 @@ void __fastcall SaveProgressThread::Execute() {
 		for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
 			SampleRow * sample = *it;
 
-			// build a map of source box ID to a set of vials contained in that box
-			int sourceBox = sample->store_record->getBoxID();
-            // should get id of secondary box as well and add it to map, we are checking for all empty boxes
+			int sourceBox = sample->store_record->getBoxID(); // should get id of secondary box as well and add it to map, we are checking for all empty boxes
 
-
+            // build a map of source box ID to a set of vials contained in that box
 			found = boxes.find(sourceBox);
 			if (found == boxes.end()) { // not added yet
 				SetOfVials setOfVials;
 				setOfVials.insert(sample);
-
 				boxes[sourceBox] = setOfVials;
 			} else { // already in map
 				found->second.insert(sample);
@@ -761,6 +808,8 @@ void __fastcall SaveProgressThread::Execute() {
             }
 		}
 
+        frmProcess->emptyBoxes.clear();  //std::set< int > discardBoxes; //std::set< LCDbBoxRetrieval * > discardBoxes;
+
 		// now check for completed boxes
 		for (found = boxes.begin(); found != boxes.end(); found++) { // for each source box
 			bool vialRemains = false;
@@ -775,12 +824,10 @@ void __fastcall SaveProgressThread::Execute() {
                     ;
 				}
 			}
-
-			if (!vialRemains) { // empty/completed box, discard
-				// ???
+			if (!vialRemains) { // empty/completed box, mark for discard
+                frmProcess->emptyBoxes.insert(found->first); // set of int box_cids, used in discardBoxes() //LCDbBoxRetrieval * box = found->first;
 			}
 		}
-
 
 	} catch(Exception & e) {
 		AnsiString msg = e.Message;
@@ -883,6 +930,46 @@ void __fastcall TfrmProcess::saveProgressThreadTerminated(TObject *Sender) {
     }
 }
 
+void TfrmProcess::discardBoxes() {
+    LQuery qp(Util::projectQuery(job->getProjectID(), false));
+    LPDbBoxNames boxNames;
+    boxNames.readFilled(qp); // reads CONFIRMED [2], ANALYSED [3]. boxes.readCurrent(qp) reads EMPTY [0], IN_USE [1]
+    const LPDbBoxName * pBoxName;
+    //LPDbBoxName * boxName;
+    typedef std::vector< LPDbBoxName > VecBoxes;
+    VecBoxes boxes;
+
+    if (!emptyBoxes.empty()) {
+        if (IDYES != Application->MessageBox(L"There are empty boxes. Would you like to mark these as discarded?", L"Info", MB_YESNO)) {
+            throw "user did not want to deal with empty boxes";
+        }
+    }
+
+    std::set< int >::const_iterator idIt;
+    for (idIt = emptyBoxes.begin(); idIt != emptyBoxes.end(); idIt++) {
+        int box_cid = *idIt;
+        pBoxName = boxNames.findByID(box_cid);
+        if (NULL == pBoxName) { // IN_TANK [4] records not read and findByID for those ids returns a null
+            throw "box not found"; //???
+        } else {
+            LPDbBoxName boxName = *(pBoxName);
+            boxName.setStatus(LPDbBoxName::Status::IN_TANK);
+            //LQuery cq(LIMSDatabase::getCentralDb()); // for extra param to LPDbBoxName::saveRecord()
+            //boxName.saveRecord(qp, cq);
+            boxes.push_back(boxName); // can't convert const * to *
+            // not supposed to change - but I think we need to in this instance
+        }
+    }
+
+    VecBoxes::const_iterator boxIt;
+    for (boxIt = boxes.begin(); boxIt != boxes.end(); boxIt++) {
+        //LPDbBoxName * box = *boxIt;
+        LPDbBoxName box = *boxIt;
+        // add to tick/switch list
+
+    }
+}
+
 void TfrmProcess::collectEmpties() {
     /** if, at the end of processing a chunk, there are any source boxes which have become empty,
         the user may want to discard them instead of replacing them.
@@ -890,7 +977,7 @@ void TfrmProcess::collectEmpties() {
 
     // find out if there are any
 
-    if (IDYES != Application->MessageBox(L"There are empty boxes. Would you like to mark these as discarded?", L"Info", MB_YESNO)) return;
+    //if (IDYES != Application->MessageBox(L"There are empty boxes. Would you like to mark these as discarded?", L"Info", MB_YESNO)) return;
 
 //    for
 

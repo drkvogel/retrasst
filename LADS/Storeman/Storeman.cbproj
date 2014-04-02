@@ -6,7 +6,7 @@
 			<AppType>Application</AppType>
 			<MainSource>StoreMan.cpp</MainSource>
 			<Base>True</Base>
-			<Config Condition="'$(Config)'==''">Release</Config>
+			<Config Condition="'$(Config)'==''">Debug</Config>
 			<Platform Condition="'$(Platform)'==''">Win32</Platform>
 			<TargetedPlatforms>3</TargetedPlatforms>
 		</PropertyGroup>
@@ -98,7 +98,7 @@
 			<PackageImports>rtl;vcl;vclimg;vclx;$(PackageImports)</PackageImports>
 			<ILINK_LibraryPath>C:\Users\nicholas\Documents\RAD Studio\Projects\LIMS\CoreUtilities\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
 			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-			<IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
+			<IncludePath>$(BDSINCLUDE)\windows\vcl;C:\Program Files (x86)\Ingres\IngresII\ingres\files;$(IncludePath)</IncludePath>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1)'!=''">
 			<VerInfo_Debug>true</VerInfo_Debug>
@@ -128,8 +128,7 @@
 			<LinkPackageImports>rtl.bpi;vcl.bpi;vclx.bpi;vclimg.bpi</LinkPackageImports>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-			<LinkPackageStatics>IndyCore.lib;IndySystem.lib;IndyProtocols.lib;xmlrtl.lib;inet.lib;dsnap.lib</LinkPackageStatics>
-			<LinkPackageImports>rtl.bpi;vcl.bpi;vclx.bpi;vclimg.bpi</LinkPackageImports>
+			<LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib</LinkPackageStatics>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
 			<UsePackages>false</UsePackages>
@@ -588,6 +587,12 @@
 				<DependentOn>RetrAsstCollectBoxes.h</DependentOn>
 				<BuildOrder>9</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="RetrAsstCollectEmpties.cpp">
+				<Form>Form1</Form>
+				<FormType>dfm</FormType>
+				<DependentOn>RetrAsstCollectEmpties.h</DependentOn>
+				<BuildOrder>128</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="RetrAsstCollectSamples.cpp">
 				<Form>frmProcess</Form>
 				<FormType>dfm</FormType>
@@ -805,6 +810,7 @@
 			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
 			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
+			<FormResources Include="RetrAsstCollectEmpties.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

@@ -132,8 +132,12 @@ private:
     void                                        skip();
     void                                        nextRow();
     void                                        collectEmpties();
-    const char *                                loadingMessage;
+    const char *                                progressMessage;
+    void                                        prepareProgressMessage(const char * loadingMessage);
     void                                        debugLog(String s);
+    void                                        checkChunkComplete();
+    std::set< int >                             emptyBoxes;
+    void                                        discardBoxes();
     void                                        checkExit();
 	void                                        exit();
 	void 										storeSample(SampleRow * sample);
