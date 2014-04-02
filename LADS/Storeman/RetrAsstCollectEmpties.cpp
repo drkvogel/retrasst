@@ -1,5 +1,3 @@
-//---------------------------------------------------------------------------
-
 #include <vcl.h>
 #pragma hdrstop
 
@@ -7,13 +5,13 @@
 #include "RetrAsstCollectSamples.h"
 #include "RetrAsstMain.h"
 #include "LPDbBoxes.h"
-//---------------------------------------------------------------------------
+
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TForm1 *Form1;
-//---------------------------------------------------------------------------
-__fastcall TForm1::TForm1(TComponent* Owner)
+TfrmCollectEmpties *frmCollectEmpties;
+
+__fastcall TfrmCollectEmpties::TfrmCollectEmpties(TComponent* Owner)
     : TForm(Owner)
 {
 }
-//---------------------------------------------------------------------------
+

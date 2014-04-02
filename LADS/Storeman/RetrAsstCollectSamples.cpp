@@ -10,6 +10,7 @@
 #include "TfrmConfirm.h"
 #include "SMLogin.h"
 #include "LPDbBoxes.h"
+#include "RetrAsstCollectEmpties.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -952,10 +953,8 @@ void TfrmProcess::discardBoxes() {
         if (NULL == pBoxName) { // IN_TANK [4] records not read and findByID for those ids returns a null
             throw "box not found"; //???
         } else {
-            LPDbBoxName boxName = *(pBoxName);
-            boxName.setStatus(LPDbBoxName::Status::IN_TANK);
-            //LQuery cq(LIMSDatabase::getCentralDb()); // for extra param to LPDbBoxName::saveRecord()
-            //boxName.saveRecord(qp, cq);
+            //pBoxName->saveRecord(qp); // can't do this on const *
+            LPDbBoxName boxName = *(pBoxName); // so make mutable object
             boxes.push_back(boxName); // can't convert const * to *
             // not supposed to change - but I think we need to in this instance
         }
@@ -963,10 +962,13 @@ void TfrmProcess::discardBoxes() {
 
     VecBoxes::const_iterator boxIt;
     for (boxIt = boxes.begin(); boxIt != boxes.end(); boxIt++) {
-        //LPDbBoxName * box = *boxIt;
         LPDbBoxName box = *boxIt;
         // add to tick/switch list
 
+        //boxName.setStatus(LPDbBoxName::Status::IN_TANK);
+        //LQuery cq(LIMSDatabase::getCentralDb()); // for extra param to LPDbBoxName::saveRecord()
+        //boxName.saveRecord(qp, cq);
+        frmCollectEmpties->ShowModal();
     }
 }
 
@@ -980,7 +982,6 @@ void TfrmProcess::collectEmpties() {
     //if (IDYES != Application->MessageBox(L"There are empty boxes. Would you like to mark these as discarded?", L"Info", MB_YESNO)) return;
 
 //    for
-
 
 /*  * collect empties (all vials "accepted" or "not found") for discard
     * at the end of processing each chunk, if source boxes are now empty

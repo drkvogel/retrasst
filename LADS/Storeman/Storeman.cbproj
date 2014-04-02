@@ -588,7 +588,7 @@
 				<BuildOrder>9</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="RetrAsstCollectEmpties.cpp">
-				<Form>Form1</Form>
+				<Form>frmCollectEmpties</Form>
 				<FormType>dfm</FormType>
 				<DependentOn>RetrAsstCollectEmpties.h</DependentOn>
 				<BuildOrder>128</BuildOrder>

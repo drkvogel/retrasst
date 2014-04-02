@@ -8,6 +8,7 @@
 
 
 
+
 USEFORM("RationaliseTanks\RatTanksMainDialog.cpp", frmRatTanksMainDialog);
 USEFORM("RationaliseTanks\RatTanksdbSelection.cpp", frmRatTankDbSelectionDialog);
 USEFORM("RationaliseTanks\RatTanksBoxType.cpp", frmRatTanksBoxType);
@@ -60,7 +61,7 @@ USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
 USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
 USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
 USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
-USEFORM("RetrAsstCollectEmpties.cpp", Form1);
+USEFORM("RetrAsstCollectEmpties.cpp", frmCollectEmpties);
 //---------------------------------------------------------------------------
 WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
@@ -117,7 +118,7 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmRetrievalAssistant), &frmRetrievalAssistant);
          Application->CreateForm(__classid(TfrmBoxes), &frmBoxes);
          Application->CreateForm(__classid(TfrmSamples), &frmSamples);
-         Application->CreateForm(__classid(TForm1), &Form1);
+         Application->CreateForm(__classid(TfrmCollectEmpties), &frmCollectEmpties);
          Application->Run();
 	}
 	catch (Exception &exception)

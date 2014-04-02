@@ -9,15 +9,15 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.CheckLst.hpp>
 //---------------------------------------------------------------------------
-class TForm1 : public TForm
+class TfrmCollectEmpties : public TForm
 {
 __published:	// IDE-managed Components
     TCheckListBox *CheckListBox1;
 private:	// User declarations
 public:		// User declarations
-    __fastcall TForm1(TComponent* Owner);
+    __fastcall TfrmCollectEmpties(TComponent* Owner);
 };
 //---------------------------------------------------------------------------
-extern PACKAGE TForm1 *Form1;
+extern PACKAGE TfrmCollectEmpties *frmCollectEmpties;
 //---------------------------------------------------------------------------
 #endif
