@@ -2,9 +2,8 @@
 
 ### chunk finished
 
-At the end of chunk, check if the chunk is actually finished (no REFERRED vials).
-If finished:
-    * Require user to sign off
+At the end of chunk, check if the chunk is actually finished (no REFERRED vials). If finished:
+    * Require user to sign off-
     * update cryo store records
     * calculate if there are any empty boxes
     * create tick list or switch list of boxes, empty/otherwise

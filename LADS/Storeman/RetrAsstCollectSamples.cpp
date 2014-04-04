@@ -759,22 +759,6 @@ void __fastcall SaveProgressThread::Execute() {
 	* `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
     * how to update boxes? check at save and exit that all vials in a box have been saved? */
 
-            /*int rj_box_cid;
-			map<int, int> boxes; // box_id to rj_box_id, per chunk
-			map<int, int>::iterator found = boxes.find(dest_box_id);
-			if (found == boxes.end()) { // not added yet, add record and cache
-				LCDbBoxRetrieval box(//rj_box_cid,
-                    job->getID(),
-					dest_box_id,
-                    job->getProjectID(),
-                    chunk->getSection(),
-                    LCDbBoxRetrieval::Status::NEW);
-				box.saveRecord(qc);
-				rj_box_cid = boxes[dest_box_id] = box.getRJBId(); // cache result
-            } else {
-				rj_box_cid = found->second;
-			}
-			return rj_box_cid;*/
 	typedef std::set< SampleRow * > SetOfVials;
 	typedef std::map< int, SetOfVials > VialsInBoxesMap;
 	VialsInBoxesMap boxes;
@@ -893,10 +877,6 @@ void SaveProgressThread::jobFinished() {
         cbr.setStatus(LCDbBoxRetrieval::COLLECTED);
         cbr.saveRecord(LIMSDatabase::getCentralDb()); // time_stamp set by default - should be in 2.7.2
 
-        //qc.readInt
-
-        // `cryovial_store`: as above (dealt with already?)
-
         // `box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2` (CONFIRMED)
 
         // `c_box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2` (CONFIRMED)
@@ -907,6 +887,7 @@ void SaveProgressThread::jobFinished() {
     frmProcess->job->setStatus(LCDbCryoJob::DONE);
     frmProcess->job->saveRecord(qc); // finish date is updated by this method
 }
+// `cryovial_store`: as above (dealt with already?)
 
 void __fastcall TfrmProcess::saveProgressThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false; Screen->Cursor = crDefault;
