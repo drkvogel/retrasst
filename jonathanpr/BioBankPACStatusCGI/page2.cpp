@@ -1,17 +1,13 @@
 //---------------------------------------------------------------------------
-
 #pragma hdrstop
 
 #include <vector>
 #include <iostream>
-
 #include "page2.h"
-
 #include <math.h>
 
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
-
 
 void page2::sendHeader( ) const
 {
@@ -25,8 +21,10 @@ void page2::sendHeader( ) const
 }
 
 //--------------------------------------------------------------------------
+//Generate the HTML for the page
 void page2::sendQuestions( )
 {
+//add the security token to the HTML
 	this->getData().outputFormToken();
 	int MaxToShowPerPage = 20;
 	int page = this->getData().getLogs().getSelectedPage().igetText();

@@ -6,59 +6,56 @@
 
 //---------------------------------------------------------------------------
 
-
-
-
-USEFORM("RationaliseTanks\RatTanksMainDialog.cpp", frmRatTanksMainDialog);
 USEFORM("RationaliseTanks\RatTanksdbSelection.cpp", frmRatTankDbSelectionDialog);
-USEFORM("RationaliseTanks\RatTanksBoxType.cpp", frmRatTanksBoxType);
-USEFORM("RationaliseTanks\RatTanksBoxSelection.cpp", frmRatTanksBoxSelection);
 USEFORM("RationaliseTanks\RatTanksCreateRetrievalJob.cpp", frmRatTankCreateRetrievalJob);
+USEFORM("RationaliseTanks\RatTanksBoxSelection.cpp", frmRatTanksBoxSelection);
+USEFORM("RationaliseTanks\RatTanksBoxType.cpp", frmRatTanksBoxType);
 USEFORM("RationaliseTanks\RatTanksCreateExercise.cpp", frmRatTanksRetrivalExercise);
-USEFORM("RetrAsstCollectBoxes.cpp", frmProcessBoxes);
+USEFORM("RationaliseTanks\RatTanksMainDialog.cpp", frmRatTanksMainDialog);
 USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
-USEFORM("RetrAsstMain.cpp", frmRetrievalAssistant);
+USEFORM("RetrAsstCollectBoxes.cpp", frmProcessBoxes);
 USEFORM("RetrAsstCollectSamples.cpp", frmProcess);
-USEFORM("RationaliseTanks\RatTanksPleaseWait.cpp", frmRatTankPleaseWait);
 USEFORM("ReferredBoxes.cpp", frmReferred);
+USEFORM("RationaliseTanks\RatTanksPleaseWait.cpp", frmRatTankPleaseWait);
 USEFORM("RationaliseTanks\RatTanksSignIn.cpp", frmRatTankSignIn);
-USEFORM("FindSample.cpp", frmFind);
-USEFORM("DiscardReason.cpp", frmDiscardReason);
-USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
-USEFORM("DiscardSearch.cpp", frmSearch);
-USEFORM("DiscardSamples.cpp", frmDiscardSamples);
-USEFORM("NewSite.cpp", frmNewSite);
-USEFORM("NewSection.cpp", frmNewSection);
 USEFORM("NewType.cpp", frmNewStoreType);
+USEFORM("FindSample.cpp", frmFind);
+USEFORM("DiscardSearch.cpp", frmSearch);
+USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
+USEFORM("DiscardReason.cpp", frmDiscardReason);
+USEFORM("DiscardSamples.cpp", frmDiscardSamples);
+USEFORM("NewSection.cpp", frmNewSection);
+USEFORM("NewSite.cpp", frmNewSite);
 USEFORM("NewTank.cpp", frmNewTank);
-USEFORM("NewBoxType.cpp", frmNewBoxType);
-USEFORM("MoveJobs.cpp", frmSelectJob);
 USEFORM("NewJob.cpp", frmNewJob);
+USEFORM("MoveJobs.cpp", frmSelectJob);
+USEFORM("NewBoxType.cpp", frmNewBoxType);
 USEFORM("NewExercise.cpp", frmNewExercise);
+USEFORM("RetrAsstMain.cpp", frmRetrievalAssistant);
 USEFORM("SMLogin.cpp", frmSMLogin);
 USEFORM("Storemain.cpp", frmStoremain);
-USEFORM("RetrievalLists\RetrievalListMainListDialog.cpp", frmRetrievalListDialog);
-USEFORM("RetrievalLists\retrievalListMainDialog.cpp", frmRetrievalListViewListMain);
-USEFORM("RetrAsstPlanSamples.cpp", frmSamples);
-USEFORM("RetrAsstPlanBoxes.cpp", frmBoxes);
-USEFORM("RetrievalLists\RetrievalListCryovialHistoryDialog.cpp", frmRetrievalListCryovialHistoryDialog);
-USEFORM("SampleMove.cpp", frmMove);
 USEFORM("showsamples.cpp", frmAliquotTypes);
+USEFORM("RetrievalLists\retrievalListMainDialog.cpp", frmRetrievalListViewListMain);
+USEFORM("RetrAsstPlanBoxes.cpp", frmBoxes);
+USEFORM("RetrAsstPlanSamples.cpp", frmSamples);
+USEFORM("RetrievalLists\RetrievalListCryovialHistoryDialog.cpp", frmRetrievalListCryovialHistoryDialog);
+USEFORM("RetrievalLists\RetrievalListMainListDialog.cpp", frmRetrievalListDialog);
+USEFORM("SampleMove.cpp", frmMove);
 USEFORM("SelectSamples.cpp", frmSelectBoxes);
-USEFORM("RetrievalLists\RetrievalListResultsDialog.cpp", frmRetrievalListResultsDialog);
-USEFORM("RetrievalLists\RetrievalListResultNotesDialog.cpp", frmRetrievalListResultNotesDialog);
 USEFORM("SampleEntry.cpp", frmRetrieveMain);
+USEFORM("RetrievalLists\RetrievalListResultNotesDialog.cpp", frmRetrievalListResultNotesDialog);
+USEFORM("RetrievalLists\RetrievalListResultsDialog.cpp", frmRetrievalListResultsDialog);
 USEFORM("RetrieveSamples.cpp", frmRetrieved);
+USEFORM("DiscardNote.cpp", frmDiscardNote);
 USEFORM("AddSpecimens.cpp", frmAddSpecimens);
 USEFORM("AnalyseSamples.cpp", frmAnalyseSpecimens);
-USEFORM("DiscardNote.cpp", frmDiscardNote);
 USEFORM("DiscardMethod.cpp", frmDiscardMethod);
-USEFORM("BrowseSample.cpp", frmBrowse);
 USEFORM("BoxTransfer.cpp", frmBoxList);
+USEFORM("BrowseSample.cpp", frmBrowse);
 USEFORM("Configure.cpp", frmConfigure);
-USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
-USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
 USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
+USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
+USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
 USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
 USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
 USEFORM("RetrAsstCollectEmpties.cpp", frmCollectEmpties);

@@ -143,7 +143,8 @@ const LPDbDescriptor * TselectorFrame::getDescriptor() const
 {
 	if( cbDescrip -> Text.IsEmpty() )
 		return NULL;
-	return LPDbDescriptors::records().findByName( AnsiString( cbDescrip -> Text ).c_str() );
+	std::string dn = AnsiString( cbDescrip -> Text ).c_str();
+	return LPDbDescriptors::records().findByName( dn );
 }
 
 //---------------------------------------------------------------------------

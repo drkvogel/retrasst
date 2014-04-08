@@ -16,11 +16,16 @@ class XDB;
 class XQUERY;
 
 //---------------------------------------------------------------------------
+//PAGE 2 - Logs
+//Keeps the state of page 2 and loads in all the information from the database for page 2
 class PACSlog
 {
+//Have we loaded in the data from the database?
 	bool m_ready;
+//Where the loaded database information is stored
 	static std::vector<PACSlog> m_logs;
 
+//The raw database data
 	int m_id;
 	int m_loglevel;
 	XTIME m_timestamp;
@@ -29,12 +34,12 @@ class PACSlog
 	std::string m_patientid;
 	XTIME m_studydate;
 
-	std::string m_error;
-
+	//has the total number of rows returns from the database
 	int m_rowCount;
 
-	Result m_logpage;
-
+//PAGE State
+	Result m_logpage; //which table page are we on
+//FILTERS
 	Result m_logLevelFilter;
 	Result m_logTypeFilter;
 	Result m_logTimespanFilter;

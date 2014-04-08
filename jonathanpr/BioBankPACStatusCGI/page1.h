@@ -8,7 +8,7 @@
 #include "view.h"
 
 //---------------------------------------------------------------------------
-
+//Page 1 view definition
 class page1 : public View
 {
 	void sendStatusInfo();

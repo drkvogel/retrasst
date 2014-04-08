@@ -80,8 +80,8 @@ bool TfrmAddSpecimens::init( TStrings * barcodes )
 	samples.clear();
 	if( barcodes != NULL ) {
 		for( int n = 0; n < barcodes -> Count; ++ n ) {
-			AnsiString barcode = barcodes -> Strings[ n ];
-			samples.add( barcode.c_str() );
+			std::string barcode = AnsiString( barcodes -> Strings[ n ] ).c_str();
+			samples.add( barcode );
 		}
 	}
 	return true;

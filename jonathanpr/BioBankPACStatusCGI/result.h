@@ -9,7 +9,8 @@
 #include <sstream>
 #include "xtime.h"
 //---------------------------------------------------------------------------
-
+//A datastucuture to hold various types of data and convert those types to string
+//so they can be displayed
 class Result
 {
 public:

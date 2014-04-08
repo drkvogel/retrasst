@@ -88,7 +88,7 @@ bool LPDbBoxNames::readCurrent( LQuery pq )
 
 void LPDbBoxNames::addCryovials( LQuery pq )
 {
-	for( iterator ci = begin(); ci != end(); ci ++ ) {
+	for( Iterator ci = begin(); ci != end(); ci ++ ) {
 		ci -> addCryovials( pq );
 	}
 }
@@ -99,8 +99,9 @@ void LPDbBoxName::addCryovials( LQuery & pq )
 {
 	LPDbCryovials content;
 	content.readByBoxID( pq, getID() );
-	for( Range< LPDbCryovial > cr = content; cr.isValid(); ++ cr )
-		addCryovial( cr->getPosition(), cr->getBarcode() );
+	for( const LPDbCryovial & cr : content ) {
+		addCryovial( cr.getPosition(), cr.getBarcode() );
+    }
 	checkFilledBy( pq );
 }
 

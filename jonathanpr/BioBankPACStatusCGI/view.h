@@ -9,6 +9,7 @@
 #define REQUIREDbool true
 #define RADIO_REQUIRED true
 
+//Base class for all Views (pages)
 class View
 {
 	Model model;
@@ -24,8 +25,7 @@ protected:
 	virtual void sendFooter();
 	virtual void deployJS() const;
 
-	void sendTitle( ) const;
-
+//helper functions to render some common option controls
 	struct RADIO_OPTIONS
 	{
 		std::string text;
@@ -38,9 +38,9 @@ protected:
 	void addRadio(std::string vectorvalue, const std::string name, int value, bool selected, bool required = true) const;
 	void addRadioReadOnly(std::string vectorvalue, const std::string name, int value, bool selected ) const;
 
+//helper functions to format a number into a string, pads out the number to miniumSize
 	static std::string formatNumber(unsigned int number, int miniumSize=2);
 public:
-
 	virtual ~View() {}
 	void sendHTML( );
 	void setShowNoButtons() {m_ShowNoButtons = true;}

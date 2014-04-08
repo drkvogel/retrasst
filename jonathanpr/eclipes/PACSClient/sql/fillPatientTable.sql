@@ -4,11 +4,11 @@ INSERT INTO cronstatus (name,started,finished)
 \p\g
 
 INSERT INTO cronstatus (name,started,finished)		
-	VALUES         ('UPLOADQUESTIONS','01/01/2000 01:01:01','01/01/2000 01:01:01');
+	VALUES         ('CLINICAL','01/01/2000 01:01:01','01/01/2000 01:01:01');
 \p\g
 
 INSERT INTO cronstatus (name,started,finished)		
-	VALUES         ('DOWNLOADDICOM','01/01/2000 01:01:01','01/01/2000 01:01:01');
+	VALUES         ('GETDICOM','01/01/2000 01:01:01','01/01/2000 01:01:01');
 \p\g
 
 INSERT INTO cronstatus (name,started,finished)		
@@ -18,8 +18,9 @@ INSERT INTO cronstatus (name,started,finished)
 INSERT INTO cronstatus (name,started,finished)		
 	VALUES         ('DECRYPT','01/01/2000 01:01:01','01/01/2000 01:01:01');
 \p\g
-
-INSERT INTO biobankparticipant (pid,dicomparticipantid,scandate)		
-	VALUES         (903162640,'ABCD1234','01/01/2000 01:01:01');
+INSERT INTO cronstatus (name,started,finished)		
+	VALUES         ('QUERYICE','01/01/2000 01:01:01','01/01/2000 01:01:01');
 \p\g
-
+INSERT INTO staff (name)
+	VALUES		 	('jonathanp');
+\p\g

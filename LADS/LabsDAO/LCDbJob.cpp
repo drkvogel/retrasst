@@ -267,7 +267,7 @@ LCDbCryoJobs::LCDbCryoJobs( bool keepAlive )
 void __fastcall LCDbCryoJobs::Renewal(TObject *)
 {
 	renew -> Enabled = false;
-	for( iterator ci = begin(); ci != end(); ci ++ )
+	for( Iterator ci = begin(); ci != end(); ci ++ )
 		if( ci -> getStatus() == LCDbCryoJob::INPROGRESS
 		 && ci -> getProcessCID() == LCDbAuditTrail::getCurrent().getProcessID() )
 			ci -> claim( LIMSDatabase::getCentralDb(), true );
@@ -308,6 +308,12 @@ void LCDbCryoJob::setReason( const std::string & exName ) {
 		exercise = obj->getID();
 		reason = exName;
 	}
+}
+
+//---------------------------------------------------------------------------
+
+const LCDbCryoJob * LCDbCryoJobs::findByName( const std::string & name ) const {
+		return findMatch( LDbNames::LCMatcher( name ) );
 }
 
 //---------------------------------------------------------------------------

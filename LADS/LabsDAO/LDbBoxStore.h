@@ -11,7 +11,7 @@
 
 class LCDbBoxStore : public LPDbID
 {
-	int rackID, boxID, slotID;
+	int rackID, boxID;
 	short slot, status;
 	TDateTime updated, removed;
 	int jobID, processID;
@@ -20,32 +20,32 @@ class LCDbBoxStore : public LPDbID
 	int projectID, boxTypeID, tankID;
 
 	void copyFields( const LQuery & ddbq );
-
-	bool findSlotRecord( LQuery & ddbq );
-	bool updateBoxRecord( LQuery & ddbq );
-	bool insertStoreRecord( LQuery & ddbq );
-	bool updateStoreRecord( LQuery & ddbq );
-	bool insertSlotRecord( LQuery & ddbq );
-	bool updateSlotRecord( LQuery & ddbq );
+	bool needsNewID( LQuery & cq ) const;
+	bool findSlotRecord( LQuery & cq );
+	bool updateBoxRecord( LQuery & pq );
+	bool insertStoreRecord( LQuery & pq );
+	bool updateStoreRecord( LQuery & pq );
+	bool insertSlotRecord( LQuery & cq );
+	bool updateSlotRecord( LQuery & cq );
 
 public:
 
 	enum Status { EXPECTED = 0, UNCONFIRMED = 1, MOVE_EXPECTED = 2, REMOVED = 3,
 				SLOT_ALLOCATED = 5, SLOT_CONFIRMED = 6, REFERRED = 7, DELETED = 99 };
 
-	LCDbBoxStore( const LQuery & project );
+	LCDbBoxStore( const LQuery & pq );
 
 	LCDbBoxStore( int id, int population, const std::string & rak, short pos )
 	 : LPDbID( id ), tankID( population ), rack( rak ), slot( pos )
 	{
-		slotID = jobID = processID = projectID = boxID = boxTypeID = rackID = 0;
+		jobID = processID = projectID = boxID = boxTypeID = rackID = 0;
 		status = EXPECTED;
 	}
 
 	LCDbBoxStore( const std::string & place, int population, const std::string & rak, short pos )
 	 : site( place ), tankID( population ), rack( rak ), slot( pos )
 	{
-		slotID = jobID = processID = projectID = boxID = boxTypeID = rackID = 0;
+		jobID = processID = projectID = boxID = boxTypeID = rackID = 0;
 		status = EXPECTED;
 	}
 
@@ -57,14 +57,17 @@ public:
 
 	bool findBoxRecord( LQuery & ddbq );
 	bool findStoreRecord( LQuery & ddbq );
-	bool setJobRef( LQuery ddbq, int jobRef, Status reason );
-	bool saveRecord( LQuery ddbq );
+	bool setJobRef( LQuery pq, int jobRef, Status reason );
+	bool saveRecord( LQuery pq );
 
 	int getTankID() const { return tankID; }
 	int getRackID() const { return rackID; }
 	short getSlotPosition() const { return slot; }
 	int getBoxID() const { return boxID; }
 	int getJobID() const { return jobID; }
+
+private:
+	bool setJobRef( LQuery & ddbq, bool central, int jobRef, Status reason );
 };
 
 //---------------------------------------------------------------------------

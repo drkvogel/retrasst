@@ -2,9 +2,8 @@
 #define stringsplith
 
 // Split string into parts.
-//stringsplit split("hello,world", ",");
-
-
+//As std::string doesn't seam to have this basic functionality
+//usage: stringsplit split("hello,world", ",");
 class stringsplit : public std::vector<std::string>
 {
 public:

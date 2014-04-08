@@ -393,7 +393,9 @@ public:
     float getProgress() {
         // there could be gaps (previously deferred vials). Gotta count 'em.
         processed = 0;
-        for (int i=0; i<getSize(); i++) {
+        int size = getSize();
+        if (0 == size) return 0;
+        for (int i=0; i<size; i++) {
             int status = objectAtRel(i)->retrieval_record->getStatus();
             //EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };
             switch (status) {
@@ -409,7 +411,7 @@ public:
                         // e.g. if status enum in LCDbCryovialRetrieval changed and plan using old scheme loaded
             }
         }
-        return ((float)processed/((float)getSize()));
+        return ((float)processed/((float)size));
     }
     string progressString() {
         ostringstream oss;

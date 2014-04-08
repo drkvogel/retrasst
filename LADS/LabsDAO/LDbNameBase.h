@@ -28,12 +28,12 @@ protected:
 
 public:
 
+	static std::string makeLower( const std::string & s );
+	static int compareIC( const std::string & s1, const std::string & s2 );
+
 	class LCMatcher : public std::unary_function< LDbNames, bool >
 	{
-		const std::string value, lcValue;
-		static const short MAX_LENGTH = 30;
-
-		static std::string makeLower( const std::string & s );
+		std::string value, lcValue;
 
 	public:
 
@@ -42,7 +42,6 @@ public:
 
 		const std::string & getLCValue() const { return lcValue; }
 		operator std::string() const { return lcValue; }
-//		int compare( const std::string & s ) const;
 		bool operator() ( const LDbNames & other ) const;
 	};
 

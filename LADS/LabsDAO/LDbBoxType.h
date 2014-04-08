@@ -15,11 +15,9 @@ class LPDbBoxType : public LPDbID, public LDbNames
 {
 	short group, position, status, uses;
 	int sizeID;
+	std::vector< int > content;
 
 	static bool hasLocalContent();
-	bool needsNewID() const;
-
-	std::vector< int > content;
 
 public:
 
@@ -29,8 +27,8 @@ public:
 	 : LPDbID( id ), group( 0 ), position( 0 ), status( LONG_TERM ), uses( 0 ), sizeID( 0 )
 	{}
 
-	LPDbBoxType( const LQuery & query );
-	bool saveRecord( LQuery query );
+	LPDbBoxType( const LQuery & cQuery );
+	bool saveRecord( LQuery cQuery );
 
 	bool isActive() const { return status != DELETED; }
 	Expectation getUse() const { return Expectation( status ); }
@@ -43,19 +41,17 @@ public:
 	void setPosition( short pos ) { position = pos; }
 	short getExpectedUses() const { return uses; }
 	void setExpectedUses( short count ) { uses = count; }
-
-	typedef Range< int > Aliquots;
-	Aliquots getAliquots() const { return content; }
+	const std::vector< int > & getAliquots() const { return content; }
 	bool hasAliquot( int atid ) const;
-	void setAliquots( Aliquots aliquotTypes );
+	void setAliquots( const std::vector< int > & aliquotTypes );
 };
 
 //---------------------------------------------------------------------------
 
-class LPDbBoxTypes : public LDbCache< LPDbBoxType >, public LPDbCacheMap< LPDbBoxTypes >
+class LPDbBoxTypes : public LDbCache< LPDbBoxType >, public LCDbSingleton< LPDbBoxTypes >
 {
 public:
-	bool read( LQuery query, bool readAll = false );
+	bool read( LQuery cQuery, bool readAll = false );
 	const LPDbBoxType * find( const std::string & name ) const {
 		return findMatch( LDbNames::LCMatcher( name ) );
 	}

@@ -7,6 +7,7 @@
  *      4 October 08, NG:	refactored again; ask before throwing exception
  *      17 July 2013, NG:	use (2.7) sequences in place of next_id tables
  *		2 September 2013:	simplified - use sequence cache rather than local
+ *      31 March 2014, NG:	only read sequence once before warning about errors
  *
  *--------------------------------------------------------------------------*/
 
@@ -36,17 +37,18 @@ int LDbIdBase::readID( LQuery & query, std::string sequence )
 {
 	String message;
 	query.setSQL( "select next value for " + sequence );
+	id = 0;
 	for( ;; ) {
 		try	{
-			for( int attempt = 1; attempt < 5; attempt ++ ) {
-				id = query.open() ? query.readInt( 0 ) : 0;
-				if( id == 0 ) {
-					Sleep( 500 + random( 1000 * attempt ) );
-				} else {
-					return id;
-				}
+			if( query.open() ) {
+				id = query.readInt( 0 );
+				query.close();
 			}
-			message = "Problem allocating next ID";
+			if( id == 0 ) {
+				message = "Problem allocating next ID";
+			} else {
+				return id;
+			}
 		}
 		catch( Exception & nide ) {
 			message = nide.Message;

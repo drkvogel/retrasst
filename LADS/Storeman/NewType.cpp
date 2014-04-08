@@ -43,10 +43,8 @@ void __fastcall TfrmNewStoreType::FormShow(TObject *Sender)
 
 const LCDbObject * TfrmNewStoreType::createRecord() {
 	LCDbObject type( LCDbObject::STORAGE_TYPE );
-	AnsiString name = TxtName->Text.Trim();
-	type.setName( name.c_str() );
-	AnsiString full = TxtFull->Text.Trim();
-	type.setDescription( full.c_str() );
+	type.setName( AnsiString( TxtName->Text.Trim() ).c_str() );
+	type.setDescription( AnsiString( TxtFull->Text.Trim() ).c_str() );
 	std::string operation = "Create new type " + type.getName();
 	std::set< int > central;
 	central.insert( 0 );

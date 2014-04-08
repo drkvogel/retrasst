@@ -73,8 +73,9 @@ void __fastcall TfrmSelectBoxes::btnAddBoxClick(TObject *Sender)
 bool TfrmSelectBoxes::addBox() {
 	ROSETTA boxDetails;
 	int projID = LCDbProjects::getCurrentID();
-	AnsiString barcode = txtName->Text, type = cbType->Text;
-	StoreDAO().loadBoxDetails( barcode.c_str(), type.c_str(), projID, boxDetails );
+	std::string barcode = AnsiString( txtName->Text ).c_str();
+	std::string type = AnsiString( cbType->Text ).c_str();
+	StoreDAO().loadBoxDetails( barcode, type, projID, boxDetails );
 	int typeID = boxDetails.getIntDefault( "box_type_cid", 0 );
 	if( typeID == 0 ) {
 		return false;

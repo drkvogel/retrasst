@@ -49,9 +49,8 @@ int main( int argc, char **argv )
 	std::string	e;
 	ru = new RAND_UTIL( &cgi );
 #ifndef __BORLANDC__
-	db = ru->openDB( "biocore_pacs_live" );
+	db = ru->openDB( "biocore_pacs" );
 #else
-//	db = ru->openDB( "red::biocore_pacsclinicdata" );
 	db = ru->openDB( "bb5_extract::biocore_pacs" );
 #endif
 	if ( ru->isValid() )

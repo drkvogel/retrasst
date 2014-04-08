@@ -77,7 +77,7 @@ bool LCDbSectionDef::saveRecord( LQuery query )
 
 const LCDbSectionDef * LCDbSectionDefs::find( int tankLayout, const std::string & name ) const {
 	const LCDbSectionDef * found = NULL;
-	for( const_iterator seg = begin(); seg != end(); ++ seg ) {
+	for( ConstIter seg = begin(); seg != end(); ++ seg ) {
 		if( seg->getTankLayoutCID() == tankLayout && seg->getSectionPrefix() == name ) {
 			if( found == NULL ) {
 				found = &(*seg);

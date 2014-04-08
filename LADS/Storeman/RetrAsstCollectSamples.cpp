@@ -504,6 +504,8 @@ void __fastcall TfrmProcess::loadPlanThreadTerminated(TObject *Sender) {
         //showCurrentRow();
     } catch (Exception & e) {
 		TfrmRetrievalAssistant::msgbox(e.Message);
+    } catch (...) {
+        TfrmRetrievalAssistant::msgbox("problem displaying plan");
     }
     Enabled = true;
     DEBUGSTREAM(__FUNC__<<"loadRows for job "<<job->getID()<<" finished")
@@ -700,10 +702,7 @@ If finished:
 		return; // fixme what now?
 	}
 
-
-//
 //    Screen->Cursor = crSQLWait; Enabled = false; DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
-//
 //    saveProgressThread = new SaveProgressThread();
 //    saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
 
@@ -880,7 +879,6 @@ void SaveProgressThread::jobFinished() {
         // `box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2` (CONFIRMED)
 
         // `c_box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2` (CONFIRMED)
-
     }
 
     // `c_retrieval_job`: update `finish_date`, `status` = 2

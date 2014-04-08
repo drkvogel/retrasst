@@ -56,7 +56,7 @@ bool LCDbOperators::read( LQuery cQuery, bool readAll )
 		cQuery.setParam( "sts", LCDbOperator::DELETED );
 	}
 
-	iterator ci = begin();
+	Iterator ci = begin();
 	for( cQuery.open(); !cQuery.eof(); cQuery.next() )
 	{
 		int oid = cQuery.readInt( "operator_cid" );
@@ -78,6 +78,32 @@ LCDbOperator::Priv::Priv( const LQuery & cQuery )
    page( cQuery.readInt( "page_number" ) ),
    status( cQuery.readInt( "status" ) )
 {}
+
+//---------------------------------------------------------------------------
+
+void LCDbOperator::setPassword( const std::string & password ) {
+	if( password.length() < 3 )
+		throw Exception( "Password must be at least 3 characters" );
+	passCode = encrypt( password );
+}
+
+//---------------------------------------------------------------------------
+
+bool LCDbOperator::matchPassword( const std::string & password ) const {
+	return passCode.empty() || compareIC( encrypt( password ), passCode );
+}
+
+//---------------------------------------------------------------------------
+
+bool LCDbOperator::isActive() const {
+	return LDbValid::isActive() && !hasLockedAccount();
+}
+
+//---------------------------------------------------------------------------
+
+void LCDbOperator::addPermission( Priv allowed ) {
+	permissions.push_back( allowed );
+}
 
 //---------------------------------------------------------------------------
 
@@ -157,6 +183,12 @@ const LCDbOperator * LCDbOperators::check( const std::string & name, const std::
 		throw Exception( String(name.c_str()) + " failed to log in - program locked" );
 
 	return found;
+}
+
+//---------------------------------------------------------------------------
+
+const LCDbOperator * LCDbOperators::findByName( const std::string & name ) const {
+		return findMatch( LDbNames::LCMatcher( name ) );
 }
 
 //---------------------------------------------------------------------------

@@ -43,10 +43,8 @@ void __fastcall TfrmNewExercise::FormShow(TObject *Sender)
 
 const LCDbObject * TfrmNewExercise::createRecord() {
 	LCDbObject type( LCDbObject::STORAGE_EXERCISE );
-	AnsiString name = TxtName->Text.Trim();
-	type.setName( name.c_str() );
-	AnsiString full = TxtFull->Text.Trim();
-	type.setDescription( full.c_str() );
+	type.setName( AnsiString( TxtName->Text ).c_str() );
+	type.setDescription( AnsiString( TxtFull->Text ).c_str() );
 	if( type.saveRecord( LIMSDatabase::getCentralDb() ) ) {
 		return LCDbObjects::records().findByID( type.getID() );
 	}

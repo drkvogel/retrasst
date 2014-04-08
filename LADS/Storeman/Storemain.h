@@ -59,7 +59,6 @@ private:	// User declarations
 	unsigned boxesReady, moveJobs, retrievals, discards;
 
 	unsigned nextProject;
-	bool switchProject();
 	void resetCounts();
 	void updateCounts();
 	void countBoxes();

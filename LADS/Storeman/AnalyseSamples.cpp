@@ -46,8 +46,8 @@ void TfrmAnalyseSpecimens::init( ) {
 
 void __fastcall TfrmAnalyseSpecimens::cbProjectChange( TObject *Sender ) {
 	LCDbProjects &projList = LCDbProjects::records( );
-	AnsiString proj = cbProject->Text;
-	const LCDbProject *selected = projList.findByName( proj.c_str() );
+	std::string proj = AnsiString(cbProject->Text).c_str();
+	const LCDbProject *selected = projList.findByName( proj );
 	if( selected != NULL ) {
 		projList.setCurrent( *selected );
 	}

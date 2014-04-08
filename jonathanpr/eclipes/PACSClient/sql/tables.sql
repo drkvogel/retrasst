@@ -4,17 +4,6 @@ CREATE SEQUENCE log_seq START WITH 1;
 alter sequence log_seq RESTART WITH 1;
 \p\g
 
-CREATE TABLE patient
-(
-	patientid				VARCHAR(8)	NOT NULL,
-	firstname				VARCHAR(8)	NOT NULL,
-	name					VARCHAR(60) NOT NULL,
-	address					VARCHAR(250) NOT NULL,
-	dob					DATE NOT NULL,
-	phone					VARCHAR(20) NOT NULL
-)		
-\p\g
-
 CREATE TABLE dicombiobank
 (
 	patientid				VARCHAR(8)	NOT NULL WITH DEFAULT '',
@@ -25,6 +14,7 @@ CREATE TABLE dicombiobank
 	studydate				DATE NOT NULL WITH DEFAULT '',
 	statusenc				INTEGER NOT NULL WITH DEFAULT 1,
 	zipmd5					VARCHAR(32)	NOT NULL,
+	filename				VARCHAR(32)	NOT NULL,
 	studypk					BIGINT NOT NULL,
 	seriespk				BIGINT NOT NULL,
 	orginalsize				BIGINT NOT NULL,
@@ -33,7 +23,9 @@ CREATE TABLE dicombiobank
 	status					INTEGER	NOT NULL WITH DEFAULT 0,
 	numImages				INTEGER NOT NULL,
 	modality				VARCHAR(10) NOT NULL,	
-	aet						VARCHAR(20)	NOT NULL WITH DEFAULT '',		
+	aet						VARCHAR(20)	NOT NULL WITH DEFAULT '',
+	hostname				VARCHAR(20)	NOT NULL WITH DEFAULT '',
+	seriesdescription		VARCHAR(60) NOT NULL,
 	aesvi					VARCHAR(32)	NOT NULL WITH DEFAULT ''
 )	
 \p\g
@@ -51,10 +43,26 @@ CREATE TABLE logs
 )
 \p\g
 
+CREATE TABLE dicomdownloader
+(
+	lastdownload			DATE
+)
+\p\g
+
+CREATE TABLE staff
+(
+	status     				INTEGER NOT NULL WITH DEFAULT 1,
+	name			VARCHAR(20)	NOT NULL
+)
+\p\g
+
 CREATE TABLE biobankparticipant 
 (
 	pid						INTEGER	NOT NULL,
 	dicomparticipantid		VARCHAR(8)	NOT NULL,
+	firstnameid				VARCHAR(8)	NOT NULL,
+	cid						INTEGER NOT NULL,
+	trid					INTEGER NOT NULL,
 	scandate				DATE NOT NULL
 )
 \p\g
@@ -97,6 +105,7 @@ CREATE TABLE pacsstudy
 	au					VARCHAR(20)	NOT NULL WITH DEFAULT '',
 	insert					DATE,
 	update					DATE,
+	lastalert				DATE,
 	status					INT WITH DEFAULT 1,
 	patientpk				BIGINT,
 	statusenc				INT WITH DEFAULT 1,
@@ -104,22 +113,4 @@ CREATE TABLE pacsstudy
 )
 \p\g
 
-/*
-CREATE TABLE dicompacs
-(
-	patientid				VARCHAR(20)	NOT NULL,
-	patientid_enc				VARCHAR(20)	NOT NULL WITH DEFAULT '',
-	studyid					VARCHAR(64)	NOT NULL,
-	studyid_enc				VARCHAR(64)	NOT NULL WITH DEFAULT '',
-	radiographerreport			LONG VARCHAR NOT NULL,
-	radiographerreport_enc			LONG VARCHAR NOT NULL WITH DEFAULT '',
-	status					INTEGER	NOT NULL WITH DEFAULT 1,
-	findingsstatus				INTEGER	NOT NULL WITH DEFAULT 1,
-	alertflag				INTEGER	NOT NULL WITH DEFAULT 0,
-	studydate				DATE NOT NULL WITH DEFAULT '',
-	studydate_enc				DATE NOT NULL WITH DEFAULT '',
-	status_enc				INTEGER NOT NULL WITH DEFAULT 1,
-	pacsurl					VARCHAR(256) NOT NULL WITH DEFAULT 0
-)		
-\p\g 
-*/
+

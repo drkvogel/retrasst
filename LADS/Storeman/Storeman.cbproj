@@ -758,32 +758,32 @@
 				<DependentOn>..\..\paulst\WorkerThread.h</DependentOn>
 				<BuildOrder>120</BuildOrder>
 			</CppCompile>
-			<FormResources Include="RationaliseTanks\RatTanksMainDialog.dfm"/>
 			<FormResources Include="RationaliseTanks\RatTanksdbSelection.dfm"/>
-			<FormResources Include="RationaliseTanks\RatTanksBoxType.dfm"/>
-			<FormResources Include="RationaliseTanks\RatTanksBoxSelection.dfm"/>
-			<FormResources Include="RationaliseTanks\RatTanksCreateRetrievalJob.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksMainDialog.dfm"/>
 			<FormResources Include="RationaliseTanks\RatTanksCreateExercise.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksBoxType.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksCreateRetrievalJob.dfm"/>
+			<FormResources Include="RetrAsstCollectEmpties.dfm"/>
 			<FormResources Include="RetrAsstCollectBoxes.dfm"/>
-			<FormResources Include="ReferredBoxesSummary.dfm"/>
 			<FormResources Include="RetrAsstMain.dfm"/>
 			<FormResources Include="RetrAsstCollectSamples.dfm"/>
-			<FormResources Include="RationaliseTanks\RatTanksPleaseWait.dfm"/>
-			<FormResources Include="ReferredBoxes.dfm"/>
 			<FormResources Include="RationaliseTanks\RatTanksSignIn.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksPleaseWait.dfm"/>
+			<FormResources Include="ReferredBoxesSummary.dfm"/>
+			<FormResources Include="ReferredBoxes.dfm"/>
 			<FormResources Include="FindSample.dfm"/>
-			<FormResources Include="DiscardReason.dfm"/>
-			<FormResources Include="DiscardPrologue.dfm"/>
-			<FormResources Include="DiscardSearch.dfm"/>
-			<FormResources Include="DiscardSamples.dfm"/>
-			<FormResources Include="NewSite.dfm"/>
-			<FormResources Include="NewSection.dfm"/>
-			<FormResources Include="NewType.dfm"/>
-			<FormResources Include="NewTank.dfm"/>
-			<FormResources Include="NewBoxType.dfm"/>
 			<FormResources Include="MoveJobs.dfm"/>
-			<FormResources Include="NewJob.dfm"/>
+			<FormResources Include="DiscardSamples.dfm"/>
+			<FormResources Include="DiscardReason.dfm"/>
+			<FormResources Include="DiscardSearch.dfm"/>
+			<FormResources Include="NewTank.dfm"/>
+			<FormResources Include="NewSite.dfm"/>
+			<FormResources Include="RationaliseTanks\RatTanksBoxSelection.dfm"/>
+			<FormResources Include="NewType.dfm"/>
 			<FormResources Include="NewExercise.dfm"/>
+			<FormResources Include="NewBoxType.dfm"/>
+			<FormResources Include="NewSection.dfm"/>
+			<FormResources Include="NewJob.dfm"/>
 			<FormResources Include="SMLogin.dfm"/>
 			<FormResources Include="Storemain.dfm"/>
 			<FormResources Include="RetrievalLists\RetrievalListMainListDialog.dfm"/>
@@ -798,6 +798,7 @@
 			<FormResources Include="RetrievalLists\RetrievalListResultNotesDialog.dfm"/>
 			<FormResources Include="SampleEntry.dfm"/>
 			<FormResources Include="RetrieveSamples.dfm"/>
+			<FormResources Include="DiscardPrologue.dfm"/>
 			<FormResources Include="AddSpecimens.dfm"/>
 			<FormResources Include="AnalyseSamples.dfm"/>
 			<FormResources Include="DiscardNote.dfm"/>
@@ -810,7 +811,6 @@
 			<FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
 			<FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
 			<FormResources Include="..\LabsForms\dvSelector.dfm"/>
-			<FormResources Include="RetrAsstCollectEmpties.dfm"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -877,7 +877,16 @@
 						<ProjectProperties Name="ManagePaths">True</ProjectProperties>
 						<ProjectProperties Name="VerifyPackages">True</ProjectProperties>
 					</ProjectProperties>
-					<Excluded_Packages/>
+					<Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\FastReports\LibD16\dclfrxDB16.bpl">FastReport 4.0 DB Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclFMXtee9160.bpl">TeeChart Standard FMX Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclbindcompfmx160.bpl">Embarcadero LiveBindings Components FireMonkey</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcboffice2k160.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcbofficexp160.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclfmxstd160.bpl">Embarcadero FMX Standard Components</Excluded_Packages>
+					</Excluded_Packages>
 				</CPlusPlusBuilder.Personality>
 				<Deployment/>
 				<Platforms>

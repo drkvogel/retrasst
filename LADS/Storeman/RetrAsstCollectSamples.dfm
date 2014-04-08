@@ -269,8 +269,8 @@ object frmProcess: TfrmProcess
         object labelPrimary: TLabel
           Left = 7
           Top = 20
-          Width = 143
-          Height = 28
+          Width = 80
+          Height = 16
           Align = alClient
           Caption = 'labelPrimary'
           Font.Charset = DEFAULT_CHARSET
@@ -280,8 +280,6 @@ object frmProcess: TfrmProcess
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
-          ExplicitWidth = 80
-          ExplicitHeight = 16
         end
       end
       object groupSecondary: TGroupBox
@@ -299,8 +297,8 @@ object frmProcess: TfrmProcess
         object labelSecondary: TLabel
           Left = 7
           Top = 20
-          Width = 143
-          Height = 31
+          Width = 99
+          Height = 16
           Margins.Left = 5
           Margins.Top = 5
           Margins.Right = 5
@@ -314,8 +312,6 @@ object frmProcess: TfrmProcess
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
-          ExplicitWidth = 99
-          ExplicitHeight = 16
         end
       end
     end

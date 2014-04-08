@@ -413,8 +413,7 @@ void StoreDAO::loadBoxDetails( const std::string & barcode, const std::string & 
 void StoreDAO::loadBoxDetails( int box_id, int proj_id, ROSETTA & result )
 {
 	LQuery cq( LIMSDatabase::getCentralDb() );
-	cq.setSQL( "select b.box_cid, barcode, b.external_name, b.project_cid, box_capacity, s.*, c.box_type_cid"
-			   " from c_slot_allocation s, c_box_name b where b.box_cid = s.box_cid"
+	cq.setSQL( "select * from c_slot_allocation s, c_box_name b where b.box_cid = s.box_cid"
 			   " and b.box_cid = :bid and b.project_cid = :proj and s.status not in ( :rmv, :del )" );
 	cq.setParam( "bid", box_id );
 	cq.setParam( "rmv", LCDbBoxStore::REMOVED );
@@ -425,82 +424,17 @@ void StoreDAO::loadBoxDetails( int box_id, int proj_id, ROSETTA & result )
 	}
 }
 
-/*
-void StoreDAO::loadBoxes( const std::string & box_id, const std::string & box_type, int proj_id, std::vector<ROSETTA>& results)
-{
-	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
-	pq.setSQL( "select b.box_cid, b.box_type_cid, b.external_name, box_capacity,"
-				  " s.record_id, s.rack_cid, s.slot_position, s.retrieval_cid, s.status"
-			   " from box_store s, box_name b where b.box_cid = s.box_cid"
-				  " and b.external_name like :bn and s.status not in ( :rmv, :del )" );
-	pq.setParam( "bn", "%" + box_type + "%" + box_id );
-	pq.setParam( "rmv", LCDbBoxStore::REMOVED );
-	pq.setParam( "del", LCDbBoxStore::DELETED );
-	for( pq.open(); !pq.eof(); pq.next() ) {
-		ROSETTA box = pq.getRecord();
-		box.setInt( "project_cid", proj_id );
-		results.push_back( box );
-	}
-}
-*/
-
 void StoreDAO::loadBoxes( int rack_id, std::vector<ROSETTA>& results)
 {
 	LQuery cq( LIMSDatabase::getCentralDb() );
-	cq.setSQL( "select b.box_cid, barcode, box_type_cid, external_name, box_capacity, s.*"
-			  "	from c_slot_allocation s, c_box_name b"
-			  " where b.box_cid = s.box_cid"
-			  " and s.rack_cid = :rid and s.status not in ( :rmv, :del )" );
+	cq.setSQL( "select * from c_slot_allocation s, c_box_name b"
+			  " where b.box_cid = s.box_cid and s.rack_cid = :rid and s.status not in ( :rmv, :del )" );
 	cq.setParam( "rid", rack_id );
 	cq.setParam( "rmv", LCDbBoxStore::REMOVED );
 	cq.setParam( "del", LCDbBoxStore::DELETED );
 	for( cq.open(); !cq.eof(); cq.next() ) {
 		results.push_back( cq.getRecord() );
 	}
-
-/*
-	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
-	pq.setSQL( "select b.box_cid, b.box_type_cid, b.external_name, box_capacity,"
-				  " s.record_id, s.slot_position, s.retrieval_cid, s.status"
-				  "	from box_store s, box_name b where b.box_cid = s.box_cid"
-				  " and s.rack_cid = :rid and s.status not in ( :rmv, :del )" );
-	pq.setParam( "rid", rack_id );
-	pq.setParam( "rmv", LCDbBoxStore::REMOVED );
-	pq.setParam( "del", LCDbBoxStore::DELETED );
-	for( pq.open(); !pq.eof(); pq.next() ) {
-		ROSETTA box = pq.getRecord();
-		box.setInt( "rack_cid", rack_id );
-		box.setInt( "project_cid", proj_id );
-		results.push_back( box );
-	}
-	// most boxes have their latest positions stored in box_store
-	results.clear();
-	ddQuery.setSQL( "SELECT record_id, db_name, box_cid, external_name, box_type_cid, retrieval_cid,"
-			" store_rack_cid as rack_cid, store_slot_position as slot_position, store_status as status"
-			" FROM all_box_view"
-			" WHERE store_status not in ( :rmv, :del ) AND store_rack_cid = :rid"
-			" ORDER BY slot_position" );
-	ddQuery.setParam( "rmv", LCDbBoxStore::REMOVED );
-	ddQuery.setParam( "del", LCDbBoxStore::DELETED );
-	ddQuery.setParam( "rid", rackID );
-	for( ddQuery.open(); !ddQuery.eof(); ddQuery.next() ) {
-		results.push_back( ddQuery.getRecord() );
-	}
-
-	// but Storage Sync may just record the position in box_name
-	ddQuery.setSQL( "SELECT ifnull(record_id,0), db_name, box_cid, external_name, box_type_cid, ifnull(retrieval_cid,0),"
-			" name_rack_cid as rack_cid, name_slot_position as slot_position, name_status as status"
-			" FROM all_box_view"
-			" WHERE name_status not in ( :rst, :del ) AND name_rack_cid = :rid"
-			" AND store_rack_cid is null"
-			" ORDER BY slot_position" );
-	ddQuery.setParam( "rst", LPDbBoxName::DESTROYED );
-	ddQuery.setParam( "del", LPDbBoxName::DELETED );
-	ddQuery.setParam( "rid", rackID );
-	for( ddQuery.open(); !ddQuery.eof(); ddQuery.next() ) {
-		results.push_back( ddQuery.getRecord() );
-	}
-	*/
 }
 
 void StoreDAO::loadBoxesByJobID( int job_id, int proj_id, bool lhs, std::vector<ROSETTA>& results )
@@ -519,24 +453,12 @@ void StoreDAO::loadBoxesByJobID( int job_id, int proj_id, bool lhs, std::vector<
 		box.setInt( "project_cid", proj_id );
 		results.push_back( box );
 	}
-
-	/*
-	std::string q = "SELECT record_id, db_name, retrieval_cid, box_cid, box_type_cid, external_name,"
-		" store_rack_cid as rack_cid, store_slot_position as slot_position, store_status as status"
-		" FROM all_box_view WHERE retrieval_cid = :id "
-		" ORDER BY store_slot_position ";
-	ddQuery.setSQL( q.c_str() );
-	ddQuery.setParam( "id", jobID );
-	results.clear();
-	for( ddQuery.open(); !ddQuery.eof(); ddQuery.next() ) {
-		results.push_back( ddQuery.getRecord() );
-	}
-	*/
 }
 
 bool StoreDAO::addBoxToLHSJobList( ROSETTA& data )
 {
 	int id = data.getInt("record_id");
+	if( id == -1 ) id = 0;
 	int box_id = data.getInt("ID");
 	int rack_id = data.getInt("rack_cid");
 	int tank_id = data.getInt("tank_cid");
@@ -545,11 +467,11 @@ bool StoreDAO::addBoxToLHSJobList( ROSETTA& data )
 	std::string rack_name = data.getString("rack_name");
 	int retrieval_cid = data.getInt("retrieval_cid");
 
-	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
-	LCDbBoxStore st( (id == -1 ? 0 : id), tank_id, rack_name, pos );
+	LQuery ddbq = Util::projectQuery( proj_id, true );
+	LCDbBoxStore st( id, tank_id, rack_name, pos );
 	st.setRackID( rack_id );
 	st.setBox( proj_id, box_id );
-	return st.setJobRef( pq, retrieval_cid, LCDbBoxStore::MOVE_EXPECTED );
+	return st.setJobRef( ddbq, retrieval_cid, LCDbBoxStore::MOVE_EXPECTED );
 }
 
 bool StoreDAO::addBoxToRHSJobList( ROSETTA& data )
@@ -564,13 +486,12 @@ bool StoreDAO::addBoxToRHSJobList( ROSETTA& data )
 	if( id == -1 ) id = 0;
 	int box_cid = data.getInt("ID");
 
-	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
 	LCDbBoxStore st( id, tank_id, rack_name, pos );
 	st.setRackID(rack_id);
 //	st.setJobID(retrieval_cid);
 	st.setStatus(LCDbBoxStore::EXPECTED);
 	st.setBox(proj_id, box_cid);
-	return st.saveRecord( pq );
+	return st.saveRecord( LIMSDatabase::getProjectDb( proj_id ) );
 }
 
 bool StoreDAO::updateBox( ROSETTA& data )
@@ -582,12 +503,12 @@ bool StoreDAO::updateBox( ROSETTA& data )
 	std::string rack_name = data.getString("rack_name");
 	int box_cid = data.getInt("ID");
 	int id = data.getInt("record_id");
-	LQuery dpQuery = Util::projectQuery( proj_id, true );
+
 	LCDbBoxStore st( id, tank_id, rack_name, pos );
 	st.setRackID(rack_id);
 	st.setBox( proj_id, box_cid );
 	st.setStatus((short)data.getInt("status"));
-	return st.saveRecord( dpQuery );
+	return st.saveRecord( LIMSDatabase::getProjectDb( proj_id ) );
 }
 
 bool StoreDAO::signoffBox( ROSETTA& data )
@@ -603,9 +524,6 @@ bool StoreDAO::signoffBox( ROSETTA& data )
 
 	const LCDbObject & tank = LCDbObjects::records().get( tank_id );
 	std::string destination = "to " + tank.getName() + ", " + rack_name;
-//	const LCDbObject * event = LPDbBoxName::findEvent( "BoxMoved" );
-//	LQuery pQuery = Util::projectQuery( proj_id, false );
-//	LPDbBoxName( box_cid ).addEventRecord( pQuery, event, destination );
 
 	LCDbBoxStore st( record_id, tank_id, rack_name.c_str(), pos );
 	st.setRackID( rack_id );
@@ -614,25 +532,6 @@ bool StoreDAO::signoffBox( ROSETTA& data )
 	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
 	return st.setJobRef( pq, 0, LCDbBoxStore::SLOT_CONFIRMED );
 }
-
-/*
-bool StoreDAO::occupyBox( ROSETTA& data )
-{
-	int rack_id = data.getInt("rack_cid");
-	int tank_id = data.getInt("tank_cid");
-	int proj_id = data.getInt("project_cid"); //make it same as that on LHS
-	int pos = data.getInt("slot_position");
-	int id = data.getInt("record_id");
-	std::string rack_name = data.getString("rack_name");
-	int box_cid = data.getInt("ID");
-
-	LQuery pQuery = Util::projectQuery( proj_id );
-	LCDbBoxStore st( (id == -1 ? 0 : id), tank_id, rack_name, pos );
-	st.setRackID(rack_id);
-	st.setBox(proj_id, box_cid);
-	return st.saveRecord(pQuery);
-}
-*/
 
 void StoreDAO::loadBoxHistory( int box_id, int proj_id, std::vector<ROSETTA>& results )
 {
@@ -677,33 +576,12 @@ void StoreDAO::loadSamples( int box_id, int proj_id, std::vector<ROSETTA>& resul
 	}
 }
 
-/*
-void StoreDAO::loadProjects( std::vector<ROSETTA>& results )
-{
-	results.clear();
-
-	LCDbProjects& objs = LCDbProjects::records();
-	ROSETTA result;
-	for( Range<LCDbProject> ul = objs; ul.isValid(); ++ ul )
-	{
-		if( ul->isActive() && !ul->isCentral() )
-		{
-			result.setInt( "project_cid", ul->getID() );
-			result.setString( "external_name", ul->getDescription().c_str() );
-			result.setString( "db_name", ul->getDbName().c_str() );
-			results.push_back(result);
-		}
-	}
-}
-*/
-
 void StoreDAO::loadStorageHistory( int cryovial_id, int proj_id, std::vector<ROSETTA>& results )
 {
 	results.clear();
-	std::string q = "SELECT s.*, b.external_name as box_name";
-	q += " FROM cryovial_store s, box_name b ";
-	q += " WHERE s.cryovial_id = :id ";
-	q += " AND s.box_cid = b.box_cid ";
+	std::string q = "SELECT s.*, b.external_name as box_name"
+					" FROM cryovial_store s, box_name b "
+					" WHERE s.cryovial_id = :id AND s.box_cid = b.box_cid";
 	LQuery pQuery( LIMSDatabase::getProjectDb( proj_id ) );
 	pQuery.setSQL( q.c_str() );
 	pQuery.setParam( "id", cryovial_id );
@@ -716,7 +594,7 @@ bool StoreDAO::loadAnalysisHistory( const std::string & cryovial_barcode, int al
 {
 	results.clear();
 	const LCDbObject * aliquot = LCDbObjects::records().findByID( aliquot_type_id );
-	const LPDbDescriptor * descrip = LPDbDescriptors::records().findByName( "aliquot_type" );
+	const LPDbDescriptor * descrip = LPDbDescriptors::records(proj_id).findByName( "aliquot_type" );
 	if( aliquot == NULL || descrip == NULL ) {
 		return false;
 	}

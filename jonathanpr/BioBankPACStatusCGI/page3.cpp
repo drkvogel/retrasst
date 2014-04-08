@@ -25,13 +25,16 @@ void page3::sendHeader( ) const
 void page3::deployJS() const
 {
 	std::cout << "<SCRIPT LANGUAGE=\"JavaScript\">";
-//	std::cout <<      "$(document).ready(function(){ alert('sdf'); }); ";
+//	std::cout <<      "$(document).ready(function(){ alert('Javascript is called'); }); ";
 	std::cout << "</SCRIPT>";
 }
 
+//Generate the HTML for the page
 void page3::sendQuestions( )
 {
+//add the security token to the HTML
 	this->getData().outputFormToken();
+
 	int MaxToShowPerPage = 20;
 	int page = this->getData().getUnknownDicom().getSelectedPage().igetText();
 
@@ -114,7 +117,7 @@ void page3::sendQuestions( )
 	std::cout << "<style>\n";
 	std::cout << "	.highlight { background: red;}\n";
 	std::cout << "</style>\n";
-
+ //MOVE THE JS to it's own file
 	std::cout << "<SCRIPT type=\"text/javascript\">";
 
 	std::cout << 	"	function convertFromHex(hex) {";
@@ -144,8 +147,6 @@ void page3::sendQuestions( )
 
 	std::cout << "function editClicked(invalue){";
 	std::cout <<      "var oldstate = $('#HidPID' + invalue).is(':visible');";
-//	std::cout <<	  "showEditDetails(invalue,oldstate);";
-
 	std::cout <<      "$('#HidPID' + invalue).slideToggle();";
 	std::cout <<      "$('#HidFN' + invalue).slideToggle();";
 	std::cout <<      "$('#HidCEN' + invalue).slideToggle();";
@@ -181,7 +182,6 @@ void page3::sendQuestions( )
 
 	std::cout << "\nfunction checkClicked(invalue,td){\n";
 	//                 8 letter checking and other things to be done in JS on keypress.
-//on valiud, only show button
 	std::cout <<		"if (!validateText(invalue)) return;";
 	std::cout <<		"var newPID = $('#newpidtext' + invalue).val(); ";
 	std::cout <<		"var newFN = $('#newfntext' + invalue).val(); ";
@@ -189,7 +189,7 @@ void page3::sendQuestions( )
 	std::cout <<		 ".done(function( data ){";
 	std::cout <<		 	"var res = data.substr('<HTML><BODY>'.length,data.length - ('</BODY></HTML>'.length + '<HTML><BODY>'.length + 2 ));\n";
 
-	std::cout <<		 	"res = convertFromHex(res.trim()).trim();"; //update HTML status here
+	std::cout <<		 	"res = convertFromHex(res.trim()).trim();";
 
 	std::cout << " 		if (res != \"OK\") {$('#error').html(res); $('#error').show(); return;} else {$('#error').hide(); }";
 
@@ -214,7 +214,8 @@ void page3::sendQuestions( )
 	std::cout <<		"errorString += 'First name needs to be 8 characters in length<br>';\n";
 	std::cout <<		"$('#newfntext' + invalue).addClass(\"highlight\" );}\n";
 	std::cout <<        "else {$('#newfntext' + invalue).removeClass(\"highlight\" );}\n";
- /*	std::cout <<        "if (pass) {\n";
+ /* NO LONGER THE CASE THAT THE NAME AND THE PID ARE THE REVERSE OF ONE ANOTHER.
+	std::cout <<        "if (pass) {\n";
 	std::cout <<		"var revrsedPID = \"\";\n";
 	std::cout <<		"for (i = 0; i <= newPID.length; i++) {revrsedPID = newPID.charAt(i) + revrsedPID;} \n";
 	std::cout <<		"if (revrsedPID != newFN) {  pass = false;\n";
@@ -229,7 +230,6 @@ void page3::sendQuestions( )
 	std::cout << 		"if (!pass) {$('#error').html(errorString); $('#error').show(); } else {$('#error').hide(); }";
 	std::cout <<		"return pass;";
 	std::cout <<      "}\n";
-
 	std::cout << "</SCRIPT>";
 
 
@@ -283,10 +283,7 @@ void page3::sendQuestions( )
 			std::cout <<       "<input type='button' value='Ignore' id='ButIngore" << (*it).getStudypk() << "' onclick='ingoreClicked("<< (*it).getStudypk() << " , gettd() )'>";   //
 			std::cout << 		"<script> $('#ButIngore" << (*it).getStudypk() << "').hide();</script>";
 			std::cout  <<   "</td>";
-
-
 			std::cout << 	"</tr>";
-
 		}
 		currentRow++;
 	}

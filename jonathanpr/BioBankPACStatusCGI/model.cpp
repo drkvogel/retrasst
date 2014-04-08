@@ -1,9 +1,7 @@
 //---------------------------------------------------------------------------
-
 #pragma hdrstop
 
 #include "xcgi.h"
-
 #include "xdb.h"
 #include "xaes.h"
 #include "xexec.h"
@@ -27,6 +25,7 @@ Model::Model(const XCGI *cgi,const XDB *db,RAND_UTIL *ru) : pageRead(cgi->getPar
 }
 // --------------------------------------------------------------------------
 
+//Pass around the incoming web url so it can be parsed
 void Model::parse( XCGI *cgi)
 {
 	seriliseRosetta(cgi);
@@ -39,7 +38,7 @@ void Model::parse( XCGI *cgi)
 // --------------------------------------------------------------------------
 void Model::seriliseRosetta( XCGI *cgi)
 {
-//grab encrypted rosetta, decrypt it
+//grab the encrypted rosetta from the URL stream and decrypt it
 	m_EncRosetta = cgi->getParam( "rosetta" );
 	m_serilizedRosetta = "";
 
@@ -55,35 +54,19 @@ void Model::seriliseRosetta( XCGI *cgi)
 	}
 }
 // --------------------------------------------------------------------------
-
+//load in the required data from the database
 void Model::check(XCGI *cgi )
 {
 	m_session.readList(m_db);
 	if (m_session.getStage() != VALID)
 		m_session.checkUser(m_ru, m_db );
 
-	m_dicomStudies.readList(m_db);
 	m_logs.readList(m_db);
 	m_unknowndicom.readList(m_db);
 }
-// --------------------------------------------------------------------------
-
-int Model::getNextemailidSequence(XDB *emaildb)
-{
-	int c_id_sequence = -1;
-	std::string sqlQuery = "SELECT NEXT VALUE FOR email_nextid";
-	XQUERY query( emaildb, sqlQuery);
-	if (!query.open())
-		return c_id_sequence;
-	if ( query.fetch() )
-		c_id_sequence = query.result.getInt(0);
-	query.close();
-	return c_id_sequence;
-}
 
 // ---------------------------------------------------------------------------
-//	update the rosetta so it can be passed back
-// ---------------------------------------------------------------------------
+//	update the rosetta so it can be encrpyted and kept with the page and passed back to the client
 void Model::updateRosettaDetails( XCGI *cgi)
 {
 	ROSETTA *details = new ROSETTA();
@@ -128,23 +111,24 @@ void Model::decryptRosetta( XCGI *cgi)
 	int length = 0;
 	unsigned char *clr;
 	if (!myAES.decryptHex(&clr, &length,m_EncRosetta.c_str()))
-		return; //some problem with the rosetta, it's got current or been played with
+		return; //some problem with the rosetta, it's got currpted or been played with
 
 	std::string s((const char*)clr,length);
 	m_serilizedRosetta = s;
 }
 
 // --------------------------------------------------------------------------
-//	work out which page to display next: page3 shows the final outcome
-// --------------------------------------------------------------------------
+//	work out which page to display based on the state
 View *Model::nextStage( ) const
 {
+//has page got a sign on token? If not, no matter what the state,
+//go to sign on page
 	if (!m_ru->hasToken())
- 		return new page0(*this);
-
+		return new page0(*this);
+//if not signed on, sign on page
 	if (m_session.getStage() != VALID)
 		return new page0(*this);
-
+//now return one of the other pages.
 	if (m_session.getViewPage() == "1")
 		return new page1(*this);
 	if (m_session.getViewPage() == "2")

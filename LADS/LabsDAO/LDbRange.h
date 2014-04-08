@@ -3,6 +3,7 @@
  *		16 Oct 08, NG:		Split out from LDbCache to use stand-alone
  *      9 June 09, NG:		Added similar definition for MapRange
  *      29 Sept 2010, NG:   Added Filter - selects values to return
+ *      19 March 2014, NG:	Modified to work with C++11 LDbCache
  *
  *--------------------------------------------------------------------------*/
 
@@ -37,6 +38,10 @@ public:
 	 : start( data.begin() ), next( start ), finish( data.end() )
 	{}
 
+	Range( const LDbCache< T > & data )
+	 : start( data.begin() ), next( start ), finish( data.end() )
+	{}
+
 	Range( std::pair< ConstIter, ConstIter > pair )
 	 : start( pair.first ), next( pair.first ), finish( pair.second )
 	{}
@@ -64,6 +69,10 @@ public:
 	}
 
 	const Range & operator++( int ); 		// postfix ++ not implemented
+
+	bool operator!=( const Range & other ) const {
+		return next != other.next;
+	}
 
 	const value_type * operator->() const { return &(*next); }
 	const value_type & operator*() const { return *next; }

@@ -68,8 +68,8 @@ void __fastcall TfrmBoxList::FormHide( TObject *Sender ) {
 //---------------------------------------------------------------------------
 
 void __fastcall TfrmBoxList::cbProjectChange( TObject *Sender ) {
-	AnsiString proj = cbProject->Text;
-	init( LCDbProjects::records( ).findByName( proj.c_str() ) );
+	std::string proj = AnsiString( cbProject->Text ).c_str();
+	init( LCDbProjects::records( ).findByName( proj ) );
 }
 
 //---------------------------------------------------------------------------
@@ -268,10 +268,10 @@ void TfrmBoxList::printText( const std::string &text ) {
 
 void __fastcall TfrmBoxList::btnAddBoxClick( TObject *Sender ) {
 	LQuery pq( LIMSDatabase::getProjectDb() );
-	AnsiString box = ebBoxNum->Text;
-	const LPDbBoxName *found = boxes.readRecord( pq, box.c_str() );
+	std::string box = AnsiString( ebBoxNum->Text ).c_str();
+	const LPDbBoxName *found = boxes.readRecord( pq, box );
 	if( found == NULL ) {
-		int num = box.ToIntDef( 0 );
+		int num = ebBoxNum->Text.ToIntDef( 0 );
 		if( num != 0 ) {
 			found = boxes.readRecord( pq, -num );
 			if( found == NULL ) {
@@ -280,7 +280,7 @@ void __fastcall TfrmBoxList::btnAddBoxClick( TObject *Sender ) {
 		}
 	}
 	if( found == NULL ) {
-		String message = "Cannot find box " + box;
+		String message = "Cannot find box " + ebBoxNum->Text;
 		Application->MessageBox( message.c_str(), NULL, MB_ICONWARNING );
 	} else {
 		addBox( *found );

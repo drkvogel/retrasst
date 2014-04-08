@@ -58,10 +58,7 @@ public:
 	std::set< int > getAnalyserIDs( int machineID = 0 ) const;
 
 	bool read( LQuery central, bool readAll = false );
-	const LCDbAnalyser * findByName( const std::string & name ) const
-	{
-		return findMatch( LDbNames::LCMatcher( name ) );
-	}
+	const LCDbAnalyser * findByName( const std::string & name ) const;
 };
 
 //---------------------------------------------------------------------------

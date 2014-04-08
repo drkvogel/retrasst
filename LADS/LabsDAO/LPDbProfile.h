@@ -138,11 +138,10 @@ public:
 	Range< TestLimits > getTests() const { return tests; }
 	void addTest( const TestLimits & limits ) { tests.insert( limits ); }
 
-	void addTestLimits( LQuery pQuery, const TestLimits & tpe );
-	const LDbTestLimits * findTestLimits( int testID ) const
-	{
+	const LDbTestLimits * findTestLimits( int testID ) const {
 		return tests.findByID( testID );
 	}
+	void addTestLimits( LQuery pQuery, const TestLimits & tpe );
 
 	LDbCache< BoxType > boxTypes;
 	LDbCache< TestLimits > tests;
@@ -159,9 +158,7 @@ class LPDbProfiles : public LDbCache< LPDbProfile >, public LPDbCacheMap< LPDbPr
 {
 public:
 	bool read( LQuery pQuery, bool readAll = false );
-	const LPDbProfile * findByName( const std::string & name ) const {
-		return findMatch( LDbNames::LCMatcher( name ) );
-	}
+	const LPDbProfile * findByName( const std::string & name ) const;
 };
 
 //---------------------------------------------------------------------------

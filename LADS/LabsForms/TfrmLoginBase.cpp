@@ -45,17 +45,14 @@ __fastcall TfrmLoginBase::TfrmLoginBase(TComponent* Owner) : TForm(Owner)
 	std::string ver = LIMSParams::instance().getProgVersion();
 	String app = Application -> Title + " " + ver.c_str();
 #ifdef _DEBUG
-	rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM; 	// db v2.7.3 - OK
+	rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM;
 	version -> Font -> Color = clRed;
 	version -> Caption = app + " **DEBUG**";
 #else
-	//rgDatabase -> ItemIndex = LIMSDatabase::LIVE_DATA;		// db v2.7.1 - fail
-    rgDatabase -> ItemIndex = LIMSDatabase::TEST_DATA;		// db v2.7.2 - OK
+	rgDatabase -> ItemIndex = LIMSDatabase::LIVE_DATA;
 	version -> Font -> Color = clBlack;
 	version -> Caption = app + " **FINAL**";
 #endif
-	//rgDatabase -> ItemIndex = LIMSDatabase::TEST_DATA;		// db v2.7.2 - OK
-    //rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM;
 	Application -> OnException = AppException;
 }
 
@@ -66,8 +63,8 @@ __fastcall TfrmLoginBase::TfrmLoginBase(TComponent* Owner) : TForm(Owner)
 void __fastcall TfrmLoginBase::AppException(TObject *, Exception *E)
 {
 	try {
-		AnsiString error = E -> Message;
-		auditTrail.addRecord( error.c_str(), LCDbAuditTrail::MAJOR_ERROR );
+		std::string error = AnsiString( E -> Message ).c_str();
+		auditTrail.addRecord( error, LCDbAuditTrail::MAJOR_ERROR );
 	}
 	catch( ... ) {
 	}
@@ -140,20 +137,17 @@ void __fastcall TfrmLoginBase::okButtonClick(TObject *Sender)
 void TfrmLoginBase::startProgram( TObject * )
 {
 	AnsiString title = Application -> Title + ": ";
-
 	int projID = LCDbProjects::getCurrentID();
-	if( projID != LCDbProject::NONE_SELECTED )
-	{
+	if( projID != LCDbProject::NONE_SELECTED ) {
 		const LCDbProject * proj = LCDbProjects::records().findByID( projID );
 		if( proj != NULL )
 			title = title + proj -> getName().c_str() + ", ";
 	}
-
 	int userID = LCDbOperators::getCurrentID();
 	const LCDbOperator * user = LCDbOperators::records().findByID( userID );
-	if( user != NULL )
+	if( user != NULL ) {
 		title = title + user -> getDescription().c_str();
-
+    }
 	auditTrail.login();
 	WindowState = wsMinimized;
 	title = title + " (" + auditTrail.getProcessID() + ")";
@@ -169,24 +163,23 @@ const LCDbOperator * TfrmLoginBase::logUserIn()
 {
 	bool locked, matched;
 	LCDbOperators & users = LCDbOperators::records();
-	AnsiString userName = userList -> Text ;
-	const LCDbOperator * user = users.findByName( userName.c_str( ) );
+	std::string userName = AnsiString( userList -> Text ).c_str();
+	const LCDbOperator * user = users.findByName( userName );
 	if( user == NULL )
 		matched = locked = false;
 	else
 	{	locked = user -> hasLockedAccount();
-		AnsiString pwd = ebPassword -> Text ;
-		matched = user -> matchPassword( pwd.c_str() );
+		std::string pwd = AnsiString( ebPassword -> Text ).c_str();
+		matched = user -> matchPassword( pwd );
 	}
 	ebPassword -> Clear();
 
 	static short failCount = 0;
 	if( user != NULL && !matched && !locked && ++ failCount >= 3 )
 	{
-		LCDbOperator record = *user;
-		LQuery qCentral( LIMSDatabase::getCentralDb() );
+		LCDbOperator record( *user );
 		record.lockAccount();
-		record.saveRecord( qCentral );
+		record.saveRecord( LIMSDatabase::getCentralDb() );
 		locked = true;
 	}
 
@@ -199,8 +192,8 @@ const LCDbOperator * TfrmLoginBase::logUserIn()
 
 	if( !matched )
 	{
-		AnsiString email = userName + " failed to log in";
-		auditTrail.sendEMail( email.c_str() );
+		std::string email = userName + " failed to log in";
+		auditTrail.sendEMail( email );
 		Application -> MessageBox( L"Please check name and password.", NULL, MB_ICONWARNING );
 		return NULL;
 	}

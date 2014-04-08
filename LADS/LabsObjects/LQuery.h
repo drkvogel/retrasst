@@ -6,9 +6,9 @@
 #include <string>
 #include "LIMSDatabase.h"
 #include "rosetta.h"
+#include "LogFile.h"
 
 class XQUERY;
-class XMLFile;
 
 //---------------------------------------------------------------------------
 
@@ -44,6 +44,7 @@ public:
 	bool open();
 	bool eof();
 	bool next();
+	void close();
 
 	bool fieldExists( const std::string & field ) const;
 	int readInt( const std::string & field ) const;
@@ -69,11 +70,10 @@ private:
 
 	void dropCursor();
 
-	XMLFile & getLog();
-	void logQuery();
+	LogFile &getLog() const;
+	void logQuery( LogFile & file );
 	void logError( const std::string & message );
 	void logCount( int records );
-	void logResult( const char * tag, const std::string & result );
 };
 
 //---------------------------------------------------------------------------
