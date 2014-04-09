@@ -96,7 +96,8 @@ void TfrmProcess::debugLog(String s) {
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
     Caption = oss.str().c_str();
-    panelLoading->Caption = progressMessage;
+	//panelLoading->Caption = progressMessage;
+	prepareProgressMessage(progressMessage);
     chunks.clear();
     sgwChunks->clear();
     sgwVials->clear();
@@ -357,16 +358,17 @@ void TfrmProcess::fillRow(SampleRow * row, int rw) {
 
 void __fastcall TfrmProcess::timerLoadPlanTimer(TObject *Sender) {
     timerLoadPlan->Enabled = false;
-    loadPlan();
+	loadPlan();
 }
 
 void TfrmProcess::loadPlan() {
-    panelLoading->Caption = progressMessage;
-    panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
-    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
-    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
-    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
-    Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
+//	panelLoading->Caption = progressMessage;
+//	panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
+//	panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+//	panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+//	progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+	prepareProgressMessage(progressMessage);
+	Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
     DEBUGSTREAM("loadRows for job "<<job->getID()<<" started")
     Enabled = false;
     loadPlanThread = new LoadPlanThread();
@@ -378,11 +380,11 @@ __fastcall LoadPlanThread::LoadPlanThread() : TThread(false) { FreeOnTerminate =
 __fastcall SaveProgressThread::SaveProgressThread() : TThread(false) { FreeOnTerminate = true; }
 
 void __fastcall LoadPlanThread::updateStatus() { // can't use args for synced method, don't know why
-    frmProcess->panelLoading->Caption = loadingMessage.c_str(); frmProcess->panelLoading->Repaint();
+	frmProcess->panelLoading->Caption = loadingMessage.c_str(); frmProcess->panelLoading->Repaint();
 }
 
 void __fastcall SaveProgressThread::updateStatus() {
-    frmProcess->panelLoading->Caption = loadingMessage.c_str(); frmProcess->panelLoading->Repaint();
+	frmProcess->panelLoading->Caption = loadingMessage.c_str(); frmProcess->panelLoading->Repaint();
 }
 
 void __fastcall LoadPlanThread::debugLog() { frmProcess->debugLog(debugMessage.c_str()); }
@@ -496,8 +498,7 @@ void __fastcall LoadPlanThread::Execute() {
 }
 
 void __fastcall TfrmProcess::loadPlanThreadTerminated(TObject *Sender) {
-    progressBottom->Style = pbstNormal; progressBottom->Visible = false;
-    panelLoading->Visible = false;
+	progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false;
     Screen->Cursor = crDefault;
     try {
         showChunks();
@@ -718,9 +719,9 @@ If finished:
 }
 
 void TfrmProcess::prepareProgressMessage(const char * loadingMessage) {
-    panelLoading->Caption = loadingMessage;
-    panelLoading->Visible = true;
-    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+	panelLoading->Caption = loadingMessage;
+	panelLoading->Visible = true;
+	panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
     panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
 }
@@ -740,11 +741,12 @@ void TfrmProcess::exit() { // definitely exiting
 		return; // fixme what now?
 	}
 
-    panelLoading->Caption = progressMessage;
-    panelLoading->Visible = true;
-    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
-    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
-    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+//	panelLoading->Caption = progressMessage;
+//	panelLoading->Visible = true;
+//    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+//	panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+//	progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+	prepareProgressMessage(progressMessage);
 
     Screen->Cursor = crSQLWait; Enabled = false; DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
 
@@ -909,7 +911,7 @@ void SaveProgressThread::jobFinished() {
 }
 
 void __fastcall TfrmProcess::saveProgressThreadTerminated(TObject *Sender) {
-    progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false; Screen->Cursor = crDefault;
+	progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false; Screen->Cursor = crDefault;
     try {
         // anything more to do?
         collectEmpties();
