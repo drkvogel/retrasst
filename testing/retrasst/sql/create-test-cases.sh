@@ -7,9 +7,9 @@ VNODE='vnode_vlab_64'
 DBC='t_ldbc'
 DBP='t_ldb20'
 
-#CENTRAL="./test-cases-t_ldbc.sql"
-PROJECT="./test-cases-t_ldbx.sql"
 DELETE="./delete-plans.sql"
+CENTRAL="./test-cases-t_ldbc.sql"
+PROJECT="./test-cases-t_ldbx.sql"
 
 echo $DELETE
 sql $VNODE::$DBC < $DELETE

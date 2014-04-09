@@ -3,34 +3,36 @@ set autocommit on
 \nocontinue
 \p\g
 
-update box_store s from box_name n set retrieval_cid = -636363 
-where box_type_cid = 18 
-and n.box_cid = s.box_cid 
-and n.box_cid between 2868300 
-and 2868400;
+update box_store s 
+from box_name n 
+set retrieval_cid = -636363 
+where 
+	box_type_cid = 18 and 
+	n.box_cid = s.box_cid and
+	n.box_cid between 2868300 and
+	2868400;
 \p\g
 
-update cryovial_store s from cryovial c set retrieval_cid = -363636 
-where s.cryovial_id = c.cryovial_id 
-and aliquot_type_cid = -31781 
-and cryovial_barcode like '112155%';
+update cryovial_store s 
+from cryovial c 
+set retrieval_cid = -363636 
+where 
+	s.cryovial_id = c.cryovial_id and
+	aliquot_type_cid = -31781 and
+	cryovial_barcode like '112155%';
 \p\g
 
 update cryovial_store s from cryovial c 
 set retrieval_cid = -363636 
-where s.cryovial_id = c.cryovial_id 
-and aliquot_type_cid = -31782 
-and cryovial_barcode like '112155%';
+where 
+	s.cryovial_id = c.cryovial_id and
+	aliquot_type_cid = -31782 and
+	cryovial_barcode like '112155%';
 \p\g
 
-/* n.b. extra barcode field in box_name is filled in if target columns are specified
-if non-defaulted columns are not specified as targets, all column values must be given otherwise this error results:
-E_US0AD7 INSERT: number of target columns must equal the number of specified values.
-    box_cid, box_type_cid, box_capacity, external_name, status, slot_cid, time_stamp, note_exists, process_cid [barcode] */
 
-delete from box_name 
-where box_cid in (-111, -112, -113, -114, -115, -116, -117, -118, -119)
-\p\g
+--delete from box_name where box_cid in (-111, -112, -113, -114, -115, -116, -117, -118, -119)
+--\p\g
     
 insert into box_name (box_cid, box_type_cid, box_capacity, external_name, status, slot_cid, time_stamp, note_exists, process_cid) 
 	values (-111, -623411, 0, 'Example retrieval box 1',2,0,'now',0,0);
@@ -61,12 +63,12 @@ insert into
 select 
 	-s.cryovial_id, s.cryovial_id, 
 	-(next value for temp_box_position)/100, 
-	mod(next value for temp_box_position,100),'now',0,0
+	mod(next value for temp_box_position,100),'now', 0, 0
 from 
 	cryovial_store s, cryovial c 
 where 
 	s.cryovial_id = c.cryovial_id 
-	and aliquot_type_cid = -623410 
+	and aliquot_type_cid = -31782 
 	and cryovial_barcode like '112155%';
 \p\g
 
@@ -75,3 +77,9 @@ where
 
 drop sequence temp_box_position;
 \p\g
+\q
+
+/* n.b. extra barcode field in box_name is filled in if target columns are specified
+if non-defaulted columns are not specified as targets, all column values must be given otherwise this error results:
+E_US0AD7 INSERT: number of target columns must equal the number of specified values.
+    box_cid, box_type_cid, box_capacity, external_name, status, slot_cid, time_stamp, note_exists, process_cid [barcode] */
