@@ -12,7 +12,6 @@
 class TfrmCollectEmpties : public TForm
 {
 __published:	// IDE-managed Components
-    TCheckListBox *CheckListBox1;
 private:	// User declarations
 public:		// User declarations
     __fastcall TfrmCollectEmpties(TComponent* Owner);

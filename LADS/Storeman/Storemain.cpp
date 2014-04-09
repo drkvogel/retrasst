@@ -325,4 +325,3 @@ void __fastcall TfrmStoremain::BtnRationalyseClick(TObject *Sender)
 	frmRatTanksMainDialog->ShowModal();
 }
 //---------------------------------------------------------------------------
-

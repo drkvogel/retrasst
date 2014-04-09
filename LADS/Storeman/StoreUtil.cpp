@@ -367,8 +367,8 @@ std::string Util::getAliquotDescription(int aliquot_type_cid) { // c_object_name
         if (found != cache.end()) { // found
             return (found->second);
         } else {
-            const LCDbObject * aliquot = LCDbObjects::records().findByID(aliquot_type_cid);
-            description = aliquot->getName().c_str();
+			const LCDbObject * aliquot = LCDbObjects::records().findByID(aliquot_type_cid);
+			description = aliquot ? aliquot->getName().c_str() : "unknown";
             cache[aliquot_type_cid] = description; // cache result
             return description;
         }
