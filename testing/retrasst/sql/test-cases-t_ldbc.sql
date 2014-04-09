@@ -13,6 +13,10 @@ set autocommit on
 -- \q
 
 -- 2.7.2
+
+-- delete from c_retrieval_job where retrieval_cid = -636363
+-- \p\g
+
 insert into c_retrieval_job 
 	(retrieval_cid, external_name, description, process_cid, project_cid, 
 	status, job_type, claimed_until, reason, 
@@ -21,8 +25,8 @@ insert into c_retrieval_job
 values (
 	-636363, 'Example box retrieval','A box retrieval for Chris', 0, -149662, 
 	0, 2, date('now') + date('1 year'), 'For testing',
-	-623410, 0, date('now'), date('now') + date('1 year'), 
-	-623409, 0, 0);
+	-31782, 0, date('now'), date('now') + date('1 year'), 
+	-31781, 0, 0);
 \p\g
 
 -- enum Status { NEW_JOB, INPROGRESS, DONE, REJECTED, DELETED = 99 };
@@ -32,6 +36,10 @@ values (
 -- -363636,     'Example...'  'A cryo... ' 0           -149662     1      4         ''              -31781            0              10/07/13     ''           -31782);
 
 -- 2.7.2
+
+-- delete from c_retrieval_job where retrieval_cid = -363636
+-- \p\g
+
 insert into c_retrieval_job
 	(retrieval_cid, external_name, description, process_cid, project_cid, 
 	status, job_type, claimed_until, reason, 
@@ -39,10 +47,9 @@ insert into c_retrieval_job
 	secondary_aliquot, box_set, reason_flags) 
 values (
 	-363636, 'Example cryovial retrieval','A cryovial retrieval for Chris', 0, -149662,
-	0, 4, date('now') + date('1 year'), 'For testing',
-	-623410, 0, date('now'), date('now') + date('1 year'), 
-	-623409, 0, 0);
---                                                                                       INPROGRESS, SAMPLE_RETRIEVAL
+	0, 4, date('now') + date('1 year'), 'For testing', -- INPROGRESS, SAMPLE_RETRIEVAL
+	-31782, 0, date('now'), date('now') + date('1 year'), 
+	-31781, 0, 0);
 \p\g
 
 

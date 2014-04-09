@@ -3,15 +3,22 @@
 # this file must have unix-style (lf) endings to run on cygwin
 
 echo "Creating test cases..."
-VNODE='vnode_vlab'
+VNODE='vnode_vlab_64'
 DBC='t_ldbc'
 DBP='t_ldb20'
-FILE1="./test-cases-t_ldbc.sql"
-FILE2="./test-cases-t_ldbx.sql"
-FILE3="./delete-plans.sql"
-echo "$FILE1,$FILE2"
-sql $VNODE::$DBC < $FILE1
-sql $VNODE::$DBP < $FILE2
-sql $VNODE::$DBC < $FILE3
+
+#CENTRAL="./test-cases-t_ldbc.sql"
+PROJECT="./test-cases-t_ldbx.sql"
+DELETE="./delete-plans.sql"
+
+echo $DELETE
+sql $VNODE::$DBC < $DELETE
+
+echo $CENTRAL
+sql $VNODE::$DBC < $CENTRAL
+
+echo $PROJECT
+sql $VNODE::$DBP < $PROJECT
+
 echo "Done."
 exit 0
