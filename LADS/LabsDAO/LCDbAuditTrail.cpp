@@ -41,6 +41,7 @@
 #include "LCDbProject.h"
 #include "LCDbAnalyser.h"
 #include "LIMSDatabase.h"
+#include "LogFile.h"
 
 #pragma hdrstop
 #pragma package(smart_init)
@@ -308,7 +309,7 @@ bool LCDbAuditTrail::sendEMail( const std::string & body, std::string address, s
 		return true;
 	}
 	catch( ... ) {
-		XMLFile::logError( "not-sent", body );
+		LogFile::logError( "not-sent", body );
 		return false;
 	}
 }

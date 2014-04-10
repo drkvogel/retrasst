@@ -11,8 +11,7 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 
-
-
+//Generates a long string used for encryption.
 static unsigned long next = 1;
 int myrand(void)  /* RAND_MAX assumed to be 32767. */
 {
@@ -25,12 +24,13 @@ void mysrand(unsigned seed)
 {
     next = seed;
 }
-
+//Call this to generate the encrpytion key for the Database
+//I don't think this is used anymore
 std::string enckey::getDBEncKey()
 {
 	return gen(2348644);
 }
-
+//Call this to get the encrpytion key for the ROSSETTA
 std::string enckey::getROSSETTAEncKey()
 {
 	return gen(16651029);

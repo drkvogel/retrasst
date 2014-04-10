@@ -93,10 +93,7 @@ public:
 
 	const LCDbCryoJob * readRecord( LQuery cQuery, int sid );
 	bool read( LQuery cQuery, LCDbCryoJob::JobKind type = LCDbCryoJob::UNKNOWN, bool all = false );
-
-	const LCDbCryoJob * findByName( const std::string & name ) const {
-		return findMatch( LDbNames::LCMatcher( name ) );
-	}  
+	const LCDbCryoJob * findByName( const std::string & name ) const;
 };
 
 //---------------------------------------------------------------------------

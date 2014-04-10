@@ -104,8 +104,8 @@ void __fastcall TfrmRetrieveMain::AddClick(TObject *Sender)
 void __fastcall TfrmRetrieveMain::cbProjectChange(TObject *Sender)
 {
 	LCDbProjects &projList = LCDbProjects::records( );
-	AnsiString proj = cbProject->Text.Trim();
-	const LCDbProject *selected = projList.findByName( proj.c_str() );
+	std::string proj = AnsiString( cbProject->Text ).c_str();
+	const LCDbProject *selected = projList.findByName( proj );
 	if( selected == NULL ) {
 		rows.clear();
 	} else {
@@ -187,8 +187,8 @@ void __fastcall TfrmRetrieveMain::FormResize(TObject *Sender)
 
 void __fastcall TfrmRetrieveMain::btnDestinationClick(TObject *Sender)
 {
-	AnsiString content = cbBoxType->Text.Trim();
-	const LPDbBoxType * boxType = LPDbBoxTypes::records().find( content.c_str() );
+	std::string content = AnsiString( cbBoxType->Text ).c_str();
+	const LPDbBoxType * boxType = LPDbBoxTypes::records().find( content );
 	if( boxType == NULL ) {
 		throw Exception( "No matching formation type" );
 	}
@@ -240,9 +240,9 @@ void TfrmRetrieveMain::populate( TComboBox * target, TComboBox * other )
 int TfrmRetrieveMain::getAliquotTypeID( TComboBox * cb )
 {
 	const LCDbObject * aliquot = NULL;
-	AnsiString selected = cb->Text.Trim();
-	if( !selected.IsEmpty() ) {
-		aliquot = LCDbObjects::records().find( selected.c_str(), LCDbObject::ALIQUOT_TYPE );
+	std::string content = AnsiString( cb->Text ).c_str();
+	if( !content.empty() ) {
+		aliquot = LCDbObjects::records().find( content, LCDbObject::ALIQUOT_TYPE );
 	}
 	return aliquot == NULL ? 0 : aliquot -> getID();
 }
@@ -508,8 +508,8 @@ bool TfrmRetrieveMain::Sorter::operator() ( GER a, GER b ) const {
 
 void __fastcall TfrmRetrieveMain::btnNewContentClick(TObject *Sender)
 {
-	AnsiString projName = cbProject->Text;
-	const LCDbProject * pp = LCDbProjects::records().findByName( projName.c_str() );
+	std::string proj = AnsiString( cbProject->Text ).c_str();
+	const LCDbProject * pp = LCDbProjects::records().findByName( proj );
 	if( frmNewBoxType -> ShowModal() == mrOk ) {
 		LPDbBoxType created = frmNewBoxType -> getDetails();
 		created.setUse( LPDbBoxType::ANALYSIS );
@@ -523,32 +523,22 @@ void __fastcall TfrmRetrieveMain::btnNewContentClick(TObject *Sender)
 //---------------------------------------------------------------------------
 
 void TfrmRetrieveMain::enableButtons() {
-	AnsiString projName = cbProject->Text, btName = cbBoxType->Text;
-	const LCDbProject * pp = LCDbProjects::records().findByName( projName.c_str() );
-	bool proj = false, boxType = false;
-	if( pp != NULL ) {
-		if( !btName.IsEmpty() ) {
-			const LPDbBoxType * bt = LPDbBoxTypes::records( pp->getID() ).find( btName.c_str() );
-			if( bt != NULL ) {
-				boxType = true;
-            }
-		}
-		proj = true;
-	}
+	std::string projName = AnsiString( cbProject->Text ).c_str();
+	const LCDbProject * pp = LCDbProjects::records().findByName( projName );
+	std::string btName = AnsiString( cbBoxType->Text ).c_str();
+	const LPDbBoxType * bt = LPDbBoxTypes::records().find( btName );
 	bool read = !rows.empty();
-	bool sort = !sortList.columns.empty();
-
+	bool proj = (pp != NULL);
 	CmbAliquot1->Enabled = proj;
 	CmbAliquot2->Enabled = proj;
 	cbBoxType->Enabled = proj;
-
 	btnAddFile->Enabled = proj;
 	// fixme: btnAddRecords->Enabled = proj;
 	btnLocate->Enabled = proj && read;
 	btnNewContent->Enabled = proj;
-	btnDestination->Enabled = read && boxType;
-	btnSaveList->Enabled = read && boxType;  	/// fixme - needs destination
-	btnClrSort->Enabled = sort;
+	btnDestination->Enabled = read && (bt != NULL);
+	btnSaveList->Enabled = read && (bt != NULL);  	/// fixme - needs destination
+	btnClrSort->Enabled = !sortList.columns.empty();
 }
 
 //---------------------------------------------------------------------------

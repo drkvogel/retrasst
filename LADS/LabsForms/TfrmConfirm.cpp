@@ -96,8 +96,8 @@ void __fastcall TfrmConfirm::userDetailChange(TObject *)
 
 void __fastcall TfrmConfirm::BitBtn1Click(TObject *)
 {
-	AnsiString name = cbUserNames -> Text.Trim();
-	AnsiString pwd = edtPassword -> Text.Trim();
+	std::string name = AnsiString( cbUserNames -> Text ).c_str();
+	std::string pwd = AnsiString( edtPassword -> Text ).c_str();
 	LCDbOperators & users = LCDbOperators::records();
 	const LCDbOperator * user = users.check( name.c_str(), pwd.c_str() );
 	edtPassword -> Clear();

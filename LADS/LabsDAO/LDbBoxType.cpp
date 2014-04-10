@@ -11,7 +11,6 @@
 #include <vcl.h>
 #include <stdlib.h>
 #include <sstream>
-#include "LQuery.h"
 #include "LDbBoxType.h"
 #include "LCDbProject.h"
 
@@ -22,23 +21,23 @@
 //  List the aliquots required for a box from the current project
 //---------------------------------------------------------------------------
 
-LPDbBoxType::LPDbBoxType( const LQuery & query )
- : LPDbID( query.readInt( "box_type_cid" ) ),
-   LDbNames( query.readString( "external_name" ),
-			 query.readString( "description" ) ),
-   status( query.readInt( "status" ) ),
-   uses( query.readInt( "expected_use" ) ),
-   sizeID( query.readInt( "box_size_cid" ) ),
-   group( query.readInt( "box_set_link" ) ),
-   position( query.readInt( "box_order" ) )
+LPDbBoxType::LPDbBoxType( const LQuery & cQuery )
+ : LPDbID( cQuery.readInt( "box_type_cid" ) ),
+   LDbNames( cQuery.readString( "external_name" ),
+			 cQuery.readString( "description" ) ),
+   status( cQuery.readInt( "status" ) ),
+   uses( cQuery.readInt( "expected_use" ) ),
+   sizeID( cQuery.readInt( "box_size_cid" ) ),
+   group( cQuery.readInt( "box_set_link" ) ),
+   position( cQuery.readInt( "box_order" ) )
 {
 	char field[ 16 ];
 	for( int i = 1; i < 4; i ++ )
 	{
 		std::sprintf( field, "aliquot_type%d", i );
-		if( query.fieldExists( field ) )
+		if( cQuery.fieldExists( field ) )
 		{
-			int aliquot = query.readInt( field );
+			int aliquot = cQuery.readInt( field );
 			if( aliquot != 0 )
 				content.push_back( aliquot );
 		}
@@ -49,33 +48,33 @@ LPDbBoxType::LPDbBoxType( const LQuery & query )
 //  Read list types for current project, if it exist, otherwise central
 //---------------------------------------------------------------------------
 
-bool LPDbBoxTypes::read( LQuery query, bool readAll ) {
+bool LPDbBoxTypes::read( LQuery cQuery, bool readAll ) {
 	std::stringstream sql;
-	sql << "select * from c_box_content where project_cid in (" << LCDbProjects::getCurrentID() << ",0)";
+	sql << "select * from c_box_content";
 	if( !readAll ) {
-		sql << " and status <> " << LPDbBoxType::DELETED;
+		sql << " where status <> " << LPDbBoxType::DELETED;
 	}
 	sql << " order by box_type_cid";
-	query.setSQL( sql.str() );
-	return readData( query );
+	cQuery.setSQL( sql.str() );
+	return readData( cQuery );
 }
 
 //---------------------------------------------------------------------------
 //	Change the aliquot types in this type of box
 //---------------------------------------------------------------------------
 
-void LPDbBoxType::setAliquots( Aliquots aliquotTypes )
-{
-	for( content.clear(); aliquotTypes.isValid(); ++ aliquotTypes )
-		content.push_back( *aliquotTypes );
+void LPDbBoxType::setAliquots( const std::vector< int > & aliquotTypes ) {
+	content.clear();
+	for( int at : aliquotTypes ) {
+		content.push_back( at );
+	}
 }
 
 //---------------------------------------------------------------------------
 
-bool LPDbBoxType::hasAliquot( int atid ) const
-{
-	for( Aliquots ali = content; ali.isValid(); ++ ali ) {
-		if( *ali == atid ) {
+bool LPDbBoxType::hasAliquot( int atid ) const {
+	for( int at : content ) {
+		if( at == atid ) {
 			return true;
 		}
 	}
@@ -86,58 +85,38 @@ bool LPDbBoxType::hasAliquot( int atid ) const
 //	Create or update the given box content record; copy into the cache
 //---------------------------------------------------------------------------
 
-bool LPDbBoxType::saveRecord( LQuery query )
+bool LPDbBoxType::saveRecord( LQuery cQuery )
 {
 	if( saved ) {
-		query.setSQL( "Update c_box_content set external_name = :nam, description = :desc, status = :sts,"
+		cQuery.setSQL( "Update c_box_content set external_name = :nam, description = :desc, status = :sts,"
 					  " expected_use = :eu, box_size_cid = :bs, box_order = :ord, box_set_link = :lnk,"
 					  " aliquot_type1 = :at1, aliquot_type2 = :at2, aliquot_type3 = :at3"
 					  " where box_type_cid = :cid" );
 	} else {
-		while( needsNewID() ) {
-			claimNextID( query );
-		}
-		query.setSQL( "Insert into c_box_content (box_type_cid, external_name, description, status, expected_use,"
+		claimNextID( cQuery );
+		cQuery.setSQL( "Insert into c_box_content (box_type_cid, external_name, description, status, expected_use,"
 					  " box_size_cid, box_order, aliquot_type1, aliquot_type2, aliquot_type3, box_set_link)"
 					  " values ( :cid, :nam, :desc, :sts, :eu, :bs, :ord, :at1, :at2, :at3, :lnk )" );
 	}
 
-	query.setParam( "nam", getName() );
-	query.setParam( "desc", getDescription() );
-	query.setParam( "sts", status );
-	query.setParam( "eu", uses );
-	query.setParam( "bs", sizeID );
-	query.setParam( "ord", position );
-	query.setParam( "lnk", group );
-	query.setParam( "cid", getID() );
+	cQuery.setParam( "nam", getName() );
+	cQuery.setParam( "desc", getDescription() );
+	cQuery.setParam( "sts", status );
+	cQuery.setParam( "eu", uses );
+	cQuery.setParam( "bs", sizeID );
+	cQuery.setParam( "ord", position );
+	cQuery.setParam( "lnk", group );
+	cQuery.setParam( "cid", getID() );
 	std::vector< int >::const_iterator alr = content.begin();
-	query.setParam( "at1", alr == content.end() ? 0 : *alr ++ );
-	query.setParam( "at2", alr == content.end() ? 0 : *alr ++ );
-	query.setParam( "at3", alr == content.end() ? 0 : *alr ++ );
-	if( query.execSQL() ) {
+	cQuery.setParam( "at1", alr == content.end() ? 0 : *alr ++ );
+	cQuery.setParam( "at2", alr == content.end() ? 0 : *alr ++ );
+	cQuery.setParam( "at3", alr == content.end() ? 0 : *alr ++ );
+	if( cQuery.execSQL() ) {
 		saved = true;
 		LPDbBoxTypes::records().insert( *this );
 		return true;
 	}
 	else return false;
-}
-
-//---------------------------------------------------------------------------
-//	check the box type ID is valid and another project doesn't use it
-//---------------------------------------------------------------------------
-
-bool LPDbBoxType::needsNewID() const
-{
-	if( getID() != 0 ) {
-		LQuery cq( LIMSDatabase::getCentralDb() );
-		cq.setSQL( "select count(*) from c_box_content where box_type_cid in (:pid, :nid)" );
-		cq.setParam( "pid", getID() );
-		cq.setParam( "nid", -getID() );
-		if( cq.open() && cq.readInt( 0 ) == 0 ) {
-			return false;
-		}
-	}
-	return true;
 }
 
 //---------------------------------------------------------------------------

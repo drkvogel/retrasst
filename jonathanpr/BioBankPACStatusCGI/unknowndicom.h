@@ -15,22 +15,24 @@ class ROSETTA;
 class XDB;
 class XQUERY;
 
+//PAGE 3 - Update unknown studies
+//Keeps the state of page 3 and loads in all the information for page 3
 class unknowndicom
 {
+//all the valid rows loaded from pacsstudy
 	static std::vector<unknowndicom > m_unknowndicom;
+//a list of all the AETs, used in the filter download
 	static std::set<std::string> m_aetList;
-
+//has the data been loaded from the database
 	bool m_ready;
 
+//the raw database information
 	long m_studypk;
 	std::string m_aet;
 	XTIME m_studydate;
 	std::string m_patientid;
 	std::string m_firstname;
-
-	stage m_stage; //first sign on
-	std::string m_error;
-
+//page state information
 	Result m_unknownpage;
 	Result m_aetFilter;
 	Result m_timespanFilter;
@@ -38,25 +40,20 @@ class unknowndicom
 	void readDetails(const ROSETTA & fields );
 	void getAETs(const XDB *db);
 public:
+
 	const bool isReady() const
 	{
 		return m_ready;
 	}
 
-	const unknowndicom *find(const int studypk) const;
-
 	unknowndicom();
 	unknowndicom(long studypk,const std::string &aet,const XTIME &studydate,const std::string &patientid,const std::string &firstname);
 
 	void readList(const XDB *db );
-	stage getStage( ) const {return m_stage;}
-
-	std::string getMessage() const { return m_error; }
 	void addFields( ROSETTA & fields ) const;
 
 	const std::vector<unknowndicom > & getList() const { return m_unknowndicom; }
 	const std::set<std::string> &getAETs() const {return m_aetList; }
-
 
 	Result getSelectedPage() const {return m_unknownpage;}
 	void parse(const XCGI *cgi,const ROSETTA &R);

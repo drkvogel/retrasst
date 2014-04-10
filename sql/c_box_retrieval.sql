@@ -1,1 +1,1 @@
-select * from c_retrieval_job where status < 2\g
+select * from c_box_retrieval where status \g

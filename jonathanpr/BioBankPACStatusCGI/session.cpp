@@ -18,17 +18,19 @@ session::session() : m_stage(UNKNOWN)
 
 }
 //---------------------------------------------------------------------------
+//Parse the url information
 void session::parse(const XCGI *cgi,const ROSETTA &R)
 {
+//Parse the Rosetta, get the old values back out
 	readDetails(R);
-//get any updates
+//Has any tabs been pressed? If so change page
 	if (cgi->setParamIfExistsElseDefault("ChangeID","") == "Correct Participant ID")
 		m_viewpage = "3";
 	else if (cgi->setParamIfExistsElseDefault("Logs","") == "Logs")
 		m_viewpage = "2";
 	else if (cgi->setParamIfExistsElseDefault("Status","") == "Status")
 		m_viewpage = "1";
-
+//get the current username password of the user we are going to try and sign in
 	m_username.setText(cgi->setParamIfExistsElseDefault("username",m_username.getText()));
 	m_password.setText(cgi->setParamIfExistsElseDefault("password",m_password.getText()));
 }
@@ -39,7 +41,7 @@ session::session( const std::string &name)
 	m_name = name;
 }
 //---------------------------------------------------------------------------
-
+//pass in a staff name and get back a ptr if that name exsists
 const session *session::find( std::string name ) const
 {
 	for( std::vector<session >::const_iterator ci = m_staffnames.begin( ); ci != m_staffnames.end( ) ; ++ ci )
@@ -50,7 +52,7 @@ const session *session::find( std::string name ) const
 	return NULL;
 }
 //---------------------------------------------------------------------------
-
+//load in the names of allowed staff which can sign in to the web site
 void session::readList(const XDB *db )
 {
 	m_staffnames.clear( );
@@ -69,6 +71,7 @@ void session::readList(const XDB *db )
 }
 
 //---------------------------------------------------------------------------
+//Perform sign in, uses the ICE sign in from Rand utils (Alans library)
 void session::checkUser(RAND_UTIL *ru,const XDB *db )
 {
 	m_error = "";
@@ -79,10 +82,8 @@ void session::checkUser(RAND_UTIL *ru,const XDB *db )
 
 	if ( username.empty() )
 		m_username.setMessage("Please enter your username");
-
 	if ( password.empty() )
 		m_password.setMessage("Please enter your password");
-
 	if (m_username.isError || m_password.isError)
 		return;
 
@@ -104,13 +105,13 @@ void session::checkUser(RAND_UTIL *ru,const XDB *db )
 	}
 	m_stage = VALID;
 }
-
+//---------------------------------------------------------------------------
+//read the details from the encrypted rosetta
 void session::readDetails(const ROSETTA & fields )
 {
-//	m_viewpage = fields.getStringDefault("viewpage",m_viewpage);
-
 	m_username.setText(fields.getStringDefault("username" ,m_username.getText()));
 	m_ctsu_signon = fields.getStringDefault("m_ctsu_signon" ,m_ctsu_signon);
+
 	std::string stage = fields.getStringDefault("s","");
 	if (stage == "3")
 		m_stage = VALID;
@@ -119,12 +120,11 @@ void session::readDetails(const ROSETTA & fields )
 
 void session::addFields( ROSETTA & fields ) const
 {
+// Save the session info into the rosetta, rosetta is encrpyted
 	if (m_stage == VALID)
 		fields.setString( "s", "3" ); //3 is VALID
 	if (!m_ctsu_signon.empty())
 		fields.setString("ctsu_signon",m_ctsu_signon);
-//	if (!m_viewpage.empty())
-//		fields.setString("viewpage",m_viewpage);
 }
 //---------------------------------------------------------------------------
 

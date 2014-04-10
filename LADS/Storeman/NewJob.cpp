@@ -25,9 +25,8 @@ __fastcall TfrmNewJob::TfrmNewJob(TComponent* Owner) : TForm(Owner)
 void __fastcall TfrmNewJob::SaveClick(TObject *Sender)
 {
 	if( Util::validateText( TxtName, LblName ) && Util::validateText( TxtFull, LblFull ) ) {
-		AnsiString name = TxtName->Text.Trim(), desc = TxtFull->Text.Trim();
-		job.setName( name.c_str() );
-		job.setDescription( desc.c_str() );
+		job.setName( AnsiString( TxtName->Text ).c_str() );
+		job.setDescription( AnsiString( TxtFull->Text ).c_str() );
 		if( CbExercise->ItemIndex >= 0 ) {
 			AnsiString why = CbExercise->Items->Strings[ CbExercise->ItemIndex ];
 			job.setReason( why.c_str() );
@@ -48,9 +47,9 @@ void TfrmNewJob::init( LCDbCryoJob::JobKind kind )
 	TxtFull->Clear();
 	ActiveControl = TxtFull;
 	CbExercise->Clear();
-	for( Range< LCDbObject > oi = LCDbObjects::records(); oi.isValid(); ++oi ) {
-		if( oi->isActive() && oi->getObjectType() == LCDbObject::STORAGE_EXERCISE ) {
-			CbExercise->Items->Add( oi->getName().c_str() );
+	for( const LCDbObject & obj : LCDbObjects::records() ) {
+		if( obj.isActive() && obj.getObjectType() == LCDbObject::STORAGE_EXERCISE ) {
+			CbExercise->Items->Add( obj.getName().c_str() );
 		}
 	}
 	CbExercise->Text = "(none)";
@@ -62,17 +61,16 @@ bool TfrmNewJob::createJob( const std::vector<Box*> & boxes )
 {
 	int projID = 0, al1 = 0, al2 = 0;
 	std::set<int> projects, boxTypes, aliquots;
-	for( std::vector<Box*>::const_iterator bi = boxes.begin(); bi != boxes.end(); ++ bi ) {
-		const Box & box = **bi;
-		projects.insert( box.getProjectCID() );
-		boxTypes.insert( box.getBoxTypeCID() );
+	for( const Box * box : boxes ) {
+		projects.insert( box->getProjectCID() );
+		boxTypes.insert( box->getBoxTypeCID() );
 	}
 	if( projects.size() == 1 ) {
 		projID = *(projects.begin());
-		for( Range< LPDbBoxType > bt = LPDbBoxTypes::records( projID ); bt.isValid(); ++ bt ) {
-			if( boxTypes.count( bt->getID() ) != 0 ) {
-				for( Range< int > at = bt->getAliquots(); bt.isValid(); ++ bt ) {
-					aliquots.insert( *at );
+		for( const LPDbBoxType & bt : LPDbBoxTypes::records() ) {
+			if( boxTypes.count( bt.getID() ) != 0 ) {
+				for( int at : bt.getAliquots() ) {
+					aliquots.insert( at );
 				}
 			}
 		}

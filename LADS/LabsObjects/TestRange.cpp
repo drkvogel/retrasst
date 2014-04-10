@@ -12,19 +12,17 @@
 void ResultValue::setValue( const std::string & val )
 {
 	AnsiString trimmed = AnsiString(val.c_str()).Trim();
-	if( trimmed.IsEmpty() )
-	{
+	if( trimmed.IsEmpty() )	{
 		number = 0.0;
 		text = "0.00";
-	}
-	else try
-	{
-		number = trimmed.ToDouble();
-		text = trimmed.c_str();
-	}
-	catch( ... )
-	{
-		number = -999.99;
+	} else {
+		try	{
+			number = trimmed.ToDouble();
+			text = trimmed.c_str();
+		}
+		catch( ... ) {
+			number = -999.99;
+		}
 	}
 }
 
@@ -36,8 +34,7 @@ void ResultValue::setValue( double val )
 	if( val < 0 ) {
 		text = "###";
 	} else {
-		AnsiString rounded = FormatFloat( "###0.00", val );
-		text = rounded.c_str();
+		text = AnsiString( FormatFloat( "###0.00", val ) ).c_str();
     }
 }
 

@@ -306,9 +306,8 @@ IPart::Availability Tank::availability( ) const {
 }
 
 void Tank::takeOffline( ) {
-	const std::vector< IPart* >&layouts = getList( );
-	for( unsigned i = 0; i < layouts.size( ); i++ ) {
-		Layout *lay = ( Layout* ) layouts[ i ];
+	for( IPart * pi : getList( ) ) {
+		Layout *lay = ( Layout* ) pi;
 		if( lay->availability( ) == Layout::IS_AVAILABLE ) {
 			lay->setAvailability( false );
 			lay->saveAvailability( );
@@ -693,8 +692,8 @@ void Layout::populate( ) {
 	if( tank_cid != 0 && tank_cid != -1 ) {
 		std::vector< ROSETTA > racks;
 		dao.loadRacks( tank_cid, racks );
-		for( std::vector< ROSETTA >::const_iterator ri = racks.begin(); ri != racks.end(); ++ ri ) {
-			allRacks.push_back( new Rack( *ri ) );
+		for( const ROSETTA & ri : racks ) {
+			allRacks.push_back( new Rack( ri ) );
 		}
 	}
 	// read section definitions for this layout - racks should match one of them
@@ -704,9 +703,9 @@ void Layout::populate( ) {
 	for( int i = 0; i < capacity; i++ ) {
 		Section *s = new Section( sections[ i ] );
 		std::multimap< short, Rack * > matchedRacks;
-		for( std::vector< Rack * >::iterator ri = allRacks.begin(); ri != allRacks.end(); ++ ri ) {
-			if( (**ri).getType_cid() == s->getID() ) {
-				matchedRacks.insert( std::pair< short, Rack * >( (**ri).getPosition(), *ri ) );
+		for( Rack * ri : allRacks ) {
+			if( ri->getType_cid() == s->getID() ) {
+				matchedRacks.insert( std::pair< short, Rack * >( ri->getPosition(), ri ) );
 			}
 		}
 		s->setMap_cid( id );
@@ -848,8 +847,8 @@ void Section::populate( ) {
 	std::vector< ROSETTA >results;
 	dao.loadRacks( tank_cid, results, id );
 	std::multimap< short, Rack * > dbRacks;
-	for( std::vector< ROSETTA >::const_iterator ri = results.begin(); ri != results.end(); ++ ri ) {
-		Rack *r = new Rack( *ri );
+	for( const ROSETTA & ri : results ) {
+		Rack *r = new Rack( ri );
 		dbRacks.insert( std::pair< short, Rack * >( r->getPosition(), r ) );
 	}
 	populate( dbRacks );
@@ -985,16 +984,15 @@ void Rack::populate( ) {
 	dao.loadBoxes( id, results );
 	std::multimap< int, Box * > boxes;
 	std::set< int > projects, boxTypes;
-	for( std::vector< ROSETTA >::const_iterator ri = results.begin(); ri != results.end(); ++ ri ) {
-		Box * b = new Box( *ri );
+	for( const ROSETTA & ri : results ) {
+		Box * b = new Box( ri );
 		boxes.insert( std::pair< int, Box * >( b->getPosition(), b ) );
 		projects.insert( b->getProjectCID() );
 		boxTypes.insert( b->getBoxTypeCID() );
 	}
-	for( std::multimap< int, Box * >::const_iterator bi = boxes.begin(); bi != boxes.end(); ++ bi) {
-		Box * next = bi->second;
-		next->setParent( this );
-		partlist.push_back( next );
+	for( auto bi : boxes ) {
+		bi.second->setParent( this );
+		partlist.push_back( bi.second );
 	}
 	childCount = partlist.size();
 
@@ -1133,8 +1131,7 @@ std::string Box::getName() const {
 
 std::auto_ptr< ROSETTA >Box::getProperties( ) {
 	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
-	const LPDbBoxTypes &boxTypes = LPDbBoxTypes::records( project_cid );
-	const LPDbBoxType *content = boxTypes.findByID( box_type_id );
+	const LPDbBoxType *content = LPDbBoxTypes::records().findByID( box_type_id );
 	if( content != NULL ) {
 		r->setString( "content", content->getDescription( ) );
 	}
@@ -1202,15 +1199,15 @@ void Box::populate( ) {
 
 	// list cryovials in the box, ignoring empty spaces
 	dao.loadSamples( id, project_cid, results );
-	for( std::vector< ROSETTA >::const_iterator bi = results.begin(); bi != results.end(); bi ++ ) {
-		Sample * next = new Sample( *bi );
+	for( const ROSETTA & bi : results ) {
+		Sample * next = new Sample( bi );
 		next->setParent( this );
 		partlist.push_back( next );
 	}
 	childCount = partlist.size();
 	sortChildren();
 
-	const LPDbBoxType * type = LPDbBoxTypes::records( project_cid ).findByID( box_type_id );
+	const LPDbBoxType * type = LPDbBoxTypes::records().findByID( box_type_id );
 	if( type != NULL ) {
 		const LCDbBoxSize * size = LCDbBoxSizes::records().findByID( type->getSizeID() );
 		if( size != NULL ) {
@@ -1225,17 +1222,17 @@ void Box::populate( ) {
 
 	// list previous positions of this box, if available
 	dao.loadBoxHistory( id, project_cid, results );
-	for( std::vector< ROSETTA >::const_iterator hi = results.begin( ); hi != results.end( ); ++hi ) {
-		TDateTime when = hi->getTime( "time_stamp" ).outputTDateTime();
+	for( const ROSETTA & hi : results ) {
+		TDateTime when = hi.getTime( "time_stamp" ).outputTDateTime();
 		std::stringstream detail;
-		detail << hi->getString( "vessel" );
-		short shelf = hi->getIntDefault( "shelf_number", -1 );
+		detail << hi.getString( "vessel" );
+		short shelf = hi.getIntDefault( "shelf_number", -1 );
 		if( shelf > 0 ) {
 			detail << '[' << shelf << "] ";
 		} else {
 			detail << ' ';
 		}
-        detail << hi->getString( "rack" ) << ", slot " << hi->getInt( "slot_position" );
+		detail << hi.getString( "rack" ) << ", slot " << hi.getInt( "slot_position" );
 		history[ when ] = detail.str( );
 	}
 }
@@ -1397,68 +1394,34 @@ void Sample::populate( ) {
 	std::vector< ROSETTA >results;
 	StoreDAO dao;
 	dao.loadStorageHistory( id, project_cid, results );
-	for( std::vector< ROSETTA >::const_iterator hi = results.begin( ); hi != results.end( ); ++hi ) {
-		TDateTime when = hi->getTime( "time_stamp" ).outputTDateTime();
+	for( const ROSETTA & hi : results ) {
+		TDateTime when = hi.getTime( "time_stamp" ).outputTDateTime();
 		std::stringstream detail;
-		detail << hi->getString( "box_name" );
-		int position = hi->getIntDefault( "cryovial_position", -1 );
+		detail << hi.getString( "box_name" );
+		int position = hi.getIntDefault( "cryovial_position", -1 );
 		if( position > 0 ) {
 			detail << ", position " << position;
 		}
-		float volume = hi->getRealDefault( "sample_volume", -1 );
+		float volume = hi.getRealDefault( "sample_volume", -1 );
 		if( volume > 0 ) {
-            detail << ": " << volume << "ml";
-        }
+			detail << ": " << volume << "ml";
+		}
 		history[ when ] = detail.str( );
 	}
 	dao.loadAnalysisHistory( name, aliquot_type, project_cid, results );
-	for( std::vector< ROSETTA >::const_iterator hi = results.begin( ); hi != results.end( ); ++hi ) {
-		TDateTime when = hi->getTime( "when" ).outputTDateTime();
+	for( const ROSETTA & hi : results ) {
 		std::stringstream detail;
-		detail << "analysed (" << hi->getInt( "results" ) << " result/s)";
+		int n = hi.getInt( "results" );
+		detail << "analysed (" << n << (n == 1 ? " result)" : " results)");
+		TDateTime when = hi.getTime( "when" ).outputTDateTime();
 		history[ when ] = detail.str( );
 	}
 	childCount = 0;
 
 }
 
-/* RETHINK
-
- void Sample::loadParent( ) {
-
- StoreDAO& dao = StoreDAO::records();
-
- ROSETTA result;
- std::string e = dao.loadBox( box_cid, result );
- if( !e.empty() )
- {
- Application->MessageBoxA(e.c_str(), "Info", MB_OK );
- return;
- }
-
- Box* b;
- if( result.count() > 0 )
- {
- b = new Box( result );
- parent = b;
- result.clear();
- e = dao.loadBoxName( box_cid, db_name, result );
- if( !e.empty() )
- {
- Application->MessageBoxA(e.c_str(), "Info", MB_OK );
- return;
- }
-
- b->fill(result);
- }
- }
- */
-
 std::auto_ptr< ROSETTA >Sample::getProperties( ) {
 	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
-	// r->setInt( "cryovial_id", cryovial_id );
-	// r->setInt( "cryovial_position", position );
-
 	const LCDbObject *at = NULL;
 	if( aliquot_type != 0 && aliquot_type != -1 ) {
 		at = LCDbObjects::records( ).findByID( aliquot_type );
@@ -1466,10 +1429,6 @@ std::auto_ptr< ROSETTA >Sample::getProperties( ) {
 	if( at != NULL ) {
 		r->setString( "aliquot_type", at->getDescription( ).c_str( ) );
 	}
-
-	// r->setInt( "box_cid", box_cid );
-	// r->setString( "time_stamp", stamp.DateTimeString() );
-
 	if( !source_name.empty( ) && source_name != name ) {
 		r->setString( "source_name", source_name );
 	}
@@ -1483,136 +1442,11 @@ std::auto_ptr< ROSETTA >Sample::getObjectData( ) {
 	std::auto_ptr< ROSETTA >r = IPart::getObjectData( );
 	r->setInt( "cryovial_id", id );
 	r->setInt( "cryovial_position", position );
-	//r->setString( "time_stamp", stamp.DateTimeString() );   ???
 	r->setInt( "aliquot_type", aliquot_type );
 	r->setInt( "box_id", box_id );
 	r->setString( "source_barcode", source_barcode );
 	return r;
 }
-
-	/*
-IPart *Project::loadSample( std::string qry ) {
-	 StoreDAO& dao = StoreDAO::records();
-
-	 ROSETTA result;
-	 std::string e = dao.loadSample( qry, db_name, result );
-	 if( !e.empty() )
-	 {
-	 Application->MessageBoxA(e.c_str(), "Info", MB_OK );
-	 return NULL;
-	 }
-
-	 Sample* s = NULL;
-	 if( result.count() > 0 )
-	 {
-	 s = new Sample( result );
-	 //		s->setDb_name( db_name );
-	 return s;
-	 }
-	return NULL;
-}
-
-void Project::clearSamples( ) {
-	for( int i = 0; i < ( int ) samplist.size( ); i++ ) {
-		delete samplist[ i ];
-	}
-	samplist.clear( );
-}
-
-void Project::loadAllSamples( std::string qry ) {
-	 StoreDAO& dao = StoreDAO::records();
-	 clearSamples();
-
-	 std::vector<ROSETTA> results;
-	 std::string e = dao.loadAllSamples( qry, db_name, results );
-	 if( !e.empty() )
-	 {
-	 Application->MessageBoxA(e.c_str(), "Info", MB_OK );
-	 return;
-	 }
-
-	 Sample* s = NULL;
-	 for( int i = 0; i < (int)results.size(); i++ )
-	 {
-	 s = new Sample( results[i] );
-	 //		s->setDb_name( db_name );
-	 samplist.push_back( s );
-	 }
-}
-
-Project::Project( const ROSETTA &data ) {
-	project_cid = data.getInt( "project_cid" );
-	project_name = data.getString( "external_name" );
-	db_name = data.getString( "db_name" );
-}
-
-Projects::~Projects( ) {
-	for( int i = 0; i < ( int ) projlist.size( ); i++ ) {
-		delete projlist[ i ];
-	}
-	projlist.clear( );
-}
-
-void Projects::loadAll( ) {
-	projlist.clear( );
-	StoreDAO &dao = StoreDAO::records( );
-
-	std::vector< ROSETTA >results;
-	dao.loadProjects( results );
-	Project *p = NULL;
-	for( int i = 0; i < ( int )results.size( ); i++ ) {
-		p = new Project( results[ i ] );
-
-		projlist.push_back( p );
-	}
-
-}
-
-Project *Projects::findProject( int projID ) {
-	for( int i = 0; i < ( int )projlist.size( ); i++ ) {
-		if( projlist[ i ]->getProject_cid( ) == projID ) {
-			return projlist[ i ];
-		}
-	}
-
-	return NULL;
-}
-
-AliquotType::AliquotType( const ROSETTA &data ) {
-	id = data.getInt( "object_cid" );
-	name = data.getString( "external_name" );
-}
-
-AliquotTypes::~AliquotTypes( ) {
-	for( int i = 0; i < ( int ) typelist.size( ); i++ ) {
-		delete typelist[ i ];
-	}
-	typelist.clear( );
-}
-
-void AliquotTypes::loadAll( ) {
-	typelist.clear( );
-	StoreDAO &dao = StoreDAO::records( );
-	std::vector< ROSETTA >results;
-	dao.loadAliquotTypes( results );
-	AliquotType *p = NULL;
-	for( int i = 0; i < ( int )results.size( ); i++ ) {
-		p = new AliquotType( results[ i ] );
-
-		typelist.push_back( p );
-	}
-}
-
-AliquotType *AliquotTypes::find( int p_id ) {
-	for( int i = 0; i < ( int ) typelist.size( ); i++ ) {
-		if( p_id == typelist[ i ]->getID( ) ) {
-			return typelist[ i ];
-		}
-	}
-
-	return NULL;
-}
-*/
 
 Layouts::~Layouts( ) {
 	clearList( );
@@ -1645,8 +1479,8 @@ int Layouts::getLayoutId( int tank_cid ) {
 	const LCDbSectionDefs & sections = LCDbSectionDefs::records();
 	std::vector<ROSETTA> racks;
 	StoreDAO().loadRacks( tank_cid, racks );
-	for( std::vector<ROSETTA>::const_iterator ri = racks.begin(); ri != racks.end(); ++ ri ) {
-		int type = ri->getIntDefault( "rack_type_cid", 0 );
+	for( const ROSETTA & ri : racks ) {
+		int type = ri.getIntDefault( "rack_type_cid", 0 );
 		if( type != 0 ) {
 			const LCDbSectionDef * sd = sections.findByID( type );
 			if( sd != NULL ) {
@@ -1727,8 +1561,8 @@ void AvlSite::populate( ) {
 	std::vector< ROSETTA >results;
 	StoreDAO().loadTanks( id, results );
 	std::map< int, AvlTank * > tanks;
-	for( unsigned i = 0; i < results.size(); i++ ) {
-		AvlTank * p = new AvlTank( results[ i ] );
+	for( const ROSETTA & r : results ) {
+		AvlTank * p = new AvlTank( r );
 		p->loadTankDetails( );
 		p->readRackOccupancy();
 		std::map< int, AvlTank * >::iterator ti = tanks.find( p->getID() );
@@ -1755,8 +1589,8 @@ void AvlTank::readRackOccupancy() {
 	}
 	std::vector< ROSETTA > results;
 	StoreDAO().loadRacks( tank_cid, results );
-	for( unsigned i = 0; i < results.size(); i++ ) {
-		Rack r( results[ i ] );
+	for( const ROSETTA & ri : results ) {
+		Rack r( ri );
 		short filled = 1;	// empty racks are not recorded in c_rack_number
 		if( r.getEmptySlots() >= 0 ) {
 			const LCDbSectionDef * sd = sDefs.findByID( r.getType_cid() );
@@ -1841,8 +1675,7 @@ void AvlSection::populate( ) {
 	for( short i = first; i <= last; i++ ) {
 		std::sprintf( buf, "%s%d", name.c_str(), i );
 		std::string r_name = buf;
-		std::set< std::string >::const_iterator it = racknames.find( r_name );
-		if( it == racknames.end( ) ) {
+		if( racknames.find( r_name ) == racknames.end( ) ) {
 			AvlRack *p = new AvlRack( tank_cid, r_name, id, map_cid, name, rackSize, i );
 			p->setParent( this );
 			partlist.push_back( p );
@@ -1858,8 +1691,8 @@ float AvlSection::getFillFactor() const {
 		return -1;
 	}
 	float racks = capacity - childCount;
-	for( std::vector<IPart*>::const_iterator pi = partlist.begin(); pi != partlist.end(); ++ pi ) {
-		AvlRack * r = (AvlRack *)(*pi);
+	for( const IPart*  pi : partlist ) {
+		AvlRack * r = (AvlRack *) pi;
 		float fill = r -> getFillFactor();
 		if( fill < 0 ) {
 			return -1;
@@ -1950,8 +1783,8 @@ void PartFactory::loadBoxes( const LCDbCryoJob &job ) {
 	}
 
 	// buildMovedTo = true will build RHS tree in SampleMove screen
-	for( int i = 0; i < ( int ) results.size( ); i++ ) {
-		Box *b = new Box( results[ i ] );
+	for( const ROSETTA & ri : results ) {
+		Box *b = new Box( ri );
 		bool included;
 		switch( b->getStatus( ) ) {
 			case LCDbBoxStore::MOVE_EXPECTED:
@@ -1986,13 +1819,12 @@ IPart * PartFactory::createSiteList() const {
 	}
 
 	const LCDbObjects &objs = LCDbObjects::records( );
-//	const LCDbStorageDetails &stores = LCDbStorageDetails::records( );
-	StoreDAO dao ;
 	std::set< int > parentIDs;
 	std::vector< ROSETTA >results;
-	for( std::vector< Box* >::const_iterator bi = boxList.begin(); bi != boxList.end(); ++ bi ) {
-		parentIDs.insert( (**bi).getRackCID( ) );
+	for( const Box* bi : boxList ) {
+		parentIDs.insert( bi->getRackCID( ) );
 	}
+	StoreDAO dao;
 	dao.loadRacks( parentIDs, results );
 	if( results.empty() ) {
 		return NULL;			// error - boxes should be in racks
@@ -2000,14 +1832,14 @@ IPart * PartFactory::createSiteList() const {
 
 	std::vector< Rack* > rackList;
 	parentIDs.clear( );
-	for( std::vector< ROSETTA >::const_iterator ri = results.begin( ); ri != results.end( ); ri++ ) {
-		Rack *r = new Rack( *ri );
+	for( const ROSETTA & ri : results ) {
+		Rack *r = new Rack( ri );
 		if( sibs ) {
 			r->populate(); 		// all children of boxList's parents
 		} else {
-			for( int i = 0; i < ( int ) boxList.size( ); i++ ) {
-				if( r->getID( ) == boxList[ i ]->getRackCID( ) ) {
-					r->addToList( boxList[ i ] );
+			for( Box* bi : boxList ) {
+				if( r->getID( ) == bi->getRackCID( ) ) {
+					r->addToList( bi );
 				}
 			}
 		}
@@ -2018,11 +1850,11 @@ IPart * PartFactory::createSiteList() const {
 
 	std::vector< Tank* >tankList;
 	ROSETTA result;
-	for( Range< LCDbTankMap >tmi = LCDbTankMaps::records( ); tmi.isValid( ); ++tmi ) {
-		if( tmi->isActive() && parentIDs.count( tmi->getTankCID() ) != 0 ) {
-			const LCDbObject *population = objs.findByID( tmi->getTankCID( ) );
-			const LCDbObject *layout = objs.findByID( tmi->getLayoutCID( ) );
-			const LCDbObject *phys = objs.findByID( tmi->getStorageCID( ) );
+	for( const LCDbTankMap & tm : LCDbTankMaps::records() ) {
+		if( tm.isActive() && parentIDs.count( tm.getTankCID() ) != 0 ) {
+			const LCDbObject *population = objs.findByID( tm.getTankCID( ) );
+			const LCDbObject *layout = objs.findByID( tm.getLayoutCID( ) );
+			const LCDbObject *phys = objs.findByID( tm.getStorageCID( ) );
 			if( population == NULL || phys == NULL || layout == NULL ) {
 				return NULL;
 			}
@@ -2030,15 +1862,15 @@ IPart * PartFactory::createSiteList() const {
 			result.setInt( "storage_cid", phys->getID( ) );
 			result.setString( "friendly_name", phys->getDescription() );
 			result.setString( "serial_number", phys->getName( ) );
-			result.setInt( "location_cid", tmi->getLocationCID( ) );
-			result.setInt( "position", tmi->getPosition( ) );
-			result.setInt( "storage_type", tmi->getStoreTypeCID( ) );
+			result.setInt( "location_cid", tm.getLocationCID( ) );
+			result.setInt( "position", tm.getPosition( ) );
+			result.setInt( "storage_type", tm.getStoreTypeCID( ) );
 
-			result.setInt( "map_cid", tmi->getID( ) );
-			result.setInt( "tank_cid", tmi->getTankCID( ) );
-			result.setInt( "rack_layout_cid", tmi->getLayoutCID( ) );
-			result.setInt( "status", tmi->getStatus( ) );
-			std::pair< TDateTime, TDateTime > valid = tmi->getValidDates();
+			result.setInt( "map_cid", tm.getID( ) );
+			result.setInt( "tank_cid", tm.getTankCID( ) );
+			result.setInt( "rack_layout_cid", tm.getLayoutCID( ) );
+			result.setInt( "status", tm.getStatus( ) );
+			std::pair< TDateTime, TDateTime > valid = tm.getValidDates();
 			result.setDate( "valid_from", valid.first );
 			result.setDate( "valid_to", valid.second );
 			Tank *t = new Tank( result );
@@ -2049,18 +1881,17 @@ IPart * PartFactory::createSiteList() const {
 			result.setString( "label_full", population->getDescription( ) );
 			Layout *l = new Layout( result );
 
-			dao.loadSections( tmi->getLayoutCID( ), results );
-			for( int i = 0; i < ( int )results.size(); i++ ) {
-				Section *s = new Section( results[ i ] );
-				for( int j = 0; j < ( int )rackList.size( ); j++ ) {
-					Rack *r = rackList[ j ];
-					if( r->getTank_cid() == tmi->getTankCID()
+			dao.loadSections( tm.getLayoutCID( ), results );
+			for( const ROSETTA & ri : results ) {
+				Section *s = new Section( ri );
+				for( Rack *r : rackList ) {
+					if( r->getTank_cid() == tm.getTankCID()
 					 && r->getType_cid() == s->getID() ) {
 						s->addToList( r );
 					}
 				}
-				s->setMap_cid( tmi->getID() );
-				s->setTank_cid( tmi->getTankCID() );
+				s->setMap_cid( tm.getID() );
+				s->setTank_cid( tm.getTankCID() );
 				l->addToList( s );
 			}
 			t->addToList( l );
@@ -2072,12 +1903,12 @@ IPart * PartFactory::createSiteList() const {
 
 	std::vector< Site* >siteList;
 	dao.loadSites( results );
-	for( std::vector< ROSETTA >::const_iterator ri = results.begin( ); ri != results.end( ); ri++ ) {
-		if( parentIDs.count( ri->getInt( "object_cid" ) ) != 0 ) {
-			Site *site = new Site( *ri );
-			for( int i = 0; i < ( int ) tankList.size( ); i++ ) {
-				if( site->getID() == tankList[ i ]->getLocationID( ) ) {
-					site->addToList( tankList[ i ] );
+	for( const ROSETTA & ri : results ) {
+		if( parentIDs.count( ri.getInt( "object_cid" ) ) != 0 ) {
+			Site *site = new Site( ri );
+			for( Tank * t : tankList ) {
+				if( site->getID() == t->getLocationID( ) ) {
+					site->addToList( t );
 				}
 			}
 			siteList.push_back( site );
@@ -2085,8 +1916,8 @@ IPart * PartFactory::createSiteList() const {
 	}
 	std::sort( siteList.begin( ), siteList.end( ), Site::less_than );
 	Sites * list = lhs ? new Sites() : new AvlSites();
-	for( int i = 0; i < ( int ) siteList.size( ); i++ ) {
-		list->addToList( siteList[ i ] );
+	for( Site * s : siteList ) {
+		list->addToList( s );
 	}
 	return list;
 }

@@ -19,6 +19,9 @@ class XQUERY;
 
 //---------------------------------------------------------------------------
 
+/*
+ * Session varifies user sign on and
+ */
 class session
 {
 	static std::vector<session > m_staffnames;
@@ -26,7 +29,7 @@ class session
 
 	Result m_username;
 	Result m_password;
-	std::string m_viewpage;
+ 	std::string m_viewpage;
 
 	std::string m_ctsu_signon;
 	stage m_stage; //first sign on

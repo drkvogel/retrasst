@@ -13,12 +13,4 @@ object frmCollectEmpties: TfrmCollectEmpties
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
-  object CheckListBox1: TCheckListBox
-    Left = 32
-    Top = 48
-    Width = 121
-    Height = 185
-    ItemHeight = 13
-    TabOrder = 0
-  end
 end

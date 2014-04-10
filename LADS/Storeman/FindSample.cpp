@@ -134,8 +134,9 @@ void __fastcall TfrmFind::BitBtn1Click(TObject *Sender)
 
 bool TfrmFind::findBox() {
 	int projID = LCDbProjects::getCurrentID();
-	AnsiString barcode = txtName->Text, type = cbType->Text;
-	StoreDAO().loadBoxDetails( barcode.c_str(), type.c_str(), projID, boxDetails );
+	std::string barcode = AnsiString( txtName->Text ).c_str();
+	std::string type = AnsiString( cbType->Text ).c_str();
+	StoreDAO().loadBoxDetails( barcode, type, projID, boxDetails );
 	return boxDetails.isInt( "box_cid");
 }
 

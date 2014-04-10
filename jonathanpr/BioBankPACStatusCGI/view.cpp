@@ -8,16 +8,9 @@
 void View::sendHTML( )
 {
 	deployJS();
-	sendTitle();
 	sendHeader();
 	sendQuestions();
 	sendFooter();
-}
-//--------------------------------------------------------------------------
-
-void View::sendTitle( ) const
-{
- //	std::cout << "<H1>BIOBANK PACS STATUS</H1><p>\n";
 }
 //---------------------------------------------------------------------------
 

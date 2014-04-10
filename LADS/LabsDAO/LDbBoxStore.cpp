@@ -14,6 +14,8 @@
 //		15 Nov 2012:    Don't use storeman_ddb after all - it's unreliable
 //						Use box_store + c_slot_allocation for compatibility
 //      16 Dec 13, NG:	Updated to use c_ tables again for database v2.7.2
+//		4 April 14, NG:	Use same ID for c_slot_allocation and box_store
+//
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
@@ -35,30 +37,32 @@
 
 //---------------------------------------------------------------------------
 
-LCDbBoxStore::LCDbBoxStore( const LQuery & project ) {
-   	copyFields( project );
+LCDbBoxStore::LCDbBoxStore( const LQuery & pq ) {
+	copyFields( pq );
 }
 
 //---------------------------------------------------------------------------
 
 void LCDbBoxStore::copyFields( const LQuery & ddbq )
 {
-	setID( ddbq.fieldExists( "record_id" ) ? ddbq.readInt( "record_id" ) : boxID );
 	boxID = ddbq.readInt( "box_cid" );
+	int slotID = ddbq.fieldExists( "slot_cid" ) ? ddbq.readInt( "slot_cid" ) : 0;
+	int record = ddbq.fieldExists( "record_id" ) ? ddbq.readInt( "record_id" ) : slotID;
+	setID( record == 0 ? boxID : record );
+
 	rackID = ddbq.fieldExists( "rack_cid" ) ? ddbq.readInt( "rack_cid" ) : 0;
 	slot = ddbq.fieldExists( "slot_position" ) ? ddbq.readInt( "slot_position" ) : 0;
-	slotID = ddbq.fieldExists( "slot_cid" ) ? ddbq.readInt( "slot_cid" ) : 0;
 	jobID = ddbq.fieldExists( "retrieval_cid" ) ? ddbq.readInt( "retrieval_cid" ) : 0;
+	status = ddbq.readInt( "status" );
+	processID = ddbq.fieldExists( "process_cid" ) ? ddbq.readInt( "process_cid" ) : 0;
+	if( ddbq.fieldExists( "time_stamp" ) ) {
+		updated =  ddbq.readDateTime( "time_stamp" );
+	}
 	if( jobID != 0 && ddbq.fieldExists( "removed" ) ) {
 		removed = ddbq.readDateTime( "removed" );
 	} else {
 		removed = 0;
 	}
-	if( ddbq.fieldExists( "time_stamp" ) ) {
-		updated =  ddbq.readDateTime( "time_stamp" );
-	}
-	status = ddbq.readInt( "status" );
-	processID = ddbq.fieldExists( "process_cid" ) ? ddbq.readInt( "process_cid" ) : 0;
 }
 
 //---------------------------------------------------------------------------
@@ -144,44 +148,47 @@ bool LCDbBoxStore::findBoxRecord( LQuery & ddbq )
 //	Also update box_name and/or c_slot_allocation for compatibility
 //---------------------------------------------------------------------------
 
-bool LCDbBoxStore::saveRecord( LQuery ddbq )
+bool LCDbBoxStore::saveRecord( LQuery pq )
 {
-	bool ok = saved ? updateStoreRecord( ddbq ) : insertStoreRecord( ddbq );
-	if( ok ) {
-		switch (status) {
-		case LCDbBoxStore::MOVE_EXPECTED:
-		case LCDbBoxStore::SLOT_ALLOCATED:
-			ok = findSlotRecord( ddbq ) ? updateSlotRecord( ddbq ) : insertSlotRecord( ddbq );
-			break;
-		case LCDbBoxStore::SLOT_CONFIRMED:
-			ok = updateBoxRecord( ddbq );
+	LQuery cq( LIMSDatabase::getCentralDb() );
+	bool bs = saved && updateStoreRecord( pq );
+	if( !bs ) {
+		while( needsNewID( cq ) ) {
+			claimNextID( pq );
 		}
+		bs = insertStoreRecord( pq );
 	}
-	return ok;
+	bool csa = saved && updateSlotRecord( cq );
+	if( !csa ) {
+		csa = insertSlotRecord( cq );
+	}
+	if( status == LCDbBoxStore::SLOT_CONFIRMED ) {
+		updateBoxRecord( pq );
+	}
+	return bs && csa;
 }
 
 //---------------------------------------------------------------------------
 
-bool LCDbBoxStore::insertStoreRecord( LQuery & ddbq )
+bool LCDbBoxStore::insertStoreRecord( LQuery & pq )
 {
-	claimNextID( ddbq );
-	ddbq.setSQL( "insert into box_store (record_id, box_cid, rack_cid,"
+	pq.setSQL( "insert into box_store (record_id, box_cid, rack_cid,"
 				" slot_position, status, time_stamp, retrieval_cid, process_cid)"
 				" values ( :myid, :box, :rid, :pos, :sts, 'now', :jid, :pid )" );
-	ddbq.setParam( "box", boxID );
-	ddbq.setParam( "jid", jobID );
-	ddbq.setParam( "myid", getID() );
-	ddbq.setParam( "rid", rackID );
-	ddbq.setParam( "pos", slot );
-	ddbq.setParam( "sts", status );
-	ddbq.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
-	saved = ddbq.execSQL();
+	pq.setParam( "box", boxID );
+	pq.setParam( "jid", jobID );
+	pq.setParam( "myid", getID() );
+	pq.setParam( "rid", rackID );
+	pq.setParam( "pos", slot );
+	pq.setParam( "sts", status );
+	pq.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
+	saved = pq.execSQL();
 	return saved;
 }
 
 //---------------------------------------------------------------------------
 
-bool LCDbBoxStore::updateStoreRecord( LQuery & ddbq )
+bool LCDbBoxStore::updateStoreRecord( LQuery & pq )
 {
 	std::string fields = "rack_cid = :rid, slot_position = :pos, status = :sts,";
 	switch( status ) {
@@ -196,24 +203,24 @@ bool LCDbBoxStore::updateStoreRecord( LQuery & ddbq )
 		default:
 			;	// leave old time stamp when DESTROYED or DELETED
 	}
-	ddbq.setSQL( "update box_store set " + fields + " process_cid = :pid where record_id = :myid" );
-	ddbq.setParam( "myid", getID() );
-	ddbq.setParam( "rid", rackID );
-	ddbq.setParam( "pos", slot );
-	ddbq.setParam( "sts", status );
-	ddbq.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
-	return ddbq.execSQL();
+	pq.setSQL( "update box_store set " + fields + " process_cid = :pid where record_id = :myid" );
+	pq.setParam( "myid", getID() );
+	pq.setParam( "rid", rackID );
+	pq.setParam( "pos", slot );
+	pq.setParam( "sts", status );
+	pq.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
+	return pq.execSQL();
 }
 
 //---------------------------------------------------------------------------
 
-bool LCDbBoxStore::updateBoxRecord( LQuery & ddbq ) {
-	ddbq.setSQL( "update box_name set slot_cid = :sid, time_stamp = 'now', process_cid = :pid"
-				" where box_cid = :bid" );
-	ddbq.setParam( "sid", slotID );
-	ddbq.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
-	ddbq.setParam( "bid", boxID );
-	return ddbq.execSQL();
+bool LCDbBoxStore::updateBoxRecord( LQuery & pq ) {
+	pq.setSQL( "update box_name set slot_cid = :sid, time_stamp = 'now', process_cid = :pid"
+			  " where box_cid = :bid" );
+	pq.setParam( "sid", getID() );
+	pq.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
+	pq.setParam( "bid", boxID );
+	return pq.execSQL();
 }
 
 //---------------------------------------------------------------------------
@@ -228,17 +235,33 @@ bool LCDbBoxStore::setJobRef( LQuery ddbq, int jobRef, Status reason )
 	if( jobRef != 0 && jobID != 0 )
 		return false;					// already part of another job
 
-	/// fixme - switch to c_slot_allocation (but not yet as no retrieval_cid)
-	std::string table = "box_store";
+	if( !setJobRef( ddbq, true, jobRef, reason )
+	 || !setJobRef( ddbq, false, jobRef, reason ) ) {
+		return false;               	// claimed by another job(?)
+	}
+	jobID = jobRef;
+	status = reason;
+	if( reason == SLOT_CONFIRMED ) {
+		updateBoxRecord( ddbq );
+	}
+	return true;                    	// now part of the given job
+}
+
+//---------------------------------------------------------------------------
+
+bool LCDbBoxStore::setJobRef( LQuery & ddbq, bool central, int jobRef, Status reason )
+{
+	std::string table = central ? "c_slot_allocation" : "box_store";
+	std::string key = central ? "slot_cid" : "record_id";
 	if( saved ) {
 		ddbq.setSQL( "update " + table +
 					" set retrieval_cid = :newJob, process_cid = :pid, status = :st"
-					" where record_id = :myid and retrieval_cid = :oldJob" );
+					" where " + key + " = :myid and retrieval_cid = :oldJob" );
 		ddbq.setParam( "oldJob", jobID );
 	}
 	else
 	{	claimNextID( ddbq );
-		ddbq.setSQL( "insert into " + table + " (record_id, box_cid, rack_cid,"
+		ddbq.setSQL( "insert into " + table + " (" + key + ", box_cid, rack_cid,"
 					" slot_position, status, time_stamp, retrieval_cid, process_cid)"
 					" values ( :myid, :box, :rid, :pos, :st, 'now', :newJob, :pid )" );
 		ddbq.setParam( "box", boxID );
@@ -250,67 +273,70 @@ bool LCDbBoxStore::setJobRef( LQuery ddbq, int jobRef, Status reason )
 	ddbq.setParam( "st", reason );
 	ddbq.setParam( "newJob", jobRef );
 	ddbq.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
-	if( !ddbq.execSQL() )
-		return false;               	// claimed by another job(?)
-
-	jobID = jobRef;
-	status = reason;
-	if( reason == SLOT_CONFIRMED )
-		updateBoxRecord( ddbq );
-	return true;                    	// now part of the given job
+	return ddbq.execSQL();
 }
 
 //---------------------------------------------------------------------------
 //	Find all the boxes that have been included in the given job
 //---------------------------------------------------------------------------
 
-bool LCDbBoxStores::readJob( LQuery ddbq, int jobRef )
+bool LCDbBoxStores::readJob( LQuery pq, int jobRef )
 {
-	/// fixme - switch to c_slot_allocation (but not yet as no retrieval_cid)
-	ddbq.setSQL( "select * from box_store where retrieval_cid = :job order by record_id" );
-	ddbq.setParam( "job", jobRef );
-	return readData( ddbq );
+	pq.setSQL( "select * from box_store where retrieval_cid = :job order by record_id" );
+	pq.setParam( "job", jobRef );
+	return readData( pq );
 }
 
 //---------------------------------------------------------------------------
 //	maintain c_slot_allocation for compatibility with older programs
 //---------------------------------------------------------------------------
 
-bool LCDbBoxStore::findSlotRecord( LQuery & ddbq ) {
-	ddbq.setSQL( "select slot_cid from c_slot_allocation"
-				" where project_cid = :pid and box_cid = :box" );
-	ddbq.setParam( "pid", LCDbProjects::getCurrentID() );
-	ddbq.setParam( "box", boxID );
-	slotID = ddbq.open() ? ddbq.readInt( 0 ) : 0;
+bool LCDbBoxStore::findSlotRecord( LQuery & cq ) {
+	cq.setSQL( "select slot_cid from c_slot_allocation where box_cid = :box" );
+	cq.setParam( "box", boxID );
+	int slotID = cq.open() ? cq.readInt( 0 ) : 0;
 	return (slotID != 0);
 }
 
 //---------------------------------------------------------------------------
 
-bool LCDbBoxStore::insertSlotRecord( LQuery & ddbq ) {
-	slotID = getID();
-	ddbq.setSQL( "insert into c_slot_allocation"
+bool LCDbBoxStore::insertSlotRecord( LQuery & cq ) {
+	cq.setSQL( "insert into c_slot_allocation"
 				" (slot_cid, rack_cid, slot_position, status, project_cid, box_cid)"
 				" values ( :myid, :rid, :pos, :sts, :pid, :box )" );
-	ddbq.setParam( "myid", slotID );
-	ddbq.setParam( "rid", rackID );
-	ddbq.setParam( "pos", slot );
-	ddbq.setParam( "sts", LPDbBoxName::CONFIRMED );
-	ddbq.setParam( "pid", LCDbProjects::getCurrentID() );
-	ddbq.setParam( "box", boxID );
-	return ddbq.execSQL();
+	cq.setParam( "myid", getID() );
+	cq.setParam( "rid", rackID );
+	cq.setParam( "pos", slot );
+	cq.setParam( "sts", LPDbBoxName::CONFIRMED );
+	cq.setParam( "pid", LCDbProjects::getCurrentID() );
+	cq.setParam( "box", boxID );
+	return cq.execSQL();
 }
 
 //---------------------------------------------------------------------------
 
-bool LCDbBoxStore::updateSlotRecord( LQuery & ddbq ) {
-	ddbq.setSQL( "update c_slot_allocation set rack_cid = :rid, slot_position = :pos"
-				" where project_cid = :pid and box_cid = :box" );
-	ddbq.setParam( "rid", rackID );
-	ddbq.setParam( "pos", slot );
-	ddbq.setParam( "pid", LCDbProjects::getCurrentID() );
-	ddbq.setParam( "box", boxID );
-	return ddbq.execSQL();
+bool LCDbBoxStore::updateSlotRecord( LQuery & cq ) {
+	cq.setSQL( "update c_slot_allocation set rack_cid = :rid, slot_position = :pos"
+			  " where box_cid = :box" );
+	cq.setParam( "rid", rackID );
+	cq.setParam( "pos", slot );
+	cq.setParam( "box", boxID );
+	return cq.execSQL();
+}
+
+//---------------------------------------------------------------------------
+//	check record ID is valid and another slot doesn't have the same one
+//---------------------------------------------------------------------------
+
+bool LCDbBoxStore::needsNewID( LQuery & cq ) const {
+	if( getID() != 0 ) {
+		cq.setSQL( "select count(*) from c_slot_allocation where slot_cid = :sid" );
+		cq.setParam( "sid", getID() );
+		if( cq.open() && cq.readInt( 0 ) == 0 ) {
+			return false;
+		}
+	}
+	return true;
 }
 
 //---------------------------------------------------------------------------

@@ -87,7 +87,7 @@ bool LCDbAnalysers::read( LQuery cQuery, bool readAll )
 	}
 
 	try
-	{	iterator ci = begin();
+	{	Iterator ci = begin();
 		for( cQuery.open(); !cQuery.eof(); cQuery.next() )
 		{
 			int cid = cQuery.readInt( "cluster_cid" );
@@ -102,7 +102,7 @@ bool LCDbAnalysers::read( LQuery cQuery, bool readAll )
 	catch( ... )	// table doesn't exist yet
 	{}
 
-	for( iterator ci = begin(); ci != end(); ci ++ )
+	for( Iterator ci = begin(); ci != end(); ci ++ )
 		ci -> setStatusFlags();
 
 	return true;
@@ -219,10 +219,16 @@ std::set< int > LCDbAnalysers::getAnalyserIDs( int machineID ) const
 		machineID = getCurrentID();
 
 	std::set< int > buddyIDs;
-	for( const_iterator ar = begin(); ar != end(); ++ ar )
+	for( ConstIter ar = begin(); ar != end(); ++ ar )
 		if( ar -> getID() == machineID || ar -> getClusterIDs().count( machineID ) != 0 )
 			buddyIDs.insert( ar -> getID() );
 	return buddyIDs;
+}
+
+//---------------------------------------------------------------------------
+
+const LCDbAnalyser * LCDbAnalysers::findByName( const std::string & name ) const {
+		return findMatch( LDbNames::LCMatcher( name ) );
 }
 
 //---------------------------------------------------------------------------

@@ -31,34 +31,38 @@ PACSlog::PACSlog()
 	m_ready = false;
 }
 //---------------------------------------------------------------------------
-
+//parse the URL string for anything usful
 void PACSlog::parse(const XCGI *cgi,const ROSETTA &R)
 {
+//load in anything which was passed in with the decrpyted ROSETTA
 	readDetails(R);
+//Page state
+//find which page our table on the page is currently on.
 	m_logpage.setText(cgi->setParamIfExistsElseDefault("logpage",m_logpage.getText()));
-
+//Get the Filters
 	m_logLevelFilter.setText(cgi->setParamIfExistsElseDefault("logLevelFilter",m_logLevelFilter.getText()));
 	m_logTypeFilter.setText(cgi->setParamIfExistsElseDefault("logTypeFilter",m_logTypeFilter.getText()));
 	m_logTimespanFilter.setText(cgi->setParamIfExistsElseDefault("logtimespanFilter",m_logTimespanFilter.getText()));
 	m_logPatientIDfilter.setText(cgi->setParamIfExistsElseDefault("logPatientIDfilter",m_logPatientIDfilter.getText()));
 
-//if user has click to change the dicom table, next or previous
+//if user has click to move to another page on the page's table, next or previous
 	std::string dicomchange = cgi->setParamIfExistsElseDefault("logchange","");
 
 	if (m_logpage.getText() == "")
 		m_logpage.setText("0");
-
+//Has user pressed Next or Prev page on the page's table
 	if (dicomchange == "Next")
 		m_logpage.isetText(m_logpage.igetText()+1);
 	else if (dicomchange == "Prev")
 		m_logpage.isetText(m_logpage.igetText()-1);
-
+//has the user pressed the Refresh button
 	if (cgi->setParamIfExistsElseDefault("logRefresh","") == "Refresh")
 		m_logpage.isetText(0);
-
 }
 
 //---------------------------------------------------------------------------
+//Generate the SQL query to pull the data from the database, it takes into account the
+//filter options.
 std::string PACSlog::generateQuery(bool justCount, int fromID, int maxCount )
 {
 	std::stringstream sqlquery;
@@ -67,9 +71,7 @@ std::string PACSlog::generateQuery(bool justCount, int fromID, int maxCount )
 	else
 		sqlquery << "SELECT First " << maxCount << " id,inserttimestamp,loglevel,logtype,message,patientid,studydate";
 
-	sqlquery << " FROM logs";
-	sqlquery << " WHERE ";
-
+	sqlquery << " FROM logs  WHERE ";
 	std::stringstream wheresql;
 
 	if (m_logLevelFilter.igetText() >= 0)
@@ -84,7 +86,7 @@ std::string PACSlog::generateQuery(bool justCount, int fromID, int maxCount )
 
 	if (m_logTimespanFilter.getText().empty())
 		m_logTimespanFilter.isetText(1);
-//Stdu date.
+//Study date.
 	if (wheresql.str().length() > 0)
 		wheresql << " AND ";
 	wheresql << " inserttimestamp > date('now') - '" << m_logTimespanFilter.getText() << " months'";
@@ -100,14 +102,14 @@ std::string PACSlog::generateQuery(bool justCount, int fromID, int maxCount )
 			wheresql << " AND ";
 			wheresql << " patientid LIKE '" << m_logPatientIDfilter.getText() << "'";
 		}
-
 	}
 	sqlquery << wheresql.str();
 	sqlquery << " ORDER BY inserttimestamp DESC";
 	return sqlquery.str();
 }
 //---------------------------------------------------------------------------
-
+//get the total count in the database, using the filters, but no max count like in the SQL above, so we know
+//how many pages in total there is of the data
 void PACSlog::featchTotal( XDB *db, int fromID, int maxCount )
 {
 	m_rowCount = -1;
@@ -122,7 +124,7 @@ void PACSlog::featchTotal( XDB *db, int fromID, int maxCount )
 	}
 }
 //---------------------------------------------------------------------------
-
+//Calls the SQL generated in generateQuery(), and feeds it into it's data structure
 void PACSlog::readList(const XDB *db)
 {
 	m_ready = true;
@@ -149,11 +151,9 @@ void PACSlog::readList(const XDB *db)
 		}
 		qp.close( );
 	}
-	if( m_logs.empty( ) )
-		m_error = "Cannot read logs table";
 }
 //---------------------------------------------------------------------------
-
+//Extract any usful information from the ROSETTA
 void PACSlog::readDetails(const ROSETTA & fields )
 {
 	m_logpage.setText(fields.getStringDefault("logpage" ,m_logpage.getText()));
@@ -164,7 +164,7 @@ void PACSlog::readDetails(const ROSETTA & fields )
 	m_logPatientIDfilter.setText(fields.getStringDefault("logPatientIDfilter",m_logPatientIDfilter.getText()));
 }
 //---------------------------------------------------------------------------
-
+//Add any information into the ROSETTA it wants to preserve between pages.
 void PACSlog::addFields( ROSETTA & fields ) const
 {
 	if (!m_logpage.getText().empty())

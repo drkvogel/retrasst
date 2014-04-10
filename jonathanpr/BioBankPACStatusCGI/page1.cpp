@@ -4,7 +4,6 @@
 
 #include <vector>
 #include <iostream>
-
 #include "page1.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -20,8 +19,8 @@ void page1::sendHeader( ) const
 	std::cout << 	"<input type=\'hidden\' name=\'page\' value=\'1\' />\n";
 }
 
-
 //--------------------------------------------------------------------------
+//Generate the HTML for the page
 void page1::sendStatusInfo()
 {
 	ROSETTA GeneralStatsTotal;
@@ -47,7 +46,7 @@ void page1::sendStatusInfo()
 
 	std::cout << "<tr>";
 	std::cout << 	"<td align=\"center\">";
-		std::cout << "QUERY";
+		std::cout << "QUERY DICOM";
 	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
 		std::cout << this->getData().getDicomStudies().getCronJobString(this->getData().getDB(),"QUERY");
@@ -56,10 +55,10 @@ void page1::sendStatusInfo()
 
 	std::cout << "<tr>";
 	std::cout << 	"<td align=\"center\">";
-		std::cout << "UPLOAD QUIZ";
+		std::cout << "UPLOAD CLINICAL PDF";
 	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
-		std::cout << this->getData().getDicomStudies().getCronJobString(this->getData().getDB(),"UPLOADQUES");
+		std::cout << this->getData().getDicomStudies().getCronJobString(this->getData().getDB(),"CLINICAL");
 	std::cout <<    "</td>";
 	std::cout << "</tr>";
 
@@ -68,10 +67,10 @@ void page1::sendStatusInfo()
 		std::cout << "DOWNLOAD DICOM";
 	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
-		std::cout << this->getData().getDicomStudies().getCronJobString(this->getData().getDB(),"DOWNLOADDI");
+		std::cout << this->getData().getDicomStudies().getCronJobString(this->getData().getDB(),"GETDICOM");
 	std::cout <<    "</td>";
 	std::cout << "</tr>";
-
+  /*
 	std::cout << "<tr>";
 	std::cout << 	"<td align=\"center\">";
 		std::cout << "LETTER GENERATOR";
@@ -89,6 +88,15 @@ void page1::sendStatusInfo()
 		std::cout << this->getData().getDicomStudies().getCronJobString(this->getData().getDB(),"DECRYPT");
 	std::cout <<    "</td>";
 	std::cout << "</tr>";
+	 */
+	std::cout << "<tr>";
+	std::cout << 	"<td align=\"center\">";
+		std::cout << "QUERY ICE QUESTIONNAIRE";
+	std::cout <<    "</td>";
+	std::cout << 	"<td align=\"center\">";
+		std::cout << this->getData().getDicomStudies().getCronJobString(this->getData().getDB(),"QUERYICE");
+	std::cout <<    "</td>";
+	std::cout << "</tr>";
 
 	std::cout << "</table>";
 
@@ -98,9 +106,9 @@ void page1::sendStatusInfo()
 	std::cout << "<tr>";
 	std::cout << 	"<th align=\"center\" style=\"width:10%\">Participent Status</th>";
 	std::cout << 	"<th align=\"center\" style=\"width:10%\">BIOBANK</th>";
-	std::cout << 	"<th align=\"center\" style=\"width:10%\">BIOBANK_QA</th>";
+//	std::cout << 	"<th align=\"center\" style=\"width:10%\">BIOBANK_QA</th>";
 	std::cout << 	"<th align=\"center\" style=\"width:10%\">BIOBANK_PSI</th>";
-	std::cout << 	"<th align=\"center\" style=\"width:10%\">REPORTED</th>";
+//	std::cout << 	"<th align=\"center\" style=\"width:10%\">REPORTED</th>";
 	std::cout << 	"<th align=\"center\" style=\"width:10%\">TOTAL</th>";
 	std::cout << "</tr>";
 
@@ -111,15 +119,15 @@ void page1::sendStatusInfo()
 	std::cout << 	"<td align=\"center\">";
 		std::cout << GeneralStatsComplete.getString("BIOBANK");
 	std::cout <<    "</td>";
-	std::cout << 	"<td align=\"center\">";
-		std::cout << GeneralStatsComplete.getString("BIOBANK_QA");
-	std::cout <<    "</td>";
+//	std::cout << 	"<td align=\"center\">";
+//		std::cout << GeneralStatsComplete.getString("BIOBANK_QA");
+//	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
 		std::cout << GeneralStatsComplete.getString("BIOBANK_PSI");
 	std::cout <<    "</td>";
-	std::cout << 	"<td align=\"center\">";
-		std::cout << GeneralStatsComplete.getString("REPORTED");
-	std::cout <<    "</td>";
+//	std::cout << 	"<td align=\"center\">";
+//		std::cout << GeneralStatsComplete.getString("REPORTED");
+//	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
 		std::cout << GeneralStatsComplete.getString("TOTAL");
 	std::cout <<    "</td>";
@@ -132,15 +140,15 @@ void page1::sendStatusInfo()
 	std::cout << 	"<td align=\"center\">";
 	std::cout << GeneralStatsInprogress.getString("BIOBANK");
 	std::cout <<    "</td>";
-	std::cout << 	"<td align=\"center\">";
-	std::cout << GeneralStatsInprogress.getString("BIOBANK_QA");
-	std::cout <<    "</td>";
+//	std::cout << 	"<td align=\"center\">";
+//	std::cout << GeneralStatsInprogress.getString("BIOBANK_QA");
+//	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
 	std::cout << GeneralStatsInprogress.getString("BIOBANK_PSI");
 	std::cout <<    "</td>";
-	std::cout << 	"<td align=\"center\">";
-	std::cout << GeneralStatsInprogress.getString("REPORTED");
-	std::cout <<    "</td>";
+//	std::cout << 	"<td align=\"center\">";
+//	std::cout << GeneralStatsInprogress.getString("REPORTED");
+//	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
 	std::cout << GeneralStatsInprogress.getString("TOTAL");
 	std::cout <<    "</td>";
@@ -154,15 +162,15 @@ void page1::sendStatusInfo()
 	std::cout << 	"<td align=\"center\">";
 	std::cout << GeneralStatsIngored.getString("BIOBANK");
 	std::cout <<    "</td>";
-	std::cout << 	"<td align=\"center\">";
-	std::cout << GeneralStatsIngored.getString("BIOBANK_QA");
-	std::cout <<    "</td>";
+//	std::cout << 	"<td align=\"center\">";
+//	std::cout << GeneralStatsIngored.getString("BIOBANK_QA");
+//	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
 	std::cout << GeneralStatsIngored.getString("BIOBANK_PSI");
 	std::cout <<    "</td>";
-	std::cout << 	"<td align=\"center\">";
-	std::cout << GeneralStatsIngored.getString("REPORTED");
-	std::cout <<    "</td>";
+//	std::cout << 	"<td align=\"center\">";
+//	std::cout << GeneralStatsIngored.getString("REPORTED");
+//	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
 	std::cout << GeneralStatsIngored.getString("TOTAL");
 	std::cout <<    "</td>";
@@ -175,15 +183,15 @@ void page1::sendStatusInfo()
 	std::cout << 	"<td align=\"center\">";
 	std::cout << GeneralStatsTotal.getString("BIOBANK");
 	std::cout <<    "</td>";
-	std::cout << 	"<td align=\"center\">";
-	std::cout << GeneralStatsTotal.getString("BIOBANK_QA");
-	std::cout <<    "</td>";
+//	std::cout << 	"<td align=\"center\">";
+//	std::cout << GeneralStatsTotal.getString("BIOBANK_QA");
+//	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
 	std::cout << GeneralStatsTotal.getString("BIOBANK_PSI");
 	std::cout <<    "</td>";
-	std::cout << 	"<td align=\"center\">";
-	std::cout << GeneralStatsTotal.getString("REPORTED");
-	std::cout <<    "</td>";
+//	std::cout << 	"<td align=\"center\">";
+//	std::cout << GeneralStatsTotal.getString("REPORTED");
+//	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
 	std::cout << GeneralStatsTotal.getString("TOTAL");
 	std::cout <<    "</td>";
@@ -206,7 +214,7 @@ void page1::sendStatusInfo()
 	std::cout << UnknownStudies.getString("BIOBANK");
 	std::cout <<    "</td>";
 	std::cout << "</tr>";
-
+/*
 	std::cout << "<tr>";
 	std::cout << 	"<td align=\"center\">";
 		std::cout << "BIOBANK_QA";
@@ -215,7 +223,7 @@ void page1::sendStatusInfo()
 	std::cout << UnknownStudies.getString("BIOBANK_QA");
 	std::cout <<    "</td>";
 	std::cout << "</tr>";
-
+*/
 	std::cout << "<tr>";
 	std::cout << 	"<td align=\"center\">";
 		std::cout << "BIOBANK_PSI";
@@ -225,7 +233,7 @@ void page1::sendStatusInfo()
 	std::cout <<    "</td>";
 	std::cout << "</tr>";
 	std::cout << "<tr>";
-
+/*
 	std::cout << "<tr>";
 	std::cout << 	"<td align=\"center\">";
 		std::cout << "REPORTED";
@@ -235,7 +243,7 @@ void page1::sendStatusInfo()
 	std::cout <<    "</td>";
 	std::cout << "</tr>";
 	std::cout << "<tr>";
-
+*/
 	std::cout << 	"<td align=\"center\">";
 		std::cout << "TOTAL";
 	std::cout <<    "</td>";
@@ -249,6 +257,7 @@ void page1::sendStatusInfo()
 //--------------------------------------------------------------------------
 void page1::sendTabControls()
 {
+//add the security token to the HTML
 	this->getData().outputFormToken();
 	std::cout << "<div class=\"AleBoxSm\"><P ALIGN=CENTER STYLE=\"margin-bottom: 0cm\">";
 	std::cout << "<b>Site Navigation: </b>";

@@ -110,11 +110,8 @@ void TfrmStoremain::updateCounts()
 			break;
 
 		case TRANSFERS:
-			if( switchProject() ) {
-				countBoxes();
-			} else {
-				updateStatus = JOBCOUNTS;
-			}
+			countBoxes();
+			updateStatus = JOBCOUNTS;
 			break;
 
 		case JOBCOUNTS:
@@ -157,13 +154,19 @@ void __fastcall TfrmStoremain::BtnXferClick(TObject *Sender)
 }
 
 //---------------------------------------------------------------------------
-//	count boxes in the current project that have yet to be stored
+//	count boxes in the current system that have yet to be stored
 //---------------------------------------------------------------------------
 
 void TfrmStoremain::countBoxes() {
+	LCDbProjects & projects = LCDbProjects::records();
 	LPDbBoxNames boxes;
-	if( boxes.readFilled( LIMSDatabase::getProjectDb() ) ) {
-		boxesReady += boxes.size();
+	for( const LCDbProject & proj : LCDbProjects::records() ) {
+		if( proj.isInCurrentSystem() && !proj.isCentral() ) {
+			projects.setCurrent( proj );
+			if( boxes.readFilled( LIMSDatabase::getProjectDb() ) ) {
+				boxesReady += boxes.size();
+			}
+		}
 	}
 }
 
@@ -192,23 +195,6 @@ void TfrmStoremain::countJobs() {
 			}
 		}
 	}
-}
-
-//---------------------------------------------------------------------------
-//	select next active project; return false and wrap around at end of list
-//---------------------------------------------------------------------------
-
-bool TfrmStoremain::switchProject() {
-	LCDbProjects & projects = LCDbProjects::records();
-	while( nextProject < projects.size() ) {
-		const LCDbProject & project = projects[ nextProject ++ ];
-		if( project.isInCurrentSystem() && !project.isCentral() ) {
-			projects.setCurrent( project );
-			return true;
-		}
-	}
-	nextProject = 0;
-	return false;
 }
 
 //---------------------------------------------------------------------------
@@ -339,4 +325,3 @@ void __fastcall TfrmStoremain::BtnRationalyseClick(TObject *Sender)
 	frmRatTanksMainDialog->ShowModal();
 }
 //---------------------------------------------------------------------------
-

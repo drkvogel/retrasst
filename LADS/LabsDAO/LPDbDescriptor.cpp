@@ -113,7 +113,7 @@ bool LPDbDescriptors::read( LQuery pQuery, bool readAll )
 		pQuery.setParam( "del", LPDbDescriptor::DELETED );
 	}
 
-	iterator ci = begin();
+	Iterator ci = begin();
 	for( pQuery.open(); !pQuery.eof(); pQuery.next() )
 	{
 		int did = pQuery.readInt( "descriptor_id" );
@@ -404,7 +404,7 @@ int LPDbDescriptors::getFieldNumber( const std::string & field ) const {
 std::string LPDbDescriptors::getNextMapField() const
 {
 	std::set< int > used;
-	for( const_iterator dr = begin(); dr != end(); ++ dr ) {
+	for( ConstIter dr = begin(); dr != end(); ++ dr ) {
 		used.insert( getFieldNumber( dr -> getMapField() ) );
 	}
 	int next = 1;
@@ -423,7 +423,7 @@ std::string LPDbDescriptors::getNextMapField() const
 std::string LPDbDescriptors::getNextSpecimenField() const
 {
 	std::set< int > used;
-	for( const_iterator dr = begin(); dr != end(); ++ dr ) {
+	for( ConstIter dr = begin(); dr != end(); ++ dr ) {
 		used.insert( getFieldNumber( dr -> getSpecimenField() ) );
 	}
 	int next = 1;

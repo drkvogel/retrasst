@@ -1,28 +1,23 @@
 ﻿[Closed Files]
-File_0=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\windows\rtl\ustring.h',0,1,114,1,136,0,0,,
-File_1=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\openers.cpp',0,1,1,1,1,0,0,,
-File_2=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\xmz.cpp',0,1,160,10,265,0,0,,
-File_3=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\xmz.h',0,1,1,1,1,0,0,,
-File_4=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\xexec.cpp',0,1,243,1,271,0,0,,
-File_5=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\xquery.cpp',0,1,676,1,696,0,0,,
-File_6=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\xsql.cpp',0,1,255,1,281,0,0,,
-File_7=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\windows\crtl\search.h',0,1,25,1,47,0,0,,
-File_8=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\dinkumware\xstring',0,1,434,1,460,0,0,,
-File_9=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\rosetta.cpp',0,1,975,1,996,0,0,,
-File_10=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\dinkumware\vector',0,1,598,1,622,0,0,,
-File_11=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\rosebase.cpp',0,1,757,1,780,0,0,,
-File_12=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\xencode.h',0,1,1,1,34,0,0,,
+File_0=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\randutil.cpp',0,1,143,1,179,0,0,,
+File_1=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\windows\rtl\ustring.h',0,1,114,1,136,0,0,,
+File_2=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\openers.cpp',0,1,1,1,1,0,0,,
+File_3=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\xmz.cpp',0,1,160,10,265,0,0,,
+File_4=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\xmz.h',0,1,1,1,1,0,0,,
+File_5=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\xexec.cpp',0,1,243,1,271,0,0,,
+File_6=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\xquery.cpp',0,1,676,1,696,0,0,,
+File_7=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\xsql.cpp',0,1,255,1,281,0,0,,
+File_8=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\windows\crtl\search.h',0,1,25,1,47,0,0,,
+File_9=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\dinkumware\xstring',0,1,434,1,460,0,0,,
+File_10=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\rosetta.cpp',0,1,975,1,996,0,0,,
+File_11=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\11.0\include\dinkumware\vector',0,1,598,1,622,0,0,,
+File_12=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\rosebase.cpp',0,1,757,1,780,0,0,,
+File_13=TSourceModule,'C:\code\jonathanpr\BioBankPSICGI\xencode.h',0,1,1,1,34,0,0,,
 
 [Modules]
-Module0=C:\code\jonathanpr\BioBankPSICGI\randutil.cpp
-Module1=C:\code\jonathanpr\BioBankPSICGI\main.cpp
-Count=2
+Module0=C:\code\jonathanpr\BioBankPSICGI\main.cpp
+Count=1
 EditWindowCount=1
-
-[C:\code\jonathanpr\BioBankPSICGI\randutil.cpp]
-ModuleType=TSourceModule
-FormState=0
-FormOnTop=0
 
 [C:\code\jonathanpr\BioBankPSICGI\main.cpp]
 ModuleType=TSourceModule
@@ -30,10 +25,9 @@ FormState=0
 FormOnTop=0
 
 [EditWindow0]
-ViewCount=2
-CurrentEditView=C:\code\jonathanpr\BioBankPSICGI\randutil.cpp
+ViewCount=1
+CurrentEditView=C:\code\jonathanpr\BioBankPSICGI\main.cpp
 View0=0
-View1=1
 PercentageSizes=1
 Create=1
 Visible=1
@@ -42,48 +36,37 @@ State=0
 Left=0
 Top=0
 Width=10000
-Height=9909
+Height=9502
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=10000
-ClientHeight=9909
+ClientHeight=9502
 DockedToMainForm=1
 BorlandEditorCodeExplorer=BorlandEditorCodeExplorer@EditWindow0
 TopPanelSize=0
-LeftPanelSize=1891
-LeftPanelClients=PropertyInspector,DockSite3
-LeftPanelData=00000800010100000000E7180000000000000163070000000000000100000000580E000009000000446F636B53697465330100000000211F00001100000050726F7065727479496E73706563746F72FFFFFFFF
+LeftPanelSize=0
 RightPanelSize=2000
-RightPanelClients=DockSite2,DockSite4
-RightPanelData=00000800010100000000E71800000000000001D00700000000000001000000004612000009000000446F636B53697465320100000000211F000009000000446F636B5369746534FFFFFFFF
+RightPanelClients=DockSite2
+RightPanelData=000008000100000000009A1D00000000000000C40900000000000001000000009A1D000009000000446F636B5369746532FFFFFFFF
 BottomPanelSize=1523
 BottomPanelClients=DockSite1,MessageView
 BottomPanelData=0000080001020100000009000000446F636B5369746531D43000000000000002F3050000000000000100000000D43000000F0000004D65737361676556696577466F726DFFFFFFFF
 BottomMiddlePanelSize=0
 BottomMiddlePanelClients=DockSite0,GraphDrawingModel
 BottomMiddelPanelData=0000080001020200000009000000446F636B536974653010000000477261706844726177696E67566965779A1D00000000000002F106000000000000FFFFFFFF
+TabDockLeftClients=DockSite3=0,PropertyInspector=1
+TabDockRightClients=DockSite4=0
 
 [View0]
 CustomEditViewType=TEditView
 Module=C:\code\jonathanpr\BioBankPSICGI\main.cpp
-CursorX=17
-CursorY=290
-TopLine=273
+CursorX=1
+CursorY=196
+TopLine=156
 LeftCol=1
 Elisions=
 Bookmarks=
 EditViewName=C:\code\jonathanpr\BioBankPSICGI\main.cpp
-
-[View1]
-CustomEditViewType=TEditView
-Module=C:\code\jonathanpr\BioBankPSICGI\randutil.cpp
-CursorX=1
-CursorY=179
-TopLine=143
-LeftCol=1
-Elisions=
-Bookmarks=
-EditViewName=C:\code\jonathanpr\BioBankPSICGI\randutil.cpp
 
 [Watches]
 Count=1
@@ -111,13 +94,7 @@ Dockable=1
 StayOnTop=0
 
 [Breakpoints]
-Count=6
-Breakpoint0='C:\code\jonathanpr\BioBankPSICGI\main.cpp',80,'',0,1,'',1,0,0,'',1,'','','',0,''
-Breakpoint1='C:\code\jonathanpr\BioBankPSICGI\main.cpp',88,'',0,1,'',1,0,0,'',1,'','','',0,''
-Breakpoint2='C:\code\jonathanpr\BioBankPSICGI\main.cpp',18,'',0,1,'',1,0,0,'',1,'','','',0,''
-Breakpoint3='C:\code\jonathanpr\BioBankPSICGI\main.cpp',87,'',0,1,'',1,0,0,'',1,'','','',0,''
-Breakpoint4='C:\code\jonathanpr\BioBankPSICGI\main.cpp',55,'',0,1,'',1,0,0,'',1,'','','',0,''
-Breakpoint5='C:\code\jonathanpr\BioBankPSICGI\main.cpp',65,'',0,1,'',1,0,0,'',1,'','','',0,''
+Count=0
 
 [EmbarcaderoWin32Debugger_AddressBreakpoints]
 Count=0
@@ -137,8 +114,8 @@ Create=1
 Visible=1
 Docked=0
 State=2
-Left=12172
-Top=2033
+Left=141
+Top=274
 Width=8930
 Height=8516
 MaxLeft=-8
@@ -146,8 +123,8 @@ MaxTop=-10
 MaxWidth=8930
 MaxHeight=8516
 ClientWidth=10000
-ClientHeight=10183
-BottomPanelSize=9521
+ClientHeight=9776
+BottomPanelSize=9131
 BottomPanelClients=EditWindow0
 BottomPanelData=0000080000000000000000000000000000000000000000000000000100000000000000000C0000004564697457696E646F775F30FFFFFFFF
 
@@ -160,11 +137,11 @@ State=0
 Left=0
 Top=0
 Width=2000
-Height=4339
+Height=7398
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2000
-ClientHeight=4339
+ClientHeight=7398
 TBDockHeight=5894
 LRDockWidth=2352
 Dockable=1
@@ -198,11 +175,11 @@ State=0
 Left=0
 Top=0
 Width=2000
-Height=3191
+Height=2785
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2000
-ClientHeight=3191
+ClientHeight=2785
 TBDockHeight=7154
 LRDockWidth=2000
 Dockable=1
@@ -211,17 +188,17 @@ StayOnTop=0
 [PropertyInspector]
 PercentageSizes=1
 Create=1
-Visible=1
+Visible=0
 Docked=1
 State=0
-Left=0
-Top=399
+Left=1
+Top=24
 Width=1891
-Height=4238
+Height=7632
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1891
-ClientHeight=4238
+ClientHeight=7632
 TBDockHeight=8974
 LRDockWidth=1891
 Dockable=1
@@ -582,11 +559,11 @@ State=0
 Left=0
 Top=0
 Width=1891
-Height=3547
+Height=7632
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1891
-ClientHeight=3547
+ClientHeight=7632
 TBDockHeight=3679
 LRDockWidth=1891
 Dockable=1
@@ -673,11 +650,11 @@ State=0
 Left=0
 Top=23
 Width=2000
-Height=4593
+Height=7652
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2000
-ClientHeight=4593
+ClientHeight=7652
 TBDockHeight=8974
 LRDockWidth=2000
 Dockable=1
@@ -687,21 +664,21 @@ ActiveTabID=ProjectManager
 TabDockClients=ProjectManager,ModelViewTool,DataExplorerContainer,TFileExplorerForm
 
 [DockSite3]
-HostDockSite=DockLeftPanel
+HostDockSite=LeftDockTabSet
 DockSiteType=1
 PercentageSizes=1
 Create=1
-Visible=1
+Visible=0
 Docked=1
 State=0
-Left=0
-Top=23
+Left=1
+Top=24
 Width=1891
-Height=3547
+Height=7632
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1891
-ClientHeight=3547
+ClientHeight=7632
 TBDockHeight=8974
 LRDockWidth=1891
 Dockable=1
@@ -711,21 +688,21 @@ ActiveTabID=StructureView
 TabDockClients=StructureView,ClassBrowserTool
 
 [DockSite4]
-HostDockSite=DockRightPanel
+HostDockSite=RightTabDock
 DockSiteType=1
 PercentageSizes=1
 Create=1
-Visible=1
+Visible=0
 Docked=1
 State=0
 Left=0
 Top=502
 Width=2000
-Height=3191
+Height=2785
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=2000
-ClientHeight=3191
+ClientHeight=2785
 TBDockHeight=8974
 LRDockWidth=2000
 Dockable=1

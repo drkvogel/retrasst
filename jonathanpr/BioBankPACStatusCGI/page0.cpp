@@ -30,9 +30,7 @@ bool page0::showErrors()
 
 	const session &session = getData().getLogin();
 
-	if (session.getSelectUserID().isError ||
-		session.getSelectPin().isError ||
-		session.getMessage().length() > 0)
+	if (session.getSelectUserID().isError || session.getSelectPin().isError || session.getMessage().length() > 0)
 	{
 		std::cout << "<div class='warn'>";
 

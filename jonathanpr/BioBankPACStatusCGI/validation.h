@@ -3,7 +3,7 @@
 
 #include <sstream>
 #include "xtime.h"
-
+  /*
 class validation
 {
 public:
@@ -163,5 +163,5 @@ public:
 		return true;
 	}
 };
-
+    */
 #endif

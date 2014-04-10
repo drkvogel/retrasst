@@ -8,6 +8,7 @@
 #include "view.h"
 //---------------------------------------------------------------------------
 
+//Page 3 view definition
 class page3 : public View
 {
 protected:

@@ -1,9 +1,11 @@
 ﻿## todo
 
+2014-04-08 Set `vnode_vlab` to point to `vlabdev`. `vlab` should be used for testing, as queries are slower on this VM than on `vlabdev`, probably because it has less memory.
+
 ### chunk finished
 
 At the end of chunk, check if the chunk is actually finished (no REFERRED vials). If finished:
-    * Require user to sign off
+    * Require user to sign off-
     * update cryo store records
     * calculate if there are any empty boxes
     * create tick list or switch list of boxes, empty/otherwise

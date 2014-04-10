@@ -23,46 +23,36 @@ unknowndicom::unknowndicom(long studypk,const std::string &aet,const XTIME &stud
 }
 //---------------------------------------------------------------------------
 
-unknowndicom::unknowndicom() : m_stage(UNKNOWN)
+unknowndicom::unknowndicom()
 {
 	m_ready = false;
 }
 //---------------------------------------------------------------------------
-
+//parse the incoming URL for new state information
 void unknowndicom::parse(const XCGI *cgi,const ROSETTA &R)
 {
 	readDetails(R);
 	m_unknownpage.setText(cgi->setParamIfExistsElseDefault("unknownpage",m_unknownpage.getText()));
-
 	m_aetFilter.setText(cgi->setParamIfExistsElseDefault("unknownAetFilter",m_aetFilter.getText()));
 	m_timespanFilter.setText(cgi->setParamIfExistsElseDefault("unknownTimeSpanFilter",m_timespanFilter.getText()));
 
-//if user has click to change the dicom table, next or previous
+//if user has click to change the dicom table, next or previous page
 	std::string dicomchange = cgi->setParamIfExistsElseDefault("unknownchange","");
-
+//which page number is the table on
 	if (m_unknownpage.getText() == "")
 		m_unknownpage.setText("0");
-
+//now if they did click on next or prev page on the table, move to the new page
 	if (dicomchange == "Next")
 		m_unknownpage.isetText(m_unknownpage.igetText()+1);
 	else if (dicomchange == "Prev")
 		m_unknownpage.isetText(m_unknownpage.igetText()-1);
-
+//did the click on refresh table button
 	if (cgi->setParamIfExistsElseDefault("statusRefresh","") == "Refresh")
 		m_unknownpage.isetText(0);
 }
-//---------------------------------------------------------------------------
 
-const unknowndicom *unknowndicom::find(const int studypk) const
-{
-	for( std::vector<unknowndicom >::const_iterator ci = m_unknowndicom.begin( ); ci != m_unknowndicom.end( ) ; ++ ci )
-	{
-		if (ci->m_studypk == studypk)
-			return &(*ci);
-	}
-	return NULL;
-}
 //---------------------------------------------------------------------------
+//Get a list of the AET's for the drop down filter
 void unknowndicom::getAETs(const XDB *db )
 {
 	m_aetList.clear();
@@ -84,12 +74,10 @@ void unknowndicom::getAETs(const XDB *db )
 		}
 		qp.close( );
 	}
-	if( m_aetList.empty( ) )
-		m_error = "Cannot read table";
 }
 
 //---------------------------------------------------------------------------
-
+//load in all the data from the database, taking into account the filter options on the page
 void unknowndicom::readList(const XDB *db )
 {
 	m_ready = true;
@@ -112,7 +100,7 @@ void unknowndicom::readList(const XDB *db )
 	{
 		while( qp.fetch( ) )
 		{
-			long studypk= qp.result.getLint(0);
+			long studypk= (long)qp.result.getLint(0);
 			std::string aet = qp.result.getString(1);
 			XTIME studydate = qp.result.getTime(2);
 			std::string patientid = qp.result.getString(3);
@@ -121,11 +109,9 @@ void unknowndicom::readList(const XDB *db )
 		}
 		qp.close( );
 	}
-	if( m_unknowndicom.empty( ) )
-		m_error = "Cannot read table";
 }
 //---------------------------------------------------------------------------
-
+//extract the saved state information from the ROSETTA
 void unknowndicom::readDetails(const ROSETTA & fields )
 {
 	m_unknownpage.setText(fields.getStringDefault("unknownpage" ,m_unknownpage.getText()));
@@ -133,7 +119,7 @@ void unknowndicom::readDetails(const ROSETTA & fields )
 	m_timespanFilter.setText(fields.getStringDefault("unknownTimeSpanFilter",m_timespanFilter.getText()));
 }
 //---------------------------------------------------------------------------
-
+//save the state information to the ROSETTA so the page state is kept between pages.
 void unknowndicom::addFields( ROSETTA & fields ) const
 {
 	if (!m_unknownpage.getText().empty())

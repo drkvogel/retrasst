@@ -6,7 +6,7 @@
  *  Modified 20/6/2001 to write to the file asynchronously
  *  Modified 27/6/2001 to separate out the XML LogFile class
  *  Modifed 28 November to provide Open and ExecSQL methods
- *  6/12/2001 - Enclosed XMLFile in structure to ensure cleanup
+ *  6/12/2001 - Enclosed LogFile in structure to ensure cleanup
  *
  *	14 May 2004, NG:    Moved .cpp & .h to Shared/LabUtils
  *  18 June, NG/AM:     Checked in to CVS/GeneralClasses/CoreUtilities
@@ -26,6 +26,8 @@
  *	28/2/2013, NG:		Use XTIME in place of TDateTime to prevent implicit
  *						conversion from Borland String parameters
  *	18/4/2013, NG:		Use '' for date/times when values invalid/not set
+ *	31 March 2014, NG:	Use LogFile in place of LogFile for logging
+ *
  --------------------------------------------------------------------------- */
 
 #include <System.hpp>
@@ -33,7 +35,7 @@
 #include <sstream>
 
 #include "LQuery.h"
-#include "XMLFile.h"
+#include "LogFile.h"
 #include "LIMSDatabase.h"
 #include "xquery.h"
 #include "xexec.h"
@@ -51,8 +53,8 @@ LQuery::LogLevel LQuery::logLevel = LQuery::UPDATES;
 
 //---------------------------------------------------------------------------
 
-XMLFile &LQuery::getLog( ) {
-	static XMLFile history( "sql" );
+LogFile &LQuery::getLog() const {
+	static LogFile history( "sql" );
 	return history;
 }
 
@@ -131,9 +133,7 @@ void LQuery::setParam( const std::string &pName, const XTIME & value ) {
 
 void LQuery::dropCursor( ) {
 	if( cursor != NULL ) {
-		if( logging ) {
-			logCount( rows );
-		}
+		logCount( rows );
 		if( cursor->isOpen( ) ) {
 			cursor->close( );
 		}
@@ -174,9 +174,7 @@ bool LQuery::doExec( ) {
 	query.setParamSource( &parameters );
 	db.confirm( query.exec( ) );
 	rows = query.getNRows( );
-	if( logging ) {
-		logCount( rows );
-	}
+	logCount( rows );
 	return rows > 0;
 }
 
@@ -213,20 +211,25 @@ bool LQuery::eof( ) {
 }
 
 //---------------------------------------------------------------------------
+
+void LQuery::close( ) {
+	dropCursor();
+}
+
+//---------------------------------------------------------------------------
 //	Log the current query if required, execute it and log the result
 //---------------------------------------------------------------------------
 
 bool LQuery::call( Operation function, LogLevel log ) {
 	if( logLevel >= log && !logging ) {
-		logQuery( );
+		logQuery( getLog() );
 		logging = true;
 	}
 	try {
 		return ( this->*function )( );
 	}
 	catch( Exception &ex ) {
-		AnsiString msg = ex.Message;
-		logError( msg.c_str() );
+		logError( AnsiString( ex.Message ).c_str() );
 		throw;
 	}
 	catch( std::string &ex ) {
@@ -247,18 +250,26 @@ bool LQuery::call( Operation function, LogLevel log ) {
 //	List the SQL and any parameters if the logging level is high enough
 //---------------------------------------------------------------------------
 
-void LQuery::logQuery( ) {
-	XMLFile &log = getLog( );
+void LQuery::logQuery( LogFile & file ) {
+	LogFile &log = getLog( );
 	log.start( "query" );
 	log.addAttribute( "database", db.getDbName( ) );
 	log.addAttribute( "when", Now( ) );
-	log.addText( sql + '\n' );
-	for( int i = 0; i < parameters.count( ); i++ ) {
-		log.start( "param" );
-		log.addAttribute( "name", parameters.getName( i ) );
-		log.addText( parameters.getString( i ) );
-		log.endTag( );
+	log.addText( sql );
+	if( parameters.isEmpty() ) {
+		log.addAttribute( "params", "" );
+	} else {
+		int i = 0;
+		do {
+			const std::string & param = parameters.getName( i );
+			if( parameters.getType( i ) == ROSETTA::typeInt ) {
+				log.addAttribute( param.c_str(), parameters.getInt( i ) );
+			} else {
+				log.addAttribute( param.c_str(), parameters.getString( i ) );
+			}
+		} while( ++i < parameters.count() );
 	}
+	log.endTag();
 }
 
 //---------------------------------------------------------------------------
@@ -266,31 +277,28 @@ void LQuery::logQuery( ) {
 //---------------------------------------------------------------------------
 
 void LQuery::logError( const std::string &message ) {
+	LogFile &log = getLog( );
 	if( !logging ) {
-		logQuery( );
+		logQuery( log );
 	}
-	logResult( "error", message );
+	log.start( "error" );
+	log.addAttribute( "when", Now( ) );
+	log.addText( message );
+	log.endTag( );
+	logging = false;
 }
 
 //---------------------------------------------------------------------------
 
 void LQuery::logCount( int records ) {
-	std::stringstream out;
-	out << records;
-	logResult( "records", out.str( ) );
-}
-
-//---------------------------------------------------------------------------
-
-void LQuery::logResult( const char *tag, const std::string &result ) {
-
-	XMLFile &log = getLog( );
-	log.start( tag );
-	log.addAttribute( "when", Now( ) );
-	log.addText( result );
-	log.endTag( );
-	logging = false;
-	log.endTag( );
+	if( logging ) {
+		LogFile &log = getLog( );
+		log.start( "result" );
+		log.addAttribute( "when", Now( ) );
+		log.addAttribute( "records", records );
+		log.endTag( );
+		logging = false;
+	}
 }
 
 //---------------------------------------------------------------------------

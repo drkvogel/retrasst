@@ -86,7 +86,7 @@ bool LPDbProfiles::read( LQuery pQuery, bool readAll )
 		pQuery.setParam( "del", LDbValid::DELETED );
 	}
 
-	iterator ci = begin();
+	Iterator ci = begin();
 	for( pQuery.open(); !pQuery.eof(); pQuery.next() )
 	{
 		int did = pQuery.readInt( "test_profile_id" );
@@ -323,6 +323,12 @@ bool LPDbProfile::validate() const
 	return (isTested() ? tests > 0 : tests == 0)
 		&& (isAliquoted() ? aliquots > 0 : aliquots <= 0)
 		&& (isStored() ? stored == 1 : stored != 1);
+}
+
+//---------------------------------------------------------------------------
+
+const LPDbProfile * LPDbProfiles::findByName( const std::string & name ) const {
+		return findMatch( LDbNames::LCMatcher( name ) );
 }
 
 //---------------------------------------------------------------------------

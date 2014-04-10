@@ -22,7 +22,6 @@ public:
 	{
 		int program, project, machine;
 		short page, status;
-
 		Priv( const LQuery & central );
 	};
 
@@ -35,28 +34,15 @@ public:
 	explicit LCDbOperator( const LQuery & central );
 	bool saveRecord( LQuery central );
 
-	bool isActive() const { return LDbValid::isActive() && !hasLockedAccount(); }
-
 	void lockAccount() { status = LOCKED; }
 	bool hasLockedAccount() const { return status == LOCKED; }
-
+	bool isActive() const;
 	bool needsPassword() const;
 	bool hasUsedPassword( LQuery query, const std::string & password ) const;
+	void setPassword( const std::string & password );
+	bool matchPassword( const std::string & password ) const;
 
-	void setPassword( const std::string & password )
-	{
-		if( password.length() < 3 )
-			throw Exception( "Password must be at least 3 characters" );
-		passCode = encrypt( password );
-	}
-
-	bool matchPassword( const std::string & password ) const
-	{
-		return passCode.empty() || encrypt( password ) == passCode;
-	}
-
-	void addPermission( Priv allowed ) { permissions.push_back( allowed ); }
-
+	void addPermission( Priv allowed );
 	bool canRun( int project, int analyser = 0, short page = 0 ) const;
 
 private:
@@ -80,10 +66,7 @@ public:
 	static int getCurrentID() { return records().currentID; }
 
 	bool read( LQuery central, bool readAll = false );
-	const LCDbOperator * findByName( const std::string & name ) const
-	{
-		return findMatch( LDbNames::LCMatcher( name ) );
-	}
+	const LCDbOperator * findByName( const std::string & name ) const;
 	const LCDbOperator * check( const std::string & name, const std::string & pass ) const;
 };
 
