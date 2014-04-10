@@ -362,11 +362,6 @@ void __fastcall TfrmProcess::timerLoadPlanTimer(TObject *Sender) {
 }
 
 void TfrmProcess::loadPlan() {
-//	panelLoading->Caption = progressMessage;
-//	panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
-//	panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
-//	panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
-//	progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
 	prepareProgressMessage(progressMessage);
 	Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
     DEBUGSTREAM("loadRows for job "<<job->getID()<<" started")
@@ -427,7 +422,8 @@ void __fastcall LoadPlanThread::Execute() {
         "    c.aliquot_type_cid  = lcr.aliquot_type_cid  AND "
         "    cs.cryovial_id      = c.cryovial_id  AND "
         "    cbr.retrieval_cid   = cs.retrieval_cid AND "
-        "    cs.box_cid          = sb.box_cid "
+        "    cs.box_cid          = sb.box_cid AND "
+        "    db.status != 99 AND sb.status != 99"
         " ORDER BY "
         "    chunk, rj_box_cid, lcr_position, aliquot_type_cid "
         << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"); //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);

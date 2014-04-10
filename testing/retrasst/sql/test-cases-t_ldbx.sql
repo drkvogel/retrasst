@@ -148,7 +148,30 @@ suggest replacing
 with 
 "next value for id_sequence"
 
-to get around it now.
+to get around it for now.
+
+To list rules as they are fired, do
+
+	print rules
+
+and check that appropriate trace flags are set (ask Team Ingres)
+
+*/
+
+/*
+
+duplicate aliquot error in job load (plan samples) for cryovial_id 3746033, total count is 1675, ie. one extra record
+
+other records e.g. 3583342 have two records ignoring status:
+3583342 -363636 box_cid 3524250, s1.status 1, aliquot -31782, dest_id 3524250, s2.status 1, HPS2-THRIVE EDTA_2_LT 3524250
+3583342 -363636 box_cid 3524250, s1.status 1, aliquot -31782, dest_id -114, s2.status 0, Example Retrieval box 4
+
+just one record returned from big query (where s2.status = 0), other s2.status is 1 so not included
+
+cryovial_id 3746033
+1 record in cryovial
+3 records in cryovial_store (statuses 1, 2, 3)
+
 
 */
 
