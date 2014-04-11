@@ -58,12 +58,12 @@ LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query) : //LCDbID(1)
     position(query.readInt("lcr_position")), // NOT cryovial_position - this is the position in the plan
     cryovial_barcode(query.readString("cryovial_barcode")),
     aliquot_type_cid(query.readInt("aliquot_type_cid")),
-//    old_box_cid(query.readInt("box_cid")),
-//    old_position(query.readInt("source_pos")),
-//    new_position(query.readInt("dest_pos")), //???
+    old_box_cid(query.readInt("old_box_cid")),
+    old_position(query.readInt("old_position")),
+    new_position(query.readInt("new_position")),
     process_cid(query.readInt("lcr_procid")),
     status(query.readInt("lcr_status")),
-	slot_number(query.readInt("lcr_slot")),
+	//slot_number(query.readInt("lcr_slot")),
 	time_stamp(query.readDateTime("time_stamp"))
 {
     saved = true;
@@ -81,24 +81,35 @@ bool LCDbCryovialRetrieval::saveRecord(LQuery query) {
     }
 	if (!saved) {
 		query.setSQL(
-			"INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status) "
-            "VALUES (:rjbid, :pos, :barc, :aliq, :slot, :pid, 'now', :st)"
+			//"INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status) "
+            "INSERT INTO l_cryovial_retrieval "
+                " (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, "
+                " old_box_cid, old_position, new_position, "
+                " process_cid, status) "
+            "VALUES (:rjbid, :pos, :barc, :aliq, "
+                " :oldbox, :oldpos, :newpos,"
+                " :pid, :st)"
 		);
 	} else {
 		query.setSQL(
 			"UPDATE l_cryovial_retrieval "
-			"SET cryovial_barcode = :barc, aliquot_type_cid = :aliq, slot_number = :slot, process_cid = :pid, time_stamp = 'now', status = :st "
+			//"SET cryovial_barcode = :barc, aliquot_type_cid = :aliq, slot_number = :slot, process_cid = :pid, time_stamp = 'now', status = :st "
+            "SET cryovial_barcode = :barc, aliquot_type_cid = :aliq, "
+                " old_box_cid = :oldbox, old_position = :oldpos, new_position = :newpos,"
+                " process_cid = :pid, status = :st "
 			"WHERE rj_box_cid = :rjbid AND position = :pos"
 		);
 	}
-	query.setParam("rjbid", rj_box_cid); 		// rj_box_cid must be an existing id in c_box_retrieval
-	query.setParam("pos",   position);
-	query.setParam("barc",  cryovial_barcode);
-	query.setParam("aliq",  aliquot_type_cid);
-	//query.setParam("slot",  new_position);
-    query.setParam("slot",  slot_number); // deprecated??
-	query.setParam("pid",   process_cid);
-	query.setParam("st",    status);
+	query.setParam("rjbid",     rj_box_cid); 		// rj_box_cid must be an existing id in c_box_retrieval
+	query.setParam("pos",       position);
+	query.setParam("barc",      cryovial_barcode);
+	query.setParam("aliq",      aliquot_type_cid);
+	query.setParam("oldbox",    old_box_cid);
+    query.setParam("oldpos",    old_position);
+    query.setParam("newpos",    new_position);
+    //query.setParam("slot",  slot_number); // deprecated??
+	query.setParam("pid",       process_cid);
+	query.setParam("st",        status);
 	if (query.execSQL()) {
 		saved = true;
 		return true;

@@ -76,4 +76,38 @@ I now have 3 new cryovial jobs and plans.
 Job 1086654 "Primary and secondary in alternate slots" - the secondaries are showing as well as (and before) the primaries. Hmm.
 Logic for dealing with primary/secondary in plan load could be a bit less obscure.
 
+primary:   -31781
+secondary: -31782
 
+primary is NOT < secondary, so list should be sorted aliquot_type_cid DESC - primary first, then secondary
+
+but lcr_position makes them in that order - the plan is incorrect?
+
+in RetrAsstPlanSamples, SavePlanThread::save(), Saver::saveSample(),
+    LCDbCryovialRetrieval ctor was wrongly given `dest_cryo_pos` as the 2nd argument, to set position - position in lcr means the position in the chunk. Should be autoincremented as records are saved.
+
+
+## `C_BOX_RETRIEVAL`
+
+    rj_box_cid
+        uid
+    section
+        chunk
+    position
+        obsolete
+
+## `L_CRYOVIAL_RETRIEVAL`
+
+    rj_box_cid
+        Where this sample belongs (chunk, destination box etc)
+    position
+        Where this entry appears in the relevant chunk of the retrieval plan - samples are retrieved in this order
+    old_box_cid
+        The box the sample can currently be found in (`c_box_name`)
+    old_position
+        The expected position of the sample in that box
+    new_position
+        Where to put the cryovial in the destination box (if two records suggest the same position in the same box, the first should be the primary aliquot; the second will be ignored if the first is found)
+
+
+should fill in oldbid, oldpos, newpos
