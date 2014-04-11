@@ -232,7 +232,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Top = 13
         Width = 75
         Height = 25
-        Caption = 'Reset Jobs'
+        Caption = 'Reset Job'
         TabOrder = 1
         OnClick = btnResetJobsClick
       end

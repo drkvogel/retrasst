@@ -257,16 +257,34 @@ void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
 /** for debugging: set all retrieval jobs back to their initial states */
     ostringstream oss; oss<<__FUNC__<<": reset jobs"; debugLog(oss.str().c_str());
 
-    LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
-    // might be able to delete specific jobs, though would have to iterate through boxes
-    // to delete lcr records
+//    qc.setSQL("delete from l_cryovial_retrieval");
+//    qc.execSQL();
+//    qc.setSQL("delete from c_box_retrieval");
+//    qc.execSQL();
+//	  qc.setSQL("update c_retrieval_job set status = :new where status = :old");
+//    qc.setParam("new", LCDbCryoJob::NEW_JOB); // NEW_JOB, INPROGRESS, DONE
+//    qc.setParam("old", LCDbCryoJob::INPROGRESS);
 
-    LQuery qc(LIMSDatabase::getCentralDb());
-    qc.setSQL("delete from l_cryovial_retrieval");
-    qc.execSQL();
-    qc.setSQL("delete from c_box_retrieval");
+    LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
+    if (NULL == job) return;
+    // might be good to be able to delete specific jobs,
+    // though would have to iterate through boxes to delete lcr records
+
+    LQuery qc(LIMSDatabase::getCentralDb()), qc2(LIMSDatabase::getCentralDb());
+    qc.setSQL("select * from c_box_retrieval where retrieval_cid = :rtid");
+    qc.setParam("rtid", job->getID());
+    qc.open();
+    while (!qc.eof()) {
+        int lcr_id = qc.readInt("rj_box_cid");
+        qc2.setSQL("delete from l_cryovial_retrieval where retrieval_cid = :rtid");
+        qc2.setParam("rtid", job->getID());
+        qc2.execSQL();
+    }
+    qc.setSQL("delete from c_box_retrieval where retrieval_cid = :rtid");
+    qc.setParam("rtid", job->getID());
 	qc.execSQL();
-	qc.setSQL("update c_retrieval_job set status = :new where status = :old");
+	qc.setSQL("update c_retrieval_job set status = :new where status = :old and retrieval_cid = :rtid");
+    qc.setParam("rtid", job->getID());
 	qc.setParam("new", LCDbCryoJob::NEW_JOB); // NEW_JOB, INPROGRESS, DONE
     qc.setParam("old", LCDbCryoJob::INPROGRESS);
     qc.execSQL();
