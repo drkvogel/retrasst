@@ -257,6 +257,10 @@ void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
 /** for debugging: set all retrieval jobs back to their initial states */
     ostringstream oss; oss<<__FUNC__<<": reset jobs"; debugLog(oss.str().c_str());
 
+    LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
+    // might be able to delete specific jobs, though would have to iterate through boxes
+    // to delete lcr records
+
     LQuery qc(LIMSDatabase::getCentralDb());
     qc.setSQL("delete from l_cryovial_retrieval");
     qc.execSQL();

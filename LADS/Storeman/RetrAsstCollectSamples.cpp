@@ -422,8 +422,8 @@ void __fastcall LoadPlanThread::Execute() {
         "    c.aliquot_type_cid  = lcr.aliquot_type_cid  AND "
         "    cs.cryovial_id      = c.cryovial_id  AND "
         "    cbr.retrieval_cid   = cs.retrieval_cid AND "
-        "    cs.box_cid          = sb.box_cid AND "
-        "    db.status != 99 AND sb.status != 99"
+        "    cs.box_cid          = sb.box_cid "
+        //"    AND db.status != 99 AND sb.status != 99"
         " ORDER BY "
         "    chunk, rj_box_cid, lcr_position, aliquot_type_cid "
         << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"); //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);

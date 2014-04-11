@@ -644,7 +644,7 @@ void LoadVialsWorkerThread::load() {
         "  b1.box_cid = s1.box_cid AND"
         "  s1.cryovial_id = s2.cryovial_id AND"
         "  s2.status = 0 AND"
-        "  b1.status != 99 AND b2.status != 99 AND"
+        //"  b1.status != 99 AND b2.status != 99 AND"
         "  b2.box_cid = s2.box_cid AND" //"  aliquot_type_cid = :aliquotID AND"
         "  s1.retrieval_cid = :jobID"
         " ORDER BY"
