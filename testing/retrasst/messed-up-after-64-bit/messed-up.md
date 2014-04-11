@@ -71,4 +71,9 @@ In future, the copying to `c_box_name` will happen automatically by RFPs, so Nic
 
 I now have 3 new cryovial jobs and plans.
 
+## now
+
+Job 1086654 "Primary and secondary in alternate slots" - the secondaries are showing as well as (and before) the primaries. Hmm.
+Logic for dealing with primary/secondary in plan load could be a bit less obscure.
+
 
