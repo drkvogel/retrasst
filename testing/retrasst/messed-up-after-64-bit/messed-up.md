@@ -86,7 +86,6 @@ but lcr_position makes them in that order - the plan is incorrect?
 in RetrAsstPlanSamples, SavePlanThread::save(), Saver::saveSample(),
     LCDbCryovialRetrieval ctor was wrongly given `dest_cryo_pos` as the 2nd argument, to set position - position in lcr means the position in the chunk. Should be autoincremented as records are saved.
 
-
 ## `C_BOX_RETRIEVAL`
 
     rj_box_cid
@@ -108,6 +107,5 @@ in RetrAsstPlanSamples, SavePlanThread::save(), Saver::saveSample(),
         The expected position of the sample in that box
     new_position
         Where to put the cryovial in the destination box (if two records suggest the same position in the same box, the first should be the primary aliquot; the second will be ignored if the first is found)
-
 
 should fill in oldbid, oldpos, newpos

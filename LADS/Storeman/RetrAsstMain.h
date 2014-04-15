@@ -181,9 +181,9 @@ public:
         return Util::getAliquotDescription(cryo_record->getAliquotType());
     }
     string str() {
-        ostringstream oss; oss<<__FUNC__
+        ostringstream oss; oss//<<__FUNC__
             <<"id: "<<(store_record->getID())<<", " //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position// <<"status: "<<(store_record->getStatus())<<", " // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position //<<"barcode: "<<store_record->getBarcode() //<<"sampleID"<<cryo_record->getSampleID() //<<"aliquot type ID"<<cryo_record->getAliquotType()
-            <<"status"<<store_record->getStatus()<<", "
+            <<"status: "<<store_record->getStatus()<<", "
             <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquotName()<<", "
             <<"src: {"<<store_record->getBoxID()<<", "<<src_box_name<<"["<<store_record->getPosition()<<"]}, "
             <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_cryo_pos<<"]}, "
