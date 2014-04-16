@@ -115,7 +115,5 @@ Perhaps colour-code:
  * secondary
  * combined
 
-
-
-
-
+SampleRow or LCDbCryovialRetrieval should include dest box id?
+  as well as `rj_box_cid`?

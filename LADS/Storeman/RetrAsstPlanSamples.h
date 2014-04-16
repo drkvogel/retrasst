@@ -121,7 +121,9 @@ private:
     SavePlanThread *                            savePlanThread;
     void __fastcall                             savePlanThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
-    vecpSampleRow                               vials;
+    vecpSampleRow                               primaries;
+    vecpSampleRow                               secondaries;
+    vecpSampleRow                               combined;
     vector< Chunk< SampleRow > *>               chunks;
     StringGridWrapper<SampleRow> *              sgwVials;
     StringGridWrapper<SampleRow> *              sgwDebug;
@@ -135,6 +137,7 @@ private:
     Chunk< SampleRow > *                        currentChunk();
     void                                        showChunks();
     void                                        loadRows();
+    void                                        combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     const char *                                loadingMessage;
     void                                        calcSizes();

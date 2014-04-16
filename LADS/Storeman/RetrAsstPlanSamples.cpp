@@ -26,7 +26,7 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwChunks->addCol("size",     "Size",               87);
     sgwChunks->init();
 
-    sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
+    sgwVials = new StringGridWrapper<SampleRow>(sgVials, &combined);
     sgwVials->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode,    "barcode");
     sgwVials->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
     sgwVials->addCol("vesspos",  "Pos",              28,    SampleRow::sort_asc_vesspos,    "vessel position");
@@ -44,7 +44,7 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
 #endif
     sgwVials->init();
 
-    sgwDebug = new StringGridWrapper<SampleRow>(sgDebug, &vials);
+    sgwDebug = new StringGridWrapper<SampleRow>(sgDebug, &combined);
     sgwDebug->addCol("rownum",   "Row",              21);
     sgwDebug->addCol("barcode",  "Barcode",          91);
     sgwDebug->addCol("sample",   "Sample ID",        91);
@@ -101,7 +101,10 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
-    delete_referenced< vector <SampleRow * > >(vials);
+    //delete_referenced< vector <SampleRow * > >(vials);
+    delete_referenced< vector <SampleRow * > >(combined);
+    delete_referenced< vector <SampleRow * > >(primaries);
+    delete_referenced< vector <SampleRow * > >(secondaries);
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
 }
 
@@ -251,24 +254,24 @@ bool TfrmSamples::addChunk(unsigned int offset) {
 /** Add chunk starting at specified row [of the specified size?]
     offset: number of rows after beginning of previous chunk at which to cut off new chunk
     return: is there any space for more? */
-    if (vials.size() == 0) return false; //throw "vials.size() == 0"; // not an error strictly; not by my program anyway!
-    int numvials  = vials.size(); int numchunks = chunks.size();
+    if (combined.size() == 0) return false; //throw "vials.size() == 0"; // not an error strictly; not by my program anyway!
+    int numvials  = combined.size(); int numchunks = chunks.size();
 
     Chunk< SampleRow > * curchunk, * newchunk;
     if (chunks.size() == 0) { // first chunk, make default chunk from entire listrows
-        newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, 0, vials.size()-1); // 0-indexed // size is calculated
+        newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, 0, combined.size()-1); // 0-indexed // size is calculated
     } else {
-        if (offset <= 0 || offset > vials.size()) { // ok only for first chunk
+        if (offset <= 0 || offset > combined.size()) { // ok only for first chunk
             Application->MessageBox(L"Invalid chunk size", L"Info", MB_OK);
             return false;
         }
         curchunk = chunks[chunks.size()-1];
         int currentchunksize = curchunk->getSize(); // no chunks until first added
-        if (curchunk->getStartAbs()+offset > vials.size()) { // current last chunk is too small to be split at this offset
+        if (curchunk->getStartAbs()+offset > combined.size()) { // current last chunk is too small to be split at this offset
             return false; // e.g. for auto-chunk to stop chunking
         }
         curchunk->setEndAbs(curchunk->getStartAbs()+offset-1); // row above start of new chunk - oldrowscheme
-        newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStartAbs()+offset, vials.size()-1);
+        newchunk = new Chunk< SampleRow >(sgwVials, chunks.size()+1, curchunk->getStartAbs()+offset, combined.size()-1);
     }
     chunks.push_back(newchunk);
     showChunk(newchunk);
@@ -352,10 +355,10 @@ void TfrmSamples::showChunk(Chunk< SampleRow > * chunk) {
     sgVials->Row = 1;
 
     if (RETRASSTDEBUG) { // sgDebug - all vials
-        sgDebug->RowCount = vials.size()+1;
+        sgDebug->RowCount = combined.size()+1;
         sgDebug->FixedRows = 1;
-        for (unsigned row=0; row < vials.size(); row++) {
-            SampleRow *         sampleRow = vials[row];
+        for (unsigned row=0; row < combined.size(); row++) {
+            SampleRow *         sampleRow = combined[row];
             LPDbCryovial *      vial    = sampleRow->cryo_record;
             LPDbCryovialStore * store   = sampleRow->store_record;
             int rw = row+1; // for stringgrid
@@ -387,7 +390,7 @@ void TfrmSamples::autoChunk() {
 /** initialise box size with size of first box in list
     box_name.box_type_cid -> box_content.box_size_cid -> c_box_size.box_capacity */
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
-    int box_id = vials[0]->dest_box_id;//->getBoxID(); // ???look at base list, chunk might not have been created
+    int box_id = combined[0]->dest_box_id;//->getBoxID(); // ???look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL)
         throw "box not found";
@@ -483,14 +486,17 @@ void __fastcall LoadVialsJobThread::Execute() {
 }
 
 void LoadVialsJobThread::load() {
-    delete_referenced< vector<SampleRow * > >(frmSamples->vials);
+    //delete_referenced< vector<SampleRow * > >(frmSamples->vials);
+    delete_referenced< vector<SampleRow * > >(frmSamples->combined);
+    delete_referenced< vector<SampleRow * > >(frmSamples->primaries);
+    delete_referenced< vector<SampleRow * > >(frmSamples->secondaries);
+
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
     debugMessage = "preparing query"; Synchronize((TThreadMethod)&debugLog);
     loadingMessage = frmSamples->loadingMessage;
     job = frmSamples->job;
-
-    int primary_aliquot     = job->getPrimaryAliquot();
-    int secondary_aliquot   = job->getSecondaryAliquot();
+    const int primary_aliquot     = job->getPrimaryAliquot();
+    const int secondary_aliquot   = job->getSecondaryAliquot();
 
     LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
 
@@ -502,7 +508,6 @@ void LoadVialsJobThread::load() {
     qd.open();
     rowCount = qd.readInt(0);
     if (0 == rowCount) return;
-
     oss.str(""); oss << // actual query now we know there are some rows
         "SELECT"
 		"  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
@@ -549,17 +554,26 @@ void LoadVialsJobThread::load() {
             qd.readString(  "dest_name"),
             qd.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
-        if (secondary_aliquot != 0 && previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
-            if (previous->cryo_record->getAliquotType() == row->cryo_record->getAliquotType()) {
-                throw Exception("duplicate aliquot");
-            } else if (row->cryo_record->getAliquotType() != secondary_aliquot) {
-                throw Exception("spurious aliquot");
-            } else { // secondary/backup
-                previous->backup = row;
-            }
+//        if (secondary_aliquot != 0 && previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
+//            if (previous->cryo_record->getAliquotType() == row->cryo_record->getAliquotType()) {
+//                throw Exception("duplicate aliquot");
+//            } else if (row->cryo_record->getAliquotType() != secondary_aliquot) {
+//                throw Exception("spurious aliquot");
+//            } else { // secondary/backup
+//                previous->backup = row;
+//            }
+//        } else {
+//            frmSamples->vials.push_back(row); // new primary
+//            previous = row;
+//        }
+
+        const int aliquotType = row->cryo_record->getAliquotType();
+        if (aliquotType == primary_aliquot) {
+            frmSamples->primaries.push_back(row);
+        } else if (aliquotType == secondary_aliquot) {
+            frmSamples->secondaries.push_back(row);
         } else {
-            frmSamples->vials.push_back(row); // new primary
-            previous = row;
+            throw "unknown aliquot type for this job";
         }
         qd.next();
         rowCount++;
@@ -568,7 +582,7 @@ void LoadVialsJobThread::load() {
 
     // find locations of source boxes
     map<int, const SampleRow *> samples; ROSETTA result; StoreDAO dao; int rowCount2 = 0;
-	for (vector<SampleRow *>::iterator it = frmSamples->vials.begin(); it != frmSamples->vials.end(); ++it, rowCount2++) {
+	for (vector<SampleRow *>::iterator it = frmSamples->combined.begin(); it != frmSamples->combined.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
         map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
@@ -590,6 +604,7 @@ void LoadVialsJobThread::load() {
 }
 
 void __fastcall TfrmSamples::loadVialsJobThreadTerminated(TObject *Sender) {
+    combineAliquots(primaries, secondaries, combined);
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
@@ -597,11 +612,11 @@ void __fastcall TfrmSamples::loadVialsJobThreadTerminated(TObject *Sender) {
     chunks.clear();
     sgwChunks->clear();
     LQuery qd(Util::projectQuery(frmSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
-    if (0 == vials.size()) {
+    if (0 == combined.size()) {
         Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK); Close();
         return;
     }
-    int box_id = vials[0]->dest_box_id; // look at base list, chunk might not have been created
+    int box_id = combined[0]->dest_box_id; // look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL) {
         throw "box not found"; //Application->MessageBox(L"Box not found, exiting", L"Info", MB_OK); Close(); return;
@@ -615,6 +630,49 @@ void __fastcall TfrmSamples::loadVialsJobThreadTerminated(TObject *Sender) {
     Enabled = true;
 }
 
+void TfrmSamples::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
+
+    struct PosKey {
+        PosKey(int b, int p) : box(b), pos(p) { }
+        PosKey(SampleRow * s) : box(s->dest_cryo_pos), pos(s->retrieval_record->getRJBId()) { }
+        int box, pos; //SampleRow * row1, * row2;
+        bool operator <(const PosKey &other) const {
+            if (box < other.box) { //if (row1->S);
+                return true;
+            } else if (box == other.box) {
+                return pos < other.pos;
+            } else {
+                return false;
+            }
+        }
+    };
+
+    typedef std::map< PosKey, SampleRow * > posCache;
+    posCache cache;
+
+    combined.clear();
+
+    for (auto &it : primaries) {
+        //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
+        PosKey key(it);
+        cache[key] = it; // cache combination of dest box and pos
+        combined.push_back(it);
+    }
+
+    for (auto &it : secondaries) {
+        //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
+        PosKey key(it);
+        posCache::iterator found = cache.find(key);
+        if (found != cache.end()) { // destination box and position already used (by primary)
+            if (NULL == it)
+                throw "null in cache";
+            found->second->backup = it; // add as backup to primary
+        } else {
+            combined.push_back(it);     // add to list in its own right
+        }
+    }
+}
+
 void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
     ostringstream oss; oss << __FUNC__;
     if (chunks.size() > 1 && (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO))) {
@@ -624,7 +682,7 @@ void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {
         chunks.pop_back();
         oss<<" after pop: "<<chunks.size();
         debugLog(oss.str().c_str());
-        (*(chunks.end()-1))->setEndAbs(vials.size()-1); // oldrowscheme
+        (*(chunks.end()-1))->setEndAbs(combined.size()-1); // oldrowscheme
         showChunks();
         showChunk();
     }
@@ -637,7 +695,7 @@ void __fastcall TfrmSamples::editDestBoxSizeChange(TObject *Sender) {
 void __fastcall TfrmSamples::btnAddAllChunksClick(TObject *Sender) {
     Screen->Cursor = crSQLWait; Enabled = false;
     int selectedChunkSize = comboSectionSize->Items->Strings[comboSectionSize->ItemIndex].ToIntDef(0);
-    float result = float(frmSamples->vials.size()) / float(selectedChunkSize);
+    float result = float(frmSamples->combined.size()) / float(selectedChunkSize);
     int numChunks = ceil(result);
     for (int i=0; i < numChunks; i++) {
         showChunks();

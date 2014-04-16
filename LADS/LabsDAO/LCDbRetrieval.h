@@ -52,7 +52,6 @@ public:
 
 class LCDbCryovialRetrieval : public LCDbID//, public LDbNames
 {
-
     int rj_box_cid, position, aliquot_type_cid,
     old_box_cid, old_position, new_position,
     process_cid, status;
