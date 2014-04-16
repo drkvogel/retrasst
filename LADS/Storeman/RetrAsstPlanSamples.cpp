@@ -39,9 +39,7 @@ __fastcall TfrmSamples::TfrmSamples(TComponent* Owner) : TForm(Owner) {
     sgwVials->addCol("srcpos",   "Pos",              31,    SampleRow::sort_asc_srcpos,     "source box position");
     sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
     sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
-#ifdef _DEBUG
-    sgwVials->addCol("aliquot",  "Aliquot",          90);
-#endif
+    sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot type");
     sgwVials->init();
 
     sgwDebug = new StringGridWrapper<SampleRow>(sgDebug, &combined);
@@ -102,7 +100,7 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
     //delete_referenced< vector <SampleRow * > >(vials);
-    delete_referenced< vector <SampleRow * > >(combined);
+    //delete_referenced< vector <SampleRow * > >(combined);
     delete_referenced< vector <SampleRow * > >(primaries);
     delete_referenced< vector <SampleRow * > >(secondaries);
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
@@ -548,24 +546,15 @@ void LoadVialsJobThread::load() {
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
             NULL,
+                //new LCDbCryovialRetrieval(qd) would be needed for SampleRow::sort_asc_aliquot(...) { return a->retrieval_record->getAliType() ... }
+                // but no retrieval plan has been created at this point
+                // can use row->cryo_record->getAliquotType()
             qd.readString(  "cryovial_barcode"),
             qd.readString(  "source_name"),
             qd.readInt(     "dest_id"),
             qd.readString(  "dest_name"),
             qd.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
-//        if (secondary_aliquot != 0 && previous != NULL && previous->cryovial_barcode == row->cryovial_barcode) { // secondary?
-//            if (previous->cryo_record->getAliquotType() == row->cryo_record->getAliquotType()) {
-//                throw Exception("duplicate aliquot");
-//            } else if (row->cryo_record->getAliquotType() != secondary_aliquot) {
-//                throw Exception("spurious aliquot");
-//            } else { // secondary/backup
-//                previous->backup = row;
-//            }
-//        } else {
-//            frmSamples->vials.push_back(row); // new primary
-//            previous = row;
-//        }
 
         const int aliquotType = row->cryo_record->getAliquotType();
         if (aliquotType == primary_aliquot) {
@@ -579,6 +568,8 @@ void LoadVialsJobThread::load() {
         rowCount++;
     }
     debugMessage = "finished retrieving rows, getting storage details"; Synchronize((TThreadMethod)&debugLog);
+
+    combineAliquots(frmSamples->primaries, frmSamples->secondaries, frmSamples->combined);
 
     // find locations of source boxes
     map<int, const SampleRow *> samples; ROSETTA result; StoreDAO dao; int rowCount2 = 0;
@@ -603,8 +594,56 @@ void LoadVialsJobThread::load() {
     debugMessage = "finished getting storage details"; Synchronize((TThreadMethod)&debugLog);
 }
 
+void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
+
+    struct PosKey {
+        PosKey(int b, int p) : box(b), pos(p) { }
+        PosKey(SampleRow * s) : box(s->dest_cryo_pos), pos(s->dest_box_id) { }
+        int box, pos; //SampleRow * row1, * row2;
+        bool operator <(const PosKey &other) const {
+            if (box < other.box) { //if (row1->S);
+                return true;
+            } else if (box == other.box) {
+                return pos < other.pos;
+            } else {
+                return false;
+            }
+        }
+    };
+
+    typedef std::map< PosKey, SampleRow * > posCache;
+    posCache cache;
+
+    combined.clear();
+
+    for (auto &it : primaries) {
+    //for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
+        //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
+        PosKey key(it);
+        cache[key] = it; // cache combination of dest box and pos
+        combined.push_back(it);
+//        SampleRow * row = *it;
+//        PosKey key(row);
+//        cache[key] = row; // cache combination of dest box and pos
+//        combined.push_back(row);
+    }
+
+    for (auto &it : secondaries) {
+        //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
+        PosKey key(it);
+        posCache::iterator found = cache.find(key);
+        if (found != cache.end()) { // destination box and position already used (by primary)
+            if (NULL == it)
+                throw "null in cache";
+            found->second->backup = it; // add as backup to primary
+        } else {
+            combined.push_back(it);     // add to list in its own right
+        }
+    }
+}
+
 void __fastcall TfrmSamples::loadVialsJobThreadTerminated(TObject *Sender) {
-    combineAliquots(primaries, secondaries, combined);
+    //combineAliquots(primaries, secondaries, combined);
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
@@ -628,49 +667,6 @@ void __fastcall TfrmSamples::loadVialsJobThreadTerminated(TObject *Sender) {
     showChunk();
     Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
     Enabled = true;
-}
-
-void TfrmSamples::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
-
-    struct PosKey {
-        PosKey(int b, int p) : box(b), pos(p) { }
-        PosKey(SampleRow * s) : box(s->dest_cryo_pos), pos(s->retrieval_record->getRJBId()) { }
-        int box, pos; //SampleRow * row1, * row2;
-        bool operator <(const PosKey &other) const {
-            if (box < other.box) { //if (row1->S);
-                return true;
-            } else if (box == other.box) {
-                return pos < other.pos;
-            } else {
-                return false;
-            }
-        }
-    };
-
-    typedef std::map< PosKey, SampleRow * > posCache;
-    posCache cache;
-
-    combined.clear();
-
-    for (auto &it : primaries) {
-        //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
-        PosKey key(it);
-        cache[key] = it; // cache combination of dest box and pos
-        combined.push_back(it);
-    }
-
-    for (auto &it : secondaries) {
-        //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
-        PosKey key(it);
-        posCache::iterator found = cache.find(key);
-        if (found != cache.end()) { // destination box and position already used (by primary)
-            if (NULL == it)
-                throw "null in cache";
-            found->second->backup = it; // add as backup to primary
-        } else {
-            combined.push_back(it);     // add to list in its own right
-        }
-    }
 }
 
 void __fastcall TfrmSamples::btnDelChunkClick(TObject *Sender) {

@@ -174,6 +174,9 @@ public:
     static bool sort_asc_structpos(const SampleRow *a, const SampleRow *b)  { return a->structure_pos < b->structure_pos; }
     static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
     static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->box_pos < b->box_pos; }
+    //static bool sort_asc_aliquot(const SampleRow *a, const SampleRow *b)    { return a->retrieval_record->getAliType() < b->retrieval_record->getAliType(); }
+    static bool sort_asc_aliquot(const SampleRow *a, const SampleRow *b)    { return a->cryo_record->getAliquotType() < b->cryo_record->getAliquotType(); }
+
     string aliquotName() {
         return Util::getAliquotDescription(cryo_record->getAliquotType());
     }

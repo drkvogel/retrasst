@@ -401,11 +401,15 @@ void __fastcall LoadPlanThread::Execute() {
     debugMessage = "select sample details from plan"; Synchronize((TThreadMethod)&debugLog);
     LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
     oss.str("");
+
+    // l_cryovial_retrieval.old_box_cid, old_position, new_position
+
     oss<<
         " SELECT "
         "    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, cbr.box_id AS dest_id, "//cbr.status, "
         "    lcr.position AS lcr_position, lcr.cryovial_barcode, lcr.aliquot_type_cid, "
-        "    lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, lcr.slot_number AS lcr_slot, "
+        "    lcr.old_box_cid, lcr.old_position, lcr.new_position, "
+        "    lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, " // lcr.slot_number AS lcr_slot, "
         "    lcr.slot_number AS dest_pos, "
         "    cs.box_cid, sb.external_name AS src_box, cs.cryovial_position AS source_pos,  "
         "    db.external_name AS dest_box, "

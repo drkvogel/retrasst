@@ -117,3 +117,15 @@ Perhaps colour-code:
 
 SampleRow or LCDbCryovialRetrieval should include dest box id?
   as well as `rj_box_cid`?
+already does; inherited from RetrievalRow
+
+    string              src_box_name;       // id and cryo pos are in store_record
+    int                 dest_box_id;
+    string              dest_box_name;
+    string              site_name;
+    int                 vessel_pos;
+    string              vessel_name;
+    int                 shelf_number;
+    int                 structure_pos;      // c_rack_number.position as rack_pos
+    string              structure_name;
+    int                 box_pos;

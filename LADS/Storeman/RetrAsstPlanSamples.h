@@ -24,6 +24,7 @@ protected:
     void __fastcall updateStatus(); // synchronized methods can't have args
     string          debugMessage;
     void __fastcall debugLog();
+    void            combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
 public:
     __fastcall LoadVialsJobThread();
 };
@@ -137,7 +138,7 @@ private:
     Chunk< SampleRow > *                        currentChunk();
     void                                        showChunks();
     void                                        loadRows();
-    void                                        combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
+//    void                                        combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     const char *                                loadingMessage;
     void                                        calcSizes();
