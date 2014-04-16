@@ -40,6 +40,12 @@ changed this last week to use pos++ for `l_cryovial_retrieval.` - should use `de
 
 `dest_cryo_pos`  ie. `dest_pos` ie. `s2.cryovial_position` for job 1086654
 
+## RetrAsstCollectSamples
+
+### LoadPlanThread::Execute()
+
+loads storage details for secondary this time
+
 1086654 job means retrieve both aliquots always
 
 * some samples may not have primaries!
@@ -53,45 +59,63 @@ be able to toggle between showing both and showing only primary (sort by primary
 if both aliquots of a sample on (e.g.) the first row or most rows have the same destination position, assume primary preferred
 if aliquots have different destination positions, assume both required
 
-## RetrAsstCollectSamples
+### combine or not?
 
-### LoadPlanThread::Execute()
+present all aliquots all the time, or 
 
-loads storage details for secondary this time
+provide option to combine aliquots?
+test if some or most or all(?) aliquots are paired ie. secondary is backup for primary
+ 
+at plan save
+
+primaries
+secondaries
+sortList
+
+## cross-project jobs
+
+also... samples might come from more than 1 project... which I haven't catered for so far. 
+
+how to load them in at
+
+temp table
+
+### job load
 
 
 
-notes:
+### plan save
 
-big-list.md:11
-discard-boxes/gj.md:2
-discard-boxes/_discard-boxes.md:0
-done.md:25
-helper-funcs.txt:0
-meetings/meeting-2014-02-13.md:4
-misc/99-boxes.txt:0
-misc/chunking.txt:0
-misc/convos.docx:0
-misc/c_retrieval_job.md:4
-misc/db-tables-cheatsheet.docx:0
-misc/easy-wins.md.bak:0
-misc/excel-sorter.png:0
-misc/impossible.md:0
-misc/load-plan-samples-possible-1.svg:2
-misc/load-samples.svg:2
-misc/outer-join-not-allowed-ddb.png:0
-misc/queryviz.txt:8
-misc/screen-mockups.jpg:0
-misc/terse-spec.md:6
-misc/what-to-do-with-secondaries.md:2
-old/misc-2.txt:6
-old/more-notes-2.txt:16
-old/orig-spec.txt:9
-old/q.txt:7
-old/sort-problems.txt:0
-old/sorter.txt:3
-spec-comparison/2013-07-31.txt:7
-spec-comparison/2013-07-31.txt.bak:6
-spec-comparison/2013-09-11.txt:5
-spec-comparison/2013-09-11.txt.bak:4
-truth-table.xlsx:0
+both aliquots should be included in save
+
+### plan load
+
+## Questions for Martin
+
+How important is it/might it be to be able to deal with retrieval jobs that have vials from more than one project? i.e. would it be a significant hindrance to have to create different jobs for different projects?
+
+As I see it there are (forgetting about projects for the minute) several types of retrieval job:
+
+1. primary aliquots only ('primary only')
+2. pairs of primary and secondary aliquots, each pair of which has only one destination box position - ie. the primary is preferred and is stored in the destination if found, else the secondary is stored if found ('primary preferred')
+3. primary and secondary aliquots, all of which are to be retrieved into different destination box positions ('primary and secondary')
+4. a mix of 2 and 3?
+
+I have assumed only possibilities 1 and 2 so far, which was a mistake - certainly 3 now exists as a test job.
+
+I suppose these could be broadly categorised into two types - those in which all aliquots 
+
+Perhaps there is only one 'type' really - a possible mix. If there are secondaries and they have their own destinations, they should be shown for sorting, chunking, planning - and if there are any secondaries which share a destination with a primary, they should 'hide' behind the primary - they are only there for backup.
+
+ie. you are only ever sorting/planning the destinations
+
+Perhaps colour-code:
+
+ * primary
+ * secondary
+ * combined
+
+
+
+
+

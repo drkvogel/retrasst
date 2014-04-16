@@ -14,11 +14,7 @@
 
 using namespace std;
 
-// cryovial barcode, destination box, position, source box, position, structure and location of the primary and secondary
-// secondary aliquots: if defined, will be separate rows after all primary aliquots
-// if any primaries fail, these will be marked to make a new chunk of replacements
-
-class LoadVialsWorkerThread : public TThread {
+class LoadVialsJobThread : public TThread {
 protected:
     void __fastcall Execute();
     void load();
@@ -27,9 +23,9 @@ protected:
     string          loadingMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
     string          debugMessage;
-    void __fastcall debugLog(); // synchronized methods can't have args
+    void __fastcall debugLog();
 public:
-    __fastcall LoadVialsWorkerThread();
+    __fastcall LoadVialsJobThread();
 };
 
 class SavePlanThread : public TThread {
@@ -39,17 +35,16 @@ protected:
     //LCDbCryoJob *   job;
     int             rowCount;
     string          loadingMessage;
-    void __fastcall updateStatus(); // synchronized methods can't have args
+    void __fastcall updateStatus();
     string          debugMessage;
-    void __fastcall debugLog(); // synchronized methods can't have args
+    void __fastcall debugLog();
 public:
     __fastcall SavePlanThread();
 };
 
 class TfrmSamples : public TForm {
-    friend class LoadVialsWorkerThread;
+    friend class LoadVialsJobThread;
     friend class SavePlanThread;
-    friend class TfrmAutoChunk;
 __published:
     TSplitter *Splitter1;
     TTimer *timerLoadVials;
@@ -121,8 +116,8 @@ __published:
     void __fastcall timerCalculateTimer(TObject *Sender);
     void __fastcall FormResize(TObject *Sender);
 private:
-    LoadVialsWorkerThread *                     loadVialsWorkerThread;
-    void __fastcall                             loadVialsWorkerThreadTerminated(TObject *Sender);
+    LoadVialsJobThread *                        loadVialsJobThread;
+    void __fastcall                             loadVialsJobThreadTerminated(TObject *Sender);
     SavePlanThread *                            savePlanThread;
     void __fastcall                             savePlanThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;

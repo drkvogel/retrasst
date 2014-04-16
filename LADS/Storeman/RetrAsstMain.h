@@ -43,7 +43,6 @@ const bool RETRASSTDEBUG =
 
 using namespace std;
 
-
 class RetrievalRow {
 public: //protected: ?
     string              src_box_name;       // id and cryo pos are in store_record
@@ -145,26 +144,24 @@ typedef std::vector<pBoxRow> vecpBoxRow;
 
 class SampleRow : public RetrievalRow {
 public:
-    LPDbCryovial            * cryo_record; // auto_ptr for these?
-    LPDbCryovialStore       * store_record;
-    LCDbCryovialRetrieval   * retrieval_record;
+    LPDbCryovial *          cryo_record; // auto_ptr for these?
+    LPDbCryovialStore *     store_record;
+    LCDbCryovialRetrieval * retrieval_record;
     string                  cryovial_barcode;
-    //string                  aliquot_type_name;  // not in LPDbCryovial
     int                     dest_cryo_pos;      // cryovial_position/tube_position
-    SampleRow               * secondary;
+    SampleRow *             backup;
     ~SampleRow() {
         if (store_record) delete store_record;
         if (cryo_record) delete cryo_record;
-        if (secondary) delete secondary;
+        if (backup) delete backup;
         if (retrieval_record) delete retrieval_record;
     }
     SampleRow(  LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
                 string barc, string srcnm, int dstid, string dstnm, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
                 RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps),
-                cryo_record(cryo_rec), store_record(store_rec), retrieval_record(retrieval_rec), cryovial_barcode(barc), dest_cryo_pos(dstps), secondary(NULL) {
+                cryo_record(cryo_rec), store_record(store_rec), retrieval_record(retrieval_rec), cryovial_barcode(barc), dest_cryo_pos(dstps), backup(NULL) {
     }
-
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
     static bool sort_asc_srcbox(const SampleRow *a, const SampleRow *b)     { return Util::numericCompare(a->src_box_name, b->src_box_name); }
     static bool sort_asc_srcpos(const SampleRow *a, const SampleRow *b)     { return a->store_record->getPosition() < b->store_record->getPosition(); }
@@ -173,7 +170,7 @@ public:
     static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
     static bool sort_asc_vesspos(const SampleRow *a, const SampleRow *b)    { return a->vessel_pos < b->vessel_pos; }
     static bool sort_asc_vessel(const SampleRow *a, const SampleRow *b)     { return a->vessel_name.compare(b->vessel_name) < 0; }
-    static bool sort_asc_shelf(const SampleRow *a, const SampleRow *b)      { return a->shelf_number < b->shelf_number; }    
+    static bool sort_asc_shelf(const SampleRow *a, const SampleRow *b)      { return a->shelf_number < b->shelf_number; }
     static bool sort_asc_structpos(const SampleRow *a, const SampleRow *b)  { return a->structure_pos < b->structure_pos; }
     static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
     static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->box_pos < b->box_pos; }
@@ -181,7 +178,7 @@ public:
         return Util::getAliquotDescription(cryo_record->getAliquotType());
     }
     string str() {
-        ostringstream oss; oss//<<__FUNC__
+        ostringstream oss; oss
             <<"id: "<<(store_record->getID())<<", " //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position// <<"status: "<<(store_record->getStatus())<<", " // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position //<<"barcode: "<<store_record->getBarcode() //<<"sampleID"<<cryo_record->getSampleID() //<<"aliquot type ID"<<cryo_record->getAliquotType()
             <<"status: "<<store_record->getStatus()<<", "
             <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquotName()<<", "
@@ -190,14 +187,12 @@ public:
             <<"loc: {"<<storage_str()<<"}";
         return oss.str();
     }
-
     string storage_str() {
         ostringstream oss;
         oss<<site_name<<"["<<vessel_pos<<"]: "
             <<vessel_name<<":"<<shelf_number<<"["<<structure_pos<<"]/"<<structure_name<<"["<<box_pos<<"]";
         return oss.str();
     }
-
     string dest_str() {
         ostringstream oss;
         oss<<dest_box_name<<" ["<<dest_cryo_pos<<"]";
@@ -207,17 +202,15 @@ public:
 
 typedef std::vector<SampleRow *> vecpSampleRow;
 
-/** StringGridWrapper
-Wrapper for TStringGrid, provides sorting functions. T is type of data in each row */
 template < class T >
 class StringGridWrapper {
+/** Wrapper for TStringGrid, provides sorting functions. T is type of data in each row */
     TStringGrid *       sg;
     map< string, int >  mapColNameToInt;
     bool                initialised;
 public:
     class Col {
     public:
- //	FIXME - C++ compiler error:	     Col() : sort_func_asc(NULL), name(""), description(""), width(0), sortAsc(true), vec(NULL), initialised(false) { }
         Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL, string d="")
             : name(n), title(t), width(w), sort_func_asc(f), descrip(d), sortAsc(true) {}
         string  sortDescription() {
@@ -293,11 +286,9 @@ public:
         sg->Cells[0][1] = "No results.";
     }
     void sort_asc(int col, int start, int end) {
- //	FIXME - C++ compiler error:	          frmSamples->debugLog("ascending");
 		stable_sort(rows->begin()+start, rows->begin()+end+1, cols[col].sort_func_asc);
 	}
 	void sort_dsc(int col, int start, int end) {
- //	FIXME - C++ compiler error:	  		frmSamples->debugLog("descending");
 		stable_sort(rows->rend()-end-1, rows->rend()-start, cols[col].sort_func_asc);
     }
     void sort_asc(string colName, int start, int end) {
@@ -371,8 +362,8 @@ public:
                 break;
             } else if (
                     sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::NOT_FOUND &&
-                    sample->secondary != NULL &&
-                    sample->secondary->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
+                    sample->backup != NULL &&
+                    sample->backup->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
                 break;
             } // else carry on
         }
@@ -397,7 +388,7 @@ public:
         if (0 == size) return 0;
         for (int i=0; i<size; i++) {
             int status = objectAtRel(i)->retrieval_record->getStatus();
-            //EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 };
+            // EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND
             switch (status) {
                 case LCDbCryovialRetrieval::EXPECTED:
                 case LCDbCryovialRetrieval::IGNORED:

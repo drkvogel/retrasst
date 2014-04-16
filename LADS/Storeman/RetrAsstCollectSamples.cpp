@@ -170,9 +170,9 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
                 case LCDbCryovialRetrieval::COLLECTED:
                     background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR; break;
                 case LCDbCryovialRetrieval::NOT_FOUND:
-                    if (NULL != row->secondary) {
-                        int secondaryStatus = row->secondary->retrieval_record->getStatus();
-                        switch (secondaryStatus) {
+                    if (NULL != row->backup) {
+                        int backupStatus = row->backup->retrieval_record->getStatus();
+                        switch (backupStatus) {
                             case LCDbCryovialRetrieval::EXPECTED:
                                 background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR; break;
                             case LCDbCryovialRetrieval::IGNORED:
@@ -230,19 +230,19 @@ void __fastcall TfrmProcess::sgVialsClick(TObject *Sender) { // show details in 
         <<", storage: "<<sample->storage_str().c_str()
         <<", dest: "<<sample->dest_str().c_str()
         )
-    SampleRow * secondary = sample->secondary;
-    if (!secondary) {
-        DEBUGSTREAM(" (no secondary)")
+    SampleRow * backup = sample->backup;
+    if (!backup) {
+        DEBUGSTREAM(" (no backup)")
         return;
     }
     DEBUGSTREAM(
-        " (secondary) retrieval_status: "<<secondary->retrieval_record->getStatus()
-        <<" ("<<secondary->retrieval_record->statusString(secondary->retrieval_record->getStatus())<<")"
-        <<", cryo_status: "<<secondary->cryo_record->getStatus()
-        <<", store_status: "<<secondary->store_record->getStatus()
-        <<", barcode: "<<secondary->cryovial_barcode.c_str()
-        <<", storage: "<<secondary->storage_str().c_str()
-        <<", dest: "<<secondary->dest_str().c_str()
+        " (backup) retrieval_status: "<<backup->retrieval_record->getStatus()
+        <<" ("<<backup->retrieval_record->statusString(backup->retrieval_record->getStatus())<<")"
+        <<", cryo_status: "<<backup->cryo_record->getStatus()
+        <<", store_status: "<<backup->store_record->getStatus()
+        <<", barcode: "<<backup->cryovial_barcode.c_str()
+        <<", storage: "<<backup->storage_str().c_str()
+        <<", dest: "<<backup->dest_str().c_str()
         )
     //int row = sgVials->Row; sgVials->Row = row; // how to put these before and after to save row clicked on?
 }
@@ -333,8 +333,8 @@ void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
 void TfrmProcess::fillRow(SampleRow * row, int rw) {
     SampleRow * sample;
     if (    row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND
-        &&  row->secondary != NULL) {
-        sample = row->secondary;
+        &&  row->backup != NULL) {
+        sample = row->backup;
     } else {
         sample = row;
     }
@@ -467,7 +467,7 @@ void __fastcall LoadPlanThread::Execute() {
             } else if (currentAliquotType != secondary_aliquot) {
                 throw Exception("spurious aliquot");
             } else { // secondary
-                previous->secondary = row;
+                previous->backup = row;
             }
         } else {
             frmProcess->vials.push_back(row); // new primary
@@ -486,8 +486,8 @@ void __fastcall LoadPlanThread::Execute() {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
         frmRetrievalAssistant->getStorage(sample);
-        if (NULL != sample->secondary) {
-            frmRetrievalAssistant->getStorage(sample->secondary);
+        if (NULL != sample->backup) {
+            frmRetrievalAssistant->getStorage(sample->backup);
         }
         oss<<sample->storage_str(); loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 	} debugMessage = "finished load storage details"; Synchronize((TThreadMethod)&debugLog);
@@ -598,23 +598,23 @@ void TfrmProcess::notFound() {
     SampleRow * sample = currentChunk()->objectAtAbs(rowAbs);
     if (sample->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
         sample->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
-        if (sample->secondary) {
+        if (sample->backup) {
             TfrmRetrievalAssistant::msgbox("Secondary aliquot found");
-            if (sample->secondary->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // secondary already marked not found
+            if (sample->backup->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // backup already marked not found
                 fillRow(sample, rowAbs + 1); // refresh sg row - now keeps pointer to row
                 showCurrentRow();
-                showDetails(sample->secondary);
+                showDetails(sample->backup);
                 return;
             } else {
-                throw "secondary already NOT_FOUND";
+                throw "backup already NOT_FOUND";
             }
         } else {
             TfrmRetrievalAssistant::msgbox("No secondary aliquot exists, continuing to next sample");
             nextRow();
         }
     } else {  // primary already marked not found
-        if (sample->secondary) {
-            sample->secondary->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
+        if (sample->backup) {
+            sample->backup->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
             nextRow();
         } else {
             throw "no secondary for not found primary, should have moved on to next row";
@@ -629,10 +629,10 @@ SampleRow * TfrmProcess::currentSample() {
 SampleRow * TfrmProcess::currentAliquot() {
     SampleRow * row = currentSample();
     if (row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND) {
-        if (NULL == row->secondary) {
+        if (NULL == row->backup) {
             return NULL;
         } else {
-            return row->secondary;
+            return row->backup;
         }
     } else {
         return row;
@@ -652,8 +652,8 @@ void TfrmProcess::nextRow() {
 
     // save both primary and secondary
     if (!sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw "saveRecord() failed"; }
-    if (sample->secondary) {
-        if (!sample->secondary->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw "saveRecord() failed for secondary"; }
+    if (sample->backup) {
+        if (!sample->backup->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw "saveRecord() failed for secondary"; }
     }
     if (current < chunk->getSize()-1) {
         chunk->setRowAbs(chunk->nextUnresolvedAbs()); // fast-forward to first non-dealt-with row
@@ -785,8 +785,8 @@ void __fastcall SaveProgressThread::Execute() {
 			} else {
 				frmProcess->unactionedSamples = true;
 			}
-            if (NULL != sample->secondary) {
-                storeSample(sample->secondary);
+            if (NULL != sample->backup) {
+                storeSample(sample->backup);
             }
 		}
 

@@ -62,7 +62,7 @@ void TfrmSamples::debugLog(String s) {
     memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
 }
 
-void __fastcall LoadVialsWorkerThread::debugLog() {
+void __fastcall LoadVialsJobThread::debugLog() {
     frmSamples->debugLog(debugMessage.c_str());
 }
 
@@ -205,7 +205,7 @@ void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, in
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
     SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     sample?debugLog(sample->str().c_str()):debugLog("NULL sample");
-    sample->secondary?debugLog(sample->secondary->str().c_str()):debugLog("NULL secondary");
+    sample->backup?debugLog(sample->backup->str().c_str()):debugLog("NULL backup");
 }
 
 void __fastcall TfrmSamples::timerLoadVialsTimer(TObject *Sender) {
@@ -459,20 +459,20 @@ void TfrmSamples::loadRows() {
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
     Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
     Enabled = false;
-    loadVialsWorkerThread = new LoadVialsWorkerThread();
-    loadVialsWorkerThread->OnTerminate = &loadVialsWorkerThreadTerminated;
+    loadVialsJobThread = new LoadVialsJobThread();
+    loadVialsJobThread->OnTerminate = &loadVialsJobThreadTerminated;
 }
 
-__fastcall LoadVialsWorkerThread::LoadVialsWorkerThread() : TThread(false) {
+__fastcall LoadVialsJobThread::LoadVialsJobThread() : TThread(false) {
     FreeOnTerminate = true;
 }
 
-void __fastcall LoadVialsWorkerThread::updateStatus() { // can't use args for synced method, don't know why
+void __fastcall LoadVialsJobThread::updateStatus() { // can't use args for synced method, don't know why
     frmSamples->panelLoading->Caption = loadingMessage.c_str();
     frmSamples->panelLoading->Repaint();
 }
 
-void __fastcall LoadVialsWorkerThread::Execute() {
+void __fastcall LoadVialsJobThread::Execute() {
     try {
         load();
     } catch (Exception & e) {
@@ -482,7 +482,7 @@ void __fastcall LoadVialsWorkerThread::Execute() {
     }
 }
 
-void LoadVialsWorkerThread::load() {
+void LoadVialsJobThread::load() {
     delete_referenced< vector<SampleRow * > >(frmSamples->vials);
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
     debugMessage = "preparing query"; Synchronize((TThreadMethod)&debugLog);
@@ -554,8 +554,8 @@ void LoadVialsWorkerThread::load() {
                 throw Exception("duplicate aliquot");
             } else if (row->cryo_record->getAliquotType() != secondary_aliquot) {
                 throw Exception("spurious aliquot");
-            } else { // secondary
-                previous->secondary = row;
+            } else { // secondary/backup
+                previous->backup = row;
             }
         } else {
             frmSamples->vials.push_back(row); // new primary
@@ -589,7 +589,7 @@ void LoadVialsWorkerThread::load() {
     debugMessage = "finished getting storage details"; Synchronize((TThreadMethod)&debugLog);
 }
 
-void __fastcall TfrmSamples::loadVialsWorkerThreadTerminated(TObject *Sender) {
+void __fastcall TfrmSamples::loadVialsJobThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
@@ -753,13 +753,11 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
                 // wrong! this should be the position in the plan and auto-incremented (in the DAO?) sampleRow->dest_cryo_pos,
                 sampleRow->cryo_record->getBarcode(),
                 sampleRow->cryo_record->getAliquotType(),
-                // fixme these should be filled in
                 sampleRow->store_record->getBoxID(),    //??? old_box_cid
                 sampleRow->store_record->getPosition(), //??? old_position
                 sampleRow->dest_cryo_pos,               //??? new_position
                 pid,
                 LCDbCryovialRetrieval::Status::EXPECTED
-                //0 //??slot
             );
             vial.saveRecord(qc);
         }
@@ -769,10 +767,12 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
 
     LQuery qc(LIMSDatabase::getCentralDb());
     //Saver s(frmSamples->job, qc, pid);
-    for (vector< Chunk< SampleRow > * >::const_iterator it = frmSamples->chunks.begin(); it != frmSamples->chunks.end(); it++) {
+    //for (vector< Chunk< SampleRow > * >::const_iterator it = frmSamples->chunks.begin(); it != frmSamples->chunks.end(); it++) {
+    for (auto &it : frmSamples->chunks) {
         map<int, int> boxes; // box_id to rj_box_id, per chunk
         int rj_box_cid;
-        Chunk< SampleRow > * chunk = *it;
+        //Chunk< SampleRow > * chunk = *it;
+        Chunk< SampleRow > * chunk = it;
         Saver s(frmSamples->job, qc, pid); // to start lcr.position at 1 for each chunk
         for (int i = 0; i < chunk->getSize(); i++) {
             SampleRow * sampleRow = chunk->objectAtRel(i);
@@ -780,16 +780,15 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
             s.saveSample(chunk, sampleRow, rj_box_cid);
             ostringstream oss; oss<<"Saving chunk "<<chunk->getSection()
             <<" - Primary: '"<<sampleRow->cryovial_barcode<<"'";
-            if (NULL != sampleRow->secondary) {
-                rj_box_cid = s.saveBox(chunk, boxes, sampleRow->secondary->dest_box_id);
-                s.saveSample(chunk, sampleRow->secondary, rj_box_cid);
-                oss<<", Secondary: '"<<sampleRow->secondary->cryovial_barcode<<"'";
+            if (NULL != sampleRow->backup) {
+                rj_box_cid = s.saveBox(chunk, boxes, sampleRow->backup->dest_box_id);
+                s.saveSample(chunk, sampleRow->backup, rj_box_cid);
+                oss<<", backup: '"<<sampleRow->backup->cryovial_barcode<<"'";
             }
             oss <<" ["<<i<<"/"<<chunk->getSize()<<"]";
             loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
         }
     }
-
 }
 
 void __fastcall TfrmSamples::savePlanThreadTerminated(TObject *Sender) {
@@ -798,7 +797,6 @@ void __fastcall TfrmSamples::savePlanThreadTerminated(TObject *Sender) {
     btnSave->Enabled = false;
     Enabled = true;
 }
-
 
 //                { // must go out of scope otherwise read locks db with "no mst..."
 //                    LQuery qt(LIMSDatabase::getCentralDb()); LCDbID myLCDbID;
