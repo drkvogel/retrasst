@@ -129,3 +129,10 @@ already does; inherited from RetrievalRow
     int                 structure_pos;      // c_rack_number.position as rack_pos
     string              structure_name;
     int                 box_pos;
+
+    select * from c_retrieval_job 1086654
+    select * from cryovial c, cryovial_store cs where c.cryovial_id = cs.cryovial_id and retrieval_cid = 1086654
+    select * from cryovial_store where retrieval_cid = 1086654
+    select * from c_box_retrieval where retrieval_cid = 1086654
+    SELECT cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, cbr.box_id AS dest_id, lcr.position AS lcr_position, lcr.cryovial_barcode, lcr.aliquot_type_cid, lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, lcr.slot_number AS lcr_slot, lcr.slot_number AS dest_pos FROM c_box_retrieval cbr, l_cryovial_retrieval lcr WHERE cbr.retrieval_cid = 1086650 AND cbr.rj_box_cid = lcr.rj_box_cid ORDER BY chunk, rj_box_cid, lcr_position, aliquot_type_cid
+    select * from l_cryovial_retrieval where rj_box_cid = 1086697

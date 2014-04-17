@@ -158,7 +158,14 @@ void __fastcall TfrmSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
         if (NULL == row) {
             background = clWindow;//RETRIEVAL_ASSISTANT_ERROR_COLOUR???
         } else {
-            background = RETRIEVAL_ASSISTANT_PLANNED_COLOUR;
+            if (row->backup != NULL)
+                background = RETRIEVAL_ASSISTANT_COMBINED_COLOUR;
+            else if (row->cryo_record->getAliquotType() == job->getPrimaryAliquot())
+                background = RETRIEVAL_ASSISTANT_PLANNED_COLOUR;
+            else if (row->cryo_record->getAliquotType() == job->getSecondaryAliquot())
+                background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR;
+            else
+                background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
     }
     TCanvas * cnv = sgVials->Canvas;
@@ -616,18 +623,22 @@ void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const 
 
     combined.clear();
 
+#if _WIN64
     for (auto &it : primaries) {
-    //for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
-        //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
         PosKey key(it);
         cache[key] = it; // cache combination of dest box and pos
         combined.push_back(it);
-//        SampleRow * row = *it;
-//        PosKey key(row);
-//        cache[key] = row; // cache combination of dest box and pos
-//        combined.push_back(row);
+#else
+    for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
+        //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
+        SampleRow * row = *it;
+        PosKey key(row);
+        cache[key] = row; // cache combination of dest box and pos
+        combined.push_back(row);
+#endif
     }
 
+#if _WIN64
     for (auto &it : secondaries) {
         //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
         PosKey key(it);
@@ -640,6 +651,21 @@ void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const 
             combined.push_back(it);     // add to list in its own right
         }
     }
+#else
+    for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
+        //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
+        SampleRow * row = *it;
+        PosKey key(row);
+        posCache::iterator found = cache.find(key);
+        if (found != cache.end()) { // destination box and position already used (by primary)
+            if (NULL == row)
+                throw "null in cache";
+            found->second->backup = row; // add as backup to primary
+        } else {
+            combined.push_back(row);     // add to list in its own right
+        }
+    }
+#endif
 }
 
 void __fastcall TfrmSamples::loadVialsJobThreadTerminated(TObject *Sender) {
