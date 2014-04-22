@@ -46,6 +46,7 @@ using namespace std;
 
 class RetrievalRow {
 public: //protected: ?
+    int                 project_cid;
     string              src_box_name;       // id and cryo pos are in store_record
     int                 dest_box_id;
     string              dest_box_name;
@@ -57,8 +58,8 @@ public: //protected: ?
     string              structure_name;
     int                 box_pos;
 
-    RetrievalRow(string srcnm, int dstid, string dstnm, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-        src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm),
+    RetrievalRow(int proj, string srcnm, int dstid, string dstnm, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+        project_cid(proj), src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm),
         site_name(site), vessel_pos(vsps), vessel_name(vsnm), shelf_number(shlf), structure_pos(stps), structure_name(stnm), box_pos(bxps) {}
 
     // sort functions could also be factored out; not sure if worth it
@@ -161,7 +162,10 @@ public:
                 string barc, string srcnm, int dstid, string dstnm, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
                 RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps),
-                cryo_record(cryo_rec), store_record(store_rec), retrieval_record(retrieval_rec), cryovial_barcode(barc), dest_cryo_pos(dstps), backup(NULL) {
+                cryo_record(cryo_rec),
+                store_record(store_rec),
+                retrieval_record(retrieval_rec),
+                cryovial_barcode(barc), dest_cryo_pos(dstps), backup(NULL) {
     }
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
     static bool sort_asc_srcbox(const SampleRow *a, const SampleRow *b)     { return Util::numericCompare(a->src_box_name, b->src_box_name); }
@@ -175,7 +179,6 @@ public:
     static bool sort_asc_structpos(const SampleRow *a, const SampleRow *b)  { return a->structure_pos < b->structure_pos; }
     static bool sort_asc_structure(const SampleRow *a, const SampleRow *b)  { return Util::numericCompare(a->structure_name, b->structure_name); }//return a->rack_name.compare(b->rack_name) > 0; }
     static bool sort_asc_slot(const SampleRow *a, const SampleRow *b)       { return a->box_pos < b->box_pos; }
-    //static bool sort_asc_aliquot(const SampleRow *a, const SampleRow *b)    { return a->retrieval_record->getAliType() < b->retrieval_record->getAliType(); }
     static bool sort_asc_aliquot(const SampleRow *a, const SampleRow *b)    { return a->cryo_record->getAliquotType() < b->cryo_record->getAliquotType(); }
 
     string aliquotName() {
@@ -301,11 +304,7 @@ public:
 //    void sort_dsc(string colName, int start, int end) {
 //        sort_dsc(colNameToInt(colName), start, end);
 //    }
-
 	void sort_toggle(int col, int start, int end) {
-        //wstringstream oss; oss << __FUNC__; oss<<"sorting "<<rows->size()<<" rows: start:"<<start<<", end: "<<end; //debugLog(oss.str().c_str());
-        //OutputDebugString(L"test"); //OutputDebugString(oss.str().c_str());
-        //frmSamples->debugLog(oss.str().c_str());
 		cols[col].sortAsc ? sort_asc(col, start, end) : sort_dsc(col, start, end);
         cols[col].sortAsc = !cols[col].sortAsc; // toggle
 	}
@@ -524,4 +523,6 @@ public:
 extern PACKAGE TfrmRetrievalAssistant *frmRetrievalAssistant;
 #endif
 
-// http://stackoverflow.com/questions/456713/why-do-i-get-unresolved-external-symbol-errors-when-using-templates
+//wstringstream oss; oss << __FUNC__; oss<<"sorting "<<rows->size()<<" rows: start:"<<start<<", end: "<<end; //debugLog(oss.str().c_str());
+//OutputDebugString(L"test"); //OutputDebugString(oss.str().c_str());
+//frmSamples->debugLog(oss.str().c_str());

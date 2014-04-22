@@ -62,11 +62,10 @@ public:
     LCDbCryovialRetrieval(const LQuery & query);
     LCDbCryovialRetrieval(int rjbid, int pos, std::string barcode, int aliq,
             int oldbid, int oldpos, int newpos,
-            //int pid, int st, int slot)
             int pid, int st)
         : rj_box_cid(rjbid), position(pos), cryovial_barcode(barcode), aliquot_type_cid(aliq),
         old_box_cid(oldbid), old_position(oldpos), new_position(newpos),
-        process_cid(pid), status(st) //, slot_number(slot)
+        process_cid(pid), status(st)
         {}
     bool saveRecord(LQuery query);
     enum Status { EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 }; //??? COLLECTED_SECONDARY
@@ -85,8 +84,6 @@ public:
     void    setOldPosition(int i) { old_position = i; }
     int     getNewPosition() { return new_position; }
     void    setNewPosition(int i) { new_position = i; }
-//    int     getSlot() { return slot_number; }
-//    void    setSlot(int i) { slot_number = i; }
     int     getProcessId() { return process_cid; }
     void    setProcessId(int i) { process_cid = i; }
     int     getStatus() { return status; }

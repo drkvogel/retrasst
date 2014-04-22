@@ -99,8 +99,6 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
 }
 
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
-    //delete_referenced< vector <SampleRow * > >(vials);
-    //delete_referenced< vector <SampleRow * > >(combined);
     combined.clear();
     delete_referenced< vector <SampleRow * > >(secondaries);
     delete_referenced< vector <SampleRow * > >(primaries);      // primaries may reference secondaries, so delete them last
@@ -532,8 +530,7 @@ void LoadVialsJobThread::load() {
         "  c.cryovial_id = s1.cryovial_id AND"
         "  b1.box_cid = s1.box_cid AND"
         "  s1.cryovial_id = s2.cryovial_id AND"
-        "  s2.status = 0 AND"
-        //"  b1.status != 99 AND b2.status != 99 AND"
+        "  s2.status = 0 AND" //"  b1.status != 99 AND b2.status != 99 AND"
         "  b2.box_cid = s2.box_cid AND" //"  aliquot_type_cid = :aliquotID AND"
         "  s1.retrieval_cid = :jobID"
         " ORDER BY"
@@ -623,38 +620,14 @@ void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const 
     posCache cache;
 
     combined.clear();
-
-#if _WIN64
-    for (auto &it : primaries) {
-        PosKey key(it);
-        cache[key] = it; // cache combination of dest box and pos
-        combined.push_back(it);
-#else
     for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
-        //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
         SampleRow * row = *it;
         PosKey key(row);
         cache[key] = row; // cache combination of dest box and pos
         combined.push_back(row);
-#endif
     }
 
-#if _WIN64
-    for (auto &it : secondaries) {
-        //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
-        PosKey key(it);
-        posCache::iterator found = cache.find(key);
-        if (found != cache.end()) { // destination box and position already used (by primary)
-            if (NULL == it)
-                throw "null in cache";
-            found->second->backup = it; // add as backup to primary
-        } else {
-            combined.push_back(it);     // add to list in its own right
-        }
-    }
-#else
     for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
-        //PosKey key(it->dest_cryo_pos, it->retrieval_record->getRJBId());
         SampleRow * row = *it;
         PosKey key(row);
         posCache::iterator found = cache.find(key);
@@ -666,11 +639,9 @@ void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const 
             combined.push_back(row);     // add to list in its own right
         }
     }
-#endif
 }
 
 void __fastcall TfrmSamples::loadVialsJobThreadTerminated(TObject *Sender) {
-    //combineAliquots(primaries, secondaries, combined);
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
@@ -737,9 +708,9 @@ void __fastcall TfrmSamples::timerCalculateTimer(TObject *Sender) {
 }
 
 void TfrmSamples::calcSizes() {
-    /** calculate possible chunk (section) sizes
-    slot/box (where c_box_size.box_size_cid = c_box_content.box_size_cid) (where does box_content come from?)
-    As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box */
+/** calculate possible chunk (section) sizes
+slot/box (where c_box_size.box_size_cid = c_box_content.box_size_cid) (where does box_content come from?)
+As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box */
     comboSectionSize->Clear();
     int possibleChunkSize = box_size; // smallest chunk
     while (possibleChunkSize <= editMaxSize->Text.ToIntDef(0)) {
@@ -848,12 +819,12 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
 
     LQuery qc(LIMSDatabase::getCentralDb());
     //Saver s(frmSamples->job, qc, pid);
-    //for (vector< Chunk< SampleRow > * >::const_iterator it = frmSamples->chunks.begin(); it != frmSamples->chunks.end(); it++) {
-    for (auto &it : frmSamples->chunks) {
+    for (vector< Chunk< SampleRow > * >::const_iterator it = frmSamples->chunks.begin(); it != frmSamples->chunks.end(); it++) {
+    //for (auto &it : frmSamples->chunks) {
         map<int, int> boxes; // box_id to rj_box_id, per chunk
         int rj_box_cid;
-        //Chunk< SampleRow > * chunk = *it;
-        Chunk< SampleRow > * chunk = it;
+        Chunk< SampleRow > * chunk = *it;
+        //Chunk< SampleRow > * chunk = it;
         Saver s(frmSamples->job, qc, pid); // to start lcr.position at 1 for each chunk
         for (int i = 0; i < chunk->getSize(); i++) {
             SampleRow * sampleRow = chunk->objectAtRel(i);
@@ -910,3 +881,18 @@ void __fastcall TfrmSamples::savePlanThreadTerminated(TObject *Sender) {
 //	openSection( "", false );
 //	buddyID = findValue( "Buddy ID", 0 );
 //    LIMSParams::openSection();
+
+/*
+#if _WIN64
+    for (auto &it : primaries) {
+        PosKey key(it);
+        cache[key] = it; // cache combination of dest box and pos
+        combined.push_back(it);
+#else
+    for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
+        SampleRow * row = *it;
+        PosKey key(row);
+        cache[key] = row; // cache combination of dest box and pos
+        combined.push_back(row);
+#endif
+*/
