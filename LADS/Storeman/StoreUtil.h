@@ -19,42 +19,13 @@
 
 template<typename Container>
 void delete_referenced(Container& c) {
-    while (!c.empty()) delete c.back(), c.pop_back();
-}
-
-/** Helper class to sort a vector of type T via sort functions defined in intializer
-    Sorts explicitly ascending or descending, or toggle last sort order
-
-    Initialize like this:
-
-    Sorter<T> sorter[NUMCOLS] = {
-        { T::sort_asc_col1,   T::sort_desc_col1,  "column name" },
-        ...
+    while (!c.empty()) {
+        if (NULL != c.back()) {
+            delete c.back();
+        }
+        c.pop_back();
     }
-
-    Where the sort functions are defined like this (e.g.):
-
-    bool sort_asc_col1(const T *a, const T *b)    { return Util::numericCompare(a->member1, b->member1); }
-
-    Use like this:
-
-    sorter[col].sort_asc(std::vector<T *>);     // sort ascending
-    sorter[col].sort_dsc(std::vector<T *>);     // sort descending
-    sorter[col].sort_toggle(std::vector<T *>);  // sort the opposite way to the last call
-*/
-
-//template <class T>
-//class Sorter {
-//public:
-//    bool (*sort_func_asc)(const T *, const T *); // ascending sort function
-//    std::string description;
-//    enum SortOrder { ASCENDING, DESCENDING, TOGGLE };
-//    void sort_asc(std::vector<T *> & vec) { std::sort(vec.begin(), vec.end(), sort_func_asc); }
-//    void sort_dsc(std::vector<T *> & vec) { std::sort(vec.rbegin(), vec.rend(), sort_func_asc);  }
-//    void sort_toggle(std::vector<T *> & vec) { last_sort_descending ? sort_asc(vec) : sort_dsc(vec); last_sort_descending = !last_sort_descending; }
-//private:
-//    bool last_sort_descending; // default: false
-//};
+}
 
 class Util
 {

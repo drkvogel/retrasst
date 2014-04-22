@@ -101,8 +101,9 @@ void __fastcall TfrmSamples::FormShow(TObject *Sender) {
 void __fastcall TfrmSamples::FormClose(TObject *Sender, TCloseAction &Action) {
     //delete_referenced< vector <SampleRow * > >(vials);
     //delete_referenced< vector <SampleRow * > >(combined);
-    delete_referenced< vector <SampleRow * > >(primaries);
+    combined.clear();
     delete_referenced< vector <SampleRow * > >(secondaries);
+    delete_referenced< vector <SampleRow * > >(primaries);      // primaries may reference secondaries, so delete them last
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
 }
 
@@ -212,6 +213,7 @@ void __fastcall TfrmSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, in
 
 void __fastcall TfrmSamples::sgVialsClick(TObject *Sender) {
     SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
+    debugLog("");
     sample?debugLog(sample->str().c_str()):debugLog("NULL sample");
     sample->backup?debugLog(sample->backup->str().c_str()):debugLog("NULL backup");
 }
@@ -491,10 +493,9 @@ void __fastcall LoadVialsJobThread::Execute() {
 }
 
 void LoadVialsJobThread::load() {
-    //delete_referenced< vector<SampleRow * > >(frmSamples->vials);
-    delete_referenced< vector<SampleRow * > >(frmSamples->combined);
-    delete_referenced< vector<SampleRow * > >(frmSamples->primaries);
+    frmSamples->combined.clear(); // only contains copies of primaries and secondaries
     delete_referenced< vector<SampleRow * > >(frmSamples->secondaries);
+    delete_referenced< vector<SampleRow * > >(frmSamples->primaries);  // primaries may refer to secondaries
 
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
     debugMessage = "preparing query"; Synchronize((TThreadMethod)&debugLog);
@@ -691,7 +692,7 @@ void __fastcall TfrmSamples::loadVialsJobThreadTerminated(TObject *Sender) {
     addChunk(0); // default chunk
     showChunks();
     showChunk();
-    Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
+    if (!RETRASSTDEBUG) Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
     Enabled = true;
 }
 

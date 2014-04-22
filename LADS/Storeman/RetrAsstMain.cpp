@@ -154,10 +154,11 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
 }
 
 void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
-    ostringstream oss; oss << __FUNC__;
+    ostringstream oss; oss;// << __FUNC__;
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
     if (NULL == job) return;
-    oss << endl << "job: projectid: "<<job->getProjectID()<<", status: "<<(job->getStatus())<<sgwJobs->printColWidths();
+    oss << endl << "job: "<<job->getID()<<", projectid: "<<job->getProjectID()<<", status: "<<(job->getStatus());
+    //oss<<sgwJobs->printColWidths();
     debugLog(oss.str().c_str());
 }
 
