@@ -514,6 +514,7 @@ void LoadVialsJobThread::load() {
     if (0 == rowCount) return;
     oss.str(""); oss << // actual query now we know there are some rows
         "SELECT"
+        "  b1.project_cid,"
 		"  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
         "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
         "  c.cryovial_barcode,"
@@ -524,7 +525,7 @@ void LoadVialsJobThread::load() {
         "  b2.external_name as dest_name,"
         "  s2.cryovial_position as dest_pos"
         " FROM"
-        "  cryovial c, cryovial_store s1, box_name b1,"
+        "  cryovial c, cryovial_store s1, c_box_name b1,"
         "  cryovial_store s2, box_name b2"
         " WHERE"
         "  c.cryovial_id = s1.cryovial_id AND"
@@ -548,6 +549,7 @@ void LoadVialsJobThread::load() {
             Synchronize((TThreadMethod)&updateStatus);
         }
         SampleRow * row = new SampleRow(
+            qd.readInt(     "project_cid"),
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
             NULL,

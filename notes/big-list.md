@@ -2,6 +2,40 @@
 
 2014-04-08 Set `vnode_vlab` to point to `vlabdev`. `vlab` should be used for testing, as queries are slower on this VM than on `vlabdev`, probably because it has less memory.
 
+## deal with jobs containing vials/boxes from multiple projects
+
+    select * from c_retrieval_job where retrieval_cid = 1086786
+
+    project_cid = -659 (HPS, t_ldb3)
+
+`project_cid`: _"project boxes/vials are from (-1: not known; 0: more than one project)"_
+
+has each SampleRow got project_cid stored somewhere? no to all of these...:
+
+    LPDbCryovial
+    LPDbCryovialStore
+    LCDbCryovialRetrieval
+    .
+
+`c_box_name` has it (used in collect samples) - plan samples should use it and record project_cid in SampleRow...
+
+`Retrieval/Box/SampleRow` objects didn't record `project_cid` - now they do. 
+
+The correct star database (`*_ddb`) should be selected to collect details from the correct
+
+    cryovial
+    cryovial_store
+
+And `StoreDAO::findBox()`? No, this gets data from `c_slot_allocation`, `c_rack_number`, `c_tank_map`, `c_object_name`, all central databases.
+
+Should use `TfrmRetrievalAssistant::getStorage()` which caches storage locations application-wide (what about when storage locations change? cache should be invalidated e.g. on return to main Retrieval Assistant screen).
+
+`TfrmRetrievalAssistant::getStorage()` calls `StoreDAO::findBox()` but maintains a cache map.
+
+
+
+
+
 ### chunk finished
 
 At the end of chunk, check if the chunk is actually finished (no REFERRED vials). If finished:

@@ -406,6 +406,7 @@ void __fastcall LoadPlanThread::Execute() {
 
     oss<<
         " SELECT "
+        "    db.project_cid," // project of destination box (db) or source (sb)?
         "    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, cbr.box_id AS dest_id, "//cbr.status, "
         "    lcr.position AS lcr_position, lcr.cryovial_barcode, lcr.aliquot_type_cid, "
         "    lcr.old_box_cid, lcr.old_position, lcr.new_position, "
@@ -448,6 +449,7 @@ void __fastcall LoadPlanThread::Execute() {
         }
 
         SampleRow * row = new SampleRow(
+            qd.readInt(     "project_cid"),
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
             new LCDbCryovialRetrieval(qd), // fixme

@@ -54,6 +54,7 @@ Set status = 1 when the position's confirmed */
     LQuery q(Util::projectQuery(frmBoxes->job->getProjectID(), true)); // get ddb
     q.setSQL(
         "SELECT"
+        "   b.project_cid" // should be from c_box_name, not box_name
         "   bs.box_cid, bs.rack_cid, b.status, bs.process_cid,"
         "   b.external_name as box, s.external_name as site, m.position,"
         "   v.external_full as vessel, m.shelf_number, r.external_name as rack,"
@@ -84,6 +85,7 @@ Set status = 1 when the position's confirmed */
             "", 0, "", 0, 0, "", 0 ); // no storage details yet*/
 //BoxRow(LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps)
         BoxRow * box = new BoxRow(
+            q.readInt("project_cid"),
             store,
             q.readString("box"),
             0, //q.readInt("box_cid"),

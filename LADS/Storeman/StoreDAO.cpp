@@ -712,7 +712,8 @@ bool StoreDAO::findBox( int box_id, int proj_id, ROSETTA & result )
 			" WHERE box_cid = :bid AND bs.status in (1, 2, 6)" 		// current box position
 			" AND bs.rack_cid = r.rack_cid AND r.tank_cid = m.tank_cid AND m.storage_cid = v.object_cid"
 			" AND m.location_cid = l.object_cid AND m.status=0"; 	// population on-line
-	LQuery pQuery = Util::projectQuery(proj_id, true);
+	//LQuery pQuery = Util::projectQuery(proj_id, true);
+    LQuery pQuery = LIMSDatabase::getCentralDb(); // don't need project db, all tables are in central
 	pQuery.setSQL( sql );
 	pQuery.setParam( "bid", box_id );
 	if( pQuery.open() ) {

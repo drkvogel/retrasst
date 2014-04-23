@@ -118,8 +118,8 @@ class BoxRow : public RetrievalRow {
 public:
     LCDbBoxStore * store_record; // public LPDbID //LPDbBoxName ?? getStatus
 
-    BoxRow(LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-        store_record(rec), RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps) {
+    BoxRow(int proj, LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+        store_record(rec), RetrievalRow(proj, srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps) {
     }
     ~BoxRow() { if (store_record) delete store_record; }
 
@@ -158,10 +158,10 @@ public:
         if (backup) delete backup;
         if (retrieval_record) delete retrieval_record;
     }
-    SampleRow(  LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
+    SampleRow(  int proj, LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
                 string barc, string srcnm, int dstid, string dstnm, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-                RetrievalRow(srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps),
+                RetrievalRow(proj, srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps),
                 cryo_record(cryo_rec),
                 store_record(store_rec),
                 retrieval_record(retrieval_rec),
@@ -187,6 +187,7 @@ public:
     string str() {
         ostringstream oss; oss
             <<"id: "<<(store_record->getID())<<", " //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position// <<"status: "<<(store_record->getStatus())<<", " // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position //<<"barcode: "<<store_record->getBarcode() //<<"sampleID"<<cryo_record->getSampleID() //<<"aliquot type ID"<<cryo_record->getAliquotType()
+            <<"proj: "<<(project_cid)<<", "
             <<"status: "<<store_record->getStatus()<<", "
             <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquotName()<<", "
             <<"src: {"<<store_record->getBoxID()<<", "<<src_box_name<<"["<<store_record->getPosition()<<"]}, "

@@ -394,7 +394,7 @@ bool Util::secondaryIndexExists(int project_cid, std::string indexName, bool exa
 }
 
 bool Util::statsOnColumn(int project_cid, std::string tableName, std::string colName) {
-    // determine whether stats are set on cryovial_store table
+/** determine whether stats are set on cryovial_store table */
     int stat_count;
     const char * select_stats =
         "SELECT COUNT(*) FROM iistatistics s JOIN iirelation r"

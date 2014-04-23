@@ -115,7 +115,7 @@ private:
     vecpSampleRow                               vials;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks; //std::auto_ptr< StringGridWrapper< Chunk< SampleRow > > >  sgwChunks;
     StringGridWrapper<SampleRow> *              sgwVials;
-    void                                        getStorage(SampleRow * sample);
+    //void                                        getStorage(SampleRow * sample); // use TfrmRetrievalAssistant::getStorage()
     void                                        showChunks();
     void                                        loadPlan();
     Chunk< SampleRow > *                        currentChunk();
