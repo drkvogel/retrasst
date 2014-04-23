@@ -9,6 +9,7 @@
 #include "LPDbCryovialStore.h"
 #include "LPDbBoxes.h"
 #include "LCDbRetrieval.h"
+#include "RetrAsstMain.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -491,14 +492,18 @@ void __fastcall LoadVialsJobThread::Execute() {
 }
 
 void LoadVialsJobThread::load() {
+    job = frmSamples->job;
+
     frmSamples->combined.clear(); // only contains copies of primaries and secondaries
     delete_referenced< vector<SampleRow * > >(frmSamples->secondaries);
     delete_referenced< vector<SampleRow * > >(frmSamples->primaries);  // primaries may refer to secondaries
 
     ostringstream oss; oss<<frmSamples->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
+    oss.str(""); oss<<"loading retrieval job id: "<<job->getID()<<", project: "<<job->getProjectID();
+    debugMessage = oss.str().c_str(); Synchronize((TThreadMethod)&debugLog);
     debugMessage = "preparing query"; Synchronize((TThreadMethod)&debugLog);
     loadingMessage = frmSamples->loadingMessage;
-    job = frmSamples->job;
+
     const int primary_aliquot     = job->getPrimaryAliquot();
     const int secondary_aliquot   = job->getSecondaryAliquot();
 
@@ -579,22 +584,13 @@ void LoadVialsJobThread::load() {
     combineAliquots(frmSamples->primaries, frmSamples->secondaries, frmSamples->combined);
 
     // find locations of source boxes
-    map<int, const SampleRow *> samples; ROSETTA result; StoreDAO dao; int rowCount2 = 0;
+    int rowCount2 = 0;
 	for (vector<SampleRow *>::iterator it = frmSamples->combined.begin(); it != frmSamples->combined.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
-        map<int, const SampleRow *>::iterator found = samples.find(sample->store_record->getBoxID());
-        if (found != samples.end()) { // fill in box location from cache map
-            sample->copyLocation(*(found->second));
-            oss<<sample->storage_str(); oss<<" (cached)";
-        } else {
-            if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
-                sample->copyLocation(result);
-            } else {
-                sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
-            }
-            samples[sample->store_record->getBoxID()] = (*it); // cache result
-            oss<<sample->storage_str(); oss<<"         ";
+        frmRetrievalAssistant->getStorage(sample);
+        if (NULL != sample->backup) {
+            frmRetrievalAssistant->getStorage(sample->backup);
         }
         loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 	}

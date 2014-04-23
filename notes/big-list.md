@@ -2,7 +2,7 @@
 
 2014-04-08 Set `vnode_vlab` to point to `vlabdev`. `vlab` should be used for testing, as queries are slower on this VM than on `vlabdev`, probably because it has less memory.
 
-## deal with jobs containing vials/boxes from multiple projects
+### deal with jobs containing vials/boxes from multiple projects
 
     select * from c_retrieval_job where retrieval_cid = 1086786
 
@@ -32,7 +32,60 @@ Should use `TfrmRetrievalAssistant::getStorage()` which caches storage locations
 
 `TfrmRetrievalAssistant::getStorage()` calls `StoreDAO::findBox()` but maintains a cache map.
 
+#### not found source locations
 
+`retrieval_cid` 1086786 "HPS samples into mixed boxes"
+
+All source locations are 'not found'. 
+
+`project_cid` is -659 (`dev_hps`, `t_ldb3`)
+
+WHY???
+
+ * 1st, `LoadVialsJobThread::load()` uses its own `StoreDAO dao`
+     - `LoadPlanThread::Execute()` uses `frmRetrievalAssistant->getStorage()`
+     - OK, now `LoadVialsJobThread::load()` uses `getStorage()` as well - at least debugging in same place (`StoreDAO::findBox()`)
+ 
+ LoadVialsJobThread::load()
+    frmRetrievalAssistant->getStorage(sample);
+    TfrmRetrievalAssistant::getStorage(SampleRow * sample) (sample->project_cid -659, (sample->store_record)->boxID -53855)
+        storageCache.find(sample->store_record->getBoxID())
+        dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result))
+            `box_id`:  -53855 
+            `proj_id`: -659
+        doesn't find storage details.
+
+It's in `c_box_name`: 
+
+    select * from c_box_name where box_cid = -53855
+
+and in `t_ldb3`: 
+
+    select * from box_name where box_cid = -53855
+
+but no storage details - is this correct?
+
+(sample->store_record)->boxID -53857 found though, in same job - where did this come from?
+
+##### job 1086789 "Add in the samples for SEARCH"
+
+project -213
+
+(sample->store_record)->boxID -625584 found in `c_box_name`, storage details found
+
+(sample->store_record)->boxID -40191  found in `c_box_name`  storage details not found
+    -40191 found in `c_slot_allocation`
+    joins with `c_rack_number` on `rack_cid`
+    and `c_tank_map` on `tank_cid`
+    and `c_object_name` on `m.storage_cid`
+
+it's (at least) `m.status = 0` that's doing it here - status is instead 1.
+
+`c_tank_map.status` [0: expected; 1: in use; 5: off line; 99: mapping deleted]
+
+
+
+Are secondaries missing? Source and destination positions go 1, 3, 5 etc.
 
 
 
