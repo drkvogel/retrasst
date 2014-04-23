@@ -548,14 +548,6 @@ const TestResult*&  TestResultIterator::dereference() const
     return m_impl->dereference();
 }
 
-UserAdvisor::UserAdvisor()
-{
-}
-
-UserAdvisor::~UserAdvisor()
-{
-}
-
 
 RuleDescriptor::RuleDescriptor( int recordID, int ruleID, const std::string& uniqueName, const std::string& desc )
     :

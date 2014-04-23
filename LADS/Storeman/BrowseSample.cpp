@@ -32,13 +32,9 @@ void TfrmBrowse::init( IPart * data, bool p_browse_only )
 	if( sites != NULL ) {
 		delete sites;
 	}
-	if( data == NULL ) {
-		sites = PartFactory( true, true ).createSiteList();
-	} else {
-		sites = data;
-	}
 	SampleTree->Items->Add( NULL, "Site List" );
 	TTreeNode* parent = SampleTree->Items->GetFirstNode();
+	sites = data;
 	parent->Data = sites;
 	Util::InitPropertyGrid( grdProps );
 	Util::ShowTreeNode( SampleTree, parent, true, true );
@@ -70,7 +66,8 @@ void __fastcall TfrmBrowse::TreeClick(TObject *Sender)
 			if( node->Count < 1 ) {
 				Util::ShowTreeNode( SampleTree, node, true, true );
 			}
-			Util::ShowPropertyGrid(grdProps, data);
+//			Util::ShowPropertyGrid(grdProps, data);
+			data->showProperties( grdProps );
 		}
 		ShowMoveButton( data );
 	}
@@ -137,7 +134,6 @@ void __fastcall TfrmBrowse::BtnFindClick(TObject *Sender)
 		pf.addBox( box );
 		init( pf.createSiteList(), true );
 		expandSubTree( SampleTree -> Items -> GetFirstNode(), box->getName().c_str() );
-		delete box;
 	}
 }
 

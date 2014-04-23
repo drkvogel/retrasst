@@ -8,6 +8,7 @@
 #include "LDbRange.h"
 #include "LIMSDatabase.h"
 #include "BrowseSample.h"
+#include "LCDbObject.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -64,9 +65,9 @@ void TfrmSelectJob::initMoveJobs() {
 	LCDbCryoJobs &jobs = LCDbCryoJobs::records();
 	jobs.read( LIMSDatabase::getCentralDb(), LCDbCryoJob::BOX_MOVE, false );
 	int row = grdJobs->FixedRows;
-	for( Range< LCDbCryoJob > jr = jobs; jr.isValid( ); ++jr ) {
-		if( jr->isAvailable() && jr -> getStatus() < LCDbCryoJob::DONE ) {
-			writeJob( *jr, row++ );
+	for( const LCDbCryoJob & jr : jobs ) {
+		if( jr.isAvailable() && jr.getStatus() < LCDbCryoJob::DONE ) {
+			writeJob( jr, row++ );
 		}
 	}
 	grdJobs->RowCount = row + 1;
@@ -79,8 +80,21 @@ void TfrmSelectJob::initMoveJobs() {
 void TfrmSelectJob::writeJob( const LCDbCryoJob &job, int row ) {
 	grdJobs->Cells[ JOB_NAME ][ row ] = job.getName( ).c_str( );
 	grdJobs->Cells[ DESCRIPTION ][ row ] = job.getDescription( ).c_str( );
-	grdJobs->Cells[ START_DATE ][ row ] = job.getStartDate( );
-	grdJobs->Cells[ EXERCISE ][ row ] = job.getReason( ).c_str();
+	TDateTime start = job.getStartDate();
+	if( EPOCH_START < start && EPOCH_END > start ) {
+		grdJobs->Cells[ START_DATE ][ row ] = start;
+	} else {
+		grdJobs->Cells[ START_DATE ][ row ] = "";
+	}
+	const LCDbObject * exName = NULL;
+	if( job.getExercise() != 0 ) {
+		exName = LCDbObjects::records().findByID( job.getExercise() );
+	}
+	if( exName != NULL ) {
+		grdJobs->Cells[ EXERCISE ][ row ] = exName->getName().c_str();
+	} else {
+		grdJobs->Cells[ EXERCISE ][ row ] = "";
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -97,8 +111,10 @@ void __fastcall TfrmSelectJob::btnOpenJobClick( TObject *Sender ) {
 
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmSelectJob::btnNewJobClick( TObject *Sender ) {
-	frmBrowse->init( NULL, false );
+void __fastcall TfrmSelectJob::btnNewJobClick( TObject *Sender )
+{
+	PartFactory pf( true, true );
+	frmBrowse->init( pf.createSiteList(), false );
 	record = NULL;
 	ModalResult = frmBrowse->ShowModal( );
 }

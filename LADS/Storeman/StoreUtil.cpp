@@ -57,7 +57,7 @@ void Util::InitPropertyGrid( TStringGrid *grdProps )
 }
 
 //---------------------------------------------------------------------------
-
+/*
 void Util::ShowPropertyGrid(TStringGrid *grdProps, IPart* data)
 {
 	std::auto_ptr<ROSETTA> r = data->getProperties();
@@ -73,7 +73,7 @@ void Util::ShowPropertyGrid(TStringGrid *grdProps, IPart* data)
 	}
 	grdProps->RowCount = grdProps->FixedRows + row;
 }
-
+*/
 //---------------------------------------------------------------------------
 
 const char * Util::split( const char * fieldName )
@@ -144,18 +144,17 @@ void Util::ShowTreeNode( TTreeView* tree, TTreeNode* parent, bool showGaps, bool
 	if( data -> getChildCount() > 0 ) {
 		char buff[ 20 ];
 		short next = 1;
-		const std::vector<IPart*> & list = data -> getList();
-		for( std::vector<IPart*>::const_iterator li = list.begin(); li != list.end(); ++ li ) {
+		for( IPart* li : data -> getList() ) {
 			if( showGaps ) {
-				while( next < (**li).getPosition() ) {
+				while( next < li->getPosition() ) {
 					std::sprintf( buff, "(%d)", next );
 					tree -> Items -> AddChild( parent, buff );
 					next ++;
 				}
 			}
-			String label = (**li).getName().c_str();
-			tree -> Items -> AddChildObject( parent, label, *li );
-			next = (**li).getPosition() + 1;
+			String label = li->getName().c_str();
+			tree -> Items -> AddChildObject( parent, label, li );
+			next = li->getPosition() + 1;
 		}
 		if( showGaps ) {
 			while( data -> getCapacity() >= next ) {

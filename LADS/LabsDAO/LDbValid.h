@@ -3,6 +3,12 @@
 
 #include <System.hpp>
 #include <utility>
+#include "xtime.h"
+
+//---------------------------------------------------------------------------
+
+// Ingres, C, XTIME and the labs databases only agree on recent dates
+static const XDATE EPOCH_START( 1980, 1, 1 ), EPOCH_END( 2037, 12, 31 );
 
 //---------------------------------------------------------------------------
 

@@ -434,7 +434,7 @@ void TfrmBoxList::setExpected( int row, int expected )
 {
 	BoxType &clicked = types[ row - 1 ];
 	clicked.setExpectedUses( expected );
-	clicked.saveRecord( LIMSDatabase::getProjectDb() );
+	clicked.saveRecord( LIMSDatabase::getProjectDb(), LIMSDatabase::getCentralDb() );
 	sgBoxTypes->Cells[ COUNT ][ row ] = expected;
 }
 

@@ -39,7 +39,8 @@ bool LCDbBoxSizes::read( LQuery cQuery, bool readAll )
 					  " order by box_size_cid" );
 	else
 	{	cQuery.setSQL( "select * from c_box_size"
-					  " where status <> :sts and 'now' between valid_from and valid_to"
+					  " where status <> :sts and valid_from < 'now' "
+					  " and (valid_to < valid_from or valid_to > 'now')"
 					  " order by box_size_cid" );
 		cQuery.setParam( "sts", LDbValid::DELETED );
 	}

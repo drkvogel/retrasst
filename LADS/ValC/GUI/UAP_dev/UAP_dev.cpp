@@ -4,7 +4,7 @@
 #pragma hdrstop
 #include <tchar.h>
 //---------------------------------------------------------------------------
-USEFORM("MainFrm.cpp", MainForm);
+USEFORM("TMainForm.cpp", MainForm);
 //---------------------------------------------------------------------------
 extern "C" int FMXmain()
 {

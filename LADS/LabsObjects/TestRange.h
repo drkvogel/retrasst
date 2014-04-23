@@ -46,20 +46,17 @@ public:
 	ResultRange( const std::string & min, const std::string & max ) : low( min ), high( max )
 	{}
 
-	template< typename T > ResultRange & operator= ( const std::pair< T, T > & range )
-	{
+	template< typename T > ResultRange & operator= ( const std::pair< T, T > & range ) {
 		low = range.first;
 		high = range.second;
 		return *this;
 	}
 
-	std::pair< double, double > asDoubles() const
-	{
+	std::pair< double, double > asDoubles() const {
 		return std::pair< double, double >( low.asDouble(), high.asDouble() );
 	}
 
-	std::pair< std::string, std::string > asStrings() const
-	{
+	std::pair< std::string, std::string > asStrings() const {
 		return std::pair< std::string, std::string >( low.asString(), high.asString() );
 	}
 

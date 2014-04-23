@@ -572,7 +572,7 @@ void RetrievalListDatabase::toReadableDateString(String &dateString)
 	}
 		try
 		{	char buff[ 30 ];
-			XTIME dt( dateString );
+			XTIME dt( AnsiString(dateString).c_str() );
 			std::sprintf( buff, "%d:%.2d %d-%s-%d",
 				dt.getHour(), dt.getMinute(), dt.getDay(), dt.getMonthName().c_str(), dt.getYear() );
 			dateString = buff;

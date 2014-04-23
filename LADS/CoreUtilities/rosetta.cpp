@@ -1290,6 +1290,13 @@ void ROSETTA::makeLowerCase( std::string *s )
 	std::transform( s->begin(), s->end(), s->begin(), rosettaMakeLower );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+std::string ROSETTA::toLowerCase( const std::string s )
+{
+	std::string	tmp = s;
+	ROSETTA::makeLowerCase( &tmp );
+	return( tmp );
+}
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void ROSETTA::makeUpperCase( std::string *s )
 {
 	if ( NULL == s )

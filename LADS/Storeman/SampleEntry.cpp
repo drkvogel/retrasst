@@ -265,18 +265,21 @@ void TfrmRetrieveMain::checkBoxTypes()
 	}
 	cbBoxType -> Clear();
 	int selected = -1;
-	for( Range< LPDbBoxType > bt = LPDbBoxTypes::records(); bt.isValid(); ++ bt ) {
-		bool include = true;
-		for( std::set< int >::const_iterator ge = required.begin(); ge != required.end(); ++ ge ) {
-			if( !bt->hasAliquot( *ge ) ) {
-				include = false;
+	for( const LPDbBoxType & bt : LPDbBoxTypes::records() ) {
+		if( bt.getProjectCID() == LCDbProjects::getCurrentID() ) {
+			bool include = true;
+			for( int ge : required ) {
+				if( !bt.hasAliquot( ge ) ) {
+					include = false;
+				}
 			}
-		}
-		if( include ) {
-			if( current.AnsiCompareIC( bt->getName().c_str() ) == 0 ) {
-				selected = cbBoxType -> Items -> Count;
+			if( include ) {
+				AnsiString type = bt.getName().c_str();
+				if( current.AnsiCompareIC( type ) == 0 ) {
+					selected = cbBoxType -> Items -> Count;
+				}
+				cbBoxType -> Items -> Add( type );
 			}
-			cbBoxType -> Items -> Add( bt->getName().c_str() );
 		}
 	}
 	cbBoxType -> ItemIndex = selected;
@@ -296,7 +299,7 @@ void __fastcall TfrmRetrieveMain::btnLocateClick(TObject *Sender)
 			ge->copyLocation( *(found->second) );
 		} else {
 			ROSETTA result;
-			if( StoreDAO().findBox( boxID, LCDbProjects::getCurrentID(), result ) ) {
+			if( StoreDAO().findBox( boxID, result ) ) {
 				ge->copyLocation( result );
 			}
 			boxes[ boxID ] = &(*ge);
@@ -513,7 +516,7 @@ void __fastcall TfrmRetrieveMain::btnNewContentClick(TObject *Sender)
 	if( frmNewBoxType -> ShowModal() == mrOk ) {
 		LPDbBoxType created = frmNewBoxType -> getDetails();
 		created.setUse( LPDbBoxType::ANALYSIS );
-		created.saveRecord( LIMSDatabase::getProjectDb( pp->getID() ) );
+		created.saveRecord( LIMSDatabase::getProjectDb( pp->getID() ), LIMSDatabase::getCentralDb() );
 		cbBoxType->Text = created.getName().c_str();
 		checkBoxTypes();
 	}

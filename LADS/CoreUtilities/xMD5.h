@@ -43,6 +43,7 @@ public:
 	static	bool 	calcSz( XMD5_DIGEST *m, const char *txt );
 	static	std::string 	calcHex( const char *txt );
 	static	std::string 	calcHex( const unsigned char *buf, const int len);
+	static	std::string 	calcFileHex( const std::string filename );
 };
 /*===========================================================================*/
 #endif 								// XMD5.H

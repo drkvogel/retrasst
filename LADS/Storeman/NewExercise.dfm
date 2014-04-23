@@ -2,9 +2,10 @@ object frmNewExercise: TfrmNewExercise
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
   Caption = 'Start New Storage Exercise'
-  ClientHeight = 118
-  ClientWidth = 442
+  ClientHeight = 128
+  ClientWidth = 452
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,6 +13,7 @@ object frmNewExercise: TfrmNewExercise
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = True
+  Position = poOwnerFormCenter
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

@@ -392,14 +392,15 @@ void StoreDAO::loadRackOccupancy( int rack_cid, std::set< int > & occupied )
 		occupied.insert( cQuery.readInt( 0 ) );
 }
 
-void StoreDAO::loadBoxDetails( const std::string & barcode, const std::string & box_type, int proj_id, ROSETTA & result )
+bool StoreDAO::loadBoxDetails( const std::string & barcode, const std::string & box_type, int proj_id, ROSETTA & result )
 {
 	LQuery cq( LIMSDatabase::getCentralDb() );
-	cq.setSQL( "select b.box_cid, barcode, b.external_name, b.project_cid, box_capacity, s.*, c.box_type_cid"
-			   " from c_slot_allocation s, c_box_name b, c_box_content c"
-			   " where b.box_cid = s.box_cid and b.box_type_cid = c.box_type_cid"
-			   " and barcode = :bar and b.project_cid = :proj and c.external_name = :bt"
-			   " and s.status not in ( :rmv, :del )" );
+	cq.setSQL( "select b.box_cid, b.external_name, barcode, b.box_type_cid, box_capacity, b.project_cid,"
+			  " s.slot_cid, s.rack_cid, s.slot_position, s.retrieval_cid, s.status"
+			  " from c_box_name b left join c_box_content c on b.box_type_cid = c.box_type_cid"
+			  " left join c_slot_allocation s on b.box_cid = s.box_cid"
+			  " where b.barcode = :bar and b.project_cid = :proj and c.external_name = :bt"
+			  " and s.status not in ( :rmv, :del )" );
 	cq.setParam( "bar", barcode );
 	cq.setParam( "bt", box_type );
 	cq.setParam( "proj", proj_id );
@@ -407,28 +408,39 @@ void StoreDAO::loadBoxDetails( const std::string & barcode, const std::string & 
 	cq.setParam( "del", LCDbBoxStore::DELETED );
 	if( cq.open() ) {
 		result = cq.getRecord();
-	}
+		return true;
+	} else {
+		return false;
+    }
 }
 
-void StoreDAO::loadBoxDetails( int box_id, int proj_id, ROSETTA & result )
+bool StoreDAO::loadBoxDetails( int box_id, ROSETTA & result )
 {
 	LQuery cq( LIMSDatabase::getCentralDb() );
-	cq.setSQL( "select * from c_slot_allocation s, c_box_name b where b.box_cid = s.box_cid"
-			   " and b.box_cid = :bid and b.project_cid = :proj and s.status not in ( :rmv, :del )" );
+	cq.setSQL( "select b.box_cid, b.external_name, barcode, box_type_cid, box_capacity, b.project_cid,"
+			  " s.slot_cid, s.rack_cid, s.slot_position, retrieval_cid, s.status"
+			  " from c_box_name b left join c_slot_allocation s"
+			  " on b.box_cid = s.box_cid and s.status not in ( :rmv, :del )"
+			  " where b.box_cid = :bid" );
 	cq.setParam( "bid", box_id );
 	cq.setParam( "rmv", LCDbBoxStore::REMOVED );
 	cq.setParam( "del", LCDbBoxStore::DELETED );
-	cq.setParam( "proj", proj_id );
 	if( cq.open() ) {
 		result = cq.getRecord();
-	}
+		return true;
+	} else {
+        return false;
+    }
 }
 
 void StoreDAO::loadBoxes( int rack_id, std::vector<ROSETTA>& results)
 {
 	LQuery cq( LIMSDatabase::getCentralDb() );
-	cq.setSQL( "select * from c_slot_allocation s, c_box_name b"
-			  " where b.box_cid = s.box_cid and s.rack_cid = :rid and s.status not in ( :rmv, :del )" );
+	cq.setSQL( "select b.box_cid, b.external_name, barcode, box_type_cid, box_capacity, b.project_cid,"
+			  " s.slot_cid, s.rack_cid, s.slot_position, retrieval_cid, s.status"
+			  " from c_slot_allocation s, c_box_name b"
+			  " where b.box_cid = s.box_cid and b.project_cid = s.project_cid"
+			  " and s.rack_cid = :rid and s.status not in ( :rmv, :del )" );
 	cq.setParam( "rid", rack_id );
 	cq.setParam( "rmv", LCDbBoxStore::REMOVED );
 	cq.setParam( "del", LCDbBoxStore::DELETED );
@@ -474,6 +486,7 @@ bool StoreDAO::addBoxToLHSJobList( ROSETTA& data )
 	return st.setJobRef( ddbq, retrieval_cid, LCDbBoxStore::MOVE_EXPECTED );
 }
 
+/*
 bool StoreDAO::addBoxToRHSJobList( ROSETTA& data )
 {
 	int rack_id = data.getInt("rack_cid");
@@ -489,10 +502,13 @@ bool StoreDAO::addBoxToRHSJobList( ROSETTA& data )
 	LCDbBoxStore st( id, tank_id, rack_name, pos );
 	st.setRackID(rack_id);
 //	st.setJobID(retrieval_cid);
-	st.setStatus(LCDbBoxStore::EXPECTED);
+	st.setStatus( LCDbBoxStore::EXPECTED );
 	st.setBox(proj_id, box_cid);
-	return st.saveRecord( LIMSDatabase::getProjectDb( proj_id ) );
+	LQuery cq( LIMSDatabase::getCentralDb() );
+	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
+	return st.saveRecord( pq, cq );
 }
+*/
 
 bool StoreDAO::updateBox( ROSETTA& data )
 {
@@ -502,15 +518,20 @@ bool StoreDAO::updateBox( ROSETTA& data )
 	int pos = data.getInt("slot_position");
 	std::string rack_name = data.getString("rack_name");
 	int box_cid = data.getInt("ID");
-	int id = data.getInt("record_id");
+	int id = data.getIntDefault("record_id",-1);
+	if( id == -1 ) id = 0;
+	short status = data.getInt("status");
 
 	LCDbBoxStore st( id, tank_id, rack_name, pos );
 	st.setRackID(rack_id);
 	st.setBox( proj_id, box_cid );
-	st.setStatus((short)data.getInt("status"));
-	return st.saveRecord( LIMSDatabase::getProjectDb( proj_id ) );
+	st.setStatus( status );
+	LQuery cq( LIMSDatabase::getCentralDb() );
+	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
+	return st.saveRecord( pq, cq );
 }
 
+/*
 bool StoreDAO::signoffBox( ROSETTA& data )
 {
 	int rack_id = data.getInt("rack_cid");
@@ -532,20 +553,20 @@ bool StoreDAO::signoffBox( ROSETTA& data )
 	LQuery pq( LIMSDatabase::getProjectDb( proj_id ) );
 	return st.setJobRef( pq, 0, LCDbBoxStore::SLOT_CONFIRMED );
 }
+*/
 
-void StoreDAO::loadBoxHistory( int box_id, int proj_id, std::vector<ROSETTA>& results )
+void StoreDAO::loadBoxHistory( int box_id, std::vector<ROSETTA>& results )
 {
-	LQuery pQuery = Util::projectQuery( proj_id, true );
-	std::string q = "SELECT s.*, m.*, n.external_full as vessel, r.external_name as rack"
-				  " FROM box_store s, c_rack_number r, c_tank_map m, c_object_name n"
-				  " WHERE s.box_cid = :bid"
-				  " AND s.rack_cid = r.rack_cid and r.tank_cid = m.tank_cid and m.storage_cid = n.object_cid"
-				  " ORDER BY s.time_stamp";
-	pQuery.setSQL( q );
-	pQuery.setParam( "bid", box_id );
+	LQuery cq( LIMSDatabase::getCentralDb() );
+	cq.setSQL( "SELECT s.*, m.*, n.external_full as vessel, r.external_name as rack"
+				  " FROM c_slot_allocation s, c_rack_number r, c_tank_map m, c_object_name n"
+				  " WHERE s.box_cid = :bid AND s.rack_cid = r.rack_cid"
+				  " and r.tank_cid = m.tank_cid and m.storage_cid = n.object_cid"
+				  " ORDER BY s.time_stamp" );
+	cq.setParam( "bid", box_id );
 	results.clear();
-	for( pQuery.open(); !pQuery.eof(); pQuery.next() ) {
-		results.push_back( pQuery.getRecord() );
+	for( auto record : cq ) {
+		results.push_back( record );
 	}
 }
 
@@ -560,12 +581,12 @@ void StoreDAO::loadSamples( int box_id, int proj_id, std::vector<ROSETTA>& resul
 		source_field = "external_name";
 	}
 	results.clear();
+	LQuery pQuery( LIMSDatabase::getProjectDb( proj_id ) );
 	std::string q = "SELECT s.*, c.sample_id, cryovial_barcode, aliquot_type_cid,"
 			" sp.barcode as source_barcode, sp." + source_field + " as source_name"
 			" FROM cryovial_store s, cryovial c, specimen sp "
 			" WHERE s.box_cid = :bid AND s.status in (0,1,2) "	// allocated, confirmed, expected
 			" AND s.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id";
-	LQuery pQuery( LIMSDatabase::getProjectDb( proj_id ) );
 	pQuery.setSQL( q );
 	pQuery.setParam( "bid", box_id );
 	results.clear();
@@ -704,23 +725,28 @@ bool StoreDAO::addToRetrieval( int jobID, int cryovial_id, int proj_id, int box_
 
 //---------------------------------------------------------------------------
 
-bool StoreDAO::findBox( int box_id, int proj_id, ROSETTA & result )
+bool StoreDAO::findBox( int box_id, ROSETTA & result )
 {
-    LQuery pQuery = LIMSDatabase::getCentralDb();
-	std::string sql = "SELECT v.external_full as vessel_name, shelf_number, r.position as rack_pos,"
+	LQuery cq( LIMSDatabase::getCentralDb() );
+	cq.setSQL( "SELECT v.external_full as vessel_name, shelf_number, r.position as rack_pos, m.status,"
 			" r.external_name as structure, slot_position, m.position as tank_pos, l.external_name as site_name"
 			" FROM c_slot_allocation bs, c_rack_number r, c_tank_map m, c_object_name v, c_object_name l "
 			" WHERE box_cid = :bid AND bs.status in (1, 2, 6)" 		// current box position
 			" AND bs.rack_cid = r.rack_cid AND r.tank_cid = m.tank_cid AND m.storage_cid = v.object_cid"
-			" AND m.location_cid = l.object_cid AND m.status=0"; 	// population on-line
-	pQuery.setSQL( sql );
-	pQuery.setParam( "bid", box_id );
-	if( pQuery.open() ) {
-		result = pQuery.getRecord();
-		return true;
-	} else {
-		return false;
+			" AND m.location_cid = l.object_cid AND m.status<>99 AND v.status<>99 AND l.status<>99" );
+	cq.setParam( "bid", box_id );
+	bool found = false;
+	for( const ROSETTA & record : cq ) {
+		// fix Chris's bug: there should be one mapping and that should be in use
+		// if there is one that's off-line, use it if there isn't anything better
+		if( !found || result.getInt( "status" ) == LCDbTankMap::OFFLINE ) {
+			result = record;
+			found = true;
+		} else if( record.getInt( "status" ) != LCDbTankMap::OFFLINE ) {
+			return false;
+		}
 	}
+	return found;
 }
 
 //---------------------------------------------------------------------------

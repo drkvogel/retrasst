@@ -65,10 +65,8 @@ __published:	// IDE-managed Components
 	void __fastcall DoneClick(TObject *Sender);
 	void __fastcall SignOffClick(TObject *Sender);
 	void __fastcall RevertClick(TObject *Sender);
-	void __fastcall SampleTreeGetImageIndex(TObject *Sender, TTreeNode *Node);
-	void __fastcall SampleTreeGetSelectedIndex(TObject *Sender, TTreeNode *Node);
-	void __fastcall AvlTreeGetSelectedIndex(TObject *Sender, TTreeNode *Node);
-	void __fastcall AvlTreeGetImageIndex(TObject *Sender, TTreeNode *Node);
+	void __fastcall treeGetImageIndex(TObject *Sender, TTreeNode *Node);
+	void __fastcall treeGetSelectedIndex(TObject *Sender, TTreeNode *Node);
 	void __fastcall SampleTreeClick(TObject *Sender);
 	void __fastcall AvlTreeClick(TObject *Sender);
 	void __fastcall FormShow(TObject *Sender);
@@ -111,8 +109,9 @@ private:	// User declarations
 	TTreeNode * getFirstRack( TTreeView * view );
 
 	static bool isUnmappedBox( Box* b );
-	static bool isAnyBox( Box* b ){ return true; }
+//	static bool isAnyBox( Box* b ){ return true; }
 	static bool isDoneBox( Box* b );
+//	static bool isAllocatedBox( Box* b );
 
 public:		// User declarations
 

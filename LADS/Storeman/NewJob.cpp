@@ -24,12 +24,15 @@ __fastcall TfrmNewJob::TfrmNewJob(TComponent* Owner) : TForm(Owner)
 
 void __fastcall TfrmNewJob::SaveClick(TObject *Sender)
 {
-	if( Util::validateText( TxtName, LblName ) && Util::validateText( TxtFull, LblFull ) ) {
+	if( Util::validateText( TxtName, LblName )
+	 && Util::validateText( TxtFull, LblFull )
+	 && Util::validateText( TxtReason, LblReason ) ) {
 		job.setName( AnsiString( TxtName->Text ).c_str() );
 		job.setDescription( AnsiString( TxtFull->Text ).c_str() );
+		job.setReason( AnsiString( TxtReason->Text ).c_str() );
 		if( CbExercise->ItemIndex >= 0 ) {
 			AnsiString why = CbExercise->Items->Strings[ CbExercise->ItemIndex ];
-			job.setReason( why.c_str() );
+			job.setExercise( why.c_str() );
 		}
 		ModalResult = mrOk;
 	}
@@ -46,6 +49,7 @@ void TfrmNewJob::init( LCDbCryoJob::JobKind kind )
 	TxtName->Text = job.getName().c_str();
 	TxtFull->Clear();
 	ActiveControl = TxtFull;
+	TxtReason->Clear();
 	CbExercise->Clear();
 	for( const LCDbObject & obj : LCDbObjects::records() ) {
 		if( obj.isActive() && obj.getObjectType() == LCDbObject::STORAGE_EXERCISE ) {

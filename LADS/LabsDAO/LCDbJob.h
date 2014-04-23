@@ -65,8 +65,11 @@ public:
 	int getProcessCID() const { return processID; }
 	int getUserID() const;
 
-	void setReason( const std::string & exName );
+	void setReason( const std::string & text ) { reason = text; }
 	const std::string & getReason() const { return reason; }
+	void setExercise( int objID ) { exercise = objID; }
+	void setExercise( const std::string & exName );
+	int getExercise() const { return exercise; }
 
 	void createName( LQuery central, const std::string & nameBase = "" );
 	bool saveRecord( LQuery central );

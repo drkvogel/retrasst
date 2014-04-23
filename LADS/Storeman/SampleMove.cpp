@@ -43,7 +43,8 @@ bool TfrmMove::init( IPart* p_part )
 	parent = SampleTree->Items->Add( NULL, part->getName().c_str() );
 	parent -> Data = part;
 	Util::ShowTreeNode(SampleTree, parent, false, true);
-	Util::ShowPropertyGrid( grdLeftProps, part );
+//	Util::ShowPropertyGrid( grdLeftProps, part );
+	part->showProperties( grdLeftProps );
 	return true;
 }
 
@@ -154,7 +155,8 @@ bool TfrmMove::canAssign()
 	IPart* leftData = (IPart *)(SampleTree -> Selected -> Data);
 	IPart* rightData = (IPart *)(AvlTree -> Selected -> Data);
 	return leftData != NULL && getImageIndex( leftData ) == Util::UNASSIGNED
-		&& rightData != NULL && rightData->getType() >= IPart::LayoutType;
+		&& rightData != NULL && getImageIndex( rightData ) != Util::ASSIGNED
+		&& rightData->getType() > IPart::LayoutType;
 }
 
 //---------------------------------------------------------------------------
@@ -235,9 +237,8 @@ void TfrmMove::listAssignedBoxes( IPart* item )
 			}
 		}
 	} else if( item != NULL ) {
-		const std::vector<IPart*> & list = item->getList();
-		for( int i = 0; i < (int)list.size(); i++ ) {
-			listAssignedBoxes( list[i] );
+		for( IPart* li : item->getList() ) {
+			listAssignedBoxes( li );
 		}
 	}
 }
@@ -252,22 +253,21 @@ void TfrmMove::makeBoxList( IPart* item, std::vector<Box*>& boxes, bool (*boxfn)
 			boxes.push_back( b );
 		}
 	} else if( item != NULL ) {
-		const std::vector<IPart*> & list = item->getList();
-		for( int i = 0; i < (int)list.size(); i++ ) {
-			makeBoxList( list[i], boxes, boxfn );
+		for( IPart* li : item->getList() ) {
+			makeBoxList( li, boxes, boxfn );
 		}
 	}
 }
 
 //---------------------------------------------------------------------------
 
-bool TfrmMove::isUnmappedBox( Box* b )
-{
+bool TfrmMove::isUnmappedBox( Box* b ) {
 	return b->getMapped() == NULL;
 }
 
-bool TfrmMove::isDoneBox( Box* b )
-{
+//---------------------------------------------------------------------------
+
+bool TfrmMove::isDoneBox( Box* b ) {
 	return b->isLHSDone() || b->isRHSDone();
 }
 
@@ -345,7 +345,7 @@ void TfrmMove::showDetails( TTreeView* tree, TStringGrid* grid, bool expand )
 		if( node->Count == 0 && data->getType() < IPart::BoxType ) {
 			Util::ShowTreeNode( tree, node, false, expand );
 		}
-		Util::ShowPropertyGrid( grid, data );
+		data->showProperties( grid );
 		if( expand ) {
 			node -> Expand( true );
 			selectChildren( tree, node );
@@ -395,45 +395,39 @@ void TfrmMove::selectChildren( TTreeView* tree, TTreeNode* parent )
 
 int TfrmMove::getImageIndex( TTreeNode *node )
 {
-	if( node == NULL || node -> Data == NULL ) {
+	if( node == NULL ) {
 		return Util::UNASSIGNED;
 	}
 	IPart* data = (IPart*)(node -> Data);
+	if( data == NULL ) {
+		return Util::UNASSIGNED;
+	}
+	Layout* lay = dynamic_cast<Layout*>( data );
+	if( lay != NULL && lay->availability() == IPart::UNAVAILABLE ) {
+		return Util::OFF_LINE;
+	}
+	int image = getImageIndex( data );
+	if( image == Util::ASSIGNED ) {
+		return image;
+	}
+
 	float fill = -1;
-	if( createNewJob ) {
-		switch( data->getType() ) {
-			case IPart::TankType: {
-				AvlTank * at = dynamic_cast< AvlTank *>( data );
-				if( at ) {
-					fill = at -> getFillFactor();
-				}
-				break;
-			}
-			case IPart::LayoutType: {
-				if( ((Layout*)(data))->availability() == IPart::UNAVAILABLE ) {
-					return Util::OFF_LINE;
-				} else {
-					return Util::UNASSIGNED;
-				}
-			}
-			case IPart::SectionType: {
-				AvlSection * at = dynamic_cast< AvlSection *>( data );
-				if( at ) {
-					fill = at -> getFillFactor();
-				}
-				break;
-			}
-			case IPart::RackType: {
-				AvlRack * at = dynamic_cast< AvlRack *>( data );
-				if( at ) {
-					fill = at -> getFillFactor();
-				}
+	AvlRack * ar = dynamic_cast< AvlRack *>( data );
+	if( ar ) {
+		fill = ar -> getFillFactor();
+	} else {
+		AvlSection * as = dynamic_cast< AvlSection *>( data );
+		if( as ) {
+			fill = as -> getFillFactor();
+		} else {
+			AvlTank * at = dynamic_cast< AvlTank *>( data );
+			if( at ) {
+				fill = at -> getFillFactor();
 			}
 		}
 	}
-
 	if( fill < 0 ) {
-		return getImageIndex( data );
+		return image;
 	} else if( fill < 0.01 ) {
 		return Util::NO_CHILDREN;
 	} else if( fill > 0.98 ) {
@@ -471,10 +465,9 @@ int TfrmMove::getImageIndex( IPart *data )
 		return Util::UNASSIGNED;
 	}
 
-	const std::vector<IPart*> & list = data->getList();
 	int min = Util::AVAILABLE;
-	for( std::vector<IPart*>::const_iterator li = list.begin(); li != list.end(); ++ li ) {
-		int it = getImageIndex( *li );
+	for( IPart * li : data->getList() ) {
+		int it = getImageIndex( li );
 		if( it < min ) {
 			min = it;
 		}
@@ -622,12 +615,13 @@ void __fastcall TfrmMove::CreateClick(TObject *Sender)
 	}
 	progress -> Position = 0;
 	progress -> Max = leftKids.size();
-	for( std::vector<Box*>::iterator bi = leftKids.begin(); error.IsEmpty() && bi != leftKids.end(); ++ bi ) {
-		Box *left = *bi, *right = (Box*)(left->getMapped());
+	for( Box *left : leftKids ) {
+		Box *right = (Box*)(left->getMapped());
 		if( left->addToLHSJobList( job.getID() ) && right->addToRHSJobList( job.getID() ) ) {
 			progress -> StepIt();
 		} else {
 			error = "Error creating movement job";
+			break;
 		}
 	}
 	Screen->Cursor = crDefault;
@@ -673,8 +667,8 @@ void __fastcall TfrmMove::SignOffClick(TObject *Sender)
 	leftKids.clear();
 	makeBoxList( part, leftKids, isDoneBox );
 	std::set<int> projects;
-	for( std::vector<Box*>::const_iterator bi = leftKids.begin(); bi != leftKids.end(); ++ bi ) {
-		projects.insert( (*bi) -> getProjectCID() );
+	for( Box* bi : leftKids ) {
+		projects.insert( bi->getProjectCID() );
 	}
 
 	char summary[ 70 ];
@@ -702,11 +696,12 @@ void __fastcall TfrmMove::SignOffClick(TObject *Sender)
 bool TfrmMove::SignOff()
 {
 	rightKids.clear();
-	makeBoxList( root, rightKids, isAnyBox );
+	makeBoxList( root, rightKids, isDoneBox );
 	progress -> Position = 0;
 	progress -> Max = rightKids.size();
-	for( std::vector<Box*>::const_iterator bi = rightKids.begin(); bi != rightKids.end(); ++ bi ) {
-		if( (**bi).getStatus() == LCDbBoxStore::SLOT_ALLOCATED && (**bi).signoff() ) {
+	for( Box* bi : rightKids ) {
+		bi->setStatus( LCDbBoxStore::SLOT_CONFIRMED );
+		if( bi->save() ) {
 			progress -> StepIt();
 		} else {
 			return false;
@@ -719,9 +714,9 @@ bool TfrmMove::SignOff()
 
 void TfrmMove::SetStatus( std::vector<Box*>& boxes, short status )
 {
-	for( std::vector<Box*>::iterator bi = boxes.begin(); bi != boxes.end(); ++ bi ) {
-		(**bi).setStatus( status );
-		if( (**bi).save() ) {
+	for( Box* bi : boxes ) {
+		bi->setStatus( status );
+		if( bi->save() ) {
 			progress -> StepIt();
         }
 	}
@@ -747,30 +742,16 @@ void __fastcall TfrmMove::RevertClick(TObject *Sender)
 
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmMove::SampleTreeGetImageIndex(TObject *Sender, TTreeNode *Node)
+void __fastcall TfrmMove::treeGetImageIndex(TObject *Sender, TTreeNode *Node)
 {
 	Node -> ImageIndex = getImageIndex( Node );
 }
 
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmMove::SampleTreeGetSelectedIndex(TObject *Sender, TTreeNode *Node)
+void __fastcall TfrmMove::treeGetSelectedIndex(TObject *Sender, TTreeNode *Node)
 {
 	Node -> SelectedIndex = getImageIndex( Node );
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmMove::AvlTreeGetSelectedIndex(TObject *Sender, TTreeNode *Node)
-{
-	Node -> SelectedIndex = getImageIndex( Node );
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmMove::AvlTreeGetImageIndex(TObject *Sender, TTreeNode *Node)
-{
-	Node -> ImageIndex = getImageIndex( Node );
 }
 
 //---------------------------------------------------------------------------

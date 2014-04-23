@@ -14,22 +14,17 @@
 
 //---------------------------------------------------------------------------
 
-static const TDate EPOCH_START( 1980, 1, 1 ), EPOCH_END( 2037, 12, 31 );
-
 TDateTime LDbValid::checkDate( TDateTime ts ) {
-	if( ts < EPOCH_START ) {
-		return EPOCH_START;
-	} else if( ts > EPOCH_END ) {
-		return EPOCH_END;
-	} else {
-		return ts;
-    }
+	if( EPOCH_START < ts || EPOCH_END > ts ) {
+		ts = 0;
+	}
+	return ts;
 }
 
 //---------------------------------------------------------------------------
 
 LDbValid::LDbValid( )
- : start( TDateTime::CurrentDate() ), end( EPOCH_END ), status( NEW_RECORD ) {
+ : start( TDateTime::CurrentDate() ), end( 0 ), status( NEW_RECORD ) {
 }
 
 //---------------------------------------------------------------------------
@@ -54,11 +49,7 @@ std::pair< TDateTime, TDateTime >LDbValid::getValidDates( ) const {
 //---------------------------------------------------------------------------
 
 bool LDbValid::isActive( ) const {
-	if( status == DELETED ) {
-		return false;
-	}
-	TDateTime now = Now();
-	return (start < now || start >= EPOCH_END) && (end > now || EPOCH_START >= end);
+	return status != DELETED && (EPOCH_END < start || start < Now()) && (EPOCH_START > end || end > Now());
 }
 
 //---------------------------------------------------------------------------
@@ -71,7 +62,7 @@ bool LDbValid::isNearExpiry() const {
 //---------------------------------------------------------------------------
 
 bool LDbValid::isDormant() const {
-	return status != DELETED && start < end && end < TDateTime::CurrentDate();
+	return status != DELETED && start < end && end < Now();
 }
 
 //---------------------------------------------------------------------------
@@ -84,7 +75,7 @@ void LDbValid::setActive( bool active ) {
 	if( active ) {
 		status = RECORD_IN_USE;
 		if( end < now ) {
-			end = EPOCH_END;
+			end = 0;
 		}
 	} else {
 		status = DELETED;

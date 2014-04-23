@@ -113,7 +113,7 @@ void TfrmAddSpecimens::updateGrid()
 	for( Range< SampleList::Entry > sr = samples.getEntries(); sr.isValid(); ++ sr, ++ row ) {
 		sgSpecimens -> Cells[ barcode_column ][ row ] = sr -> getBarcode().c_str();
 		TDate when = sr -> whenFirstSeen();
-		if( when >= EPOCH_START && when < EPOCH_END ) {
+		if( EPOCH_START < when && EPOCH_END > when ) {
 			sgSpecimens -> Cells[ received_column ][ row ] = when;
 		} else {
 			sgSpecimens -> Cells[ received_column ][ row ] = " ";

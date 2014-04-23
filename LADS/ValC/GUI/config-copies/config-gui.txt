@@ -1,0 +1,153 @@
+# config-gui.txt provides assorted parameters for the ValC GUI
+#
+# This helps to 
+# (1) standardise styles in a programmatic way across the application,
+# which means that application-wide parameters can be changed with a single edit,
+# rather than change a whole bunch of styles that use that parameter.
+# (2) provide parameters for things that don't appear in styles
+
+# the initial height of the upper panel showing samples and results (should match .fmx file)
+initialResultsHeight:
+400
+
+# the initial height of the lower panel showing the queued worklist entries (should match .fmx file)
+initialWorkHeight:
+200
+
+
+# the vertical separation between the bottom of a sample run and the top of the sample run below it
+sampleRunGap:
+2
+
+# the height of the vertical margin used between the top of a panel and the first sample run it contains also the same height is used for the gap between the bottom of the last sample run and the bottom of the whole panel
+runsPanelverticalMargin:
+10
+
+# the width of the margin used between the contents of a panel and the edge of a panel, where the panel contains sample runs
+runsPanelrightMargin:
+10
+
+# the extent to which "bubbles" (rounded-corner rectangles, e.g. for barcodes and test results) are rounded 
+cornerWidth:
+13
+
+# useful for deciding how much spacing between some text and an edge
+textMargin:
+3
+
+# the width of the bubble containing the barcode of a sample run 
+barcodePanelWidth:
+110
+
+# the position of the left edge of the panel containing the barcodePanel, relative to its parent  
+barcodePanelOffset:
+-2
+
+# the position of the left edge of the barcode label, relative to its parent the barcodePanel 
+barcodeLabelOffsetX:
+8
+
+# the width of the rounded-corner rectangle (bubble) containing information about a worklist entry/test result 
+testResultWidth:
+148
+
+# the height of the rounded-corner rectangle (bubble) containing information about a worklist entry/test result 
+testResultHeight:
+27
+
+# default positioning for the result of a test  
+defaultResultWidth:
+30
+
+# specified gap to the right of a test result
+resultGap:
+5
+
+# vertical positioning for the result of a test, on a bubble
+testResultY:
+3
+
+# vertical offset for text labels
+labelOffsetY:
+2
+
+# horizontal offsets for notes button
+notesOffsetLeft:
+5
+
+notesOffsetRight:
+3
+
+
+# how much can the icon buttons overlap?
+iconOverlapX:
+4
+
+# width of the semi-transparent button over the name of a test carried out (within a worklist entry bubble)
+nameButtonWidth:
+43
+
+# width of the icon representing a semi-transparent button indicating that a worklist entry has one or more notes attached
+notesButtonWidth:
+24
+
+# width of the icon respresenting a semi-transparent button indicating that a worklist entry needs attention
+alertButtonWidth:
+25
+
+# size of the offset (not the position, just horizontal distance from left/right edge) of the triangle indicator on callout panels
+calloutTriangleOffset:
+18
+
+# height of the triangle indicator on callout panels
+calloutTriangleHeight:
+16
+
+# width of the triangle indicator on callout panels
+calloutTriangleWidth:
+12
+
+
+# the width and height of an action panel (pops up when a test result is clicked on)
+actionPanelWidth:
+400
+
+actionPanelHeight:
+300
+
+# information/alert panel width
+popupPanelWidth:
+250
+
+# information/alert panel height
+popupPanelHeight:
+200
+
+# when aligning things near the edge, what gap to use
+edgeGap:
+4
+
+# height of top area in alert panel
+panelTopAreaHeight:
+35
+
+# height of each alert item in the alert item list box
+panelAlertItemHeight:
+20
+
+# width of pass/fail/maybe icons
+resultIconWidth:
+32
+
+# width of the (square) tiny alert icons
+alertTinyIconSize:
+12
+
+# height of one line of a log entry
+logEntryLineHeight:
+19
+
+
+
+
+

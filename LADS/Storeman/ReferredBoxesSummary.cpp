@@ -196,26 +196,27 @@ void TfrmReferredBoxesSummary::storeTRS(LQuery & qp, BoxArrivalRecord * box) {
 
     LCDbBoxStore boxStore(0, box->tank_cid, box->rack_name, box->slot_position); // boxID is set to 0 anyway
     boxStore.setBox(box->project_cid, box->box_arrival_id); // just sets projectID = proj, boxID = box; projectID is not used, boxID is used by findRecord
-    bool createNew = true;
-    if (boxStore.findBoxRecord(qp)) { // find by id. copies over fields
-        out<<"Found existing box_store record. ";
-        if (    box->rack_cid != boxStore.getRackID()
-            ||  box->slot_position != boxStore.getSlotPosition()) { // box was stored but has moved
-            out<<"Set existing record REMOVED";
-            boxStore.setStatus(LCDbBoxStore::Status::REMOVED);
-            if (!dummyRun) boxStore.saveRecord(qp); // update current record - id should be non-zero here
-        } else { // do nothing - status is already SLOT_CONFIRMED due to WHERE clause in findBoxRecord
-            out<<"Existing record is correct";
-            createNew = false;
-        }
-    }
-    if (createNew) {
+	bool createNew = true;
+	LQuery cq(LIMSDatabase::getCentralDb()); // for extra param to LPDbBoxName::saveRecord()
+	if (boxStore.findBoxRecord(qp)) { // find by id. copies over fields
+		out<<"Found existing box_store record. ";
+		if (    box->rack_cid != boxStore.getRackID()
+			||  box->slot_position != boxStore.getSlotPosition()) { // box was stored but has moved
+			out<<"Set existing record REMOVED";
+			boxStore.setStatus(LCDbBoxStore::Status::REMOVED);
+			if (!dummyRun) boxStore.saveRecord(qp,cq); // update current record - id should be non-zero here
+		} else { // do nothing - status is already SLOT_CONFIRMED due to WHERE clause in findBoxRecord
+			out<<"Existing record is correct";
+			createNew = false;
+		}
+	}
+	if (createNew) {
         out<<"Creating new box_store record. ";
         LCDbBoxStore newBoxStore(0, box->tank_cid, box->rack_name, box->slot_position);
         newBoxStore.setBox(box->project_cid, box->box_arrival_id);
         newBoxStore.setRackID(box->rack_cid);
         newBoxStore.setStatus(LCDbBoxStore::Status::SLOT_CONFIRMED);
-        if (!dummyRun) newBoxStore.saveRecord(qp);
+        if (!dummyRun) newBoxStore.saveRecord(qp,cq);
     }
     debugLog(out.str());
 
@@ -238,8 +239,7 @@ void TfrmReferredBoxesSummary::storeTRS(LQuery & qp, BoxArrivalRecord * box) {
         out<<"Record found. Setting IN_TANK";
         LPDbBoxName boxName = *(pboxName);
         boxName.setStatus(LPDbBoxName::Status::IN_TANK);
-        LQuery cq(LIMSDatabase::getCentralDb()); // for extra param to LPDbBoxName::saveRecord()
-	    if (!dummyRun) boxName.saveRecord(qp, cq);
+		if (!dummyRun) boxName.saveRecord(qp, cq);
     }
     debugLog(out.str());
 }

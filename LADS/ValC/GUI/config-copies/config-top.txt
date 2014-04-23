@@ -1,0 +1,27 @@
+# config-top.txt provides the top-level configuration file for ValC
+
+BusinessLayerConfig:
+C:\\Users\\sharonc\\Documents\\_progs_\\LADS\\ValC\\BusinessLayer\\config.txt
+
+GUIconfig:
+..\\config-gui.txt
+
+logWindow:
+yes
+
+logFile:
+log-gui.txt
+
+DatabaseConnectionString:
+dsn=paulst_test_on_brat;db=paulst_test3
+
+DatabaseSessionReadLockSetting:
+set lockmode session where readlock = nolock
+
+localMachineID:
+-1019429
+
+usernameID:
+1234
+
+

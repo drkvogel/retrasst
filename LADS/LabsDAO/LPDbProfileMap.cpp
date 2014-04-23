@@ -149,7 +149,7 @@ void LPDbProfileMap::setValueID( int descriptor, int value )
 	if( found != columns.end() )
 		found -> second = value;
 	else if( value != 0 )
-		columns.insert( std::pair< int, int >( descriptor, value ) );
+		columns.insert( { descriptor, value } );
 }
 
 //---------------------------------------------------------------------------

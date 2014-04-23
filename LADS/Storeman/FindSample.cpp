@@ -89,15 +89,17 @@ void __fastcall TfrmFind::cbTypeDropDown(TObject *Sender)
 	cbType->Clear();
 	if( rgTypes -> ItemIndex == 1 ) {
 		std::set< int > types = LPDbCryovials::getAliquotTypes( LIMSDatabase::getProjectDb() );
-		for( Range< LCDbObject > at = LCDbObjects::records(); at.isValid(); ++ at ) {
-			if( types.count( at->getID() ) != 0 ) {
-				cbType->Items->Add( at->getName().c_str() );
+		for( const LCDbObject & at : LCDbObjects::records() ) {
+			if( types.count( at.getID() ) != 0 ) {
+				cbType->Items->Add( at.getName().c_str() );
 			}
 		}
 	} else {
-		for( Range< LPDbBoxType > bt = LPDbBoxTypes::records(); bt.isValid(); ++ bt ) {
-			if( bt -> isActive() ) {
-				cbType->Items->Add( bt->getName().c_str() );
+		for( const LPDbBoxType & bt : LPDbBoxTypes::records() ) {
+			if( bt.isActive() ) {
+				if( bt.getProjectCID() == 0 || bt.getProjectCID() == LCDbProjects::getCurrentID() ) {
+					cbType->Items->Add( bt.getName().c_str() );
+                }
 			}
 		}
 	}
@@ -156,9 +158,7 @@ bool TfrmFind::findCryovial() {
 	if( cryovial == NULL ) {
 		return false;
 	}
-	int projID = LCDbProjects::getCurrentID();
-	StoreDAO().loadBoxDetails( cryovial->getBoxID(), projID, boxDetails );
-	return boxDetails.isInt( "box_cid" );
+	return StoreDAO().loadBoxDetails( cryovial->getBoxID(), boxDetails );
 }
 
 //---------------------------------------------------------------------------

@@ -215,7 +215,8 @@ void __fastcall TfrmConfigure::TreeClick(TObject *Sender)
 		if( selectedType < IPart::SectionType && node -> Count < 1 ) {
 			Util::ShowTreeNode( SampleTree, node, true, true );
 		}
-		Util::ShowPropertyGrid( grdProps, data );
+//			Util::ShowPropertyGrid(grdProps, data);
+			data->showProperties( grdProps );
 	}
 }
 

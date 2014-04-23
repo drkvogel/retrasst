@@ -25,9 +25,9 @@
  *  15 Jan 2013, NG:    Allow for null fields (using Alan's latest XSQL)
  *	28/2/2013, NG:		Use XTIME in place of TDateTime to prevent implicit
  *						conversion from Borland String parameters
- *	18/4/2013, NG:		Use '' for date/times when values invalid/not set
- *	31 March 2014, NG:	Use LogFile in place of LogFile for logging
- *
+ *	18/04/2013, NG:		Use '' for date/times when values invalid/not set
+ *	31 March 2014, NG:	Use LogFile in place of XMLFile for logging
+ *  14/04/14, NG:       Added support for C++11 range-based for loop
  --------------------------------------------------------------------------- */
 
 #include <System.hpp>
@@ -36,6 +36,7 @@
 
 #include "LQuery.h"
 #include "LogFile.h"
+#include "LDBValid.h"
 #include "LIMSDatabase.h"
 #include "xquery.h"
 #include "xexec.h"
@@ -105,9 +106,6 @@ void LQuery::setParam( const std::string &pName, const std::string &value ) {
 }
 
 //---------------------------------------------------------------------------
-
-// Ingres, C, XTIME and the labs databases understand recent dates
-static const XDATE EPOCH_START( 1980, 1, 1 ), EPOCH_END( 2037, 12, 31 );
 
 void LQuery::setParam( const std::string &pName, const XDATE & value ) {
 	if( value.isValid() && value > EPOCH_START && value < EPOCH_END ) {
@@ -389,3 +387,37 @@ TDateTime LQuery::readDateTime( const std::string &field ) const {
 }
 
 //---------------------------------------------------------------------------
+//	simple result set iterators to allow C++ range-based for
+//---------------------------------------------------------------------------
+
+LQuery::Iterator LQuery::begin() {
+	return Iterator( this, open() ? 1 : -1 );
+}
+
+//---------------------------------------------------------------------------
+
+const ROSETTA & LQuery::Iterator::operator*() const {
+	return q->getRecord();
+}
+
+//---------------------------------------------------------------------------
+
+const LQuery::Iterator& LQuery::Iterator::operator++() {
+	record = q->next() ? record + 1 : -1;
+	return *this;
+}
+
+//---------------------------------------------------------------------------
+
+LQuery::Iterator LQuery::end() {
+	return Iterator( this, -1 );
+}
+
+//---------------------------------------------------------------------------
+
+bool LQuery::Iterator::operator!=( const Iterator & other ) const {
+	return this->q != other.q || this->record != other.record;
+}
+
+//---------------------------------------------------------------------------
+

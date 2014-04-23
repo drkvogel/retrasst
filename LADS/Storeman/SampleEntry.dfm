@@ -103,7 +103,7 @@ object frmRetrieveMain: TfrmRetrieveMain
     Height = 52
     Caption = 'Source type'
     Columns = 3
-    ItemIndex = 0
+    ItemIndex = 1
     Items.Strings = (
       'Sample'
       'Cryovial'

@@ -2,9 +2,10 @@ object frmStoremain: TfrmStoremain
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
   Caption = 'Main Menu'
-  ClientHeight = 327
-  ClientWidth = 527
+  ClientHeight = 337
+  ClientWidth = 537
   Color = 12316364
   Constraints.MaxHeight = 450
   Constraints.MaxWidth = 600
@@ -24,17 +25,18 @@ object frmStoremain: TfrmStoremain
     Left = 0
     Top = 0
     Width = 176
-    Height = 264
+    Height = 274
     Align = alLeft
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
+    ExplicitHeight = 264
     DesignSize = (
       176
-      264)
+      274)
     object Label1: TLabel
       Left = 46
-      Top = 21
+      Top = 22
       Width = 84
       Height = 32
       Alignment = taCenter
@@ -51,7 +53,7 @@ object frmStoremain: TfrmStoremain
     end
     object BtnConfigure: TButton
       Left = 30
-      Top = 162
+      Top = 169
       Width = 116
       Height = 35
       Anchors = []
@@ -59,10 +61,11 @@ object frmStoremain: TfrmStoremain
       TabOrder = 2
       WordWrap = True
       OnClick = ConfigureClick
+      ExplicitTop = 162
     end
     object BtnBrowse: TButton
       Left = 30
-      Top = 68
+      Top = 71
       Width = 116
       Height = 35
       Anchors = []
@@ -70,10 +73,11 @@ object frmStoremain: TfrmStoremain
       TabOrder = 0
       WordWrap = True
       OnClick = TreeBrowse
+      ExplicitTop = 68
     end
     object btnMove: TButton
       Left = 30
-      Top = 115
+      Top = 120
       Width = 116
       Height = 35
       Anchors = []
@@ -81,10 +85,11 @@ object frmStoremain: TfrmStoremain
       TabOrder = 1
       WordWrap = True
       OnClick = btnMoveClick
+      ExplicitTop = 115
     end
     object BtnRationalyse: TButton
       Left = 30
-      Top = 210
+      Top = 219
       Width = 116
       Height = 35
       Anchors = []
@@ -92,23 +97,26 @@ object frmStoremain: TfrmStoremain
       TabOrder = 3
       WordWrap = True
       OnClick = BtnRationalyseClick
+      ExplicitTop = 210
     end
   end
   object Panel2: TPanel
     Left = 176
     Top = 0
-    Width = 175
-    Height = 264
+    Width = 185
+    Height = 274
     Align = alClient
     Caption = 'Panel2'
     ShowCaption = False
     TabOrder = 1
+    ExplicitWidth = 175
+    ExplicitHeight = 264
     DesignSize = (
-      175
-      264)
+      185
+      274)
     object Label2: TLabel
-      Left = 45
-      Top = 21
+      Left = 50
+      Top = 22
       Width = 84
       Height = 32
       Alignment = taCenter
@@ -121,11 +129,12 @@ object frmStoremain: TfrmStoremain
       Font.Style = [fsBold]
       ParentFont = False
       WordWrap = True
+      ExplicitLeft = 45
       ExplicitTop = 20
     end
     object BtnXfer: TButton
-      Left = 30
-      Top = 68
+      Left = 35
+      Top = 71
       Width = 116
       Height = 35
       Anchors = []
@@ -133,10 +142,12 @@ object frmStoremain: TfrmStoremain
       TabOrder = 0
       WordWrap = True
       OnClick = BtnXferClick
+      ExplicitLeft = 30
+      ExplicitTop = 68
     end
     object BtnDiscard: TButton
-      Left = 30
-      Top = 115
+      Left = 35
+      Top = 120
       Width = 116
       Height = 35
       Anchors = []
@@ -144,10 +155,12 @@ object frmStoremain: TfrmStoremain
       TabOrder = 1
       WordWrap = True
       OnClick = BtnDiscardClick
+      ExplicitLeft = 30
+      ExplicitTop = 115
     end
     object BtnAnalyse: TButton
-      Left = 30
-      Top = 162
+      Left = 35
+      Top = 169
       Width = 116
       Height = 35
       Anchors = []
@@ -155,10 +168,12 @@ object frmStoremain: TfrmStoremain
       TabOrder = 2
       WordWrap = True
       OnClick = BtnAnalyseClick
+      ExplicitLeft = 30
+      ExplicitTop = 162
     end
     object BtnReferred: TButton
-      Left = 30
-      Top = 210
+      Left = 35
+      Top = 219
       Width = 116
       Height = 35
       Anchors = []
@@ -166,23 +181,27 @@ object frmStoremain: TfrmStoremain
       TabOrder = 3
       WordWrap = True
       OnClick = BtnReferredClick
+      ExplicitLeft = 30
+      ExplicitTop = 210
     end
   end
   object Panel3: TPanel
-    Left = 351
+    Left = 361
     Top = 0
     Width = 176
-    Height = 264
+    Height = 274
     Align = alRight
     Caption = 'Panel3'
     ShowCaption = False
     TabOrder = 2
+    ExplicitLeft = 351
+    ExplicitHeight = 264
     DesignSize = (
       176
-      264)
+      274)
     object Label3: TLabel
       Left = 58
-      Top = 21
+      Top = 22
       Width = 59
       Height = 32
       Alignment = taCenter
@@ -199,7 +218,7 @@ object frmStoremain: TfrmStoremain
     end
     object BtnCreate: TButton
       Left = 30
-      Top = 115
+      Top = 120
       Width = 116
       Height = 35
       Anchors = []
@@ -207,10 +226,11 @@ object frmStoremain: TfrmStoremain
       TabOrder = 1
       WordWrap = True
       OnClick = OnCreateList
+      ExplicitTop = 115
     end
     object btnViewLists: TButton
       Left = 30
-      Top = 68
+      Top = 71
       Width = 116
       Height = 35
       Anchors = []
@@ -218,10 +238,11 @@ object frmStoremain: TfrmStoremain
       TabOrder = 0
       WordWrap = True
       OnClick = btnViewListsClick
+      ExplicitTop = 68
     end
     object BtnRetrieve: TButton
       Left = 30
-      Top = 162
+      Top = 169
       Width = 116
       Height = 35
       Anchors = []
@@ -229,22 +250,25 @@ object frmStoremain: TfrmStoremain
       TabOrder = 2
       WordWrap = True
       OnClick = BtnRetrieveClick
+      ExplicitTop = 162
     end
   end
   object Panel4: TPanel
     Left = 0
-    Top = 264
-    Width = 527
+    Top = 274
+    Width = 537
     Height = 63
     Align = alBottom
     Caption = 'Panel4'
     ShowCaption = False
     TabOrder = 3
+    ExplicitTop = 270
+    ExplicitWidth = 527
     DesignSize = (
-      527
+      537
       63)
     object lbBoxesReady: TLabel
-      Left = 90
+      Left = 92
       Top = 13
       Width = 6
       Height = 14
@@ -256,9 +280,10 @@ object frmStoremain: TfrmStoremain
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
+      ExplicitLeft = 90
     end
     object lbForRemoval: TLabel
-      Left = 90
+      Left = 92
       Top = 35
       Width = 6
       Height = 14
@@ -270,9 +295,10 @@ object frmStoremain: TfrmStoremain
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
+      ExplicitLeft = 90
     end
     object lbRemoved: TLabel
-      Left = 310
+      Left = 316
       Top = 13
       Width = 6
       Height = 14
@@ -284,9 +310,10 @@ object frmStoremain: TfrmStoremain
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
+      ExplicitLeft = 310
     end
     object lbRetrievalLists: TLabel
-      Left = 310
+      Left = 316
       Top = 35
       Width = 6
       Height = 14
@@ -298,6 +325,7 @@ object frmStoremain: TfrmStoremain
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
+      ExplicitLeft = 310
     end
     object Label4: TLabel
       Left = 16
@@ -315,6 +343,7 @@ object frmStoremain: TfrmStoremain
   end
   object timer: TTimer
     Enabled = False
+    Interval = 1500
     OnTimer = timerTimer
     Left = 456
     Top = 280

@@ -3,23 +3,9 @@ use warnings;
 use File::Copy;
 use Cwd;
 
-my $userArg = shift(@ARGV);
-my ($target,$config);
-my $project = 'BusinessLayerFM';
-
-$userArg = "Make" unless defined($userArg);
-
-if ( $userArg eq 'Make' ) {
-    $target = 'Make';
-    $config = 'Debug';
-}
-elsif ( $userArg eq 'Release' ) {
-    $target = 'Build';
-    $config = 'Release';
-}
-else {
-    print STDERR "Target not specified. Valid values: Make, Release.\n";
-}
+my $project = 'business_layer_lib';
+my $target = 'Make';
+my $config = 'Debug';
 
 $ENV{BDS} = "C:/Program Files (x86)/Embarcadero/RAD Studio/11.0";
 $ENV{FrameworkDir}="C:/Windows/Microsoft.NET/Framework/v3.5";
@@ -28,7 +14,10 @@ push @buildArgs, "$project.cbproj";
 push @buildArgs, "/p:Config=$config";
 push @buildArgs, "/t:$target";
 push @buildArgs, "/verbosity:diagnostic";
-system("$ENV{FrameworkDir}/MSBuild.exe", @buildArgs) == 0 or die "Failed to build $project.cbproj: $!";
+my $builtOK = ( 0 == system("$ENV{FrameworkDir}/MSBuild.exe", @buildArgs) );
+
+print "[Enter] to continue...";
+<STDIN>;
 
 1;
 

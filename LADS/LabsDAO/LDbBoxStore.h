@@ -58,7 +58,7 @@ public:
 	bool findBoxRecord( LQuery & ddbq );
 	bool findStoreRecord( LQuery & ddbq );
 	bool setJobRef( LQuery pq, int jobRef, Status reason );
-	bool saveRecord( LQuery pq );
+	bool saveRecord( LQuery pQuery, LQuery cQuery );
 
 	int getTankID() const { return tankID; }
 	int getRackID() const { return rackID; }

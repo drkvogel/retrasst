@@ -3,6 +3,7 @@
 #ifndef InventoryH
 #define InventoryH
 
+#include <Vcl.Grids.hpp>
 #include <string>
 #include <vector>
 #include <set>
@@ -13,9 +14,6 @@
 
 class LCDbCryoJob;
 class Layout;
-
-// Ingres, C, XTIME and the labs databases understand recent dates
-static const TDate EPOCH_START( 1980, 1, 1 ), EPOCH_END( 2037, 12, 31 );
 
 //---------------------------------------------------------------------------
 
@@ -60,13 +58,10 @@ struct IPart
 		void setPosition( short pos ) { position = pos; }
 		short getChildCount() const { return childCount; }
 
-		virtual void populate() = 0;
+		virtual void populate() {};
 		virtual void loadParent() {};
 
 		virtual bool save() { return true; }
-		// virtual bool addToLHSJobList(int jobID) { return true; }
-		// virtual bool addToRHSJobList(int jobID) { return true; }
-		// virtual bool occupy() { return true; }
 		virtual bool canMove() const { return false; }
 
 		virtual bool operator<( const IPart& rhs ) const { return position < rhs.position; }
@@ -77,18 +72,23 @@ struct IPart
 		virtual void remove( int row );
 		virtual void discardList();
 		const std::vector<IPart*> & getList() const { return partlist; }
+		IPart * getFirstChild() const { return childCount > 0 ? partlist[ 0 ] : NULL; }
 
-		virtual std::auto_ptr<ROSETTA> getProperties(); //to be used for showing details to user
-		virtual std::auto_ptr<ROSETTA> getObjectData(); //to be used by save methods
+//		virtual std::auto_ptr<ROSETTA> getProperties();
+		virtual void showProperties( TStringGrid *grdProps ) const;
+
+		virtual ROSETTA * getObjectData() const; //to be used by save methods
 
 	protected:
+
+		static bool validField( const ROSETTA &record, const std::string &field );
 
 		int id;
 		std::string name;
 		IPart* parent;
 		short capacity, position, childCount;
 		std::vector<IPart*> partlist;
-		std::map< int, std::string > history;
+		std::multimap< int, std::string > history;
 		IPart* mapped2;
 		ItemState state;
 		ItemType type;
@@ -104,8 +104,11 @@ class Sites : public IPart 		// not in the database
 		virtual const char * getTypeStr() const { return "Sites"; }
 		virtual std::string getName() const { return "Site List"; }
 
+//		virtual std::auto_ptr<ROSETTA> getProperties();
+		virtual void showProperties( TStringGrid *grdProps ) const;
+
 		virtual void populate();
-		virtual std::auto_ptr<ROSETTA> getProperties();
+		virtual ROSETTA * getObjectData() const;
 };
 
 class Site : public IPart 		// id = location_cid; name = c_object_name.external_name
@@ -125,9 +128,11 @@ class Site : public IPart 		// id = location_cid; name = c_object_name.external_
 		virtual std::string getFullName() const { return fullname; }
 
 		virtual bool operator<( const IPart& rhs ) const;
+//		virtual std::auto_ptr<ROSETTA> getProperties();
+		virtual void showProperties( TStringGrid *grdProps ) const;
+
 		virtual void populate();
-		virtual std::auto_ptr<ROSETTA> getProperties();
-		virtual std::auto_ptr<ROSETTA> getObjectData();
+		virtual ROSETTA * getObjectData() const;
 		virtual bool save();
 };
 
@@ -182,9 +187,11 @@ class Tank : public IPart 		// Vessel: id = storage_cid, name = c_object_name.ex
 		bool modifyLayout();
 		void loadTankDetails();
 
+//		virtual std::auto_ptr<ROSETTA> getProperties();
+		virtual void showProperties( TStringGrid *grdProps ) const;
+
 		virtual void populate();
-		virtual std::auto_ptr<ROSETTA> getProperties();
-		virtual std::auto_ptr<ROSETTA> getObjectData();
+		virtual ROSETTA * getObjectData() const;
 		virtual bool save();
 		virtual bool operator<( const IPart& rhs ) const;
 };
@@ -239,9 +246,11 @@ class Layout : public IPart 	// Population: id = tank map record id, name = exte
 
 		virtual bool operator<( const IPart& rhs ) const;
 
+//		virtual std::auto_ptr<ROSETTA> getProperties();
+		virtual void showProperties( TStringGrid *grdProps ) const;
+
 		virtual void populate();
-		virtual std::auto_ptr<ROSETTA> getProperties();
-		virtual std::auto_ptr<ROSETTA> getObjectData();
+		virtual ROSETTA * getObjectData() const;
 		virtual bool save();
 };
 
@@ -280,12 +289,14 @@ class Section : public IPart	// id = rack_type_cid; name = section_prefix
 		void setLastRack( short p_last ){ last = p_last; }
 
 		virtual bool canMove() const { return childCount > 0; }
-		virtual void populate();
-		void populate( const std::multimap< short, Rack * > & dbRacks );
+		void populate( const std::vector< ROSETTA > & dbRacks );
 
+//		virtual std::auto_ptr<ROSETTA> getProperties();
+		virtual void showProperties( TStringGrid *grdProps ) const;
+
+		virtual void populate();
+		virtual ROSETTA * getObjectData() const;
 		virtual Availability availability() const;
-		virtual std::auto_ptr<ROSETTA> getProperties();
-		virtual std::auto_ptr<ROSETTA> getObjectData();
 		virtual bool save();
 };
 
@@ -319,7 +330,6 @@ class Rack : public IPart  	// Structure: id = rack_cid; name = c_rack_number.ex
 		int getProject_cid() const { return project_cid; }
 		void setProject_cid( int p_project_cid ){ project_cid = p_project_cid; }
 
-		virtual void populate();
 		virtual bool canMove() const { return childCount > 0; }
 		short getPosInTank() const { return posInTank; }
 		void setPosInTank( short pos ) { posInTank = pos; }
@@ -327,8 +337,11 @@ class Rack : public IPart  	// Structure: id = rack_cid; name = c_rack_number.ex
 		void setEmptySlots( short slots ) { emptySlots = slots; }
 
 		virtual Availability availability() const;
-		virtual std::auto_ptr<ROSETTA> getProperties();
-		virtual std::auto_ptr<ROSETTA> getObjectData();
+//		virtual std::auto_ptr<ROSETTA> getProperties();
+		virtual void showProperties( TStringGrid *grdProps ) const;
+
+		virtual void populate();
+		virtual ROSETTA * getObjectData() const;
 		virtual bool save();
 };
 
@@ -370,9 +383,11 @@ class Box : public IPart	// Formation: id from box_name/store; name = box_name.e
 		int getStatus() const { return status; }
 		void setStatus( int p_status ){ status = p_status; }
 
+//		virtual std::auto_ptr<ROSETTA> getProperties();
+		virtual void showProperties( TStringGrid *grdProps ) const;
+
 		virtual void populate();
-		virtual std::auto_ptr<ROSETTA> getProperties();
-		virtual std::auto_ptr<ROSETTA> getObjectData();
+		virtual ROSETTA * getObjectData() const;
 		virtual Availability availability() const;
 
 		bool canMove() const;
@@ -419,10 +434,11 @@ class Sample : public IPart		// id from cryovial/cryovial_store; name = barcode
 		void setStamp( XTIME p_stamp ) { stamp = p_stamp; }
 
 		virtual Availability availability() const;
+//		virtual std::auto_ptr<ROSETTA> getProperties();
+		virtual void showProperties( TStringGrid *grdProps ) const;
 
 		virtual void populate();
-		virtual std::auto_ptr<ROSETTA> getProperties();
-		virtual std::auto_ptr<ROSETTA> getObjectData();
+		virtual ROSETTA * getObjectData() const;
 };
 
 class Layouts

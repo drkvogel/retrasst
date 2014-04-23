@@ -66,8 +66,7 @@ bool LPDbProfiles::read( LQuery pQuery, bool readAll )
 		pQuery.setSQL( "select * from test_profile_description"
 					  " order by test_profile_id" );
 	else
-	{	pQuery.setSQL( "select * from test_profile_description"
-					  " where profile_flags <> :del"
+	{	pQuery.setSQL( "select * from test_profile_description where profile_flags <> :del"
 					  " order by test_profile_id" );
 		pQuery.setParam( "del", LDbValid::DELETED );
 	}
@@ -81,7 +80,8 @@ bool LPDbProfiles::read( LQuery pQuery, bool readAll )
 	}
 	else
 	{	pQuery.setSQL( "select * from test_profile"
-					  " where test_flags <> :del and 'now' between valid_from and valid_to"
+					  " where test_flags <> :del and valid_from < 'now' "
+					  " and (valid_to < valid_from or valid_to > 'now')"
 					  " order by test_profile_id, test_cid, machine_cid" );
 		pQuery.setParam( "del", LDbValid::DELETED );
 	}
@@ -104,7 +104,8 @@ bool LPDbProfiles::read( LQuery pQuery, bool readAll )
 	}
 	else
 	{	pQuery.setSQL( "select * from aliquot_profile"
-					  " where status <> :sts and 'now' between valid_from and valid_to"
+					  " where status <> :sts and valid_from < 'now' "
+					  " and (valid_to < valid_from or valid_to > 'now')"
 					  " order by profile_id, box_type_cid, box_order" );
 		pQuery.setParam( "sts", LDbValid::DELETED );
 	}
@@ -132,8 +133,7 @@ LPDbProfile::TestLimits::TestLimits( const LQuery & pQuery )
 				  pQuery.readInt( "machine_cid" ) )
 {
 	if( pQuery.fieldExists( "valid_from" ) && pQuery.fieldExists( "valid_to" ) )
-		setValidDates( std::pair< TDateTime, TDateTime >(
-			pQuery.readDateTime( "valid_from" ), pQuery.readDateTime( "valid_to" ) ) );
+		setValidDates( { pQuery.readDateTime( "valid_from" ), pQuery.readDateTime( "valid_to" ) } );
 
 	status = pQuery.fieldExists( "test_flags" ) ? pQuery.readInt( "test_flags" ) : 0;
 	local = (status & PRIVATE_RESULT) != 0;

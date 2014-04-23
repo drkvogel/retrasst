@@ -130,6 +130,7 @@ std::string LIMSDatabase::getDbName( ) const {
 
 #if _WIN64
 static std::string vnode = "vnode_vlab_64";
+// static std::string vnode = "vnode_labdev_64";
 #elif _WIN32
 static std::string vnode = "vnode_vlab";
 #endif

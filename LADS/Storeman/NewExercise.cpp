@@ -24,8 +24,7 @@ __fastcall TfrmNewExercise::TfrmNewExercise(TComponent* Owner) : TForm(Owner)
 
 void __fastcall TfrmNewExercise::SaveClick(TObject *Sender)
 {
-	if( Util::validateText( TxtName, LblName )
-	 && Util::validateText( TxtFull, LblFull ) ) {
+	if( Util::validateText( TxtName, LblName ) && Util::validateText( TxtFull, LblFull ) ) {
 		ModalResult = mrOk;
 	}
 }

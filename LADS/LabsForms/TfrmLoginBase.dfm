@@ -2,9 +2,10 @@ object frmLoginBase: TfrmLoginBase
   Left = 0
   Top = 0
   BorderIcons = []
+  BorderStyle = bsDialog
   Caption = 'Labs System Login'
-  ClientHeight = 310
-  ClientWidth = 315
+  ClientHeight = 320
+  ClientWidth = 325
   Color = 12316364
   Constraints.MaxHeight = 400
   Constraints.MaxWidth = 400
@@ -21,7 +22,7 @@ object frmLoginBase: TfrmLoginBase
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel
-    Left = 52
+    Left = 49
     Top = 139
     Width = 55
     Height = 13
@@ -44,7 +45,7 @@ object frmLoginBase: TfrmLoginBase
     OnMouseLeave = versionMouseLeave
   end
   object Label3: TLabel
-    Left = 52
+    Left = 49
     Top = 183
     Width = 50
     Height = 13
@@ -52,7 +53,7 @@ object frmLoginBase: TfrmLoginBase
   end
   object exitButton: TBitBtn
     Left = 179
-    Top = 240
+    Top = 244
     Width = 108
     Height = 38
     Caption = '&Close'
@@ -63,7 +64,7 @@ object frmLoginBase: TfrmLoginBase
   end
   object okButton: TBitBtn
     Left = 28
-    Top = 240
+    Top = 244
     Width = 108
     Height = 38
     Caption = '&OK (log in)'
@@ -74,9 +75,9 @@ object frmLoginBase: TfrmLoginBase
     OnClick = okButtonClick
   end
   object userList: TComboBox
-    Left = 126
+    Left = 122
     Top = 135
-    Width = 138
+    Width = 148
     Height = 21
     DropDownCount = 20
     Enabled = False
@@ -99,9 +100,9 @@ object frmLoginBase: TfrmLoginBase
     OnClick = rgDatabaseClick
   end
   object ebPassword: TEdit
-    Left = 126
+    Left = 122
     Top = 180
-    Width = 138
+    Width = 148
     Height = 21
     Enabled = False
     PasswordChar = '*'

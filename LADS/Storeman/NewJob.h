@@ -26,6 +26,8 @@ __published:	// IDE-managed Components
 	TLabel *LblWhy;
 	TComboBox *CbExercise;
 	TButton *BtnNewEx;
+	TLabel *LblReason;
+	TEdit *TxtReason;
 
 	void __fastcall SaveClick(TObject *Sender);
 	void __fastcall BtnNewExClick(TObject *Sender);

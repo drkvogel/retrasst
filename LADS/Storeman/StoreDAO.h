@@ -45,11 +45,11 @@ class StoreDAO
 		bool updateBox( ROSETTA& data );
 		bool signoffBox( ROSETTA& data );
 
-		void loadBoxDetails( const std::string & barcode, const std::string & box_type, int proj_id, ROSETTA & result );
-		void loadBoxDetails( int box_id, int proj_id, ROSETTA & result );
+		bool loadBoxDetails( const std::string & barcode, const std::string & box_type, int proj_id, ROSETTA & result );
+		bool loadBoxDetails( int box_id, ROSETTA & result );
 		void loadBoxes( int rack_id, std::vector<ROSETTA>& results);
 		void loadBoxesByJobID( int job_id, int proj_id, bool lhs, std::vector<ROSETTA>& results);
-		void loadBoxHistory( int box_id, int proj_id, std::vector<ROSETTA>& results);
+		void loadBoxHistory( int box_id, std::vector<ROSETTA>& results);
 		void loadSamples( int box_id, int proj_id, std::vector<ROSETTA>& results);
 
 		void loadStorageHistory( int cryovial_id, int proj_id, std::vector<ROSETTA>& results );
@@ -57,7 +57,7 @@ class StoreDAO
 		void loadAliquotTypes( std::vector<ROSETTA>& results );
 
 		bool loadCryovials( short source, const std::string & id, int primary, int secondary, int proj_id, std::vector<ROSETTA>& results );
-		bool findBox( int box_id, int proj_id, ROSETTA & result );
+		bool findBox( int box_id, ROSETTA & result );
 		bool addToRetrieval( int jobID, int cryovial_id, int proj_id, int box_cid, short pos );
 };
 

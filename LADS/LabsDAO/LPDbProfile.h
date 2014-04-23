@@ -35,8 +35,7 @@ public:
 	void setPrivate( bool pf ) { local = pf; }
 
 	const ResultRange & getRange() const { return vRange; }
-	template< typename T > void setRange( const T & low, const T & high )
-	{
+	template< typename T > void setRange( const T & low, const T & high ) {
 		vRange = std::pair< T, T >( low, high );
 	}
 
@@ -44,27 +43,25 @@ public:
 	bool rangeError( const ResultValue & value ) const { return !vRange.includes( value ); }
 
 	const ResultRange & getWarnLevels() const { return wRange; }
-	template< typename T > void setWarnLevels( const T & low, const T & high )
-	{
+	template< typename T > void setWarnLevels( const T & low, const T & high ) {
 		wRange = std::pair< T, T >( low, high );
 	}
 
 	bool isWarnSet() const { return wRange.isSet(); }
 	bool warns( const ResultValue & value ) const { return !wRange.includes( value ); }
 
-	template< typename T > void setTriggerLimits( int triggerID, const T & low, const T & high )
-	{
+	template< typename T > void setTriggerLimits( int triggerID, const T & low, const T & high ) {
 		trigger = triggerID;
-		if( trigger == 0 )
+		if( trigger == 0 ) {
 			tRange = ResultRange();
-		else
+		} else {
 			tRange = std::pair< T, T >( low, high );
+		}
 	}
 
 	int getTriggerProfile() const { return trigger; }
 	const ResultRange & getTriggerLimits() const { return tRange; }
-	bool triggers( const ResultValue & value ) const
-	{
+	bool triggers( const ResultValue & value ) const  {
 		return (trigger != 0) && !tRange.includes( value );
 	}
 };

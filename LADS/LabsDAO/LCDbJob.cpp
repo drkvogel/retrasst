@@ -21,37 +21,36 @@
 
 LCDbCryoJob::LCDbCryoJob( const LQuery & query )
  : LCDbID( query.readInt( "retrieval_cid" ) ),
-   exercise( query.fieldExists( "exercise_cid" ) ? query.readInt( "exercise_cid" ) : 0 ),
    LDbNames( query.readString( "external_name" ), query.readString( "description" ) ),
    jobType( query.readInt( "job_type" ) ),
+   reason( query.readString( "reason" ) ),
+   exercise( query.readInt( "exercise_cid" ) ),
    projectID( query.readInt( "project_cid" ) ),
-   primary( query.fieldExists( "primary_aliquot" ) ? query.readInt( "primary_aliquot" ) : 0 ),
-   secondary( query.fieldExists( "secondary_aliquot" ) ? query.readInt( "secondary_aliquot" ) : 0 ),
-   processID( query.readInt( "process_cid" ) ),
+   primary( query.readInt( "primary_aliquot" ) ),
    status( query.readInt( "status" ) )
 {
+	if( reason.empty() && exercise != 0 ) {
+		const LCDbObject * obj = LCDbObjects::records().findByID( exercise );
+		if( obj != NULL ) {
+			reason = obj->getDescription();
+		}
+	}
 	if( query.fieldExists( "time_stamp" ) ) {
 		time_stamp = query.readDateTime( "time_stamp" );
 	} else {
 		time_stamp = Now();
 	}
 	if( query.fieldExists( "start_date" ) ) {
-		time_stamp = query.readDateTime( "start_date" );
+		start_date = query.readDateTime( "start_date" );
 	}
 	if( query.fieldExists( "finish_date" ) ) {
-		time_stamp = query.readDateTime( "finish_date" );
+		finish_date = query.readDateTime( "finish_date" );
 	}
 	if( query.fieldExists( "claimed_until" ) ) {
-		time_stamp = query.readDateTime( "claimed_until" );
+		claimed_until = query.readDateTime( "claimed_until" );
 	}
-	if( query.fieldExists( "reason" ) ) {
-		reason = query.readString( "reason" );
-	} else if( exercise != 0 ) {
-		const LCDbObject * obj = LCDbObjects::records().findByID( exercise );
-        if( obj != NULL ) {
-			reason = obj->getName();
-		}
-	}
+	secondary = query.fieldExists( "secondary_aliquot" ) ? query.readInt( "secondary_aliquot" ) : 0;
+	processID = query.fieldExists( "process_cid" ) ? query.readInt( "process_cid" ) : 0;
 }
 
 //---------------------------------------------------------------------------
@@ -98,7 +97,7 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 						" start_date = :sdt, claimed_until = :cdt, finish_date = :fdt"
 						" where retrieval_cid = :myid" );
 	} else {
-		if( getName().empty()) {
+		if( getName().empty() ) {
 			createName( central, "AUTOJOB" );
 		}
 		if( getID() == 0 ) {
@@ -106,43 +105,38 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 		}
 		central.setSQL( "insert into c_retrieval_job (retrieval_cid, exercise_cid, external_name,"
 						" description, job_type, project_cid, primary_aliquot, secondary_aliquot,"
-						" process_cid, status, start_date, claimed_until, finish_date)"
-						" values (:myid, :exid, :nme, :dsc, :jt, :prj, :al1, :al2, :pid, :sts, :sdt, :cdt, :fdt)" );
-                        //" values (:myid, :exid, :nme, :dsc, :jt, :prj, :al1, :al2, :pid, :sts, :sdt, 'now', :fdt)" );
-		central.setParam( "nme", getName() );
-		central.setParam( "exid", exercise );
+						" process_cid, reason, status, start_date, claimed_until, finish_date)"
+						" values (:id, :ex, :nm, :dsc, :jt, :prj, :al1, :al2, :pid, :why, :sts, :sd, :cd, :fd)" );
+		central.setParam( "nm", getName() );
+		central.setParam( "ex", exercise );
 		central.setParam( "dsc", getDescription() );
 		central.setParam( "prj", projectID );
 		central.setParam( "jt", jobType );
+		central.setParam( "why", reason );
 		central.setParam( "al1", primary );
 		central.setParam( "al2", secondary );
 	}
-	switch( status ) {
-		case NEW_JOB:
-			central.setParam( "sdt", "" );
-			central.setParam( "cdt", "" );
-			central.setParam( "fdt", "" );
-			break;
 
-		case INPROGRESS:
-			central.setParam( "sdt", XDATE( start_date ) );
-            //central.setParam("cdt", "date('now') + date('1 minute')"); // fixme:
-/* XDB error: IIAPI_ST_ERROR
-Info: ERROR '22008' 4308: bad character found in date/time string beginning with 'date('now') + date('1 minute')'.
-E_US10D4_4308    bad character found in date/time string beginning with 'date('now') + date('1 minute')'.''. (local Ingres version: 10.0.0)
-
-The only other place I've found that uses date('') syntax in SQL is in LCDbCryoJob::claim(), where it's inline and not passed
-as a parameter. */
-            central.setParam("cdt", "now");
-			central.setParam( "fdt", "" );
-			break;
-
-		default:
-			central.setParam( "sdt", XDATE( start_date ) );
-			central.setParam( "cdt", "" );
-			central.setParam( "fdt", XDATE( finish_date ) );
+	if( status == NEW_JOB ) {
+		central.setParam( "sd", "" );
+	} else if( EPOCH_START < start_date && start_date < Now() ) {
+		central.setParam( "sd", XTIME( start_date ) );
+	} else {
+		central.setParam( "sd", "now" );
 	}
-	central.setParam( "myid", getID() );
+	if( status == INPROGRESS ) {
+		central.setParam( "cd", "now" );
+	} else {
+		central.setParam( "cd", "" );
+	}
+	if( status != DONE ) {
+		central.setParam( "fd", "" );
+	} else if( EPOCH_START < finish_date && finish_date < Now() ) {
+		central.setParam( "fd", XTIME( finish_date ) );
+	} else {
+		central.setParam( "fd", "now" );
+	}
+	central.setParam( "id", getID() );
 	central.setParam( "sts", status );
 	central.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
 	return central.execSQL() && reload( central );
@@ -299,15 +293,10 @@ bool LCDbCryoJobs::read( LQuery cQuery, LCDbCryoJob::JobKind type, bool all )
 
 //---------------------------------------------------------------------------
 
-void LCDbCryoJob::setReason( const std::string & exName ) {
-	const LCDbObject * obj = LCDbObjects::records().find( exName, LCDbObject::STORAGE_EXERCISE );
-	if( obj == NULL ) {
-		exercise = 0;
-		reason = "";
-	} else {
-		exercise = obj->getID();
-		reason = exName;
-	}
+void LCDbCryoJob::setExercise( const std::string & exName ) {
+	const LCDbObjects & names = LCDbObjects::records();
+	const LCDbObject * obj = names.find( exName, LCDbObject::STORAGE_EXERCISE );
+	exercise = (obj == NULL ? 0 : obj->getID());
 }
 
 //---------------------------------------------------------------------------

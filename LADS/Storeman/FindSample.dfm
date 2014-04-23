@@ -1,9 +1,11 @@
 object frmFind: TfrmFind
   Left = 0
   Top = 0
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
   Caption = 'Find Box/Cryovial'
-  ClientHeight = 201
-  ClientWidth = 413
+  ClientHeight = 211
+  ClientWidth = 423
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,10 +13,11 @@ object frmFind: TfrmFind
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poOwnerFormCenter
   OnShow = FormShow
   DesignSize = (
-    413
-    201)
+    423
+    211)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -54,7 +57,7 @@ object frmFind: TfrmFind
   object cbType: TComboBox
     Left = 230
     Top = 59
-    Width = 150
+    Width = 160
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     Enabled = False
@@ -62,19 +65,21 @@ object frmFind: TfrmFind
     TabOrder = 1
     OnChange = cbTypeChange
     OnDropDown = cbTypeDropDown
+    ExplicitWidth = 150
   end
   object txtName: TEdit
     Left = 230
     Top = 98
-    Width = 150
+    Width = 160
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     Enabled = False
     TabOrder = 2
+    ExplicitWidth = 150
   end
   object BitBtn1: TBitBtn
-    Left = 104
-    Top = 151
+    Left = 108
+    Top = 159
     Width = 92
     Height = 34
     Anchors = []
@@ -100,25 +105,30 @@ object frmFind: TfrmFind
     NumGlyphs = 2
     TabOrder = 3
     OnClick = BitBtn1Click
+    ExplicitLeft = 104
+    ExplicitTop = 151
   end
   object BitBtn2: TBitBtn
-    Left = 230
-    Top = 151
+    Left = 237
+    Top = 159
     Width = 92
     Height = 34
     Anchors = []
     Kind = bkCancel
     NumGlyphs = 2
     TabOrder = 4
+    ExplicitLeft = 230
+    ExplicitTop = 151
   end
   object cbProject: TComboBox
     Left = 230
     Top = 21
-    Width = 150
+    Width = 160
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     Sorted = True
     TabOrder = 5
     OnChange = cbProjectChange
+    ExplicitWidth = 150
   end
 end

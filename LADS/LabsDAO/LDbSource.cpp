@@ -632,7 +632,7 @@ bool LPDbSources::readByScanDate( LQuery pQuery, TDateTime start, TDateTime fini
 {
 	pQuery.setSQL( "select * from specimen where swipe_time between :st and :ft"
 				  " order by sample_id" );
-	pQuery.setParam( "st", XTIME(start) );
+	pQuery.setParam( "st", XDATE(start) );
 	pQuery.setParam( "ft", XTIME(finish) );
 	return readData( pQuery );
 }

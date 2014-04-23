@@ -2,13 +2,16 @@
 
 #ifndef StoremainH
 #define StoremainH
+
 //---------------------------------------------------------------------------
+
 #include <Classes.hpp>
 #include <Controls.hpp>
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
 #include <ExtCtrls.hpp>
-#include <map>
+#include <set>
+
 //---------------------------------------------------------------------------
 class TfrmStoremain : public TForm
 {
@@ -57,8 +60,8 @@ private:	// User declarations
 	enum { STOPPED, TRANSFERS, JOBCOUNTS, FINISHED } updateStatus;
 
 	unsigned boxesReady, moveJobs, retrievals, discards;
+	std::set< int > projIDs;
 
-	unsigned nextProject;
 	void resetCounts();
 	void updateCounts();
 	void countBoxes();

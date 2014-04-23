@@ -70,7 +70,8 @@ bool LCDbAnalysers::read( LQuery cQuery, bool readAll )
 		cQuery.setSQL( "select * from c_machine order by machine_cid" );
 	else
 	{	cQuery.setSQL( "select * from c_machine"
-					  " where status <> :sts and 'now' between valid_from and valid_to"
+					  " where status <> :sts and valid_from < 'now' "
+					  " and (valid_to < valid_from or valid_to > 'now')"
 					  " order by machine_cid" );
 		cQuery.setParam( "sts", LCDbAnalyser::DELETED );
 	}

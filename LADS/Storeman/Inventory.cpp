@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
 #include <vcl.h>
 #include <set>
@@ -15,11 +15,13 @@
 #include "LCDbJob.h"
 #include "LDbBoxSize.h"
 #include "LDbBoxStore.h"
+#include "rosebase.h"
+#include "XSQL.h"
 
 #pragma hdrstop
 #pragma package(smart_init)
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
 IPart::IPart( ) {
 	id = -1;
@@ -28,6 +30,20 @@ IPart::IPart( ) {
 	parent = NULL;
 	state = UnknownState;
 	type = UnknownType;
+}
+
+IPart::IPart( int p_id, std::string p_name ) {
+	id = p_id;
+	name = p_name;
+	mapped2 = NULL;
+	type = UnknownType;
+	parent = NULL;
+	if( id == 0 || id == -1 ) {
+		state = NewState;
+	} else {
+		state = SyncState;
+	}
+	capacity = position = childCount = -1;
 }
 
 IPart::~IPart( ) {
@@ -48,12 +64,12 @@ void IPart::discardList( ) {
 
 IPart::Availability IPart::availability( ) const {
 	switch( childCount ) {
-		case -1:
-			return UNKNOWN;
-		case 0:
-			return IS_EMPTY;
-		default:
-			return IS_AVAILABLE;
+	case -1:
+		return UNKNOWN;
+	case 0:
+		return IS_EMPTY;
+	default:
+		return IS_AVAILABLE;
 	}
 }
 
@@ -71,39 +87,48 @@ void IPart::remove( int row ) {
 	}
 }
 
-std::auto_ptr< ROSETTA >IPart::getProperties( ) {
-	std::auto_ptr< ROSETTA >r( new ROSETTA( ) );
+/*
+std::auto_ptr < ROSETTA > IPart::getProperties( ) {
+	std::auto_ptr < ROSETTA > r( new ROSETTA( ) );
 	r->setString( getTypeStr( ), name );
 	if( mapped2 != NULL && mapped2->id != this->id ) {
 		r->setString( "Mapped_to", mapped2->name );
 	}
-	std::map< int, std::string >::const_iterator hi;
-	for( hi = history.begin( ); hi != history.end( ); ++ hi ) {
-		AnsiString date = TDate(hi->first).FormatString( "d_mmmm_yyyy" );
-		r->setString( date.c_str(), hi->second );
+	int n = 1;
+	for( auto hi = history.begin(); hi != history.end(); hi ++, n ++ ) {
+		AnsiString date = String( n ) + "_" + TDate( hi->first ).FormatString( "d_mmmm_yyyy" );
+		r->setString( date.c_str( ), hi->second );
 	}
 	return r;
 }
+*/
 
-std::auto_ptr< ROSETTA >IPart::getObjectData( ) {
-	std::auto_ptr< ROSETTA >r( new ROSETTA( ) );
+void IPart::showProperties( TStringGrid *grdProps ) const {
+	int row = grdProps -> FixedRows;
+	grdProps->Cells[ 0 ][ row ] = getTypeStr();
+	grdProps->Cells[ 1 ][ row++ ] = name.c_str();
+	if( mapped2 != NULL && mapped2->id != this->id ) {
+		grdProps->Cells[ 0 ][ row ] = "Mapped to";
+		grdProps->Cells[ 1 ][ row++ ] = mapped2->name.c_str();
+	}
+	for( auto hi : history ) {
+		grdProps->Cells[ 0 ][ row ] = TDate( hi.first ).FormatString( "d mmmm yyyy" );
+		grdProps->Cells[ 1 ][ row ++ ] = hi.second.c_str();
+	}
+	grdProps->RowCount = row;
+}
+
+ROSETTA * IPart::getObjectData() const {
+	ROSETTA * r( new ROSETTA( ) );
 	r->setInt( "ID", id );
 	r->setString( "Name", name );
 	return r;
 }
 
-IPart::IPart( int p_id, std::string p_name ) {
-	id = p_id;
-	name = p_name;
-	mapped2 = NULL;
-	type = UnknownType;
-	parent = NULL;
-	if( id == 0 || id == -1 ) {
-		state = NewState;
-	} else {
-		state = SyncState;
-	}
-	childCount = -1;
+ROSETTA * Sites::getObjectData() const {
+	ROSETTA * r( new ROSETTA( ) );
+	r->setString( "Type", "Sites" );
+	return r;
 }
 
 void Sites::populate( ) {
@@ -111,29 +136,37 @@ void Sites::populate( ) {
 		return;
 	}
 	StoreDAO dao;
-	std::vector< ROSETTA >results;
+	std::vector < ROSETTA > results;
 	dao.loadSites( results );
-	for( unsigned i = 0; i < results.size(); i++ ) {
-		Site *s = new Site( results[ i ] );
+	for( const ROSETTA & r : results ) {
+		Site *s = new Site( r );
 		s->setParent( this );
 		partlist.push_back( s );
 	}
-	sortChildren();
+	sortChildren( );
 	Site * s = new Site( 0, "(currently off line)" );
 	s->setParent( this );
 	partlist.push_back( s );
 	childCount = partlist.size( );
-	for( int i = 0; i < childCount; i ++ ) {
-		partlist[i]->setPosition( i );
+	for( int i = 0; i < childCount; i++ ) {
+		partlist[ i ]->setPosition( i );
 	}
 }
 
-std::auto_ptr< ROSETTA >Sites::getProperties( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
+/*
+std::auto_ptr < ROSETTA > Sites::getProperties( ) {
+	std::auto_ptr < ROSETTA > r = IPart::getProperties( );
 	if( childCount > 0 ) {
 		r->setInt( "sites", childCount );
 	}
 	return r;
+}
+*/
+void Sites::showProperties( TStringGrid *grdProps ) const {
+	int row = grdProps -> FixedRows;
+	grdProps->Cells[ 0 ][ row ] = "Sites";
+	grdProps->Cells[ 1 ][ row ] = childCount;
+	grdProps->RowCount = row + 1;
 }
 
 Site::Site( int p_id, std::string p_name ) : IPart( p_id, p_name ) {
@@ -156,38 +189,49 @@ Site::Site( const ROSETTA &data ) {
 	childCount = -1;
 }
 
-std::auto_ptr< ROSETTA >Site::getProperties( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
+/*
+std::auto_ptr < ROSETTA > Site::getProperties( ) {
+	std::auto_ptr < ROSETTA > r = IPart::getProperties( );
 	r->setString( "full_name", fullname );
 	if( childCount > 0 ) {
 		r->setInt( "storage_vessels", childCount );
 	}
 	return r;
 }
+*/
+void Site::showProperties( TStringGrid *grdProps ) const {
+	IPart::showProperties( grdProps );
+	int row = grdProps -> RowCount;
+	grdProps->Cells[ 0 ][ row ] = "Full name";
+	grdProps->Cells[ 1 ][ row ++ ] = fullname.c_str();
+	grdProps->Cells[ 0 ][ row ] = "Storage vessels";
+	grdProps->Cells[ 1 ][ row ] = childCount;
+	grdProps->RowCount = row + 1;
+}
 
-std::auto_ptr< ROSETTA >Site::getObjectData( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getObjectData( );
+ROSETTA * Site::getObjectData( ) const {
+	ROSETTA * r = IPart::getObjectData( );
 	r->setString( "fullname", fullname );
 	return r;
 }
 
-bool Site::operator<( const IPart& rhs ) const {
-	return getName() < rhs.getName();
+bool Site:: operator< ( const IPart& rhs ) const {
+	return getName( ) < rhs.getName( );
 }
 
 void Site::populate( ) {
 	if( childCount >= 0 || id == -1 ) {
 		return;
 	}
-	std::vector< ROSETTA >results;
-	StoreDAO().loadTanks( id, results );
-	childCount = results.size();
+	std::vector < ROSETTA > results;
+	StoreDAO( ).loadTanks( id, results );
+	childCount = results.size( );
 	for( int i = 0; i < childCount; i++ ) {
 		Tank *p = new Tank( results[ i ] );
-		p->loadTankDetails();
+		p->loadTankDetails( );
 		p->setParent( this );
 		if( id == 0 ) {
-			p->setPosition( 0 );	// no position if no current site
+			p->setPosition( 0 ); // no position if no current site
 		}
 		partlist.push_back( p );
 	}
@@ -197,7 +241,7 @@ void Site::populate( ) {
 
 bool Site::save( ) {
 	StoreDAO dao;
-	std::auto_ptr< ROSETTA >data = getObjectData( );
+	std::auto_ptr < ROSETTA > data( getObjectData() );
 	bool result = dao.saveSite( *data );
 	if( result ) {
 		state = SyncState;
@@ -249,7 +293,7 @@ void Tank::setFields( const ROSETTA &data ) {
 		description = data.getString( "content_full" );
 	}
 	if( name.empty( ) ) {
-		name = srlno.empty() ? label : srlno;
+		name = srlno.empty( ) ? label : srlno;
 	}
 	if( data.isInt( "map_cid" ) ) {
 		map_cid = data.getInt( "map_cid" );
@@ -283,14 +327,14 @@ void Tank::setFields( const ROSETTA &data ) {
 
 // merge tank mapping data into vessel details for editting
 void Tank::setFields( const Layout &data ) {
-	tank_cid = data.getTank_cid();
-	store_type_cid = data.getStore_type_cid();
-	map_cid = data.getID();
-	layout_cid = data.getLayout_cid();
-	label = data.getPopulationName();
-	description = data.getPopulationDescription();
-	shelf_number = data.getPosition();
-	if( data.availability() == Layout::IS_AVAILABLE ) {
+	tank_cid = data.getTank_cid( );
+	store_type_cid = data.getStore_type_cid( );
+	map_cid = data.getID( );
+	layout_cid = data.getLayout_cid( );
+	label = data.getPopulationName( );
+	description = data.getPopulationDescription( );
+	shelf_number = data.getPosition( );
+	if( data.availability( ) == Layout::IS_AVAILABLE ) {
 		status = LCDbTankMap::RECORD_IN_USE;
 	} else {
 		status = LCDbTankMap::OFFLINE;
@@ -320,45 +364,61 @@ void Tank::setAvailability( bool online ) {
 	status = online ? LCDbTankMap::RECORD_IN_USE : LCDbTankMap::OFFLINE;
 }
 
-std::auto_ptr< ROSETTA >Tank::getProperties( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
+/*
+std::auto_ptr < ROSETTA > Tank::getProperties( ) {
+	std::auto_ptr < ROSETTA > r = IPart::getProperties( );
 	r->setString( "serial_number", srlno );
-	const LCDbObject * type = LCDbObjects::records().findByID( store_type_cid );
+	const LCDbObject * type = LCDbObjects::records( ).findByID( store_type_cid );
 	if( type != NULL ) {
-		r->setString( "storage_type", type->getDescription() );
+		r->setString( "storage_type", type->getDescription( ) );
 	}
 	r->setString( "on_line", availability( ) == IS_AVAILABLE ? "Yes" : "No" );
 	return r;
 }
+*/
+void Tank::showProperties( TStringGrid *grdProps ) const {
+	IPart::showProperties( grdProps );
+	int row = grdProps -> RowCount;
+	grdProps->Cells[ 0 ][ row ] = "Serial number";
+	grdProps->Cells[ 1 ][ row ++ ] = srlno.c_str();
+	const LCDbObject * type = LCDbObjects::records( ).findByID( store_type_cid );
+	if( type != NULL ) {
+		grdProps->Cells[ 0 ][ row ] = "Storage type";
+		grdProps->Cells[ 1 ][ row ++ ] = type->getDescription().c_str();
+	}
+	grdProps->Cells[ 0 ][ row ] = "On line";
+	grdProps->Cells[ 1 ][ row ] = availability( ) == IS_AVAILABLE ? "Yes" : "No";
+	grdProps->RowCount = row + 1;
+}
 
-std::string Tank::getName() const {
+std::string Tank::getName( ) const {
 	if( position > 0 ) {
 		char buff[ 100 ];
-		std::sprintf( buff, "%d: %s", position, name.c_str() );
+		std::sprintf( buff, "%d: %s", position, name.c_str( ) );
 		return buff;
 	} else {
 		return name;
 	}
 }
 
-std::string Tank::getFullName() const {
-	std::string result = getName();
+std::string Tank::getFullName( ) const {
+	std::string result = getName( );
 	if( parent != NULL ) {
-		result = parent->getName() + " " + result;
+		result = parent->getName( ) + " " + result;
 	}
 	return result;
 }
 
-bool Tank::operator<( const IPart& rhs ) const {
-	if( getPosition() == rhs.getPosition() ) {
-		return getName() < rhs.getName();
+bool Tank:: operator < ( const IPart& rhs ) const {
+	if( getPosition( ) == rhs.getPosition( ) ) {
+		return getName( ) < rhs.getName( );
 	} else {
-		return getPosition() < rhs.getPosition();
+		return getPosition( ) < rhs.getPosition( );
 	}
 }
 
-std::auto_ptr< ROSETTA >Tank::getObjectData( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getObjectData( );
+ROSETTA * Tank::getObjectData( ) const {
+	ROSETTA * r = IPart::getObjectData( );
 	r->setInt( "tank_cid", tank_cid );
 	r->setInt( "position", position );
 	r->setInt( "storage_type", store_type_cid );
@@ -376,8 +436,8 @@ void Tank::populate( ) {
 	if( childCount >= 0 || id == -1 ) {
 		return;
 	}
-	std::vector< ROSETTA >results;
-	StoreDAO().loadLayouts( id, results );
+	std::vector < ROSETTA > results;
+	StoreDAO( ).loadLayouts( id, results );
 	childCount = ( int )results.size( );
 	for( int i = 0; i < childCount; i++ ) {
 		Layout *p = new Layout( results[ i ] );
@@ -388,33 +448,33 @@ void Tank::populate( ) {
 }
 
 void Tank::loadTankDetails( ) {
-	const LCDbObjects & names = LCDbObjects::records();
+	const LCDbObjects & names = LCDbObjects::records( );
 	bool online = false;
-	std::vector< ROSETTA > mapping;
-	StoreDAO().loadTankDetails( id, mapping );
+	std::vector < ROSETTA > mapping;
+	StoreDAO( ).loadTankDetails( id, mapping );
 	int best = -1;
-	for( unsigned i = 0; i < mapping.size(); i++ ) {
+	for( unsigned i = 0; i < mapping.size( ); i++ ) {
 		if( mapping[ i ].getInt( "status" ) != LCDbTankMap::DELETED ) {
 			// remember first valid mapping for first shelf
 			Layout population( mapping[ i ] );
 			if( best < 0 || population < Layout( mapping[ best ] ) ) {
 				best = i;
 			}
-			if( population.availability() == IPart::Availability::IS_AVAILABLE ) {
-                online = true;
-            }
-			// add to history, but only one record for each day
+			if( population.availability( ) == IPart::Availability::IS_AVAILABLE ) {
+				online = true;
+			}
+			// add to history (may create multiple entries)
 			std::stringstream detail;
-			const LCDbObject * site = names.findByID( population.getLocation_cid() );
+			const LCDbObject * site = names.findByID( population.getLocation_cid( ) );
 			if( site != NULL ) {
-				detail << site->getName() << ", ";
+				detail << site->getName( ) << ", ";
 			}
-			detail << "position " << population.getTankPos();
-			const LCDbObject * type = names.findByID( population.getStore_type_cid() );
+			detail << "position " << population.getTankPos( );
+			const LCDbObject * type = names.findByID( population.getStore_type_cid( ) );
 			if( type != NULL ) {
-				detail << ": " << type->getName();
+				detail << ": " << type->getName( );
 			}
-			history[ population.getValidFrom() ] = detail.str( );
+			history.insert( { population.getValidFrom(), detail.str() } );
 		}
 	}
 	if( best >= 0 ) {
@@ -425,7 +485,7 @@ void Tank::loadTankDetails( ) {
 
 bool Tank::save( ) {
 	StoreDAO dao;
-	std::auto_ptr< ROSETTA >data = getObjectData( );
+	std::auto_ptr < ROSETTA > data( getObjectData() );
 	if( dao.savePhysicalStore( *data ) ) {
 		id = data->getInt( "storage_cid" );
 	} else {
@@ -439,7 +499,7 @@ bool Tank::save( ) {
 	}
 
 	Layout *l = ( Layout* ) partlist[ 0 ];
-//	l->setStorage_cid( id );
+	// l->setStorage_cid( id );
 	l->setTank_cid( tank_cid );
 	if( l->isNew( ) ) {
 		if( l->save( ) ) {
@@ -450,8 +510,8 @@ bool Tank::save( ) {
 	}
 
 	data->setInt( "layout_cid", l->getLayout_cid( ) );
-	data->setTime( "valid_from", l->getValidFrom());
-	data->setTime( "valid_to", l->getValidUntil());
+	data->setTime( "valid_from", l->getValidFrom( ) );
+	data->setTime( "valid_to", l->getValidUntil( ) );
 	if( !dao.saveTankMap( *data ) ) {
 		return false;
 	}
@@ -464,7 +524,7 @@ bool Tank::save( ) {
 bool Tank::modifySerial( ) {
 	StoreDAO dao;
 	location_cid = this->parent->getID( );
-	std::auto_ptr< ROSETTA >data = getObjectData( );
+	std::auto_ptr < ROSETTA > data( getObjectData() );
 	bool result = dao.savePhysicalStore( *data );
 	if( result ) {
 		state = SyncState;
@@ -475,16 +535,16 @@ bool Tank::modifySerial( ) {
 			return false;
 		}
 		map_cid = data->getInt( "map_cid" );
-//		l->setID( map_cid );
+		// l->setID( map_cid );
 	}
 	return result;
 }
 
 bool Tank::modifyLayout( ) {
 	StoreDAO dao;
-	std::auto_ptr< ROSETTA >data = getObjectData( );
+	std::auto_ptr < ROSETTA > data( getObjectData() );
 	Layout *l = ( Layout* )partlist[ 0 ];
-//	l->setStorage_cid( storage_cid );
+	// l->setStorage_cid( storage_cid );
 	l->setTank_cid( tank_cid );
 	if( l->isNew( ) && !l->save( ) ) {
 		return false;
@@ -494,7 +554,7 @@ bool Tank::modifyLayout( ) {
 		return false;
 	}
 	map_cid = data->getInt( "map_cid" );
-//	l->setID( map_cid );
+	// l->setID( map_cid );
 	state = SyncState;
 	return true;
 }
@@ -509,12 +569,14 @@ Layout::Layout( ) : IPart( ) {
 	state = NewState;
 	type = LayoutType;
 	store_type_cid = tank_cid = layout_cid = -1;
+	status = -1;
 }
 
 Layout::Layout( int p_id, std::string p_name ) : IPart( p_id, p_name ) {
 	state = NewState;
 	type = LayoutType;
 	store_type_cid = tank_cid = layout_cid = -1;
+	status = -1;
 }
 
 Layout::Layout( const ROSETTA &data ) {
@@ -545,14 +607,14 @@ Layout::Layout( const ROSETTA &data ) {
 		fullname = data.getString( "label_full" );
 	}
 	if( data.isDate( "valid_from" ) ) {
-		valid_from = data.getDate( "valid_from" ).outputTDateTime();
+		valid_from = data.getDate( "valid_from" ).outputTDateTime( );
 	} else if( data.isTime( "valid_from" ) ) {
-		valid_from = data.getTime( "valid_from" ).outputTDateTime();
+		valid_from = data.getTime( "valid_from" ).outputTDateTime( );
 	}
 	if( data.isDate( "valid_to" ) ) {
-		valid_to = data.getDate( "valid_to" ).outputTDateTime();
+		valid_to = data.getDate( "valid_to" ).outputTDateTime( );
 	} else if( data.isTime( "valid_to" ) ) {
-		valid_to = data.getTime( "valid_to" ).outputTDateTime();
+		valid_to = data.getTime( "valid_to" ).outputTDateTime( );
 	}
 	status = data.getIntDefault( "status", 0 );
 	store_type_cid = data.getIntDefault( "storage_type", -150 );
@@ -568,25 +630,48 @@ Layout::Layout( const ROSETTA &data ) {
 	childCount = -1;
 }
 
-std::auto_ptr< ROSETTA >Layout::getProperties( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
+/* ROSETTA > Layout::getProperties( ) {
+	std::auto_ptr < ROSETTA > r = IPart::getProperties( );
 	if( position != 0 ) {
 		r->setInt( "shelf_number", position );
 	}
 	if( store_type_cid != 0 ) {
-		const LCDbObject *st = LCDbObjects::records().findByID( store_type_cid );
+		const LCDbObject *st = LCDbObjects::records( ).findByID( store_type_cid );
 		if( st != NULL ) {
 			r->setString( "storage_type", st->getDescription( ) );
 		}
 	}
 	r->setString( "layout", layout_description );
 	r->setString( "on_line", availability( ) == IS_AVAILABLE ? "Yes" : "No" );
-	r->setString( "valid", getDateRange() );
+	r->setString( "valid", getDateRange( ) );
 	return r;
 }
+*/
 
-std::auto_ptr< ROSETTA >Layout::getObjectData( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getObjectData( );
+void Layout::showProperties( TStringGrid *grdProps ) const {
+	IPart::showProperties( grdProps );
+	int row = grdProps -> RowCount;
+	if( position != 0 ) {
+		grdProps->Cells[ 0 ][ row ] = "Shelf";
+		grdProps->Cells[ 1 ][ row ++ ] = position;
+	}
+	const LCDbObject *st = LCDbObjects::records( ).findByID( store_type_cid );
+	if( st != NULL ) {
+		grdProps->Cells[ 0 ][ row ] = "Storage type";
+		grdProps->Cells[ 1 ][ row ++ ] = st->getDescription().c_str( );
+	}
+	grdProps->Cells[ 0 ][ row ] = "Layout";
+	grdProps->Cells[ 1 ][ row ++ ] = layout_description.c_str( );
+	grdProps->Cells[ 0 ][ row ] = "On line";
+	grdProps->Cells[ 1 ][ row ++ ] = availability( ) == IS_AVAILABLE ? "Yes" : "No";
+	grdProps->Cells[ 0 ][ row ] = "Valid";
+	grdProps->Cells[ 1 ][ row ++ ] = getDateRange( ).c_str( );
+	grdProps->RowCount = row;                                                      }
+
+
+
+ROSETTA * Layout::getObjectData( ) const {
+	ROSETTA * r = IPart::getObjectData( );
 	r->setString( "layout_name", layout_name );
 	r->setString( "layout_full", layout_description );
 	r->setInt( "store_type_cid", store_type_cid );
@@ -597,80 +682,77 @@ std::auto_ptr< ROSETTA >Layout::getObjectData( ) {
 	return r;
 }
 
-std::string Layout::getDateRange() const {
+std::string Layout::getDateRange( ) const {
 	AnsiString result;
-	if( valid_from >= EPOCH_START && valid_from < EPOCH_END ) {
-		result = valid_from.DateString();
-		if( valid_to >= valid_from && valid_to < EPOCH_END ) {
-			result = result + " - " + valid_to.DateString();
-		} else if( valid_from > Now() ) {
+	if( EPOCH_START < valid_from && EPOCH_END > valid_from ) {
+		result = valid_from.DateString( );
+		if( valid_to >= valid_from && EPOCH_END > valid_to ) {
+			result = result + " - " + valid_to.DateString( );
+		} else if( valid_from > Now( ) ) {
 			result = "From " + result;
 		} else {
 			result = "Since " + result;
 		}
 	} else {
-		if( valid_to >= EPOCH_START && valid_to < EPOCH_END ) {
-			result = "Until " + valid_to.DateString();
+		if( EPOCH_START < valid_to && EPOCH_END > valid_to ) {
+			result = "Until " + valid_to.DateString( );
 		} else if( status == LCDbTankMap::DELETED ) {
 			result = "Former content";
 		} else {
 			result = "Current content";
 		}
 	}
-	return result.c_str();
+	return result.c_str( );
 }
 
-std::string Layout::getName() const {
+std::string Layout::getName( ) const {
 	std::stringstream result;
 	if( position > 0 ) {
 		result << position << ": ";
 	}
-	result << getDateRange() << ": " << getLayoutName();
-	return result.str();
+	result << getDateRange( ) << ": " << getLayoutName( );
+	return result.str( );
 }
 
-std::string Layout::getFullName() const {
-	return getParent()->getFullName() + ", " + getLayoutName();
+std::string Layout::getFullName( ) const {
+	return getParent( )->getFullName( ) + ", " + getLayoutName( );
 }
 
 IPart::Availability Layout::availability( ) const {
-	if( status == LCDbTankMap::NEW_RECORD || status == LCDbTankMap::RECORD_IN_USE ) {
-		if( valid_from >= EPOCH_END || valid_from < Now() ) {
-			if( valid_to < valid_from || valid_to > Now() ) {
-				return IS_AVAILABLE;
-			}
-		}
+	if( (status == LCDbTankMap::NEW_RECORD || status == LCDbTankMap::RECORD_IN_USE)
+	 && (EPOCH_END < valid_from || valid_from < Now()) && (valid_to < valid_from || valid_to > Now()) ) {
+		return IS_AVAILABLE;
 	}
 	return UNAVAILABLE;
 }
 
 // sort order for Layouts: by shelf, then status, then start date
-bool Layout::operator<( const IPart& rhs ) const {
-	if( rhs.getType() != LayoutType ) {
-		return type < rhs.getType();
+bool Layout:: operator < ( const IPart& rhs ) const {
+	if( rhs.getType( ) != LayoutType ) {
+		return type < rhs.getType( );
 	}
-	if( getPosition() != rhs.getPosition() ) {
-		return getPosition() < rhs.getPosition();
+	if( getPosition( ) != rhs.getPosition( ) ) {
+		return getPosition( ) < rhs.getPosition( );
 	}
-	Availability myA = availability(), rhsA = ((Layout*)(&rhs))->availability();
+	Availability myA = availability( ), rhsA = ( ( Layout* )( &rhs ) )->availability( );
 	if( myA != rhsA ) {
 		return myA == IS_AVAILABLE && rhsA == UNAVAILABLE;
 	}
-	return valid_from < ((Layout*)(&rhs))->getValidFrom();
+	return valid_from < ( ( Layout* )( &rhs ) )->getValidFrom( );
 }
 
 // fill in dates if necessary
 void Layout::setAvailability( bool online ) {
-	TDateTime change = Now();
-	if( valid_from <= EPOCH_START || valid_from > change ) {
+	TDateTime change = Now( );
+	if( EPOCH_START < valid_from || valid_from > change ) {
 		valid_from = change;
 	}
 	if( online ) {
 		status = LCDbTankMap::RECORD_IN_USE;
-		valid_to = EPOCH_END;
+		valid_to = 0;
 	} else {
 		status = LCDbTankMap::OFFLINE;
-		if( valid_to <= EPOCH_START || valid_to > change ) {
+		if( EPOCH_START < valid_to || valid_to > change ) {
 			valid_to = change;
 		}
 	}
@@ -686,31 +768,19 @@ void Layout::populate( ) {
 	if( childCount >= 0 ) {
 		return;
 	}
+	// read existing racks in this "population" - sections don't exist in database
 	StoreDAO dao;
-	// read existing racks in this "population" - sections don't exist in the database
-	std::vector< Rack * > allRacks;
+	std::vector < ROSETTA > racks;
 	if( tank_cid != 0 && tank_cid != -1 ) {
-		std::vector< ROSETTA > racks;
 		dao.loadRacks( tank_cid, racks );
-		for( const ROSETTA & ri : racks ) {
-			allRacks.push_back( new Rack( ri ) );
-		}
 	}
 	// read section definitions for this layout - racks should match one of them
-	std::vector< ROSETTA > sections;
+	std::vector < ROSETTA > sections;
 	dao.loadSections( layout_cid, sections );
 	capacity = sections.size( );
 	for( int i = 0; i < capacity; i++ ) {
 		Section *s = new Section( sections[ i ] );
-		std::multimap< short, Rack * > matchedRacks;
-		for( Rack * ri : allRacks ) {
-			if( ri->getType_cid() == s->getID() ) {
-				matchedRacks.insert( std::pair< short, Rack * >( ri->getPosition(), ri ) );
-			}
-		}
-		s->setMap_cid( id );
-		s->setTank_cid( tank_cid );
-		s->populate( matchedRacks );
+		s->populate( racks );
 		s->setParent( this );
 		partlist.push_back( s );
 	}
@@ -719,8 +789,8 @@ void Layout::populate( ) {
 
 bool Layout::save( ) {
 	StoreDAO dao;
-	std::auto_ptr< ROSETTA >data = getObjectData( );
-	if( isNew() ) {
+	std::auto_ptr < ROSETTA > data( getObjectData() );
+	if( isNew( ) ) {
 		bool result = dao.saveLayout( *data );
 		if( !result ) {
 			return false;
@@ -732,52 +802,85 @@ bool Layout::save( ) {
 }
 
 void Layout::saveAvailability( ) {
-	StoreDAO dao;
-	std::auto_ptr< ROSETTA >data = getObjectData( );
-	dao.setLayoutAvailability( *data );
+	std::auto_ptr < ROSETTA > data( getObjectData() );
+	StoreDAO().setLayoutAvailability( *data );
 }
 
 Section::Section( ) : IPart( ) {
 	state = NewState;
 	type = SectionType;
-	tank_cid = map_cid = 0;
-	first = last = -1;
+	rack_layout_cid = tank_cid = map_cid = 0;
+	rackSize = first = last = -1;
 }
 
 Section::Section( int p_id, std::string p_name ) : IPart( p_id, p_name ) {
 	state = NewState;
 	type = SectionType;
-	tank_cid = map_cid = 0;
-	first = last = -1;
+	rack_layout_cid = tank_cid = map_cid = 0;
+	rackSize = first = last = -1;
 }
 
-void Section::populate( const std::multimap< short, Rack * > & dbRacks ) {
-	const LCDbSectionDef * layout = LCDbSectionDefs::records().findByID( id );
-	short posInRack = 1, posInTank = (layout == NULL ? -999 : layout->getFirstPosition());
-	std::multimap< short, Rack * >::const_iterator mmi = dbRacks.begin();
-	clearList();
-	for( short n = first; n <= last || mmi != dbRacks.end(); n ++, posInRack ++, posInTank ++ ) {
-		Rack * r;
-		if( mmi == dbRacks.end() || posInRack < mmi->first ) {
-			char buff[ 60 ];
-			// add in empty racks to fill the section
-			r = new Rack();
-			std::sprintf( buff, "%s%d", name.c_str(), n );
-			r -> setName( buff );
-			r -> setPosition( posInRack );
-			r -> setEmptySlots( rackSize );
-		} else {
-			r = mmi -> second;
-			mmi ++;
+void Section::populate( const std::vector < ROSETTA > & dbRacks ) {
+	char buff[ 60 ];
+	short posInRack = 1, posInTank = 1;
+	const LCDbSectionDef * layout = LCDbSectionDefs::records( ).findByID( id );
+	if( layout != NULL ) {
+		posInTank = layout->getFirstPosition( );
+	}
+	clearList( );
+	for( short n = first; n <= last; n++, posInRack++, posInTank++ ) {
+		Rack * r = NULL;
+		for( const ROSETTA & ri : dbRacks ) {
+			if( ri.getIntDefault( "position", -999 ) == posInTank ) {
+				r = new Rack( ri );
+			}
 		}
-		r -> setMap_cid( map_cid );
-		r -> setCapacity( rackSize );
-		r -> setPosInTank( posInTank );
-		r -> setParent( this );
+		if( r == NULL ) {
+			// add in empty racks to fill the section
+			r = new Rack( );
+			std::sprintf( buff, "%s%d", name.c_str( ), n );
+			r->setName( buff );
+			r->setPosInTank( posInTank );
+			r->setEmptySlots( rackSize );
+		}
+		r->setMap_cid( map_cid );
+		r->setPosition( posInRack );
+		r->setCapacity( rackSize );
+		r->setParent( this );
 		partlist.push_back( r );
 	}
-	childCount = partlist.size();
+	childCount = partlist.size( );
 }
+
+/*
+void Section::populate( const std::multimap < short, Rack * > & dbRacks ) {
+	const LCDbSectionDef * layout = LCDbSectionDefs::records( ).findByID( id );
+	short posInRack = 1, posInTank = ( layout == NULL ? -999 : layout->getFirstPosition( ) );
+	std::multimap < short, Rack* > ::const_iterator mmi = dbRacks.begin( );
+	clearList( );
+	for( short n = first; n <= last || mmi != dbRacks.end( ); n++, posInRack++, posInTank++ ) {
+		Rack * r;
+		if( mmi == dbRacks.end( ) || posInRack < mmi->first ) {
+			char buff[ 60 ];
+			// add in empty racks to fill the section
+			r = new Rack( );
+			std::sprintf( buff, "%s%d", name.c_str( ), n );
+			r->setName( buff );
+			r->setPosition( posInRack );
+			r->setEmptySlots( rackSize );
+		} else {
+			r = mmi->second;
+			mmi++;
+		}
+		r->setMap_cid( map_cid );
+		r->setCapacity( rackSize );
+		r->setPosInTank( posInTank );
+		r->setParent( this );
+		partlist.push_back( r );
+	}
+	childCount = partlist.size( );
+}
+*/
 
 Section::Section( const ROSETTA &data ) {
 	if( data.isString( "section_prefix" ) ) {
@@ -789,12 +892,12 @@ Section::Section( const ROSETTA &data ) {
 		id = data.getInt( "record_cid" );
 	} else {
 		id = -1;
-    }
+	}
 	rack_layout_cid = data.getIntDefault( "rack_layout_cid", -1 );
 	position = data.getIntDefault( "fill_order", 0 );
 	first = data.getIntDefault( "first_rack", 0 );
 	last = data.getIntDefault( "last_rack", 0 );
-	capacity = (last > first ? 1 + last - first : -1);
+	capacity = ( last > first ? 1 + last - first : -1 );
 	rackSize = data.getIntDefault( "rack_capacity", -1 );
 	tank_cid = data.getIntDefault( "tank_cid", -1 );
 	map_cid = data.getIntDefault( "map_cid", -1 );
@@ -806,8 +909,9 @@ Section::Section( const ROSETTA &data ) {
 	childCount = -1;
 }
 
-std::auto_ptr< ROSETTA >Section::getProperties( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
+/*
+std::auto_ptr < ROSETTA > Section::getProperties( ) {
+	std::auto_ptr < ROSETTA > r = IPart::getProperties( );
 	r->setInt( "first_structure", first );
 	r->setInt( "last_structure", last );
 	if( rackSize > 0 ) {
@@ -815,9 +919,23 @@ std::auto_ptr< ROSETTA >Section::getProperties( ) {
 	}
 	return r;
 }
+*/
+void Section::showProperties( TStringGrid *grdProps ) const {
+	IPart::showProperties( grdProps );
+	int row = grdProps -> RowCount;
+	grdProps->Cells[ 0 ][ row ] = "First structure";
+	grdProps->Cells[ 1 ][ row ++ ] = first;
+	grdProps->Cells[ 0 ][ row ] = "Last structure";
+	grdProps->Cells[ 1 ][ row ++ ] = last;
+	if( rackSize > 0 ) {
+		grdProps->Cells[ 0 ][ row ] = "Structure size";
+		grdProps->Cells[ 1 ][ row ++ ] = rackSize;
+	}
+	grdProps->RowCount = row;
+}
 
-std::auto_ptr< ROSETTA >Section::getObjectData( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getObjectData( );
+ROSETTA * Section::getObjectData( ) const {
+	ROSETTA * r = IPart::getObjectData( );
 	r->setInt( "layout_cid", rack_layout_cid );
 	r->setInt( "fill_order", position );
 	r->setInt( "first_rack", first );
@@ -827,43 +945,37 @@ std::auto_ptr< ROSETTA >Section::getObjectData( ) {
 	return r;
 }
 
-std::string Section::getFullName() const {
+std::string Section::getFullName( ) const {
 	std::string result;
-	if( name.length() < 3 ) {
+	if( name.length( ) < 3 ) {
 		result = "section " + name;
-	} else if( stricmp( name.c_str(), "Rack" ) == 0 ) {
+	} else if( stricmp( name.c_str( ), "Rack" ) == 0 ) {
 		result = "rack list";
 	} else {
 		result = name;
 	}
-	return getParent()->getFullName() + ", " + result;
+	return getParent( )->getFullName( ) + ", " + result;
 }
 
 void Section::populate( ) {
 	if( childCount >= 0 || tank_cid == -1 ) {
 		return;
 	}
-	StoreDAO dao;
-	std::vector< ROSETTA >results;
-	dao.loadRacks( tank_cid, results, id );
-	std::multimap< short, Rack * > dbRacks;
-	for( const ROSETTA & ri : results ) {
-		Rack *r = new Rack( ri );
-		dbRacks.insert( std::pair< short, Rack * >( r->getPosition(), r ) );
-	}
-	populate( dbRacks );
+	std::vector < ROSETTA > results;
+	StoreDAO().loadRacks( tank_cid, results, id );
+	populate( results );
 }
 
-IPart::Availability Section::availability() const {
+IPart::Availability Section::availability( ) const {
 	short empty = 0, full = 0;
 	for( int i = 0; i < childCount; i++ ) {
-		Rack * r = (Rack *)( partlist[ i ] );
-		switch( r->availability() ) {
-			case IS_EMPTY:
-				empty ++;
-				break;
-			case IS_FULL:
-				full ++;
+		Rack * r = ( Rack* )( partlist[ i ] );
+		switch( r->availability( ) ) {
+		case IS_EMPTY:
+			empty++;
+			break;
+		case IS_FULL:
+			full++;
 		}
 	}
 	if( empty == childCount ) {
@@ -879,12 +991,12 @@ bool Section::save( ) {
 	Layout *t = ( Layout* )this->parent;
 	StoreDAO dao;
 	// map_cid = t->getID();
-	rack_layout_cid = t->getLayout_cid();
-	std::auto_ptr< ROSETTA > data = getObjectData( );
+	rack_layout_cid = t->getLayout_cid( );
+	std::auto_ptr < ROSETTA > data( getObjectData() );
 	bool result = dao.saveSection( *data );
 	if( result ) {
 		state = SyncState;
-		id = data->getInt("ID");
+		id = data->getInt( "ID" );
 	}
 	return result;
 }
@@ -914,8 +1026,8 @@ Rack::Rack( const ROSETTA &data ) {
 	project_cid = data.getIntDefault( "project_cid", -1 );
 	map_cid = data.getIntDefault( "map_cid", -1 );
 
-	const LCDbSectionDef * layout = LCDbSectionDefs::records().findByID( rack_type_cid );
-	position = (layout == NULL ? -1 : posInTank - (layout->getFirstPosition() - 1));
+	const LCDbSectionDef * layout = LCDbSectionDefs::records( ).findByID( rack_type_cid );
+	position = ( layout == NULL ? -1 : posInTank - ( layout->getFirstPosition( ) - 1 ) );
 	mapped2 = NULL;
 	parent = NULL;
 	state = SyncState;
@@ -923,8 +1035,9 @@ Rack::Rack( const ROSETTA &data ) {
 	childCount = -1;
 }
 
-std::auto_ptr< ROSETTA >Rack::getProperties( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
+/*
+std::auto_ptr < ROSETTA > Rack::getProperties( ) {
+	std::auto_ptr < ROSETTA > r = IPart::getProperties( );
 	r->setInt( "position", position );
 	if( capacity > 0 ) {
 		r->setInt( "total_slots", capacity );
@@ -937,9 +1050,29 @@ std::auto_ptr< ROSETTA >Rack::getProperties( ) {
 	}
 	return r;
 }
+*/
+void Rack::showProperties( TStringGrid *grdProps ) const {
+	IPart::showProperties( grdProps );
+	int row = grdProps -> RowCount;
+	grdProps->Cells[ 0 ][ row ] = "Position";
+	grdProps->Cells[ 1 ][ row ++ ] = position;
+	if( capacity > 0 ) {
+		grdProps->Cells[ 0 ][ row ] = "Total slots";
+		grdProps->Cells[ 1 ][ row ++ ] = capacity;
+	}
+	if( childCount > 0 ) {
+		grdProps->Cells[ 0 ][ row ] = "Slots used";
+		grdProps->Cells[ 1 ][ row ++ ] = childCount;
+	}
+	if( emptySlots > 0 ) {
+		grdProps->Cells[ 0 ][ row ] = "Empty slots";
+		grdProps->Cells[ 1 ][ row ++ ] = emptySlots;
+	}
+	grdProps->RowCount = row;
+}
 
-std::auto_ptr< ROSETTA >Rack::getObjectData( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getObjectData( );
+ROSETTA * Rack::getObjectData( ) const {
+	ROSETTA * r = IPart::getObjectData( );
 	r->setInt( "tank_cid", tank_cid );
 	r->setInt( "rack_type_cid", rack_type_cid );
 	// r->setInt( "map_cid", map_cid );
@@ -948,21 +1081,21 @@ std::auto_ptr< ROSETTA >Rack::getObjectData( ) {
 	r->setInt( "empty_slots", emptySlots );
 	r->setInt( "pos_in_tank", posInTank );
 	r->setInt( "pos_in_section", position );
-	Section * p = dynamic_cast< Section * >( parent );
+	Section * p = dynamic_cast < Section* > ( parent );
 	if( p != NULL ) {
-		Site * s = dynamic_cast< Site * >( p->getParent()->getParent()->getParent() );
+		Site * s = dynamic_cast < Site* > ( p->getParent( )->getParent( )->getParent( ) );
 		if( s != NULL ) {
-			r->setString("location",s->getName());
+			r->setString( "location", s->getName( ) );
 		}
 	}
 	return r;
 }
 
-std::string Rack::getFullName() const {
+std::string Rack::getFullName( ) const {
 	std::string result = name;
-	Layout * l = dynamic_cast< Layout * >( getParent()->getParent() );
+	Layout * l = dynamic_cast < Layout* > ( getParent( )->getParent( ) );
 	if( l != NULL ) {
-		result = l->getFullName() + ", " + result;
+		result = l->getFullName( ) + ", " + result;
 	}
 	return result;
 }
@@ -972,38 +1105,38 @@ void Rack::populate( ) {
 		return;
 	}
 	// find expected number of slots for the current segment
-	const LCDbSectionDef * layout = LCDbSectionDefs::records().findByID( rack_type_cid );
+	const LCDbSectionDef * layout = LCDbSectionDefs::records( ).findByID( rack_type_cid );
 	if( layout != NULL ) {
-		capacity = layout -> getRackCapacity();
+		capacity = layout->getRackCapacity( );
 	} else if( capacity < 1 ) {
-		capacity = 99; 	// error ??
+		capacity = 99; // error ??
 	}
 	// allocate boxes to slots; allow more than one per slot (e.g. during box move)
 	StoreDAO dao;
-	std::vector< ROSETTA > results;
+	std::vector < ROSETTA > results;
 	dao.loadBoxes( id, results );
-	std::multimap< int, Box * > boxes;
-	std::set< int > projects, boxTypes;
+	std::multimap < int, Box* > boxes;
+	std::set < int > projects, boxTypes;
 	for( const ROSETTA & ri : results ) {
 		Box * b = new Box( ri );
-		boxes.insert( std::pair< int, Box * >( b->getPosition(), b ) );
-		projects.insert( b->getProjectCID() );
-		boxTypes.insert( b->getBoxTypeCID() );
+		boxes.insert({ b->getPosition(), b } );
+		projects.insert( b->getProjectCID( ) );
+		boxTypes.insert( b->getBoxTypeCID( ) );
 	}
 	for( auto bi : boxes ) {
 		bi.second->setParent( this );
 		partlist.push_back( bi.second );
 	}
-	childCount = partlist.size();
+	childCount = partlist.size( );
 
 	// update summary fields in c_rack_number if rack contents have changed
-	bool changed = name.empty();
-	int boxProj = (projects.empty() ? -1 : projects.size() == 1 ? *projects.begin() : 0);
+	bool changed = name.empty( );
+	int boxProj = ( projects.empty( ) ? -1 : projects.size( ) == 1 ? *projects.begin( ) : 0 );
 	if( project_cid != boxProj ) {
 		project_cid = boxProj;
 		changed = true;
 	}
-	int boxType = (boxTypes.size() == 1 ? *boxTypes.begin() : 0);
+	int boxType = ( boxTypes.size( ) == 1 ? *boxTypes.begin( ) : 0 );
 	if( box_type_cid != boxType ) {
 		box_type_cid = boxType;
 		changed = true;
@@ -1013,12 +1146,12 @@ void Rack::populate( ) {
 		emptySlots = slots;
 		changed = true;
 	}
-	if( changed ) {
-		save();
+	if( tank_cid != -1 && changed ) {
+		save( );
 	}
 }
 
-IPart::Availability Rack::availability() const {
+IPart::Availability Rack::availability( ) const {
 	if( id == -1 || id == 0 || childCount == 0 ) {
 		return IS_EMPTY;
 	} else if( emptySlots == 0 ) {
@@ -1039,15 +1172,15 @@ IPart::Availability Rack::availability() const {
  }
  }
  */
-bool Rack::save() {
+bool Rack::save( ) {
 	StoreDAO dao;
-	std::auto_ptr< ROSETTA >data = getObjectData( );
+	std::auto_ptr < ROSETTA > data( getObjectData() );
 	if( dao.occupyRack( *data ) ) {
 		id = data->getInt( "ID" );
 		return true;
 	} else {
 		return false;
-    }
+	}
 }
 
 Box::Box( ) : IPart( ) {
@@ -1062,6 +1195,11 @@ Box::Box( int p_id, std::string p_name ) : IPart( p_id, p_name ) {
 	type = BoxType;
 }
 
+bool IPart::validField( const ROSETTA &record, const std::string &field ) {
+	const ROSE_BASE * data = record.pointerRoseBase( field );
+	return data != NULL && data->isValid()  && !data->hasTag( XSQL::null );
+}
+
 Box::Box( const ROSETTA &data ) {
 	if( data.isInt( "box_cid" ) ) {
 		id = data.getInt( "box_cid" );
@@ -1074,10 +1212,12 @@ Box::Box( const ROSETTA &data ) {
 	} else {
 		record_id = data.getIntDefault( "slot_cid", 0 );
 	}
-	rack_cid = data.getIntDefault( "rack_cid", -1 );
-	position = data.getIntDefault( "slot_position", 0 );
-	emptySlots = data.getIntDefault( "box_capacity", -1 );
-	retrieval_cid = data.getIntDefault( "retrieval_cid", 0 );
+
+	rack_cid = validField( data, "rack_cid" ) ? data.getInt( "rack_cid" ) : -1;
+	position = validField( data, "slot_position" ) ? data.getInt( "slot_position" ) : 0;
+	emptySlots = validField( data, "box_capacity" ) ? data.getInt( "box_capacity" ) : -1;
+	retrieval_cid = validField( data, "retrieval_cid" ) ? data.getInt( "retrieval_cid" ) : 0;
+	status = validField( data, "status" ) ? data.getInt( "status" ) : 0;
 
 	if( data.isString( "external_name" ) ) {
 		name = data.getString( "external_name" );
@@ -1087,13 +1227,12 @@ Box::Box( const ROSETTA &data ) {
 	}
 	project_cid = data.getIntDefault( "project_cid", -1 );
 	if( project_cid == -1 && data.isString( "db_name" ) ) {
-		std::string db_name = data.getString("db_name");
-		const LCDbProject * p = LCDbProjects::records().findByName( db_name );
+		std::string db_name = data.getString( "db_name" );
+		const LCDbProject * p = LCDbProjects::records( ).findByName( db_name );
 		if( p != NULL ) {
-			project_cid = p -> getID();
+			project_cid = p->getID( );
 		}
 	}
-	status = data.getIntDefault( "status", 0 );
 	mapped2 = NULL;
 	parent = NULL;
 	state = SyncState;
@@ -1102,7 +1241,7 @@ Box::Box( const ROSETTA &data ) {
 	capacity = -1;
 }
 
-std::string Box::getName() const {
+std::string Box::getName( ) const {
 	const char * movement;
 	switch( status ) {
 	case LCDbBoxStore::EXPECTED:
@@ -1115,60 +1254,68 @@ std::string Box::getName() const {
 		movement = NULL;
 	}
 
-	if( movement != NULL && mapped2 != NULL && mapped2->getParent() != NULL ) {
-		Rack * r = (Rack*)(mapped2->getParent());
-		const std::string & rack = r -> getName();
-		Tank * t = (Tank*)(r->getParent()->getParent()->getParent());
-		const std::string & store = t -> getVessel();
-		short slot = ((Box*)mapped2)->getPosition();
+	if( movement != NULL && mapped2 != NULL && mapped2->getParent( ) != NULL ) {
+		Rack * r = ( Rack* )( mapped2->getParent( ) );
+		const std::string & rack = r->getName( );
+		Tank * t = ( Tank* )( r->getParent( )->getParent( )->getParent( ) );
+		const std::string & store = t->getVessel( );
+		short slot = ( ( Box* )mapped2 )->getPosition( );
 		char label[ 150 ];
-		std::sprintf( label, "%s %s %s %s, %d", name.c_str(), movement, store.c_str(), rack.c_str(), slot );
+		std::sprintf( label, "%s %s %s %s, %d", name.c_str( ), movement, store.c_str( ),
+			rack.c_str( ), slot );
 		return label;
 	} else {
 		return name;
 	}
 }
 
-std::auto_ptr< ROSETTA >Box::getProperties( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
-	const LPDbBoxType *content = LPDbBoxTypes::records().findByID( box_type_id );
-	if( content != NULL ) {
-		r->setString( "content", content->getDescription( ) );
+void Box::showProperties( TStringGrid *grdProps ) const {
+	IPart::showProperties( grdProps );
+	int row = grdProps -> RowCount;
+	if( !barcode.empty() ) {
+		grdProps->Cells[ 0 ][ row ] = "Barcode";
+		grdProps->Cells[ 1 ][ row ++ ] = barcode.c_str();
 	}
-	r->setString( "barcode", barcode );
-
-	const char *statusStr;
+	const char * strStat = NULL;
 	switch( status ) {
-	case LCDbBoxStore::EXPECTED:
-		statusStr = "Expected";
-		break;
-	case LCDbBoxStore::MOVE_EXPECTED:
-		statusStr = "Move expected";
-		break;
-	case LCDbBoxStore::SLOT_ALLOCATED:
-		statusStr = "Allocated";
-		break;
-	case LCDbBoxStore::SLOT_CONFIRMED:
-		statusStr = "Confirmed";
-		break;
-	case LCDbBoxStore::REMOVED:
-		statusStr = "Removed";
-		break;
-	case LPDbBoxName::DESTROYED:
-		statusStr = "Destroyed";
-		break;
-	case LPDbBoxName::DELETED:
-		statusStr = "Deleted";
-		break;
-	default:
-		statusStr = "Unknown";
+		case LCDbBoxStore::EXPECTED:
+			strStat = "Expected";
+			break;
+		case LCDbBoxStore::MOVE_EXPECTED:
+			strStat = "Move expected";
+			break;
+		case LCDbBoxStore::SLOT_ALLOCATED:
+			strStat = "Allocated";
+			break;
+		case LCDbBoxStore::SLOT_CONFIRMED:
+			strStat = "Confirmed";
+			break;
+		case LCDbBoxStore::REMOVED:
+			strStat = "Removed";
+			break;
+		case LPDbBoxName::DESTROYED:
+			strStat = "Destroyed";
+			break;
+		case LPDbBoxName::DELETED:
+			strStat = "Deleted";
+			break;
+		default:
+			;	// invalid status?
 	}
-	r->setString( "status", statusStr );
-	return r;
+	if( strStat != NULL ) {
+		grdProps->Cells[ 0 ][ row ] = "Status";
+		grdProps->Cells[ 1 ][ row ++ ] = strStat;
+	}
+	const LPDbBoxType *content = LPDbBoxTypes::records( ).findByID( box_type_id );
+	if( content != NULL ) {
+		grdProps->Cells[ 0 ][ row ] = "Content";
+		grdProps->Cells[ 1 ][ row ++ ] = content->getDescription( ).c_str( );
+	}
+	grdProps->RowCount = row;
 }
 
-std::auto_ptr< ROSETTA >Box::getObjectData( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getObjectData( );
+ROSETTA * Box::getObjectData( ) const {
+	ROSETTA * r = IPart::getObjectData( );
 	r->setInt( "record_id", record_id );
 	r->setInt( "rack_cid", rack_cid );
 	r->setInt( "box_type_cid", box_type_id );
@@ -1176,17 +1323,17 @@ std::auto_ptr< ROSETTA >Box::getObjectData( ) {
 	r->setInt( "retrieval_cid", retrieval_cid );
 	r->setString( "rack_name", parent->getName( ) );
 	r->setInt( "slot_position", position );
-	r->setInt( "rack_position", ( (Rack *)parent )->getPosition( ) );
+	r->setInt( "rack_position", ( ( Rack * )parent )->getPosition( ) );
 	r->setInt( "project_cid", project_cid );
 	r->setString( "barcode", barcode );
 	r->setInt( "status", status );
 	return r;
 }
 
-std::string Box::getFullName() const {
+std::string Box::getFullName( ) const {
 	char buff[ 20 ];
 	std::sprintf( buff, ", slot %d", position );
-	return parent->getFullName() + buff;
+	return parent->getFullName( ) + buff;
 }
 
 void Box::populate( ) {
@@ -1195,7 +1342,7 @@ void Box::populate( ) {
 	}
 
 	StoreDAO dao;
-	std::vector< ROSETTA >results;
+	std::vector < ROSETTA > results;
 
 	// list cryovials in the box, ignoring empty spaces
 	dao.loadSamples( id, project_cid, results );
@@ -1204,16 +1351,16 @@ void Box::populate( ) {
 		next->setParent( this );
 		partlist.push_back( next );
 	}
-	childCount = partlist.size();
-	sortChildren();
+	childCount = partlist.size( );
+	sortChildren( );
 
-	const LPDbBoxType * type = LPDbBoxTypes::records().findByID( box_type_id );
+	const LPDbBoxType * type = LPDbBoxTypes::records( ).findByID( box_type_id );
 	if( type != NULL ) {
-		const LCDbBoxSize * size = LCDbBoxSizes::records().findByID( type->getSizeID() );
+		const LCDbBoxSize * size = LCDbBoxSizes::records( ).findByID( type->getSizeID( ) );
 		if( size != NULL ) {
-			capacity = size -> getCapacity();
+			capacity = size->getCapacity( );
 			if( childCount == 0 ) {
-				emptySlots = -1;	// no cryovial records, e.g. KADOORIE
+				emptySlots = -1; // no cryovial records, e.g. KADOORIE
 			} else {
 				emptySlots = capacity - childCount;
 			}
@@ -1221,9 +1368,9 @@ void Box::populate( ) {
 	}
 
 	// list previous positions of this box, if available
-	dao.loadBoxHistory( id, project_cid, results );
+	dao.loadBoxHistory( id, results );
 	for( const ROSETTA & hi : results ) {
-		TDateTime when = hi.getTime( "time_stamp" ).outputTDateTime();
+		TDateTime when = hi.getTime( "time_stamp" ).outputTDateTime( );
 		std::stringstream detail;
 		detail << hi.getString( "vessel" );
 		short shelf = hi.getIntDefault( "shelf_number", -1 );
@@ -1233,12 +1380,12 @@ void Box::populate( ) {
 			detail << ' ';
 		}
 		detail << hi.getString( "rack" ) << ", slot " << hi.getInt( "slot_position" );
-		history[ when ] = detail.str( );
+		history.insert( { when, detail.str() } );
 	}
 }
 
-bool Box::canMove() const {
-	return (status == LCDbBoxStore::SLOT_CONFIRMED);
+bool Box::canMove( ) const {
+	return ( status == LCDbBoxStore::SLOT_CONFIRMED );
 }
 
 IPart::Availability Box::availability( ) const {
@@ -1272,8 +1419,8 @@ bool Box::isRHSDone( ) const {
 
 void Box::loadParent( ) {
 	StoreDAO dao;
-	std::vector< ROSETTA >result;
-	std::set< int >ids;
+	std::vector < ROSETTA > result;
+	std::set < int > ids;
 	ids.insert( rack_cid );
 	dao.loadRacks( ids, result );
 	if( !result.empty( ) ) {
@@ -1282,41 +1429,41 @@ void Box::loadParent( ) {
 }
 
 bool Box::addToLHSJobList( int jobID ) {
-	if( retrieval_cid != 0 ) {
+	if( retrieval_cid == jobID ) {
 		return true;
 	}
-	StoreDAO dao;
 	retrieval_cid = jobID;
-	std::auto_ptr< ROSETTA >data = getObjectData( );
-	return dao.addBoxToLHSJobList( *data );
+	std::auto_ptr < ROSETTA > data( getObjectData() );
+	return StoreDAO().addBoxToLHSJobList( *data );
 }
 
 bool Box::addToRHSJobList( int jobID ) {
-	if( retrieval_cid != 0 ) {
+	if( retrieval_cid == jobID ) {
 		return true;
 	}
-	Rack * rack = dynamic_cast< Rack* >( parent );
-	Box * source = dynamic_cast< Box* >( mapped2 );
-	if( source == NULL || rack == NULL || !rack->save() ) {
+	Rack * rack = dynamic_cast < Rack* > ( parent );
+	Box * source = dynamic_cast < Box* > ( mapped2 );
+	if( source == NULL || rack == NULL || !rack->save( ) ) {
 		return false;
 	}
-	rack_cid = rack->getID();
+	rack_cid = rack->getID( );
 	retrieval_cid = jobID;
 	project_cid = source->project_cid;
-	id = source->getID();
-	std::auto_ptr< ROSETTA >data = getObjectData( );
-	return StoreDAO().addBoxToRHSJobList( *data );
+	id = source->getID( );
+	status = LCDbBoxStore::EXPECTED;
+	std::auto_ptr < ROSETTA > data( getObjectData() );
+	return StoreDAO( ).updateBox( *data );
 }
 
 bool Box::save( ) {
-	StoreDAO dao ;
-	std::auto_ptr< ROSETTA >data = getObjectData( );
-	return dao.updateBox( *data );
+	std::auto_ptr < ROSETTA > data( getObjectData() );
+	return StoreDAO( ).updateBox( *data );
 }
 
+/*
 bool Box::signoff( ) {
-	StoreDAO dao ;
-	std::auto_ptr< ROSETTA >data = getObjectData( );
+	StoreDAO dao;
+	std::auto_ptr < ROSETTA > data( getObjectData() );
 	if( !dao.signoffBox( *data ) ) {
 		return false;
 	}
@@ -1325,19 +1472,18 @@ bool Box::signoff( ) {
 	return true;
 }
 
-/*
-bool Box::occupy( ) {
-	StoreDAO &dao = StoreDAO::records( );
-	if( parent != NULL && parent->occupy( ) ) {
-		rack_cid = parent->getID( );
-		project_cid = ( ( Box* )mapped2 )->project_cid; //move the box in the same project
-		id = ( ( Box* )mapped2 )->getID( ); //keep box_id same as the mapped one
-		std::auto_ptr< ROSETTA >data = getObjectData( );
-		return dao.occupyBox( *data );
-	}
-	return false;
-}
-*/
+ bool Box::occupy( ) {
+ StoreDAO &dao = StoreDAO::records( );
+ if( parent != NULL && parent->occupy( ) ) {
+ rack_cid = parent->getID( );
+ project_cid = ( ( Box* )mapped2 )->project_cid; //move the box in the same project
+ id = ( ( Box* )mapped2 )->getID( ); //keep box_id same as the mapped one
+ std::auto_ptr< ROSETTA >data = getObjectData( );
+ return dao.occupyBox( *data );
+ }
+ return false;
+ }
+ */
 
 Sample::Sample( ) : IPart( ) {
 	sample_id = project_cid = box_id = aliquot_type = 0;
@@ -1367,7 +1513,11 @@ Sample::Sample( const ROSETTA &data ) {
 		source_barcode = data.getString( "source_barcode" );
 	}
 	aliquot_type = data.getIntDefault( "aliquot_type_cid", -1 );
-	box_id = data.getIntDefault( "box_id", -1 );
+	if( data.isInt( "box_id" ) ) {
+		box_id = data.getInt( "box_id" );
+	} else {
+		box_id = data.getIntDefault( "box_cid", -1 );
+    }
 
 	mapped2 = NULL;
 	parent = NULL;
@@ -1377,13 +1527,13 @@ Sample::Sample( const ROSETTA &data ) {
 }
 
 IPart::Availability Sample::availability( ) const {
-	return name.empty() ? UNKNOWN : IS_AVAILABLE;
+	return name.empty( ) ? UNKNOWN : IS_AVAILABLE;
 }
 
-std::string Sample::getFullName() const {
+std::string Sample::getFullName( ) const {
 	char buff[ 20 ];
 	std::sprintf( buff, ", position %d", position );
-	return parent->getName() + buff;
+	return parent->getName( ) + buff;
 }
 
 void Sample::populate( ) {
@@ -1391,11 +1541,25 @@ void Sample::populate( ) {
 		return;
 	}
 	partlist.clear( );
-	std::vector< ROSETTA >results;
+	std::vector < ROSETTA > results;
 	StoreDAO dao;
+	// add history; analysis before storage if the same day
+	dao.loadAnalysisHistory( name, aliquot_type, project_cid, results );
+	for( const ROSETTA & hi : results ) {
+		std::stringstream detail;
+		detail << "Analysed: ";
+		int n = hi.getInt( "results" );
+		if( n == 1 ) {
+			detail << "1 result";
+		} else {
+			detail << n << " results";
+		}
+		TDateTime when = hi.getTime( "when" ).outputTDateTime( );
+		history.insert( { when, detail.str() } );
+	}
 	dao.loadStorageHistory( id, project_cid, results );
 	for( const ROSETTA & hi : results ) {
-		TDateTime when = hi.getTime( "time_stamp" ).outputTDateTime();
+		TDateTime when = hi.getTime( "time_stamp" ).outputTDateTime( );
 		std::stringstream detail;
 		detail << hi.getString( "box_name" );
 		int position = hi.getIntDefault( "cryovial_position", -1 );
@@ -1406,22 +1570,15 @@ void Sample::populate( ) {
 		if( volume > 0 ) {
 			detail << ": " << volume << "ml";
 		}
-		history[ when ] = detail.str( );
-	}
-	dao.loadAnalysisHistory( name, aliquot_type, project_cid, results );
-	for( const ROSETTA & hi : results ) {
-		std::stringstream detail;
-		int n = hi.getInt( "results" );
-		detail << "analysed (" << n << (n == 1 ? " result)" : " results)");
-		TDateTime when = hi.getTime( "when" ).outputTDateTime();
-		history[ when ] = detail.str( );
+		history.insert( { when, detail.str() } );
 	}
 	childCount = 0;
 
 }
 
-std::auto_ptr< ROSETTA >Sample::getProperties( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getProperties( );
+/*
+std::auto_ptr < ROSETTA > Sample::getProperties( ) {
+	std::auto_ptr < ROSETTA > r = IPart::getProperties( );
 	const LCDbObject *at = NULL;
 	if( aliquot_type != 0 && aliquot_type != -1 ) {
 		at = LCDbObjects::records( ).findByID( aliquot_type );
@@ -1437,9 +1594,31 @@ std::auto_ptr< ROSETTA >Sample::getProperties( ) {
 	}
 	return r;
 }
+*/
+void Sample::showProperties( TStringGrid *grdProps ) const {
+	IPart::showProperties( grdProps );
+	int row = grdProps -> RowCount;
+	const LCDbObject *at = NULL;
+	if( aliquot_type != 0 && aliquot_type != -1 ) {
+		at = LCDbObjects::records( ).findByID( aliquot_type );
+	}
+	if( at != NULL ) {
+		grdProps->Cells[ 0 ][ row ] = "Aliquot type";
+		grdProps->Cells[ 1 ][ row ++ ] = at->getDescription( ).c_str( );
+	}
+	if( !source_name.empty( ) && source_name != name ) {
+		grdProps->Cells[ 0 ][ row ] = "Source name";
+		grdProps->Cells[ 1 ][ row ++ ] = source_name.c_str( );
+	}
+	if( !source_barcode.empty( ) && source_barcode != name ) {
+		grdProps->Cells[ 0 ][ row ] = "Source barcode";
+		grdProps->Cells[ 1 ][ row ++ ] = source_barcode.c_str( );
+	}
+	grdProps->RowCount = row + 1;
+}
 
-std::auto_ptr< ROSETTA >Sample::getObjectData( ) {
-	std::auto_ptr< ROSETTA >r = IPart::getObjectData( );
+ROSETTA * Sample::getObjectData( ) const {
+	ROSETTA * r = IPart::getObjectData( );
 	r->setInt( "cryovial_id", id );
 	r->setInt( "cryovial_position", position );
 	r->setInt( "aliquot_type", aliquot_type );
@@ -1463,7 +1642,7 @@ void Layouts::loadAll( ) {
 	clearList( );
 	LCDbObjects &objs = LCDbObjects::records( );
 	ROSETTA result;
-	for( Range< LCDbObject >ul = objs; ul.isValid( ); ++ul ) {
+	for( Range < LCDbObject > ul = objs; ul.isValid( ); ++ul ) {
 		if( ul->isActive( ) && ul->getObjectType( ) == LCDbObject::TANK_LAYOUT ) {
 			result.setInt( "rack_layout_cid", ul->getID( ) );
 			result.setString( "layout_full", ul->getDescription( ) );
@@ -1476,15 +1655,15 @@ void Layouts::loadAll( ) {
 }
 
 int Layouts::getLayoutId( int tank_cid ) {
-	const LCDbSectionDefs & sections = LCDbSectionDefs::records();
-	std::vector<ROSETTA> racks;
-	StoreDAO().loadRacks( tank_cid, racks );
+	const LCDbSectionDefs & sections = LCDbSectionDefs::records( );
+	std::vector < ROSETTA > racks;
+	StoreDAO( ).loadRacks( tank_cid, racks );
 	for( const ROSETTA & ri : racks ) {
 		int type = ri.getIntDefault( "rack_type_cid", 0 );
 		if( type != 0 ) {
 			const LCDbSectionDef * sd = sections.findByID( type );
 			if( sd != NULL ) {
-				return sd->getTankLayoutCID();
+				return sd->getTankLayoutCID( );
 			}
 		}
 	}
@@ -1500,9 +1679,8 @@ int Layouts::find( int p_id ) const {
 	return -1;
 }
 
-
 Layout * Layouts::getLayout( int i ) const {
-	if ( i >= 0 && i < layouts.size() ) {
+	if( i >= 0 && i < layouts.size( ) ) {
 		return layouts[ i ];
 	} else {
 		return NULL;
@@ -1512,11 +1690,11 @@ Layout * Layouts::getLayout( int i ) const {
 bool Layouts::isNameDuplicate( bool full, std::string name ) const {
 	for( unsigned i = 0; i < layouts.size( ); i++ ) {
 		if( full ) {
-			if( layouts[ i ]->getLayoutDescription() == name ) {
+			if( layouts[ i ]->getLayoutDescription( ) == name ) {
 				return true;
 			}
 		} else {
-			if( layouts[ i ]->getLayoutName() == name ) {
+			if( layouts[ i ]->getLayoutName( ) == name ) {
 				return true;
 			}
 		}
@@ -1526,7 +1704,7 @@ bool Layouts::isNameDuplicate( bool full, std::string name ) const {
 
 int Layouts::getDefaultLayoutId( int store_cid ) const {
 	int layout_cid = -1;
-	for( Range< LCDbTankMap >tmr = LCDbTankMaps::records( ); tmr.isValid( ); ++tmr ) {
+	for( Range < LCDbTankMap > tmr = LCDbTankMaps::records( ); tmr.isValid( ); ++tmr ) {
 		// use any layout but keep the first active one
 		if( tmr->getStorageCID( ) == store_cid ) {
 			layout_cid = tmr->getLayoutCID( );
@@ -1538,13 +1716,13 @@ int Layouts::getDefaultLayoutId( int store_cid ) const {
 	return layout_cid;
 }
 
-//============== Available part classes ==============
+// ============== Available part classes ==============
 
 void AvlSites::populate( ) {
 	if( childCount >= 0 ) {
 		return;
 	}
-	std::vector< ROSETTA >results;
+	std::vector < ROSETTA > results;
 	StoreDAO( ).loadSites( results );
 	childCount = ( int )results.size( );
 	for( int i = 0; i < childCount; i++ ) {
@@ -1558,44 +1736,44 @@ void AvlSite::populate( ) {
 	if( childCount >= 0 ) {
 		return;
 	}
-	std::vector< ROSETTA >results;
-	StoreDAO().loadTanks( id, results );
-	std::map< int, AvlTank * > tanks;
+	std::vector < ROSETTA > results;
+	StoreDAO( ).loadTanks( id, results );
+	std::map < int, AvlTank* > tanks;
 	for( const ROSETTA & r : results ) {
 		AvlTank * p = new AvlTank( r );
 		p->loadTankDetails( );
-		p->readRackOccupancy();
-		std::map< int, AvlTank * >::iterator ti = tanks.find( p->getID() );
-		if( ti == tanks.end() ) {
+		p->readRackOccupancy( );
+		std::map < int, AvlTank* > ::iterator ti = tanks.find( p->getID( ) );
+		if( ti == tanks.end( ) ) {
 			p->setParent( this );
 			partlist.push_back( p );
-			tanks.insert( std::pair< int, AvlTank * >( p->getID(), p ) );
+			tanks.insert( { p->getID(), p } );
 		} else {
-			ti->second->addRackOccupancy(p);
-			delete p; 	// same tank, another layout
+			ti->second->addRackOccupancy( p );
+			delete p; // same tank, another layout
 		}
 	}
-	childCount = partlist.size();
+	childCount = partlist.size( );
 	sortChildren( );
 }
 
-void AvlTank::readRackOccupancy() {
-	const LCDbSectionDefs & sDefs = LCDbSectionDefs::records();
+void AvlTank::readRackOccupancy( ) {
+	const LCDbSectionDefs & sDefs = LCDbSectionDefs::records( );
 	totalSlots = usedSlots = 0;
-	for( Range< LCDbSectionDef > sr = sDefs; sr.isValid(); ++ sr ) {
-		if( sr->getTankLayoutCID() == layout_cid ) {
-			totalSlots += (sr->getCapacity() * sr->getRackCapacity());
+	for( Range < LCDbSectionDef > sr = sDefs; sr.isValid( ); ++sr ) {
+		if( sr->getTankLayoutCID( ) == layout_cid ) {
+			totalSlots += ( sr->getCapacity( ) * sr->getRackCapacity( ) );
 		}
 	}
-	std::vector< ROSETTA > results;
-	StoreDAO().loadRacks( tank_cid, results );
+	std::vector < ROSETTA > results;
+	StoreDAO( ).loadRacks( tank_cid, results );
 	for( const ROSETTA & ri : results ) {
 		Rack r( ri );
-		short filled = 1;	// empty racks are not recorded in c_rack_number
-		if( r.getEmptySlots() >= 0 ) {
-			const LCDbSectionDef * sd = sDefs.findByID( r.getType_cid() );
+		short filled = 1; // empty racks are not recorded in c_rack_number
+		if( r.getEmptySlots( ) >= 0 ) {
+			const LCDbSectionDef * sd = sDefs.findByID( r.getType_cid( ) );
 			if( sd != NULL ) {
-				filled = sd->getRackCapacity() - r.getEmptySlots();
+				filled = sd->getRackCapacity( ) - r.getEmptySlots( );
 			}
 		}
 		usedSlots += filled;
@@ -1607,7 +1785,7 @@ void AvlTank::addRackOccupancy( const AvlTank * other ) {
 	totalSlots += other->totalSlots;
 }
 
-float AvlTank::getFillFactor() const {
+float AvlTank::getFillFactor( ) const {
 	if( totalSlots < 1 || usedSlots < 0 ) {
 		return -1;
 	} else {
@@ -1619,8 +1797,8 @@ void AvlTank::populate( ) {
 	if( childCount >= 0 ) {
 		return;
 	}
-	std::vector< ROSETTA >results;
-	StoreDAO().loadLayouts( id, results );
+	std::vector < ROSETTA > results;
+	StoreDAO( ).loadLayouts( id, results );
 	childCount = ( int )results.size( );
 	for( int i = 0; i < childCount; i++ ) {
 		AvlLayout *p = new AvlLayout( results[ i ] );
@@ -1634,15 +1812,15 @@ void AvlLayout::populate( ) {
 	if( childCount >= 0 ) {
 		return;
 	}
-	std::vector< ROSETTA >results;
-	StoreDAO().loadSections( layout_cid, results );
+	std::vector < ROSETTA > results;
+	StoreDAO( ).loadSections( layout_cid, results );
 	capacity = results.size( );
 	for( int i = 0; i < capacity; i++ ) {
 		AvlSection *p = new AvlSection( results[ i ] );
 		p->setTank_cid( tank_cid );
 		partlist.push_back( p );
 		p->setParent( this );
-		p->setMap_cid( getID() );
+		p->setMap_cid( getID( ) );
 	}
 	childCount = partlist.size( );
 }
@@ -1651,17 +1829,18 @@ void AvlSection::populate( ) {
 	if( childCount >= 0 ) {
 		return;
 	}
-	std::set< std::string >racknames;
+	std::set < std::string > racknames;
 	StoreDAO dao;
-	std::vector< ROSETTA >results;
+	std::vector < ROSETTA > results;
 	dao.loadRacks( tank_cid, results, id );
-	for( std::vector< ROSETTA >::const_iterator ri = results.begin( ); ri != results.end( ); ++ri ) {
+	for( std::vector < ROSETTA > ::const_iterator ri = results.begin( ); ri != results.end( );
+	++ri ) {
 		AvlRack *p = new AvlRack( *ri );
-		racknames.insert( p->getName() );
+		racknames.insert( p->getName( ) );
 		// check the occupancy if it's easy to do so; ignore if full
-		std::set< int > occupied;
-		dao.loadRackOccupancy( p->getID(), occupied );
-		if( occupied.size() >= rackSize ) {
+		std::set < int > occupied;
+		dao.loadRackOccupancy( p->getID( ), occupied );
+		if( occupied.size( ) >= rackSize ) {
 			delete p;
 			continue;
 		} else {
@@ -1673,7 +1852,7 @@ void AvlSection::populate( ) {
 	}
 	char buf[ 40 ];
 	for( short i = first; i <= last; i++ ) {
-		std::sprintf( buf, "%s%d", name.c_str(), i );
+		std::sprintf( buf, "%s%d", name.c_str( ), i );
 		std::string r_name = buf;
 		if( racknames.find( r_name ) == racknames.end( ) ) {
 			AvlRack *p = new AvlRack( tank_cid, r_name, id, map_cid, name, rackSize, i );
@@ -1682,18 +1861,18 @@ void AvlSection::populate( ) {
 		}
 	}
 	capacity = last - first + 1;
-	childCount = partlist.size();
+	childCount = partlist.size( );
 	sortChildren( );
 }
 
-float AvlSection::getFillFactor() const {
+float AvlSection::getFillFactor( ) const {
 	if( childCount < 0 ) {
 		return -1;
 	}
 	float racks = capacity - childCount;
-	for( const IPart*  pi : partlist ) {
-		AvlRack * r = (AvlRack *) pi;
-		float fill = r -> getFillFactor();
+	for( const IPart * pi : partlist ) {
+		AvlRack * r = ( AvlRack* ) pi;
+		float fill = r->getFillFactor( );
 		if( fill < 0 ) {
 			return -1;
 		} else {
@@ -1703,9 +1882,8 @@ float AvlSection::getFillFactor() const {
 	return racks / capacity;
 }
 
-AvlRack::AvlRack( int p_tank_cid, const std::string & p_name, int p_type_cid,
-				  int p_map_cid, const std::string & p_sec, short p_capacity, short pos )
- : Rack() {
+AvlRack::AvlRack( int p_tank_cid, const std::string & p_name, int p_type_cid, int p_map_cid,
+	const std::string & p_sec, short p_capacity, short pos ) : Rack( ) {
 	name = p_name;
 	tank_cid = p_tank_cid;
 	map_cid = p_map_cid;
@@ -1720,37 +1898,37 @@ void AvlRack::populate( ) {
 	if( childCount >= 0 ) {
 		return;
 	}
-	if( id != -1 && occupied.empty() ) {
-		StoreDAO().loadRackOccupancy( id, occupied );
+	if( id != -1 && occupied.empty( ) ) {
+		StoreDAO( ).loadRackOccupancy( id, occupied );
 	}
 	for( int i = 1; i <= capacity; i++ ) {
 		if( occupied.count( i ) == 0 ) {
 			char buf[ 70 ];
-			std::sprintf( buf, "%s empty slot %d", name.c_str(), i );
+			std::sprintf( buf, "%s empty slot %d", name.c_str( ), i );
 			AvlBox *p = new AvlBox( -1, buf );
 			p->setPosition( i );
 			p->setParent( this );
 			partlist.push_back( p );
 		}
 	}
-	childCount = partlist.size();
+	childCount = partlist.size( );
 	emptySlots = 0;
 }
 
-void AvlRack::setOccupancy( std::set<int>& positions ) {
+void AvlRack::setOccupancy( std::set < int > & positions ) {
 	occupied = positions;
-	emptySlots = capacity - occupied.size();
+	emptySlots = capacity - occupied.size( );
 }
 
-float AvlRack::getFillFactor() const {
+float AvlRack::getFillFactor( ) const {
 	if( id == -1 || emptySlots == capacity ) {
 		return 0;
 	} else {
-		return occupied.size() / float( capacity );
+		return occupied.size( ) / float( capacity );
 	}
 }
 
-AvlBox::AvlBox( int p_rack_cid, std::string p_name ) : Box() {
+AvlBox::AvlBox( int p_rack_cid, std::string p_name ) : Box( ) {
 	name = p_name;
 	rack_cid = p_rack_cid;
 	mapped2 = NULL;
@@ -1764,20 +1942,20 @@ void AvlBox::populate( ) {
 	childCount = 0;
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 /***** Factory Class **** */
 
 void PartFactory::loadBoxes( const LCDbCryoJob &job ) {
 
-	StoreDAO dao ;
-	std::vector< ROSETTA >results;
-	int projID = job.getProjectID();	 // 0 => multiple; -1 => unknown
+	StoreDAO dao;
+	std::vector < ROSETTA > results;
+	int projID = job.getProjectID( ); // 0 => multiple; -1 => unknown
 	if( projID != 0 && projID != -1 ) {
-		dao.loadBoxesByJobID( job.getID(), projID, lhs, results );
+		dao.loadBoxesByJobID( job.getID( ), projID, lhs, results );
 	} else {
-		for( Range< LCDbProject > pr = LCDbProjects::records(); pr.isValid(); ++ pr ) {
-			if( pr -> isInCurrentSystem() && !pr -> isCentral() ) {
-				dao.loadBoxesByJobID( job.getID(), pr->getID(), lhs, results );
+		for( Range < LCDbProject > pr = LCDbProjects::records( ); pr.isValid( ); ++pr ) {
+			if( pr->isInCurrentSystem( ) && !pr->isCentral( ) ) {
+				dao.loadBoxesByJobID( job.getID( ), pr->getID( ), lhs, results );
 			}
 		}
 	}
@@ -1787,18 +1965,18 @@ void PartFactory::loadBoxes( const LCDbCryoJob &job ) {
 		Box *b = new Box( ri );
 		bool included;
 		switch( b->getStatus( ) ) {
-			case LCDbBoxStore::MOVE_EXPECTED:
-			case LCDbBoxStore::REMOVED:
-				included = lhs;
-				break;
+		case LCDbBoxStore::MOVE_EXPECTED:
+		case LCDbBoxStore::REMOVED:
+			included = lhs;
+			break;
 
-			case LCDbBoxStore::EXPECTED:
-			case LCDbBoxStore::SLOT_ALLOCATED:
-				included = !lhs;
-				break;
+		case LCDbBoxStore::EXPECTED:
+		case LCDbBoxStore::SLOT_ALLOCATED:
+			included = !lhs;
+			break;
 
-			default:
-				included = false;
+		default:
+			included = false;
 		}
 
 		if( included ) {
@@ -1809,68 +1987,59 @@ void PartFactory::loadBoxes( const LCDbCryoJob &job ) {
 	}
 }
 
-//---------------------------------------------------------------------------
-//	add boxes and their racks, sections and layouts to the given site list
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// add boxes and their racks, sections and layouts to the given site list
+// ---------------------------------------------------------------------------
 
-IPart * PartFactory::createSiteList() const {
-	if( boxList.empty() ) {
-		return (lhs ? new Sites() : new AvlSites());
+IPart * PartFactory::createSiteList( ) const {
+	// create the parent object to be displayed in the UI
+	Sites * list = lhs ? new Sites( ) : new AvlSites( );
+	list->populate();
+	if( boxList.empty( ) ) {
+		return list;
 	}
 
-	const LCDbObjects &objs = LCDbObjects::records( );
-	std::set< int > parentIDs;
-	std::vector< ROSETTA >results;
-	for( const Box* bi : boxList ) {
-		parentIDs.insert( bi->getRackCID( ) );
-	}
+	ROSETTA result;
+	std::vector < ROSETTA > results;
 	StoreDAO dao;
-	dao.loadRacks( parentIDs, results );
-	if( results.empty() ) {
-		return NULL;			// error - boxes should be in racks
-	}
+	std::set < int > rackIDs, tankIDs;
 
-	std::vector< Rack* > rackList;
-	parentIDs.clear( );
+	// find valid racks; list the tanks they belong to
+	for( Box * bi : boxList ) {
+		rackIDs.insert( bi->getRackCID( ) );
+	}
+	dao.loadRacks( rackIDs, results );
+	std::vector < Rack* > rackList;
 	for( const ROSETTA & ri : results ) {
 		Rack *r = new Rack( ri );
-		if( sibs ) {
-			r->populate(); 		// all children of boxList's parents
-		} else {
-			for( Box* bi : boxList ) {
-				if( r->getID( ) == bi->getRackCID( ) ) {
-					r->addToList( bi );
-				}
-			}
-		}
 		rackList.push_back( r );
-		parentIDs.insert( r->getTank_cid( ) );
+		tankIDs.insert( r->getTank_cid() );
 	}
-	std::sort( rackList.begin(), rackList.end(), Rack::less_than );
+	std::sort( rackList.begin( ), rackList.end( ), Rack::less_than );
 
-	std::vector< Tank* >tankList;
-	ROSETTA result;
-	for( const LCDbTankMap & tm : LCDbTankMaps::records() ) {
-		if( tm.isActive() && parentIDs.count( tm.getTankCID() ) != 0 ) {
+	// recreate the tanks they belong to, leaving orphans in rackIDs
+	std::vector < Tank* > tankList;
+	const LCDbObjects & objs = LCDbObjects::records();
+	for( const LCDbTankMap & tm : LCDbTankMaps::records( ) ) {
+		if( tm.isActive( ) && tankIDs.count( tm.getTankCID( ) ) != 0 ) {
 			const LCDbObject *population = objs.findByID( tm.getTankCID( ) );
 			const LCDbObject *layout = objs.findByID( tm.getLayoutCID( ) );
 			const LCDbObject *phys = objs.findByID( tm.getStorageCID( ) );
 			if( population == NULL || phys == NULL || layout == NULL ) {
-				return NULL;
+				continue;
 			}
 
 			result.setInt( "storage_cid", phys->getID( ) );
-			result.setString( "friendly_name", phys->getDescription() );
+			result.setString( "friendly_name", phys->getDescription( ) );
 			result.setString( "serial_number", phys->getName( ) );
 			result.setInt( "location_cid", tm.getLocationCID( ) );
 			result.setInt( "position", tm.getPosition( ) );
 			result.setInt( "storage_type", tm.getStoreTypeCID( ) );
-
 			result.setInt( "map_cid", tm.getID( ) );
 			result.setInt( "tank_cid", tm.getTankCID( ) );
 			result.setInt( "rack_layout_cid", tm.getLayoutCID( ) );
 			result.setInt( "status", tm.getStatus( ) );
-			std::pair< TDateTime, TDateTime > valid = tm.getValidDates();
+			std::pair < TDateTime, TDateTime > valid = tm.getValidDates( );
 			result.setDate( "valid_from", valid.first );
 			result.setDate( "valid_to", valid.second );
 			Tank *t = new Tank( result );
@@ -1880,47 +2049,60 @@ IPart * PartFactory::createSiteList() const {
 			result.setString( "label_name", population->getName( ) );
 			result.setString( "label_full", population->getDescription( ) );
 			Layout *l = new Layout( result );
-
 			dao.loadSections( tm.getLayoutCID( ), results );
 			for( const ROSETTA & ri : results ) {
 				Section *s = new Section( ri );
-				for( Rack *r : rackList ) {
-					if( r->getTank_cid() == tm.getTankCID()
-					 && r->getType_cid() == s->getID() ) {
+				for( Rack * r : rackList ) {
+					if( r->getTank_cid( ) == tm.getTankCID( ) && r->getType_cid( ) == s->getID( ) )	{
 						s->addToList( r );
+						rackIDs.erase( r->getID() );
 					}
 				}
-				s->setMap_cid( tm.getID() );
-				s->setTank_cid( tm.getTankCID() );
+				s->setMap_cid( tm.getID( ) );
+				s->setTank_cid( tm.getTankCID( ) );
 				l->addToList( s );
 			}
 			t->addToList( l );
 			tankList.push_back( t );
-			parentIDs.insert( t->getLocationID( ) );
 		}
 	}
 	std::sort( tankList.begin( ), tankList.end( ), Tank::less_than );
 
-	std::vector< Site* >siteList;
-	dao.loadSites( results );
-	for( const ROSETTA & ri : results ) {
-		if( parentIDs.count( ri.getInt( "object_cid" ) ) != 0 ) {
-			Site *site = new Site( ri );
-			for( Tank * t : tankList ) {
-				if( site->getID() == t->getLocationID( ) ) {
-					site->addToList( t );
-				}
+	// add dummy entry for any racks that haven't been found
+	if( !rackIDs.empty() ) {
+		Tank * t = new Tank( -1, "Unknown" );
+		Layout *l = new Layout( -1, "Unknown" );
+		Section * s = new Section( -1, "Unknown" );
+		for( int id: rackIDs ) {
+			Rack * r = new Rack( id, "Not yet stored" );
+			s->addToList( r );
+			rackList.push_back( r );
+		}
+		l->addToList( s );
+		t->addToList( l );
+		tankList.push_back( t );
+	}
+	for( IPart * s : list->getList() ) {
+		for( Tank * t : tankList ) {
+			if( s->getID( ) == t->getLocationID( ) ) {
+				s->addToList( t );
 			}
-			siteList.push_back( site );
 		}
 	}
-	std::sort( siteList.begin( ), siteList.end( ), Site::less_than );
-	Sites * list = lhs ? new Sites() : new AvlSites();
-	for( Site * s : siteList ) {
-		list->addToList( s );
+
+	// link in the boxes once the structure is in place
+	for( Rack * r : rackList ) {
+		if( sibs && rackIDs.count( r->getID() ) == 0 ) {
+			r->populate( );
+		} else {
+			for( Box * bi : boxList ) {
+				if( r->getID( ) == bi->getRackCID( ) ) {
+					r->addToList( bi );
+				}
+			}
+		}
 	}
 	return list;
 }
 
-//---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------

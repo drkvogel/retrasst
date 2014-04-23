@@ -259,6 +259,7 @@ public:
 	static	std::string 	compressString( const std::string input );
 	static	void	makeLowerCase( std::string *s );
 	static	void	makeUpperCase( std::string *s );
+	static	std::string	toLowerCase( const std::string s );
 };
 //---------------------------------------------------------------------------
 #endif

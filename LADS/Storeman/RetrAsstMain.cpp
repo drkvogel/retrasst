@@ -297,7 +297,7 @@ void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
     if (found != storageCache.end() && NULL != (found->second)) { // fill in box location from cache map
         sample->copyLocation(*(found->second));
     } else {
-        if (dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result)) {
+        if (dao.findBox(sample->store_record->getBoxID(), result)) {
             sample->copyLocation(result);
         } else {
             sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";

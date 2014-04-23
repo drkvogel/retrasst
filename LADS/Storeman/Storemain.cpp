@@ -5,8 +5,6 @@
 #include "Storemain.h"
 #include "TfrmAboutBox.h"
 #include "TfrmConfirm.h"
-#include "LCDbAuditTrail.h"
-#include "LCDbProject.h"
 #include "LeaseIDs.h"
 #include "TfrmLogin.h"
 #include "SampleEntry.h"
@@ -17,13 +15,6 @@
 #include "DiscardSamples.h"
 #include "DiscardPrologue.h"
 #include "MoveJobs.h"
-#include "LPDbBoxes.h"
-#include "LDbBoxType.h"
-#include "LDbBoxSize.h"
-#include "LPDbCryovialStore.h"
-#include "LPDbCryovial.h"
-#include "LCDbTankMap.h"
-#include "LCDbTankLayout.h"
 #include "BoxTransfer.h"
 #include "AddSpecimens.h"
 #include "AnalyseSamples.h"
@@ -94,7 +85,11 @@ void __fastcall TfrmStoremain::timerTimer(TObject *Sender)
 void TfrmStoremain::resetCounts()
 {
 	boxesReady = moveJobs = retrievals = discards = 0;
-	nextProject = 0;
+	for( const LCDbProject & proj : LCDbProjects::records() ) {
+		if( proj.isInCurrentSystem() && !proj.isCentral() ) {
+			projIDs.insert( proj.getID() );
+		}
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -106,51 +101,22 @@ void TfrmStoremain::updateCounts()
 	{
 		case STOPPED:
 			resetCounts();
-			updateStatus = TRANSFERS;
-			break;
-
-		case TRANSFERS:
-			countBoxes();
 			updateStatus = JOBCOUNTS;
 			break;
 
 		case JOBCOUNTS:
 			countJobs();
-			updateStatus = FINISHED;
+			updateStatus = TRANSFERS;
+			break;
+
+		case TRANSFERS:
+			if( projIDs.empty() ) {
+				updateStatus = FINISHED;
+			} else {
+				countBoxes();
+			}
 	}
 	Screen -> Cursor = crDefault;
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmStoremain::TreeBrowse(TObject *Sender)
-{
-	frmBrowse->init( NULL, true );
-	frmBrowse->ShowModal();
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmStoremain::OnCreateList(TObject *Sender)
-{
-	frmRetrieveMain->init();
-	frmRetrieveMain->ShowModal();
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmStoremain::ConfigureClick(TObject *Sender)
-{
-	frmConfigure->init();
-	frmConfigure->ShowModal();
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmStoremain::BtnXferClick(TObject *Sender)
-{
-	frmBoxList->init( NULL );
-	frmBoxList->ShowModal();
 }
 
 //---------------------------------------------------------------------------
@@ -159,14 +125,14 @@ void __fastcall TfrmStoremain::BtnXferClick(TObject *Sender)
 
 void TfrmStoremain::countBoxes() {
 	LCDbProjects & projects = LCDbProjects::records();
-	LPDbBoxNames boxes;
-	for( const LCDbProject & proj : LCDbProjects::records() ) {
-		if( proj.isInCurrentSystem() && !proj.isCentral() ) {
-			projects.setCurrent( proj );
-			if( boxes.readFilled( LIMSDatabase::getProjectDb() ) ) {
-				boxesReady += boxes.size();
-			}
+	auto pi = projIDs.begin();
+	if( pi != projIDs.end() ) {
+		projects.setCurrent( projects.get( *pi ) );
+		LPDbBoxNames boxes;
+		if( boxes.readFilled( LIMSDatabase::getProjectDb() ) ) {
+			boxesReady += boxes.size();
 		}
+		projIDs.erase( pi );
 	}
 }
 
@@ -214,6 +180,39 @@ void TfrmStoremain::showCounts()
 }
 
 //---------------------------------------------------------------------------
+
+void __fastcall TfrmStoremain::TreeBrowse(TObject *Sender)
+{
+	PartFactory pf( true, true );
+	frmBrowse->init( pf.createSiteList(), true );
+	frmBrowse->ShowModal();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmStoremain::OnCreateList(TObject *Sender)
+{
+	frmRetrieveMain->init();
+	frmRetrieveMain->ShowModal();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmStoremain::ConfigureClick(TObject *Sender)
+{
+	frmConfigure->init();
+	frmConfigure->ShowModal();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmStoremain::BtnXferClick(TObject *Sender)
+{
+	frmBoxList->init( NULL );
+	frmBoxList->ShowModal();
+}
+
+//---------------------------------------------------------------------------
 //	Allow user to add cryovials back into the worklist for analysis
 //---------------------------------------------------------------------------
 
@@ -236,6 +235,28 @@ void __fastcall TfrmStoremain::btnMoveClick(TObject *Sender)
 			frmMove->ShowModal( );
 		}
 	}
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmStoremain::BtnRetrieveClick(TObject *Sender)
+{
+	frmRetrievalAssistant->init();
+	frmRetrievalAssistant->ShowModal();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmStoremain::btnViewListsClick(TObject *Sender)
+{
+	frmRetrievalListViewListMain->ShowModal();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmStoremain::BtnRationalyseClick(TObject *Sender)
+{
+	frmRatTanksMainDialog->ShowModal();
 }
 
 //---------------------------------------------------------------------------
@@ -303,25 +324,4 @@ void __fastcall TfrmStoremain::BtnDiscardClick(TObject *Sender)
 	} while (false);
 }
 
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmStoremain::BtnRetrieveClick(TObject *Sender)
-{
-	frmRetrievalAssistant->init();
-	frmRetrievalAssistant->ShowModal();
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmStoremain::btnViewListsClick(TObject *Sender)
-{
-	frmRetrievalListViewListMain->ShowModal();
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmStoremain::BtnRationalyseClick(TObject *Sender)
-{
-	frmRatTanksMainDialog->ShowModal();
-}
 //---------------------------------------------------------------------------

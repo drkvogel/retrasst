@@ -80,8 +80,8 @@ private:
 class UserAdvisor
 {
 public:
-    UserAdvisor();
-    virtual ~UserAdvisor();
+    UserAdvisor() {}
+    virtual ~UserAdvisor() {}
     virtual void advise( const std::string& warning ) = 0;
 private:
     UserAdvisor( const UserAdvisor& );

@@ -64,7 +64,8 @@ bool LCDbProjects::read( LQuery central, bool readAll )
 		central.setSQL( "select * from c_project order by project_cid" );
 	else
 	{	central.setSQL( "select * from c_project where project_cid <> :cid"
-					   " and status <> :sts and 'now' between valid_from and valid_to"
+					  " where status <> :sts and valid_from < 'now' "
+					  " and (valid_to < valid_from or valid_to > 'now')"
 					   " order by project_cid" );
 		central.setParam( "cid", LCDbProject::CENTRAL_DB );
 		central.setParam( "sts", LCDbProject::DELETED );

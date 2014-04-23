@@ -11,28 +11,30 @@
 
 //---------------------------------------------------------------------------
 
-class LPDbBoxType : public LPDbID, public LDbNames
+class LPDbBoxType : public LCDbID, public LDbNames
 {
 	short group, position, status, uses;
-	int sizeID;
+	int sizeID, projectCID;
 	std::vector< int > content;
 
 	static bool hasLocalContent();
+	bool save( const std::string & table, LQuery & query );
 
 public:
 
 	enum Expectation { SHORT_TERM, LONG_TERM, ANALYSIS, DISPOSAL, DELETED = 99 };
 
 	LPDbBoxType( int id = 0 )
-	 : LPDbID( id ), group( 0 ), position( 0 ), status( LONG_TERM ), uses( 0 ), sizeID( 0 )
+	 : LCDbID( id ), group( 0 ), position( 0 ), status( LONG_TERM ), uses( 0 ), sizeID( 0 ), projectCID( 0 )
 	{}
 
 	LPDbBoxType( const LQuery & cQuery );
-	bool saveRecord( LQuery cQuery );
+	bool saveRecord( LQuery pQuery, LQuery cQuery );
 
 	bool isActive() const { return status != DELETED; }
 	Expectation getUse() const { return Expectation( status ); }
 	void setUse( Expectation ex ) { status = short( ex ); }
+	int getProjectCID() const { return projectCID; }
 	int getSizeID() const { return sizeID; }
 	void setSizeID( int cid ) { sizeID = cid; }
 	short getLink() const { return group; }

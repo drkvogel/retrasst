@@ -444,6 +444,33 @@ std::string XMD5::calcHex( const unsigned char *buf, const int len )
 	std::string	val = m.hex;
 	return( val );
 }
+/*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*/
+std::string XMD5::calcFileHex( const std::string filename )
+{
+	if ( filename.empty() )
+		{return( "" );
+		}
+	const	int	buf_size = 500000;
+	unsigned char	*buf = (unsigned char *) malloc( buf_size + 1 );
+	if ( NULL == buf )
+		{return( "" );
+		}
+	XMD5	m;
+	FILE	*fh = fopen( filename.c_str(), "rb" );
+	if ( NULL == fh )
+		{free( buf );
+		return( "" );
+		}
+	int	nbr;
+	while ( ( nbr = fread( buf, 1, buf_size, fh ) ) > 0 )
+		{if ( ! m.addChunk( buf, nbr ) )
+			{return( "" );
+			}
+		}
+	free( buf );
+	fclose( fh );
+	return( m.getResultHex() );
+}
 /*===========================================================================*/
 #endif								/* END */
 

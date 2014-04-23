@@ -23,6 +23,16 @@ class LQuery
 
 public:
 
+	class Iterator {
+		LQuery * q;
+		int record;
+	public:
+		Iterator( LQuery * owner, int pos ) : q( owner ), record( pos ) {}
+		const ROSETTA & operator*() const;
+		bool operator!=( const Iterator & other ) const;
+		const Iterator& operator++();
+	};
+
 	enum LogLevel { ERRORS, UPDATES, SELECTS };
 
 	LQuery( const LIMSDatabase & db );
@@ -45,6 +55,8 @@ public:
 	bool eof();
 	bool next();
 	void close();
+	Iterator begin();
+	Iterator end();
 
 	bool fieldExists( const std::string & field ) const;
 	int readInt( const std::string & field ) const;
