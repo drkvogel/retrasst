@@ -386,3 +386,91 @@ in collect, chunk sizes are fubar: 215, 237, 229, 252, 37
         only two types currently (select distinct(aliquot_type_cid) from l_cryovial_retrieval)
         some secondaries must get counted as primaries
         yes, sort by lcr_position, not source_pos - lcr_position is the order they are put in the plan, source_pos *may* be the same order sometimes, but not always, depending on how you sort the plan - previously I had been saving the plan as-is without sorting, and source_pos worked, but recently have been sorting by destination box and position - hence recent funny behaviour. sort by lcr_position and now it's *almost* right - 1st chunk 1 too big, last 1 too small...
+
+`TfrmRetrievalAssistant::getStorage()` calls `StoreDAO::findBox()` but maintains a cache map.
+
+### not found source locations
+
+`retrieval_cid` 1086786 "HPS samples into mixed boxes"
+
+All source locations are 'not found'. 
+
+`project_cid` is -659 (`dev_hps`, `t_ldb3`)
+
+WHY???
+
+ * 1st, `LoadVialsJobThread::load()` uses its own `StoreDAO dao`
+     - `LoadPlanThread::Execute()` uses `frmRetrievalAssistant->getStorage()`
+     - OK, now `LoadVialsJobThread::load()` uses `getStorage()` as well - at least debugging in same place (`StoreDAO::findBox()`)
+ 
+ LoadVialsJobThread::load()
+    frmRetrievalAssistant->getStorage(sample);
+    TfrmRetrievalAssistant::getStorage(SampleRow * sample) (sample->project_cid -659, (sample->store_record)->boxID -53855)
+        storageCache.find(sample->store_record->getBoxID())
+        dao.findBox(sample->store_record->getBoxID(), LCDbProjects::getCurrentID(), result))
+            `box_id`:  -53855 
+            `proj_id`: -659
+        doesn't find storage details.
+
+It's in `c_box_name`: 
+
+    select * from c_box_name where box_cid = -53855
+
+and in `t_ldb3`: 
+
+    select * from box_name where box_cid = -53855
+
+but no storage details - is this correct?
+
+(sample->store_record)->boxID -53857 found though, in same job - where did this come from?
+
+##### job 1086789 "Add in the samples for SEARCH"
+
+project -213
+
+(sample->store_record)->boxID -625584 found in `c_box_name`, storage details found
+
+(sample->store_record)->boxID -40191  found in `c_box_name`  storage details not found
+    -40191 found in `c_slot_allocation`
+    joins with `c_rack_number` on `rack_cid`
+    and `c_tank_map` on `tank_cid`
+    and `c_object_name` on `m.storage_cid`
+
+it's (at least) `m.status = 0` that's doing it here - status is instead 1.
+
+`c_tank_map.status` [0: expected; 1: in use; 5: off line; 99: mapping deleted]
+
+`c_tank_map.status`  is 5 (off line) for the other one (-53855)
+
+##### 2014-04-24 Nick changed findBox 
+
+so that:
+
+    for( const ROSETTA & record : cq ) {
+        // fix Chris's bug: there should be one mapping and that should be in use
+        // if there is one that's off-line, use it if there isn't anything better
+        if( !found || result.getInt( "status" ) == LCDbTankMap::OFFLINE ) {
+            result = record;
+            found = true;
+        } else if( record.getInt( "status" ) != LCDbTankMap::OFFLINE ) {
+            return false;
+        }
+    }
+
+which I don't quite understand atm, but it seems to work, i.e. storage locations are returned normally for locations for which `c_tank_map.status` is `RECORD_IN_USE`, but also if it is `OFFLINE` for whatever reason and the only one available - this status should be reported to the user though
+
+Are secondaries missing? Source and destination positions go 1, 3, 5 etc.
+
+### <ProjectExtensions> error
+
+When hovering over a symbol with "Tooltip symbol insight" turned on (Tools -> Options -> Editor Options -> Code Insight), get an error:
+
+> "The <ProjectExtensions> element occurs more than once"
+
+Supposedly because of a [bug, not yet fixed by Embarcadero, in the IDE](http://codeverge.com/embarcadero.cppbuilder.ide/-xe2-update-2-fatal-error-the-proj/1072918), whereby the `<ProjectExtensions>` element does indeed occur more than once in the `.cbproj` project file. Except that it doesn't:
+
+    $ grep ProjectExtensions *
+    Storeman.cbproj:    <ProjectExtensions>
+    Storeman.cbproj:    </ProjectExtensions>
+
+Ah well, turn it off then.

@@ -293,7 +293,6 @@ void TfrmRetrievalAssistant::clearStorageCache() {
 void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
 /** fill in SampleRow structure with storage details of sample */
     ROSETTA result; StoreDAO dao;
-
     map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
     if (found != storageCache.end() && NULL != (found->second)) { // fill in box location from cache map
         sample->copyLocation(*(found->second));
@@ -303,18 +302,15 @@ void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
             sample->copyLocation(result);
             // but, status could be OFFLINE or ARCHIVED - should display to user
             // that something may be amiss (e.g. in process of being moved)
-
-            // LDbValid::NEW_RECORD = 0, RECORD_IN_USE = 1, ARCHIVED = 2, DELETED = 99 LCDbTankMap::OFFLINE = 5
-            switch (result.getIntDefault("status", -1)) {
-                case LCDbTankMap::NEW_RECORD:       // tmStatusString = "NEW_RECORD"; break;
-                case LCDbTankMap::RECORD_IN_USE:    // tmStatusString = "RECORD_IN_USE"; break;
-                    // ok, do nothing
-                    break;
-                case LCDbTankMap::ARCHIVED: //tmStatusString = "ARCHIVED"; break;
+            switch (result.getIntDefault("status", -1)) { // LDbValid::NEW_RECORD = 0, RECORD_IN_USE = 1, ARCHIVED = 2, DELETED = 99 LCDbTankMap::OFFLINE = 5
+                case LCDbTankMap::NEW_RECORD:
+                case LCDbTankMap::RECORD_IN_USE:
+                    break;  // ok, do nothing
+                case LCDbTankMap::ARCHIVED:
                     sample->vessel_name += " (ARCHIVED)"; break;
-                case LCDbTankMap::OFFLINE:  //tmStatusString = "OFFLINE"; break;
+                case LCDbTankMap::OFFLINE:
                     sample->vessel_name += " (OFFLINE)"; break;
-                default: //case -1:
+                default:    //case -1:
                     sample->vessel_name += " (UNKNOWN STATUS)";
             }
         } else {
