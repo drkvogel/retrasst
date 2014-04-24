@@ -10,6 +10,7 @@
 #include "RetrAsstCollectBoxes.h"
 #include "StoreUtil.h"
 #include "StoreDAO.h"
+#include "LCDbTankMap.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -154,7 +155,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
 }
 
 void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
-    ostringstream oss; oss;// << __FUNC__;
+    ostringstream oss; //oss;// << __FUNC__;
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
     if (NULL == job) return;
     oss << endl << "job: "<<job->getID()<<", projectid: "<<job->getProjectID()<<", status: "<<(job->getStatus());
@@ -297,10 +298,27 @@ void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
     if (found != storageCache.end() && NULL != (found->second)) { // fill in box location from cache map
         sample->copyLocation(*(found->second));
     } else {
-        if (dao.findBox(sample->store_record->getBoxID(), result)) {
+        string tmStatusString = "";
+        if (dao.findBox(sample->store_record->getBoxID(), result)) { // status stored in ROSETTA result
             sample->copyLocation(result);
+            // but, status could be OFFLINE or ARCHIVED - should display to user
+            // that something may be amiss (e.g. in process of being moved)
+
+            // LDbValid::NEW_RECORD = 0, RECORD_IN_USE = 1, ARCHIVED = 2, DELETED = 99 LCDbTankMap::OFFLINE = 5
+            switch (result.getIntDefault("status", -1)) {
+                case LCDbTankMap::NEW_RECORD:       // tmStatusString = "NEW_RECORD"; break;
+                case LCDbTankMap::RECORD_IN_USE:    // tmStatusString = "RECORD_IN_USE"; break;
+                    // ok, do nothing
+                    break;
+                case LCDbTankMap::ARCHIVED: //tmStatusString = "ARCHIVED"; break;
+                    sample->vessel_name += " (ARCHIVED)"; break;
+                case LCDbTankMap::OFFLINE:  //tmStatusString = "OFFLINE"; break;
+                    sample->vessel_name += " (OFFLINE)"; break;
+                default: //case -1:
+                    sample->vessel_name += " (UNKNOWN STATUS)";
+            }
         } else {
-            sample->setLocation("not found", 0, "not found", 0, 0, "not found", 0); //oss<<"(not found)";
+            sample->setLocation("No records found", 0, "", 0, 0, "", 0);
         }
         storageCache[sample->store_record->getBoxID()] = sample; // cache result
     }

@@ -3,8 +3,8 @@ object frmSelectJob: TfrmSelectJob
   Top = 0
   BorderIcons = [biMinimize]
   Caption = 'Select Cryogenics Task'
-  ClientHeight = 291
-  ClientWidth = 583
+  ClientHeight = 305
+  ClientWidth = 715
   Color = 12316364
   Constraints.MinHeight = 150
   Constraints.MinWidth = 300
@@ -16,15 +16,15 @@ object frmSelectJob: TfrmSelectJob
   OldCreateOrder = False
   OnShow = FormShow
   DesignSize = (
-    583
-    291)
+    715
+    305)
   PixelsPerInch = 96
   TextHeight = 13
   object grdJobs: TStringGrid
     Left = 6
     Top = 8
-    Width = 570
-    Height = 234
+    Width = 702
+    Height = 248
     Anchors = [akLeft, akTop, akRight, akBottom]
     ColCount = 3
     DefaultColWidth = 160
@@ -32,10 +32,12 @@ object frmSelectJob: TfrmSelectJob
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
     TabOrder = 0
     OnDblClick = grdJobsDblClick
+    ExplicitWidth = 570
+    ExplicitHeight = 234
   end
   object btnNewJob: TButton
     Left = 220
-    Top = 255
+    Top = 268
     Width = 82
     Height = 28
     Anchors = [akLeft, akBottom]
@@ -44,8 +46,8 @@ object frmSelectJob: TfrmSelectJob
     OnClick = btnNewJobClick
   end
   object btnDone: TButton
-    Left = 384
-    Top = 255
+    Left = 516
+    Top = 268
     Width = 82
     Height = 28
     Anchors = [akRight, akBottom]
@@ -55,7 +57,7 @@ object frmSelectJob: TfrmSelectJob
   end
   object btnOpenJob: TButton
     Left = 118
-    Top = 255
+    Top = 268
     Width = 82
     Height = 28
     Anchors = [akLeft, akBottom]
