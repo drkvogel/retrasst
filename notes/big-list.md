@@ -1,6 +1,12 @@
-﻿## todo
+﻿
 
-2014-04-08 Set `vnode_vlab` to point to `vlabdev`. `vlab` should be used for testing, as queries are slower on this VM than on `vlabdev`, probably because it has less memory.
+#### Error inspecting <symbol>
+
+In `LCDbCryoJob::saveRecord()`, couldn't inspect `central`.
+
+Similar to [this](http://qc.embarcadero.com/wc/qcmain.aspx?d=68452)?
+
+Project settings ("Debug configuration - 64-bit Windows platform") say "Disable all optimizations" is true, though.
 
 ### deal with jobs containing vials/boxes from multiple projects
 

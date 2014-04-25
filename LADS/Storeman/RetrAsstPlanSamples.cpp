@@ -760,8 +760,8 @@ void __fastcall SavePlanThread::Execute() {
 and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
     try {
         save();
-        frmSamples->job->setStatus(LCDbCryoJob::INPROGRESS);
-        frmSamples->job->saveRecord(LIMSDatabase::getCentralDb());
+//        frmSamples->job->setStatus(LCDbCryoJob::INPROGRESS);
+//        frmSamples->job->saveRecord(LIMSDatabase::getCentralDb());
         frmSamples->ModalResult = mrOk; // save and close here rather than OnTerminate in case of exception
     } catch (Exception & e) {
         debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);

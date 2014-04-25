@@ -73,17 +73,13 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
     } else {
         switch (job->getStatus()) {
         case LCDbCryoJob::Status::NEW_JOB:
-            background = RETRIEVAL_ASSISTANT_NEW_COLOUR;
-            break;
+            background = RETRIEVAL_ASSISTANT_NEW_COLOUR; break;
         case LCDbCryoJob::Status::INPROGRESS:
-            background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR;
-            break;
+            background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR; break;
         case LCDbCryoJob::Status::DONE:
-            background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
-            break;
+            background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR; break;
         case LCDbCryoJob::Status::DELETED:
-            background = RETRIEVAL_ASSISTANT_DELETED_COLOUR;
-            break;
+            background = RETRIEVAL_ASSISTANT_DELETED_COLOUR; break;
         default:
             background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
@@ -114,8 +110,8 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
             case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
                 frmSamples->setJob(job);
                 if (mrOk == frmSamples->ShowModal()) {
-//                    job->setStatus(LCDbCryoJob::INPROGRESS);
-//                    job->saveRecord(LIMSDatabase::getCentralDb());
+                    job->setStatus(LCDbCryoJob::INPROGRESS);
+                    job->saveRecord(LIMSDatabase::getCentralDb());
                 }
                 break;
             case LCDbCryoJob::JobKind::BOX_RETRIEVAL:

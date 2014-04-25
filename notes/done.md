@@ -474,3 +474,11 @@ Supposedly because of a [bug, not yet fixed by Embarcadero, in the IDE](http://c
     Storeman.cbproj:    </ProjectExtensions>
 
 Ah well, turn it off then.
+
+### vlabdev
+
+2014-04-08 Set `vnode_vlab` to point to `vlabdev`. `vlab` should be used for testing, as queries are slower on this VM than on `vlabdev`, probably because it has less memory.
+
+### error saving plan
+
+In `LCDbCryoJob::saveRecord()`, Nick had made changes so that query parameters `sdt`, `cdt`, `fdt`, `myid` were renamed `sd`, `cd`, `fd`, `id` - but hadn't updated the update string.

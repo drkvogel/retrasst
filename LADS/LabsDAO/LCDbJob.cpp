@@ -94,8 +94,8 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 {
 	if( saved ) {
 		central.setSQL( "update c_retrieval_job set status = :sts, process_cid = :pid,"
-						" start_date = :sdt, claimed_until = :cdt, finish_date = :fdt"
-						" where retrieval_cid = :myid" );
+						" start_date = :sd, claimed_until = :cd, finish_date = :fd"
+						" where retrieval_cid = :id" );
 	} else {
 		if( getName().empty() ) {
 			createName( central, "AUTOJOB" );
