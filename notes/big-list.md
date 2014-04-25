@@ -1,28 +1,24 @@
-﻿### secondary aliquot jumps down list
-
-job 1086765 ("Use primaries, keep secondaries in reserve")
-
-chunk 2, row 5 
-
-    25/04/2014 15:27:59: sgVialsClick retrieval_status: 4 (Not found), cryo_status: 2, store_status: 2, barcode: 112020237, storage: Worminghall[5]: Manganese:0[23]/C5[11], dest: dev_hps2-thrive EDTA_any 624474 [0], aliq: -31781
-    25/04/2014 15:27:59:  (backup) retrieval_status: 0 (Expected), cryo_status: 2, store_status: 2, barcode: 112020237, storage: Cowley[10]: Purple:0[14]/Bottom14[11], dest: dev_hps2-thrive EDTA_any 624474 [0], aliq: -31781
-
-after marking primary 5 "not found", secondary appears in row 17, or 6 and 18
-ie. 12 rows ahead - 1st chunk is 12 rows big - relative/absolute confusion in fillRow, methinks
-
-### deferred rows should be reset to expected on chunk display
-
-clicking on a chunk to display it (e.g. having dealt with another chunk, coming back to a previously attempted one), should perhaps clear the deferred rows, resetting them back to expected, so those rows can be tried again without having to save and come out of 
+﻿job 1086765 ("Use primaries, keep secondaries in reserve")
 
 ### completing last row doesn't finish chunk
 
 When a non-last (i.e. previously-deferred) row is completed and this is the last row to be completed in the chunk, instead of the chunk finished routine executing, the cursor jumps to the last (already actioned) row. Attempting to action this throws an error, which is correct.
+
+Also deferring a marooned row that is the only unactioned row results in the chunk being "Completed" and turned to the completed colour, whilst showing (e.g. 11/12 (92%)). 
+
+`float Chunk::getProgress()` looks OK, i.e. returns 92%, and 
+`string Chunk::progressString()` uses that, is OK as well
+`int Chunk::getStatus()` was wrong - was counting IGNORED rows as being completed
+
+
+
+`checkChunkComplete()` is not itself complete, maybe why.
     
     TfrmProcess::nextRow()
     
     checkChunkComplete()
 
-### is chunk finished routine not correct
+### "is chunk finished" routine not correct
 
 doesn't seem to ignore deferred rows, i.e. they are counted as being completed when they should not be.
 

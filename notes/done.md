@@ -531,3 +531,19 @@ DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMM
  * should thread perhaps
  * `l_cryovial_retrieval.time_stamp` should default to 'now'? -yes
     * Ask the relevant question(s) from the URS
+
+### secondary aliquot jumps down list
+
+job 1086765 ("Use primaries, keep secondaries in reserve")
+
+chunk 2, row 5 
+
+    25/04/2014 15:27:59: sgVialsClick retrieval_status: 4 (Not found), cryo_status: 2, store_status: 2, barcode: 112020237, storage: Worminghall[5]: Manganese:0[23]/C5[11], dest: dev_hps2-thrive EDTA_any 624474 [0], aliq: -31781
+    25/04/2014 15:27:59:  (backup) retrieval_status: 0 (Expected), cryo_status: 2, store_status: 2, barcode: 112020237, storage: Cowley[10]: Purple:0[14]/Bottom14[11], dest: dev_hps2-thrive EDTA_any 624474 [0], aliq: -31781
+
+after marking primary 5 "not found", secondary appears in row 17, or 6 and 18
+ie. 12 rows ahead - 1st chunk is 12 rows big - relative/absolute confusion in fillRow, methinks
+
+### deferred rows should be reset to expected on chunk display
+
+clicking on a chunk to display it (e.g. having dealt with another chunk, coming back to a previously attempted one), should perhaps clear the deferred rows, resetting them back to expected, so those rows can be tried again without having to save and come out of 

@@ -96,7 +96,6 @@ void TfrmProcess::debugLog(String s) {
 void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
     Caption = oss.str().c_str();
-	//panelLoading->Caption = progressMessage;
 	prepareProgressMessage(progressMessage);
     chunks.clear();
     sgwChunks->clear();
@@ -109,7 +108,7 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     labelSecondary->Caption = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str();
     labelPrimary->Enabled   = true;
     labelSecondary->Enabled = false;
-    timerLoadPlan->Enabled = true;
+    timerLoadPlan->Enabled  = true;
 }
 
 void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
@@ -677,16 +676,19 @@ void TfrmProcess::nextRow() {
         chunk->setRowAbs(chunk->nextUnresolvedAbs()); // fast-forward to first non-dealt-with row
     } else { // last row
         //chunk->setRowRel(current+1); // past end to show complete?
-        //TfrmRetrievalAssistant::msgbox("review");
 
         //debugLog("Save chunk"); // no, don't save - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
         if (chunk->getSection() < (int)chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk
-            checkChunkComplete();
-        } else {
-            if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
-
         }
+
+        if (Chunk< SampleRow >::Status::DONE == chunk->getStatus()) {
+            chunkComplete(chunk);
+        }
+
+//        } else {
+//            if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
+//        }
     }
     labelPrimary->Enabled = true; labelSecondary->Enabled = false;
     showChunks(); // calls showCurrentRow();
@@ -694,8 +696,34 @@ void TfrmProcess::nextRow() {
     ActiveControl = editBarcode; // focus for next barcode
 }
 
-void TfrmProcess::checkChunkComplete() {
-/*
+bool TfrmProcess::isJobComplete() {
+/** are all chunks complete? */
+    for (auto &chunk : chunks) {
+        if (Chunk< SampleRow >::Status::DONE == chunk->getStatus())
+            return false;
+    }
+    return true;
+}
+
+//bool TfrmProcess::isChunkComplete(Chunk< SampleRow > * chunk) {
+//    for (int row=0; row < chunk->getSize(); row++) {     //for (auto &sample : chunk->) {
+//        SampleRow * sampleRow = chunk->objectAtRel(row);
+//        switch (i) {
+//
+//        default:
+//            ;
+//        }
+//        if (sampleRow->retrieval_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
+//            sampleRow->retrieval_record->setStatus(LCDbCryovialRetrieval::EXPECTED);
+//        } else if ( sampleRow->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && sampleRow->backup != NULL) {
+//            if (sampleRow->backup->retrieval_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
+//                sampleRow->backup->retrieval_record->setStatus(LCDbCryovialRetrieval::EXPECTED);
+//            }
+//        }
+//    }
+//}
+void TfrmProcess::chunkComplete(Chunk< SampleRow > * chunk) {
+/**
 At the end of chunk, check if the chunk is actually finished (no REFERRED vials).
 If finished:
     * Require user to sign off
@@ -706,6 +734,9 @@ If finished:
     * if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
 */
     // check if the chunk is actually finished (no REFERRED vials)
+    //int row = sgChunks->Row;
+    //if (row < 1) return;
+    //Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
 
     // If not finished
 

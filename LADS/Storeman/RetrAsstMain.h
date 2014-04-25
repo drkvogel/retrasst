@@ -386,14 +386,10 @@ public:
         }
     }
     float getProgress() {
-        // there could be gaps (previously deferred vials). Gotta count 'em.
-        processed = 0;
-        int size = getSize();
-        if (0 == size) return 0;
-        for (int i=0; i<size; i++) {
+        processed = 0; int size = getSize(); if (0 == size) return 0;
+        for (int i=0; i<size; i++) { // there could be gaps (previously deferred vials). Gotta count 'em.
             int status = objectAtRel(i)->retrieval_record->getStatus();
-            // EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND
-            switch (status) {
+            switch (status) { // EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND
                 case LCDbCryovialRetrieval::EXPECTED:
                 case LCDbCryovialRetrieval::IGNORED:
                     break;
@@ -421,8 +417,8 @@ public:
             int status = objectAtRel(i)->retrieval_record->getStatus();
             switch (status) {
                 case LCDbCryovialRetrieval::EXPECTED:
-                    complete = false; break;
                 case LCDbCryovialRetrieval::IGNORED:
+                    complete = false; break;
                 case LCDbCryovialRetrieval::COLLECTED:
                 case LCDbCryovialRetrieval::NOT_FOUND:
                 case LCDbCryovialRetrieval::DISPOSED:
