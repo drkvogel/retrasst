@@ -482,3 +482,52 @@ Ah well, turn it off then.
 ### error saving plan
 
 In `LCDbCryoJob::saveRecord()`, Nick had made changes so that query parameters `sdt`, `cdt`, `fdt`, `myid` were renamed `sd`, `cd`, `fd`, `id` - but hadn't updated the update string.
+
+ * when loading chunks, boxes, vials, colour accordingly to state:
+    Chunk (calculated?): NOT_STARTED|INPROGRESS|DONE // REJECTED|DELETED
+    LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
+    LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
+* Source/Current box - standardise name - source better
+* how to save stuff? to which tables? when (ie. per row or on exit/save)?
+    * save *_retrieval per row, others on exit/signoff
+ * Allow user to fill gaps in boxes from secondary aliquot after primary aliquot (partly?) completed
+ * though for last chunk, there is no row after
+ chunk->getStatus() called in showChunks and sgChunksDrawCell - necessary?
+ * notFound() crash
+ * show row numbers (e.g. 1,2,3... for each in chunk)
+ * chunk progress not shown at first
+ * showChunks should fast forward to first unresolved
+ * closing window with x exits without save
+ * signoff
+ * allow going back over skipped
+ * changes to status not apparent
+    * because currentSample() returns secondary if loaded and secondary is now loaded by default, see above
+    * return secondary only if primary is NOT_FOUND?
+ * showCurrentRow gets triggered twice, no, three times!
+        sgChunksClick --> showChunk --> showCurrentRow # just once
+                # now not at all
+        //btnSkipclick --> skip --> showCurrentRow // not necessary
+        btnSkipclick --> skip --> nextRow --> showCurrentRow
+        btnSkipclick --> skip --> nextRow --> showChunks --> showChunk --> showCurrentRow
+ * consolidate notes (move to separate windows and compare)
+ * IGNORED status shouldn't be saved?
+ * Insert a record into c_box_retrieval for each box in turn and update c_retrieval_job: set status=in progress (1)
+ * "source" and "destination" (boxes) > "old"/"new" or "current"/"future"
+ * deferred boxes are not saved as such...
+ * example cryovial retrieval - no chunks
+    * there is a plan in the temp table
+    * create a new plan, open - ok - plan possible made before db rebuild
+ * Session tables: http://community.actian.com/forum/questions-feedback-suggestions/11359-temporary-table.html
+DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMMIT PRESERVE ROWS WITH NORECOVERY;
+ * sort "aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782) shouldn't show aliquot anyway
+ * speed up queries
+   * profile?
+   * Plan: 
+        * load primary aliquot only?
+        * save is quite slow
+   * Process:  
+ * save changes thread
+ * thread "save changes" in plan-/ 
+ * should thread perhaps
+ * `l_cryovial_retrieval.time_stamp` should default to 'now'? -yes
+    * Ask the relevant question(s) from the URS

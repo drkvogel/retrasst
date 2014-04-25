@@ -216,6 +216,19 @@ void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
     int row = sgChunks->Row;
     if (row < 1) return;
     Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
+
+    // reset deferred rows
+    for (int row=0; row < chunk->getSize(); row++) {
+        SampleRow * sampleRow = chunk->objectAtRel(row);
+        if (sampleRow->retrieval_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
+            sampleRow->retrieval_record->setStatus(LCDbCryovialRetrieval::EXPECTED);
+        } else if ( sampleRow->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && sampleRow->backup != NULL) {
+            if (sampleRow->backup->retrieval_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
+                sampleRow->backup->retrieval_record->setStatus(LCDbCryovialRetrieval::EXPECTED);
+            }
+        }
+    }
+
     showChunk(chunk);
 }
 
@@ -229,6 +242,7 @@ void __fastcall TfrmProcess::sgVialsClick(TObject *Sender) { // show details in 
         <<", barcode: "<<sample->cryovial_barcode.c_str()
         <<", storage: "<<sample->storage_str().c_str()
         <<", dest: "<<sample->dest_str().c_str()
+        <<", aliq: "<<sample->cryo_record->getAliquotType()
         )
     SampleRow * backup = sample->backup;
     if (!backup) {
@@ -243,6 +257,7 @@ void __fastcall TfrmProcess::sgVialsClick(TObject *Sender) { // show details in 
         <<", barcode: "<<backup->cryovial_barcode.c_str()
         <<", storage: "<<backup->storage_str().c_str()
         <<", dest: "<<backup->dest_str().c_str()
+        <<", aliq: "<<sample->cryo_record->getAliquotType()
         )
     //int row = sgVials->Row; sgVials->Row = row; // how to put these before and after to save row clicked on?
 }
@@ -364,7 +379,7 @@ void __fastcall TfrmProcess::timerLoadPlanTimer(TObject *Sender) {
 void TfrmProcess::loadPlan() {
 	prepareProgressMessage(progressMessage);
 	Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
-    DEBUGSTREAM("loadRows for job "<<job->getID()<<" started")
+    DEBUGSTREAM("loadRows for job "<<(job->getID())<<" (\""<<(job->getDescription().c_str())<<"\") started")
     Enabled = false;
     loadPlanThread = new LoadPlanThread();
     loadPlanThread->OnTerminate = &loadPlanThreadTerminated;
@@ -597,14 +612,14 @@ void TfrmProcess::skip() {
 
 void TfrmProcess::notFound() {
     DEBUGSTREAM("Save not found row")
-    int rowAbs = currentChunk()->getRowAbs();
-    SampleRow * sample = currentChunk()->objectAtAbs(rowAbs);
+    int rowRel = currentChunk()->getRowRel();
+    SampleRow * sample = currentChunk()->objectAtRel(rowRel);
     if (sample->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
         sample->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
         if (sample->backup) {
             TfrmRetrievalAssistant::msgbox("Secondary aliquot found");
             if (sample->backup->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // backup already marked not found
-                fillRow(sample, rowAbs + 1); // refresh sg row - now keeps pointer to row
+                fillRow(sample, rowRel + 1); // refresh sg row - now keeps pointer to row
                 showCurrentRow();
                 showDetails(sample->backup);
                 return;
@@ -781,7 +796,10 @@ void __fastcall SaveProgressThread::Execute() {
 				found->second.insert(sample);
 			}
 
-            ostringstream oss; oss<<"blah blah blah"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
+            ostringstream oss; oss//<<"Storing "
+                <<sample->cryovial_barcode<<" "<<sample->aliquotName<<" in box with id "<<sourceBox;
+            loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
+
 			int status  = sample->retrieval_record->getStatus();
 			if (status != LCDbCryovialRetrieval::EXPECTED && status != LCDbCryovialRetrieval::IGNORED) { // changed
 				storeSample(sample);

@@ -1,12 +1,34 @@
-﻿
+﻿### secondary aliquot jumps down list
 
-#### Error inspecting <symbol>
+job 1086765 ("Use primaries, keep secondaries in reserve")
 
-In `LCDbCryoJob::saveRecord()`, couldn't inspect `central`.
+chunk 2, row 5 
 
-Similar to [this](http://qc.embarcadero.com/wc/qcmain.aspx?d=68452)?
+    25/04/2014 15:27:59: sgVialsClick retrieval_status: 4 (Not found), cryo_status: 2, store_status: 2, barcode: 112020237, storage: Worminghall[5]: Manganese:0[23]/C5[11], dest: dev_hps2-thrive EDTA_any 624474 [0], aliq: -31781
+    25/04/2014 15:27:59:  (backup) retrieval_status: 0 (Expected), cryo_status: 2, store_status: 2, barcode: 112020237, storage: Cowley[10]: Purple:0[14]/Bottom14[11], dest: dev_hps2-thrive EDTA_any 624474 [0], aliq: -31781
 
-Project settings ("Debug configuration - 64-bit Windows platform") say "Disable all optimizations" is true, though.
+after marking primary 5 "not found", secondary appears in row 17, or 6 and 18
+ie. 12 rows ahead - 1st chunk is 12 rows big - relative/absolute confusion in fillRow, methinks
+
+### deferred rows should be reset to expected on chunk display
+
+clicking on a chunk to display it (e.g. having dealt with another chunk, coming back to a previously attempted one), should perhaps clear the deferred rows, resetting them back to expected, so those rows can be tried again without having to save and come out of 
+
+### completing last row doesn't finish chunk
+
+When a non-last (i.e. previously-deferred) row is completed and this is the last row to be completed in the chunk, instead of the chunk finished routine executing, the cursor jumps to the last (already actioned) row. Attempting to action this throws an error, which is correct.
+    
+    TfrmProcess::nextRow()
+    
+    checkChunkComplete()
+
+### is chunk finished routine not correct
+
+doesn't seem to ignore deferred rows, i.e. they are counted as being completed when they should not be.
+
+### row colours
+
+secondary (expected) should perhaps be green - ie. stronger version of primary colour
 
 ### deal with jobs containing vials/boxes from multiple projects
 
@@ -223,51 +245,10 @@ look for ??? /newrow
 
 in <done.md>
 
- * when loading chunks, boxes, vials, colour accordingly to state:
-    Chunk (calculated?): NOT_STARTED|INPROGRESS|DONE // REJECTED|DELETED
-    LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
-    LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
-* Source/Current box - standardise name - source better
-* how to save stuff? to which tables? when (ie. per row or on exit/save)?
-    * save *_retrieval per row, others on exit/signoff
- * Allow user to fill gaps in boxes from secondary aliquot after primary aliquot (partly?) completed
- * though for last chunk, there is no row after
- chunk->getStatus() called in showChunks and sgChunksDrawCell - necessary?
- * notFound() crash
- * show row numbers (e.g. 1,2,3... for each in chunk)
- * chunk progress not shown at first
- * showChunks should fast forward to first unresolved
- * closing window with x exits without save
- * signoff
- * allow going back over skipped
- * changes to status not apparent
-    * because currentSample() returns secondary if loaded and secondary is now loaded by default, see above
-    * return secondary only if primary is NOT_FOUND?
- * showCurrentRow gets triggered twice, no, three times!
-        sgChunksClick --> showChunk --> showCurrentRow # just once
-                # now not at all
-        //btnSkipclick --> skip --> showCurrentRow // not necessary
-        btnSkipclick --> skip --> nextRow --> showCurrentRow
-        btnSkipclick --> skip --> nextRow --> showChunks --> showChunk --> showCurrentRow
- * consolidate notes (move to separate windows and compare)
- * IGNORED status shouldn't be saved?
- * Insert a record into c_box_retrieval for each box in turn and update c_retrieval_job: set status=in progress (1)
- * "source" and "destination" (boxes) > "old"/"new" or "current"/"future"
- * deferred boxes are not saved as such...
- * example cryovial retrieval - no chunks
-    * there is a plan in the temp table
-    * create a new plan, open - ok - plan possible made before db rebuild
- * Session tables: http://community.actian.com/forum/questions-feedback-suggestions/11359-temporary-table.html
-DECLARE GLOBAL TEMPORARY TABLE session.temptable AS select * from myview ON COMMIT PRESERVE ROWS WITH NORECOVERY;
- * sort "aliquot ascending" is sorting by ID, so primary (-31781) comes after secondary (-31782) shouldn't show aliquot anyway
- * speed up queries
-   * profile?
-   * Plan: 
-        * load primary aliquot only?
-        * save is quite slow
-   * Process:  
- * save changes thread
- * thread "save changes" in plan-/ 
- * should thread perhaps
- * `l_cryovial_retrieval.time_stamp` should default to 'now'? -yes
-    * Ask the relevant question(s) from the URS
+#### Error inspecting <symbol>
+
+In `LCDbCryoJob::saveRecord()`, couldn't inspect `central`.
+
+Similar to [this](http://qc.embarcadero.com/wc/qcmain.aspx?d=68452)?
+
+Project settings ("Debug configuration - 64-bit Windows platform") say "Disable all optimizations" is true, though.

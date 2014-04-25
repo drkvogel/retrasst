@@ -40,18 +40,19 @@ object frmProcess: TfrmProcess
     TabOrder = 0
     object splitterDebug: TSplitter
       Left = 2
-      Top = 131
+      Top = 83
       Width = 944
       Height = 5
       Cursor = crVSplit
       Align = alBottom
-      ExplicitTop = 124
+      ExplicitLeft = 3
+      ExplicitTop = 99
     end
     object sgVials: TStringGrid
       Left = 2
       Top = 15
       Width = 944
-      Height = 116
+      Height = 68
       Align = alClient
       DefaultDrawing = False
       DoubleBuffered = True
@@ -62,6 +63,7 @@ object frmProcess: TfrmProcess
       TabOrder = 0
       OnClick = sgVialsClick
       OnDrawCell = sgVialsDrawCell
+      ExplicitHeight = 116
     end
     object panelLoading: TPanel
       Left = 248
@@ -82,9 +84,9 @@ object frmProcess: TfrmProcess
     end
     object panelDebug: TPanel
       Left = 2
-      Top = 136
+      Top = 88
       Width = 944
-      Height = 87
+      Height = 135
       Align = alBottom
       BevelEdges = []
       Caption = 'panelDebug'
@@ -92,7 +94,7 @@ object frmProcess: TfrmProcess
       object Splitter2: TSplitter
         Left = 1
         Top = 1
-        Height = 85
+        Height = 133
         ExplicitLeft = 864
         ExplicitTop = 48
         ExplicitHeight = 100
@@ -101,22 +103,25 @@ object frmProcess: TfrmProcess
         Left = 4
         Top = 1
         Width = 864
-        Height = 85
+        Height = 133
         Align = alClient
         DoubleBuffered = False
         ParentDoubleBuffered = False
         ScrollBars = ssVertical
         TabOrder = 0
+        ExplicitLeft = -2
+        ExplicitHeight = 85
       end
       object btnSimAccept: TButton
         Left = 868
         Top = 1
         Width = 75
-        Height = 85
+        Height = 133
         Align = alRight
         Caption = 'Sim Accept'
         TabOrder = 1
         OnClick = btnSimAcceptClick
+        ExplicitHeight = 85
       end
     end
   end
@@ -269,8 +274,8 @@ object frmProcess: TfrmProcess
         object labelPrimary: TLabel
           Left = 7
           Top = 20
-          Width = 80
-          Height = 16
+          Width = 143
+          Height = 28
           Align = alClient
           Caption = 'labelPrimary'
           Font.Charset = DEFAULT_CHARSET
@@ -280,6 +285,8 @@ object frmProcess: TfrmProcess
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 80
+          ExplicitHeight = 16
         end
       end
       object groupSecondary: TGroupBox
@@ -297,8 +304,8 @@ object frmProcess: TfrmProcess
         object labelSecondary: TLabel
           Left = 7
           Top = 20
-          Width = 99
-          Height = 16
+          Width = 143
+          Height = 31
           Margins.Left = 5
           Margins.Top = 5
           Margins.Right = 5
@@ -312,6 +319,8 @@ object frmProcess: TfrmProcess
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 99
+          ExplicitHeight = 16
         end
       end
     end
