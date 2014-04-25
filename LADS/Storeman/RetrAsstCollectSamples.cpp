@@ -288,6 +288,20 @@ void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) { notFound(); }
 
 void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) { skip(); }
 
+void TfrmProcess::prepareProgressMessage(const char * loadingMessage) {
+	panelLoading->Caption = loadingMessage;
+	panelLoading->Visible = true;
+	panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+}
+
+void TfrmProcess::checkExit() {
+    if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
+        exit();
+    }
+}
+
 void TfrmProcess::showChunks() {
     if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
     else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
@@ -592,9 +606,7 @@ void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be
         } else { // secondary
 
         }
-
-
-        TfrmRetrievalAssistant::msgbox("save secondary");
+        TfrmRetrievalAssistant::msgbox("set secondary status");
         //sample->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
         debugLog("Save accepted row");
         nextRow();
@@ -657,75 +669,55 @@ SampleRow * TfrmProcess::currentAliquot() {
 }
 
 void TfrmProcess::nextRow() {
+/**
+* save both primary and secondary - secondary aliquots should always be saved if present
+* accept(): if primary aliquot !collected # expected, ignored, not found (now found?)
+* save secondary as `IGNORED` if not required? primary was */
+
     Chunk< SampleRow > * chunk = currentChunk();
-    int current = chunk->getRowRel(); //SampleRow * sample = currentAliquot(); // which may be the secondary aliquot //
-    SampleRow * sample = chunk->currentObject();
+    //int current = chunk->getRowRel(); //SampleRow * sample = currentAliquot();  //
+    SampleRow * sample = chunk->currentObject(); // which may be the secondary aliquot
 
-/*  * make sure both aliquots are dealt with whatever happens
-    * save both primary and secondary - secondary aliquots should always be saved if present
-    * accept():
-        * if primary aliquot !collected # expected, ignored, not found (now found?)
-    * save secondary as `IGNORED` if not required? primary was */
-
-    // save both primary and secondary
+    // save changes both primary and secondary in l_cryovial_retrieval (not cryovial/_store at this point)
     if (!sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw "saveRecord() failed"; }
     if (sample->backup) {
         if (!sample->backup->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw "saveRecord() failed for secondary"; }
-    }
-    if (current < chunk->getSize()-1) {
+    } // deferred (IGNORED) vials are not actually saved to the database, they remain EXPECTED
+
+    // don't need to save chunk - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
+    if (chunk->getRowRel() < chunk->getSize()-1) {
         chunk->setRowAbs(chunk->nextUnresolvedAbs()); // fast-forward to first non-dealt-with row
     } else { // last row
-        //chunk->setRowRel(current+1); // past end to show complete?
-
-        //debugLog("Save chunk"); // no, don't save - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
         if (chunk->getSection() < (int)chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk
-        }
-
-        if (Chunk< SampleRow >::Status::DONE == chunk->getStatus()) {
-            chunkComplete(chunk);
-        }
-
-//        } else {
-//            if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
-//        }
+        } //chunk->setRowRel(current+1); // past end to show complete?
     }
     labelPrimary->Enabled = true; labelSecondary->Enabled = false;
     showChunks(); // calls showCurrentRow();
     editBarcode->Clear();
     ActiveControl = editBarcode; // focus for next barcode
+
+    if (Chunk< SampleRow >::Status::DONE == chunk->getStatus()) { // chunk is complete (no EXPECTED or REFERRED vials)
+        chunkComplete(chunk);
+    }
+
+    if (isJobComplete()) { // job is complete
+        if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
+        ModalResult = mrOk;
+    }
 }
 
 bool TfrmProcess::isJobComplete() {
 /** are all chunks complete? */
     for (auto &chunk : chunks) {
-        if (Chunk< SampleRow >::Status::DONE == chunk->getStatus())
+        if (Chunk< SampleRow >::Status::DONE != chunk->getStatus())
             return false;
     }
     return true;
 }
 
-//bool TfrmProcess::isChunkComplete(Chunk< SampleRow > * chunk) {
-//    for (int row=0; row < chunk->getSize(); row++) {     //for (auto &sample : chunk->) {
-//        SampleRow * sampleRow = chunk->objectAtRel(row);
-//        switch (i) {
-//
-//        default:
-//            ;
-//        }
-//        if (sampleRow->retrieval_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
-//            sampleRow->retrieval_record->setStatus(LCDbCryovialRetrieval::EXPECTED);
-//        } else if ( sampleRow->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && sampleRow->backup != NULL) {
-//            if (sampleRow->backup->retrieval_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
-//                sampleRow->backup->retrieval_record->setStatus(LCDbCryovialRetrieval::EXPECTED);
-//            }
-//        }
-//    }
-//}
 void TfrmProcess::chunkComplete(Chunk< SampleRow > * chunk) {
-/**
-At the end of chunk, check if the chunk is actually finished (no REFERRED vials).
-If finished:
+/** At the end of chunk, check if the chunk is actually finished (no REFERRED vials). If finished:
     * Require user to sign off
     * update cryo store records
     * calculate if there are any empty boxes
@@ -733,13 +725,9 @@ If finished:
     * ask user to comfirm that empty boxes are in fact empty
     * if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
 */
-    // check if the chunk is actually finished (no REFERRED vials)
-    //int row = sgChunks->Row;
-    //if (row < 1) return;
-    //Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
+    //int row = sgChunks->Row; if (row < 1) return;
 
     // If not finished
-
 
     // Require user to sign off
 	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
@@ -762,48 +750,27 @@ If finished:
 
 }
 
-void TfrmProcess::prepareProgressMessage(const char * loadingMessage) {
-	panelLoading->Caption = loadingMessage;
-	panelLoading->Visible = true;
-	panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
-    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
-    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
-}
-
-void TfrmProcess::checkExit() {
-    if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
-        exit();
-    }
-}
-
 void TfrmProcess::exit() { // definitely exiting
-/*  * update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
-
+/** update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
 	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
 	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
 		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
 		return; // fixme what now?
 	}
 
-//	panelLoading->Caption = progressMessage;
-//	panelLoading->Visible = true;
-//    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
-//	panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
-//	progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
-	prepareProgressMessage(progressMessage);
-
-    Screen->Cursor = crSQLWait; Enabled = false; DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
+	prepareProgressMessage(progressMessage); Screen->Cursor = crSQLWait; Enabled = false;
+    DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
 
     saveProgressThread = new SaveProgressThread();
     saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
 }
 void __fastcall SaveProgressThread::Execute() {
 
-/*	* check cryo/store old/new params correct for `LCDbCryovialRetrieval`
-	* `c_box_retrieval`: set `time_stamp`, `status` = 1 (PART_FILLED)
-    * `box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
-	* `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
-    * how to update boxes? check at save and exit that all vials in a box have been saved? */
+/** check cryo/store old/new params correct for `LCDbCryovialRetrieval`
+* `c_box_retrieval`: set `time_stamp`, `status` = 1 (PART_FILLED)
+* `box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
+* `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
+* how to update boxes? check at save and exit that all vials in a box have been saved? */
 
 	typedef std::set< SampleRow * > SetOfVials;
 	typedef std::map< int, SetOfVials > VialsInBoxesMap;
@@ -1002,9 +969,9 @@ void TfrmProcess::discardBoxes() {
 }
 
 void TfrmProcess::collectEmpties() {
-    /** if, at the end of processing a chunk, there are any source boxes which have become empty,
-        the user may want to discard them instead of replacing them.
-	    if so, provide an option to discard these empty boxes, recording it in the database */
+/** if, at the end of processing a chunk, there are any source boxes which have become empty,
+    the user may want to discard them instead of replacing them.
+    if so, provide an option to discard these empty boxes, recording it in the database */
 
     // find out if there are any
 

@@ -1,30 +1,36 @@
-﻿job 1086765 ("Use primaries, keep secondaries in reserve")
+﻿1086765 ("Use primaries, keep secondaries in reserve")
+1086654 ("Primary and secondary in alternate slots")
+
+SaveProgressThread::storeSample()?
+
+### row colours
+
+secondary (expected) should perhaps be green - ie. stronger version of primary colour
+
+colours should be consistent between plan and retrieve
 
 ### completing last row doesn't finish chunk
 
 When a non-last (i.e. previously-deferred) row is completed and this is the last row to be completed in the chunk, instead of the chunk finished routine executing, the cursor jumps to the last (already actioned) row. Attempting to action this throws an error, which is correct.
 
-Also deferring a marooned row that is the only unactioned row results in the chunk being "Completed" and turned to the completed colour, whilst showing (e.g. 11/12 (92%)). 
+`checkChunkComplete()` is not itself complete, maybe why.
+
+Check completeness or otherwise of chunk with `Chunk::getStatus()`
+    
+    nextRow()    
+    completeChunk()
+
+
+
+### "is chunk finished" routine not correct
+
+Doesn't seem to ignore deferred rows, i.e. they are counted as being completed when they should not be.
+
+Deferring a marooned row that is the only unactioned row results in the chunk being "Completed" and turned to the completed colour, whilst showing (e.g.) 11/12 (92%).
 
 `float Chunk::getProgress()` looks OK, i.e. returns 92%, and 
 `string Chunk::progressString()` uses that, is OK as well
 `int Chunk::getStatus()` was wrong - was counting IGNORED rows as being completed
-
-
-
-`checkChunkComplete()` is not itself complete, maybe why.
-    
-    TfrmProcess::nextRow()
-    
-    checkChunkComplete()
-
-### "is chunk finished" routine not correct
-
-doesn't seem to ignore deferred rows, i.e. they are counted as being completed when they should not be.
-
-### row colours
-
-secondary (expected) should perhaps be green - ie. stronger version of primary colour
 
 ### deal with jobs containing vials/boxes from multiple projects
 

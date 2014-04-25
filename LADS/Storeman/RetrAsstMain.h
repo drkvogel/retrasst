@@ -440,8 +440,13 @@ public:
 //};
 
 static const char * jobStatusString(short status) {
-    static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Rejected", "Deleted" };
-    return status < LCDbCryoJob::Status::NUM_STATUSES ? jobStatusStrings[status] : "Invalid";
+    // enum Status { NEW_JOB, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES };
+    static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Rejected" };
+    if (LCDbCryoJob::Status::DELETED == status) {
+        return "Deleted";
+    } else {
+        return status < LCDbCryoJob::Status::NUM_STATUSES ? jobStatusStrings[status] : "Invalid";
+    }
 };
 
 static const char * jobTypeString(short status) {
