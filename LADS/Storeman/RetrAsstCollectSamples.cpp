@@ -415,9 +415,8 @@ void __fastcall LoadPlanThread::debugLog() { frmProcess->debugLog(debugMessage.c
 void __fastcall LoadPlanThread::msgbox() { Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK); }
 
 void __fastcall LoadPlanThread::Execute() { 
-    /** load retrieval plan
-    For a box retrieval, the retrieval plan will be given by: Select * from c_box_retrieval b order by b.section, b.rj_box_cid
-    For a cryovial retrieval, the retrieval plan will be: Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
+/** load cryovial retrieval plan:
+Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
     delete_referenced< vector<SampleRow * > >(frmProcess->vials); frmProcess->chunks.clear();
     ostringstream oss; oss<<frmProcess->progressMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
     if (NULL == frmProcess || NULL == frmProcess->job) { throw "wtf?"; }
@@ -529,7 +528,6 @@ void __fastcall TfrmProcess::loadPlanThreadTerminated(TObject *Sender) {
     Screen->Cursor = crDefault;
     try {
         showChunks();
-        //showCurrentRow();
     } catch (Exception & e) {
 		TfrmRetrievalAssistant::msgbox(e.Message);
     } catch (...) {
@@ -601,8 +599,7 @@ void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be
     if (barcode == aliquot->cryovial_barcode.c_str()) { // save
         aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
         if (aliquot == primary) {
-            //
-            //sample->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
+            primary->backup->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
         } else { // secondary
 
         }
