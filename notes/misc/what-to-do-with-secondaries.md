@@ -5,11 +5,8 @@ In PlanSamples:
     sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
 
     dest_cryo_pos is 8th param of SampleRow::SampleRow()
-
     ie. dest_pos, 
-
     ie. s2.cryovial_position
-
     s2.status = 0 [EXPECTED] ie. dest box
 
 Looked through emails mentioning 'aliquot', nothing conclusive.

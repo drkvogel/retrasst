@@ -84,7 +84,7 @@ So we proposed adding invalid boxes from Retrieval Assistant to `c_box_name` and
 
 > Markdown Extra implements definition lists. Definition lists are made of terms and definitions of these terms, much like in a dictionary. A simple definition list in Markdown Extra is made of a single-line term followed by a colon and the definition for that term.
 
-`C_BOX_NAME`
+##### `C_BOX_NAME`
 
 > Box names are copied into this table from each of the projects each night but it also lists boxes shared between projects. Programs modifying this table should apply the same changes to the relevant box_name entry if there is one.
 
@@ -107,7 +107,7 @@ So we proposed adding invalid boxes from Retrieval Assistant to `c_box_name` and
 `process_cid` (`c_audit_trail`)
 :   The program run that created or updated this record
 
-`C_SLOT_ALLOCATION`
+##### `C_SLOT_ALLOCATION`
 
 > A record of where each box is likely to be stored. See box_store in the relevant project database for further information if the box contains cryovials from a single project.
 
@@ -146,7 +146,6 @@ So we proposed adding invalid boxes from Retrieval Assistant to `c_box_name` and
     * ask user to confirm that vessel/structure/slot is now empty
         * so need to check if v/st/sl is empty as well?
     * otherwise box should be referred
-
 
  * sign off on exit (complete or not): 
     * check cryo/store old/new params correct for `LCDbCryovialRetrieval`?
