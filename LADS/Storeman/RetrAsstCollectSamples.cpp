@@ -814,7 +814,7 @@ void __fastcall SaveProgressThread::Execute() {
 			SetOfVials & setOfVials = found->second;
 			SetOfVials::const_iterator it;
 			for (it = setOfVials.begin(); it != setOfVials.end(); it++) { // for each vial in the box
-				SampleRow * sample;
+				SampleRow * sample = *it;
 				switch (sample->retrieval_record->getStatus()) { // what about secondaries?
 				case LCDbCryovialRetrieval::EXPECTED:
 					vialRemains = true;
@@ -929,7 +929,6 @@ void TfrmProcess::discardBoxes() {
     LPDbBoxNames boxNames;
     boxNames.readFilled(qp); // reads CONFIRMED [2], ANALYSED [3]. boxes.readCurrent(qp) reads EMPTY [0], IN_USE [1]
     const LPDbBoxName * pBoxName;
-    //LPDbBoxName * boxName;
     typedef std::vector< LPDbBoxName > VecBoxes;
     VecBoxes boxes;
 
