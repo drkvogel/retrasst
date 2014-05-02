@@ -43,7 +43,7 @@ public:
     void __fastcall msgbox();
 };
 
-class TfrmRetrAsstCollectVials : public TForm {
+class TfrmRetrAsstCollectSamples : public TForm {
     friend class LoadPlanThread;
     friend class SaveProgressThread;
 __published:
@@ -148,9 +148,9 @@ private:
     bool                                        unactionedSamples;
 public:
     void                                        setJob(LCDbCryoJob * ajob) { job = ajob; }
-    __fastcall TfrmRetrAsstCollectVials(TComponent* Owner);
-    __fastcall ~TfrmRetrAsstCollectVials();
+    __fastcall TfrmRetrAsstCollectSamples(TComponent* Owner);
+    __fastcall ~TfrmRetrAsstCollectSamples();
 };
 
-extern PACKAGE TfrmRetrAsstCollectVials *frmRetrAsstCollectVials;
+extern PACKAGE TfrmRetrAsstCollectSamples *frmRetrAsstCollectSamples;
 #endif

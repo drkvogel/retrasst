@@ -1,4 +1,4 @@
-object frmBoxes: TfrmBoxes
+object frmRetrAsstPlanBoxes: TfrmRetrAsstPlanBoxes
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu, biMaximize]

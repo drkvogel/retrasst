@@ -1,4 +1,4 @@
-object frmRetrAsstCollectVials: TfrmRetrAsstCollectVials
+object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   Left = 0
   Top = 0
   Caption = 'Process Retrieval Job'

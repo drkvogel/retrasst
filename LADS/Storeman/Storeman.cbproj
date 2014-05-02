@@ -582,7 +582,7 @@
             <BuildOrder>127</BuildOrder>
         </CppCompile>
         <CppCompile Include="RetrAsstCollectSamples.cpp">
-            <Form>frmRetrAsstCollectVials</Form>
+            <Form>frmRetrAsstCollectSamples</Form>
             <FormType>dfm</FormType>
             <DependentOn>RetrAsstCollectSamples.h</DependentOn>
             <BuildOrder>4</BuildOrder>
@@ -594,13 +594,13 @@
             <BuildOrder>5</BuildOrder>
         </CppCompile>
         <CppCompile Include="RetrAsstPlanBoxes.cpp">
-            <Form>frmBoxes</Form>
+            <Form>frmRetrAsstPlanBoxes</Form>
             <FormType>dfm</FormType>
             <DependentOn>RetrAsstPlanBoxes.h</DependentOn>
             <BuildOrder>6</BuildOrder>
         </CppCompile>
         <CppCompile Include="RetrAsstPlanSamples.cpp">
-            <Form>frmRetrAsstPlanVials</Form>
+            <Form>frmRetrAsstPlanSamples</Form>
             <FormType>dfm</FormType>
             <DependentOn>RetrAsstPlanSamples.h</DependentOn>
             <BuildOrder>7</BuildOrder>

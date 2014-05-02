@@ -43,7 +43,7 @@ public:
     __fastcall SavePlanThread();
 };
 
-class TfrmRetrAsstPlanVials : public TForm {
+class TfrmRetrAsstPlanSamples : public TForm {
     friend class LoadVialsJobThread;
     friend class SavePlanThread;
 __published:
@@ -145,10 +145,10 @@ private:
     int                                         section_size;
     int                                         box_size;
 public:
-    __fastcall                                  TfrmRetrAsstPlanVials(TComponent* Owner);
+    __fastcall                                  TfrmRetrAsstPlanSamples(TComponent* Owner);
     void                                        debugLog(String s);
     void                                        setJob(LCDbCryoJob * ajob) { job = ajob; };
 };
 
-extern PACKAGE TfrmRetrAsstPlanVials *frmRetrAsstPlanVials;
+extern PACKAGE TfrmRetrAsstPlanSamples *frmRetrAsstPlanSamples;
 #endif

@@ -1,5 +1,14 @@
-﻿1086765 ("Use primaries, keep secondaries in reserve")
+﻿
+1086765 ("Use primaries, keep secondaries in reserve")
 1086654 ("Primary and secondary in alternate slots")
+
+### 1086654 ("Primary and secondary in alternate slots") crash
+
+chunk 4? next sample, sim accept, if barcode == aliquot->cryovial_barcode
+        aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
+        if aliquot == primary
+            primary->backup->
+this is a mess - assumed secondaries were always backups for primaries - not so - sometimes you want the secondary on it's own
 
 SaveProgressThread::storeSample()?
 

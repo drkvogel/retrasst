@@ -7,16 +7,16 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
-TfrmBoxes *frmBoxes;
+TfrmRetrAsstPlanBoxes *frmRetrAsstPlanBoxes;
 
 __fastcall LoadBoxesWorkerThread::LoadBoxesWorkerThread() {
     FreeOnTerminate = true;
 }
 
 void __fastcall LoadBoxesWorkerThread::updateStatus() {
-    ostringstream oss; oss<<frmBoxes->loadingMessage<<"\n"<<rowCount<<" boxes";//<<numerator<<" of "<<denominator;
-    frmBoxes->panelLoading->Caption = oss.str().c_str();
-    frmBoxes->panelLoading->Repaint();
+    ostringstream oss; oss<<frmRetrAsstPlanBoxes->loadingMessage<<"\n"<<rowCount<<" boxes";//<<numerator<<" of "<<denominator;
+    frmRetrAsstPlanBoxes->panelLoading->Caption = oss.str().c_str();
+    frmRetrAsstPlanBoxes->panelLoading->Repaint();
 }
 
 void __fastcall LoadBoxesWorkerThread::Execute() {
@@ -50,8 +50,8 @@ the 4000-odd records saying where the cryovials are at the moment have retrieval
 Set status = 5, removed = 'now' when they're retrieved.
 Each cryovial has a second cryovial_store record giving the expected destination, status = 0.
 Set status = 1 when the position's confirmed */
-    delete_referenced<vecpBoxRow>(frmBoxes->boxes);
-    LQuery q(Util::projectQuery(frmBoxes->job->getProjectID(), true)); // get ddb
+    delete_referenced<vecpBoxRow>(frmRetrAsstPlanBoxes->boxes);
+    LQuery q(Util::projectQuery(frmRetrAsstPlanBoxes->job->getProjectID(), true)); // get ddb
     q.setSQL(
         "SELECT"
         "   b.project_cid" // should be from c_box_name, not box_name
@@ -68,7 +68,7 @@ Set status = 1 when the position's confirmed */
         "   s.object_cid = location_cid AND"
         "   v.object_cid = storage_cid AND"
         "   bs.retrieval_cid = :jobID"); // e.g. -636363
-    q.setParam("jobID", frmBoxes->job->getID());
+    q.setParam("jobID", frmRetrAsstPlanBoxes->job->getID());
     q.open();
     while (!q.eof()) {
         if (rowCount > 0 && 0 == rowCount % 10) Synchronize((TThreadMethod)&(this->updateStatus)); // seems to cause thread to terminate
@@ -99,15 +99,15 @@ Set status = 1 when the position's confirmed */
             q.readString("rack"),
             q.readInt("slot_position")
         );
-        frmBoxes->boxes.push_back(box);
+        frmRetrAsstPlanBoxes->boxes.push_back(box);
         q.next();
         rowCount++;
     }
 }
 
-__fastcall TfrmBoxes::TfrmBoxes(TComponent* Owner) : TForm(Owner) { }
+__fastcall TfrmRetrAsstPlanBoxes::TfrmRetrAsstPlanBoxes(TComponent* Owner) : TForm(Owner) { }
 
-void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanBoxes::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     job                 = NULL;
 
@@ -130,24 +130,24 @@ void __fastcall TfrmBoxes::FormCreate(TObject *Sender) {
     loadingMessage = "Loading boxes, please wait...";
 }
 
-void __fastcall TfrmBoxes::FormDestroy(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanBoxes::FormDestroy(TObject *Sender) {
     delete sgwChunks;
     delete sgwBoxes;
 }
 
-void __fastcall TfrmBoxes::FormClose(TObject *Sender, TCloseAction &Action) {
+void __fastcall TfrmRetrAsstPlanBoxes::FormClose(TObject *Sender, TCloseAction &Action) {
     delete_referenced<vecpBoxRow>(boxes);
     //delete_referenced<vecpBoxChunk>(chunks);
     delete_referenced< vector< Chunk< BoxRow > * > >(chunks);
 }
 
-VOID CALLBACK TfrmBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime) { //cout << "CALLBACK " << dwTime << '\n'; cout.flush();
-    KillTimer(NULL, frmBoxes->TimerId);
+VOID CALLBACK TfrmRetrAsstPlanBoxes::TimerProc(HWND hWnd, UINT nMsg, UINT nIDEvent, DWORD dwTime) { //cout << "CALLBACK " << dwTime << '\n'; cout.flush();
+    KillTimer(NULL, frmRetrAsstPlanBoxes->TimerId);
     TfrmRetrievalAssistant::msgbox("Win Timer finished");
-    frmBoxes->loadRows();
+    frmRetrAsstPlanBoxes->loadRows();
 }
 
-void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanBoxes::FormShow(TObject *Sender) {
     ostringstream oss; oss << ((job->getJobType() == LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL) ? "SAMPLE_RETRIEVAL;" : "!SAMPLE_RETRIEVAL"); debugLog(oss.str().c_str()); //;
     btnSave->Enabled = true;
     //clearSG(sgChunks);
@@ -159,13 +159,13 @@ void __fastcall TfrmBoxes::FormShow(TObject *Sender) {
         //TfrmBoxes::TimerId = SetTimer(NULL, 0, 50, &TimerProc); //$3: milliseconds // tried WinAPI timer instead
 }
 
-void __fastcall TfrmBoxes::btnAddChunkClick(TObject *Sender) { addChunk(); }
+void __fastcall TfrmRetrAsstPlanBoxes::btnAddChunkClick(TObject *Sender) { addChunk(); }
 
-void __fastcall TfrmBoxes::cbLogClick(TObject *Sender) { memoDebug->Visible = cbLog->Checked; }
+void __fastcall TfrmRetrAsstPlanBoxes::cbLogClick(TObject *Sender) { memoDebug->Visible = cbLog->Checked; }
 
-void __fastcall TfrmBoxes::btnCancelClick(TObject *Sender) { Close(); }
+void __fastcall TfrmRetrAsstPlanBoxes::btnCancelClick(TObject *Sender) { Close(); }
 
-void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+void __fastcall TfrmRetrAsstPlanBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
     TColor background = clWindow;
     if (0 == ARow) {
         background = clBtnFace;
@@ -195,7 +195,7 @@ void __fastcall TfrmBoxes::sgChunksDrawCell(TObject *Sender, int ACol, int ARow,
     }
 }
 
-void __fastcall TfrmBoxes::sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+void __fastcall TfrmRetrAsstPlanBoxes::sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
     //          clWindow
     TColor background = clWindow;
     if (0 == ARow) {
@@ -227,7 +227,7 @@ void __fastcall TfrmBoxes::sgBoxesDrawCell(TObject *Sender, int ACol, int ARow, 
 
 }
 
-void __fastcall TfrmBoxes::btnSaveClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanBoxes::btnSaveClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)) {
         // sign off?
         for (vector< Chunk< BoxRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++) { // for chunks
@@ -264,7 +264,7 @@ void __fastcall TfrmBoxes::btnSaveClick(TObject *Sender) {
     }
 }
 
-void __fastcall TfrmBoxes::btnDelChunkClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanBoxes::btnDelChunkClick(TObject *Sender) {
     // move last chunk's samples into preceding chunk
     if (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO)) {
         delete chunks.back();
@@ -274,14 +274,14 @@ void __fastcall TfrmBoxes::btnDelChunkClick(TObject *Sender) {
     if (chunks.size() == 0) btnDelChunk->Enabled = false;
 }
 
-void __fastcall TfrmBoxes::btnDecrClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanBoxes::btnDecrClick(TObject *Sender) {
     //
 }
-void __fastcall TfrmBoxes::btnIncrClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanBoxes::btnIncrClick(TObject *Sender) {
     //
 }
 
-void __fastcall TfrmBoxes::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
+void __fastcall TfrmRetrAsstPlanBoxes::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
     if (0 == ARow) { // header - prevent editing somehow
         return;
     }
@@ -294,27 +294,27 @@ void __fastcall TfrmBoxes::sgChunksSetEditText(TObject *Sender, int ACol, int AR
     }
 }
 
-void __fastcall TfrmBoxes::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
+void __fastcall TfrmRetrAsstPlanBoxes::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
     // prevent editing
 }
 
-void __fastcall TfrmBoxes::sgBoxesFixedCellClick(TObject *Sender, int ACol, int ARow) {
+void __fastcall TfrmRetrAsstPlanBoxes::sgBoxesFixedCellClick(TObject *Sender, int ACol, int ARow) {
     sortChunk(ACol);
 }
 
-void __fastcall TfrmBoxes::timerLoadBoxesTimer(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanBoxes::timerLoadBoxesTimer(TObject *Sender) {
     timerLoadBoxes->Enabled = false;
     loadRows();
 }
 
-void __fastcall TfrmBoxes::sgBoxesClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanBoxes::sgBoxesClick(TObject *Sender) {
     BoxRow*box=(BoxRow*)sgBoxes->Objects[0][sgBoxes->Row];
     box?debugLog(box->str().c_str()):debugLog("NULL box");
     job?debugLog(job->getName().c_str()):debugLog("NULL job");
     debugLog(sgwBoxes->printColWidths().c_str());
 }
 
-void __fastcall TfrmBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
     showRows(); // must do this outside thread, unless synchronised - does gui stuff
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
@@ -325,7 +325,7 @@ void __fastcall TfrmBoxes::loadBoxesWorkerThreadTerminated(TObject *Sender) {
     Screen->Cursor = crDefault;
 }
 
-void __fastcall TfrmBoxes::btnRejectClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanBoxes::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
         job->setStatus(LCDbCryoJob::Status::REJECTED);
         job->saveRecord(LIMSDatabase::getCentralDb());
@@ -333,13 +333,13 @@ void __fastcall TfrmBoxes::btnRejectClick(TObject *Sender) {
     }
 }
 
-void __fastcall TfrmBoxes::btnAutoChunkClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanBoxes::btnAutoChunkClick(TObject *Sender) {
     autoChunk();
 }
 
-void TfrmBoxes::debugLog(String s) { frmBoxes->memoDebug->Lines->Add(s); }
+void TfrmRetrAsstPlanBoxes::debugLog(String s) { frmRetrAsstPlanBoxes->memoDebug->Lines->Add(s); }
 
-void TfrmBoxes::addChunk() {
+void TfrmRetrAsstPlanBoxes::addChunk() {
     if (chunks.size() == 0) {
         // first chunk, make default chunk from entire list
     }
@@ -350,7 +350,7 @@ void TfrmBoxes::addChunk() {
     showChunks();
 }
 
-void TfrmBoxes::showChunks() {
+void TfrmRetrAsstPlanBoxes::showChunks() {
     sgChunks->RowCount = chunks.size() + 1;
     int row = 1;
     for (vector< Chunk< BoxRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
@@ -363,7 +363,7 @@ void TfrmBoxes::showChunks() {
     }
 }
 
-void TfrmBoxes::loadRows() {
+void TfrmRetrAsstPlanBoxes::loadRows() {
     //std::ostringstream oss; oss<<__FUNC__<<": numrows: "<<maxRows; debugLog(oss.str().c_str());
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true;
@@ -375,7 +375,7 @@ void TfrmBoxes::loadRows() {
     loadBoxesWorkerThread->OnTerminate = &loadBoxesWorkerThreadTerminated;
 }
 
-void TfrmBoxes::showRows() {
+void TfrmRetrAsstPlanBoxes::showRows() {
     if (boxes.size() <= 0) {
         sgwBoxes->clear();
     } else {
@@ -397,7 +397,7 @@ void TfrmBoxes::showRows() {
     }
 }
 
-void TfrmBoxes::sortChunk(int col) {
+void TfrmRetrAsstPlanBoxes::sortChunk(int col) {
     Screen->Cursor = crSQLWait;
 
     //boxSorter[col].sort_toggle(boxes);
@@ -406,7 +406,7 @@ void TfrmBoxes::sortChunk(int col) {
     Screen->Cursor = crDefault;
 }
 
-void TfrmBoxes::autoChunk() {
+void TfrmRetrAsstPlanBoxes::autoChunk() {
     //
 }
 

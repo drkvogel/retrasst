@@ -13,9 +13,9 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
-TfrmRetrAsstPlanVials *frmRetrAsstPlanVials;
+TfrmRetrAsstPlanSamples *frmRetrAsstPlanSamples;
 
-__fastcall TfrmRetrAsstPlanVials::TfrmRetrAsstPlanVials(TComponent* Owner) : TForm(Owner) {
+__fastcall TfrmRetrAsstPlanSamples::TfrmRetrAsstPlanSamples(TComponent* Owner) : TForm(Owner) {
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",            87);
     sgwChunks->addCol("start",    "Start",              70);
@@ -56,20 +56,20 @@ __fastcall TfrmRetrAsstPlanVials::TfrmRetrAsstPlanVials(TComponent* Owner) : TFo
     sgwDebug->init();
 }
 
-void TfrmRetrAsstPlanVials::debugLog(String s) {
+void TfrmRetrAsstPlanSamples::debugLog(String s) {
     String tmp = Now().CurrentDateTime().DateTimeString() + ": " + s;
     memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
 }
 
 void __fastcall LoadVialsJobThread::debugLog() {
-    frmRetrAsstPlanVials->debugLog(debugMessage.c_str());
+    frmRetrAsstPlanSamples->debugLog(debugMessage.c_str());
 }
 
 void __fastcall SavePlanThread::debugLog() {
-    frmRetrAsstPlanVials->debugLog(debugMessage.c_str());
+    frmRetrAsstPlanSamples->debugLog(debugMessage.c_str());
 }
 
-void __fastcall TfrmRetrAsstPlanVials::FormCreate(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::FormCreate(TObject *Sender) {
     cbLog->Checked      = RETRASSTDEBUG;
     cbLog->Visible      = RETRASSTDEBUG;
     panelDebug->Visible = cbLog->Checked;
@@ -78,13 +78,13 @@ void __fastcall TfrmRetrAsstPlanVials::FormCreate(TObject *Sender) {
     loadingMessage = "Loading samples, please wait...";
 }
 
-void __fastcall TfrmRetrAsstPlanVials::FormDestroy(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::FormDestroy(TObject *Sender) {
     delete sgwChunks;
     delete sgwVials;
     delete sgwDebug;
 }
 
-void __fastcall TfrmRetrAsstPlanVials::FormShow(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::FormShow(TObject *Sender) {
     Enabled = false;
     ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
     Caption = oss.str().c_str();
@@ -99,28 +99,28 @@ void __fastcall TfrmRetrAsstPlanVials::FormShow(TObject *Sender) {
     editDestBoxSize->Text = box_size;
 }
 
-void __fastcall TfrmRetrAsstPlanVials::FormClose(TObject *Sender, TCloseAction &Action) {
+void __fastcall TfrmRetrAsstPlanSamples::FormClose(TObject *Sender, TCloseAction &Action) {
     combined.clear();
     delete_referenced< vector <SampleRow * > >(secondaries);
     delete_referenced< vector <SampleRow * > >(primaries);      // primaries may reference secondaries, so delete them last
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
 }
 
-void __fastcall TfrmRetrAsstPlanVials::FormResize(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::FormResize(TObject *Sender) {
     sgwChunks->resize();
     sgwVials->resize();
 }
 
-void __fastcall TfrmRetrAsstPlanVials::btnCancelClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::btnCancelClick(TObject *Sender) {
     ModalResult = mrCancel;
 }
 
-void __fastcall TfrmRetrAsstPlanVials::cbLogClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::cbLogClick(TObject *Sender) {
     panelDebug->Visible = cbLog->Checked;
     splitterDebug->Visible  = cbLog->Checked;
 }
 
-void __fastcall TfrmRetrAsstPlanVials::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+void __fastcall TfrmRetrAsstPlanSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
     TColor background = clWindow;
     if (0 == ARow) {
         background = clBtnFace;
@@ -149,7 +149,7 @@ void __fastcall TfrmRetrAsstPlanVials::sgChunksDrawCell(TObject *Sender, int ACo
     }
 }
 
-void __fastcall TfrmRetrAsstPlanVials::sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+void __fastcall TfrmRetrAsstPlanSamples::sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
     TColor background = clWindow;
     if (0 == ARow) {
         background = clBtnFace;
@@ -185,13 +185,13 @@ void __fastcall TfrmRetrAsstPlanVials::sgVialsDrawCell(TObject *Sender, int ACol
     }
 }
 
-void __fastcall TfrmRetrAsstPlanVials::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
+void __fastcall TfrmRetrAsstPlanSamples::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
     ostringstream oss; oss << __FUNC__;
     oss<<sgwChunks->printColWidths()<<" clicked on col: "<<ACol<<".";
     debugLog(oss.str().c_str());
 }
 
-void __fastcall TfrmRetrAsstPlanVials::sgChunksClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::sgChunksClick(TObject *Sender) {
     Chunk< SampleRow > * chunk;
     int row = sgChunks->Row;
     if (0 == row) {
@@ -202,7 +202,7 @@ void __fastcall TfrmRetrAsstPlanVials::sgChunksClick(TObject *Sender) {
     }
 }
 
-void __fastcall TfrmRetrAsstPlanVials::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
+void __fastcall TfrmRetrAsstPlanSamples::sgVialsFixedCellClick(TObject *Sender, int ACol, int ARow) { // sort by column
     Enabled = false; //ostringstream oss; oss << __FUNC__; oss<<sgwVials->printColWidths()<<" sorting by col: "<<ACol<<"."; debugLog(oss.str().c_str());
     if (chunks.size() == 0) return; // fix bug where double-click on main screen leaks through to this form on show
     currentChunk()->sortToggle(ACol);
@@ -210,31 +210,31 @@ void __fastcall TfrmRetrAsstPlanVials::sgVialsFixedCellClick(TObject *Sender, in
     Enabled = true;
 }
 
-void __fastcall TfrmRetrAsstPlanVials::sgVialsClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::sgVialsClick(TObject *Sender) {
     SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     debugLog("");
     sample?debugLog(sample->str().c_str()):debugLog("NULL sample");
     sample->backup?debugLog(sample->backup->str().c_str()):debugLog("NULL backup");
 }
 
-void __fastcall TfrmRetrAsstPlanVials::timerLoadVialsTimer(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::timerLoadVialsTimer(TObject *Sender) {
     timerLoadVials->Enabled = false;
     loadRows(); // so that gui can be updated
 }
 
-void TfrmRetrAsstPlanVials::rejectList() { // could be abstracted
+void TfrmRetrAsstPlanSamples::rejectList() { // could be abstracted
     job->setStatus(LCDbCryoJob::Status::REJECTED);
     job->saveRecord(LIMSDatabase::getCentralDb());
     ModalResult = mrCancel; //??? don't use modalresult
 }
 
-void __fastcall TfrmRetrAsstPlanVials::btnRejectClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::btnRejectClick(TObject *Sender) {
     if (IDYES == Application->MessageBox(L"Are you sure you want to reject this list?", L"Question", MB_YESNO)) {
         rejectList();
     }
 }
 
-void __fastcall TfrmRetrAsstPlanVials::sgVialsDblClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::sgVialsDblClick(TObject *Sender) {
     if (sgVials->Row <= 1)
         return; // header or silly chunk
     if (sgChunks->Row < sgChunks->RowCount-1) {
@@ -246,7 +246,7 @@ void __fastcall TfrmRetrAsstPlanVials::sgVialsDblClick(TObject *Sender) {
     showChunk();
 }
 
-void __fastcall TfrmRetrAsstPlanVials::btnAddChunkClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::btnAddChunkClick(TObject *Sender) {
     int selectedChunkSize = comboSectionSize->Items->Strings[comboSectionSize->ItemIndex].ToIntDef(0);
     if (addChunk(selectedChunkSize)) {
         showChunks();
@@ -256,7 +256,7 @@ void __fastcall TfrmRetrAsstPlanVials::btnAddChunkClick(TObject *Sender) {
     }
 }
 
-bool TfrmRetrAsstPlanVials::addChunk(unsigned int offset) {
+bool TfrmRetrAsstPlanSamples::addChunk(unsigned int offset) {
 /** Add chunk starting at specified row [of the specified size?]
     offset: number of rows after beginning of previous chunk at which to cut off new chunk
     return: is there any space for more? */
@@ -285,7 +285,7 @@ bool TfrmRetrAsstPlanVials::addChunk(unsigned int offset) {
     return true;
 }
 
-void TfrmRetrAsstPlanVials::showChunks() {
+void TfrmRetrAsstPlanSamples::showChunks() {
     if (0 == chunks.size()) { // must always have one chunk anyway
         if (RETRASSTDEBUG) {
             if (IDYES == Application->MessageBox(L"This list is empty. Do you want to reject it?", L"Question", MB_YESNO)) {
@@ -316,7 +316,7 @@ void TfrmRetrAsstPlanVials::showChunks() {
     sgwVials->clearSelection();
 }
 
-Chunk< SampleRow > * TfrmRetrAsstPlanVials::currentChunk() {
+Chunk< SampleRow > * TfrmRetrAsstPlanSamples::currentChunk() {
     if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
     Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][sgChunks->Row];
     if (NULL == chunk) {// still null
@@ -326,7 +326,7 @@ Chunk< SampleRow > * TfrmRetrAsstPlanVials::currentChunk() {
     return chunk;
 }
 
-void TfrmRetrAsstPlanVials::showChunk(Chunk< SampleRow > * chunk) {
+void TfrmRetrAsstPlanSamples::showChunk(Chunk< SampleRow > * chunk) {
     Screen->Cursor = crSQLWait; Enabled = false;
     debugLog("showChunk");
 
@@ -384,37 +384,37 @@ void TfrmRetrAsstPlanVials::showChunk(Chunk< SampleRow > * chunk) {
     Screen->Cursor = crDefault; Enabled = true;
 }
 
-void __fastcall TfrmRetrAsstPlanVials::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
+void __fastcall TfrmRetrAsstPlanSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
     //fixme ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str()); debugLog(oss.str().c_str());
 }
 
-void __fastcall TfrmRetrAsstPlanVials::sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value) {
+void __fastcall TfrmRetrAsstPlanSamples::sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value) {
     //fixme ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str()); //debugLog(oss.str().c_str());
 }
 
-void TfrmRetrAsstPlanVials::autoChunk() {
+void TfrmRetrAsstPlanSamples::autoChunk() {
 /** initialise box size with size of first box in list
     box_name.box_type_cid -> box_content.box_size_cid -> c_box_size.box_capacity */
-    LQuery qd(Util::projectQuery(frmRetrAsstPlanVials->job->getProjectID(), true)); LPDbBoxNames boxes;
+    LQuery qd(Util::projectQuery(frmRetrAsstPlanSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
     int box_id = combined[0]->dest_box_id;//->getBoxID(); // ???look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL)
         throw "box not found";
 }
 
-void __fastcall TfrmRetrAsstPlanVials::btnAddSortClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::btnAddSortClick(TObject *Sender) {
     addSorter();
 }
 
-void __fastcall TfrmRetrAsstPlanVials::btnDelSortClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::btnDelSortClick(TObject *Sender) {
     removeSorter();
 }
 
-void __fastcall TfrmRetrAsstPlanVials::btnApplySortClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::btnApplySortClick(TObject *Sender) {
     applySort();
 }
 
-void TfrmRetrAsstPlanVials::addSorter() {
+void TfrmRetrAsstPlanSamples::addSorter() {
     ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
     TComboBox * combo = new TComboBox(this);
     combo->Parent = groupSort;      // new combo is last created, aligned to left. put in right order: take them all out, sort and put back in in reverse order?
@@ -428,7 +428,7 @@ void TfrmRetrAsstPlanVials::addSorter() {
     combo->ItemIndex = 0;
 }
 
-void TfrmRetrAsstPlanVials::removeSorter() {
+void TfrmRetrAsstPlanSamples::removeSorter() {
     TComponent * component = groupSort->Controls[groupSort->ControlCount-1];
     TComboBox * combo = dynamic_cast<TComboBox *>(component);
     if (combo != NULL) {
@@ -440,7 +440,7 @@ void TfrmRetrAsstPlanVials::removeSorter() {
     }
 }
 
-void TfrmRetrAsstPlanVials::applySort() { // loop through sorters and apply each selected sort
+void TfrmRetrAsstPlanSamples::applySort() { // loop through sorters and apply each selected sort
     Chunk< SampleRow > * chunk = currentChunk();
     bool changed = false;
     for (int i=groupSort->ControlCount-1; i>=0; i--) { // controls are in creation order, ie. buttons first from design, last added combo is last
@@ -460,7 +460,7 @@ void TfrmRetrAsstPlanVials::applySort() { // loop through sorters and apply each
     if (changed) showChunk();
 }
 
-void TfrmRetrAsstPlanVials::loadRows() {
+void TfrmRetrAsstPlanSamples::loadRows() {
     panelLoading->Caption = loadingMessage;
     panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
     panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
@@ -477,8 +477,8 @@ __fastcall LoadVialsJobThread::LoadVialsJobThread() : TThread(false) {
 }
 
 void __fastcall LoadVialsJobThread::updateStatus() { // can't use args for synced method, don't know why
-    frmRetrAsstPlanVials->panelLoading->Caption = loadingMessage.c_str();
-    frmRetrAsstPlanVials->panelLoading->Repaint();
+    frmRetrAsstPlanSamples->panelLoading->Caption = loadingMessage.c_str();
+    frmRetrAsstPlanSamples->panelLoading->Repaint();
 }
 
 void __fastcall LoadVialsJobThread::Execute() {
@@ -492,17 +492,17 @@ void __fastcall LoadVialsJobThread::Execute() {
 }
 
 void LoadVialsJobThread::load() {
-    job = frmRetrAsstPlanVials->job;
+    job = frmRetrAsstPlanSamples->job;
 
-    frmRetrAsstPlanVials->combined.clear(); // only contains copies of primaries and secondaries
-    delete_referenced< vector<SampleRow * > >(frmRetrAsstPlanVials->secondaries);
-    delete_referenced< vector<SampleRow * > >(frmRetrAsstPlanVials->primaries);  // primaries may refer to secondaries
+    frmRetrAsstPlanSamples->combined.clear(); // only contains copies of primaries and secondaries
+    delete_referenced< vector<SampleRow * > >(frmRetrAsstPlanSamples->secondaries);
+    delete_referenced< vector<SampleRow * > >(frmRetrAsstPlanSamples->primaries);  // primaries may refer to secondaries
 
-    ostringstream oss; oss<<frmRetrAsstPlanVials->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
+    ostringstream oss; oss<<frmRetrAsstPlanSamples->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
     oss.str(""); oss<<"loading retrieval job id: "<<job->getID()<<", project: "<<job->getProjectID();
     debugMessage = oss.str().c_str(); Synchronize((TThreadMethod)&debugLog);
     debugMessage = "preparing query"; Synchronize((TThreadMethod)&debugLog);
-    loadingMessage = frmRetrAsstPlanVials->loadingMessage;
+    loadingMessage = frmRetrAsstPlanSamples->loadingMessage;
 
     const int primary_aliquot     = job->getPrimaryAliquot();
     const int secondary_aliquot   = job->getSecondaryAliquot();
@@ -570,9 +570,9 @@ void LoadVialsJobThread::load() {
 
         const int aliquotType = row->cryo_record->getAliquotType();
         if (aliquotType == primary_aliquot) {
-            frmRetrAsstPlanVials->primaries.push_back(row);
+            frmRetrAsstPlanSamples->primaries.push_back(row);
         } else if (aliquotType == secondary_aliquot) {
-            frmRetrAsstPlanVials->secondaries.push_back(row);
+            frmRetrAsstPlanSamples->secondaries.push_back(row);
         } else {
             throw "unknown aliquot type for this job";
         }
@@ -581,11 +581,11 @@ void LoadVialsJobThread::load() {
     }
     debugMessage = "finished retrieving rows, getting storage details"; Synchronize((TThreadMethod)&debugLog);
 
-    combineAliquots(frmRetrAsstPlanVials->primaries, frmRetrAsstPlanVials->secondaries, frmRetrAsstPlanVials->combined);
+    combineAliquots(frmRetrAsstPlanSamples->primaries, frmRetrAsstPlanSamples->secondaries, frmRetrAsstPlanSamples->combined);
 
     // find locations of source boxes
     int rowCount2 = 0;
-	for (vector<SampleRow *>::iterator it = frmRetrAsstPlanVials->combined.begin(); it != frmRetrAsstPlanVials->combined.end(); ++it, rowCount2++) {
+	for (vector<SampleRow *>::iterator it = frmRetrAsstPlanSamples->combined.begin(); it != frmRetrAsstPlanSamples->combined.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
         frmRetrievalAssistant->getStorage(sample);
@@ -639,14 +639,14 @@ void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const 
     }
 }
 
-void __fastcall TfrmRetrAsstPlanVials::loadVialsJobThreadTerminated(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *Sender) {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
     Enabled = true;
     chunks.clear();
     sgwChunks->clear();
-    LQuery qd(Util::projectQuery(frmRetrAsstPlanVials->job->getProjectID(), true)); LPDbBoxNames boxes;
+    LQuery qd(Util::projectQuery(frmRetrAsstPlanSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
     if (0 == combined.size()) {
         Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK); Close();
         return;
@@ -665,7 +665,7 @@ void __fastcall TfrmRetrAsstPlanVials::loadVialsJobThreadTerminated(TObject *Sen
     Enabled = true;
 }
 
-void __fastcall TfrmRetrAsstPlanVials::btnDelChunkClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::btnDelChunkClick(TObject *Sender) {
     ostringstream oss; oss << __FUNC__;
     if (chunks.size() > 1 && (RETRASSTDEBUG || IDYES == Application->MessageBox(L"Are you sure you want to delete the last chunk?", L"Question", MB_YESNO))) {
         oss<<" before delete: "<<chunks.size();
@@ -680,11 +680,11 @@ void __fastcall TfrmRetrAsstPlanVials::btnDelChunkClick(TObject *Sender) {
     }
 }
 
-void __fastcall TfrmRetrAsstPlanVials::editDestBoxSizeChange(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::editDestBoxSizeChange(TObject *Sender) {
     timerCalculate->Enabled = true;
 }
 
-void __fastcall TfrmRetrAsstPlanVials::btnAddAllChunksClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::btnAddAllChunksClick(TObject *Sender) {
     Screen->Cursor = crSQLWait; Enabled = false;
     int selectedChunkSize = comboSectionSize->Items->Strings[comboSectionSize->ItemIndex].ToIntDef(0);
     float result = float(combined.size()) / float(selectedChunkSize);
@@ -699,13 +699,13 @@ void __fastcall TfrmRetrAsstPlanVials::btnAddAllChunksClick(TObject *Sender) {
     Screen->Cursor = crDefault; Enabled = true;
 }
 
-void __fastcall TfrmRetrAsstPlanVials::timerCalculateTimer(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::timerCalculateTimer(TObject *Sender) {
     timerCalculate->Enabled = false;
     box_size = editDestBoxSize->Text.ToIntDef(0);
     calcSizes();
 }
 
-void TfrmRetrAsstPlanVials::calcSizes() {
+void TfrmRetrAsstPlanSamples::calcSizes() {
 /** calculate possible chunk (section) sizes
 slot/box (where c_box_size.box_size_cid = c_box_content.box_size_cid) (where does box_content come from?)
 As retrieval lists will always specify destination boxes, chunk size can be based on the number of cryovials allocated to each box */
@@ -718,7 +718,7 @@ As retrieval lists will always specify destination boxes, chunk size can be base
     comboSectionSize->ItemIndex = comboSectionSize->Items->Count-1;
 }
 
-void __fastcall TfrmRetrAsstPlanVials::btnSaveClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::btnSaveClick(TObject *Sender) {
     for (unsigned   int i=0; i<chunks.size(); i++) { // check chunk sizes?
         if (chunks[i]->getSize() > MAX_CHUNK_SIZE) {
             wstringstream oss; oss<<"Maximum chunk size is "<<MAX_CHUNK_SIZE; Application->MessageBox(oss.str().c_str(), L"Error", MB_OK); return;
@@ -751,8 +751,8 @@ __fastcall SavePlanThread::SavePlanThread() : TThread(false) {
 }
 
 void __fastcall SavePlanThread::updateStatus() { // can't use args for synced method, don't know why
-    frmRetrAsstPlanVials->panelLoading->Caption = loadingMessage.c_str();
-    frmRetrAsstPlanVials->panelLoading->Repaint();
+    frmRetrAsstPlanSamples->panelLoading->Caption = loadingMessage.c_str();
+    frmRetrAsstPlanSamples->panelLoading->Repaint();
 }
 
 void __fastcall SavePlanThread::Execute() {
@@ -762,7 +762,7 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
         save();
 //        frmSamples->job->setStatus(LCDbCryoJob::INPROGRESS);
 //        frmSamples->job->saveRecord(LIMSDatabase::getCentralDb());
-        frmRetrAsstPlanVials->ModalResult = mrOk; // save and close here rather than OnTerminate in case of exception
+        frmRetrAsstPlanSamples->ModalResult = mrOk; // save and close here rather than OnTerminate in case of exception
     } catch (Exception & e) {
         debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
     } catch (...) {
@@ -817,13 +817,13 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
 
     LQuery qc(LIMSDatabase::getCentralDb());
     //Saver s(frmSamples->job, qc, pid);
-    for (vector< Chunk< SampleRow > * >::const_iterator it = frmRetrAsstPlanVials->chunks.begin(); it != frmRetrAsstPlanVials->chunks.end(); it++) {
+    for (vector< Chunk< SampleRow > * >::const_iterator it = frmRetrAsstPlanSamples->chunks.begin(); it != frmRetrAsstPlanSamples->chunks.end(); it++) {
     //for (auto &it : frmSamples->chunks) {
         map<int, int> boxes; // box_id to rj_box_id, per chunk
         int rj_box_cid;
         Chunk< SampleRow > * chunk = *it;
         //Chunk< SampleRow > * chunk = it;
-        Saver s(frmRetrAsstPlanVials->job, qc, pid); // to start lcr.position at 1 for each chunk
+        Saver s(frmRetrAsstPlanSamples->job, qc, pid); // to start lcr.position at 1 for each chunk
         for (int i = 0; i < chunk->getSize(); i++) {
             SampleRow * sampleRow = chunk->objectAtRel(i);
             rj_box_cid = s.saveBox(chunk, boxes, sampleRow->dest_box_id); // crash here
@@ -841,7 +841,7 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
     }
 }
 
-void __fastcall TfrmRetrAsstPlanVials::savePlanThreadTerminated(TObject *Sender) {
+void __fastcall TfrmRetrAsstPlanSamples::savePlanThreadTerminated(TObject *Sender) {
     debugLog("finished save plan");
     Screen->Cursor = crDefault;
     btnSave->Enabled = false;

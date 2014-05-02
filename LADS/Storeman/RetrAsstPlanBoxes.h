@@ -62,7 +62,7 @@ public:
     void __fastcall updateStatus(); // syncronized method can't have args (?)
 };
 
-class TfrmBoxes : public TForm {
+class TfrmRetrAsstPlanBoxes : public TForm {
 friend class LoadBoxesWorkerThread;
 __published:
     TGroupBox *groupList;
@@ -129,9 +129,9 @@ private:
         // http://vogelworks.wordpress.com/?s=closure
 public:
     void                setJob(LCDbCryoJob * ajob) { job = ajob; }; // this was not being called. why? it was declared in the defunct RetrievalManager.h
-    __fastcall          TfrmBoxes(TComponent* Owner);
+    __fastcall          TfrmRetrAsstPlanBoxes(TComponent* Owner);
     void                debugLog(String s);
 };
 
-extern PACKAGE TfrmBoxes *frmBoxes;
+extern PACKAGE TfrmRetrAsstPlanBoxes *frmRetrAsstPlanBoxes;
 #endif
