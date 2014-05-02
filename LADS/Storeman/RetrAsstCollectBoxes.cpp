@@ -2,12 +2,13 @@
 #pragma hdrstop
 #include "RetrAsstCollectBoxes.h"
 
+
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
-TfrmProcessBoxes *frmProcessBoxes;
+TfrmRetrAsstCollectBoxes *frmRetrAsstCollectBoxes;
 
-__fastcall TfrmProcessBoxes::TfrmProcessBoxes(TComponent* Owner)
+__fastcall TfrmRetrAsstCollectBoxes::TfrmRetrAsstCollectBoxes(TComponent* Owner)
     : TForm(Owner)
 {
 }

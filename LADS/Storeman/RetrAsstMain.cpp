@@ -108,14 +108,14 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     case LCDbCryoJob::Status::NEW_JOB: // create plan
         switch (job->getJobType()) {
             case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
-                frmSamples->setJob(job);
-                if (mrOk == frmSamples->ShowModal()) {
+                frmRetrAsstPlanVials->setJob(job);
+                if (mrOk == frmRetrAsstPlanVials->ShowModal()) {
                     job->setStatus(LCDbCryoJob::INPROGRESS);
                     job->saveRecord(LIMSDatabase::getCentralDb());
                 }
                 break;
             case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
-                frmBoxes->setJob(job);
+                frmRetrAsstPlanVials->setJob(job);
                 if (mrOk == frmBoxes->ShowModal()) {
                     job->setStatus(LCDbCryoJob::INPROGRESS);
                     job->saveRecord(LIMSDatabase::getCentralDb());
@@ -128,15 +128,15 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     case LCDbCryoJob::INPROGRESS: // process
         switch (job->getJobType()) {
         case LCDbCryoJob::JobKind::SAMPLE_RETRIEVAL:
-            frmProcess->setJob(job);
-            if (mrOk == frmProcess->ShowModal()) {
+            frmRetrAsstCollectVials->setJob(job);
+            if (mrOk == frmRetrAsstCollectVials->ShowModal()) {
                 job->setStatus(LCDbCryoJob::Status::DONE);
                 job->saveRecord(LIMSDatabase::getCentralDb());
             }
             break;
         case LCDbCryoJob::JobKind::BOX_RETRIEVAL:
-            frmProcess->setJob(job);
-            if (mrOk == frmProcessBoxes->ShowModal()) {
+            frmRetrAsstCollectBoxes->setJob(job);
+            if (mrOk == frmRetrAsstCollectBoxes->ShowModal()) {
                 job->setStatus(LCDbCryoJob::Status::DONE);
                 job->saveRecord(LIMSDatabase::getCentralDb());
             }

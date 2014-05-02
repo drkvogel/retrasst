@@ -1,7 +1,7 @@
-object frmProcessBoxes: TfrmProcessBoxes
+object frmRetrAsstCollectBoxes: TfrmRetrAsstCollectBoxes
   Left = 0
   Top = 0
-  Caption = 'frmProcessBoxes'
+  Caption = 'frmRetrAsstCollectBoxes'
   ClientHeight = 282
   ClientWidth = 418
   Color = clBtnFace

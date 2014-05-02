@@ -32,9 +32,9 @@ extra:
 
 */
 
-TfrmProcess *frmProcess;
+TfrmRetrAsstCollectVials *frmRetrAsstCollectVials;
 
-__fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
+__fastcall TfrmRetrAsstCollectVials::TfrmRetrAsstCollectVials(TComponent* Owner) : TForm(Owner) {
     destroying = false;
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  60);
@@ -69,13 +69,13 @@ __fastcall TfrmProcess::TfrmProcess(TComponent* Owner) : TForm(Owner) {
     sgwVials->init();
 }
 
-__fastcall TfrmProcess::~TfrmProcess() {
+__fastcall TfrmRetrAsstCollectVials::~TfrmRetrAsstCollectVials() {
     destroying = true;
     delete sgwChunks;
     delete sgwVials;
 }
 
-void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
+void __fastcall TfrmRetrAsstCollectVials::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     cbLog->Checked      = RETRASSTDEBUG;
     sgVials->Enabled    = RETRASSTDEBUG;
@@ -84,16 +84,16 @@ void __fastcall TfrmProcess::FormCreate(TObject *Sender) {
     progressMessage = "Loading retrieval list, please wait...";
 }
 
-void __fastcall TfrmProcess::FormClose(TObject *Sender, TCloseAction &Action) {
+void __fastcall TfrmRetrAsstCollectVials::FormClose(TObject *Sender, TCloseAction &Action) {
     //exit(); //???
 }
 
-void TfrmProcess::debugLog(String s) {
+void TfrmRetrAsstCollectVials::debugLog(String s) {
     String tmp = Now().CurrentDateTime().DateTimeString() + ": " + s;
     memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
 }
 
-void __fastcall TfrmProcess::FormShow(TObject *Sender) {
+void __fastcall TfrmRetrAsstCollectVials::FormShow(TObject *Sender) {
     ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
     Caption = oss.str().c_str();
 	prepareProgressMessage(progressMessage);
@@ -111,7 +111,7 @@ void __fastcall TfrmProcess::FormShow(TObject *Sender) {
     timerLoadPlan->Enabled  = true;
 }
 
-void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+void __fastcall TfrmRetrAsstCollectVials::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
     TColor background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
     if (0 == ARow) {
         background = clBtnFace;
@@ -150,7 +150,7 @@ void __fastcall TfrmProcess::sgChunksDrawCell(TObject *Sender, int ACol, int ARo
     }
 }
 
-void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+void __fastcall TfrmRetrAsstCollectVials::sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
     TColor background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
     if (0 == ARow) {
         background = clBtnFace;
@@ -207,11 +207,11 @@ void __fastcall TfrmProcess::sgVialsDrawCell(TObject *Sender, int ACol, int ARow
     }
 }
 
-void __fastcall TfrmProcess::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
+void __fastcall TfrmRetrAsstCollectVials::sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow) {
     ostringstream oss; oss << __FUNC__; oss<<sgwChunks->printColWidths()<<" clicked on col: "<<ACol<<"."; //debugLog(oss.str().c_str());
 }
 
-void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
+void __fastcall TfrmRetrAsstCollectVials::sgChunksClick(TObject *Sender) {
     int row = sgChunks->Row;
     if (row < 1) return;
     Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
@@ -231,7 +231,7 @@ void __fastcall TfrmProcess::sgChunksClick(TObject *Sender) {
     showChunk(chunk);
 }
 
-void __fastcall TfrmProcess::sgVialsClick(TObject *Sender) { // show details in debug window
+void __fastcall TfrmRetrAsstCollectVials::sgVialsClick(TObject *Sender) { // show details in debug window
     SampleRow * sample = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     DEBUGSTREAM(__FUNC__
         <<" retrieval_status: "<<sample->retrieval_record->getStatus()
@@ -261,34 +261,34 @@ void __fastcall TfrmProcess::sgVialsClick(TObject *Sender) { // show details in 
     //int row = sgVials->Row; sgVials->Row = row; // how to put these before and after to save row clicked on?
 }
 
-void __fastcall TfrmProcess::editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
+void __fastcall TfrmRetrAsstCollectVials::editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
     if (VK_RETURN == Key) { accept(editBarcode->Text); }
 }
 
-void __fastcall TfrmProcess::FormResize(TObject *Sender) { // gets called *after* FormDestroy
+void __fastcall TfrmRetrAsstCollectVials::FormResize(TObject *Sender) { // gets called *after* FormDestroy
     if (!destroying) { // check in case pointers have been deleted in FormDestroy
         sgwChunks->resize(); sgwVials->resize();
     }
 }
 
-void __fastcall TfrmProcess::cbLogClick(TObject *Sender) { panelDebug->Visible = cbLog->Checked; }
+void __fastcall TfrmRetrAsstCollectVials::cbLogClick(TObject *Sender) { panelDebug->Visible = cbLog->Checked; }
 
-void __fastcall TfrmProcess::menuItemExitClick(TObject *Sender) { checkExit(); }
+void __fastcall TfrmRetrAsstCollectVials::menuItemExitClick(TObject *Sender) { checkExit(); }
 
-void __fastcall TfrmProcess::btnExitClick(TObject *Sender) { checkExit(); } //exit(); }
+void __fastcall TfrmRetrAsstCollectVials::btnExitClick(TObject *Sender) { checkExit(); } //exit(); }
 
-void __fastcall TfrmProcess::btnAcceptClick(TObject *Sender) { accept(editBarcode->Text); }
+void __fastcall TfrmRetrAsstCollectVials::btnAcceptClick(TObject *Sender) { accept(editBarcode->Text); }
 
-void __fastcall TfrmProcess::btnSimAcceptClick(TObject *Sender) { // simulate a correct barcode scanned
+void __fastcall TfrmRetrAsstCollectVials::btnSimAcceptClick(TObject *Sender) { // simulate a correct barcode scanned
     editBarcode->Text = (currentChunk()->currentObject())->cryovial_barcode.c_str();
     btnAcceptClick(this);
 }
 
-void __fastcall TfrmProcess::btnNotFoundClick(TObject *Sender) { notFound(); }
+void __fastcall TfrmRetrAsstCollectVials::btnNotFoundClick(TObject *Sender) { notFound(); }
 
-void __fastcall TfrmProcess::btnSkipClick(TObject *Sender) { skip(); }
+void __fastcall TfrmRetrAsstCollectVials::btnSkipClick(TObject *Sender) { skip(); }
 
-void TfrmProcess::prepareProgressMessage(const char * loadingMessage) {
+void TfrmRetrAsstCollectVials::prepareProgressMessage(const char * loadingMessage) {
 	panelLoading->Caption = loadingMessage;
 	panelLoading->Visible = true;
 	panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
@@ -296,13 +296,13 @@ void TfrmProcess::prepareProgressMessage(const char * loadingMessage) {
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
 }
 
-void TfrmProcess::checkExit() {
+void TfrmRetrAsstCollectVials::checkExit() {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
         exit();
     }
 }
 
-void TfrmProcess::showChunks() {
+void TfrmRetrAsstCollectVials::showChunks() {
     if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
     else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
     int row = 1;
@@ -323,14 +323,14 @@ void TfrmProcess::showChunks() {
     showChunk();
 }
 
-Chunk< SampleRow > * TfrmProcess::currentChunk() {
+Chunk< SampleRow > * TfrmRetrAsstCollectVials::currentChunk() {
     if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
     Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][sgChunks->Row];
     if (NULL == chunk) throw Exception("null chunk");
     return chunk;
 }
 
-void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
+void TfrmRetrAsstCollectVials::showChunk(Chunk< SampleRow > * chunk) {
     Screen->Cursor = crSQLWait; Enabled = false;
     if (NULL == chunk) { // default
         chunk = currentChunk();
@@ -358,7 +358,7 @@ void TfrmProcess::showChunk(Chunk< SampleRow > * chunk) {
     Screen->Cursor = crDefault; Enabled = true;
 }
 
-void TfrmProcess::fillRow(SampleRow * row, int rw) {
+void TfrmRetrAsstCollectVials::fillRow(SampleRow * row, int rw) {
     SampleRow * sample;
     if (    row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND
         &&  row->backup != NULL) {
@@ -384,12 +384,12 @@ void TfrmProcess::fillRow(SampleRow * row, int rw) {
     sgVials->Objects[0][rw] = (TObject *)row; // keep all data, primary and secondary
 }
 
-void __fastcall TfrmProcess::timerLoadPlanTimer(TObject *Sender) {
+void __fastcall TfrmRetrAsstCollectVials::timerLoadPlanTimer(TObject *Sender) {
     timerLoadPlan->Enabled = false;
 	loadPlan();
 }
 
-void TfrmProcess::loadPlan() {
+void TfrmRetrAsstCollectVials::loadPlan() {
 	prepareProgressMessage(progressMessage);
 	Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
     DEBUGSTREAM("loadRows for job "<<(job->getID())<<" (\""<<(job->getDescription().c_str())<<"\") started")
@@ -403,25 +403,25 @@ __fastcall LoadPlanThread::LoadPlanThread() : TThread(false) { FreeOnTerminate =
 __fastcall SaveProgressThread::SaveProgressThread() : TThread(false) { FreeOnTerminate = true; }
 
 void __fastcall LoadPlanThread::updateStatus() { // can't use args for synced method, don't know why
-	frmProcess->panelLoading->Caption = loadingMessage.c_str(); frmProcess->panelLoading->Repaint();
+	frmRetrAsstCollectVials->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectVials->panelLoading->Repaint();
 }
 
 void __fastcall SaveProgressThread::updateStatus() {
-	frmProcess->panelLoading->Caption = loadingMessage.c_str(); frmProcess->panelLoading->Repaint();
+	frmRetrAsstCollectVials->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectVials->panelLoading->Repaint();
 }
 
-void __fastcall LoadPlanThread::debugLog() { frmProcess->debugLog(debugMessage.c_str()); }
+void __fastcall LoadPlanThread::debugLog() { frmRetrAsstCollectVials->debugLog(debugMessage.c_str()); }
 
 void __fastcall LoadPlanThread::msgbox() { Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK); }
 
 void __fastcall LoadPlanThread::Execute() { 
 /** load cryovial retrieval plan:
 Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
-    delete_referenced< vector<SampleRow * > >(frmProcess->vials); frmProcess->chunks.clear();
-    ostringstream oss; oss<<frmProcess->progressMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
-    if (NULL == frmProcess || NULL == frmProcess->job) { throw "wtf?"; }
-    loadingMessage = frmProcess->progressMessage;
-    job = frmProcess->job; //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+    delete_referenced< vector<SampleRow * > >(frmRetrAsstCollectVials->vials); frmRetrAsstCollectVials->chunks.clear();
+    ostringstream oss; oss<<frmRetrAsstCollectVials->progressMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
+    if (NULL == frmRetrAsstCollectVials || NULL == frmRetrAsstCollectVials->job) { throw "wtf?"; }
+    loadingMessage = frmRetrAsstCollectVials->progressMessage;
+    job = frmRetrAsstCollectVials->job; //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 
     int primary_aliquot = job->getPrimaryAliquot(); int secondary_aliquot = job->getSecondaryAliquot();
 
@@ -468,7 +468,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 
         chunk = qd.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) { // new chunk, add the previous one
-            frmProcess->addChunk(curchunk, rowCount-1);
+            frmRetrAsstCollectVials->addChunk(curchunk, rowCount-1);
             curchunk = chunk;
         }
 
@@ -500,19 +500,19 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
                 previous->backup = row;
             }
         } else {
-            frmProcess->vials.push_back(row); // new primary
+            frmRetrAsstCollectVials->vials.push_back(row); // new primary
             previous = row;
             rowCount++; // only count primary aliquots
         }
         qd.next();
         rowCountTemp++;
     } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
-    frmProcess->addChunk(curchunk, rowCount-1); // the last chunk
-    if (0 == rowCount || 0 == frmProcess->chunks.size()) { return; } // something wrong here...
+    frmRetrAsstCollectVials->addChunk(curchunk, rowCount-1); // the last chunk
+    if (0 == rowCount || 0 == frmRetrAsstCollectVials->chunks.size()) { return; } // something wrong here...
 
     // find locations of source boxes
     int rowCount2 = 0;
-	for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it, rowCount2++) {
+	for (vector<SampleRow *>::iterator it = frmRetrAsstCollectVials->vials.begin(); it != frmRetrAsstCollectVials->vials.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
         frmRetrievalAssistant->getStorage(sample);
@@ -523,7 +523,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 	} debugMessage = "finished load storage details"; Synchronize((TThreadMethod)&debugLog);
 }
 
-void __fastcall TfrmProcess::loadPlanThreadTerminated(TObject *Sender) {
+void __fastcall TfrmRetrAsstCollectVials::loadPlanThreadTerminated(TObject *Sender) {
 	progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false;
     Screen->Cursor = crDefault;
     try {
@@ -537,7 +537,7 @@ void __fastcall TfrmProcess::loadPlanThreadTerminated(TObject *Sender) {
     DEBUGSTREAM(__FUNC__<<"loadRows for job "<<job->getID()<<" finished")
 }
 
-void TfrmProcess::showCurrentRow() {
+void TfrmRetrAsstCollectVials::showCurrentRow() {
     SampleRow * sample;
     Chunk<SampleRow> * chunk = currentChunk();
     chunk->setRowAbs(chunk->nextUnresolvedAbs()); // fast-forward to first non-dealt-with row
@@ -560,7 +560,7 @@ void TfrmProcess::showCurrentRow() {
     showDetails(sample);
 }
 
-void TfrmProcess::showDetails(SampleRow * sample) {
+void TfrmRetrAsstCollectVials::showDetails(SampleRow * sample) {
     if (NULL == sample) {
         labelSampleID->Caption  = "";
         labelStorage->Caption   = "Chunk completed";
@@ -572,7 +572,7 @@ void TfrmProcess::showDetails(SampleRow * sample) {
     }
 }
 
-void TfrmProcess::addChunk(int number, int endRowAbs) { // don't assume chunk/section numbers instead of assuming it's the next number?
+void TfrmRetrAsstCollectVials::addChunk(int number, int endRowAbs) { // don't assume chunk/section numbers instead of assuming it's the next number?
 /** add chunk with section = number, start row = end of previous chunk + 1, end row = endRowAbs */
     Chunk< SampleRow > * newchunk; // Chunk(sgw, section, startAbs, endAbs, rowRel(0))
     if (chunks.size() == 0) { // first chunk
@@ -584,7 +584,7 @@ void TfrmProcess::addChunk(int number, int endRowAbs) { // don't assume chunk/se
     chunks.push_back(newchunk);
 }
 
-void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be missing, swapped etc
+void TfrmRetrAsstCollectVials::accept(String barcode) { // fixme check correct vial; could be missing, swapped etc
     SampleRow * primary = currentSample();
     SampleRow * aliquot = currentAliquot();
     switch (aliquot->retrieval_record->getStatus()) {
@@ -612,13 +612,13 @@ void TfrmProcess::accept(String barcode) { // fixme check correct vial; could be
     }
 }
 
-void TfrmProcess::skip() {
+void TfrmRetrAsstCollectVials::skip() {
     debugLog("Save deferred row");
     currentAliquot()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
     nextRow();
 }
 
-void TfrmProcess::notFound() {
+void TfrmRetrAsstCollectVials::notFound() {
     DEBUGSTREAM("Save not found row")
     int rowRel = currentChunk()->getRowRel();
     SampleRow * sample = currentChunk()->objectAtRel(rowRel);
@@ -648,11 +648,11 @@ void TfrmProcess::notFound() {
     }
 }
 
-SampleRow * TfrmProcess::currentSample() {
+SampleRow * TfrmRetrAsstCollectVials::currentSample() {
     return currentChunk()->objectAtRel(currentChunk()->getRowRel());  //return currentChunk()->currentObject();
 }
 
-SampleRow * TfrmProcess::currentAliquot() {
+SampleRow * TfrmRetrAsstCollectVials::currentAliquot() {
     SampleRow * row = currentSample();
     if (row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND) {
         if (NULL == row->backup) {
@@ -665,7 +665,7 @@ SampleRow * TfrmProcess::currentAliquot() {
     }
 }
 
-void TfrmProcess::nextRow() {
+void TfrmRetrAsstCollectVials::nextRow() {
 /**
 * save both primary and secondary - secondary aliquots should always be saved if present
 * accept(): if primary aliquot !collected # expected, ignored, not found (now found?)
@@ -704,7 +704,7 @@ void TfrmProcess::nextRow() {
     }
 }
 
-bool TfrmProcess::isJobComplete() {
+bool TfrmRetrAsstCollectVials::isJobComplete() {
 /** are all chunks complete? */
     for (auto &chunk : chunks) {
         if (Chunk< SampleRow >::Status::DONE != chunk->getStatus())
@@ -713,7 +713,7 @@ bool TfrmProcess::isJobComplete() {
     return true;
 }
 
-void TfrmProcess::chunkComplete(Chunk< SampleRow > * chunk) {
+void TfrmRetrAsstCollectVials::chunkComplete(Chunk< SampleRow > * chunk) {
 /** At the end of chunk, check if the chunk is actually finished (no REFERRED vials). If finished:
     * Require user to sign off
     * update cryo store records
@@ -747,7 +747,7 @@ void TfrmProcess::chunkComplete(Chunk< SampleRow > * chunk) {
 
 }
 
-void TfrmProcess::exit() { // definitely exiting
+void TfrmRetrAsstCollectVials::exit() { // definitely exiting
 /** update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
 	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
 	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
@@ -774,9 +774,9 @@ void __fastcall SaveProgressThread::Execute() {
 	VialsInBoxesMap boxes;
 	VialsInBoxesMap::iterator found;
 
-	frmProcess->unactionedSamples = false; frmProcess->info.clear(); frmProcess->warnings.clear(); frmProcess->errors.clear();
+	frmRetrAsstCollectVials->unactionedSamples = false; frmRetrAsstCollectVials->info.clear(); frmRetrAsstCollectVials->warnings.clear(); frmRetrAsstCollectVials->errors.clear();
 	try {
-		for (vector<SampleRow *>::iterator it = frmProcess->vials.begin(); it != frmProcess->vials.end(); ++it) {
+		for (vector<SampleRow *>::iterator it = frmRetrAsstCollectVials->vials.begin(); it != frmRetrAsstCollectVials->vials.end(); ++it) {
 			SampleRow * sample = *it;
 
 			int sourceBox = sample->store_record->getBoxID(); // should get id of secondary box as well and add it to map, we are checking for all empty boxes
@@ -791,22 +791,21 @@ void __fastcall SaveProgressThread::Execute() {
 				found->second.insert(sample);
 			}
 
-            ostringstream oss; oss//<<"Storing "
-                <<sample->cryovial_barcode<<" "<<sample->aliquotName<<" in box with id "<<sourceBox;
+            ostringstream oss; oss<<sample->cryovial_barcode<<" "<<sample->aliquotName<<" in box with id "<<sourceBox;
             loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 
 			int status  = sample->retrieval_record->getStatus();
 			if (status != LCDbCryovialRetrieval::EXPECTED && status != LCDbCryovialRetrieval::IGNORED) { // changed
 				storeSample(sample);
 			} else {
-				frmProcess->unactionedSamples = true;
+				frmRetrAsstCollectVials->unactionedSamples = true;
 			}
             if (NULL != sample->backup) {
                 storeSample(sample->backup);
             }
 		}
 
-        frmProcess->emptyBoxes.clear();  //std::set< int > discardBoxes; //std::set< LCDbBoxRetrieval * > discardBoxes;
+        frmRetrAsstCollectVials->emptyBoxes.clear();  //std::set< int > discardBoxes; //std::set< LCDbBoxRetrieval * > discardBoxes;
 
 		// now check for completed boxes
 		for (found = boxes.begin(); found != boxes.end(); found++) { // for each source box
@@ -823,23 +822,27 @@ void __fastcall SaveProgressThread::Execute() {
 				}
 			}
 			if (!vialRemains) { // empty/completed box, mark for discard
-                frmProcess->emptyBoxes.insert(found->first); // set of int box_cids, used in discardBoxes() //LCDbBoxRetrieval * box = found->first;
+                frmRetrAsstCollectVials->emptyBoxes.insert(found->first); // set of int box_cids, used in discardBoxes() //LCDbBoxRetrieval * box = found->first;
 			}
 		}
 
 	} catch(Exception & e) {
 		AnsiString msg = e.Message;
-		frmProcess->errors.push_back(msg.c_str());
-		frmProcess->unactionedSamples = true;
+		frmRetrAsstCollectVials->errors.push_back(msg.c_str());
+		frmRetrAsstCollectVials->unactionedSamples = true;
     } catch(char * e) {
-		frmProcess->errors.push_back(e);
-		frmProcess->unactionedSamples = true;
+		frmRetrAsstCollectVials->errors.push_back(e);
+		frmRetrAsstCollectVials->unactionedSamples = true;
 	} catch (...) {
-		frmProcess->errors.push_back("Unknown error");
-		frmProcess->unactionedSamples = true;
+		frmRetrAsstCollectVials->errors.push_back("Unknown error");
+		frmRetrAsstCollectVials->unactionedSamples = true;
     }
 
-	if (!frmProcess->unactionedSamples) { // job finished
+    if (frmRetrAsstCollectVials->errors.size() != 0) {
+        //msgbox
+    } else if (frmRetrAsstCollectVials->unactionedSamples) {
+        ;
+    } else if (!frmRetrAsstCollectVials->unactionedSamples) { // job finished
 		jobFinished();
 	}
 }
@@ -877,12 +880,12 @@ void SaveProgressThread::storeSample(SampleRow * sample) {
 }
 
 void SaveProgressThread::jobFinished() {
-    LQuery qp(Util::projectQuery(frmProcess->job->getProjectID(), false)); //LQuery qd(Util::projectQuery(job->getProjectID(), true));
+    LQuery qp(Util::projectQuery(frmRetrAsstCollectVials->job->getProjectID(), false)); //LQuery qd(Util::projectQuery(job->getProjectID(), true));
     LQuery qc(LIMSDatabase::getCentralDb());
 
     // all boxes must be finished if here (ie. all samples are finished)
     qc.setSQL("SELECT * FROM c_box_retrieval WHERE retrieval_cid = :rtid");
-    qc.setParam("rtid", frmProcess->job->getID());
+    qc.setParam("rtid", frmRetrAsstCollectVials->job->getID());
     qc.open();
     while (!qc.eof()) {
         // `c_box_retrieval`: set `time_stamp`, `status=2` (collected)
@@ -896,12 +899,12 @@ void SaveProgressThread::jobFinished() {
     }
 
     // `c_retrieval_job`: update `finish_date`, `status` = 2
-    frmProcess->job->setStatus(LCDbCryoJob::DONE);
-    frmProcess->job->saveRecord(qc); // finish date is updated by this method
+    frmRetrAsstCollectVials->job->setStatus(LCDbCryoJob::DONE);
+    frmRetrAsstCollectVials->job->saveRecord(qc); // finish date is updated by this method
 }
 // `cryovial_store`: as above (dealt with already?)
 
-void __fastcall TfrmProcess::saveProgressThreadTerminated(TObject *Sender) {
+void __fastcall TfrmRetrAsstCollectVials::saveProgressThreadTerminated(TObject *Sender) {
 	progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false; Screen->Cursor = crDefault;
     try {
         // anything more to do?
@@ -912,7 +915,7 @@ void __fastcall TfrmProcess::saveProgressThreadTerminated(TObject *Sender) {
     Enabled = true; DEBUGSTREAM(__FUNC__<<"save plan for job "<<job->getID()<<" finished")
 
     vector<string>::const_iterator strIt;
-    if (frmProcess->errors.size() > 0) {
+    if (frmRetrAsstCollectVials->errors.size() > 0) {
         ostringstream out;
         for (strIt = errors.begin(); strIt != errors.end(); strIt++) { out<<*strIt<<endl; }
         Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
@@ -924,7 +927,7 @@ void __fastcall TfrmProcess::saveProgressThreadTerminated(TObject *Sender) {
     }
 }
 
-void TfrmProcess::discardBoxes() {
+void TfrmRetrAsstCollectVials::discardBoxes() {
     LQuery qp(Util::projectQuery(job->getProjectID(), false));
     LPDbBoxNames boxNames;
     boxNames.readFilled(qp); // reads CONFIRMED [2], ANALYSED [3]. boxes.readCurrent(qp) reads EMPTY [0], IN_USE [1]
@@ -964,7 +967,7 @@ void TfrmProcess::discardBoxes() {
     }
 }
 
-void TfrmProcess::collectEmpties() {
+void TfrmRetrAsstCollectVials::collectEmpties() {
 /** if, at the end of processing a chunk, there are any source boxes which have become empty,
     the user may want to discard them instead of replacing them.
     if so, provide an option to discard these empty boxes, recording it in the database */

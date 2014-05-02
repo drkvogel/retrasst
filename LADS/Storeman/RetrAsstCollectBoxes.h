@@ -1,21 +1,20 @@
-//---------------------------------------------------------------------------
-
 #ifndef RetrAsstCollectBoxesH
 #define RetrAsstCollectBoxesH
-//---------------------------------------------------------------------------
 #include <System.Classes.hpp>
 #include <Vcl.Controls.hpp>
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.Forms.hpp>
-//---------------------------------------------------------------------------
-class TfrmProcessBoxes : public TForm
+#include "LCDbJob.h"
+
+class TfrmRetrAsstCollectBoxes : public TForm
 {
 __published:	// IDE-managed Components
 private:	// User declarations
 public:		// User declarations
-    __fastcall TfrmProcessBoxes(TComponent* Owner);
+    LCDbCryoJob *                               job;
+    __fastcall TfrmRetrAsstCollectBoxes(TComponent* Owner);
+    void                                        setJob(LCDbCryoJob * ajob) { job = ajob; };
 };
-//---------------------------------------------------------------------------
-extern PACKAGE TfrmProcessBoxes *frmProcessBoxes;
-//---------------------------------------------------------------------------
+
+extern PACKAGE TfrmRetrAsstCollectBoxes *frmRetrAsstCollectBoxes;
 #endif

@@ -1,4 +1,4 @@
-object frmProcess: TfrmProcess
+object frmRetrAsstCollectVials: TfrmRetrAsstCollectVials
   Left = 0
   Top = 0
   Caption = 'Process Retrieval Job'
@@ -63,7 +63,6 @@ object frmProcess: TfrmProcess
       TabOrder = 0
       OnClick = sgVialsClick
       OnDrawCell = sgVialsDrawCell
-      ExplicitHeight = 116
     end
     object panelLoading: TPanel
       Left = 248
@@ -109,8 +108,6 @@ object frmProcess: TfrmProcess
         ParentDoubleBuffered = False
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitLeft = -2
-        ExplicitHeight = 85
       end
       object btnSimAccept: TButton
         Left = 868
@@ -121,7 +118,6 @@ object frmProcess: TfrmProcess
         Caption = 'Sim Accept'
         TabOrder = 1
         OnClick = btnSimAcceptClick
-        ExplicitHeight = 85
       end
     end
   end
@@ -274,8 +270,8 @@ object frmProcess: TfrmProcess
         object labelPrimary: TLabel
           Left = 7
           Top = 20
-          Width = 80
-          Height = 16
+          Width = 143
+          Height = 28
           Align = alClient
           Caption = 'labelPrimary'
           Font.Charset = DEFAULT_CHARSET
@@ -285,6 +281,8 @@ object frmProcess: TfrmProcess
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 80
+          ExplicitHeight = 16
         end
       end
       object groupSecondary: TGroupBox
@@ -302,8 +300,8 @@ object frmProcess: TfrmProcess
         object labelSecondary: TLabel
           Left = 7
           Top = 20
-          Width = 99
-          Height = 16
+          Width = 143
+          Height = 31
           Margins.Left = 5
           Margins.Top = 5
           Margins.Right = 5
@@ -317,6 +315,8 @@ object frmProcess: TfrmProcess
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 99
+          ExplicitHeight = 16
         end
       end
     end
