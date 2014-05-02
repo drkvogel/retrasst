@@ -735,7 +735,6 @@ void __fastcall TfrmRetrAsstPlanSamples::btnSaveClick(TObject *Sender) {
         panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
         panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
         progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
-
         savePlanThread = new SavePlanThread();
         savePlanThread->OnTerminate = &savePlanThreadTerminated;
     } else { // start again
@@ -760,8 +759,6 @@ void __fastcall SavePlanThread::Execute() {
 and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
     try {
         save();
-//        frmSamples->job->setStatus(LCDbCryoJob::INPROGRESS);
-//        frmSamples->job->saveRecord(LIMSDatabase::getCentralDb());
         frmRetrAsstPlanSamples->ModalResult = mrOk; // save and close here rather than OnTerminate in case of exception
     } catch (Exception & e) {
         debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
