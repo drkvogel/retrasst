@@ -155,8 +155,6 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
         OnClick = sgChunksClick
         OnDrawCell = sgChunksDrawCell
         OnFixedCellClick = sgChunksFixedCellClick
-        OnGetEditText = sgChunksGetEditText
-        OnSetEditText = sgChunksSetEditText
       end
       object Panel1: TPanel
         Left = 2

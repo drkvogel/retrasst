@@ -106,8 +106,6 @@ __published:
     void __fastcall sgChunksClick(TObject *Sender);
     void __fastcall btnApplySortClick(TObject *Sender);
     void __fastcall sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
-    void __fastcall sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value);
-    void __fastcall sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value);
     void __fastcall sgVialsDblClick(TObject *Sender);
     void __fastcall FormDestroy(TObject *Sender);
     void __fastcall sgChunksFixedCellClick(TObject *Sender, int ACol, int ARow);

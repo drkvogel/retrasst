@@ -212,7 +212,7 @@ void __fastcall TfrmRetrAsstPlanSamples::sgVialsFixedCellClick(TObject *Sender, 
 
 void __fastcall TfrmRetrAsstPlanSamples::sgVialsClick(TObject *Sender) {
     SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
-    debugLog("");
+    debugLog("."); // line break
     sample?debugLog(sample->str().c_str()):debugLog("NULL sample");
     sample->backup?debugLog(sample->backup->str().c_str()):debugLog("NULL backup");
 }
@@ -321,7 +321,7 @@ Chunk< SampleRow > * TfrmRetrAsstPlanSamples::currentChunk() {
     Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][sgChunks->Row];
     if (NULL == chunk) {// still null
         ostringstream oss; oss<<__FUNC__<<": Null chunk"; debugLog(oss.str().c_str());
-        throw Exception("null chunk");
+        throw runtime_error("null chunk");
     }
     return chunk;
 }
@@ -384,14 +384,6 @@ void TfrmRetrAsstPlanSamples::showChunk(Chunk< SampleRow > * chunk) {
     Screen->Cursor = crDefault; Enabled = true;
 }
 
-void __fastcall TfrmRetrAsstPlanSamples::sgChunksSetEditText(TObject *Sender, int ACol, int ARow, const UnicodeString Value) {
-    //fixme ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str()); debugLog(oss.str().c_str());
-}
-
-void __fastcall TfrmRetrAsstPlanSamples::sgChunksGetEditText(TObject *Sender, int ACol, int ARow, UnicodeString &Value) {
-    //fixme ostringstream oss; oss<<__FUNC__<<String(sgChunks->Cells[ACol][ARow].c_str()); //debugLog(oss.str().c_str());
-}
-
 void TfrmRetrAsstPlanSamples::autoChunk() {
 /** initialise box size with size of first box in list
     box_name.box_type_cid -> box_content.box_size_cid -> c_box_size.box_capacity */
@@ -399,7 +391,7 @@ void TfrmRetrAsstPlanSamples::autoChunk() {
     int box_id = combined[0]->dest_box_id;//->getBoxID(); // ???look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL)
-        throw "box not found";
+        throw runtime_error("box not found");
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::btnAddSortClick(TObject *Sender) {
@@ -484,11 +476,20 @@ void __fastcall LoadVialsJobThread::updateStatus() { // can't use args for synce
 void __fastcall LoadVialsJobThread::Execute() {
     try {
         load();
-    } catch (Exception & e) {
-        debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
-    } catch (...) {
-        debugMessage = "unknown error"; Synchronize((TThreadMethod)&debugLog);
+    } catch (std::exception & e) {
+        debugMessage = e.what(); Synchronize((TThreadMethod)&debugLog);
     }
+//    } catch (Exception & e) {
+//        debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
+//    } catch (const char * e) {
+//        debugMessage = e; Synchronize((TThreadMethod)&debugLog);
+//    } catch (std::string & e) {
+//        debugMessage = e; Synchronize((TThreadMethod)&debugLog);
+//    } catch (std::exception & e) {
+//        debugMessage = e.what(); Synchronize((TThreadMethod)&debugLog);
+//    } catch (...) {
+//        debugMessage = "unknown error"; Synchronize((TThreadMethod)&debugLog);
+//    }
 }
 
 void LoadVialsJobThread::load() {
@@ -574,7 +575,7 @@ void LoadVialsJobThread::load() {
         } else if (aliquotType == secondary_aliquot) {
             frmRetrAsstPlanSamples->secondaries.push_back(row);
         } else {
-            throw "unknown aliquot type for this job";
+            throw runtime_error("unknown aliquot type "+ to_string((long long)aliquotType) + " for this job"); // std::to_string() - C++11; no overload for int, so must cast to long long
         }
         qd.next();
         rowCount++;
@@ -631,7 +632,7 @@ void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const 
         posCache::iterator found = cache.find(key);
         if (found != cache.end()) { // destination box and position already used (by primary)
             if (NULL == row)
-                throw "null in cache";
+                throw runtime_error("null in cache");
             found->second->backup = row; // add as backup to primary
         } else {
             combined.push_back(row);     // add to list in its own right
@@ -640,6 +641,10 @@ void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const 
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *Sender) {
+    ostringstream oss; //oss<<__FUNC__<<
+    oss <<"finished loading job id: "<<job->getID()<<" \""<<job->getName()<<"\", \""<<job->getDescription().c_str()<<"\""; debugLog(oss.str().c_str());
+    oss.str(""); oss <<" primary: ["  <<job->getPrimaryAliquot()<<"] "<<Util::getAliquotDescription(job->getPrimaryAliquot())<<" secondary: ["<<job->getSecondaryAliquot()<<"] "<<Util::getAliquotDescription(job->getSecondaryAliquot()); debugLog(oss.str().c_str());
+
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
     panelLoading->Visible = false;
     Screen->Cursor = crDefault;
@@ -648,19 +653,20 @@ void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *S
     sgwChunks->clear();
     LQuery qd(Util::projectQuery(frmRetrAsstPlanSamples->job->getProjectID(), true)); LPDbBoxNames boxes;
     if (0 == combined.size()) {
-        Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK); Close();
+        Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK);
+        if (!RETRASSTDEBUG) Close();
         return;
     }
     int box_id = combined[0]->dest_box_id; // look at base list, chunk might not have been created
     const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
     if (found == NULL) {
-        throw "box not found"; //Application->MessageBox(L"Box not found, exiting", L"Info", MB_OK); Close(); return;
+        throw runtime_error("box not found"); //Application->MessageBox(L"Box not found, exiting", L"Info", MB_OK); Close(); return;
     }
     box_size = found->getSize();
     editDestBoxSize->Text = box_size;
     addChunk(0); // default chunk
     showChunks();
-    showChunk();
+    //showChunk();
     if (!RETRASSTDEBUG) Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
     Enabled = true;
 }
@@ -760,11 +766,17 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
     try {
         save();
         frmRetrAsstPlanSamples->ModalResult = mrOk; // save and close here rather than OnTerminate in case of exception
-    } catch (Exception & e) {
-        debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
-    } catch (...) {
-        debugMessage = "unknown error"; Synchronize((TThreadMethod)&debugLog);
+    } catch (std::exception & e) {
+        debugMessage = e.what(); Synchronize((TThreadMethod)&debugLog);
     }
+
+//    } catch (Exception & e) {
+//        debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
+//    } catch (const char * e) {
+//        debugMessage = e; Synchronize((TThreadMethod)&debugLog);
+//    } catch (...) {
+//        debugMessage = "unknown error"; Synchronize((TThreadMethod)&debugLog);
+//    }
 }
 
 void SavePlanThread::save() {

@@ -665,8 +665,7 @@ SampleRow * TfrmRetrAsstCollectSamples::currentAliquot() {
 }
 
 void TfrmRetrAsstCollectSamples::nextRow() {
-/**
-* save both primary and secondary - secondary aliquots should always be saved if present
+/** save both primary and secondary - secondary aliquots should always be saved if present
 * accept(): if primary aliquot !collected # expected, ignored, not found (now found?)
 * save secondary as `IGNORED` if not required? primary was */
 
