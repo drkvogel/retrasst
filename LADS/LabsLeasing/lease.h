@@ -4,7 +4,7 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
 #include <Classes.hpp>
-#include <DBTables.hpp>
+//#include <DBTables.hpp>
 #include <string>
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #define	DATE_REVERSAL	1	// IF TRUE, SWAP DAY-MONTH ORDER IN DATES

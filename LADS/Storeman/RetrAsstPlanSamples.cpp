@@ -97,6 +97,14 @@ void __fastcall TfrmRetrAsstPlanSamples::FormShow(TObject *Sender) {
     frmRetrievalAssistant->clearStorageCache();
     timerLoadVials->Enabled = true;
     editDestBoxSize->Text = box_size;
+#if X_BDE
+    TfrmRetrievalAssistant::msgbox("X_BDE");
+#elif X_ING
+    TfrmRetrievalAssistant::msgbox("X_ING");
+#else
+    TfrmRetrievalAssistant::msgbox("not X_BDE nor X_ING");
+#endif
+
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::FormClose(TObject *Sender, TCloseAction &Action) {
