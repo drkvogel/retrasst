@@ -13,13 +13,14 @@
 
 
 							// some forward declarations
-							class TMainForm;
+							class TSnapshotFrame;
 							class DataManager;
 							class LogManager;
 							class Positioning;
 							struct Coordinates;
 							class DSampleRun;
 							class DSampleTest;
+                            class SnapshotFrameObserver;
 							class TInfoPanel;
 							class TTestPanel;
 
@@ -35,7 +36,7 @@ class GUImanager {
 public:
 
 	/** a link back to the main form */
-	TMainForm *mainForm;
+	TSnapshotFrame *mainForm;
 
 	/** For carrying out tasks such as positioning and sizing of components. */
 	Positioning *positioner;
@@ -50,7 +51,7 @@ public:
 
 // For comments on methods, please see their implementations.
 
-	GUImanager(TMainForm *m, const std::string & configFilename);
+	GUImanager(TSnapshotFrame *m, DataManager* dm, LogManager* lm, const std::string & configFilename);
 	~GUImanager();
 
 	void initialiseGUIconfigValues(const std::string & configFilename);
@@ -73,10 +74,12 @@ public:
 	void popupInfoPanel(TTestPanel *t, int panel_type);
 	void removeInfoPanel(TInfoPanel *p);
 
+    void setObserver( SnapshotFrameObserver *o );
 private:
 
 	DataManager *dataManager;
 	LogManager *logManager;
+    SnapshotFrameObserver *observer;
 
 	/** a tag used to identify panels just inside the scroll views. */
 	const UnicodeString innerLevel = "Level: inner panel";

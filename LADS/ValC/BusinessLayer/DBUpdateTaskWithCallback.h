@@ -33,7 +33,7 @@ public:
         mp->arrive( this );
     }
 
-    void notify( int& i ) volatile {}
+    void notify( int& i ) {}
 
 protected:
 

@@ -22,7 +22,7 @@ public class uploadClinical
 	************************************************************************************/		
 	public static void main(String[] args)
 	{		
-		String[] AUList = {"BIOBANK_PSI"};//,"1K_SCANS"};
+		String[] AUList = /*{"BIOBANK_PSI"};*/ {"IF_ABDO","IF_CARDIAC","IF_DEXA","IF_NEURO"};
 		//THE PK OF THE KEYWORD, WHICH TRIGGERS THE CREATION OF A PDF WHEN WE DON'T HAVE A FULL SET OF DATA
 		int IGNORE_INCOMPLETE_ICE_DATA = -87; //Temporally - a void key PK
 		
@@ -46,17 +46,31 @@ public class uploadClinical
 			logs.logfile(logs.LOG_LEVEL.CRITICAL, logs.LOG_TYPE.DATABASE, "Initalising error: " + e.getMessage(),null,null );
 			return;
 		}	
-		
-				
+						
 		//get all the dicom in the database, status 1, get keywords and save data.
 			/*
 			 * "BIOBANK" - download data and keywords
 			 */
+/***********************************************************************************************\		
+ 		//TESTING, print to the debug console the contents of a clinical report
+		questionaire q;
+ 		try
+ 		{
+ 			q = new questionaire("182431106");
+ 			q.generateReport();		
+ 		}
+ 		catch (Exception e4)
+ 		{
+ 			// TODO Auto-generated catch block
+ 			e4.printStackTrace();
+ 		}
+//***********************************************************************************************/
+		
 		Vector<Long> studypkVector = new Vector<Long>();
 		Vector<pair<Integer,String>> quizVector = new Vector<pair<Integer,String>>();
 		try
 		{
-			getStudyPKsFromBIOBANK_PSI(m_db, studypkVector,AUList);
+			getStudyPKsFromAUs(m_db, studypkVector,AUList);
 
 			for (int i=0;i<studypkVector.size();i++)
 			{
@@ -79,7 +93,7 @@ public class uploadClinical
 						String []patientID = new String[2];
 						String []firstname = new String[2];
 						patientID[0] = sr.getPatientID();
-						firstname[0] = sr.getFirstName();
+						firstname[0] = sr.getName();
 						if (patientID[0] == null)
 							patientID[0] = "";
 						if (firstname[0] == null)
@@ -92,7 +106,7 @@ public class uploadClinical
 							continue;
 						}
 						sr.setConfirmedPatientID(patientID[1]);
-						sr.setFirstName(firstname[1]);
+						sr.setConfirmedName(firstname[1]);
 						sr.update();
 					}
 					catch(Exception e)
@@ -105,9 +119,18 @@ public class uploadClinical
 					{ //COMMIT AS WE DO ALONG..
 						m_db.commit();					
 					}
-				}				
+				}
+				else
+					iParticitpentID = m_db.getPatientPid(sr.getConfirmedPatientID(),sr.getConfirmedName());
 			
+				if (iParticitpentID == 0)
+				{
+					logs.log(m_db, logs.LOG_LEVEL.INFO, logs.LOG_TYPE.GENERAL, "No ICE Pid found",sr.getConfirmedPatientID(),sr.getStudyDate().getTime() );
+					continue;
+				}
+				
 				String particitpentID = String.valueOf(iParticitpentID);
+				
 				
 				quizVector.clear();
 				try
@@ -130,8 +153,7 @@ public class uploadClinical
 								//BIOBANK_PSI is the first step, so it can be found. 
 								KeywordInformation[] kwi = PACSkeywords[i1].getKeywordInformation();
 								for (int i2=0;i2<kwi.length;i2++)
-								{
-									
+								{									
 									long Keypk = kwi[i2].getKeywordPk();
 									if (Keypk == IGNORE_INCOMPLETE_ICE_DATA)
 										hasProcessAnyWaykeyword = true;
@@ -165,7 +187,7 @@ public class uploadClinical
 								
 			 	try
 				{		
-					pdf.Open(particitpentID,sr.getConfirmedPatientID(),sr.getFirstName());
+					pdf.Open(particitpentID,sr.getConfirmedPatientID(),sr.getConfirmedName());
 					for (int ii=0;ii<quizVector.size();ii++)
 					{
 						Paragraph p1 = pdf. new Paragraph(quizVector.get(ii).left + 20, 700-(ii*12), quizVector.get(ii).right);
@@ -180,19 +202,19 @@ public class uploadClinical
 				}		
 
 			 	try
-				{
+				{			 		
 					//this should throw if it fails.. according to the docs
-					PC.importFile(patientQuizFilenameBuilder.toString(), sr.getPatientID(),patientQuizFilenameBuilder.toString() , patientQuizFilenameBuilder.toString(),sr.getPatientPK());
+					PC.importFile(patientQuizFilenameBuilder.toString(), sr.getPatientID(), sr.getName(),patientQuizFilenameBuilder.toString() , patientQuizFilenameBuilder.toString(),sr.getAU(),sr.getPatientPK());
 				}
 				catch (Exception e)
 				{
-					logs.log(m_db,logs.LOG_LEVEL.ERROR, logs.LOG_TYPE.PACS, "Error uploading PDF to PACS" + e.getMessage(),sr.getConfirmedPatientID(),sr.getStudyDate().getTime());
+					logs.log(m_db,logs.LOG_LEVEL.ERROR, logs.LOG_TYPE.PACS, "Error uploading PDF to PACS: " + e.getMessage(),sr.getConfirmedPatientID(),sr.getStudyDate().getTime());
 					continue;
 				}
 				//now delete the PDF
 				File pdffile = new File(patientQuizFilenameBuilder.toString());
 				if (!pdffile.delete())
-					logs.log(m_db,logs.LOG_LEVEL.ERROR, logs.LOG_TYPE.PACS, "Failed to delete local PDF report:" + patientQuizFilenameBuilder.toString(),sr.getConfirmedPatientID(),sr.getStudyDate().getTime());
+					logs.log(m_db,logs.LOG_LEVEL.ERROR, logs.LOG_TYPE.PACS, "Failed to delete local PDF report: " + patientQuizFilenameBuilder.toString(),sr.getConfirmedPatientID(),sr.getStudyDate().getTime());
 
 				try
 				{
@@ -226,8 +248,10 @@ public class uploadClinical
 	{
 		if (sr.getLastAlert() != null)
 		{
+			//Is older then 23 hours. 
 			Calendar LastAlert = (Calendar) sr.getLastAlert().clone();
 			LastAlert.add(Calendar.DAY_OF_MONTH, 1);
+			LastAlert.add(Calendar.HOUR_OF_DAY, -1);
 			if (LastAlert.after(Calendar.getInstance()))
 			{
 				//we have already sent out an alert for this today...
@@ -254,18 +278,20 @@ public class uploadClinical
 		}
 	}
 
-	private static void getStudyPKsFromBIOBANK_PSI(database m_db, Vector<Long> studypkVector,String[] AUList) throws SQLException
+	private static void getStudyPKsFromAUs(database m_db, Vector<Long> studypkVector,String[] AUList) throws SQLException
 	{
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT studypk FROM pacsstudy WHERE");
 		
+		sql.append(" status = 1 and (");
+
 		for (int i=0;i<AUList.length;i++)
 		{
 			if (i>0)
 				sql.append(" OR ");
 			sql.append(" au ='" + AUList[i] + "'");			
 		}
-		sql.append(" and status = 1");
+		sql.append(" )");
 		
 		ResultSet result = null;
 		try
@@ -298,17 +324,14 @@ public class uploadClinical
 			}
 			catch (InstantiationException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			catch (IllegalAccessException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			catch (ClassNotFoundException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			quizVector2 = q1.getReportStrings();
@@ -339,48 +362,21 @@ public class uploadClinical
 			
 			q1 = new questionaire("900900909");
 			
-			q1 = new questionaire("903162640");
-			 q1 = new questionaire("992498361");
-			 q1 = new questionaire("937408640");
-			 q1 = new questionaire("925513579");
-			 q1 = new questionaire("961576793");
-			 q1 = new questionaire("930179127");
-			 q1 = new questionaire("948866012");
-			 q1 = new questionaire("945123484");
-			 q1 = new questionaire("951517501");	
-			 q1 = new questionaire("913113887");
-			 q1 = new questionaire("934631987");
-			 q1 = new questionaire("987654321");
-			 q1 = new questionaire("952560857");
-			 q1 = new questionaire("954178263");
-			 q1 = new questionaire("955655613");
-			 q1 = new questionaire("929551907");
-			 q1 = new questionaire("987237190");
-			 q1 = new questionaire("994756739");
-			 q1 = new questionaire("996987926");
-			 q1 = new questionaire("996198164");
-			 q1 = new questionaire("989524536");
-			 q1 = new questionaire("900900909");
-			 q1 = new questionaire("900900908");	
 		}
 		catch (SQLException e4)
 		{
-			// TODO Auto-generated catch block
 			e4.printStackTrace();
 		}
 		catch (InstantiationException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		catch (IllegalAccessException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		catch (ClassNotFoundException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 */		
@@ -403,17 +399,13 @@ public class uploadClinical
 	}
 	catch (IOException e4)
 	{
-		// TODO Auto-generated catch block
 		e4.printStackTrace();
 	}
 	catch (Exception e)
 	{
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}		
-		
 */		
-	
 	
 	
 	

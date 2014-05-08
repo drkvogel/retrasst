@@ -23,7 +23,12 @@ import javax.mail.internet.MimeMessage;
 /*
  * Logging and alerts 
  * 
- * Outputs short reports to file, database and can send alert emails
+ * Outputs short reports. Can be to three places:
+ *   - to file
+ *   - to the logs table in the database
+ *   - can send alert emails
+ *   
+ * Gets used by all the programs.
  * 
  * The log system's reports are categorised into 5 areas
  * 		DATABASE 	- Message about the database system, can't connect, sql error..etc
@@ -41,15 +46,24 @@ import javax.mail.internet.MimeMessage;
 public class logs
 {
 	private static String m_PWD = null;
-	public static enum LOG_LEVEL {DEBUG,INFO,ERROR,CRITICAL,ACTIONREQUIRED}
-	public static enum LOG_TYPE  {GENERAL,DATABASE, FILESYSTEM,PACS}
+	public static enum LOG_LEVEL {DEBUG,           // e.g. for a log message containing debugging information
+		                          INFO,            // non-error-style log message, of some kind
+		                          ERROR,           // catchall (but not panic)
+		                          CRITICAL,        // big error, needs -> developer, e.g. can't connect to db
+		                          ACTIONREQUIRED}  // Cheadlers need alerting
+	
+	public static enum LOG_TYPE  {GENERAL,
+		                          DATABASE, 
+		                          FILESYSTEM,
+		                          PACS}            // e.g. problem with the PACS
+	// log type means you can search for particular types of issues
 	
 	private static Logger m_logger = null;
 	private static FileHandler m_fh = null;
     
     private static String CTSU_CONTACT_EMAIL = "jonathan.price@ctsu.ox.ac.uk"; //Technical help email
-    private static String CTSU_CONTACT_EMAIL2 = "sharon.curtis@ctsu.ox.ac.uk"; //Technical help email
-    private static String BIOBANK_CLINIC_EMAIL = "jonathan.price@ctsu.ox.ac.uk"; //Biobank administrator
+//    private static String CTSU_CONTACT_EMAIL2 = "sharon.curtis@ctsu.ox.ac.uk"; //Technical help email
+    private static String BIOBANK_CLINIC_EMAIL = "jonathan.price@ctsu.ox.ac.uk"; //Biobank administrator (someone in Cheadle, eventually. hopefully.)
 
 /************************************************************************************
 *                                       PUBLIC FUNCTIONS							*
@@ -98,18 +112,28 @@ public class logs
 	public static void sendIncompleteICEDataAlert(database db,db_pacsstudy sr)
 	{
 		SimpleDateFormat dfDate  = new SimpleDateFormat("dd/MMM/yyyy");
-		String[] Recipients = new String[3];
+		String[] Recipients = new String[2];
 		Recipients[0] = CTSU_CONTACT_EMAIL;
-		Recipients[1] = CTSU_CONTACT_EMAIL2;
-		Recipients[2] = BIOBANK_CLINIC_EMAIL;
+//		Recipients[1] = CTSU_CONTACT_EMAIL2;
+		Recipients[1] = BIOBANK_CLINIC_EMAIL;
 		
-		String Subject = "Incomplete participent results";
-		String Message = "A partipiant in BIOBANK_PSI doesn't yet have enough data in BIOBANK system to generate the clinical information upload. The scan was performed over 24 hours ago. The following details are know about this scan:\r\n\r\n";
-		Message += "Participant ID: " + sr.getConfirmedPatientID() +"   " + sr.getFirstName() + "\r\n";
+		String Subject = "Incomplete participant results";
+		String Message = "A participant in the BIOBANK_PSI AU doesn't yet have enough data in "
+				       + "the BIOBANK AU to generate the clinical information upload. "
+				       + "The scan was performed over 24 hours ago. "
+				       + "The following details are known about this scan:\r\n\r\n";
+		
+		String PatientID = sr.getConfirmedPatientID();
+		if (PatientID.isEmpty())
+			PatientID = sr.getPatientID();
+		
+		Message += "Participant: " + PatientID +"   " + sr.getName() + "\r\n";
 		Message += "Producer: " + sr.getAU() + "\r\n";
 		Message += "Sender AET: " + sr.getAET() + "\r\n";		
 		Message += "Scan Date: " + dfDate.format(sr.getStudyDate().getTime()) + "\r\n"; 
-		Message += "\r\n" + "Please check this partipiant, if everthing looks correct, please email jonathan.price@ctsu.ox.ac.uk so it can be further investigated\r\n";		
+		Message += "\r\n" + "Please check this participant; if everything looks correct, "
+		           + "please email: jonathan.price@ctsu.ox.ac.uk "
+		           + "so it can be further investigated.\r\n";		
 		generateEmail(db,Recipients,Subject,Message);
 	}
 	
@@ -117,22 +141,23 @@ public class logs
 	public static void sendIncompleteSeriesAlert(database db,db_pacsstudy sr,String description)
 	{
 		SimpleDateFormat dfDate  = new SimpleDateFormat("dd/MMM/yyyy");
-		String[] Recipients = new String[3];
+		String[] Recipients = new String[2];
 		Recipients[0] = CTSU_CONTACT_EMAIL;
-		Recipients[1] = CTSU_CONTACT_EMAIL2;
-		Recipients[2] = BIOBANK_CLINIC_EMAIL;
+//		Recipients[1] = CTSU_CONTACT_EMAIL2;
+		Recipients[1] = BIOBANK_CLINIC_EMAIL;
 		
 		String Subject = "Possible incomplete series found";
-		String Message = "Please check the following series in BIOBANK, it may not contain a full image count:\r\n\r\n";
-		Message += "Participant ID: " + sr.getConfirmedPatientID() +"   " + sr.getFirstName() + "\r\n";
+		String Message = "Please check the following series in the BIOBANK AU, as "
+				       + "it may not contain a full image count:\r\n\r\n";
+		Message += "Participant ID: " + sr.getConfirmedPatientID() +"   " + sr.getName() + "\r\n";
 		Message += "Producer: " + sr.getAU() + "\r\n";
 		Message += "Sender AET: " + sr.getAET() + "\r\n";		
 		Message += "Scan Date: " + dfDate.format(sr.getStudyDate().getTime()) + "\r\n"; 
 		Message += "Series Discription: " + description + "\r\n"; 
-		Message += "\r\n" + "To correct this there are severl options:";
-		Message += "\r\n" + "   1) If the missing images in the series can be found, push them on to singo.share and make sure they get moved into BIOBANK.";
+		Message += "\r\n" + "To correct this there are several options:";
+		Message += "\r\n" + "   1) If the missing images in the series can be found, push them on to syngo.share and make sure they get moved into BIOBANK.";
 		Message += "\r\n" + "   2) If the image count can't be corrected, tag the series with the keyword XXXXX.";
-		Message += "\r\n" + "   3) If this is a false alert, contact jonathan.price@ctsu.ox.ac.uk so it can be investiaged.";
+		Message += "\r\n" + "   3) If this is a false alert, contact jonathan.price@ctsu.ox.ac.uk so it can be investigated.";
 		generateEmail(db,Recipients,Subject,Message);
 	}
 	
@@ -206,19 +231,19 @@ public class logs
 		String[] Recipients = null;
 		if (level == LOG_LEVEL.ACTIONREQUIRED)
 		{
-			Recipients = new String[3];
+			Recipients = new String[2];
 			Recipients[0] = CTSU_CONTACT_EMAIL;
 			Recipients[1] = BIOBANK_CLINIC_EMAIL; 
-			Recipients[2] = CTSU_CONTACT_EMAIL2;
+//			Recipients[2] = CTSU_CONTACT_EMAIL2;
 
-			subject = "PACS CRONS: Action required Alert";
+			subject = "PACS CRONS: Action Required Alert";
 		}
 		else if (level == LOG_LEVEL.CRITICAL)
 		{
-			Recipients = new String[2];
+			Recipients = new String[1];
 			Recipients[0] = CTSU_CONTACT_EMAIL;
-			Recipients[1] = CTSU_CONTACT_EMAIL2;
-			subject = "PACS CRONS: Critial Alert";
+//			Recipients[1] = CTSU_CONTACT_EMAIL2;
+			subject = "PACS CRONS: Critical Alert";
 		}
 
 		if (!subject.isEmpty())
@@ -236,15 +261,15 @@ public class logs
 		try
 		{
 			String emailText = Message;			
-			String from = "jonathan.price@ctsu.ox.ac.uk";
+			String from = "jonathan.price@ctsu.ox.ac.uk";//"sharon.curtis@ctsu.ox.ac.uk";  // was jonathan
 	
 			String host = "pat.ctsu.ox.ac.uk";
-			String usrName = "jonathan.price@ctsu.ox.ac.uk";
+			String usrName = "jonathan.price@ctsu.ox.ac.uk";//"sharon.curtis@ctsu.ox.ac.uk"; // 
 		
 			if (m_PWD == null)
 				m_PWD = ReadPWDFromFile("pwd.dat");
 //			if (m_PWD.isEmpty())
-//				return;
+//				return; //no longer return, it will now throw and log!
 			String usrPass = m_PWD;
 	
 			// Get system properties
@@ -294,7 +319,7 @@ public class logs
 		{
 			String[] Recipients = new String[1];
 			Recipients[0] = CTSU_CONTACT_EMAIL;
-			String subject = "PACS CRONS: Critial Alert";
+			String subject = "PACS CRONS: Critical Alert";
 			String msg = "Problem with log file: " + e.getMessage();
 			sendGeneralAlert(null,subject,msg,Recipients);
 			return;
@@ -303,7 +328,7 @@ public class logs
 		{//can't open the file. report error
 			String[] Recipients = new String[1];
 			Recipients[0] = CTSU_CONTACT_EMAIL;
-			String subject = "PACS CRONS: Critial Alert";
+			String subject = "PACS CRONS: Critical Alert";
 			String msg = "Problem with log file: " + e.getMessage();
 			sendGeneralAlert(null,subject,msg,Recipients);
 			return;

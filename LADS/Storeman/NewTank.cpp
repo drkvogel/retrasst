@@ -143,7 +143,13 @@ void TfrmNewTank::TankInit( const char* title )
 
 bool TfrmNewTank::TankValidate()
 {
-	if( !checkVessel( TxtSrl, LblSrl, false ) || !checkVessel( TxtPhysical, LblPhys, true ) ) {
+	if( !checkVessel( TxtPhysical, LblPhys, true ) ) {
+		return false;
+	}
+	if( TxtSrl->Text.IsEmpty() ) {
+		TxtSrl->Text = TxtPhysical->Text;
+	}
+	if( !checkVessel( TxtSrl, LblSrl, false ) ) {
 		return false;
 	}
 	AnsiString place =  cbLocation->Text.Trim() ;
@@ -580,8 +586,6 @@ void TfrmNewTank::clearLayoutPanel()
 
 //---------------------------------------------------------------------------
 
-
-
 void __fastcall TfrmNewTank::chkPopClick(TObject *Sender)
 {
 	TxtPop->Text = chkPop->Checked ? 1 : 0;
@@ -593,7 +597,7 @@ bool TfrmNewTank::checkVessel( TEdit * textBox, TLabel * label, bool isName ) co
 	AnsiString name =  textBox->Text.Trim();
 	if( mode != NEW_VESSEL ) {
 		std::string oldValue = isName ? oldtank->getVessel() : oldtank->getSrlno();
-		if(  oldValue == name.c_str() ) {
+		if( oldValue == name.c_str() ) {
 			return true;				// no change: no problem
 		}
 	}

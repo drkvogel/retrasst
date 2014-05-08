@@ -5,7 +5,7 @@ object frmRatTankDbSelectionDialog: TfrmRatTankDbSelectionDialog
   Caption = 'Select database source'
   ClientHeight = 102
   ClientWidth = 428
-  Color = clBtnFace
+  Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

@@ -124,6 +124,8 @@
         <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <ILINK_LibraryPath>C:\Program Files\Ingres\IngresIJ\ingres\lib;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <IncludePath>C:\Program Files\Ingres\IngresIJ\ingres\files;$(IncludePath)</IncludePath>
         <Debugger_IncludeSystemVars>true</Debugger_IncludeSystemVars>
         <Debugger_EnvVars>REQUEST_METHOD=GET;QUERY_STRING=mode=ingoreStudy&amp;pk=266&amp;td=5B3326692373693D31313132267323756E3D6A6F6E617468616E7026732369703D3132372E302E302E315D;$(Debugger_EnvVars)</Debugger_EnvVars>
         <Defines>_DEBUG;$(Defines)</Defines>
@@ -230,10 +232,10 @@
                     <HistoryLists_hlIntermediateOutputDir Name="Item0">C:\SPEED\BB\CRYSTAL\</HistoryLists_hlIntermediateOutputDir>
                 </HistoryLists_hlIntermediateOutputDir>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k160.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp160.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k180.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp180.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </CPlusPlusBuilder.Personality>
             <Platforms>

@@ -6,7 +6,7 @@ object frmRatTankPleaseWait: TfrmRatTankPleaseWait
   Caption = 'Please Wait'
   ClientHeight = 63
   ClientWidth = 496
-  Color = clBtnFace
+  Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

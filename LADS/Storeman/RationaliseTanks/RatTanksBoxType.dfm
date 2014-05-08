@@ -6,7 +6,7 @@ object frmRatTanksBoxType: TfrmRatTanksBoxType
   Caption = 'Destination Box Type'
   ClientHeight = 458
   ClientWidth = 372
-  Color = clBtnFace
+  Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

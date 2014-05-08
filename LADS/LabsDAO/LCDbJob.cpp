@@ -129,12 +129,12 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 	} else {
 		central.setParam( "cd", "" );
 	}
-	if( status != DONE ) {
-		central.setParam( "fd", "" );
-	} else if( EPOCH_START < finish_date && finish_date < Now() ) {
+	if( EPOCH_START < finish_date && finish_date < Now() ) {
 		central.setParam( "fd", XTIME( finish_date ) );
-	} else {
+	} else if( status == DONE ) {
 		central.setParam( "fd", "now" );
+	} else {
+		central.setParam( "fd", "" );
 	}
 	central.setParam( "id", getID() );
 	central.setParam( "sts", status );

@@ -7,6 +7,7 @@
 #include "TutCallback.h"
 #include <tut.h>
 
+#include "TaskWithCallbackTest.h"
 #include "ThreadPoolTest.h"
 
 #include <tchar.h>

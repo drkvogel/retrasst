@@ -44,6 +44,7 @@ void __fastcall TfrmFind::FormShow(TObject *Sender)
 	cbType->Enabled = !current.empty();
 	txtName->Text = "";
 	txtName->Enabled = false;
+	boxSearch = (rgTypes -> ItemIndex == 0);
 }
 
 //---------------------------------------------------------------------------
@@ -64,12 +65,13 @@ void __fastcall TfrmFind::cbProjectChange(TObject *Sender)
 	if( !cbProject->Text.IsEmpty() ) {
 		proj = pl.findByName( AnsiString( cbProject->Text ).c_str() );
 	}
-	txtName->Enabled = false;
 	if( proj == NULL ) {
 		cbType->Enabled = false;
+		txtName->Enabled = false;
 	} else {
 		pl.setCurrent( *proj );
 		cbType->Enabled = true;
+		txtName->Enabled = boxSearch;
 	}
 }
 
@@ -87,19 +89,19 @@ void __fastcall TfrmFind::cbTypeChange(TObject *Sender)
 void __fastcall TfrmFind::cbTypeDropDown(TObject *Sender)
 {
 	cbType->Clear();
-	if( rgTypes -> ItemIndex == 1 ) {
-		std::set< int > types = LPDbCryovials::getAliquotTypes( LIMSDatabase::getProjectDb() );
-		for( const LCDbObject & at : LCDbObjects::records() ) {
-			if( types.count( at.getID() ) != 0 ) {
-				cbType->Items->Add( at.getName().c_str() );
-			}
-		}
-	} else {
+	if( boxSearch ) {
 		for( const LPDbBoxType & bt : LPDbBoxTypes::records() ) {
 			if( bt.isActive() ) {
 				if( bt.getProjectCID() == 0 || bt.getProjectCID() == LCDbProjects::getCurrentID() ) {
 					cbType->Items->Add( bt.getName().c_str() );
-                }
+				}
+			}
+		}
+	} else {
+		std::set< int > types = LPDbCryovials::getAliquotTypes( LIMSDatabase::getProjectDb() );
+		for( const LCDbObject & at : LCDbObjects::records() ) {
+			if( types.count( at.getID() ) != 0 ) {
+				cbType->Items->Add( at.getName().c_str() );
 			}
 		}
 	}
@@ -113,13 +115,13 @@ void __fastcall TfrmFind::BitBtn1Click(TObject *Sender)
 {
 	boxDetails.clear();
 	const char * missing = NULL;
-	if( rgTypes -> ItemIndex == 1 ) {
-		if( !findCryovial() ) {
-			missing = "cryovial";
-		}
-	} else {
+	if( boxSearch ) {
 		if( !findBox() ) {
 			missing = "box";
+		}
+	} else {
+		if( !findCryovial() ) {
+			missing = "cryovial";
 		}
 	}
 	if( missing == NULL ) {
@@ -139,7 +141,7 @@ bool TfrmFind::findBox() {
 	std::string barcode = AnsiString( txtName->Text ).c_str();
 	std::string type = AnsiString( cbType->Text ).c_str();
 	StoreDAO().loadBoxDetails( barcode, type, projID, boxDetails );
-	return boxDetails.isInt( "box_cid");
+	return boxDetails.isInt( "box_cid" );
 }
 
 //---------------------------------------------------------------------------
@@ -164,14 +166,7 @@ bool TfrmFind::findCryovial() {
 //---------------------------------------------------------------------------
 
 Box * TfrmFind::getDetails() const {
-	if( boxDetails.isEmpty() ) {
-		return NULL;
-	}
-	Box * box = new Box( boxDetails );
-	if( rgTypes -> ItemIndex == 1 ) {
-		box -> populate();
-	}
-	return box;
+	return boxDetails.isEmpty() ? NULL : new Box( boxDetails );
 }
 
 //---------------------------------------------------------------------------

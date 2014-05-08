@@ -22,10 +22,10 @@ ratTanksCtrl::~ratTanksCtrl()
 }
 //---------------------------------------------------------------------------
 
-void ratTanksCtrl::createRetrievalList(const std::string &external_name,const std::string &description, const std::string &c_project_cid, const std::string &c_aliquot_cid ,const std::string &reboxType,TProgressBar *ProgressBar,const std::string &exercise_cid)
+void ratTanksCtrl::createRetrievalList(const std::string &external_name,const std::string &description, const std::string &c_project_cid,const std::string &reason,const std::string &c_aliquot_cid ,const std::string &reboxType,TProgressBar *ProgressBar,const std::string &exercise_cid)
 {
 	Screen->Cursor = crSQLWait;
-	m_database.createRetrievalList(external_name,description,c_project_cid,c_aliquot_cid,reboxType,ProgressBar,exercise_cid);
+	m_database.createRetrievalList(external_name,description,c_project_cid,reason,c_aliquot_cid,reboxType,ProgressBar,exercise_cid);
 	Screen->Cursor = crDefault;
 }
 

@@ -2,9 +2,9 @@ object frmDiscardSamples: TfrmDiscardSamples
   Left = 0
   Top = 0
   Caption = 'Discard Samples'
-  ClientHeight = 819
-  ClientWidth = 1024
-  Color = clBtnFace
+  ClientHeight = 761
+  ClientWidth = 969
+  Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -14,26 +14,26 @@ object frmDiscardSamples: TfrmDiscardSamples
   Position = poScreenCenter
   OnClose = FormClose
   DesignSize = (
-    1024
-    819)
+    969
+    761)
   PixelsPerInch = 96
   TextHeight = 13
   object pnlResults: TPanel
     Left = 0
     Top = 47
-    Width = 1027
-    Height = 739
+    Width = 972
+    Height = 681
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
     VerticalAlignment = taAlignTop
     DesignSize = (
-      1027
-      739)
+      972
+      681)
     object grdResults: TStringGrid
       Left = 2
       Top = 0
-      Width = 1025
-      Height = 739
+      Width = 970
+      Height = 681
       Anchors = [akLeft, akTop, akRight, akBottom]
       ParentShowHint = False
       ShowHint = False
@@ -54,56 +54,67 @@ object frmDiscardSamples: TfrmDiscardSamples
   object pnlSearch: TPanel
     Left = 0
     Top = 0
-    Width = 1023
+    Width = 968
     Height = 41
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 1
+    DesignSize = (
+      968
+      41)
     object labMode: TLabel
-      Left = 16
-      Top = 11
+      Left = 456
+      Top = 14
       Width = 26
       Height = 13
       Caption = 'Mode'
     end
+    object lblCurrentNote: TLabel
+      Left = 528
+      Top = 14
+      Width = 3
+      Height = 13
+      Anchors = [akLeft, akTop, akRight]
+    end
     object btnConfirm: TButton
-      Left = 392
-      Top = 6
-      Width = 49
-      Height = 25
+      Left = 176
+      Top = 7
+      Width = 56
+      Height = 26
       Caption = 'Confirm'
       TabOrder = 0
       OnClick = btnConfirmClick
     end
     object btnClear: TButton
-      Left = 321
-      Top = 6
-      Width = 49
-      Height = 25
+      Left = 96
+      Top = 7
+      Width = 56
+      Height = 26
       Caption = 'Clear'
       TabOrder = 1
       OnClick = btnClearClick
     end
     object btnSearch: TButton
-      Left = 248
-      Top = 6
-      Width = 49
-      Height = 25
+      Left = 16
+      Top = 7
+      Width = 56
+      Height = 26
       Caption = 'Search'
       TabOrder = 2
       OnClick = btnSearchClick
     end
     object btnNote: TButton
-      Left = 113
-      Top = 6
-      Width = 80
+      Left = 860
+      Top = 8
+      Width = 84
       Height = 25
+      Anchors = [akTop, akRight]
       Caption = 'Set Note Text'
       TabOrder = 3
       OnClick = btnNoteClick
     end
     object bitDiscard: TBitBtn
-      Left = 48
-      Top = 6
+      Left = 488
+      Top = 7
       Width = 25
       Height = 25
       Hint = 'Click on grid marks for discard'
@@ -122,8 +133,8 @@ object frmDiscardSamples: TfrmDiscardSamples
       OnClick = bitDiscardClick
     end
     object bitNote: TBitBtn
-      Left = 48
-      Top = 6
+      Left = 488
+      Top = 8
       Width = 25
       Height = 25
       Hint = 'Click on grid applies note'
@@ -142,10 +153,10 @@ object frmDiscardSamples: TfrmDiscardSamples
       OnClick = bitNoteClick
     end
     object btnAbort: TButton
-      Left = 464
-      Top = 6
-      Width = 49
-      Height = 25
+      Left = 256
+      Top = 7
+      Width = 56
+      Height = 26
       Caption = 'Abort'
       TabOrder = 6
       OnClick = btnAbortClick
@@ -153,13 +164,13 @@ object frmDiscardSamples: TfrmDiscardSamples
   end
   object pnlStatus: TPanel
     Left = 0
-    Top = 792
-    Width = 1023
+    Top = 734
+    Width = 968
     Height = 25
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 2
     DesignSize = (
-      1023
+      968
       25)
     object labStatus: TLabel
       Left = 0

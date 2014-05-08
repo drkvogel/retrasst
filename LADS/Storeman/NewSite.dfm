@@ -2,9 +2,10 @@ object frmNewSite: TfrmNewSite
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
   Caption = 'Configure Site'
-  ClientHeight = 118
-  ClientWidth = 442
+  ClientHeight = 125
+  ClientWidth = 464
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,6 +13,7 @@ object frmNewSite: TfrmNewSite
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = True
+  Position = poOwnerFormCenter
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

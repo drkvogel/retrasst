@@ -84,7 +84,7 @@ std::string Config::get( const std::string& name ) const
     Properties::const_iterator i = m_properties.find( name );
     if ( i == m_properties.end() )
     {
-		exception( "Property '\%s' not defined.", name.c_str() );
+		exception( "Configuration: property '\%s' not defined.", name.c_str() );
     }
     return i->second;
 }

@@ -6,6 +6,7 @@
 #include "LoggingService.h"
 #include "Require.h"
 #include "ResultIndex.h"
+#include "StrUtil.h"
 #include "WorklistEntries.h"
 
 namespace valc
@@ -33,7 +34,7 @@ void AllocateLocalResultsToWorklistEntries::doStuff()
 
     m_resultIndex->listUnallocatedResults( unallocated );
 
-    LOG( std::string("Number of unallocated results: ") << unallocated.size() );
+    LOG( paulst::format("Number of unallocated results: %d", unallocated.size() ) );
 
 
     BOOST_FOREACH( const int& id, unallocated )
@@ -44,6 +45,8 @@ void AllocateLocalResultsToWorklistEntries::doStuff()
 
         if( m_result->getActionFlag() != '0'  )
         {
+            LOG( paulst::format(
+                "Not concerned with allocating result %d to a worklist entry because its action_flag is non-zero", id ) );
             continue;
         }
 
@@ -57,7 +60,7 @@ void AllocateLocalResultsToWorklistEntries::doStuff()
         {
             const int worklistEntryID = m_matchingWorklistEntries.at(0);
             m_resultIndex->allocateResultToWorklistEntry( id, worklistEntryID );
-            LOG( std::string("Allocated result ") << id << " to worklist entry " << worklistEntryID << "." );
+            LOG( paulst::format("Allocated result %d to worklist entry %d", id, worklistEntryID ) );
             m_dbUpdateSchedule->scheduleUpdateLinkingResultToWorklistEntry( id, worklistEntryID );
         }
         else

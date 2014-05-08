@@ -238,7 +238,7 @@ SnapshotPtr Load()
         applicationContext->getProperty("ExceptionalDataHandler"), applicationContext->userAdvisor, log);
     BuddyDatabaseEntryIndex* buddyDatabaseEntryIndex = new BuddyDatabaseEntryIndex();
     boost::scoped_ptr<QCSampleDescriptorDerivationStrategy> QCSampleDescriptorDerivationStrategy(
-        new QCSampleDescriptorDerivationStrategyImpl( resultIndex, buddyDatabaseEntryIndex, applicationContext->log ) );
+        new QCSampleDescriptorDerivationStrategyImpl( resultIndex, buddyDatabaseEntryIndex, &exceptionalDataHandler ) );
     SampleRunGroupIDGenerator* sampleRunGroupIDGenerator = 
         new SampleRunGroupIDGeneratorUsingDB( applicationContext->connectionFactory, applicationContext->config );
 

@@ -74,6 +74,7 @@ UserAdvisorPanel::UserAdvisorPanel(
 	messageViewer->Height = listView->Height;
 	messageViewer->Width  = panel->Width - listView->Width - 10;
 	messageViewer->ReadOnly = true;
+    messageViewer->WordWrap = true;
     
     layout->AddObject(label);
 	layout->AddObject( new TFlowLayoutBreak(layout) );

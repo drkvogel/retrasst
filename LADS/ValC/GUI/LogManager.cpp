@@ -7,10 +7,8 @@
 #include "AcquireCriticalSection.h"
 
 #include "LogManager.h"
-#include "GUImanager.h"
 #include "Utils.h"
-#include "LogForm.h"
-#include "Main.h"
+#include "TLogFrame.h"
 
 #pragma package(smart_init)
 
@@ -19,10 +17,6 @@
 
 std::string LogManager::FLAG_GUI = "<><>";
 std::string LogManager::FLAG_EXCEPTION = "/!\\ ";
-
-int LogManager::PURPOSE_BUSINESS_LAYER = 0;
-int LogManager::PURPOSE_GUI = 1;
-
 
 /** Initialises the logging of ValC. This includes setting up a logging service
   * (see paulst::LoggingService) that handles the threading of requests,
@@ -38,20 +32,11 @@ int LogManager::PURPOSE_GUI = 1;
   * @param m            a reference back to the main form
   * @param logWin       specifies whether a logging window is required or not
   */
-LogManager::LogManager(TMainForm *m, bool logWin)
-	: useWindow(logWin),
-	  mainForm(m)
+LogManager::LogManager(TLogFrame *m, const std::string& logFilePath)
 {
-	if (useWindow) {
-		loggingForm = new TloggingForm(m);    // the logging window
-	}
-
 	// now setting up the writer for text log file (and maybe GUI) output
 	GUIandLogWriter *logWriter
-		= new GUIandLogWriter(this,
-							  loggingForm->processNextMessage,
-							  &loggingForm->msgQueue,
-							  mainForm->config.get("logFile"));
+		= new GUIandLogWriter( m, logFilePath);
 
 	// now setting up the logging service used for writing log messages
 	// (logging service now owns logWriter and will delete it)
@@ -71,11 +56,7 @@ void LogManager::timestampLog()
 	UnicodeString u = t.FormatString("hh:mm");
 	logTimestamp = Utils::unicodestr2str(u);
 
-
-	if (useWindow) {
-		loggingForm->setTitle("Log [at time " + logTimestamp + "]");
-	}
-	logService->log("************************ Run at time: " + logTimestamp);
+	log("************************ Run at time: " + logTimestamp);
 }
 
 
@@ -88,7 +69,6 @@ LogManager::~LogManager()
 	// as this is owned by the logging service,
 	// which has responsibility for deleting it
 	delete logService;
-	delete loggingForm;
 }
 
 /** Sends the given message to the logging service (paulst::LoggingService),
@@ -117,7 +97,11 @@ void LogManager::logException(const std::string & msg)
 	log(s);
 }
 
-
+void LogManager::logException(const Exception& e)
+{
+    std::string msg = AnsiString( e.Message.c_str() ).c_str();
+    logException(msg);
+}
 
 
 //--------------- end LogManager class --------------------------------------
@@ -134,19 +118,12 @@ GUIandLogWriter::~GUIandLogWriter()
   * from said queue. Also creates a Writer object able to write to a text
   * log file.
   *
-  * @param logM       a reference to the log manager
-  * @param handle     a closure for the logging window's method that processes
-  *                   the next log message for display
-  * @param q          a reference to the message queue owned by the logging window
+  * @param q          a reference to the logging window
   * @param filename   the name of the text log file to write to
   */
-GUIandLogWriter::GUIandLogWriter(LogManager *logM,
-								 TThreadMethod handle,
-								 LogMessageQueue *q,
+GUIandLogWriter::GUIandLogWriter( TLogFrame *q,
 								 const std::string & filename)
-	: logMan(logM),
-	  handleNextLogMessage(handle),
-	  msgQueue(q)
+	: msgQueue(q)
 {
 	fileWriter = new paulst::FileWriter(filename);
 }
@@ -185,23 +162,12 @@ void GUIandLogWriter::write(const std::string & msg)
     }
 	fileWriter->write(m);  // writes to the log file, regardless
 
-	if (logMan->useWindow) {
-		// This portion of code makes use of the message queue kept
-		// by the logging form/window (to which msgQueue refers).
-		// First the message is added to the queue, with appropriate labels
-		// for display parameters, then a request to deal with the message
-		// is queued up on the main thread.
+    LabelledMessage lm;
+    lm.purpose = guiOrigin ? LabelledMessage::PURPOSE_GUI
+                           : LabelledMessage::PURPOSE_BUSINESS_LAYER;
+    lm.highlight = highlightingRequired;
+    lm.message = m;
 
-		LabelledMessage lm;
-		lm.purpose = guiOrigin ? LogManager::PURPOSE_GUI
-		                       : LogManager::PURPOSE_BUSINESS_LAYER;
-		lm.highlight = highlightingRequired;
-		lm.message = m;
-
-		msgQueue->addMsgToQ(lm);
-
-		TThread::Queue(NULL,handleNextLogMessage);
-	}
-
+    msgQueue->queueMessage(lm);
 }
 

@@ -56,7 +56,7 @@ int main( int argc, char **argv )
 	if ( ru->isValid() )
 	{
 		std::vector<std::string>	sty;
-		sty.push_back( "/main.css" );
+		sty.push_back( "main.css" );
 		ru->htmlBeginDoc( "Biobank PACS Information", sty );
 		ru->htmlBeginBody( );
 #ifndef _DEBUG

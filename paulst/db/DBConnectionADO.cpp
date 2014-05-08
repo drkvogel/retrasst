@@ -2,16 +2,17 @@
 #include "DBConnectionADO.h"
 #include "ComUtil.h"
 #include "CursorADO.h"
-
+#include "Require.h"
 
 
 namespace paulstdb
 {
 
 DBConnectionADO::DBConnectionADO( const std::string& conString, const std::string& sessionReadLockSettingStr )
-    : m_open(false)
+	: m_open(false)
 {
-    m_con = CoConnection::Create();
+	m_con = CoConnection::Create();
+	require( m_con );
 	WideString connectionString( conString.c_str() );// = L"dsn=paulst_test_on_brat;db=paulst_test";
 	WideString username, password;
 	HRESULT hr = m_con->Open( connectionString.c_bstr(), username.c_bstr(), password.c_bstr(), 0 );

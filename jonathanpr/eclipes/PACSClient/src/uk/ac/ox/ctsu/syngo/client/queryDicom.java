@@ -1,40 +1,10 @@
 package uk.ac.ox.ctsu.syngo.client;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.rmi.RemoteException;
-import java.security.InvalidKeyException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.TreeMap;
-import java.util.Vector;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.xml.stream.XMLStreamException;
-
-import com.icoserve.www.va20_keywordservice.VA20_KeywordServiceStub.DicomStudyKeywords;
-import com.icoserve.www.va20_keywordservice.VA20_KeywordServiceStub.KeywordInformation;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomDocumentFuzzySearchResult;
-import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomImage;
-import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomSeries;
-import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomStudy;
 
 //The java program queries syngo.share by looking in a defined set of Authority Units for new studies.
 //It finds out when it last did a scan, then retrieves ALL dicom studies from two weeks previous, adding
@@ -44,9 +14,9 @@ public class queryDicom
 {
 // The AU's to look at for new studies
 // "BIOBANK" 		- Where studies are placed once QA checked and is ready for downloading.
-// "BIOBANK_PSI" 	- Where studies are copied if something which needs following up.
-// "1K_SCANS" 		- Once the name is finalised, and in the system, it can be put in the list below
-	private static String[] AUList = {"BIOBANK","BIOBANK_PSI"};//,"1K_SCANS"};
+// "BIOBANK_PSI" 	- Where studies are copied if something which needs following up, add the lead radigraphs report to any in this.
+// "IF_*" 		    - THE First 1K go into this
+	private static String[] AUList = {"BIOBANK","IF_ABDO","IF_CARDIAC","IF_DEXA","IF_NEURO"};//,"BIOBANK_PSI"};
 
 	private static database m_db = null;
 	private static String m_patientID = null;
@@ -120,39 +90,36 @@ public class queryDicom
 						//try and match the dicom id's to what we are expecting. If we do, filled in the confirmed
 						//id, either way, we add it to the pacsstudy database.
 						String []patientID = new String[2];
-						String []firstname = new String[2];
+						String []name = new String[2];
 						
 						patientID[0] = "";
-						firstname[0] = "";
+						name[0] = "";
 						patientID[1] = "";
-						firstname[1] = "";
+						name[1] = "";
 											
 						patientID[0] = DicomStudyResults[i].getPatient().getPatientId();
-						firstname[0] = DicomStudyResults[i].getPatient().getFirstName();
+						name[0] = DicomStudyResults[i].getPatient().getFirstName();
 						
 						if (patientID[0] == null) //these above return null if no value :(
 							patientID[0] = "";
-						if (firstname[0] == null) //these above return null if no value :(
-							firstname[0] = "";
+						if (name[0] == null) //these above return null if no value :(
+							name[0] = "";
 						
-						if (firstname[0].isEmpty())
-							firstname[0] = DicomStudyResults[i].getPatient().getLastName();
-						if (firstname[0] == null) //these above return null if no value :(
-							firstname[0] = "";
+						if (name[0].isEmpty())
+							name[0] = DicomStudyResults[i].getPatient().getLastName();
+						if (name[0] == null) //these above return null if no value :(
+							name[0] = "";
 						
-						m_db.hasMatchOnPatientID(patientID,firstname);
+						m_db.hasMatchOnPatientID(patientID,name);
 						
-						if (!patientID[1].isEmpty()) 
-							firstname[0]= firstname[1]; 			
-							
+						Calendar InsertDate = DicomStudyResults[i].getDocument().getInsertionDate();  
 						Long patientpk = DicomStudyResults[i].getPatient().getId();
 						Calendar StudyDate = DicomStudyResults[i].getDocument().getDocumentCreatedWhen(); //check this	
 						String studyUid = DicomStudyResults[i].getDicomStudy().getStudyInstanceUid();
 						String AET = DicomStudyResults[i].getDicomStudy().getCallingAet();
-
 						String Modalities = DicomStudyResults[i].getDicomStudy().getAllModalities();			
 											
-						db_pacsstudy sr = db_pacsstudy.instance(m_db, studyPK, patientpk, patientID[0], patientID[1], firstname[0],StudyDate, studyUid, AET, AU, Modalities);
+						db_pacsstudy sr = db_pacsstudy.instance(m_db, studyPK, patientpk, patientID[0], patientID[1], name[0],name[1],StudyDate, InsertDate,studyUid, AET, AU, Modalities);
 						sr.insert();
 					}
 					catch(Exception e)
@@ -217,7 +184,6 @@ public class queryDicom
 		return lastUpdate;
 	}
 }
-
 
 
 

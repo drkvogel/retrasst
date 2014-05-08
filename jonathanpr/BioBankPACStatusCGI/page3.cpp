@@ -121,6 +121,7 @@ void page3::sendQuestions( )
 	std::cout << "<SCRIPT type=\"text/javascript\">";
 
 	std::cout << 	"	function convertFromHex(hex) {";
+
 	std::cout << 	"	var hex = hex.toString(); var str = '';";
 	std::cout << 	"	for (var i = 0; i < hex.length; i += 2)  ";
 	std::cout << 	"		str += String.fromCharCode(parseInt(hex.substr(i, 2), 16)); ";
@@ -132,13 +133,13 @@ void page3::sendQuestions( )
 	std::cout <<      	"$('#HidFN' + invalue).slideDown();";
 	std::cout <<      	"$('#HidCEN' + invalue).slideDown();";
 	std::cout <<      	"$('#But' + invalue).val('Cancel');";
-	std::cout <<      	"$('#ButIngore' + invalue).fadeIn();}";
+	std::cout <<      	"$('#ButIgnore' + invalue).fadeIn();}";
 	std::cout <<      "else {";
 	std::cout <<      	"$('#HidPID' + invalue).slideUp();";
 	std::cout <<      	"$('#HidFN' + invalue).slideUp();";
 	std::cout <<      	"$('#HidCEN' + invalue).slideUp();";
 	std::cout <<   	  	"$('#But' + invalue).val('Update Details');";
-	std::cout <<    	"$('#ButIngore' + invalue).fadeOut();}";
+	std::cout <<    	"$('#ButIgnore' + invalue).fadeOut();}";
 	std::cout <<      "}";
 
 	std::cout << "function gettd(){";
@@ -154,27 +155,32 @@ void page3::sendQuestions( )
 	std::cout <<      "if (oldstate) {   ";
 	std::cout <<      	"$('#error').hide(); ";
 	std::cout <<    	  "$('#But' + invalue).val('Update Details');";
-	std::cout <<    	  "$('#ButIngore' + invalue).fadeOut();";
+	std::cout <<    	  "$('#ButIgnore' + invalue).fadeOut();";
 	std::cout <<      "} else  {    ";
 	std::cout <<     	  "$('#But' + invalue).val('cancel');";
-	std::cout <<    	  "$('#ButIngore' + invalue).fadeIn();";
+	std::cout <<    	  "$('#ButIgnore' + invalue).fadeIn();";
 	std::cout <<      "}";
 	std::cout <<      " }";
 
-	std::cout << "function ingoreClicked(invalue,td){";
-	std::cout << 		"var r=confirm('Are you sure you want to ignore this study? It will no longer be processed'); ";
-	std::cout << 		"	if (r==true) {";
- 	std::cout <<      	"$('#error').hide(); ";
+	std::cout << "function ignoreClicked(invalue,td){\n";
+	std::cout << "  var r=confirm('Are you sure you want to ignore this study? It will no longer be processed'); \n";
+	std::cout << "  if (r==true) {\n";
+	std::cout << "    $('#error').hide(); \n";
 
-	std::cout <<		"$.get('psicgi.cgi', { mode: 'ingoreStudy', pk: + invalue, tk: td } )";
-	std::cout <<		 ".done(function( data ){";
-	std::cout <<		 	"var res = data.substr('<HTML><BODY>'.length,data.length - ('</BODY></HTML>'.length + '<HTML><BODY>'.length +2));\n";
-	std::cout <<		 	"res = convertFromHex(res.trim()).trim();"; //update HTML status here
-	std::cout << 			"if (res != \"OK\") {$('#error').html(res); $('#error').show(); return;} else {$('#error').hide(); }";
-	std::cout <<		 	"showEditDetails(invalue,false);";
-	std::cout <<			"$('#statustext' + invalue).text('INGORED'); ";
-	std::cout <<		 	"})";
-	std::cout <<		 ".fail(function() { alert('error, please try again');})";
+	std::cout << "    $.get('psicgi.cgi', { mode: 'ignoreStudy', pk: + invalue, tk: td } )\n";
+	std::cout << "    .done(function( data ){\n";
+
+	std::cout << "    var bodyStart = data.indexOf('<BODY>') + '<BODY>'.length;\n";
+	std::cout << "    var bodyEnd = data.indexOf('</BODY>');\n";
+	std::cout << "    var bodyText = data.substring(bodyStart,bodyEnd);\n";
+	std::cout << "    var res = convertFromHex(bodyText.trim()).trim();\n";
+
+	std::cout << "    if (res != \"OK\") {\n";
+	std::cout << "      $('#error').html(res);\n      $('#error').show(); return;} else {$('#error').hide(); }";
+	std::cout << "			 showEditDetails(invalue,false);";
+	std::cout << "			$('#statustext' + invalue).text('IGNORED'); ";
+	std::cout << "			 })";
+	std::cout << " 		.fail(function() { alert('error, please try again');})";
 
 	std::cout <<		"} ";
 //	std::cout << 		"	else {alert('You pressed Cancel!');} ";
@@ -187,9 +193,11 @@ void page3::sendQuestions( )
 	std::cout <<		"var newFN = $('#newfntext' + invalue).val(); ";
 	std::cout <<		"$.get('psicgi.cgi', { mode: 'updateStudy', pk: invalue, pid: newPID, fn: newFN, tk: td  } )";
 	std::cout <<		 ".done(function( data ){";
-	std::cout <<		 	"var res = data.substr('<HTML><BODY>'.length,data.length - ('</BODY></HTML>'.length + '<HTML><BODY>'.length + 2 ));\n";
 
-	std::cout <<		 	"res = convertFromHex(res.trim()).trim();";
+	std::cout << "    var bodyStart = data.indexOf('<BODY>') + '<BODY>'.length;\n";
+	std::cout << "    var bodyEnd = data.indexOf('</BODY>');\n";
+	std::cout << "    var bodyText = data.substring(bodyStart,bodyEnd);\n";
+	std::cout << "    var res = convertFromHex(bodyText.trim()).trim();\n";
 
 	std::cout << " 		if (res != \"OK\") {$('#error').html(res); $('#error').show(); return;} else {$('#error').hide(); }";
 
@@ -280,8 +288,8 @@ void page3::sendQuestions( )
 
 			std::cout << 	"<td >";
 			std::cout <<       "<input type='button' value='Update Details' id='But" << (*it).getStudypk() << "' onclick='editClicked("<< (*it).getStudypk() << ")'>";
-			std::cout <<       "<input type='button' value='Ignore' id='ButIngore" << (*it).getStudypk() << "' onclick='ingoreClicked("<< (*it).getStudypk() << " , gettd() )'>";   //
-			std::cout << 		"<script> $('#ButIngore" << (*it).getStudypk() << "').hide();</script>";
+			std::cout <<       "<input type='button' value='Ignore' id='ButIgnore" << (*it).getStudypk() << "' onclick='ignoreClicked("<< (*it).getStudypk() << " , gettd() )'>";   //
+			std::cout << 		"<script> $('#ButIgnore" << (*it).getStudypk() << "').hide();</script>";
 			std::cout  <<   "</td>";
 			std::cout << 	"</tr>";
 		}

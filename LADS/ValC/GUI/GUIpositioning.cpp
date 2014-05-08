@@ -4,12 +4,12 @@
 #pragma hdrstop
 //---------------------------------------------------------------------------
 
-#include "Utils.h"
+#include "GUImanager.h"
 #include "GUIpositioning.h"
 #include "InfoPanels.h"
+#include "TSnapshotFrame.h"
+#include "Utils.h"
 #include "VisualComponents.h"
-#include "GUImanager.h"
-#include "Main.h"
 
 #pragma package(smart_init)
 

@@ -32,7 +32,7 @@ void __fastcall TfrmSelectJob::FormShow( TObject *Sender ) {
 	grdJobs->ColWidths[ JOB_NAME ] = colWidth;
 	grdJobs->ColWidths[ EXERCISE ] = colWidth;
 	grdJobs->ColWidths[ DESCRIPTION ] = colWidth * 2;
-	int allocated = colWidth * 4 + 24;
+	int allocated = colWidth * 4 + 26;
 	grdJobs->ColWidths[ START_DATE ] = grdJobs->Width - allocated;
 	ActiveControl = grdJobs;
 }

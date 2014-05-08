@@ -84,12 +84,11 @@ void TfrmBoxList::init( const LCDbProject *selected ) {
 	} else {
 		projList.setCurrent( *selected );
 	}
-	String projName;
-	if( selected != NULL ) {
-		projName = selected->getName( ).c_str( );
+	if( selected == NULL ) {
+		cbProject->Text = "";
+	} else {
+		cbProject->Text = selected->getName().c_str();
 	}
-	cbProject->Text = projName;
-
 	analyses.restart( );
 	listBoxTypes( );
 	listBoxNames( );
@@ -101,16 +100,17 @@ void TfrmBoxList::init( const LCDbProject *selected ) {
 //---------------------------------------------------------------------------
 
 void TfrmBoxList::listBoxTypes( ) {
-	types.clear( );
 	int row = 1;
-	for( Range< LPDbBoxType >tr = LPDbBoxTypes::records( ); tr.isValid( ); ++tr ) {
-		if( tr->getUse() == LPDbBoxType::SHORT_TERM || tr->getUse( ) == LPDbBoxType::LONG_TERM ) {
-			sgBoxTypes->Cells[ TYPE ][ row ] = tr->getName().c_str();
-			sgBoxTypes->Cells[ COUNT ][ row ] = tr->getExpectedUses();
+	types.clear();
+	for( const LPDbBoxType & tr : LPDbBoxTypes::records() ) {
+		if( (tr.getUse() == LPDbBoxType::SHORT_TERM || tr.getUse() == LPDbBoxType::LONG_TERM)
+		 && (tr.getProjectCID() == 0 || tr.getProjectCID() == LCDbProjects::getCurrentID()) ) {
+			sgBoxTypes->Cells[ TYPE ][ row ] = tr.getName().c_str();
+			sgBoxTypes->Cells[ COUNT ][ row ] = tr.getExpectedUses();
 			sgBoxTypes->Cells[ PLUS ][ row ] = "+";
 			sgBoxTypes->Cells[ MINUS ][ row ] = "-";
-			types.push_back( *tr );
 			row ++;
+			types.push_back( tr );
 		}
 	}
 	if( row == 1 ) {
@@ -127,17 +127,18 @@ void TfrmBoxList::listBoxTypes( ) {
 //---------------------------------------------------------------------------
 
 void TfrmBoxList::listBoxNames( ) {
-	std::set< int >typeIDs;
-	for( std::vector< BoxType >::const_iterator ti = types.begin( ); ti != types.end( ); ++ti ) {
-		if( ti->selected ) {
-			typeIDs.insert( ti->getID( ) );
-		}
-	}
 	int row = 1;
-	if( boxes.readFilled( LIMSDatabase::getProjectDb() ) ) {
-		for( Range< LPDbBoxName >br = boxes; br.isValid( ); ++br ) {
-			if( typeIDs.count( br->getTypeID( ) ) != 0 ) {
-				sgBoxNames->Cells[ 0 ][ row ++ ] = br->getName( ).c_str( );
+	const LCDbProject * p = LCDbProjects::records().findByID( LCDbProjects::getCurrentID() );
+	if( p != NULL && boxes.readFilled( LIMSDatabase::getProjectDb( p->getDbName() ) ) ) {
+		std::set< int >typeIDs;
+		for( const BoxType & ti : types ) {
+			if( ti.selected ) {
+				typeIDs.insert( ti.getID( ) );
+			}
+		}
+		for( const LPDbBoxName& br : boxes ) {
+			if( typeIDs.count( br.getTypeID( ) ) != 0 ) {
+				sgBoxNames->Cells[ 0 ][ row ++ ] = br.getName( ).c_str( );
 			}
 		}
 	}
@@ -569,7 +570,7 @@ void __fastcall TfrmBoxList::sgBoxNamesFixedCellClick( TObject *Sender, int ACol
 void __fastcall TfrmBoxList::FormResize(TObject *Sender)
 {
 	sgBoxTypes->DefaultColWidth = 19;
-	sgBoxTypes->ColWidths[ TYPE ] = 120;
+	sgBoxTypes->ColWidths[ TYPE ] = 122;
 	sgBoxNames->ColWidths[ 1 ] = 70;
 	sgBoxNames->ColWidths[ 0 ] = sgBoxNames->Width - 92;
 }

@@ -5,7 +5,7 @@ object frmLoginBase: TfrmLoginBase
   BorderStyle = bsDialog
   Caption = 'Labs System Login'
   ClientHeight = 320
-  ClientWidth = 325
+  ClientWidth = 330
   Color = 12316364
   Constraints.MaxHeight = 400
   Constraints.MaxWidth = 400
@@ -22,8 +22,8 @@ object frmLoginBase: TfrmLoginBase
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel
-    Left = 49
-    Top = 139
+    Left = 48
+    Top = 147
     Width = 55
     Height = 13
     Caption = 'User name:'
@@ -45,15 +45,15 @@ object frmLoginBase: TfrmLoginBase
     OnMouseLeave = versionMouseLeave
   end
   object Label3: TLabel
-    Left = 49
-    Top = 183
+    Left = 48
+    Top = 191
     Width = 50
     Height = 13
     Caption = 'Password:'
   end
   object exitButton: TBitBtn
-    Left = 179
-    Top = 244
+    Left = 180
+    Top = 252
     Width = 108
     Height = 38
     Caption = '&Close'
@@ -63,8 +63,8 @@ object frmLoginBase: TfrmLoginBase
     OnClick = exitButtonClick
   end
   object okButton: TBitBtn
-    Left = 28
-    Top = 244
+    Left = 41
+    Top = 252
     Width = 108
     Height = 38
     Caption = '&OK (log in)'
@@ -76,8 +76,8 @@ object frmLoginBase: TfrmLoginBase
   end
   object userList: TComboBox
     Left = 122
-    Top = 135
-    Width = 148
+    Top = 143
+    Width = 160
     Height = 21
     DropDownCount = 20
     Enabled = False
@@ -86,9 +86,9 @@ object frmLoginBase: TfrmLoginBase
     OnChange = textChange
   end
   object rgDatabase: TRadioGroup
-    Left = 28
+    Left = 46
     Top = 56
-    Width = 259
+    Width = 238
     Height = 42
     Columns = 3
     Items.Strings = (
@@ -101,8 +101,8 @@ object frmLoginBase: TfrmLoginBase
   end
   object ebPassword: TEdit
     Left = 122
-    Top = 180
-    Width = 148
+    Top = 187
+    Width = 160
     Height = 21
     Enabled = False
     PasswordChar = '*'
@@ -112,7 +112,7 @@ object frmLoginBase: TfrmLoginBase
   object timer: TTimer
     Interval = 1200
     OnTimer = initialise
-    Left = 264
+    Left = 280
     Top = 16
   end
 end

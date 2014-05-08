@@ -170,7 +170,7 @@ public:
 	void analiseForDatabaseUpdates(TMemo *Memo,const std::string &project_cid);
 	void getAvalibleBoxesForReBox(const std::string &project_cid,const std::string &aliquot,std::map<std::string, std::map<std::string,std::string> > &returnInfo);
 
-	void createRetrievalList(const std::string &external_name,const std::string &description, const std::string &c_project_cid, const std::string &c_aliquot_cid,const std::string &reboxType,TProgressBar *ProgressBar,const std::string &exercise_cid);
+	void createRetrievalList(const std::string &external_name,const std::string &description, const std::string &c_project_cid,const std::string &reason, const std::string &c_aliquot_cid,const std::string &reboxType,TProgressBar *ProgressBar,const std::string &exercise_cid);
 	void signIn(const std::string &userName,std::string &password,operatorSignedIn &OperatorSignedIn);
 	void LIMSSignIn(const std::string &userID,operatorSignedIn &OperatorSignedIn);
 

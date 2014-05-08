@@ -4,15 +4,16 @@ object frmRatTanksBoxSelection: TfrmRatTanksBoxSelection
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'Multiple Box types found'
-  ClientHeight = 262
+  ClientHeight = 259
   ClientWidth = 495
-  Color = clBtnFace
+  Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poOwnerFormCenter
   OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
@@ -47,8 +48,8 @@ object frmRatTanksBoxSelection: TfrmRatTanksBoxSelection
   object GroupBox1: TGroupBox
     Left = 0
     Top = 71
-    Width = 249
-    Height = 147
+    Width = 247
+    Height = 138
     TabOrder = 1
     object Label2: TLabel
       Left = 40
@@ -77,15 +78,15 @@ object frmRatTanksBoxSelection: TfrmRatTanksBoxSelection
   object GroupBox2: TGroupBox
     Left = 248
     Top = 71
-    Width = 249
-    Height = 147
+    Width = 247
+    Height = 138
     TabOrder = 2
     object Label3: TLabel
       Left = 40
       Top = 58
-      Width = 160
+      Width = 159
       Height = 26
-      Caption = 'Lets just rationalise boxes of the type below:'
+      Caption = 'Let'#39's just rationalise boxes of the type below:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11

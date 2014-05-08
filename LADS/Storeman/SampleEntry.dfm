@@ -48,9 +48,9 @@ object frmRetrieveMain: TfrmRetrieveMain
   object Label3: TLabel
     Left = 608
     Top = 83
-    Width = 47
+    Width = 63
     Height = 13
-    Caption = 'Box type:'
+    Caption = 'Output type:'
   end
   object grdSamples: TStringGrid
     Left = 8
@@ -69,8 +69,8 @@ object frmRetrieveMain: TfrmRetrieveMain
   object btnAddFile: TButton
     Left = 8
     Top = 128
-    Width = 97
-    Height = 34
+    Width = 105
+    Height = 32
     Caption = 'Add from file'
     Enabled = False
     TabOrder = 4
@@ -79,8 +79,8 @@ object frmRetrieveMain: TfrmRetrieveMain
   object btnLocate: TButton
     Left = 300
     Top = 128
-    Width = 97
-    Height = 34
+    Width = 105
+    Height = 32
     Caption = 'Check location'
     Enabled = False
     TabOrder = 6
@@ -142,8 +142,8 @@ object frmRetrieveMain: TfrmRetrieveMain
   object btnDestination: TButton
     Left = 447
     Top = 128
-    Width = 97
-    Height = 34
+    Width = 105
+    Height = 32
     Caption = 'Set destination'
     Enabled = False
     TabOrder = 7
@@ -161,8 +161,8 @@ object frmRetrieveMain: TfrmRetrieveMain
   object btnAddRecords: TButton
     Left = 154
     Top = 128
-    Width = 97
-    Height = 34
+    Width = 105
+    Height = 32
     Caption = 'Add specimens'
     Enabled = False
     TabOrder = 5
@@ -170,18 +170,18 @@ object frmRetrieveMain: TfrmRetrieveMain
   object btnSaveList: TButton
     Left = 740
     Top = 128
-    Width = 96
-    Height = 34
+    Width = 105
+    Height = 32
     Caption = 'Create list'
     Enabled = False
     TabOrder = 8
     OnClick = btnSaveListClick
   end
   object btnClrSort: TButton
-    Left = 964
+    Left = 956
     Top = 128
-    Width = 96
-    Height = 34
+    Width = 105
+    Height = 32
     Caption = 'Unsort'
     TabOrder = 12
     OnClick = btnClrSortClick
@@ -189,15 +189,15 @@ object frmRetrieveMain: TfrmRetrieveMain
   object btnNewContent: TButton
     Left = 593
     Top = 128
-    Width = 96
-    Height = 34
-    Caption = 'Add Box Type'
+    Width = 105
+    Height = 32
+    Caption = 'Add Output Type'
     Enabled = False
     TabOrder = 13
     OnClick = btnNewContentClick
   end
   object cbBoxType: TComboBox
-    Left = 671
+    Left = 680
     Top = 80
     Width = 165
     Height = 21

@@ -114,7 +114,7 @@ bool LPDbBoxType::save( const std::string & table, LQuery & query ) {
 	} else {
 		query.setSQL( "Insert into " + table + " (box_type_cid, external_name, description, status,"
 					  " box_size_cid, box_order, aliquot_type1, aliquot_type2, aliquot_type3, box_set_link)"
-					  " values ( :cid, :nam, :desc, :sts, :eu, :bs, :ord, :at1, :at2, :at3, :lnk )" );
+					  " values ( :cid, :nam, :desc, :sts, :bs, :ord, :at1, :at2, :at3, :lnk )" );
 	}
 	query.setParam( "nam", getName() );
 	query.setParam( "desc", getDescription() );

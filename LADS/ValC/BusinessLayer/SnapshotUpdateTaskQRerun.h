@@ -39,7 +39,7 @@ public:
         CloseHandle( m_dbUpdateCallbackEvent );
     }
 
-    void notify( DBTransactionRerun& dbt )  volatile
+    void notify( DBTransactionRerun& dbt )  
     {
         if ( dbt.success )
             m_newWorklistID = dbt.newWorklistID;

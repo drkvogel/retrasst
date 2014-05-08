@@ -450,6 +450,7 @@ void Tank::populate( ) {
 void Tank::loadTankDetails( ) {
 	const LCDbObjects & names = LCDbObjects::records( );
 	bool online = false;
+	history.clear();
 	std::vector < ROSETTA > mapping;
 	StoreDAO( ).loadTankDetails( id, mapping );
 	int best = -1;
@@ -474,7 +475,13 @@ void Tank::loadTankDetails( ) {
 			if( type != NULL ) {
 				detail << ": " << type->getName( );
 			}
-			history.insert( { population.getValidFrom(), detail.str() } );
+			if( EPOCH_START < population.getValidFrom() && EPOCH_END > population.getValidFrom() ) {
+				std::pair< int, std::string > inst( population.getValidFrom(), detail.str() );
+				auto previous = history.find( inst.first );
+				if( previous == history.end() || previous->second != inst.second ) {
+					history.insert( inst );
+				}
+			}
 		}
 	}
 	if( best >= 0 ) {
@@ -744,7 +751,7 @@ bool Layout:: operator < ( const IPart& rhs ) const {
 // fill in dates if necessary
 void Layout::setAvailability( bool online ) {
 	TDateTime change = Now( );
-	if( EPOCH_START < valid_from || valid_from > change ) {
+	if( EPOCH_START >= valid_from || valid_from > change ) {
 		valid_from = change;
 	}
 	if( online ) {
@@ -752,7 +759,7 @@ void Layout::setAvailability( bool online ) {
 		valid_to = 0;
 	} else {
 		status = LCDbTankMap::OFFLINE;
-		if( EPOCH_START < valid_to || valid_to > change ) {
+		if( EPOCH_START >= valid_to || valid_to > change ) {
 			valid_to = change;
 		}
 	}
@@ -1368,7 +1375,8 @@ void Box::populate( ) {
 	}
 
 	// list previous positions of this box, if available
-	dao.loadBoxHistory( id, results );
+	history.clear();
+	dao.loadBoxHistory( id, project_cid, results );
 	for( const ROSETTA & hi : results ) {
 		TDateTime when = hi.getTime( "time_stamp" ).outputTDateTime( );
 		std::stringstream detail;
@@ -1544,6 +1552,7 @@ void Sample::populate( ) {
 	std::vector < ROSETTA > results;
 	StoreDAO dao;
 	// add history; analysis before storage if the same day
+	history.clear();
 	dao.loadAnalysisHistory( name, aliquot_type, project_cid, results );
 	for( const ROSETTA & hi : results ) {
 		std::stringstream detail;

@@ -17,14 +17,20 @@ push @buildArgs, $project;
 push @buildArgs, "/p:Config=$config";
 push @buildArgs, "/t:$target";
 push @buildArgs, "/verbosity:diagnostic";
-system("$ENV{FrameworkDir}/MSBuild.exe", @buildArgs) == 0 or die "Failed to build: $!";
+my $builtOK = system("$ENV{FrameworkDir}/MSBuild.exe", @buildArgs) == 0;
 
-my $exe = $project;
-$exe =~ s/cbproj/exe/;
+print "[return] to continue...\n";
+<STDIN>;
 
-print "Running $exe...\n";
+if ( $builtOK ) {
 
-system("Win64/$config/$exe"); 
+    my $exe = $project;
+    $exe =~ s/cbproj/exe/;
+
+    print "Running $exe...\n";
+
+    system("Win64/$config/$exe"); 
+}
 
 1;
 

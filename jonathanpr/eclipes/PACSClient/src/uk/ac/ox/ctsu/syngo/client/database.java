@@ -16,18 +16,23 @@ import java.util.Calendar;
 
 public class database
 {	
-	//SET THIS TO TRUE IF YOU ARE RUNNING FROM YOU LOCAL MACHINE. SET TO FALSE WHEN COMPILING AND RUNNING FROM LINUX.
-	static final boolean LINUX = false;
+
+	//bb5/local settings!!!!!!!!!!
+/*
+	static final boolean LINUX = true; // true on bb5, false if desktop machine 
+*/
+	//Standard Ingres Port
+	private static String    	Port = "II7"; // "IJ7" for sharon, "II7" for Jonathan/bb5
+//	private static String    	Port = "IJ7"; // "IJ7" for sharon, "II7" for Jonathan/bb5
+
+	static final boolean 		LINUX = false; // true on bb5, false if desktop machine 
 
 	private static String     	Host_JonMachine = "localhost";
 	private static String     	bb5_Host_Linux = "bb5.ctsu.ox.ac.uk";
 
-//Standard Ingres Port
-	private static String    	Port = "II7";
 
 //VNode names on my local machine to BB5, users extract (biocore_pacs table) and biocore (ice tables)	
 	private static String       bb5_vnode_biocore = "biocore_bb5";
-	private static String       bb5_vnode_extract = "bb5_extract";
 	
 //The databases
 	private static String 		bb5_db_ace_ice_live = "ace_ice_live";
@@ -36,7 +41,7 @@ public class database
 	private static String 		bb5_db_extract_pacs_ddb = "biocore_pacs_ddb/star";
 
 //The combined connection information used on my local machine	
-	private static String    	bb5_ace_ice_live_JonMachine = "jdbc:ingres://" +  Host_JonMachine + ":" + Port + "/" + bb5_vnode_biocore + "::" + bb5_db_ace_ice_live; 
+ 	private static String    	bb5_ace_ice_live_JonMachine = "jdbc:ingres://" +  Host_JonMachine + ":" + Port + "/" + bb5_vnode_biocore + "::" + bb5_db_ace_ice_live; 
 	private static String    	bb5_ace_trove_live_JonMachine = "jdbc:ingres://" +  Host_JonMachine + ":" + Port + "/" + bb5_vnode_biocore + "::" + bb5_db_ace_trove_live; 
 	private static String    	bb5_extract_pacs_live_JonMachine = "jdbc:ingres://" +  Host_JonMachine + ":" + Port + "/" + bb5_vnode_biocore + "::" + bb5_db_extract_pacs_live; 
 	private static String    	bb5_extract_pacs_ddb_JonMachine = "jdbc:ingres://" +  Host_JonMachine + ":" + Port + "/" + bb5_vnode_biocore + "::" + bb5_db_extract_pacs_ddb; 
@@ -66,7 +71,7 @@ public class database
 	*                                       PUBLIC FUNCTIONS							*
 	************************************************************************************/
 	
-//Instance the database extract_pacs_ddb on BB5	
+// Produce an instance of the database connection to extract_pacs_ddb on BB5	
  	public static database instancebb5_extract_pacs_ddb() throws Exception
  	{
  		if (m_bb5_extract_pacs_ddb!=null)
@@ -152,7 +157,9 @@ public class database
 		String query = "UPDATE cronstatus set ";
 		
 		if (start)
-			query += " started = ? WHERE name = ?";
+			query += " started = ? WHERE name = ?";  // ? is like %s in printf,
+		                                             // look up prepareStatement,
+		                                             // useful for running similar SQL statements
 		else
 			query += " finished = ? WHERE name = ?";
 
@@ -209,7 +216,7 @@ public class database
 		}
 	}
 	
-	//Helper function to insert an entry into the lastrun time of the CRON job which scans the PACS for new scans.
+	//Helper function (used by all the cron programs) to insert an entry into the lastrun time of the CRON job which scans the PACS for new scans.
 	public boolean insertLastUpdate(Calendar lastUpdate) throws SQLException
 	{
 		String query = "INSERT INTO dicomdownloader (lastdownload) VALUES (?)"; 			
@@ -236,6 +243,8 @@ public class database
 		}
 	}
 	
+	// (wrt dicom key pair, used in four or so programs)
+	
 	//checks to see if we have exact matches on either patientid and/or firstname from the DICOM into the table biobankparticipant.
 	//biobankparticipant gets it's information from ICE.
 	//pass in two arrays of two strings, first entry in each array filled with the required field.
@@ -243,6 +252,8 @@ public class database
 	//It also returns an int which is the true ID of this participant in ICE, which can be used to look up clinical information.
 	public int hasMatchOnPatientID(String []PatientID, String []FirstName) throws Exception
 	{	
+		String NoSpacePatientID = "";
+		String NoSpaceName = "";
 		PatientID[1] = "";
 		FirstName[1] = "";
 		//if both are empty or null don't even bother looking anything up.
@@ -250,27 +261,26 @@ public class database
 			return 0;
 		
 		//The initial test data came through with spaces between every other letter. These need stripping out.
-		PatientID[0] = PatientID[0].replaceAll("\\s","");
-		FirstName[0] = FirstName[0].replaceAll("\\s","");
+		NoSpacePatientID = PatientID[0].replaceAll("\\s","");
+		NoSpaceName = FirstName[0].replaceAll("\\s","");
 
 		//if neither are 8 in length, then we know there won't be any matches
-		if ((PatientID[0].length() != 8) && (FirstName[0].length() != 8))
+		if ((NoSpacePatientID.length() != 8) && (NoSpaceName.length() != 8))
 			return 0;
 
 //  Firstname was the reverse of the patientid, this seams no longer the case, left commented out, as this may change	
 //		FirstName = new StringBuilder(FirstName).reverse().toString();
-
-		if (PatientID[1] == null) PatientID[1] = "";
-		if (FirstName[1] == null) FirstName[1] = "";
+//		if (PatientID[1] == null) PatientID[1] = "";
+//		if (FirstName[1] == null) FirstName[1] = "";
 		
 		String sql = "SELECT dicomparticipantid,firstnameid,pid FROM biobankparticipant WHERE";
 		
 		if (PatientID[0].isEmpty())
-			sql += " firstnameid = '" + FirstName[0] + "'";
+			sql += " firstnameid = '" + NoSpaceName + "'";
 		else if (FirstName[0].isEmpty())
-			sql += " dicomparticipantid = '" + PatientID[0] + "'";
+			sql += " dicomparticipantid = '" + NoSpacePatientID + "'";
 		else
-			sql += " dicomparticipantid = '" + PatientID[0] + "' OR firstnameid = '" + FirstName[0] + "'";
+			sql += " dicomparticipantid = '" + NoSpacePatientID + "' OR firstnameid = '" + NoSpaceName + "'";
 		
 		ResultSet result = null;
 		int realPID = 0;
@@ -295,17 +305,50 @@ public class database
 		return realPID;
 	}
 	
+	public int getPatientPid(String PatientID, String FirstName) throws Exception
+	{	
+		//The initial test data came through with spaces between every other letter. These need stripping out.
+		PatientID = PatientID.replaceAll("\\s","");
+		FirstName = FirstName.replaceAll("\\s","");
+
+		String sql = "SELECT pid FROM biobankparticipant WHERE";
+		
+		if (PatientID.isEmpty())
+			sql += " firstnameid = '" + FirstName + "'";
+		else if (FirstName.isEmpty())
+			sql += " dicomparticipantid = '" + PatientID + "'";
+		else
+			sql += " dicomparticipantid = '" + PatientID + "' OR firstnameid = '" + FirstName + "'";
+		
+		ResultSet result = null;
+		int realPID = 0;
+		try
+		{
+			result = m_stmt.executeQuery(sql);
+			if (result.next())
+			{	
+				realPID = result.getInt("pid"); 
+			}
+		}
+		finally
+		{
+			if (result!=null)
+				result.close();
+		}	
+		return realPID;
+	}
+	
 	/************************************************************************************
 	*                                       PRIVATE FUNCTIONS							*
 	*************************************************************************************/	
- //Does the work and creates the database
+// Does the work and creates the connections for the database
 	private database(String Url) throws Exception
 	{
         try
 		{
 			Class.forName( "com.ingres.jdbc.IngresDriver" ).newInstance();
 	        m_conn = DriverManager.getConnection(Url);
-	    	m_stmt = m_conn.createStatement();  
+	        m_stmt = m_conn.createStatement();  
 		}
 		catch (InstantiationException e)
 		{

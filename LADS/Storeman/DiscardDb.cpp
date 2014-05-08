@@ -168,7 +168,7 @@ void Db::addJobnos( IntVec * jobnos, const int dbcrstatus ) const {
             "  JOIN CRYOVIAL C"
             "  ON 1=1"
             "  AND C.sample_id = S.sample_id"
-            "  LEFT JOIN CRYOVIAL_STORE CS"
+			"  LEFT JOIN CRYOVIAL_STORE CS"
             "  ON 1=1"
             "  AND CS.cryovial_id = C.cryovial_id"
             "  WHERE 1=1"
@@ -250,21 +250,19 @@ void Db::addSamples( SampleVec * samples, const Cryovial & cryovial ) const {
         "  , " + pfterm + " person_id";
     sql +=
         "  FROM SPECIMEN S"
-        "  JOIN CRYOVIAL C"
-        "  ON 1=1"
-        "  AND C.sample_id = S.sample_id"
-        "  LEFT JOIN CRYOVIAL_STORE CS"
-        "  ON 1=1"
-        "  AND CS.cryovial_id = C.cryovial_id"
-        "  WHERE 1=1"
-        "  AND C.cryovial_barcode = :barcode"
-        "  AND S.status <> :deleted"
-        "  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
-        ;
+		"  JOIN CRYOVIAL C ON C.sample_id = S.sample_id"
+		"  JOIN CRYOVIAL_STORE CS ON CS.cryovial_id = C.cryovial_id"
+		"  WHERE C.cryovial_barcode = :barcode"
+		"  AND CS.status NOT IN (:deleted, :removed, :analysed, :transferred)"
+		"  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
+		;
 
-    m_pq->setSQL(sql.c_str());
-    m_pq->setParam("barcode", cryovial.getName().c_str());
-    m_pq->setParam("deleted", LPDbCryovial::DELETED);
+	m_pq->setSQL(sql.c_str());
+	m_pq->setParam("barcode", cryovial.getName().c_str());
+	m_pq->setParam("deleted", LPDbCryovialStore::DELETED);
+	m_pq->setParam("analysed", LPDbCryovialStore::ANALYSED);
+	m_pq->setParam("transferred", LPDbCryovialStore::TRANSFERRED);
+	m_pq->setParam("removed", LPDbCryovialStore::DESTROYED);
 
     SampleVec mysamples;
     addSamples(&mysamples);
@@ -288,21 +286,19 @@ void Db::addSamples( SampleVec * samples, const Tube & tube ) const {
         "  , " + pfterm + " person_id";
     sql +=
         "  FROM SPECIMEN S"
-        "  LEFT JOIN CRYOVIAL C"
-        "  ON 1=1"
-        "  AND C.sample_id = S.sample_id"
-        "  LEFT JOIN CRYOVIAL_STORE CS"
-        "  ON 1=1"
-        "  AND CS.cryovial_id = C.cryovial_id"
-        "  WHERE 1=1"
-        "  AND S.barcode = :barcode"
-        "  AND S.status <> :deleted"
-        "  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
-        ;
+		"  LEFT JOIN CRYOVIAL C ON C.sample_id = S.sample_id"
+		"  LEFT JOIN CRYOVIAL_STORE CS ON CS.cryovial_id = C.cryovial_id"
+		"  WHERE S.barcode = :barcode AND S.status <> :deleted"
+		"  AND CS.status NOT IN (:deleted, :removed, :analysed, :transferred)"
+		"  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
+		;
 
-    m_pq->setSQL(sql.c_str());
-    m_pq->setParam("barcode", tube.getName().c_str());
-    m_pq->setParam("deleted", LPDbCryovial::DELETED);
+	m_pq->setSQL(sql.c_str());
+	m_pq->setParam("barcode", tube.getName().c_str());
+	m_pq->setParam("deleted", LPDbCryovialStore::DELETED);
+	m_pq->setParam("analysed", LPDbCryovialStore::ANALYSED);
+	m_pq->setParam("transferred", LPDbCryovialStore::TRANSFERRED);
+	m_pq->setParam("removed", LPDbCryovialStore::DESTROYED);
 
     SampleVec mysamples;
     addSamples(&mysamples);
@@ -326,21 +322,13 @@ void Db::addSamples( SampleVec * samples, const Box & box ) const {
         "  , " + pfterm + " person_id";
     sql +=
         "  FROM BOX_NAME BN"
-        "  JOIN CRYOVIAL_STORE CS"
-        "  ON 1=1"
-        "  AND CS.box_cid = BN.box_cid"
-        "  JOIN CRYOVIAL C"
-        "  ON 1=1"
-        "  AND C.cryovial_id = CS.cryovial_id"
-        "  JOIN SPECIMEN S"
-        "  ON 1=1"
-        "  AND S.sample_id = C.sample_id"
-        "  WHERE 1=1"
-        "  AND BN.external_name = :name"
-        "  AND BN.status <> :deleted"
-        "  AND CS.status <> :deleted"
-        "  AND S.status <> :deleted"
-        "  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
+		"  JOIN CRYOVIAL_STORE CS ON CS.box_cid = BN.box_cid"
+		"  JOIN CRYOVIAL C ON C.cryovial_id = CS.cryovial_id"
+		"  JOIN SPECIMEN S ON S.sample_id = C.sample_id"
+		"  WHERE (BN.external_name = :name OR BN.barcode = :name)"
+		"  AND BN.status <> :deleted AND S.status <> :deleted"
+		"  AND C.status <> :deleted AND CS.status <> :deleted"
+		"  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
         ;
 
 
@@ -353,7 +341,7 @@ void Db::addSamples( SampleVec * samples, const Box & box ) const {
     setNotesForSamples(&mysamples);
     samples->insert(samples->end(), mysamples.begin(), mysamples.end());
 
-    return;
+	return;
 }
 
 void Db::addSamples( SampleVec * samples, const Person & person ) const {
@@ -370,25 +358,25 @@ void Db::addSamples( SampleVec * samples, const Person & person ) const {
         "  , " + pfterm + " person_id";
     sql +=
         "  FROM SPECIMEN S"
-        "  LEFT JOIN CRYOVIAL C"
-        "  ON 1=1"
-        "  AND C.sample_id = S.sample_id"
-        "  LEFT JOIN CRYOVIAL_STORE CS"
-        "  ON 1=1"
-        "  AND CS.cryovial_id = C.cryovial_id"
-        "  WHERE 1=1";
+		"  LEFT JOIN CRYOVIAL C ON C.sample_id = S.sample_id"
+		"  LEFT JOIN CRYOVIAL_STORE CS ON CS.cryovial_id = C.cryovial_id"
+		"  WHERE 1=1";
+	sql +=
+		"  AND " + pfterm + " = :id";
     sql +=
-        "  AND " + pfterm + " = :id";
-    sql +=
-        "  AND S.status <> :deleted"
-        "  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
-        ;
+		"  AND S.status <> :deleted"
+		"  AND CS.status NOT IN (:deleted, :removed, :analysed, :transferred)"
+		"  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
+		;
 
-    m_pq->setSQL(sql.c_str());
-    m_pq->setParam("id", person.getName().c_str());
-    m_pq->setParam("deleted", LPDbCryovial::DELETED);
+	m_pq->setSQL(sql.c_str());
+	m_pq->setParam("id", person.getName().c_str());
+	m_pq->setParam("deleted", LPDbCryovialStore::DELETED);
+	m_pq->setParam("analysed", LPDbCryovialStore::ANALYSED);
+	m_pq->setParam("transferred", LPDbCryovialStore::TRANSFERRED);
+	m_pq->setParam("removed", LPDbCryovialStore::DESTROYED);
 
-    SampleVec mysamples;
+	SampleVec mysamples;
     addSamples(&mysamples);
     setNotesForSamples(&mysamples);
     samples->insert(samples->end(), mysamples.begin(), mysamples.end());
@@ -434,132 +422,132 @@ void Db::addSamples( SampleVec * samples, const Job & job ) const {
     setNotesForSamples(&mysamples);
     samples->insert(samples->end(), mysamples.begin(), mysamples.end());
 
-    return;
+	return;
 }
 
 void Db::addSamples( SampleVec * samples ) const {
-    IntPairSet seen;
 
-    for (m_pq->open(); ! m_pq->eof(); m_pq->next()) {
-        const int sample_id                 = m_pq->readInt("sample_id");
-        const std::string sample_barcode    = m_pq->readString("sample_barcode").c_str();
-        const std::string person_id         = m_pq->readString("person_id").c_str();
-        const int cryovial_id               = m_pq->readInt("cryovial_id");
-        const std::string cryovial_barcode  = m_pq->readString("cryovial_barcode").c_str();
-        const int aliquot_type_cid          = m_pq->readInt("aliquot_type_cid");
-        const int cryovial_store_status     = m_pq->readInt("cryovial_store_status");
-        const int retrieval_cid             = m_pq->readInt("retrieval_cid");
-        const int note_exists               = m_pq->readInt("note_exists");
-        const int cryovial_store_id         = m_pq->readInt("cryovial_store_id");
+	IntPairSet seen;
+	for (m_pq->open(); ! m_pq->eof(); m_pq->next()) {
+		if( !m_pq->fieldExists("cryovial_store_id") ) continue;		//not stored?
 
-        const IntPair key(sample_id, cryovial_id);
+		const int sample_id                 = m_pq->readInt("sample_id");
+		const std::string sample_barcode    = m_pq->readString("sample_barcode").c_str();
+		const std::string person_id         = m_pq->readString("person_id").c_str();
+		const int cryovial_id               = m_pq->readInt("cryovial_id");
+		const std::string cryovial_barcode  = m_pq->readString("cryovial_barcode").c_str();
+		const int aliquot_type_cid          = m_pq->readInt("aliquot_type_cid");
+		const int cryovial_store_status     = m_pq->readInt("cryovial_store_status");
+		const int retrieval_cid             = m_pq->readInt("retrieval_cid");
+		const int note_exists               = m_pq->readInt("note_exists");
+		const int cryovial_store_id         = m_pq->readInt("cryovial_store_id");
 
-        if (seen.count(key) > 0) continue; // old record
+		const IntPair key(sample_id, cryovial_id);
+		if (seen.count(key) > 0) continue; 			// old record?
 
-        Sample sample(sample_id);
-        sample.setBarcode(sample_barcode);
-        sample.setCryovialId(cryovial_id);
-        sample.setCryovialBarcode(cryovial_barcode);
-        sample.setPersonId(person_id);
-        sample.setAliquotId(aliquot_type_cid);
-        sample.setCryovialStatus(cryovial_store_status);
-        sample.setJobno(retrieval_cid);
-        sample.setNoteFlag(note_exists);
-        sample.setCryovialStoreId(cryovial_store_id);
+		Sample sample(sample_id);
+		sample.setBarcode(sample_barcode);
+		sample.setCryovialId(cryovial_id);
+		sample.setCryovialBarcode(cryovial_barcode);
+		sample.setPersonId(person_id);
+		sample.setAliquotId(aliquot_type_cid);
+		sample.setCryovialStatus(cryovial_store_status);
+		sample.setJobno(retrieval_cid);
+		sample.setNoteFlag(note_exists);
+		sample.setCryovialStoreId(cryovial_store_id);
+		samples->push_back(sample);
 
-        samples->push_back(sample);
+		seen.insert(key);
+	}
 
-        seen.insert(key);
-    }
-
-    return;
+	return;
 }
 
 void Db::setNotesForSamples( SampleVec * samples ) const {
-    std::string sql =
-        "  SELECT N.contents, N.operator_cid, N.time_stamp"
-        "  FROM NOTE N"
-        "  JOIN CRYOVIAL_STORE CS"
-        "  ON 1=1"
-        "  AND CS.record_id = N.object_id"
-        "  WHERE 1=1"
-        "  AND CS.note_exists > 0"
-        "  AND CS.record_id = :csid"
-        "  ORDER BY N.time_stamp"
-        ;
+	std::string sql =
+		"  SELECT N.contents, N.operator_cid, N.time_stamp"
+		"  FROM NOTE N"
+		"  JOIN CRYOVIAL_STORE CS"
+		"  ON 1=1"
+		"  AND CS.record_id = N.object_id"
+		"  WHERE 1=1"
+		"  AND CS.note_exists > 0"
+		"  AND CS.record_id = :csid"
+		"  ORDER BY N.time_stamp"
+		;
 
 //    m_pq->setSQL(sql.c_str()); FIXME
 
-    for (SampleVec::iterator it = samples->begin(); it != samples->end(); it++) {
-        Sample & sample = *it;
-        const int csid = sample.getCryovialStoreId();
-        const int noteFlag = sample.getNoteFlag();
-        if (noteFlag == 0) continue;
-        if (noteFlag < 0) {
-            std::string error = "";
-            error += "bad note_exists for cryovial csid ";
-            error += csid;
-            error += " at ";
-            error += HERE;
-            throw Exception(error.c_str());
-        }
+	for (SampleVec::iterator it = samples->begin(); it != samples->end(); it++) {
+		Sample & sample = *it;
+		const int csid = sample.getCryovialStoreId();
+		const int noteFlag = sample.getNoteFlag();
+		if (noteFlag == 0) continue;
+		if (noteFlag < 0) {
+			std::string error = "";
+			error += "bad note_exists for cryovial csid ";
+			error += csid;
+			error += " at ";
+			error += HERE;
+			throw Exception(error.c_str());
+		}
 
-        m_pq->setSQL(sql.c_str()); // FIXME
+		m_pq->setSQL(sql.c_str()); // FIXME
 
-        m_pq->setParam("csid", csid);
-        std::string text = "";
-        for (m_pq->open(); ! m_pq->eof(); m_pq->next()) {
-            const std::string contents = m_pq->readString("contents").c_str();
-            const int userid = m_pq->readInt("operator_cid");
-            AnsiString date = m_pq->readDateTime("time_stamp").DateString();
-            const std::string when = date.c_str( );
-            const LCDbOperator * creator = getUser(userid);
-            const std::string who = (creator == 0)  ? ("user" + Util::asString(userid)).c_str() : creator->getDescription().c_str();
-            text += contents;
-            text += " - ";
-            text += "by " + who;
-            text += " on " + when;
-            text += "\n";
-        }
-        sample.setNote(text);
-    }
+		m_pq->setParam("csid", csid);
+		std::string text = "";
+		for (m_pq->open(); ! m_pq->eof(); m_pq->next()) {
+			const std::string contents = m_pq->readString("contents").c_str();
+			const int userid = m_pq->readInt("operator_cid");
+			AnsiString date = m_pq->readDateTime("time_stamp").DateString();
+			const std::string when = date.c_str( );
+			const LCDbOperator * creator = getUser(userid);
+			const std::string who = (creator == 0)  ? ("user" + Util::asString(userid)).c_str() : creator->getDescription().c_str();
+			text += contents;
+			text += " - ";
+			text += "by " + who;
+			text += " on " + when;
+			text += "\n";
+		}
+		sample.setNote(text);
+	}
 
-    return;
+	return;
 }
 
 std::string Db::updateSamples(
-    const std::map<int,IntSet> & jobCsids, const int dbcrstatus,
-    const std::string & jobName, const std::string & jobDescription,
-    const IntToStringMap & sampleNote ) const {
-    std::string error = "";
+	const std::map<int,IntSet> & jobCsids, const int dbcrstatus,
+	const std::string & jobName, const std::string & jobDescription,
+	const IntToStringMap & sampleNote ) const {
+	std::string error = "";
 
-    do {
-        /*		if (m_pdb->InTransaction) {
-        			error = "unable to start transaction";
-        			break;
-        		}
-        		m_pdb->StartTransaction(); */
+	do {
+		/*		if (m_pdb->InTransaction) {
+					error = "unable to start transaction";
+					break;
+				}
+				m_pdb->StartTransaction(); */
 
-        error = updateSamplesStatus(jobCsids,
-                                    dbcrstatus, jobName, jobDescription);
+		error = updateSamplesStatus(jobCsids,
+									dbcrstatus, jobName, jobDescription);
 
-        if (error != "") {
+		if (error != "") {
 //			m_pdb->Rollback();
-            break;
-        }
+			break;
+		}
 
-        for (std::map<int,IntSet>::const_iterator it = jobCsids.begin(); it != jobCsids.end(); it++) {
-            const int jobno = it->first;
-            error = closeJob(jobno);
-            if (error != "") break;
-        }
+		for (std::map<int,IntSet>::const_iterator it = jobCsids.begin(); it != jobCsids.end(); it++) {
+			const int jobno = it->first;
+			error = closeJob(jobno);
+			if (error != "") break;
+		}
 
-        if (error != "") {
+		if (error != "") {
 //            m_pdb->Rollback();
-            break;
-        }
+			break;
+		}
 
-        error = updateSamplesNote(sampleNote);
+		error = updateSamplesNote(sampleNote);
 
         if (error != "") {
 //			m_pdb->Rollback();

@@ -554,7 +554,7 @@ void Context::configSearchTexts( const std::string & searchText ) {
             break;
         }
 
-        if (m_searchSource == "Text") {
+		if (m_searchSource == "Keyboard") {
             m_searchTexts.insert(searchText);
             break;
         }

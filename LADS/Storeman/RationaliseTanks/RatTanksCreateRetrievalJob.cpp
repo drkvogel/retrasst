@@ -73,6 +73,7 @@ void __fastcall TfrmRatTankCreateRetrievalJob::ButtonOKClick(TObject *Sender)
 {
 	std::string externalName = std::string(AnsiString(external_nameEdit->Text.c_str()).c_str());
 	std::string description = std::string(AnsiString(descriptionMemo->Text.c_str()).c_str());
+	std::string reason = std::string(AnsiString(reasonEdit->Text.c_str()).c_str());
 
 	std::string Exercise_cid = "0";
 
@@ -122,7 +123,7 @@ void __fastcall TfrmRatTankCreateRetrievalJob::ButtonOKClick(TObject *Sender)
 		ButtonOK->Enabled = false;
 
 		m_result = "OK";
-		m_pRationaliseTanks->createRetrievalList(externalName,description,currentProject, currentAliquot,m_selectedBoxType_cid,ProgressBar,Exercise_cid);
+		m_pRationaliseTanks->createRetrievalList(externalName,description,currentProject,reason,currentAliquot,m_selectedBoxType_cid,ProgressBar,Exercise_cid);
 		String msg = L"Reterval list saved.";
 		Application->MessageBox(msg.c_str(), L"Success", MB_OK);
 		this->Close();

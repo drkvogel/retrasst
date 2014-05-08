@@ -1,10 +1,9 @@
 //---------------------------------------------------------------------------
 
+#include "ExceptionHandler.h"
 #include <fmx.h>
-
 #include "Utils.h"
 
-#pragma hdrstop
 
 //---------------------------------------------------------------------------
 
@@ -17,6 +16,7 @@
 #include "Utils.h"
 #include "DataContainers.h"
 #include "InfoPanels.h"
+#include "TSnapshotFrame.h"
 #include "VisualComponents.h"
 
 #pragma package(smart_init)
@@ -157,7 +157,7 @@ void TTestPanel::setUpTestNameButton()
     */
 
 	testNameButton->HitTest = true;
-	testNameButton->OnClick = basicInfoClick;
+	testNameButton->OnClick = onClick;
 	testNameButton->Parent = this;
 
 }
@@ -201,7 +201,7 @@ void TTestPanel::setUpNotesButton()
 	notesButton->Position->Y = gui->param("testResultY");
 	notesButton->Width = gui->param("notesButtonWidth");
 	notesButton->Text = "";
-	notesButton->OnClick = notesClick;
+	notesButton->OnClick = onClick;
 	notesButton->Parent = this;
 
 }
@@ -267,7 +267,7 @@ void TTestPanel::setUpResultButton(bool queued)
 		resultButton->Width = widthResult;
 		resultButton->Text = testResult.c_str();    // was "";
 		resultButton->HitTest = true;
-		resultButton->OnClick = resultClick;
+		resultButton->OnClick = onClick;
 		resultButton->Parent = this;
 	}
 }
@@ -358,7 +358,8 @@ __fastcall TTestPanel::TTestPanel(GUImanager *g,
 					  myNotes(NULL),
 					  myActions(NULL),
 					  gui(g),
-					  entry(d)   // link from here to the worklist entry
+					  entry(d),   // link from here to the worklist entry
+                      observer(NULL)
 {
  //	entry->setVisual(this);  // link from the worklist entry to this panel
 	prev = NULL;
@@ -432,6 +433,26 @@ void __fastcall TTestPanel::notesClick(TObject *Sender)
 } // end of TTestPanel::notesClick
 
 
+void __fastcall TTestPanel::onClick(TObject* sender)
+{
+    valcui::assertion( ( sender == testNameButton ) || ( sender == notesButton ) || ( sender == resultButton ), "origin of click not recognised" );
+
+    observer->notifySelected( entry->getWorklistId() );
+
+    if ( sender == testNameButton )
+    {
+        basicInfoClick( sender );
+    }
+    else if ( sender == notesButton )
+    {
+        notesClick( sender );
+    }
+    else
+    {
+        resultClick( sender );
+    }
+}
+
 /** Pops up panel which will display any results and provide facilities for
   * the user to take various actions based on the test result.
   *
@@ -459,6 +480,11 @@ void __fastcall TTestPanel::resultClick(TObject *Sender)
 	}
 
 } // end of TTestPanel::resultClick
+
+void TTestPanel::setObserver( SnapshotFrameObserver* o )
+{
+    observer = o;
+}
 
 //--------------------- end TTestPanel functions-----------------------
 

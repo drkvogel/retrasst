@@ -123,11 +123,12 @@ View *Model::nextStage( ) const
 {
 //has page got a sign on token? If not, no matter what the state,
 //go to sign on page
-	if (!m_ru->hasToken())
-		return new page0(*this);
+
+//	if (!m_ru->hasToken())
+//		return new page0(*this);
 //if not signed on, sign on page
-	if (m_session.getStage() != VALID)
-		return new page0(*this);
+ //	if (m_session.getStage() != VALID)
+ //		return new page0(*this);
 //now return one of the other pages.
 	if (m_session.getViewPage() == "1")
 		return new page1(*this);

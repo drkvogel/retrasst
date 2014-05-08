@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+<xsl:stylesheet version="1.0" 
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:msb="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <xsl:output method="html" version="4.0" indent="yes"/>
+
+  <xsl:param name="other"/>
+
+  <xsl:template match="/">
+        <xsl:variable name="doc" select="document($other)"/>
+        <xsl:for-each select=".//msb:CppCompile">
+            <xsl:if test="not($doc//msb:CppCompile[@Include = current()/@Include])">
+                <p>Not found in <xsl:value-of select="$other"/>, compilation unit <xsl:value-of select="@Include"/>.</p>
+            </xsl:if>
+        </xsl:for-each>
+        <xsl:for-each select=".//msb:LibFiles">
+            <xsl:if test="not($doc//msb:LibFiles[@Include = current()/@Include])">
+                <p>Not found in <xsl:value-of select="$other"/>, lib file <xsl:value-of select="@Include"/>.</p>
+            </xsl:if>
+        </xsl:for-each>
+        <xsl:for-each select=".//msb:PropertyGroup">
+            <xsl:variable name="pg" select="$doc//msb:PropertyGroup[@Condition = current()/@Condition]"/>
+            <xsl:choose>
+                <xsl:when test="$pg">
+                    <xsl:if test="$pg != .">
+                        <p>PropertyGroup differences ('<xsl:value-of select="@Condition"/>'):</p>
+                        <table>
+                            <tr>
+                                <td><xsl:value-of select="."/></td>
+                            </tr>
+                            <tr>
+                                <td><xsl:value-of select="$pg"/></td>
+                            </tr>
+                        </table>
+                    </xsl:if>
+                </xsl:when>
+                <xsl:otherwise>
+                    <p>Not found in <xsl:value-of select="$other"/>, PropertyGroup with a Condition attribute value of '<xsl:value-of select="@Condition"/>'.</p>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:for-each>
+  </xsl:template>
+  
+  </xsl:stylesheet>
+

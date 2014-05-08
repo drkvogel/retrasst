@@ -29,6 +29,8 @@ __published:	// IDE-managed Components
 	TLabel *Label2;
 	TButton *New_Retrival_exercise_Button;
 	TLabel *Label3;
+	TEdit *reasonEdit;
+	TLabel *Label4;
 	void __fastcall ButtonOKClick(TObject *Sender);
 	void __fastcall ButtonCancelClick(TObject *Sender);
 	void __fastcall New_Retrival_exercise_ButtonClick(TObject *Sender);

@@ -37,11 +37,10 @@ LIMSDatabase LIMSDatabase::getCentralDb( ) {
 //---------------------------------------------------------------------------
 
 LIMSDatabase LIMSDatabase::getProjectDb( int projID ) {
-	if( projID == 0 ) {
+	if( projID == 0 || projID == -1 ) {
 		projID = LCDbProjects::getCurrentID( );
 	}
-	const LCDbProject & proj = LCDbProjects::records( ).get( projID );
-	return LIMSDatabase( getRootName( proj.getDbName( ) ) );
+	return getProjectDb( LCDbProjects::records( ).get( projID ).getDbName() );
 }
 
 //---------------------------------------------------------------------------

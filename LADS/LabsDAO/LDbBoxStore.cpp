@@ -1,22 +1,23 @@
-//---------------------------------------------------------------------------
-//
-//	Version history:
-//
-//		14 July 2005:	Keep rack ID when database updated for later re-use
-//      20 July, NG:    Added LCDbRackSize/s to encapsulate c_rack_capacity
-//      18 August, NG:	Added LCDbTankStore to encapsulate c_storage_details
-//      23 August, NG:	Don't bodge tank name; use list for given location
-//      16 Feb 2006:	Added valid flag to LCDbRackSize (always true)
-//      22 April 2009:	Expect hive CID for tank, rather than tank position
-//                      Calculate correct position for the rack within it
-//		16 Nov 09, NG:	Use (ddbq's) box_store, not c_slot_allocation
-//		28 July, 2010:	Added job ID as link to owner (LCDbRetrievalJob)
-//		15 Nov 2012:    Don't use storeman_ddb after all - it's unreliable
-//						Use box_store + c_slot_allocation for compatibility
-//      16 Dec 13, NG:	Updated to use c_ tables again for database v2.7.2
-//		4 April 14, NG:	Use same ID for c_slot_allocation and box_store
-//
-//---------------------------------------------------------------------------
+/*---------------------------------------------------------------------------
+ *
+ *	Version history:
+ *
+ *	14 July 2005:	Keep rack ID when database updated for later re-use
+ *	20 July, NG:    Added LCDbRackSize/s to encapsulate c_rack_capacity
+ *	18 August, NG:	Added LCDbTankStore to encapsulate c_storage_details
+ *	23 August, NG:	Don't bodge tank name; use list for given location
+ *	16 Feb 2006:	Added valid flag to LCDbRackSize (always true)
+ *	22 April 2009:	Expect hive CID for tank, rather than tank position
+ *	                Calculate correct position for the rack within it
+ *	16 Nov 09, NG:	Use (ddbq's) box_store, not c_slot_allocation
+ *	28 July, 2010:	Added job ID as link to owner (LCDbRetrievalJob)
+ *	15 Nov 2012:    Don't use storeman_ddb after all - it's unreliable
+ *					Use box_store + c_slot_allocation for compatibility
+ *	16 Dec 13, NG:	Updated to use c_ tables again for database v2.7.2
+ *	4 April 14, NG:	Use same ID for c_slot_allocation and box_store
+ *  28 April, NG:	Clear box_store.removed if necessary, set c_slot_allocation.time_stamp
+ *
+ *--------------------------------------------------------------------------*/
 
 #include <vcl.h>
 
@@ -192,15 +193,17 @@ bool LCDbBoxStore::updateStoreRecord( LQuery & pq )
 	std::string fields = "rack_cid = :rid, slot_position = :pos, status = :sts,";
 	switch( status ) {
 		case EXPECTED:
+		case MOVE_EXPECTED:
 		case SLOT_ALLOCATED:
 		case SLOT_CONFIRMED:
-			fields += " time_stamp = 'now', ";
+		case REFERRED:
+			fields += " removed = '', time_stamp = 'now', ";
 		break;
 		case REMOVED:
 			fields += " removed = 'now', ";
 		break;
 		default:
-			;	// leave old time stamp when DESTROYED or DELETED
+			;	// leave old time stamps when DESTROYED or DELETED
 	}
 	pq.setSQL( "update box_store set " + fields + " process_cid = :pid where record_id = :myid" );
 	pq.setParam( "myid", getID() );

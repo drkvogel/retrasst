@@ -71,9 +71,27 @@ OK, but difficult to put parameters in the message. You'd have to allocate some 
 
 Good, but won't catch any `std::exception`s, so we would still need an extra `catch`.
 
+### Exception
+
+Has the added bonus of being displayed properly by C++ Builder projects:
+
+    catch (Exception &exception) {
+        Application->ShowException(&exception);
+    } catch (...) {
+        try {
+            throw Exception("Unknown exception");
+        } catch (Exception &exception) {
+            Application->ShowException(&exception);
+        }
+    }
+
+but not standard C++, and again, won't catch `std::exception`, requiring an extra `catch`.
+
 ### std::runtime_error
 
-Has std::string constructor, and is a descendant of std::exception. So:
+Has std::string constructor, and is a descendant of std::exception. 
+
+<http://stackoverflow.com/questions/1569726/difference-stdruntime-error-vs-stdexception>
 
 ## Conclusion
 
@@ -91,3 +109,5 @@ Well, that's:
 3) not what comes out of `e.what()`. 
 
 How come?
+
+##

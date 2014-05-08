@@ -22,8 +22,8 @@ class MeetingPlace
 {
 private:
     CritSec m_cs;
-    volatile X* m_x;
-    volatile Y* m_y;
+    X* m_x;
+    Y* m_y;
 
 public:
     MeetingPlace()

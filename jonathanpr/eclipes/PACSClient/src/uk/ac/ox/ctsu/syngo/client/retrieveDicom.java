@@ -30,6 +30,9 @@ import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomDocumentFuz
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomImage;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomSeries;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DicomStudy;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GenericContainer;
+
+// Not currently active.
 
 //Downloads dicom, based on inserttime
 public class retrieveDicom
@@ -50,7 +53,7 @@ public class retrieveDicom
 		//make sure we aren't already running
 		singleAppInstance.instance(singleAppInstance.CMDDOWNLOAD);
 		
-		//setup the Syngo.share comms, database and PDF creator
+		//setup the connections to Syngo.share comms & database
 		try
 		{
 			m_db = database.instancebb5_extract_pacs_live(false);
@@ -76,7 +79,7 @@ public class retrieveDicom
 			/*
 			 * "BIOBANK" - download data and keywords
 			 */
-			Vector<Long> studypkVector = retreavePKList("studypk","pacsstudy","au ='BIOBANK' and status = 1");
+			Vector<Long> studypkVector = retreavePKList("studypk","pacsstudy","au ='BIOBANK' and status = 1 ORDER BY studyinsertdate ASC");
 
 			db_pacsstudy sr = null;
 			for (int i=0;i<studypkVector.size();i++)
@@ -91,14 +94,14 @@ public class retrieveDicom
 						try{
 							
 							String []patientID = new String[2];
-							String []firstname = new String[2];
+							String []name = new String[2];
 							patientID[0] = sr.getPatientID();
-							firstname[0] = sr.getFirstName();
+							name[0] = sr.getName();
 							if (patientID[0] == null)
 								patientID[0] = "";
-							if (firstname[0] == null)
-								firstname[0] = "";
-							m_db.hasMatchOnPatientID(patientID,firstname);
+							if (name[0] == null)
+								name[0] = "";
+							m_db.hasMatchOnPatientID(patientID,name);
 		
 							if (patientID[1].isEmpty())
 							{
@@ -107,7 +110,7 @@ public class retrieveDicom
 							}
 		
 							sr.setConfirmedPatientID(patientID[1]);
-							sr.setFirstName(firstname[1]);
+							sr.setConfirmedName(name[1]);
 							sr.update();
 						}
 						catch(Exception e)
@@ -126,7 +129,7 @@ public class retrieveDicom
 					String tridcid = retreavetridcid(sr);
 					if (tridcid.isEmpty())
 					{
-						logs.log(m_db, logs.LOG_LEVEL.ERROR, logs.LOG_TYPE.PACS, "Error while trying to get trid and cid values",sr.getConfirmedPatientID(),null);
+						logs.log(m_db, logs.LOG_LEVEL.INFO, logs.LOG_TYPE.PACS, "Error while trying to get trid and cid values, is not in biobankparticipent table",sr.getConfirmedPatientID(),null);
 						continue;
 					}
 														
@@ -316,7 +319,15 @@ public class retrieveDicom
 			logs.log(m_db, logs.LOG_LEVEL.INFO, logs.LOG_TYPE.PACS, "Error while trying to get study detils: " + e.getMessage(),patientID,studydate.getTime());
 			return false;
 		}
-				
+		
+//		GenericContainer Generticfile = PC.getGenericDocument(StudyDetails..getDocumentPk());
+		
+		Calendar ThirtyMinsAgo = Calendar.getInstance();
+		ThirtyMinsAgo.add(Calendar.MINUTE, -60); //older then an hour on the system, for when they use copy which does take 30 mins or more to complete.
+		
+		if (sr.getStudyInsertDate().after(ThirtyMinsAgo))
+			return false;
+		
 		for (int i = 0; i < DicomSeriesResults.length; i++)
 		{					
 			//see if we have already downloaded this series..

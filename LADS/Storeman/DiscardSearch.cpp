@@ -145,22 +145,22 @@ TfrmSearch::updateUIStep3( ) {
 
     if (m_context->isSelectJobStage()) {
         this->Caption = "Choose job";
-        this->pnlStep3a->Visible = false;
-        this->pnlStep3b->Visible = true;
-        this->pnlStep3c->Visible = false;
-        this->btnNext->Caption = "OK";
-        this->btnBack->Enabled = false;
-        this->btnBack->Visible = false;
-    } else {
-        this->Caption = "Search Step 3 of 3";
-        this->pnlStep3a->Visible = (this->rgSource->ItemIndex == 0);
-        this->pnlStep3b->Visible = false;
-        this->pnlStep3c->Visible = (this->rgSource->ItemIndex == 1);
-        this->btnNext->Caption = "Finish";
-        this->btnBack->Enabled = true;
-    }
+		this->pnlStep3a->Visible = false;
+		this->pnlStep3b->Visible = true;
+		this->pnlStep3c->Visible = false;
+		this->btnBack->Enabled = false;
+		this->btnBack->Visible = false;
+	} else {
+		this->Caption = "Search Step 3 of 3";
+		this->pnlStep3a->Visible = (this->rgSource->ItemIndex == 0);
+		this->pnlStep3b->Visible = false;
+		this->pnlStep3c->Visible = (this->rgSource->ItemIndex == 1);
+		this->btnBack->Enabled = true;
+	}
 
-    this->btnNext->Enabled = false;
+	this->btnNext->Caption = "OK";
+	this->btnNext->Enabled = false;
+
     if (this->pnlStep3a->Visible) {
         if (this->ediText->Text != "") {
             this->btnNext->Enabled = true;
@@ -242,7 +242,7 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender) {
 
                 if (m_context->isSelectJobStage()) {
                     type = "Job";
-                    source = "Text";
+					source = "Keyboard";
                     size_t index = this->cmbMenu->ItemIndex;
                     if (index < m_jobnos.size()) {
                         const int jobno = m_jobnos[index];
@@ -257,12 +257,11 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender) {
                     const int index = this->rgType->ItemIndex;
                     if (index < 0) {
                         break;
-                    }
+					}
 
-
-                    type =  this->rgType->Items->Strings[index] ;
+                    type = this->rgType->Items->Strings[index] ;
                     if (this->rgSource->ItemIndex == 0) {
-                        source = "Text";
+						source = "Keyboard";
                         text =  this->ediText->Text;
                     } else if (this->rgSource->ItemIndex == 1) {
                         source = "File";
@@ -275,7 +274,7 @@ void __fastcall TfrmSearch::btnNextClick(TObject *Sender) {
                 }
 
                 m_context->setSearchType(type.c_str());
-                m_context->setSearchSource(source.c_str());
+				m_context->setSearchSource(source.c_str());
                 m_context->configSearchTexts(text.c_str());
 
                 mr = mrOk;

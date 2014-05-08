@@ -58,7 +58,7 @@ public:
 // For comments on methods, please see their implementations.
 
 
-	DataManager(TMainForm *m);
+	DataManager(LogManager *m);
 	~DataManager();
 
 	void clearAll();
@@ -66,8 +66,6 @@ public:
 
 
 private:
-	TMainForm *mainForm;  // link back to the main form (main program)
-						  // not that it is currently used
 
 	bool snapshotLoadedOk;  // records whether the data was loaded from the
 							// snapshot successfully.

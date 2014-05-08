@@ -1,0 +1,96 @@
+object MainForm: TMainForm
+  Left = 0
+  Top = 0
+  Caption = 'Form1'
+  ClientHeight = 552
+  ClientWidth = 685
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [dkDesktop, dkiPhone, dkiPad]
+  OnCreate = onCreate
+  OnClose = onClose
+  OnResize = onResize
+  DesignerMobile = False
+  DesignerWidth = 0
+  DesignerHeight = 0
+  DesignerDeviceName = ''
+  DesignerOrientation = 0
+  object rootContainer: TPanel
+    Align = alClient
+    Height = 552.000000000000000000
+    Width = 685.000000000000000000
+    TabOrder = 0
+    object topPanel: TPanel
+      Align = alTop
+      Height = 329.000000000000000000
+      Width = 685.000000000000000000
+      TabOrder = 0
+      object topTabCtrl: TTabControl
+        Align = alClient
+        Height = 329.000000000000000000
+        TabIndex = 0
+        TabOrder = 0
+        Width = 685.000000000000000000
+        object snapshotTab: TTabItem
+          Align = alClient
+          WordWrap = False
+          Height = 23.000000000000000000
+          IsSelected = True
+          TabOrder = 0
+          Text = 'Snapshot'
+          Width = 65.000000000000000000
+          object snapshotFrameContainer: TPanel
+            Align = alClient
+            Height = 306.000000000000000000
+            Width = 685.000000000000000000
+            TabOrder = 0
+          end
+        end
+        object logTab: TTabItem
+          WordWrap = False
+          Height = 23.000000000000000000
+          IsSelected = False
+          Position.X = 66.000000000000000000
+          TabOrder = 1
+          Text = 'Log'
+          Width = 38.000000000000000000
+          object logFrameContainer: TPanel
+            Align = alClient
+            Height = 306.000000000000000000
+            Width = 685.000000000000000000
+            TabOrder = 0
+          end
+        end
+        object warnTab: TTabItem
+          WordWrap = False
+          Height = 23.000000000000000000
+          IsSelected = False
+          Position.X = 104.000000000000000000
+          TabOrder = 2
+          Text = 'Warnings'
+          Width = 66.000000000000000000
+          object warningFrameContainer: TPanel
+            Align = alClient
+            Height = 306.000000000000000000
+            Width = 685.000000000000000000
+            TabOrder = 0
+          end
+        end
+      end
+    end
+    object Splitter1: TSplitter
+      Align = alTop
+      Cursor = crVSplit
+      Height = 17.000000000000000000
+      MinSize = 20.000000000000000000
+      Position.Y = 329.000000000000000000
+      Width = 685.000000000000000000
+    end
+    object bottomPanel: TPanel
+      Align = alClient
+      Height = 206.000000000000000000
+      Width = 685.000000000000000000
+      TabOrder = 2
+    end
+  end
+end

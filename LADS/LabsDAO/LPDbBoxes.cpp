@@ -19,6 +19,7 @@
  * 20 September 2013:	ignore events - no longer required; add barcode
  * 12 December, NG:		Check box_cid not already used in another project
  * 12 March 2014, NG:	Prefer c_box_content for most queries (db 2.7.2)
+ *
  *---------------------------------------------------------------------------*/
 
 #include <vcl.h>
@@ -64,7 +65,11 @@ LPDbBoxName::LPDbBoxName( const LQuery & query )
 		}
 		barcode = name.substr( n );
 	}
-	cryovials.resize( getSize() - query.readInt( "box_capacity" ), "?" );
+	int space = query.readInt( "box_capacity" );
+	short size = getSize();
+	if( space >= 0 && space < size ) {
+		cryovials.resize( size - space, "?" );
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -216,6 +221,8 @@ const LCDbBoxSize * LPDbBoxName::getLayout() const {
 	return bt == NULL ? NULL : LCDbBoxSizes::records().findByID( bt->getSizeID() );
 }
 
+//---------------------------------------------------------------------------
+
 short LPDbBoxName::getSize() const {
 	const LCDbBoxSize * bl = getLayout();
 	return bl == NULL ? -1 : bl->getLast();
@@ -234,6 +241,8 @@ short LPDbBoxName::getSpace() const {
 	short free = bl->getLast() - filled;
 	return filled < bl->getHole() ? free - 1 : free;
 }
+
+//---------------------------------------------------------------------------
 
 bool LPDbBoxName::hasSpace() const { return getSpace() > 0; }
 

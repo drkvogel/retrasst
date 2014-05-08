@@ -1,7 +1,7 @@
 object frmNewTank: TfrmNewTank
   Left = 0
   Top = 0
-  BorderIcons = [biMinimize, biMaximize]
+  BorderIcons = [biSystemMenu]
   Caption = 'Configure Vessel'
   ClientHeight = 591
   ClientWidth = 560
@@ -12,6 +12,7 @@ object frmNewTank: TfrmNewTank
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poOwnerFormCenter
   OnShow = OnShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -379,9 +380,9 @@ object frmNewTank: TfrmNewTank
       Caption = 'Shelf:'
     end
     object cbLayout: TComboBox
-      Left = 114
+      Left = 120
       Top = 262
-      Width = 250
+      Width = 258
       Height = 21
       DropDownCount = 12
       TabOrder = 8
@@ -398,9 +399,9 @@ object frmNewTank: TfrmNewTank
       OnChange = TxtPosChange
     end
     object TxtSrl: TEdit
-      Left = 114
+      Left = 120
       Top = 127
-      Width = 200
+      Width = 190
       Height = 21
       CharCase = ecUpperCase
       MaxLength = 16
@@ -418,16 +419,16 @@ object frmNewTank: TfrmNewTank
       TabOrder = 1
     end
     object cbStoreType: TComboBox
-      Left = 114
+      Left = 120
       Top = 171
-      Width = 250
+      Width = 258
       Height = 21
       TabOrder = 4
     end
     object TxtPhysical: TEdit
-      Left = 114
+      Left = 120
       Top = 83
-      Width = 200
+      Width = 190
       Height = 21
       MaxLength = 64
       TabOrder = 2
@@ -464,9 +465,9 @@ object frmNewTank: TfrmNewTank
       OnClick = chkPopClick
     end
     object cbLocation: TComboBox
-      Left = 114
+      Left = 120
       Top = 40
-      Width = 200
+      Width = 190
       Height = 21
       TabOrder = 9
       OnChange = cbLocationChange

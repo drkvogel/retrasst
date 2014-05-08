@@ -62,17 +62,22 @@ import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.DocumentFuzzySea
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.FindDicomDocumentsRequest;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.FindGenericDocumentsRequest;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.FindPatientsRequest;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GenericContainer;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GenericDocumentFuzzySearch;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GenericDocumentFuzzySearchResult;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GetDicomImagesForDicomSeriesRequest;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GetDicomSeriesForDicomStudyRequest;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GetDicomStudyForDocumentRequest;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GetDicomStudyRequest;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GetDirectAccessUrlForPatientResponse;
+import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.GetGenericContainerForDocumentRequest;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.KeywordSearch;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.Patient;
 import com.icoserve.www.va20_queryservice.VA20_QueryServiceStub.PatientFuzzySearch;
 
-
+/** Interface into the syngo.share API.
+ *
+ */
 
 public class PACSComms
 {
@@ -84,11 +89,6 @@ public class PACSComms
 	private static final String SERVICE_EPR_DOCMANIPULATION = "https://syngo.ndph.ox.ac.uk/ws_api/services/BIOBANK/VA20/DocumentManipulationService";
 	private static final String SERVICE_EPR_KEYWORDSERICE = "https://syngo.ndph.ox.ac.uk/ws_api/services/BIOBANK/VA20/KeywordService";
 
-	/*	
-	private static final String SERVICE_EPR_QUERYSERICE = "https://163.1.206.34/ws_api/services/BIOBANK/VA20/QueryService";
-	private static final String SERVICE_EPR_DOCMANIPULATION = "https://163.1.206.34/ws_api/services/BIOBANK/VA20/DocumentManipulationService";
-	private static final String SERVICE_EPR_KEYWORDSERICE = "https://163.1.206.34/ws_api/services/BIOBANK/VA20/KeywordService";
-	*/
 	// The login of the webservice user.
 	private static String USERLOGIN = "webapi";
 	private static String PASSWORD = "webapi_bio";
@@ -163,34 +163,74 @@ public class PACSComms
 		}
 	}
 	*/
-	public GenericImportResult importFile(String fileToImport, String PID, String Desc, String ArchiveFileName, long userPID) throws Exception 
+	public GenericImportResult importFile(String fileToImport, String PID,String Name, String Desc, String ArchiveFileName, String toAU,long userPID) throws Exception 
 	{
+	/*	
+		final PatientSearch patientSearch = new PatientSearch();
+		patientSearch.setPatientId("PRP000098");
+		patientSearch.setFirstName("Cathie");
+		patientSearch.setLastName("Egner");
+		patientSearch.setSex("F");
+		
+		final DocumentInfo documentInfo = new DocumentInfo();
+		documentInfo.setDescription("Test CSV Import");
+		documentInfo.setCreationTimestamp(Calendar.getInstance());
+		
+		final GenericFileInfo fileInfo = new GenericFileInfo();
+		fileInfo.setDescription("Bens Import");
+		fileInfo.setArchiveFileName("TestDataError.csv");
+		fileInfo.setFileName("ArchiveFileName");		
+		fileInfo.setExternalFileId("ArchiveFileName");
+		fileInfo.setExternalSystemId("param");
+		
+		final GenericOrgUnitImportRequest request = new GenericOrgUnitImportRequest();
+		request.setPatientSearch(patientSearch);
+		request.setDocumentInfo(documentInfo);
+		request.setGenericFileInfo(fileInfo);
+		request.setData(new DataHandler(new FileDataSource("C:\\code\\jonathanpr\\eclipes\\PACSClient\\U3VZS97S_662_Report.pdf")));
+		request.setOrganizationalUnitName("IF_DEXA");
+		try {
+			final GenericImportResult result = m_documentManipulationService.importGenericFileIntoOrgUnit(request).get_return();
+			return result;
+//			System.out.println("Successfully imported new file. New Reference pointer is: " + result.getReferencePointer());
+		} catch (final WsFault e) {
+			System.out.println("Error returned from webservice_api: " + e.getFaultMessage().getWsFault().getMessage());
+			e.printStackTrace();
+		}
+		return null;
+		*/
+		
 		final PatientSearch patientSearch = new PatientSearch();
 		patientSearch.setPatientId(PID);
+		patientSearch.setLastName(Name);
 		
 		final DocumentInfo documentInfo = new DocumentInfo();
 		documentInfo.setDescription(Desc);
 		documentInfo.setCreationTimestamp(Calendar.getInstance());		
-
+		
 		final GenericFileInfo fileInfo = new GenericFileInfo();
 		fileInfo.setDescription("BioBank Clinincal Information"); 
 		fileInfo.setArchiveFileName(ArchiveFileName);
 		fileInfo.setFileName(ArchiveFileName);		
 		fileInfo.setExternalFileId(ArchiveFileName);
+		fileInfo.setExternalSystemId("CTUSBioBank");
 			
 		final GenericOrgUnitImportRequest request = new GenericOrgUnitImportRequest();
 		request.setPatientSearch(patientSearch);
 		request.setDocumentInfo(documentInfo);
 		request.setGenericFileInfo(fileInfo);
 		request.setData(new DataHandler(new FileDataSource(fileToImport)));
-		request.setOrganizationalUnitName("BIOBANK_PSI");
+		request.setOrganizationalUnitName(toAU);
 		
 		//the documentation seams to say this throws if it fails!
 		final GenericImportResult result = m_documentManipulationService.importGenericFileIntoOrgUnit(request).get_return();	
+
 		ChangeDocumentPatientRequest changeDocumentPatientRequest = new ChangeDocumentPatientRequest();
 		changeDocumentPatientRequest.setDocumentPk(result.getDocumentPk());
 		changeDocumentPatientRequest.setPatientPk(userPID);
+		
 		ChangeDocumentPatientResponse cdr = m_documentManipulationService.changeDocumentPatient(changeDocumentPatientRequest);
+		
 		return result;
 	}
 	
@@ -437,12 +477,28 @@ public class PACSComms
 		}
 	}
 
+	public GenericContainer getGenericDocument(long PK) throws Exception
+	{
+		GetGenericContainerForDocumentRequest DR = new GetGenericContainerForDocumentRequest();
+		DR.setDocumentPk(PK);
+				
+		try
+		{
+			GenericContainer DS = m_queryService.getGenericContainerForDocument(DR).get_return();
+			return DS;
+		}
+		catch (com.icoserve.www.va20_queryservice.WsFault e)
+		{
+			throw new Exception("Error returned from webservice_api: " + e.getMessage());
+		}
+	}	
+	
 	public DicomStudy getDicomStudy(long studyPK) throws Exception
 	{
 //		final VA20_QueryServiceStub queryService = createServiceStub_QueryServic();		
 		GetDicomStudyRequest dicomStudyID = new GetDicomStudyRequest();
 		dicomStudyID.setDicomStudyPk(studyPK);
-		
+				
 		try
 		{
 			DicomStudy DS = m_queryService.getDicomStudy(dicomStudyID).get_return();
@@ -710,7 +766,7 @@ public class PACSComms
 		final Options options = serviceClient.getOptions();
 		options.setUserName(USERLOGIN);
 		options.setPassword(PASSWORD);
-
+		
 		// Setting up MTOM
 		options.setProperty(Constants.Configuration.ENABLE_MTOM, Constants.VALUE_TRUE);
 

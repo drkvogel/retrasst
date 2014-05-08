@@ -3,42 +3,41 @@ object frmSearch: TfrmSearch
   Top = 0
   BorderIcons = []
   Caption = 'Search'
-  ClientHeight = 211
-  ClientWidth = 616
-  Color = clBtnFace
+  ClientHeight = 204
+  ClientWidth = 552
+  Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDesigned
+  Position = poOwnerFormCenter
   DesignSize = (
-    616
-    211)
+    552
+    204)
   PixelsPerInch = 96
   TextHeight = 13
   object pnlStep3c: TPanel
     Left = 0
     Top = 0
-    Width = 615
-    Height = 155
+    Width = 551
+    Height = 152
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 5
-    ExplicitWidth = 577
     DesignSize = (
-      615
-      155)
+      551
+      152)
     object pnlFile: TPanel
       Left = 5
       Top = 6
-      Width = 602
+      Width = 538
       Height = 43
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      ExplicitWidth = 564
+      ExplicitWidth = 602
       DesignSize = (
-        602
+        538
         43)
       object btnFile: TButton
         Left = 16
@@ -52,36 +51,35 @@ object frmSearch: TfrmSearch
       object ediFile: TEdit
         Left = 71
         Top = 10
-        Width = 512
+        Width = 448
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         ReadOnly = True
         TabOrder = 1
-        ExplicitWidth = 474
+        ExplicitWidth = 512
       end
     end
   end
   object pnlStep3a: TPanel
     Left = 0
     Top = 0
-    Width = 615
-    Height = 155
+    Width = 551
+    Height = 152
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 4
-    ExplicitWidth = 577
     DesignSize = (
-      615
-      155)
+      551
+      152)
     object pnlText: TPanel
       Left = 8
       Top = 8
-      Width = 602
+      Width = 538
       Height = 41
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      ExplicitWidth = 564
+      ExplicitWidth = 602
       DesignSize = (
-        602
+        538
         41)
       object labText: TLabel
         Left = 16
@@ -93,33 +91,31 @@ object frmSearch: TfrmSearch
       object ediText: TEdit
         Left = 48
         Top = 11
-        Width = 543
+        Width = 479
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
         OnChange = ediTextChange
         OnKeyPress = ediTextKeyPress
-        ExplicitWidth = 505
+        ExplicitWidth = 543
       end
     end
   end
   object pnlStep2: TPanel
     Left = 0
     Top = 0
-    Width = 615
-    Height = 158
+    Width = 551
+    Height = 152
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 3
-    ExplicitWidth = 577
-    ExplicitHeight = 155
     object rgSource: TRadioGroup
-      Left = 8
+      Left = 10
       Top = 9
       Width = 89
-      Height = 56
+      Height = 70
       Caption = 'Input'
       Items.Strings = (
-        'Text'
+        'Keyboard'
         'File')
       TabOrder = 0
       OnClick = rgSourceClick
@@ -127,68 +123,69 @@ object frmSearch: TfrmSearch
   end
   object pnlNavigate: TPanel
     Left = 0
-    Top = 162
-    Width = 615
-    Height = 41
+    Top = 159
+    Width = 551
+    Height = 40
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 0
-    ExplicitTop = 159
-    ExplicitWidth = 577
     DesignSize = (
-      615
-      41)
+      551
+      40)
     object btnBack: TButton
-      Left = 176
+      Left = 144
       Top = 8
       Width = 75
-      Height = 25
+      Height = 24
       Anchors = [akLeft, akTop, akBottom]
       Caption = 'Back'
       TabOrder = 0
       OnClick = btnBackClick
+      ExplicitHeight = 25
     end
     object btnNext: TButton
-      Left = 264
+      Left = 240
       Top = 8
       Width = 75
-      Height = 25
+      Height = 24
       Anchors = [akLeft, akTop, akBottom]
       Caption = 'Next'
       TabOrder = 1
       OnClick = btnNextClick
+      ExplicitHeight = 25
     end
     object btnCancel: TButton
-      Left = 533
+      Left = 460
       Top = 8
       Width = 75
-      Height = 25
+      Height = 24
       Anchors = [akTop, akRight, akBottom]
       Caption = 'Cancel'
       TabOrder = 2
       OnClick = btnCancelClick
-      ExplicitLeft = 495
+      ExplicitLeft = 467
+      ExplicitHeight = 25
     end
   end
   object pnlStep3b: TPanel
     Left = 0
     Top = 1
-    Width = 615
-    Height = 155
+    Width = 551
+    Height = 152
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 1
     DesignSize = (
-      615
-      155)
+      551
+      152)
     object pnlMenu: TPanel
       Left = 8
       Top = 5
-      Width = 602
+      Width = 538
       Height = 42
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      ExplicitWidth = 564
+      ExplicitWidth = 602
       DesignSize = (
-        602
+        538
         42)
       object labMenu: TLabel
         Left = 16
@@ -200,43 +197,41 @@ object frmSearch: TfrmSearch
       object cmbMenu: TComboBox
         Left = 58
         Top = 13
-        Width = 533
+        Width = 469
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
         OnChange = cmbMenuChange
-        ExplicitWidth = 495
+        ExplicitWidth = 533
       end
     end
   end
   object pnlStep1: TPanel
     Left = 0
     Top = 0
-    Width = 615
-    Height = 158
+    Width = 551
+    Height = 152
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 2
-    ExplicitWidth = 577
-    ExplicitHeight = 155
     object rgType: TRadioGroup
-      Left = 8
+      Left = 10
       Top = 8
       Width = 89
-      Height = 97
+      Height = 110
       Caption = 'Type'
       Items.Strings = (
-        'Tube'
+        'Sample'
         'Cryovial'
         'Box'
-        'Person')
+        'Source')
       TabOrder = 0
       OnClick = rgTypeClick
     end
   end
   object openFile: TOpenDialog
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
-    Left = 296
-    Top = 65528
+    Left = 224
+    Top = 32
   end
 end

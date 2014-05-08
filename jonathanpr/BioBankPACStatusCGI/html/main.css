@@ -125,33 +125,36 @@ span.action {
 	border-spacing: 0;
 }
 
-th:first-child {
-    border-radius: 26px 0 0 0;
-}
-
-th:last-child {
-    border-radius: 0 26px 0 0;
-}
-
-th:only-child{
-    border-radius: 26px 26px 0 0;
-}
 .tablecss th
 {
 	font-size: 13px;
 	font-weight: normal;
 	padding: 8px;
 	background: #b9c9fe;
-	border-top: 4px solid #aabcfe;
-	border-bottom: 1px solid #fff;
+	border-bottom: 3px solid #ffffff;
+	border-right: 2px solid #ffffff;
 	color: #039;
 
 }
+
+
+th:first-child {
+    border-radius: 26px 0 0 0;
+}
+
+th:last-child {
+    border-radius: 0 26px 0 0;
+	border-right: none;
+}
+
+
+
 .tablecss td
 {
 	padding: 8px;
 	background: #e8edff; 
 	border-bottom: 1px solid #fff;
+	border-right: 1px solid #fff;
 	color: #669;
 	border-top: 1px solid transparent;
 }

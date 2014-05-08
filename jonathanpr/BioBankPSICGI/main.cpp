@@ -15,7 +15,7 @@ static RAND_UTIL *ru = NULL;
 
 //SIMPLE CGI program which takes commands from the JavaScript on the Status web site.
 //The scope of this is to updating the details of the unknown Dicom Studies so they can be
-//matched with the Biobank Id's. Studies can also be ingored, where they take no more part in the system.
+//matched with the Biobank Id's. Studies can also be ignored, where they take no more part in the system.
 
 //Send a message back to the JavaScript.
 static bool jssendMessage(const std::string &Msg)
@@ -43,8 +43,8 @@ static long stringToLong(const std::string &pk)
 	return ipk;
 }
 
-//set the status of a study to 3. (INGORE DICOM STUDY)
-void ingoreDicom(const std::string &studyPK)
+//set the status of a study to 3. (IGNORE DICOM STUDY)
+void ignoreDicom(const std::string &studyPK)
 {
 	bool insertedOK = false;
 	long ipk = stringToLong(studyPK);
@@ -95,7 +95,7 @@ static void updateDicomRecord(const std::string &studyPK,const std::string &newP
 }
 
 // we are expecting mode, which will either be equal
-//  1) ingoreStudy - which will set the study status to ignore
+//  1) ignoreStudy - which will set the study status to ignore
 //  2) updateStudy - Which will update the firstname and participent id
 //User must be signed in for this to accept any data.
 
@@ -105,17 +105,18 @@ static void doBody( void )
 	std::string	modeData = "";
 	if ( cgi->paramExists( "mode" ) )
 	{
-		if (!ru->hasToken())
+/*		if (!ru->hasToken())
 		{
-			jssendMessage("User not authicated");
+			jssendMessage("User not authenticated");
 			return;
 		}
+*/
 		std::string studyPK;
 		modeData = cgi->getParam( "mode" );
-		if (modeData == "ingoreStudy")
+		if (modeData == "ignoreStudy")
 		{
 			studyPK = cgi->getParam( "pk" );
-			ingoreDicom(studyPK);
+			ignoreDicom(studyPK);
 			return;
 		}
 		else if (modeData == "updateStudy")
@@ -126,9 +127,9 @@ static void doBody( void )
 
 			std::string ErrorString = "";
 			if (newPID.length() != 8)
-				ErrorString = "Participant id needs to be 8 characters in length<br>";
+				ErrorString = "Participant id needs to be 8 characters in length.<br>";
 			if (newFN.length() != 8)
-				ErrorString += "First name needs to be 8 characters in length<br>";
+				ErrorString += "First name needs to be 8 characters in length.<br>";
 
 			if (!ErrorString.empty())
 			{
@@ -169,7 +170,7 @@ int main( int argc, char **argv )
 #else
 //	db = ru->openDB( "red::biocore_pacsclinicdata" );
 //	db = ru->openDB( "biocore_bb5::biocore_pacsclinicdata" );
-	db = ru->openDB( "bb5_extract::biocore_pacs" );
+	db = ru->openDB( "biocore_bb5::biocore_pacs" );
 #endif
 	printf("Content-type: text/html\n\n");
 	printf("<HTML><BODY>\n");

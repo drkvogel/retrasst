@@ -23,7 +23,7 @@ std::string LDbNames::makeLower( const std::string & s )
 //---------------------------------------------------------------------------
 
 int LDbNames::compareIC( const std::string & s1, const std::string & s2 ) {
-	return makeLower( s1 ).compare( makeLower( s2 ) );
+	return makeLower( s1 ).compare( makeLower( s2 ) ) == 0;
 }
 
 //---------------------------------------------------------------------------

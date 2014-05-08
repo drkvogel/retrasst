@@ -1886,7 +1886,7 @@ void database::extractBoxInformation(std::string rack_id,rackProjectData *thisra
 
 //---------------------------------------------------------------------------
 
-void database::createRetrievalList(const std::string &external_name,const std::string &description, const std::string &c_project_cid, const std::string &c_aliquot_cid,const std::string &reboxType,TProgressBar *ProgressBar,const std::string &exercise_cid)
+void database::createRetrievalList(const std::string &external_name,const std::string &description,const std::string &c_project_cid, const std::string &reason, const std::string &c_aliquot_cid,const std::string &reboxType,TProgressBar *ProgressBar,const std::string &exercise_cid)
 {
 	openProject(c_project_cid);
 	setAutoCommit(false);
@@ -1947,7 +1947,8 @@ void database::createRetrievalList(const std::string &external_name,const std::s
 			values.setString("job_type","4");
 			values.setString("project_cid",c_project_cid);
 			values.setString("primary_aliquot",c_aliquot_cid);
-			values.setString("secondary_aliquot","0");
+			values.setString("reason",reason);
+//			values.setString("secondary_aliquot","0");
 			values.setString("process_cid",m_c_id_sequence);
 			values.setString("status","0");
 			values.setString("claimed_until",holdForDate);

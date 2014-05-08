@@ -122,7 +122,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
                 }
                 break;
             default:
-                throw Exception("Unknown job type");
+                throw runtime_error("Unknown job type");
         }
         break;
     case LCDbCryoJob::INPROGRESS: // process
@@ -142,7 +142,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
             }
             break;
         default:
-            throw Exception("Unknown job type");
+            throw runtime_error("Unknown job type");
         }
         break;
     default:

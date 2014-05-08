@@ -21,6 +21,8 @@ import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDTextbox;
 
+// writes PDFs for the uploadClinical program.
+
 public class pdfwriter
 {
 	PDFont font;
@@ -33,7 +35,8 @@ public class pdfwriter
 	public pdfwriter() 
 	{
 	}
-	
+
+	// initialises the pdf
 	public void Open(String ParticipentID,String DicomParticipantID, String FirstName) throws Exception
 	{
 		font = PDType1Font.HELVETICA_BOLD;		
@@ -101,6 +104,7 @@ public class pdfwriter
 		document.close();	
 	}
 	
+	// called when in the middle of writing stuff to the PDF
 	public void write(Paragraph paragraph) throws IOException 
 	{
 		contentStream.beginText();
@@ -109,14 +113,14 @@ public class pdfwriter
 		contentStream.moveTextPositionByAmount(paragraph.getX(), paragraph.getY());
 		contentStream.setStrokingColor(paragraph.getColor());
 
-	    List<String> lines = paragraph.getLines();
+	    List<String> lines = paragraph.getLines();  // does line breaks
 	      
 	    for (Iterator<String> i = lines.iterator(); i.hasNext(); ) 
 	    {
 	    	String ss = i.next().trim();
 	       	contentStream.drawString(ss);
 	        if (i.hasNext()) 
-	        	contentStream.appendRawCommands("T*\n");
+	        	contentStream.appendRawCommands("T*\n");   // newline
 	    }
 	    contentStream.endText();
 	}

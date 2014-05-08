@@ -9,7 +9,7 @@ sub copyFile {
     print "Copied $from to $to\n";
 }
 
-my $project = 'valc-gui';
+my $project = 'valc';
 my $target  = 'Make';
 my $config  = 'Debug';
 my $appDataLocal = 'C:/Users/paulst/AppData/Local/ValC';

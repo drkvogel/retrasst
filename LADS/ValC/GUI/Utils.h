@@ -18,12 +18,12 @@ class Utils {
 public:
 	Utils(void);
 	~Utils(void);
-	static char Utils::char2Lower(char c);
+	static char char2Lower(char c);
 	static std::string toLowerCase(const std::string s);
 	static std::string float2str(float fNumber);
 	static UnicodeString float2unicodestr(float f);
 	static std::string int2str(int pNumber);
-	static UnicodeString Utils::int2unicodestr(int n);
+	static UnicodeString int2unicodestr(int n);
 	static bool str2int(std::string str, int *i);
 	static bool unicodestr2int(const UnicodeString u);
 	static std::string unicodestr2str(const UnicodeString u);

@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <script type="text/javascript" src="projDiff.js"></script>
+        <style type="text/css">
+            body { font-family: sans-serif; font-size: small; }
+            h1 { font-size: medium; }
+            h2 { font-size: medium; }
+            td { font-size: small;}
+            td.veryUnusual  { background-color: #FFCCCC; }
+            td.quiteUnusual { background-color: #FFFFCC; }
+            td.normal       { background-color: #E8E8E8; }
+            th { background-color: #C8C8C8; font-size: small; }
+            #dbg { border: 1px solid red; }
+        </style>
+        <title>cbproj diff</title>
+    </head>
+    <body onload="init()">
+        <div id="dbg"></div>
+        <div>
+            <form id="mainForm" action="#">
+                Project File 1:  <input type="file" name="file1" id="file1" value="" size="80" /> <br />                
+                Project File 2:  <input type="file" name="file2" id="file2" value="" size="80" /> <br />                
+                <input type="button" name="diff" id="diff" value="diff" size="80" /> <br />                
+                <input type="button" name="vf1" id="vf1" value="view file 1" size="80" /> <br />                
+                <input type="button" name="vf2" id="vf2" value="view file 2" size="80" /> <br />                
+            </form>
+        </div>        
+        <div id="1v2">
+        </div>
+        <div id="2v1">
+        </div>
+    </body>
+</html>

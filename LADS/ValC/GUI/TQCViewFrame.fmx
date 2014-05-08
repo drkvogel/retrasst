@@ -1,0 +1,11 @@
+object QCViewFrame: TQCViewFrame
+  Height = 240.000000000000000000
+  Width = 320.000000000000000000
+  object Label1: TLabel
+    Height = 17.000000000000000000
+    Position.X = 40.000000000000000000
+    Position.Y = 32.000000000000000000
+    Text = 'I am TQCViewFrame'
+    Width = 120.000000000000000000
+  end
+end

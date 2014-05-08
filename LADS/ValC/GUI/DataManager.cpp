@@ -7,13 +7,11 @@
 #include <boost/variant.hpp>
 
 #include "API.h"
-
-#include "DataManager.h"
-
-#include "VisualComponents.h"
-#include "Main.h"
 #include "ConsoleWriter.h"
+#include "DataManager.h"
+#include "LogManager.h"
 #include "StrUtil.h"
+#include "VisualComponents.h"
 #pragma package(smart_init)
 
 //---------------------------------------------------------------------------
@@ -21,9 +19,9 @@
 /** Initialises the data manager object, with fresh empty lists of queued
   * worklist entries and completed/pending test results.
   */
-DataManager::DataManager(TMainForm *m)
-	: mainForm(m),
-	  log(m->logManager),
+DataManager::DataManager(LogManager *m)
+	: 
+	  log(m),
 	  worklist(NULL),
 	  resultslist(NULL),
 	  haveSnapshot(false),

@@ -39,7 +39,7 @@ public:
 	void analyseVessel(TMemo *Memo,std::string &project_cid,std::string &alquoit_cid,TForm *parent);
 	void analiseForDatabaseUpdates(TMemo *Memo,const std::string &project_cid,TForm *parent);
 
-	void createRetrievalList(const std::string &external_name,const std::string &description, const std::string &c_project_cid, const std::string &c_aliquot_cid ,const std::string &reboxType,TProgressBar *ProgressBar, const std::string &Exercise_cid);
+	void createRetrievalList(const std::string &external_name,const std::string &description, const std::string &c_project_cid,const std::string &reason, const std::string &c_aliquot_cid ,const std::string &reboxType,TProgressBar *ProgressBar, const std::string &Exercise_cid);
 	void getAllAliquotsFromCentral(std::map<std::string, std::map<std::string,std::string> >  &aliquotList);
 	void getVesslList(std::map<int,std::map<String,String> > &vesslList,std::map<String,String> &fromSite);
 

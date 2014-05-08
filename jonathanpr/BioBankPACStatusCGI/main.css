@@ -1,5 +1,4 @@
   #content {
-
 	font-family: Verdana, Geneva, sans-serif;
 	background-color: #FFFFFF;
 	padding: 5px;
@@ -55,7 +54,7 @@ div.upper {
 	margin: 0em auto; padding: 0.5em; min-height: 78px; max-width: 866px; background-repeat: no-repeat;
 }
 div.main {
-	background-position: right top; margin: 0em auto; padding: 0.5em; border-radius: 8px; border: 1px solid rgb(0, 33, 71); min-height: 100px; max-width: 850px; background-repeat: no-repeat; background-color: white;
+	background-position: right top; margin: 0em auto; padding: 0.5em; border-radius: 8px; border: 1px solid rgb(0, 33, 71); min-height: 100px; max-width: 90%; background-repeat: no-repeat; background-color: white;
 }
 div.ctsu_title {
 	text-align: left;
@@ -114,3 +113,102 @@ span.error_msg {
 span.action {
 	width: 400px; text-align: left; padding-right: 10px; float: right;
 }
+
+.tablecss
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	margin: 45px;
+	width: 90%;
+	text-align: left;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+.tablecss th
+{
+	font-size: 13px;
+	font-weight: normal;
+	padding: 8px;
+	background: #b9c9fe;
+	border-bottom: 3px solid #ffffff;
+	border-right: 2px solid #ffffff;
+	color: #039;
+
+}
+
+
+th:first-child {
+    border-radius: 26px 0 0 0;
+}
+
+th:last-child {
+    border-radius: 0 26px 0 0;
+	border-right: none;
+}
+
+
+
+.tablecss td
+{
+	padding: 8px;
+	background: #e8edff; 
+	border-bottom: 1px solid #fff;
+	border-right: 1px solid #fff;
+	color: #669;
+	border-top: 1px solid transparent;
+}
+.tablecss tr:hover td
+{
+	background: #d0dafd;
+	color: #339;
+}
+
+.AleBox {
+	font-family: Verdana, Geneva, sans-serif;
+	background-color: #EEE;
+	border: medium double #666;
+	padding: 5px;
+	margin-top: 10px;
+	margin-right: 5px;
+	margin-bottom: 10px;
+	margin-left: 5px;
+	width: 80%;
+	margin-left:auto;
+margin-right:auto;
+	text-align: center;
+}
+
+.classtable
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	margin: 45px;
+	width: 90%;
+	text-align: left;
+	border-collapse: collapse;
+}
+.classtable th
+{
+	font-size: 13px;
+	font-weight: normal;
+	padding: 8px;
+	background: #b9c9fe;
+	border-top: 4px solid #aabcfe;
+	border-bottom: 1px solid #fff;
+	color: #039;
+}
+.classtable td
+{
+	padding: 8px;
+	background: #e8edff; 
+	border-bottom: 1px solid #fff;
+	color: #669;
+	border-top: 1px solid transparent;
+}
+.classtable tr:hover td
+{
+	background: #d0dafd;
+	color: #339;
+}
+

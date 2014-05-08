@@ -1,6 +1,7 @@
 #include "RetrievalListDatabase.h"
 #include "xdb.h"
 #include "xquery.h"
+#include "LogFile.h"
 #include "xexec.h"
 #include <vector>
 #include <sstream>
@@ -502,7 +503,7 @@ String RetrievalListDatabase::cryovial_store_StatusToString(int iStatus)
 String RetrievalListDatabase::cryovial_StatusToString(int iStatus)
 {
 	if (iStatus == 0)
-		return L"New entery";
+		return L"New entry";
 	else if (iStatus == 1)
 		return L"stored/confirmed";
 	else if (iStatus == 2)
@@ -572,9 +573,14 @@ void RetrievalListDatabase::toReadableDateString(String &dateString)
 	}
 		try
 		{	char buff[ 30 ];
-			XTIME dt( AnsiString(dateString).c_str() );
-			std::sprintf( buff, "%d:%.2d %d-%s-%d",
-				dt.getHour(), dt.getMinute(), dt.getDay(), dt.getMonthName().c_str(), dt.getYear() );
+			if( dateString.Length() > 10 ) {
+				XTIME dt( AnsiString(dateString).c_str() );
+				std::sprintf( buff, "%d:%.2d %d-%s-%d",
+					dt.getHour(), dt.getMinute(), dt.getDay(), dt.getMonthName().c_str(), dt.getYear() );
+			} else {
+				XDATE dt( AnsiString(dateString).c_str() );
+				std::sprintf( buff, "%d-%s-%d",	dt.getDay(), dt.getMonthName().c_str(), dt.getYear() );
+			}
 			dateString = buff;
 		}
 		catch (EConvertError &E)
@@ -604,17 +610,17 @@ void RetrievalListDatabase::fillRichEditInfo(std::map<String,String> &cryovialIn
 	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
 	RichEdit->SelText =  cryovialInfo[DEFINE_CRYOVIAL_BARCODE];
 	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
-	RichEdit->SelText = L" and Aliquot ";
+	RichEdit->SelText = L" and Aliquot type ";
 	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
 	RichEdit->SelText = cryovialInfo[DEFINE_ALIQUOT_EXTERNAL_NAME];
 	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
-	RichEdit->SelText = L" it has the status of ";
+	RichEdit->SelText = L" has the status of ";
 	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
 	RichEdit->SelText = cryovial_StatusToString(cryovialInfo[DEFINE_CRYOVIAL_STATUS].ToInt());
 	RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
 	if (cryovialInfo[DEFINE_BOXNAME_EXTERNAL_NAME].Length() > 0)
 	{
-		RichEdit->SelText = L".\n\nIts last storage entery states it was put into box ";
+		RichEdit->SelText = L".\n\nIts last storage entry states it was put into box ";
 		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
 		RichEdit->SelText = cryovialInfo[DEFINE_BOXNAME_EXTERNAL_NAME];
 		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
@@ -672,13 +678,15 @@ void RetrievalListDatabase::fillRichEditInfo(std::map<String,String> &cryovialIn
 		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
 		RichEdit->SelText = cryovialInfo[DEFINE_RACK_EXTERNAL_NAME];
 		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
-		RichEdit->SelText = L", in postion ";
+		RichEdit->SelText = L", in position ";
 		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
 		RichEdit->SelText = cryovialInfo[DEFINE_BOXSTORE_SLOT_POSITION];
-		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
-		RichEdit->SelText = L" and on shelf ";
-		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
-		RichEdit->SelText = cryovialInfo[DEFINE_TANK_MAP_SHELF_NUMBER];
+		if( cryovialInfo[DEFINE_TANK_MAP_SHELF_NUMBER].ToIntDef(-1) > 0 ) {
+			RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
+			RichEdit->SelText = L" and on shelf ";
+			RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
+			RichEdit->SelText = cryovialInfo[DEFINE_TANK_MAP_SHELF_NUMBER];
+		}
 		RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
 		RichEdit->SelText = L".\n";
 	}
@@ -743,7 +751,7 @@ void RetrievalListDatabase::fillRichEditInfo(std::map<String,String> &cryovialIn
 				cryovial_store_removed=cryovial_store_removed.Trim();
 				toReadableDateString(cryovial_store_time_stamp);
 				toReadableDateString(cryovial_store_removed);
- 				temp.insert(std::pair<String,String> ("cryovial_store_record_id",cryovial_store_record_id));
+				temp.insert(std::pair<String,String> ("cryovial_store_record_id",cryovial_store_record_id));
 				temp.insert(std::pair<String,String> ("cryovial_store_box_cid",cryovial_store_box_cid));
 				temp.insert(std::pair<String,String> ("cryovial_store_cryovial_position",cryovial_store_cryovial_position));
 				temp.insert(std::pair<String,String> ("cryovial_store_status",cryovial_store_status));
@@ -768,6 +776,7 @@ void RetrievalListDatabase::fillRichEditInfo(std::map<String,String> &cryovialIn
 		String sql = String(sqlquery.str().c_str()) + temp["cryovial_store_box_cid"] + L"'";
 
 		XQUERY project_query( m_dbProject.get(), AnsiString(sql.c_str()).c_str() );
+		project_query.setAcceptNull( true );
 		throwUnless( project_query.open(), "Failed to retreve retrival lists" );
 		try{
 			while ( project_query.fetch() )    //any data?
@@ -892,10 +901,12 @@ void RetrievalListDatabase::fillRichEditInfo(std::map<String,String> &cryovialIn
 					RichEdit->SelText = L", in postion ";
 					RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
 					RichEdit->SelText = temp["box_store_slot_position"];
-					RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
-					RichEdit->SelText = L" and on shelf ";
-					RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
-					RichEdit->SelText = tempTankData[DEFINE_TANK_MAP_SHELF_NUMBER];
+					if( tempTankData[DEFINE_TANK_MAP_SHELF_NUMBER].ToIntDef(-1) > 0 ) {
+						RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
+						RichEdit->SelText = L" and on shelf ";
+						RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_HI_LIGHT,RichEdit);
+						RichEdit->SelText = tempTankData[DEFINE_TANK_MAP_SHELF_NUMBER];
+					}
 					RichEdit->SelText = L".";
 					RetrivalListGridUtils::setRichTextType(RetrivalListGridUtils::FONT_NORMAL,RichEdit);
 				}
@@ -1137,7 +1148,6 @@ void RetrievalListDatabase::getCryovialLists(String &project_id,std::vector<Stri
 String RetrievalListDatabase::getDiscripColumnsFor(String &type)
 {
 	String endResult = "";
-
 	std::wstringstream sqlquery;
 	sqlquery << "select specimen_field_name from descrip where descriptor_name = '";
 	sqlquery << type.c_str() << "'";
@@ -1338,6 +1348,12 @@ void RetrievalListDatabase::fillCryovialStatus(std::map<int,std::map<String,Stri
 //FILL THE REST OF THE TABLE..
 	for (std::map<int,std::map<String,String> >::reverse_iterator it = cryoLists.rbegin(); it != cryoLists.rend(); ++it)
 	{
+/*
+static LogFile debuglog( "debug" );
+static int count = 0;
+debuglog.start( "fillCryovialStatus" );
+debuglog.addAttribute( "count", ++count );
+*/
 		int cryoid = it->first;
 		std::map<String,String> temp = it->second;
 //////////////////////////////////////////////////////////////////////////////
@@ -1356,6 +1372,9 @@ void RetrievalListDatabase::fillCryovialStatus(std::map<int,std::map<String,Stri
 
 			sqlquery_boxname << "select box_name.external_name,box_name.note_exists from box_name where box_name.box_cid = '" << Box_id.c_str() << "'";
 			sqlquery_boxstore << "select box_store.rack_cid,box_store.slot_position from box_store where box_store.box_cid = '" << Box_id.c_str() << "'";
+
+// debuglog.addText( AnsiString(sqlquery_boxname.str().c_str()).c_str() );
+
 			{
 				XQUERY project_query( m_dbProject.get(), AnsiString(sqlquery_boxname.str().c_str()).c_str() );
 				throwUnless( project_query.open(), "Failed to retreve retrival lists" );
@@ -1550,6 +1569,7 @@ void RetrievalListDatabase::fillCryovialStatus(std::map<int,std::map<String,Stri
 		//cryoLists.insert(std::pair<int,std::map<String,String> > (cryoid,temp));
 		newMap.insert(std::pair<int,std::map<String,String> > (cryoid,temp));
 		(*ProgessCounter)++;
+// debuglog.endTag();
 	}
 	cryoLists = newMap;
 	m_bBackgroundProcessing = false;

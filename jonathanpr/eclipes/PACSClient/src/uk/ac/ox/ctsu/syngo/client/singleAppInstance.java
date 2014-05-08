@@ -8,7 +8,7 @@ import java.net.SocketException;
  * Simple class to make sure only one java cron job type is running at any one time.
  * 
  * It works by opening up a port on startup, if it fails to open the port, we know it is already open.
- * The porn numbers them selfs may have other things running on. So may need changing at some point.
+ * The port numbers themselves may have other things running on. So may need changing at some point.
  */
 public class singleAppInstance
 {

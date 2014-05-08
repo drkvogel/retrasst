@@ -65,7 +65,6 @@ object frmFind: TfrmFind
     TabOrder = 1
     OnChange = cbTypeChange
     OnDropDown = cbTypeDropDown
-    ExplicitWidth = 150
   end
   object txtName: TEdit
     Left = 230
@@ -75,7 +74,6 @@ object frmFind: TfrmFind
     Anchors = [akLeft, akTop, akRight]
     Enabled = False
     TabOrder = 2
-    ExplicitWidth = 150
   end
   object BitBtn1: TBitBtn
     Left = 108
@@ -105,8 +103,6 @@ object frmFind: TfrmFind
     NumGlyphs = 2
     TabOrder = 3
     OnClick = BitBtn1Click
-    ExplicitLeft = 104
-    ExplicitTop = 151
   end
   object BitBtn2: TBitBtn
     Left = 237
@@ -117,8 +113,6 @@ object frmFind: TfrmFind
     Kind = bkCancel
     NumGlyphs = 2
     TabOrder = 4
-    ExplicitLeft = 230
-    ExplicitTop = 151
   end
   object cbProject: TComboBox
     Left = 230
@@ -129,6 +123,5 @@ object frmFind: TfrmFind
     Sorted = True
     TabOrder = 5
     OnChange = cbProjectChange
-    ExplicitWidth = 150
   end
 end

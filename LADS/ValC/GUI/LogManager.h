@@ -7,14 +7,10 @@
 
 #include "ConsoleWriter.h"
 #include "LoggingService.h"
-#include "CritSec.h"
 
 //
 					// forward declarations
-					class TloggingForm;
-					class TMainForm;
-					class GUImanager;
-					class LogMessageQueue;
+					class TLogFrame;
 //---------------------------------------------------------------------------
 
 /** There is a singleton instance of LogManager in the ValC program, and
@@ -59,44 +55,27 @@ public:
   */
 	static std::string FLAG_EXCEPTION;
 
-/** Used to flag up messages intended for the GUI side of the
-  * logging window.
-  */
-	static int PURPOSE_GUI;
-
-/** Used to flag up message intended for the Business Layer side of the
-  * logging window.
-  */
-	static int PURPOSE_BUSINESS_LAYER;
-
-/** Indicates whether a logging window is used for displaying log messages. */
-	bool useWindow;
-
 /** A reference to the logging service, which handles multiple threaded requests
   * for log messages.
   */
 	paulst::LoggingService *logService;
 
-
 // For comments on methods, please see implementation.
 
-	LogManager(TMainForm *m, bool logWin);
+	LogManager(TLogFrame *m, const std::string& logFilePath);
 	~LogManager();
 
 
 	void log(const std::string & msg);
 	void logException(const std::string & msg);
+	void logException(const Exception& e);
 
 private:
-	TMainForm *mainForm;    // a link back to the main form of the program
 
 	std::string logTimestamp;  // to timestamp this ValC run
 
 	void timestampLog();
-
 };
-
-
 
 
 
@@ -117,23 +96,16 @@ private:
 									 // this class has responsibility for
 									 // destroying it afterwards
 
-	LogManager *logMan;
-
-	TThreadMethod handleNextLogMessage;  // reference to the method that processes
-										 // the next message from the logging
-										 // window's queue
-
-	LogMessageQueue *msgQueue; // a pointer to the logging window's
+	TLogFrame *msgQueue; // a pointer to the logging window's
 							   // message queue
-
 
 public:
 	~GUIandLogWriter();
-	GUIandLogWriter(LogManager *logMan, TThreadMethod handle,
-					LogMessageQueue *q, const std::string & filename);
+	GUIandLogWriter(TLogFrame *q, const std::string & filename);
 
 	void write(const std::string & msg);
 };
 
 
 #endif
+

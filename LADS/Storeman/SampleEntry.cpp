@@ -260,13 +260,13 @@ void TfrmRetrieveMain::checkBoxTypes()
 {
 	AnsiString current = cbBoxType->Text.Trim();
 	std::set< int > required;
-	for( std::vector<GridEntry>::const_iterator ge = rows.begin(); ge != rows.end(); ++ ge ) {
-		required.insert( ge->aid );
+	for( const GridEntry & ge : rows ) {
+		required.insert( ge.aid );
 	}
 	cbBoxType -> Clear();
 	int selected = -1;
 	for( const LPDbBoxType & bt : LPDbBoxTypes::records() ) {
-		if( bt.getProjectCID() == LCDbProjects::getCurrentID() ) {
+		if( bt.getProjectCID() == 0 || bt.getProjectCID() == LCDbProjects::getCurrentID() ) {
 			bool include = true;
 			for( int ge : required ) {
 				if( !bt.hasAliquot( ge ) ) {

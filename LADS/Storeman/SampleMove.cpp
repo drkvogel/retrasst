@@ -224,16 +224,17 @@ void TfrmMove::listCurrentBoxes( bool (*boxfn)(Box* b) )
 
 void TfrmMove::listAssignedBoxes( IPart* item )
 {
-	Box * b = dynamic_cast<Box*>( item );
-	if( b )	{
-		int jobID = createNewJob ? 0 : job.getID();
-		if( b->getRetrievalCID() == jobID ) {
-			if( b->isLHSAssigned() ) {
-				leftKids.push_back( b );
-				rightKids.push_back( (Box*)(b->getMapped()) );
-			} else if( b->isRHSAssigned() ) {
-				rightKids.push_back( b );
-				leftKids.push_back( (Box*)(b->getMapped()) );
+	Box * box = dynamic_cast<Box*>( item );
+	if( box ) {
+		Box * mapped = (Box*)(box->getMapped());
+		if( mapped ) {
+			int jobID = createNewJob ? 0 : job.getID();
+			if( box->isLHSAssigned() && box->getRetrievalCID() == jobID ) {
+				leftKids.push_back( box );
+				rightKids.push_back( mapped );
+			} else if( box->isRHSAssigned() && mapped->getRetrievalCID() == jobID ) {
+				leftKids.push_back( mapped );
+				rightKids.push_back( box );
 			}
 		}
 	} else if( item != NULL ) {
@@ -453,9 +454,10 @@ int TfrmMove::getImageIndex( IPart *data )
 			return Util::AVAILABLE;
 		}
 		if( b->isLHSAssigned() || b->isRHSAssigned() ) {
-			int jobID = createNewJob ? 0 : job.getID();
+			return Util::ASSIGNED;
+/*			int jobID = createNewJob ? 0 : job.getID();
 			return b->getRetrievalCID() == jobID ? Util::ASSIGNED : Util::OFF_LINE;
-		}
+*/		}
 	}
 
 	int children = data->getChildCount();
@@ -565,27 +567,22 @@ void TfrmMove::checkButtons()
 
 void __fastcall TfrmMove::FormClose(TObject *Sender, TCloseAction &Action)
 {
-	if( createNewJob )
-	{
-		if( ModalResult != mrOk && anyBoxes( part, Util::ASSIGNED )
-		 && Application->MessageBox( L"Discard current assignment?", L"Warning",
-						MB_ICONWARNING|MB_YESNO|MB_DEFBUTTON2) != IDYES ) {
+	if( !createNewJob ) {
+		job.release( jobQuery, allBoxes( part, Util::AVAILABLE ) );
+	} else if( anyBoxes( part, Util::ASSIGNED ) ) {
+		if( ModalResult == mrOk
+		 || Application->MessageBox( L"Discard current assignment?", L"Warning",
+								MB_ICONWARNING|MB_YESNO|MB_DEFBUTTON2) == IDYES ) {
+			unmapChildren( part );
+		} else {
 			Action = caNone;
 			return;
 		}
-		unmapChildren( part );
 	}
-	else if( part != NULL )
-	{
-		delete part;
-		part = NULL;
-	}
-
-	if( root != NULL )
-	{
-		delete root;
-		root = NULL;
-	}
+	delete part;
+	part = NULL;
+	delete root;
+	root = NULL;
 }
 
 //---------------------------------------------------------------------------
@@ -658,8 +655,7 @@ void __fastcall TfrmMove::DoneClick(TObject *Sender)
 
 void __fastcall TfrmMove::SignOffClick(TObject *Sender)
 {
-	if( !allBoxes( part, Util::AVAILABLE ) )
-	{
+	if( !allBoxes( part, Util::AVAILABLE ) ) {
 		Application->MessageBox( L"Some boxes are not set to \'Done\'", NULL, MB_OK );
 		return;
 	}
@@ -674,21 +670,14 @@ void __fastcall TfrmMove::SignOffClick(TObject *Sender)
 	char summary[ 70 ];
 	std::sprintf( summary, "%d boxes have been marked \'Done\'", (int) leftKids.size() );
 	frmConfirm -> initialise( TfrmSMLogin::MOVE, summary, projects );
-	if( frmConfirm->ShowModal() != mrOk )
-		return;
-
-	String error;
-	if( !SignOff() ) {
-		error = "Error updating box location";
-	} else if( !job.release( jobQuery, true ) ) {
-		error = "Error releasing job record";
+	if( frmConfirm->ShowModal() == mrOk ) {
+		if( SignOff() ) {
+			ModalResult = mrOk;
+		} else {
+			Application->MessageBox( L"Error updating box location", NULL, MB_OK );
+			updateDisplay();
+		}
 	}
-	if( error.IsEmpty() ) {
-		ModalResult = mrOk;
-	} else {
-		Application->MessageBox( error.c_str(), NULL, MB_OK );
-		updateDisplay();
-    }
 }
 
 //---------------------------------------------------------------------------

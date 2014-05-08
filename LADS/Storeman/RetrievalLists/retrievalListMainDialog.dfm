@@ -12,6 +12,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poOwnerFormCenter
   OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
@@ -23,7 +24,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
     Height = 169
     TabOrder = 0
     object Label5: TLabel
-      Left = 19
+      Left = 16
       Top = 5
       Width = 170
       Height = 19
@@ -49,7 +50,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
       ParentFont = False
     end
     object Label7: TLabel
-      Left = 15
+      Left = 16
       Top = 30
       Width = 165
       Height = 17
@@ -89,7 +90,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
   end
   object Panel2: TPanel
     Left = 8
-    Top = 183
+    Top = 186
     Width = 566
     Height = 194
     TabOrder = 1
@@ -107,7 +108,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
       ParentFont = False
     end
     object Label3: TLabel
-      Left = 19
+      Left = 16
       Top = 33
       Width = 83
       Height = 16
@@ -182,7 +183,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
   end
   object Panel3: TPanel
     Left = 8
-    Top = 383
+    Top = 390
     Width = 566
     Height = 146
     TabOrder = 2
@@ -213,7 +214,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
       ParentFont = False
     end
     object Label8: TLabel
-      Left = 19
+      Left = 16
       Top = 33
       Width = 83
       Height = 16

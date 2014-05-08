@@ -89,7 +89,7 @@ object frmMove: TfrmMove
   end
   object BtnUnassign: TButton
     Left = 486
-    Top = 92
+    Top = 96
     Width = 92
     Height = 31
     Anchors = []
@@ -129,9 +129,9 @@ object frmMove: TfrmMove
   end
   object Panel2: TPanel
     Left = 482
-    Top = 348
+    Top = 364
     Width = 100
-    Height = 228
+    Height = 229
     Anchors = []
     Color = clSkyBlue
     ParentBackground = False
@@ -439,7 +439,7 @@ object frmMove: TfrmMove
   end
   object BtnCreate: TButton
     Left = 486
-    Top = 134
+    Top = 143
     Width = 92
     Height = 31
     Anchors = []
@@ -449,7 +449,7 @@ object frmMove: TfrmMove
   end
   object BtnDone: TButton
     Left = 486
-    Top = 176
+    Top = 190
     Width = 92
     Height = 31
     Anchors = []
@@ -459,7 +459,7 @@ object frmMove: TfrmMove
   end
   object BtnRevert: TButton
     Left = 486
-    Top = 218
+    Top = 237
     Width = 92
     Height = 31
     Anchors = []
@@ -469,7 +469,7 @@ object frmMove: TfrmMove
   end
   object BtnSignOff: TButton
     Left = 486
-    Top = 260
+    Top = 284
     Width = 92
     Height = 31
     Anchors = []
@@ -491,7 +491,7 @@ object frmMove: TfrmMove
     Left = 232
     Top = 240
     Bitmap = {
-      494C010109006801600110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010109006801700110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

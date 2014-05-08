@@ -5,7 +5,7 @@ object frmRatTanksRetrivalExercise: TfrmRatTanksRetrivalExercise
   Caption = 'Create retrieval exercise'
   ClientHeight = 201
   ClientWidth = 403
-  Color = clBtnFace
+  Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

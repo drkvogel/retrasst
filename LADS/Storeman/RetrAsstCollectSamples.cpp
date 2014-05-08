@@ -303,7 +303,7 @@ void TfrmRetrAsstCollectSamples::checkExit() {
 }
 
 void TfrmRetrAsstCollectSamples::showChunks() {
-    if (0 == chunks.size()) { throw Exception("No chunks"); } // must always have one chunk anyway
+    if (0 == chunks.size()) { throw runtime_error("No chunks"); } // must always have one chunk anyway
     else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
     int row = 1;
     for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
@@ -326,7 +326,7 @@ void TfrmRetrAsstCollectSamples::showChunks() {
 Chunk< SampleRow > * TfrmRetrAsstCollectSamples::currentChunk() {
     if (sgChunks->Row < 1) sgChunks->Row = 1; // force selection of 1st row
     Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][sgChunks->Row];
-    if (NULL == chunk) throw Exception("null chunk");
+    if (NULL == chunk) throw runtime_error("null chunk");
     return chunk;
 }
 
@@ -419,7 +419,7 @@ void __fastcall LoadPlanThread::Execute() {
 Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
     delete_referenced< vector<SampleRow * > >(frmRetrAsstCollectSamples->vials); frmRetrAsstCollectSamples->chunks.clear();
     ostringstream oss; oss<<frmRetrAsstCollectSamples->progressMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
-    if (NULL == frmRetrAsstCollectSamples || NULL == frmRetrAsstCollectSamples->job) { throw "wtf?"; }
+    if (NULL == frmRetrAsstCollectSamples || NULL == frmRetrAsstCollectSamples->job) { throw runtime_error("wtf?"); }
     loadingMessage = frmRetrAsstCollectSamples->progressMessage;
     job = frmRetrAsstCollectSamples->job; //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 
@@ -493,9 +493,9 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             previous != NULL &&
             previous->cryovial_barcode == row->cryovial_barcode) { // secondary aliquot, previous was primary of same sample
             if (previousAliquotType == currentAliquotType) {
-                throw Exception("duplicate aliquot");
+                throw runtime_error("duplicate aliquot");
             } else if (currentAliquotType != secondary_aliquot) {
-                throw Exception("spurious aliquot");
+                throw runtime_error("spurious aliquot");
             } else { // secondary
                 previous->backup = row;
             }
@@ -631,7 +631,7 @@ void TfrmRetrAsstCollectSamples::notFound() {
                 showDetails(sample->backup);
                 return;
             } else {
-                throw "backup already NOT_FOUND";
+                throw runtime_error("backup already NOT_FOUND");
             }
         } else {
             TfrmRetrievalAssistant::msgbox("No secondary aliquot exists, continuing to next sample");
@@ -642,7 +642,7 @@ void TfrmRetrAsstCollectSamples::notFound() {
             sample->backup->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
             nextRow();
         } else {
-            throw "no secondary for not found primary, should have moved on to next row";
+            throw runtime_error("no secondary for not found primary, should have moved on to next row");
         }
     }
 }
@@ -674,9 +674,9 @@ void TfrmRetrAsstCollectSamples::nextRow() {
     SampleRow * sample = chunk->currentObject(); // which may be the secondary aliquot
 
     // save changes both primary and secondary in l_cryovial_retrieval (not cryovial/_store at this point)
-    if (!sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw "saveRecord() failed"; }
+    if (!sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed"); }
     if (sample->backup) {
-        if (!sample->backup->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw "saveRecord() failed for secondary"; }
+        if (!sample->backup->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed for secondary"); }
     } // deferred (IGNORED) vials are not actually saved to the database, they remain EXPECTED
 
     // don't need to save chunk - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
@@ -935,7 +935,7 @@ void TfrmRetrAsstCollectSamples::discardBoxes() {
 
     if (!emptyBoxes.empty()) {
         if (IDYES != Application->MessageBox(L"There are empty boxes. Would you like to mark these as discarded?", L"Info", MB_YESNO)) {
-            throw "user did not want to deal with empty boxes";
+            throw runtime_error("user did not want to deal with empty boxes");
         }
     }
 
@@ -944,7 +944,7 @@ void TfrmRetrAsstCollectSamples::discardBoxes() {
         int box_cid = *idIt;
         pBoxName = boxNames.findByID(box_cid);
         if (NULL == pBoxName) { // IN_TANK [4] records not read and findByID for those ids returns a null
-            throw "box not found"; //???
+            throw runtime_error("box not found"); //???
         } else {
             //pBoxName->saveRecord(qp); // can't do this on const *
             LPDbBoxName boxName = *(pBoxName); // so make mutable object

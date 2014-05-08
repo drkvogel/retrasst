@@ -4,7 +4,7 @@ object frmBoxList: TfrmBoxList
   BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Boxes for Transfer'
   ClientHeight = 431
-  ClientWidth = 697
+  ClientWidth = 705
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,47 +16,54 @@ object frmBoxList: TfrmBoxList
   OnResize = FormResize
   OnShow = FormShow
   DesignSize = (
-    697
+    705
     431)
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel
-    Left = 576
-    Top = 312
-    Width = 91
+    Left = 10
+    Top = 381
+    Width = 101
     Height = 13
-    Anchors = [akRight, akBottom]
-    Caption = 'Box name/number:'
+    Anchors = [akLeft, akBottom]
+    Caption = 'Add box by barcode:'
   end
   object Label1: TLabel
-    Left = 8
-    Top = 12
-    Width = 38
+    Left = 10
+    Top = 14
+    Width = 70
     Height = 13
-    Caption = 'Project:'
+    Caption = 'Select project:'
   end
   object Label3: TLabel
-    Left = 8
-    Top = 47
-    Width = 202
-    Height = 26
+    Left = 10
+    Top = 70
+    Width = 205
+    Height = 29
     Caption = 
-      'Select box types from list. Click headings to sort, +/- for requ' +
-      'ired analyses.'
+      'Select types to display. Use headings to sort, +/- for required ' +
+      'analyses.'
+    WordWrap = True
+  end
+  object Label4: TLabel
+    Left = 243
+    Top = 14
+    Width = 279
+    Height = 18
+    Caption = 'Select boxes to export or print. Use headings to sort.'
     WordWrap = True
   end
   object cbProject: TComboBox
-    Left = 54
-    Top = 9
-    Width = 156
+    Left = 10
+    Top = 30
+    Width = 205
     Height = 21
     Sorted = True
     TabOrder = 0
-    Text = '(select project)'
     OnChange = cbProjectChange
   end
   object btnPrint: TBitBtn
-    Left = 576
+    Left = 590
     Top = 135
     Width = 106
     Height = 36
@@ -76,12 +83,12 @@ object frmBoxList: TfrmBoxList
       33333337F3FF7F3733333330F08F0F0333333337F7737F7333333330FFFF0033
       33333337FFFF7733333333300000033333333337777773333333}
     NumGlyphs = 2
-    TabOrder = 2
+    TabOrder = 6
     OnClick = btnPrintClick
   end
   object btnExport: TBitBtn
-    Left = 576
-    Top = 85
+    Left = 590
+    Top = 79
     Width = 106
     Height = 36
     Anchors = [akTop, akRight]
@@ -100,23 +107,23 @@ object frmBoxList: TfrmBoxList
       33337F7737F7333333330FFFF003333333337FFFF77333333333000000333333
       3333777777333333333333333333333333333333333333333333}
     NumGlyphs = 2
-    TabOrder = 1
+    TabOrder = 5
     OnClick = btnExportClick
   end
   object ebBoxNum: TEdit
-    Left = 576
-    Top = 332
-    Width = 106
+    Left = 10
+    Top = 400
+    Width = 101
     Height = 21
-    Anchors = [akRight, akBottom]
-    TabOrder = 3
+    Anchors = [akLeft, akBottom]
+    TabOrder = 2
   end
   object btnAddBox: TBitBtn
-    Left = 576
-    Top = 365
-    Width = 106
-    Height = 36
-    Anchors = [akRight, akBottom]
+    Left = 127
+    Top = 387
+    Width = 88
+    Height = 34
+    Anchors = [akLeft, akBottom]
     Caption = 'Add'
     Default = True
     Glyph.Data = {
@@ -133,14 +140,14 @@ object frmBoxList: TfrmBoxList
       333333333337733333FF3333333C333330003333333733333777333333333333
       3000333333333333377733333333333333333333333333333333}
     NumGlyphs = 2
-    TabOrder = 4
+    TabOrder = 3
     OnClick = btnAddBoxClick
   end
   object sgBoxNames: TStringGrid
-    Left = 225
-    Top = 9
-    Width = 336
-    Height = 412
+    Left = 242
+    Top = 30
+    Width = 335
+    Height = 391
     Hint = 'Click header to sort, row to include or exclude'
     Margins.Left = 0
     Margins.Top = 0
@@ -153,15 +160,15 @@ object frmBoxList: TfrmBoxList
     FixedCols = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goFixedRowClick]
     ScrollBars = ssVertical
-    TabOrder = 5
+    TabOrder = 4
     OnDrawCell = sgBoxNamesDrawCell
     OnFixedCellClick = sgBoxNamesFixedCellClick
   end
   object sgBoxTypes: TStringGrid
-    Left = 8
-    Top = 79
-    Width = 202
-    Height = 342
+    Left = 10
+    Top = 102
+    Width = 205
+    Height = 257
     Hint = 'Click to sort or select'
     Anchors = [akLeft, akTop, akBottom]
     ColCount = 4
@@ -169,7 +176,7 @@ object frmBoxList: TfrmBoxList
     FixedCols = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goFixedRowClick]
     ScrollBars = ssVertical
-    TabOrder = 6
+    TabOrder = 1
     OnDrawCell = sgBoxTypesDrawCell
     OnFixedCellClick = sgBoxTypesFixedCellClick
     OnSelectCell = sgBoxTypesSelectCell
@@ -181,7 +188,7 @@ object frmBoxList: TfrmBoxList
     Top = 192
   end
   object printDialogue: TPrintDialog
-    Left = 456
+    Left = 464
     Top = 192
   end
   object timer: TTimer

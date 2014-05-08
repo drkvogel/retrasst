@@ -794,7 +794,7 @@ const string TfrmReferred::getVesselName(int population_cid) {
     if (0 != population_cid) {
         const LCDbObject pop = LCDbObjects::records().get(population_cid);
         if (pop.isActive()) { //pop != NULL &&
-            if (pop.getObjectType() != LCDbObject::STORAGE_POPULATION) throw "Wrong object type";
+            if (pop.getObjectType() != LCDbObject::STORAGE_POPULATION) throw runtime_error("Wrong object type");
             for (Range< LCDbTankMap > tmi = LCDbTankMaps::records(); tmi.isValid(); ++tmi) {
                 if (tmi->isActive() && tmi->getTankCID() == pop.getID()) {
                     int vesselCID = tmi->getStorageCID();
@@ -1045,7 +1045,7 @@ void __fastcall CheckTRSWorkerThread::Execute() {
     //qc.setSQL("SELECT * FROM l_box_arrival WHERE box_arrival_id = :baid"); // including 99'd records, ID might have been corrected
     qc.setParam("baid", box.box_arrival_id);
     if (!qc.open()) { // results
-        throw Exception("Box arrival record not found");
+        throw runtime_error("Box arrival record not found");
     } else {
         int orig_tank = qc.readInt("tank_cid");
         string orig_rackname(qc.readString("rack_number"));

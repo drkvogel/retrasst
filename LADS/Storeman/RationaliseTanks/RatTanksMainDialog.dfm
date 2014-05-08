@@ -5,14 +5,14 @@ object frmRatTanksMainDialog: TfrmRatTanksMainDialog
   Caption = 'Rationalise Tanks'
   ClientHeight = 576
   ClientWidth = 709
-  Color = clBtnFace
+  Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDesigned
+  Position = poOwnerFormCenter
   OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96

@@ -14,8 +14,8 @@
 #include "DataContainers.h"
 #include "InfoPanels.h"
 #include "TActionPanel.h"
+#include "TSnapshotFrame.h"
 #include "VisualComponents.h"
-#include "Main.h"
 
 #pragma package(smart_init)
 
@@ -31,12 +31,13 @@
   * @param m                a link back to the main form
   * @param configFilename   the name of the config file for the GUI parameters
   */
-GUImanager::GUImanager(TMainForm *m, const std::string & configFilename)
+GUImanager::GUImanager(TSnapshotFrame *m, DataManager* dm, LogManager* lm, const std::string & configFilename)
+    :
+    mainForm(m),
+    dataManager(dm),
+    logManager(lm),
+    observer(NULL)
 {
-	mainForm = m;
-	dataManager = m->dataManager;
-	logManager = m->logManager;
-
 	initialiseGUIconfigValues(configFilename);
 	positioner = new Positioning(this);  // uses a GUI config setting to initialise
 }
@@ -206,6 +207,7 @@ void GUImanager::setUpWorklistEntryPanels(DSampleRun *s, TPanel *panel, bool q, 
 		posX -= separation;
 		DSampleTest *st = *iter;
 		TTestPanel *p = new TTestPanel(this,panel,st,posX,q);
+        p->setObserver( observer );
 		p->TagString = "Level:test result";
 		panel->AddObject(p);
 		p->Parent = panel;
@@ -454,6 +456,11 @@ void GUImanager::doGUIcalculations()
 		= guiConfig["queuedTestWidth"] - 2*guiConfig["cornerWidth"];
 
 
+}
+
+void GUImanager::setObserver( SnapshotFrameObserver *o )
+{
+    observer = o;
 }
 
 void GUImanager::setUpGUIcomponents()

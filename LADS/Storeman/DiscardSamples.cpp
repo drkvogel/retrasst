@@ -46,7 +46,7 @@ TfrmDiscardSamples::reset( ) {
 
     m_cells.reset();
     this->grdResults->Hide();
-    this->grdResults->RowCount = 0;
+	this->grdResults->RowCount = 0;
     this->grdResults->ColCount = 0;
     this->pnlResults->Caption = "";
 
@@ -111,17 +111,17 @@ TfrmDiscardSamples::showSamples( ) {
         m_ncols = gstuff.getNcols();
         m_nrows = gstuff.getNrows();
 
-        this->grdResults->RowCount = gstuff.getNrows();
+		this->grdResults->RowCount = gstuff.getNrows();
         this->grdResults->ColCount = gstuff.getNcols();
 
         for (int rowno=0; rowno<m_nrows; rowno++) {
             for (int colno=0; colno<m_ncols; colno++) {
                 const std::string text = gstuff.getText(Cell(colno, rowno));
-                this->grdResults->Cells[colno][rowno] = text.c_str();
+				this->grdResults->Cells[colno][rowno] = text.c_str();
             }
         }
 
-        resizeColumns(this->grdResults);
+		resizeColumns(this->grdResults);
 
         {
             std::set<Cell>::const_iterator begin =
@@ -166,21 +166,21 @@ TfrmDiscardSamples::resizeColumns( TStringGrid * grid ) {
 
     const bool hidePerson = ! Discard::Person::canSearch();
 
-    for (int colno=0; colno<ncols; colno++) {
+	for (int colno=0; colno<ncols; colno++) {
         bool isHidden = false;
         isHidden |= (colno == SCComparator::HIDDEN);
         isHidden |= (hidePerson && (colno == SCComparator::PERSONID));
         if (isHidden) {
-            grid->ColWidths[colno] = 0;
+			grid->ColWidths[colno] = 0;
             continue;
         }
         int maxwidth = -1;
-        for (int rowno=0; rowno<nrows; rowno++) {
-            const int width = grid->Canvas->TextWidth(
-                                  grid->Cells[colno][rowno]);
-            if (width > maxwidth) maxwidth = width;
+		for (int rowno=0; rowno<nrows; rowno++) {
+			const String val = grid->Cells[colno][rowno];
+			const int width = grid->Canvas->TextWidth(val);
+			if (width > maxwidth) maxwidth = width;
         }
-        grid->ColWidths[colno] = maxwidth + 5;
+		grid->ColWidths[colno] = maxwidth + 12;
     }
 
     return;
@@ -200,26 +200,23 @@ TfrmDiscardSamples::addSamples( ) {
         const StringSet & texts = m_context->getSearchTexts();
 
         const bool isJob = (type == "Job");
-        const bool isTube = (type == "Tube");
+		const bool isTube = (type == "Sample");
         const bool isCryovial = (type == "Cryovial");
         const bool isBox = (type == "Box");
-        const bool isPerson = (type == "Person");
+        const bool isPerson = (type == "Source");
 
-        if ((! isJob) && (! isTube) && (! isCryovial) && (! isBox) &&
-                (! isPerson)) {
+		if ((! isJob) && (! isTube) && (! isCryovial) && (! isBox) && (! isPerson)) {
             diagnosis = "unexpected type " + Discard::Util::quote(type);
             break;
         }
 
-        for (StringSet::const_iterator it = texts.begin();
-                it != texts.end(); it++) {
+		for (StringSet::const_iterator it = texts.begin(); it != texts.end(); it++) {
             const std::string text = *it;
             IntPair counts;
             if (isJob) {
                 const int jobno = atoi(text.c_str());
                 if (jobno == 0) {
-                    diagnosis = "bad " + type + " " +
-                                Discard::Util::quote(text);
+					diagnosis = "bad " + type + " " + Discard::Util::quote(text);
                     break;
                 }
                 m_context->setJobno(jobno);
@@ -235,8 +232,7 @@ TfrmDiscardSamples::addSamples( ) {
             }
 
             if (counts.first == 0) {
-                diagnosis = "failed to match " + type + " " +
-                            Discard::Util::quote(text);
+				diagnosis = "Failed to match " + type + " " + Discard::Util::quote(text);
                 break;
             }
             if (counts.second == 0) {
@@ -368,7 +364,7 @@ TfrmDiscardSamples::getColours( const Discard::Cell & cell ) {
         const int sampleno = m_cells.getSampleno(cell);
         const Discard::Sample * sample = m_samples.getSample(sampleno);
         if (sample == 0) {
-            background = BACKGROUND_CANTSELECT;
+			background = BACKGROUND_CANTSELECT;
             break;
         }
 
@@ -416,15 +412,20 @@ TfrmDiscardSamples::updateUI( ) {
     using Discard::Context;
     // using Discard::Util;
 
-    this->grdResults->Visible = hasResults();
-
-    this->btnClear->Enabled = hasResults();
-
-    this->btnSearch->Enabled = m_context->isCreateJobStage() || ! hasResults();
-
+	if( hasResults() ) {
+		this->grdResults->Visible = true;
+		this->btnClear->Enabled = true;
+		this->btnSearch->Enabled = m_context->isCreateJobStage();
+		this->btnSearch->Caption = "Add";
+	} else {
+		this->grdResults->Visible = false;
+		this->btnClear->Enabled = false;
+		this->btnSearch->Enabled = true;
+		this->btnSearch->Caption = "Search";
+	}
     const int nmarked = m_samples.getNMarked();
     const int nnoted = m_samples.getNNoted();
-    const bool isDirty = (nmarked > 0) || (nnoted > 0);
+	const bool isDirty = (nmarked > 0) || (nnoted > 0);
     this->btnConfirm->Enabled = isDirty;
 
     this->btnAbort->Enabled =
@@ -434,21 +435,20 @@ TfrmDiscardSamples::updateUI( ) {
 
     const bool isNoting = this->bitNote->Visible;
     this->btnNote->Enabled = true;
+	m_context->setSelectMode(isNoting ? Context::NOTE : Context::MARK);
+	std::string hint = m_context->getNote();
+	this->lblCurrentNote->Caption = isNoting ? hint.c_str() : "";
 
-    m_context->setSelectMode(isNoting ? Context::NOTE : Context::MARK);
-
-    this->btnNote->ShowHint = true;
-    std::string hint = m_context->getNote();
-    if (hint == "") hint = "removing draft note";
-    else hint = Discard::Util::quote(hint);
-    this->btnNote->Hint = hint.c_str();
-
-    return;
+	this->btnNote->ShowHint = true;
+	if (hint == "") hint = "removing draft note";
+	else hint = Discard::Util::quote(hint);
+	this->btnNote->Hint = hint.c_str();
+	return;
 }
 
 bool
 TfrmDiscardSamples::hasResults( ) const {
-    const int nresults = this->grdResults->RowCount - 1; // bit grubby
+	const int nresults = this->grdResults->RowCount - 1; // bit grubby
     return (nresults > 0);
 }
 
@@ -514,7 +514,7 @@ __fastcall TfrmDiscardSamples::TfrmDiscardSamples(TComponent* Owner)
 
 void __fastcall TfrmDiscardSamples::grdResultsDrawCell(TObject *Sender,
         int ACol, int ARow, TRect &Rect, TGridDrawState State) {
-    using Discard::Cell;
+	using Discard::Cell;
     // using Discard::Util;
     using Discard::Sample;
 
@@ -529,11 +529,11 @@ void __fastcall TfrmDiscardSamples::grdResultsDrawCell(TObject *Sender,
         const std::pair<TColor,TColor> colours = getColours(cell);
         g->Canvas->Brush->Color = colours.second;
         g->Canvas->Font->Color = colours.first;
-        g->Canvas->FillRect(r);
-        InflateRect(&r, -2, -2);
-        AnsiString text = g->Cells[colno][rowno];
+		InflateRect(&r, -1, -2);
+		g->Canvas->FillRect(r);
 
-        const int sampleno = m_cells.getSampleno(cell);
+		AnsiString text = g->Cells[colno][rowno];
+		const int sampleno = m_cells.getSampleno(cell);
         const Sample * sample = m_samples.getSample(sampleno);
         const bool hasNote = ((sample != 0) && (sample->getNote() != ""));
         if (hasNote) {
@@ -734,18 +734,18 @@ void __fastcall TfrmDiscardSamples::miSortDescClick(TObject *Sender) {
 //---------------------------------------------------------------------------
 
 void __fastcall TfrmDiscardSamples::grdResultsContextPopup(TObject *Sender,
-        TPoint &MousePos, bool &Handled) {
-    using Discard::Cell;
-    using Discard::Sample;
+		TPoint MousePos, bool &Handled) {
+	using Discard::Cell;
+	using Discard::Sample;
 
     do {
-        TStringGrid * g = (TStringGrid *) Sender;
+		TStringGrid * g = (TStringGrid *) Sender;
 
         int rowno = -1;
         int colno = -1;
-        g->MouseToCell(MousePos.x, MousePos.y, colno, rowno);
+		g->MouseToCell(MousePos.x, MousePos.y, colno, rowno);
 
-        m_clickedColno = colno;
+		m_clickedColno = colno;
         m_clickedRowno = rowno;
 
         if ((m_clickedColno < 0) || (m_clickedColno < 0)) break; // outside grid

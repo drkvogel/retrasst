@@ -40,20 +40,20 @@ bool LCDbTankMap::saveRecord( LQuery query )
 					" status = :stat, valid_from = :vf, valid_to = :vt,"
 					" storage_type = :st, rack_layout_cid = :lay, shelf_number = :sno"
 					" where record_cid = :rid" );
+		std::pair< XTIME, XTIME > dates = getValidDates();
+		query.setParam( "vf", dates.first );
+		query.setParam( "vt", dates.second );
 	} else {
 		claimNextID( query );
 		query.setSQL( "INSERT into c_tank_map ( record_cid, tank_cid, storage_cid, location_cid, position,"
 						" valid_from, status, valid_to, rack_layout_cid, storage_type, shelf_number )"
-					" values ( :rid, :pop, :stor, :site, :pos, :vf, :stat, :vt, :lay, :st, :sno )" );
+					" values ( :rid, :pop, :stor, :site, :pos, 'now', :stat, '', :lay, :st, :sno )" );
 	}
 	query.setParam( "rid", getID() );
 	query.setParam( "pop", tankCID );
 	query.setParam( "stor", storageCID );
 	query.setParam( "site", locationCID );
 	query.setParam( "pos", position );
-	std::pair< XTIME, XTIME > dates = getValidDates();
-	query.setParam( "vf", dates.first );
-	query.setParam( "vt", dates.second );
 	query.setParam( "stat", status );
 	query.setParam( "lay", layoutCID );
 	query.setParam( "st", storeTypeCID );

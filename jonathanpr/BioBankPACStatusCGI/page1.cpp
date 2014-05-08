@@ -24,7 +24,7 @@ void page1::sendHeader( ) const
 void page1::sendStatusInfo()
 {
 	ROSETTA GeneralStatsTotal;
-	ROSETTA GeneralStatsIngored;
+	ROSETTA GeneralStatsIgnored;
 	ROSETTA GeneralStatsComplete;
 	ROSETTA GeneralStatsInprogress;
 	ROSETTA UnknownStudies;
@@ -32,7 +32,7 @@ void page1::sendStatusInfo()
 	this->getData().getDicomStudies().getGeneralStats(this->getData().getDB(), "Total",GeneralStatsTotal);
 	this->getData().getDicomStudies().getGeneralStats(this->getData().getDB(), "Complete",GeneralStatsComplete);
 	this->getData().getDicomStudies().getGeneralStats(this->getData().getDB(), "Inprogress",GeneralStatsInprogress);
-	this->getData().getDicomStudies().getGeneralStats(this->getData().getDB(), "Ignored",GeneralStatsIngored);
+	this->getData().getDicomStudies().getGeneralStats(this->getData().getDB(), "Ignored",GeneralStatsIgnored);
 	this->getData().getDicomStudies().getUnknownStats(this->getData().getDB(), UnknownStudies);
 
 	std::cout << "<div>";
@@ -101,10 +101,10 @@ void page1::sendStatusInfo()
 	std::cout << "</table>";
 
 
-	std::cout << "<H3>PARTICIPENTS</H3>";
+	std::cout << "<H3>PARTICIPANTS</H3>";
 	std::cout << "<table class=\"tablecss\">";
 	std::cout << "<tr>";
-	std::cout << 	"<th align=\"center\" style=\"width:10%\">Participent Status</th>";
+	std::cout << 	"<th align=\"center\" style=\"width:10%\">Participant Status</th>";
 	std::cout << 	"<th align=\"center\" style=\"width:10%\">BIOBANK</th>";
 //	std::cout << 	"<th align=\"center\" style=\"width:10%\">BIOBANK_QA</th>";
 	std::cout << 	"<th align=\"center\" style=\"width:10%\">BIOBANK_PSI</th>";
@@ -157,22 +157,22 @@ void page1::sendStatusInfo()
 
 	std::cout << "<tr>";
 	std::cout << 	"<td align=\"center\">";
-		std::cout << "Ingored";
+	std::cout << "Ignored";
 	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
-	std::cout << GeneralStatsIngored.getString("BIOBANK");
-	std::cout <<    "</td>";
-//	std::cout << 	"<td align=\"center\">";
-//	std::cout << GeneralStatsIngored.getString("BIOBANK_QA");
-//	std::cout <<    "</td>";
-	std::cout << 	"<td align=\"center\">";
-	std::cout << GeneralStatsIngored.getString("BIOBANK_PSI");
+	std::cout << GeneralStatsIgnored.getString("BIOBANK");
 	std::cout <<    "</td>";
 //	std::cout << 	"<td align=\"center\">";
-//	std::cout << GeneralStatsIngored.getString("REPORTED");
+//	std::cout << GeneralStatsIgnored.getString("BIOBANK_QA");
 //	std::cout <<    "</td>";
 	std::cout << 	"<td align=\"center\">";
-	std::cout << GeneralStatsIngored.getString("TOTAL");
+	std::cout << GeneralStatsIgnored.getString("BIOBANK_PSI");
+	std::cout <<    "</td>";
+//	std::cout << 	"<td align=\"center\">";
+//	std::cout << GeneralStatsIgnored.getString("REPORTED");
+//	std::cout <<    "</td>";
+	std::cout << 	"<td align=\"center\">";
+	std::cout << GeneralStatsIgnored.getString("TOTAL");
 	std::cout <<    "</td>";
 	std::cout << "</tr>";
 

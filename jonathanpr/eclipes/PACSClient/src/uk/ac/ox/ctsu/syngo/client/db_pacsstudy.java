@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 /*
- * pacsstudy table is filled up the CRON job which is responsible for scanning the PACS for new data and adds them to this table.
+ * pacsstudy table is filled up by the CRON job (queryDicom) which is responsible for scanning the PACS for new data and adds them to this table.
  * This class is the access to that table.
  */
 public class db_pacsstudy
@@ -15,15 +15,17 @@ public class db_pacsstudy
 	static final int STATUS_INVALID = 0; //DUFF, SHOULD NEVER HAPPEN, IF WE DO GET A ZERO STATUS, THEN THE SYSTEM IS BROKEN
 	static final int STATUS_OK = 1; //DICOM IN THE SYSTEM
 	static final int STATUS_COMPLETE = 2; //FINISHED WITH THIS, NO LONGER NEEDS ANY TASKS PREFORMED ON IT
-	static final int STATUS_INGORE = 3; //SYSTEM SHOULD IGNORE THIS SCAN.
+	static final int STATUS_IGNORE = 3; //SYSTEM SHOULD IGNORE THIS SCAN.
 
 	//a mirror of the row columns
 	private long m_studyPK;
 	private long m_patientPK;
 	private String m_patientID;
-	private String m_firstName;
+	private String m_name;
 	private String m_confirmedPatientID;
-	private Calendar m_studyDate;	
+	private String m_confirmedName;
+	private Calendar m_studyDate;
+	private Calendar m_studyInsertDate;
 	private Calendar m_insert;
 	private Calendar m_lastalert;
 	private String m_studyUid;
@@ -46,9 +48,9 @@ public class db_pacsstudy
 	}
 	
 	//Initialisation: a new db_pacsstudy, call insert to save it.
-	public static db_pacsstudy instance(database db,long studyPK,long patientPK, String patientID, String firstName, String confirmedPatientID, Calendar studyDate, String studyUid,String aet, String au, String modalities)//, Vector<Long> keywords)
+	public static db_pacsstudy instance(database db,long studyPK,long patientPK, String patientID, String confirmedPatientID, String Name, String ConfirmedName, Calendar studyDate,Calendar studyInsertDate, String studyUid,String aet, String au, String modalities)//, Vector<Long> keywords)
 	{
-		return new db_pacsstudy(db,studyPK, patientPK,patientID, confirmedPatientID, firstName,studyDate, studyUid,aet, au, modalities);
+		return new db_pacsstudy(db,studyPK, patientPK,patientID, confirmedPatientID, Name,ConfirmedName,studyDate, studyInsertDate,studyUid,aet, au, modalities);
 	}
 	
 	//returns true of the pacsstudy table already contains an entry with the same studyPK and AU as supplied.
@@ -76,7 +78,7 @@ public class db_pacsstudy
 	// updates all this data in the database.
 	public boolean update() throws Exception
 	{
-		String query = "UPDATE pacsstudy SET patientid = ?, confirmedpatientid = ?,firstname = ?, patientpk = ?, studydate = ?, studyuid_enc = ?, aet = ?, au = ?, modalities = ?, status = ?, update = ?,statusenc = ?, aesvi = ?, lastalert = ?"; 				
+		String query = "UPDATE pacsstudy SET patientid = ?, confirmedpatientid = ?, name = ?,confirmedname = ?, patientpk = ?, studydate = ?,studyinsertdate = ?, studyuid_enc = ?, aet = ?, au = ?, modalities = ?, status = ?, update = ?,statusenc = ?, aesvi = ?, lastalert = ?"; 				
 		query += " WHERE studyPK = '" + m_studyPK + "'";
 		    
 		m_db.m_aes.setEncrypt();
@@ -85,21 +87,23 @@ public class db_pacsstudy
 			
 		pstmt.setString(1,m_patientID);
 		pstmt.setString(2,m_confirmedPatientID);
-		pstmt.setString(3, m_firstName);
-		pstmt.setLong(4, m_patientPK);
-		pstmt.setTimestamp(5, new java.sql.Timestamp(m_studyDate.getTime().getTime()));	
-		pstmt.setString(6,m_db.m_aes.encrypt(m_studyUid));
-		pstmt.setString(7,m_aet);
-		pstmt.setString(8,m_au);
-		pstmt.setString(9,m_modalities);
-		pstmt.setInt(10,m_status);				
-		pstmt.setTimestamp(11, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));				
-		pstmt.setLong(12,1);	//status 1 which is encrypted
-		pstmt.setString(13,vi);	//the vi	
+		pstmt.setString(3, m_name);
+		pstmt.setString(4, m_confirmedName);
+		pstmt.setLong(5, m_patientPK);
+		pstmt.setTimestamp(6, new java.sql.Timestamp(m_studyDate.getTime().getTime()));	
+		pstmt.setTimestamp(7, new java.sql.Timestamp(m_studyInsertDate.getTime().getTime()));
+		pstmt.setString(8,m_db.m_aes.encrypt(m_studyUid));
+		pstmt.setString(9,m_aet);
+		pstmt.setString(10,m_au);
+		pstmt.setString(11,m_modalities);
+		pstmt.setInt(12,m_status);				
+		pstmt.setTimestamp(13, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));				
+		pstmt.setLong(14,1);	//status 1 which is encrypted
+		pstmt.setString(15,vi);	//the vi	
 		if (m_lastalert == null)
-			pstmt.setTimestamp(14, null);
+			pstmt.setTimestamp(16, null);
 		else
-			pstmt.setTimestamp(14, new java.sql.Timestamp(m_lastalert.getTime().getTime()));
+			pstmt.setTimestamp(16, new java.sql.Timestamp(m_lastalert.getTime().getTime()));
 		
 		try
 		{		
@@ -115,7 +119,7 @@ public class db_pacsstudy
 	// inserts a new row with all this data into the database.
 	public boolean insert() throws Exception
 	{
-		String query = "INSERT INTO pacsstudy (patientid,patientpk,confirmedpatientid, firstname, studydate,studyuid_enc,aet,au,modalities,status,update,insert,studypk,statusenc,aesvi) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";				
+		String query = "INSERT INTO pacsstudy (patientid,patientpk,confirmedpatientid, name,confirmedname, studydate,studyinsertdate,studyuid_enc,aet,au,modalities,status,update,insert,studypk,statusenc,aesvi) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";				
 		m_db.m_aes.setEncrypt();
         String vi = m_db.m_aes.getIV();  	
 		PreparedStatement pstmt =  m_db.m_conn.prepareStatement(query);		
@@ -123,18 +127,20 @@ public class db_pacsstudy
 		pstmt.setString(1,m_patientID);
 		pstmt.setLong(2, m_patientPK);
 		pstmt.setString(3,m_confirmedPatientID);
-		pstmt.setString(4,m_firstName);
-		pstmt.setTimestamp(5, new java.sql.Timestamp(m_studyDate.getTime().getTime()));	
-		pstmt.setString(6,m_db.m_aes.encrypt(m_studyUid));
-		pstmt.setString(7,m_aet);
-		pstmt.setString(8,m_au);
-		pstmt.setString(9,m_modalities);
-		pstmt.setInt(10,m_status);				
-		pstmt.setTimestamp(11, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));				
-		pstmt.setTimestamp(12, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));				
-		pstmt.setLong(13,m_studyPK);				
-		pstmt.setLong(14,1);	//status 1 which is encrypted			
-		pstmt.setString(15,vi);	//the vi			
+		pstmt.setString(4,m_name);
+		pstmt.setString(5,m_confirmedName);
+		pstmt.setTimestamp(6, new java.sql.Timestamp(m_studyDate.getTime().getTime()));	
+		pstmt.setTimestamp(7, new java.sql.Timestamp(m_studyInsertDate.getTime().getTime()));	
+		pstmt.setString(8,m_db.m_aes.encrypt(m_studyUid));
+		pstmt.setString(9,m_aet);
+		pstmt.setString(10,m_au);
+		pstmt.setString(11,m_modalities);
+		pstmt.setInt(12,m_status);				
+		pstmt.setTimestamp(13, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));				
+		pstmt.setTimestamp(14, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));				
+		pstmt.setLong(15,m_studyPK);				
+		pstmt.setLong(16,1);	//status 1 which is encrypted			
+		pstmt.setString(17,vi);	//the vi			
 			
 		try
 		{		
@@ -173,19 +179,34 @@ public class db_pacsstudy
 		return m_patientID;
 	}
 	
-	public String getFirstName()
+	public String getName()
 	{
-		return m_firstName;
+		return m_name;
 	}
 	
-	public void setFirstName(String firstName)
+	public void setName(String Name)
 	{
-		m_firstName = firstName;
+		m_name = Name;
 	}
 	
+	public String getConfirmedName()
+	{
+		return m_confirmedName;
+	}
+	
+	public void setConfirmedName(String CName)
+	{
+		m_confirmedName = CName;
+	}
+		
 	public Calendar getStudyDate()
 	{
 		return m_studyDate;
+	}
+	
+	public Calendar getStudyInsertDate()
+	{
+		return m_studyInsertDate;
 	}
 	
 	public Calendar getLastAlert()
@@ -221,15 +242,19 @@ public class db_pacsstudy
 	/************************************************************************************
 	*                                       PRIVATE FUNCTIONS							*
 	*************************************************************************************/	
-	private db_pacsstudy(database db,long studyPK, long patientPK, String patientID,String firstName, String confirmedPatientID, Calendar studyDate, String studyUid,String aet, String au, String modalities)//, Vector<Long> keywords)  
+	private db_pacsstudy(database db,long studyPK, long patientPK, String patientID,String confirmedPatientID, String Name, String confirmedName, Calendar studyDate, Calendar studyInsertDate, String studyUid,String aet, String au, String modalities)//, Vector<Long> keywords)  
 	{
 		m_db = db;
-		m_firstName = firstName.replaceAll("\\s",""); //make sure there are no spaces;
 		m_studyPK = studyPK; 
 		m_patientPK = patientPK;
+
+		m_patientID = patientID;//.replaceAll("\\s",""); //make sure there are no spaces	
 		m_confirmedPatientID = confirmedPatientID;
-		m_patientID = patientID.replaceAll("\\s",""); //make sure there are no spaces	
+		m_name = Name; //make sure there are no spaces;
+		m_confirmedName = confirmedName; //make sure there are no spaces;
+
 		m_studyDate = studyDate; 
+		m_studyInsertDate = studyInsertDate;
 		m_studyUid = studyUid;
 		m_aet = aet; 
 		if (m_aet == null)
@@ -248,6 +273,7 @@ public class db_pacsstudy
 		m_studyPK = studyPK; 
 		m_db = db;
 		m_studyDate = Calendar.getInstance();
+		m_studyInsertDate = Calendar.getInstance();
 		m_insert = Calendar.getInstance();
 		loadDB();
 	}
@@ -277,14 +303,17 @@ public class db_pacsstudy
 				m_vi = result.getString("aesvi");
 				m_db.m_aes.setDecrypt(m_vi);
 				
-				m_firstName = result.getString("firstname");
+				m_confirmedName = result.getString("confirmedname");
+				m_name = result.getString("name");
 				m_patientID = result.getString("patientid");
 				m_confirmedPatientID = result.getString("confirmedpatientid");
+				
 				m_studyUid = DecryptResult(result,"studyuid");
 				m_modalities = result.getString("modalities");
 				m_insert.setTime(result.getTimestamp("insert"));							
 				m_patientPK = result.getLong("patientpk");
 				m_studyDate.setTime(result.getTimestamp("studydate"));	
+				m_studyInsertDate.setTime(result.getTimestamp("studyinsertdate"));	
 				m_aet = result.getString("aet");
 				m_au = result.getString("au");
 				m_status = result.getInt("status");	

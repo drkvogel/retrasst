@@ -12,6 +12,7 @@ namespace valc
 {
 
 class BuddyDatabaseEntryIndex;
+class ExceptionalDataHandler;
 class ResultDirectory;
 
 class QCSampleDescriptorDerivationStrategyImpl : public QCSampleDescriptorDerivationStrategy
@@ -20,7 +21,7 @@ public:
     QCSampleDescriptorDerivationStrategyImpl(
         const ResultDirectory* resultDirectory,
         const BuddyDatabaseEntryIndex* buddyDatabaseEntries,
-        paulst::LoggingService* log );
+        ExceptionalDataHandler* exceptionalDataHandler );
 
     std::string deriveFromBuddyDatabaseEntry( 
         int                 buddySampleID, 
@@ -42,7 +43,7 @@ public:
 private:
     const ResultDirectory*          m_resultDirectory;
     const BuddyDatabaseEntryIndex*  m_buddyDatabaseEntries;
-    paulst::LoggingService*         m_log;
+    ExceptionalDataHandler*         m_exceptionalDataHandler;
 };
 
 }

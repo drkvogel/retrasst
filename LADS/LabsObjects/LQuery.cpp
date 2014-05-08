@@ -28,6 +28,7 @@
  *	18/04/2013, NG:		Use '' for date/times when values invalid/not set
  *	31 March 2014, NG:	Use LogFile in place of XMLFile for logging
  *  14/04/14, NG:       Added support for C++11 range-based for loop
+ *
  --------------------------------------------------------------------------- */
 
 #include <System.hpp>
@@ -131,9 +132,9 @@ void LQuery::setParam( const std::string &pName, const XTIME & value ) {
 
 void LQuery::dropCursor( ) {
 	if( cursor != NULL ) {
-		logCount( rows );
 		if( cursor->isOpen( ) ) {
 			cursor->close( );
+			logCount( rows );
 		}
 		delete cursor;
 		cursor = NULL;

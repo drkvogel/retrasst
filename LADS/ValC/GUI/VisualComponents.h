@@ -21,6 +21,7 @@
 							class DSampleRun;
 							class DSampleTest;
 							class GUImanager;
+                            class SnapshotFrameObserver;
 							class TInfoPanel;
 							class TActionPanel;
 							class TNotesPanel;
@@ -118,11 +119,9 @@ public:
 
     static int findPanelWidth(GUImanager *gui, DSampleTest *entry, bool queued);
 
-	void __fastcall basicInfoClick(TObject *Sender);
-    void __fastcall notesClick(TObject *Sender);
-	void __fastcall resultClick(TObject *Sender);
+    void __fastcall onClick(TObject *Sender);
 
-
+    void setObserver( SnapshotFrameObserver* o );
 
 private:
 	GUImanager *gui;
@@ -136,6 +135,13 @@ private:
 							   // if the status is still 'P'
 
 	bool localMachine;      // displayed highlighted, if true, as it's of local interest
+
+    SnapshotFrameObserver *observer;
+
+	void __fastcall basicInfoClick(TObject *Sender);
+    void __fastcall notesClick(TObject *Sender);
+	void __fastcall resultClick(TObject *Sender);
+
 	void setUpTestNameButton();
 	void setUpNotesButton();
 	static float findResultDisplayWidth(GUImanager *gui, std::string res);

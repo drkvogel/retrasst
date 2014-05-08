@@ -2,9 +2,10 @@ object frmNewStoreType: TfrmNewStoreType
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
   Caption = 'Configure Storage Type'
-  ClientHeight = 118
-  ClientWidth = 442
+  ClientHeight = 124
+  ClientWidth = 454
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,12 +13,13 @@ object frmNewStoreType: TfrmNewStoreType
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = True
+  Position = poOwnerFormCenter
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object LblFull: TLabel
     Left = 16
-    Top = 75
+    Top = 80
     Width = 57
     Height = 13
     Caption = 'Description:'
@@ -41,7 +43,7 @@ object frmNewStoreType: TfrmNewStoreType
   end
   object TxtFull: TEdit
     Left = 88
-    Top = 72
+    Top = 76
     Width = 334
     Height = 21
     TabOrder = 1

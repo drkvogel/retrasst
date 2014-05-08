@@ -86,8 +86,9 @@ public class queryICEQuestionnaires
 		}
 
 			
-	//	BELOW IS THE DISTROBUTED SQL		
+	//	BELOW IS THE DISTRIBUTED SQL		
 		StringBuilder bigQuerySql = new StringBuilder();
+		// 61 is "come into the clinic"(?)  - no definitive list of gtypes - ask Alan(!)
 		bigQuerySql.append("SELECT pid FROM gobz WHERE gtyp = 61 AND status = 1000 AND pid NOT IN (SELECT pid FROM biobankparticipant)");
 		ResultSet result = null;
 
@@ -137,19 +138,19 @@ public class queryICEQuestionnaires
 						R = R.getRosetta("ipermit");
 						try
 						{
-							question.dicomid = R.getString("idid");
+							question.dicomid = R.getString("idid"); // this is definitely right(!)
 							question.dicomid = question.dicomid.replaceAll("\\s",""); //strip out white space
 						}
 						catch (NoSuchFieldException e) { }
 						try
 						{
-							question.firstname = R.getString("nmnm");
+							question.firstname = R.getString("nmnm");  // Alan is supposed to call it this, should be pulling out the first name
 							question.firstname = question.dicomid.replaceAll("\\s",""); //strip out white space
 						}
 						catch (NoSuchFieldException e) { }
 						
 						if ((question.firstname.isEmpty()) && (question.dicomid.isEmpty()))
-							throw new NoSuchFieldException("No such feild");
+							throw new NoSuchFieldException("No such field");
 					}
 					catch (NoSuchFieldException e)
 					{

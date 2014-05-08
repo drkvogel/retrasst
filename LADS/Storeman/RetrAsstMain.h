@@ -259,7 +259,7 @@ public:
         }
     }
 	void addCol(Col c) {
-		if (initialised) throw "Already initialised";
+		if (initialised) throw runtime_error("Already initialised");
 		mapColNameToInt[c.name] = cols.size();
 		cols.push_back(c);
 	}
@@ -269,7 +269,7 @@ public:
 	}
 
     int colNameToInt(string colName) {
-        if (mapColNameToInt.find(colName) == mapColNameToInt.end()) throw "column name not found";
+        if (mapColNameToInt.find(colName) == mapColNameToInt.end()) throw runtime_error("column name not found");
         return mapColNameToInt[colName];
 	}
 
@@ -340,19 +340,19 @@ public:
     int     getRowRel()     { return rowRel; }
     int     getRowAbs()     { return startAbs + rowRel; }
     int     getSize()       { return endAbs - startAbs + 1; }
-    void    setStartAbs(int s) { if (s < 0 || s > endAbs) throw "invalid chunk start value"; startAbs = s; }
+    void    setStartAbs(int s) { if (s < 0 || s > endAbs) throw runtime_error("invalid chunk start value"); startAbs = s; }
     void    setStartBox(string s) { startBox = s; }
     void    setStartVial(string v) { startVial = v; }
-    void    setEndAbs(int e) { if (e >= sgw->rowCount()) throw "invalid chunk end value"; endAbs = e; }
+    void    setEndAbs(int e) { if (e >= sgw->rowCount()) throw runtime_error("invalid chunk end value"); endAbs = e; }
     void    setEndBox(string s) { endBox = s; }
     void    setEndVial(string v) { endVial = v; }
     void    setRowRel(int i) { rowRel = i; }
     void    setRowAbs(int i) { rowRel = i - startAbs; }
     T *     currentObject() { return objectAtRel(rowRel); }
     T *     objectAtRel(int posRel) {
-        if (posRel >= getSize()) throw "out of range"; return objectAtAbs((startAbs)+(posRel)); }
+        if (posRel >= getSize()) throw runtime_error("out of range"); return objectAtAbs((startAbs)+(posRel)); }
     T *     objectAtAbs(int posAbs) {
-        if (posAbs >= sgw->rowCount()) throw "out of range"; return sgw->rows->at(posAbs); }
+        if (posAbs >= sgw->rowCount()) throw runtime_error("out of range"); return sgw->rows->at(posAbs); }
     void    sort_asc(string colName) { sgw->sort_asc(colName, startAbs, endAbs); }
     void    sort_dsc(string colName) { sgw->sort_dsc(colName, startAbs, endAbs); }
     void    sortToggle(int col) { sgw->sort_toggle(col, startAbs, endAbs); }
@@ -382,7 +382,7 @@ public:
             case DONE:
                 return "Completed";
             default:
-                throw "unknown status";
+                throw runtime_error("unknown status");
         }
     }
     float getProgress() {
@@ -398,7 +398,7 @@ public:
                 case LCDbCryovialRetrieval::DISPOSED:
                     processed++; break;
                 default:
-                    throw "unexpected LCDbCryovialRetrieval status";
+                    throw runtime_error("unexpected LCDbCryovialRetrieval status");
                         // e.g. if status enum in LCDbCryovialRetrieval changed and plan using old scheme loaded
             }
         }
@@ -424,7 +424,7 @@ public:
                 case LCDbCryovialRetrieval::DISPOSED:
                     not_started = false; break;
                 default:
-                    throw "unexpected LCDbCryovialRetrieval status";
+                    throw runtime_error("unexpected LCDbCryovialRetrieval status");
             }
         }
         if (complete) { return DONE; } else if (not_started) { return NOT_STARTED; } else { return INPROGRESS; }

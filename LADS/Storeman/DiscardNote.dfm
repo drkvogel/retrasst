@@ -5,7 +5,7 @@ object frmDiscardNote: TfrmDiscardNote
   Caption = 'Note'
   ClientHeight = 151
   ClientWidth = 426
-  Color = clBtnFace
+  Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -25,7 +25,7 @@ object frmDiscardNote: TfrmDiscardNote
     OnChange = memNoteChange
   end
   object btnOK: TButton
-    Left = 134
+    Left = 135
     Top = 118
     Width = 75
     Height = 25
@@ -34,7 +34,7 @@ object frmDiscardNote: TfrmDiscardNote
     OnClick = btnOKClick
   end
   object btnCancel: TButton
-    Left = 215
+    Left = 216
     Top = 118
     Width = 75
     Height = 25
@@ -52,9 +52,9 @@ object frmDiscardNote: TfrmDiscardNote
     OnChange = cmbCannedChange
   end
   object btnPaste: TButton
-    Left = 376
-    Top = 8
-    Width = 42
+    Left = 367
+    Top = 6
+    Width = 51
     Height = 25
     Caption = 'Paste'
     TabOrder = 4

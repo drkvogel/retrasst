@@ -20,6 +20,8 @@ import java.util.Vector;
 import uk.ac.ox.ctsu.javarosetta.Rosetta;
 import uk.ac.ox.ctsu.syngo.client.questionaire.eventDetails;
 
+// Represents data from one questionnaire extracted from ICE 
+
 
 /*
  * In BB5, ace_ice_live.gobz
@@ -60,6 +62,7 @@ public class questionaire
 	double m_fhstand;
 	
 	Vector<eventDetails> m_illnessesAndCancersList;
+	Vector<eventDetails> m_MedicationList;
 	Vector<eventDetails> m_NonCancerList;
 	Vector<eventDetails> m_OperationList;
 	
@@ -75,32 +78,14 @@ public class questionaire
 	
 	private static database m_ace_trove_live_db = null;
 	private static database m_ace_ice_live_db =null;
-
-/*			
-	private static String     	Host = "localhost";
-	private static String    	Port = "II7";  
-	private static String       vnode = "bb5_extract";
-	
-	private static String 		dbname_ace_ice_live = "ace_ice_live";
-	private static String    	demoDbUrl_JonMachine_ace_ice_live = "jdbc:ingres://" +  Host + ":" + Port + "/" + vnode + "::" + dbname_ace_ice_live; 
-//	private static String    	demoDbUrl_linuxBox_ace_ice_live = "jdbc:ingres://" +  Host + ":" + Port + "/" + dbname_ace_ice_live; 
-    private static Connection 	m_conn_ace_ice_live = null;
-    private static Statement  	m_stmt_ace_ice_live = null;
-    
-	private static String 		dbname_ace_trove_live = "ace_trove_live";
-	private static String    	demoDbUrl_JonMachine_ace_trove_live = "jdbc:ingres://" +  Host + ":" + Port + "/" + vnode + "::" + dbname_ace_trove_live; 
-//	private static String    	demoDbUrl_linuxBox_ace_trove_live = "jdbc:ingres://" +  Host + ":" + Port + "/" + dbname_ace_trove_live; 
-    private static Connection 	m_conn_ace_trove_live = null;
-    private static Statement  	m_stmt_ace_trove_live = null;
-  */   
+  
     private static TreeMap<Integer,String> m_employmentStringList;
     private static TreeMap<Integer,String> m_smokeCurrentStringList;
     private static TreeMap<Integer,String> m_smokePostStringList;
     private static TreeMap<Integer,String> m_ethnicStringList;
     private static TreeMap<Integer,String> m_drinkerStringList;
 	
-
-        
+       
     static void openDB() throws Exception
     {
     	m_ace_trove_live_db = database.instancebb5_ace_trove();
@@ -126,6 +111,7 @@ public class questionaire
 		m_age = UNKNOWNVALUE;
 		m_sex = UNKNOWNVALUE;  
 		m_illnessesAndCancersList = new Vector<eventDetails>();
+		m_MedicationList = new Vector<eventDetails>();
 		m_NonCancerList = new Vector<eventDetails>();
 		m_OperationList = new Vector<eventDetails>();
 		m_currentEmploymentStatus = INVALIDVALUE;
@@ -151,7 +137,7 @@ public class questionaire
 		}
 		
 		//use DB ACE_ICE_LIVE
-		String sql = "SELECT xub_osr,xub_isr,gtyp,status FROM gobz WHERE pid = "+PID+" AND Gtyp IN (11,22,31,34,51)";
+		String sql = "SELECT gtyp,status,xub_osr,xub_isr FROM gobz WHERE pid = "+PID+" AND Gtyp IN (11,22,31,34,51)";
 
 		Vector <Integer> m_gtypList = new Vector <Integer>();
 		ResultSet result = null;
@@ -265,6 +251,21 @@ public class questionaire
 							subR = m_xub_isr.getRosetta("data");
 							
 //							System.out.println(subR.serializeOut());
+							try
+							{//medication
+								
+								subsubR = subR.getRosetta("Vtreat");
+								int count = subsubR.getInt("count");
+								for (int i=0;i<count;i++)
+								{
+									eventDetails e = new eventDetails();
+									e.c = subsubR.getString("c"+Integer.toString(i));
+//									e.w = subsubR.getInt("w"+Integer.toString(i));
+									e.d = subsubR.getString("d"+Integer.toString(i));
+									m_MedicationList.add(e);
+								}																									
+							}
+							catch (NoSuchFieldException e){}
 							try
 							{  //reported illness
 								subsubR = subR.getRosetta("Vcanc");
@@ -528,6 +529,32 @@ public class questionaire
 		return ed.d;
 	}
 	
+	public String getMedicationString(eventDetails ed) throws SQLException
+	{
+		try
+		{
+			Integer.parseInt(ed.c);
+			String sql = "select meaning from code_string where encoding_id = 1004 AND svalue = " + ed.c;		
+			ResultSet result = null;
+			try
+			{					
+				result = m_ace_trove_live_db.m_stmt.executeQuery(sql);
+				if (result.next())
+					return result.getString("meaning");
+			}
+			finally
+			{
+				if (result!=null)
+					result.close();
+			}	
+		}
+		catch(NumberFormatException e)
+		{
+
+		}
+		return ed.d;
+	}
+	
 	public String getOperationString(eventDetails ed) throws SQLException
 	{
 		try
@@ -614,7 +641,8 @@ public class questionaire
 	{
 		Vector<pair<Integer,String>> returnString = new Vector<pair<Integer,String>>();
 		
-		returnString.add(pair.of(0,"Participant identifier:" +sr.getConfirmedPatientID() + " " + sr.getFirstName()));		
+		if (sr!=null)
+			returnString.add(pair.of(0,"Participant identifier:" +sr.getConfirmedPatientID() + " " + sr.getConfirmedName()));		
 		returnString.add(pair.of(0,""));  
 		
 //		Calendar currentDay = Calendar.getInstance();
@@ -649,7 +677,22 @@ public class questionaire
 		returnString.add(pair.of(0,"Which of the following describes your current employment situation? " + toEmploymentString(m_currentEmploymentStatus)));			
 		returnString.add(pair.of(0,""));  
 
-		ListIterator<eventDetails> itr = m_illnessesAndCancersList.listIterator();
+		
+		ListIterator<eventDetails> itr = m_MedicationList.listIterator();
+		if (itr.hasNext())
+		{
+			returnString.add(pair.of(0,""));  
+			returnString.add(pair.of(0,"Medication:"));  
+
+			while (itr.hasNext())
+			{
+				eventDetails ed = itr.next();
+				returnString.add(pair.of(30,getMedicationString(ed)));  
+			}
+		}
+	
+		
+		itr = m_illnessesAndCancersList.listIterator();
 		if (itr.hasNext())
 		{
 			returnString.add(pair.of(0,""));  
@@ -709,11 +752,12 @@ public class questionaire
 		
 		return returnString;
 	}
-		/*
-	String generateReport(String Pid) throws SQLException
+	
+	//Testing
+	String generateReport() throws SQLException
 	{
 		System.out.println();
-		Vector<pair<Integer,String>> report = getReportStrings(Pid);
+		Vector<pair<Integer,String>> report = getReportStrings(null);
 		
 		int pos = 0;
 		int size = report.size();
@@ -723,5 +767,5 @@ public class questionaire
 			pos++;
 		}
 		return "";		
-	}*/
+	}
 }

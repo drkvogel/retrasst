@@ -1,0 +1,32 @@
+object WaitDlg: TWaitDlg
+  Left = 0
+  Top = 0
+  BorderIcons = []
+  BorderStyle = bsSingle
+  Caption = 'ValC'
+  ClientHeight = 152
+  ClientWidth = 408
+  Position = poScreenCenter
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [dkDesktop, dkiPhone, dkiPad]
+  DesignerMobile = False
+  DesignerWidth = 0
+  DesignerHeight = 0
+  DesignerDeviceName = ''
+  DesignerOrientation = 0
+  object message: TLabel
+    Height = 41.000000000000000000
+    Position.X = 48.000000000000000000
+    Position.Y = 40.000000000000000000
+    Text = 'message'
+    Width = 281.000000000000000000
+  end
+  object delayBeforeWait: TTimer
+    Enabled = False
+    Interval = 2000
+    OnTimer = waitForSignal
+    Left = 304
+    Top = 56
+  end
+end

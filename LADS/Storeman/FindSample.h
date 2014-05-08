@@ -39,6 +39,7 @@ __published:	// IDE-managed Components
 private:	// User declarations
 
 	ROSETTA boxDetails;
+	bool boxSearch;
 	bool findBox();
 	bool findCryovial();
 

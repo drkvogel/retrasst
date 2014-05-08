@@ -39,6 +39,7 @@ __published:	// IDE-managed Components
 	TStringGrid *sgBoxTypes;
 	TLabel *Label1;
 	TLabel *Label3;
+	TLabel *Label4;
 
 	void __fastcall FormShow(TObject *Sender);
 	void __fastcall cbProjectChange(TObject *Sender);

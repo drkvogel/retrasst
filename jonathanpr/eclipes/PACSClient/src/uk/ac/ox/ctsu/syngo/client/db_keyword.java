@@ -6,6 +6,9 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Vector;
 
+// used by retrieveDicom, just before it downloads it will pull off the keywords,
+// which this does
+
 /*
  * keyword table keeps track of all the keywords found attached to series. These are collected as DICOM is retrieved from the PACS system.
  * This class is the access to that table.

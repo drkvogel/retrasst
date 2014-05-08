@@ -1,10 +1,11 @@
 object frmNewSection: TfrmNewSection
   Left = 0
   Top = 0
-  BorderIcons = [biMinimize, biMaximize]
+  BorderIcons = []
+  BorderStyle = bsDialog
   Caption = 'Configure Section'
-  ClientHeight = 273
-  ClientWidth = 234
+  ClientHeight = 283
+  ClientWidth = 244
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,47 +13,48 @@ object frmNewSection: TfrmNewSection
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poOwnerFormCenter
   PixelsPerInch = 96
   TextHeight = 13
   object LblFill: TLabel
-    Left = 31
+    Left = 36
     Top = 68
     Width = 41
     Height = 13
     Caption = 'Position:'
   end
   object LblPrefix: TLabel
-    Left = 31
-    Top = 29
+    Left = 36
+    Top = 30
     Width = 32
     Height = 13
     Caption = 'Prefix:'
   end
   object LblFirst: TLabel
-    Left = 31
+    Left = 36
     Top = 107
     Width = 25
     Height = 13
     Caption = 'First:'
   end
   object LblLast: TLabel
-    Left = 31
+    Left = 36
     Top = 146
     Width = 24
     Height = 13
     Caption = 'Last:'
   end
   object LblCap: TLabel
-    Left = 31
+    Left = 36
     Top = 186
     Width = 37
     Height = 13
     Caption = '# slots:'
   end
   object TxtCap: TEdit
-    Left = 96
-    Top = 182
-    Width = 48
+    Left = 93
+    Top = 183
+    Width = 46
     Height = 21
     MaxLength = 3
     NumbersOnly = True
@@ -60,9 +62,9 @@ object frmNewSection: TfrmNewSection
     Text = '1'
   end
   object TxtLast: TEdit
-    Left = 96
-    Top = 142
-    Width = 48
+    Left = 93
+    Top = 143
+    Width = 46
     Height = 21
     MaxLength = 3
     NumbersOnly = True
@@ -70,9 +72,9 @@ object frmNewSection: TfrmNewSection
     Text = '2'
   end
   object TxtFirst: TEdit
-    Left = 96
-    Top = 103
-    Width = 48
+    Left = 93
+    Top = 104
+    Width = 46
     Height = 21
     MaxLength = 3
     NumbersOnly = True
@@ -80,9 +82,9 @@ object frmNewSection: TfrmNewSection
     Text = '1'
   end
   object TxtFill: TEdit
-    Left = 96
-    Top = 64
-    Width = 48
+    Left = 93
+    Top = 65
+    Width = 46
     Height = 21
     MaxLength = 3
     NumbersOnly = True
@@ -90,7 +92,7 @@ object frmNewSection: TfrmNewSection
     Text = '1'
   end
   object BtnCancel: TButton
-    Left = 127
+    Left = 132
     Top = 232
     Width = 75
     Height = 25
@@ -100,7 +102,7 @@ object frmNewSection: TfrmNewSection
     OnClick = CancelClick
   end
   object BtnOK: TButton
-    Left = 31
+    Left = 36
     Top = 232
     Width = 75
     Height = 25
@@ -110,8 +112,8 @@ object frmNewSection: TfrmNewSection
     OnClick = OKClick
   end
   object UpDownFill: TUpDown
-    Left = 144
-    Top = 64
+    Left = 138
+    Top = 65
     Width = 17
     Height = 21
     Associate = TxtFill
@@ -121,17 +123,17 @@ object frmNewSection: TfrmNewSection
     TabOrder = 2
   end
   object TxtPrefix: TEdit
-    Left = 96
-    Top = 26
-    Width = 106
+    Left = 93
+    Top = 27
+    Width = 114
     Height = 21
     CharCase = ecUpperCase
     MaxLength = 6
     TabOrder = 0
   end
   object UpDownFirst: TUpDown
-    Left = 144
-    Top = 103
+    Left = 138
+    Top = 104
     Width = 17
     Height = 21
     Associate = TxtFirst
@@ -141,8 +143,8 @@ object frmNewSection: TfrmNewSection
     TabOrder = 4
   end
   object UpDownLast: TUpDown
-    Left = 144
-    Top = 142
+    Left = 138
+    Top = 143
     Width = 17
     Height = 21
     Associate = TxtLast
@@ -152,8 +154,8 @@ object frmNewSection: TfrmNewSection
     TabOrder = 6
   end
   object UpDownCap: TUpDown
-    Left = 144
-    Top = 182
+    Left = 138
+    Top = 183
     Width = 17
     Height = 21
     Associate = TxtCap

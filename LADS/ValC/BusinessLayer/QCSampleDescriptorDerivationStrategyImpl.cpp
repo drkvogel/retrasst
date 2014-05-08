@@ -1,4 +1,5 @@
 #include "BuddyDatabaseEntryIndex.h"
+#include "ExceptionalDataHandler.h"
 #include "LoggingService.h"
 #include "QCSampleDescriptorDerivationStrategyImpl.h"
 #include "ResultDirectory.h"
@@ -41,11 +42,11 @@ private:
 QCSampleDescriptorDerivationStrategyImpl::QCSampleDescriptorDerivationStrategyImpl(
     const ResultDirectory* resultDirectory,
     const BuddyDatabaseEntryIndex* buddyDatabaseEntries,
-    paulst::LoggingService* log )
+    ExceptionalDataHandler* exceptionalDataHandler )
     :
     m_resultDirectory( resultDirectory ),
     m_buddyDatabaseEntries( buddyDatabaseEntries ),
-    m_log( log )
+    m_exceptionalDataHandler( exceptionalDataHandler )
 {
 }
 
@@ -107,8 +108,12 @@ std::string QCSampleDescriptorDerivationStrategyImpl::deriveFromWorklistEntry(
 
     if ( ! buddySampleID )
     {
-        m_log->logFormatted( "Failed to find any suitable buddy_database entry with which QC worklist entry \%d (\%s) might be associated.",
-            worklistID, barcode.c_str() );
+        m_exceptionalDataHandler->notifyWorklistEntryIgnored( worklistID,
+            paulst::format(
+            "Failed to find any suitable buddy_database entry with which "
+            "QC worklist entry \%d (\%s) might be associated." 
+            "Without a buddy_database entry, a sample-descriptor for the worklist entry cannot be derived.",
+            worklistID, barcode.c_str() ) );
     }
 
     return buddySampleID ? makeSampleDescriptor(buddySampleID) : std::string();
