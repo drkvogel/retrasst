@@ -90,17 +90,13 @@
         <IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
-        <BCC_MonitorThis>true</BCC_MonitorThis>
-        <BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
-        <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
-        <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
         <VerInfo_Debug>true</VerInfo_Debug>
         <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
         <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
         <Defines>_DEBUG;$(Defines)</Defines>
-        <BCC_InlineFunctionExpansion>true</BCC_InlineFunctionExpansion>
+        <BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
         <BCC_UseRegisterVariables>None</BCC_UseRegisterVariables>
         <DCC_Define>DEBUG</DCC_Define>
         <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
@@ -121,9 +117,8 @@
         <LinkPackageImports>rtl.bpi;vcl.bpi;vclx.bpi;vclimg.bpi</LinkPackageImports>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-        <Debugger_DebugSourcePath>..\Storeman\RationaliseTanks\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
-        <VerInfo_Build>18</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.12.18;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Build>14</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.12.14;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib</LinkPackageStatics>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -337,10 +332,6 @@
         <CppCompile Include="..\LabsObjects\LIMSParams.cpp">
             <DependentOn>..\LabsObjects\LIMSParams.h</DependentOn>
             <BuildOrder>60</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="..\LabsObjects\LogFile.cpp">
-            <DependentOn>..\LabsObjects\LogFile.h</DependentOn>
-            <BuildOrder>126</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\LabsObjects\LQuery.cpp">
             <DependentOn>..\LabsObjects\LQuery.h</DependentOn>
@@ -560,7 +551,7 @@
             <Form>frmRatTankSignIn</Form>
             <FormType>dfm</FormType>
             <DependentOn>RationaliseTanks\RatTanksSignIn.h</DependentOn>
-            <BuildOrder>126</BuildOrder>
+            <BuildOrder>105</BuildOrder>
         </CppCompile>
         <CppCompile Include="ReferredBoxes.cpp">
             <Form>frmReferred</Form>
