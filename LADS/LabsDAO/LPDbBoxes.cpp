@@ -32,7 +32,6 @@
 #include "LCDbAuditTrail.h"
 #include "LDbBoxSize.h"
 #include "LPDbCryovial.h"
-#include "LPDbBoxWork.h"
 #include "LDbBoxStore.h"
 #include "LPDbCryovialStore.h"
 #include "LPDbDescriptor.h"

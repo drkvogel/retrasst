@@ -2,6 +2,8 @@
 
 #include <vcl.h>
 #include <tchar.h>
+#include <exception>
+#include <string>
 #pragma hdrstop
 
 //---------------------------------------------------------------------------
@@ -115,18 +117,38 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmRatTankSignIn), &frmRatTankSignIn);
          Application->Run();
 	}
-	catch (Exception &exception)
-	{
+	catch (Exception &exception) {
 		Application->ShowException(&exception);
 	}
-	catch (...)
-	{
-		try
-		{
+	catch (const std::exception & e) {
+		try	{
+			throw Exception(e.what());
+		}
+		catch (Exception &exception){
+			Application->ShowException(&exception);
+		}
+	}
+	catch (const std::string & what) {
+		try	{
+			throw Exception(what.c_str());
+		}
+		catch (Exception &exception){
+			Application->ShowException(&exception);
+		}
+	}
+	catch (const char * what) {
+		try	{
+			throw Exception(what);
+		}
+		catch (Exception &exception){
+			Application->ShowException(&exception);
+		}
+	}
+	catch (...) {
+		try	{
 			throw Exception("Unknown exception");
 		}
-		catch (Exception &exception)
-		{
+		catch (Exception &exception) {
 			Application->ShowException(&exception);
 		}
 	}

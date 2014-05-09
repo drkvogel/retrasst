@@ -227,16 +227,20 @@ bool LQuery::call( Operation function, LogLevel log ) {
 	try {
 		return ( this->*function )( );
 	}
-	catch( Exception &ex ) {
+	catch( const Exception &ex ) {
 		logError( AnsiString( ex.Message ).c_str() );
 		throw;
 	}
-	catch( std::string &ex ) {
+	catch( const std::string &ex ) {
 		logError( ex );
 		throw;
 	}
-	catch( std::exception &ex ) {
+	catch( const std::exception &ex ) {
 		logError( ex.what( ) );
+		throw;
+	}
+	catch( const char * ex ) {
+		logError( ex );
 		throw;
 	}
 	catch( ... ) {

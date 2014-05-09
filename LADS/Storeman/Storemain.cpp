@@ -6,7 +6,6 @@
 #include "TfrmAboutBox.h"
 #include "TfrmConfirm.h"
 #include "LeaseIDs.h"
-#include "TfrmLogin.h"
 #include "SampleEntry.h"
 #include "BrowseSample.h"
 #include "Configure.h"
@@ -26,6 +25,7 @@
 #include "RetrievalListMainListDialog.h"
 #include "RetrievalListmainDialog.h"
 #include "RatTanksMainDialog.h"
+#include "TfrmLoginBase.h"
 
 //---------------------------------------------------------------------------
 

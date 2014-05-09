@@ -9,7 +9,7 @@
 #include <map>
 
 void onError( const std::string& msg );
-bool dbErrorCallback( const std::string object, const int instance,const int ecount, const int ecode, const std::string error_txt );
+// bool dbErrorCallback( const std::string object, const int instance,const int ecount, const int ecode, const std::string error_txt );
 class bgWorkerThreadTask;
 
 class RetrievalListDatabase
