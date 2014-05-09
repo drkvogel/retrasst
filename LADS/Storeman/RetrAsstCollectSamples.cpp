@@ -187,6 +187,7 @@ void __fastcall TfrmRetrAsstCollectSamples::sgVialsDrawCell(TObject *Sender, int
                     break;
                 default:
                     background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+                    //background = RETRIEVAL_ASSISTANT_EXTRA_COLOUR; // neither primary nor secondary
             }
         }
     }

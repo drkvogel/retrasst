@@ -25,6 +25,10 @@
 #define RETRIEVAL_ASSISTANT_COMBINED_COLOUR     clWebCyan
 #define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
 #define RETRIEVAL_ASSISTANT_PLANNED_COLOUR      clSkyBlue
+#define RETRIEVAL_ASSISTANT_EXTRA_COLOUR        clWebChartreuse
+    // neither primary nor secondary
+    // Chartreuse is a tertiary colour, halfway between green and yellow
+    // http://en.wikipedia.org/wiki/Chartreuse_(color)
 #define RETRIEVAL_ASSISTANT_COLLECTED_COLOUR    clSkyBlue
 #define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR    clFuchsia
 #define RETRIEVAL_ASSISTANT_IGNORED_COLOUR      clGray

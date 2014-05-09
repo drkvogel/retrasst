@@ -97,14 +97,13 @@ void __fastcall TfrmRetrAsstPlanSamples::FormShow(TObject *Sender) {
     frmRetrievalAssistant->clearStorageCache();
     timerLoadVials->Enabled = true;
     editDestBoxSize->Text = box_size;
-#if X_BDE
-    TfrmRetrievalAssistant::msgbox("X_BDE");
-#elif X_ING
-    TfrmRetrievalAssistant::msgbox("X_ING");
-#else
-    TfrmRetrievalAssistant::msgbox("not X_BDE nor X_ING");
-#endif
-
+//#if X_BDE
+//    TfrmRetrievalAssistant::msgbox("X_BDE");
+//#elif X_ING
+//    TfrmRetrievalAssistant::msgbox("X_ING");
+//#else
+//    TfrmRetrievalAssistant::msgbox("not X_BDE nor X_ING"); // this one
+//#endif
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::FormClose(TObject *Sender, TCloseAction &Action) {
@@ -173,7 +172,8 @@ void __fastcall TfrmRetrAsstPlanSamples::sgVialsDrawCell(TObject *Sender, int AC
             else if (row->cryo_record->getAliquotType() == job->getSecondaryAliquot())
                 background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR;
             else
-                background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+                //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
+                background = RETRIEVAL_ASSISTANT_EXTRA_COLOUR; // neither primary nor secondary
         }
     }
     TCanvas * cnv = sgVials->Canvas;
@@ -578,18 +578,25 @@ void LoadVialsJobThread::load() {
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
 
         const int aliquotType = row->cryo_record->getAliquotType();
-        if (aliquotType == primary_aliquot) {
-            frmRetrAsstPlanSamples->primaries.push_back(row);
-        } else if (aliquotType == secondary_aliquot) {
+        if (aliquotType == secondary_aliquot) {
             frmRetrAsstPlanSamples->secondaries.push_back(row);
-        } else {
-            throw runtime_error("unknown aliquot type "+ to_string((long long)aliquotType) + " for this job"); // std::to_string() - C++11; no overload for int, so must cast to long long
+        } else { // everything else, even if not explicitly primary
+            frmRetrAsstPlanSamples->primaries.push_back(row);
         }
+//        if (aliquotType == primary_aliquot) {
+//            frmRetrAsstPlanSamples->primaries.push_back(row);
+//        } else if (aliquotType == secondary_aliquot) {
+//            frmRetrAsstPlanSamples->secondaries.push_back(row);
+//        } else {
+//            // not an error
+//            //throw runtime_error("unknown aliquot type "+ to_string((long long)aliquotType) + " for this job"); // std::to_string() - C++11; no overload for int, so must cast to long long
+//        }
         qd.next();
         rowCount++;
     }
     debugMessage = "finished retrieving rows, getting storage details"; Synchronize((TThreadMethod)&debugLog);
 
+    // *try* to match secondaries with primaries on same destination position
     combineAliquots(frmRetrAsstPlanSamples->primaries, frmRetrAsstPlanSamples->secondaries, frmRetrAsstPlanSamples->combined);
 
     // find locations of source boxes

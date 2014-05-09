@@ -1,6 +1,9 @@
-﻿
-1086765 ("Use primaries, keep secondaries in reserve")
+﻿1086765 ("Use primaries, keep secondaries in reserve")
 1086654 ("Primary and secondary in alternate slots")
+
+### primaries, secondaries, and other animals
+
+Sometimes, for example in a disposal job, many (more than 2) aliquots will be required, each in separate destination positions. "extra" aliquots should not throw an error.
 
 ### 1086654 ("Primary and secondary in alternate slots") crash
 
