@@ -489,6 +489,10 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 
         // primary_aliquot and secondary_aliquot are already defined
         int previousAliquotType = previous == NULL? 0 : previous->cryo_record->getAliquotType();
+
+        // could use combineAliquots()?
+        // void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
+
         if (secondary_aliquot != 0 &&
             secondary_aliquot == currentAliquotType &&
             previous != NULL &&
@@ -529,10 +533,8 @@ void __fastcall TfrmRetrAsstCollectSamples::loadPlanThreadTerminated(TObject *Se
     Screen->Cursor = crDefault;
     try {
         showChunks();
-    } catch (Exception & e) {
-		TfrmRetrievalAssistant::msgbox(e.Message);
-    } catch (...) {
-        TfrmRetrievalAssistant::msgbox("problem displaying plan");
+    } catch (std::exception & e) {
+        TfrmRetrievalAssistant::msgbox(e.what());
     }
     Enabled = true;
     DEBUGSTREAM(__FUNC__<<"loadRows for job "<<job->getID()<<" finished")
@@ -824,17 +826,8 @@ void __fastcall SaveProgressThread::Execute() {
                 frmRetrAsstCollectSamples->emptyBoxes.insert(found->first); // set of int box_cids, used in discardBoxes() //LCDbBoxRetrieval * box = found->first;
 			}
 		}
-
-	} catch(Exception & e) {
-		AnsiString msg = e.Message;
-		frmRetrAsstCollectSamples->errors.push_back(msg.c_str());
-		frmRetrAsstCollectSamples->unactionedSamples = true;
-    } catch(char * e) {
-		frmRetrAsstCollectSamples->errors.push_back(e);
-		frmRetrAsstCollectSamples->unactionedSamples = true;
-	} catch (...) {
-		frmRetrAsstCollectSamples->errors.push_back("Unknown error");
-		frmRetrAsstCollectSamples->unactionedSamples = true;
+    } catch (std::exception & e) {
+        TfrmRetrievalAssistant::msgbox(e.what());
     }
 
     if (frmRetrAsstCollectSamples->errors.size() != 0) {
@@ -908,9 +901,11 @@ void __fastcall TfrmRetrAsstCollectSamples::saveProgressThreadTerminated(TObject
     try {
         // anything more to do?
         collectEmpties();
-    } catch (Exception & e) {
-		TfrmRetrievalAssistant::msgbox(e.Message);
+    } catch (std::exception & e) {
+        //debugMessage = e.what(); Synchronize((TThreadMethod)&debugLog);
+        TfrmRetrievalAssistant::msgbox(e.what());
     }
+
     Enabled = true; DEBUGSTREAM(__FUNC__<<"save plan for job "<<job->getID()<<" finished")
 
     vector<string>::const_iterator strIt;
@@ -988,4 +983,26 @@ void TfrmRetrAsstCollectSamples::collectEmpties() {
 
 //* Ask the relevant question(s) from the URS when they’re ready to finish
 //    * only this: "). The option to exit the process saving progress should be offered, with an “are you sure?” message in case of accidental selection (REQ 8.3.12)."
+
+//    } catch (Exception & e) {
+//		TfrmRetrievalAssistant::msgbox(e.Message);
+//    }
+
+//    } catch (Exception & e) {
+//		TfrmRetrievalAssistant::msgbox(e.Message);
+//    } catch (...) {
+//        TfrmRetrievalAssistant::msgbox("problem displaying plan");
+//    }
+
+//	} catch(Exception & e) {
+//		AnsiString msg = e.Message;
+//		frmRetrAsstCollectSamples->errors.push_back(msg.c_str());
+//		frmRetrAsstCollectSamples->unactionedSamples = true;
+//    } catch(char * e) {
+//		frmRetrAsstCollectSamples->errors.push_back(e);
+//		frmRetrAsstCollectSamples->unactionedSamples = true;
+//	} catch (...) {
+//		frmRetrAsstCollectSamples->errors.push_back("Unknown error");
+//		frmRetrAsstCollectSamples->unactionedSamples = true;
+//    }
 

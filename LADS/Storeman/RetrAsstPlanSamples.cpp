@@ -487,17 +487,6 @@ void __fastcall LoadVialsJobThread::Execute() {
     } catch (std::exception & e) {
         debugMessage = e.what(); Synchronize((TThreadMethod)&debugLog);
     }
-//    } catch (Exception & e) {
-//        debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
-//    } catch (const char * e) {
-//        debugMessage = e; Synchronize((TThreadMethod)&debugLog);
-//    } catch (std::string & e) {
-//        debugMessage = e; Synchronize((TThreadMethod)&debugLog);
-//    } catch (std::exception & e) {
-//        debugMessage = e.what(); Synchronize((TThreadMethod)&debugLog);
-//    } catch (...) {
-//        debugMessage = "unknown error"; Synchronize((TThreadMethod)&debugLog);
-//    }
 }
 
 void LoadVialsJobThread::load() {
@@ -784,14 +773,6 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
     } catch (std::exception & e) {
         debugMessage = e.what(); Synchronize((TThreadMethod)&debugLog);
     }
-
-//    } catch (Exception & e) {
-//        debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
-//    } catch (const char * e) {
-//        debugMessage = e; Synchronize((TThreadMethod)&debugLog);
-//    } catch (...) {
-//        debugMessage = "unknown error"; Synchronize((TThreadMethod)&debugLog);
-//    }
 }
 
 void SavePlanThread::save() {
@@ -918,3 +899,15 @@ void __fastcall TfrmRetrAsstPlanSamples::savePlanThreadTerminated(TObject *Sende
         combined.push_back(row);
 #endif
 */
+
+//    } catch (Exception & e) {
+//        debugMessage = AnsiString(e.Message).c_str(); Synchronize((TThreadMethod)&debugLog);
+//    } catch (const char * e) {
+//        debugMessage = e; Synchronize((TThreadMethod)&debugLog);
+//    } catch (std::string & e) {
+//        debugMessage = e; Synchronize((TThreadMethod)&debugLog);
+//    } catch (std::exception & e) {
+//        debugMessage = e.what(); Synchronize((TThreadMethod)&debugLog);
+//    } catch (...) {
+//        debugMessage = "unknown error"; Synchronize((TThreadMethod)&debugLog);
+//    }
