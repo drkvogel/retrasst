@@ -1,6 +1,7 @@
 ﻿# .gitignore
 *.local
 *.cache
+doxygen
 LADS/AAAComms/
 LADS/AddSpecimens/
 LADS/AliquotStorage/

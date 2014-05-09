@@ -320,7 +320,7 @@ Let's narrow that down a bit:
     jonathanpr/RetrievalLists/CoreUtilities/xquery.h:#include <DBTables.hpp>
     jonathanpr/RetrievalLists/CoreUtilities/xsql.h:#include <DBTables.hpp>
 
-`Storemain.cpp` includes `LADS/LabsForms/TfrmLogin.h` which `#include`s `<DBTables.hpp>`.
+`Storemain.cpp` includes `LADS/LabsForms/TfrmLogin.h` which includes `<DBTables.hpp>`.
 
 And further:
 
