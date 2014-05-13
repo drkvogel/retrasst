@@ -53,6 +53,7 @@ public: //protected: ?
     int                 project_cid;
     string              src_box_name;       // id and cryo pos are in store_record
     int                 dest_box_id;
+    int                 dest_box_type;
     string              dest_box_name;
     string              site_name;
     int                 vessel_pos;
@@ -175,6 +176,7 @@ public:
     static bool sort_asc_srcbox(const SampleRow *a, const SampleRow *b)     { return Util::numericCompare(a->src_box_name, b->src_box_name); }
     static bool sort_asc_srcpos(const SampleRow *a, const SampleRow *b)     { return a->store_record->getPosition() < b->store_record->getPosition(); }
     static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
+    static bool sort_asc_desttype(const SampleRow *a, const SampleRow *b)   { return a->dest_box_type < b->dest_box_type; }
     static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_cryo_pos < b->dest_cryo_pos; }
     static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
     static bool sort_asc_vesspos(const SampleRow *a, const SampleRow *b)    { return a->vessel_pos < b->vessel_pos; }

@@ -10,6 +10,7 @@
 #include "LPDbBoxes.h"
 #include "LCDbRetrieval.h"
 #include "RetrAsstMain.h"
+#include "LDbBoxType.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -39,6 +40,7 @@ __fastcall TfrmRetrAsstPlanSamples::TfrmRetrAsstPlanSamples(TComponent* Owner) :
     sgwVials->addCol("srcbox",   "Source box",       257,   SampleRow::sort_asc_srcbox,     "source box name");
     sgwVials->addCol("srcpos",   "Pos",              31,    SampleRow::sort_asc_srcpos,     "source box position");
     sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
+    sgwVials->addCol("destbox",  "Type",             67,    SampleRow::sort_asc_desttype,   "dest. box type");
     sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
     sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot type");
     sgwVials->init();
@@ -346,10 +348,17 @@ void TfrmRetrAsstPlanSamples::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->RowCount = chunk->getSize()+1;
         sgVials->FixedRows = 1;
     }
+
+    const LPDbBoxTypes & boxTypes = LPDbBoxTypes::records();
+
     for (int row=0; row < chunk->getSize(); row++) {
         SampleRow *         sampleRow = chunk->objectAtRel(row);
         LPDbCryovial *      vial    = sampleRow->cryo_record;
         LPDbCryovialStore * store   = sampleRow->store_record;
+
+        const LPDbBoxType * boxType = boxTypes.findByID(sampleRow->dest_box_id);
+        if (boxType == NULL) { throw runtime_error("Box type not found"); }
+
         int rw = row+1; // for stringgrid
         sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
         sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquotName().c_str();
@@ -363,6 +372,7 @@ void TfrmRetrAsstPlanSamples::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->Cells[sgwVials->colNameToInt("struct" )]  [rw] = sampleRow->structure_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
         sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
+        sgVials->Cells[sgwVials->colNameToInt("desttype")] [rw] = boxType->getName().c_str();
         sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
         sgVials->Objects[0][rw] = (TObject *)sampleRow;
     }
