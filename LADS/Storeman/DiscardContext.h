@@ -90,9 +90,9 @@ public:
     bool isCreateJobStage( ) const;
     bool isSelectJobStage( ) const;
     void setReason( const std::string & reason );
-    const std::string & getReason( ) const;
-    void setDescription( const std::string & description );
-    const std::string & getDescription( ) const;
+	const std::string & getReason( ) const;
+	void setDescription( const std::string & description );
+	const std::string & getDescription( ) const;
     void setMethod( const std::string & method );
     const std::string & getMethod( ) const;
     void setNote( const std::string & note );
@@ -177,8 +177,7 @@ public:
 	int count( ) const;
 	std::string asString( ) const;
 	const Sample * getSample( const int sampleno ) const;
-	std::string update( const int dbcrstatus,
-        const std::string & description, const std::string & reason );
+	std::string update( const int dbcrstatus );
 	std::string reset( );
     int getNCryovialsRemaining( const int jobno ) const;
     bool isSampleMarkable( const Sample & sample ) const;

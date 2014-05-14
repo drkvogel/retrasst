@@ -22,34 +22,15 @@ __fastcall TfrmNewJob::TfrmNewJob(TComponent* Owner) : TForm(Owner)
 
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmNewJob::SaveClick(TObject *Sender)
-{
-	if( Util::validateText( TxtName, LblName )
-	 && Util::validateText( TxtFull, LblFull )
-	 && Util::validateText( TxtReason, LblReason ) ) {
-		job.setName( AnsiString( TxtName->Text ).c_str() );
-		job.setDescription( AnsiString( TxtFull->Text ).c_str() );
-		job.setReason( AnsiString( TxtReason->Text ).c_str() );
-		if( CbExercise->ItemIndex >= 0 ) {
-			AnsiString why = CbExercise->Items->Strings[ CbExercise->ItemIndex ];
-			job.setExercise( why.c_str() );
-		}
-		ModalResult = mrOk;
-	}
-}
-
-//---------------------------------------------------------------------------
-// create job record; include project and aliquot type(s) if possible
-//---------------------------------------------------------------------------
-
 void TfrmNewJob::init( LCDbCryoJob::JobKind kind )
 {
 	job.setJobType( kind );
 	job.createName( LIMSDatabase::getCentralDb() );
 	TxtName->Text = job.getName().c_str();
+	txtBoxSet->Text = job.getBoxSet();
 	TxtFull->Clear();
 	ActiveControl = TxtFull;
-	TxtReason->Clear();
+
 	CbExercise->Clear();
 	for( const LCDbObject & obj : LCDbObjects::records() ) {
 		if( obj.isActive() && obj.getObjectType() == LCDbObject::STORAGE_EXERCISE ) {
@@ -57,35 +38,40 @@ void TfrmNewJob::init( LCDbCryoJob::JobKind kind )
 		}
 	}
 	CbExercise->Text = "(none)";
+
+	// FIXME - use canned text
+	std::vector< std::string > reasons;
+	reasons.push_back("patient has withdrawn consent");
+	reasons.push_back("sample has evaporated");
+	reasons.push_back("order 66");
+	cmbReason->Clear();
+	for( const std::string & reason : reasons ) {
+		cmbReason->Items->Add(reason.c_str());
+	}
+	cmbReason->Text = "(none)";
+	cmbReason->Enabled = !reasons.empty();
 }
 
 //---------------------------------------------------------------------------
 
 bool TfrmNewJob::createJob( const std::vector<Box*> & boxes )
 {
-	int projID = 0, al1 = 0, al2 = 0;
 	std::set<int> projects, boxTypes, aliquots;
 	for( const Box * box : boxes ) {
 		projects.insert( box->getProjectCID() );
 		boxTypes.insert( box->getBoxTypeCID() );
 	}
-	if( projects.size() == 1 ) {
-		projID = *(projects.begin());
-		for( const LPDbBoxType & bt : LPDbBoxTypes::records() ) {
-			if( boxTypes.count( bt.getID() ) != 0 ) {
-				for( int at : bt.getAliquots() ) {
-					aliquots.insert( at );
-				}
+	for( const LPDbBoxType & bt : LPDbBoxTypes::records() ) {
+		if( boxTypes.count( bt.getID() ) != 0 ) {
+			for( int at : bt.getAliquots() ) {
+				aliquots.insert( at );
 			}
 		}
 	}
+	int projID = (projects.size() == 1 ? *(projects.begin()) : 0);
 	std::set<int>::const_iterator ai = aliquots.begin();
-	if( ai != aliquots.end() ) {
-		al1 = *ai;
-		if( ++ ai != aliquots.end() ) {
-			al2 = *ai;
-		}
-	}
+	int al1 = (ai == aliquots.end() ? 0 : *ai ++ );
+	int al2 = (ai == aliquots.end() ? 0 : *ai ++ );
 	return createJob( projID, al1, al2 );
 }
 
@@ -114,5 +100,29 @@ void __fastcall TfrmNewJob::BtnNewExClick(TObject *Sender)
 }
 
 //---------------------------------------------------------------------------
+// create job record; include project and aliquot type(s) if possible
+//---------------------------------------------------------------------------
 
+void __fastcall TfrmNewJob::BitBtn1Click(TObject *Sender)
+{
+	if( Util::validateText( TxtName, LblName ) && Util::validateText( TxtFull, LblFull )
+	 && Util::validateInteger( txtBoxSet, 1, 999 ) ) {
+		job.setName( AnsiString( TxtName->Text ).c_str() );
+		job.setBoxSet( txtBoxSet->Text.ToIntDef( 0 ) );
+		job.setDescription( AnsiString( TxtFull->Text ).c_str() );
+		if( CbExercise->ItemIndex >= 0 ) {
+			AnsiString why = CbExercise->Items->Strings[ CbExercise->ItemIndex ];
+			job.setExercise( why.c_str() );
+		}
+		if( cmbReason->ItemIndex >= 0 ) {
+			AnsiString why = cmbReason->Items->Strings[ cmbReason->ItemIndex ];
+			job.setReason( why.c_str() );
+		}
+		ModalResult = mrOk;
+	} else {
+		ModalResult = mrNone;
+	}
+}
+
+//---------------------------------------------------------------------------
 

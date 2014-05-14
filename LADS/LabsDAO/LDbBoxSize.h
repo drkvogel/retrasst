@@ -14,12 +14,14 @@ class LCDbBoxSize : public LCDbID, public LDbValid
 {
 	std::string name;
 	short size, hole, tube;
+	int tubeType;
 
 	static bool hasValidFlag( LQuery cQuery );
 
 public:
 
-	LCDbBoxSize( int id = 0 ) : LCDbID( id )
+	LCDbBoxSize( int id = 0 )
+	 : LCDbID( id ), size( 0 ), hole( 0 ), tube( 0 ), tubeType( 0 )
 	{}
 
 	LCDbBoxSize( const LQuery & central );
@@ -36,6 +38,7 @@ public:
 	void setLast( short last ) { size = last; }
 
 	short getCapacity() const { return hole == 0 ? size : size - 1; }
+	int getTubeType() const { return tubeType; }
 };
 
 //---------------------------------------------------------------------------

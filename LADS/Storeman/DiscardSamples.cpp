@@ -5,13 +5,13 @@
 #include "TfrmConfirm.h"
 #include "DiscardSamples.h"
 #include "DiscardSearch.h"
-#include "DiscardReason.h"
 #include "DiscardMethod.h"
 #include "DiscardNote.h"
 #include "DiscardUtil.h"
 #include "DiscardSef.h"
 #include "StoreUtil.h"
 #include "SMLogin.h"
+#include "NewJob.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -56,17 +56,10 @@ TfrmDiscardSamples::reset( ) {
     std::string caption = "";
     const int nextCrstatus = m_context->getNextCrstatus();
 
-    // was FIXME 66 begin
-    if (nextCrstatus == Cryovial::CONFIRMED) {
-        caption += "Create discard job";
-    }
-//    if (nextCrstatus == Cryovial::REMOVED)
-//    {
-//		caption += "Create discard job";
-//    }
-    // was FIXME 66 end
-
-    else if (nextCrstatus == Cryovial::DESTROYED) {
+	if (nextCrstatus == Cryovial::MARKED) {
+		caption += "Create discard job";
+	}
+	else if (nextCrstatus == Cryovial::DESTROYED) {
         caption += "Destroy samples";
     } else {
         std::string message = "";
@@ -368,31 +361,32 @@ TfrmDiscardSamples::getColours( const Discard::Cell & cell ) {
             break;
         }
 
-        if (! m_samples.isSampleMarkable(*sample)) {
+		if (! m_samples.isSampleMarkable(*sample)) {
             background = BACKGROUND_CANTSELECT;
-            break;
+			break;
         }
 
         const int isMarked = m_samples.isMarked(sampleno);
         if (isMarked == -1) break;
 
-        const int crst = sample->getCryovialStatus();
+		const int dbcrstatus = sample->getCryovialStoreStatus();
+		const int crst = m_context->calcCrstatus(dbcrstatus);
 
         if (isMarked == 0) {
-            switch (crst) {
-            case Cryovial::CONFIRMED:
-                background = BACKGROUND_CONFIRMED;
-                break;
-            case Cryovial::REMOVED:
-                background = BACKGROUND_REMOVED;
-                break;
-            }
-            break;
-        }
+			switch (crst) {
+			case Cryovial::STORED:
+				background = BACKGROUND_CONFIRMED;
+				break;
+			case Cryovial::REMOVED:
+				background = BACKGROUND_REMOVED;
+				break;
+			}
+			break;
+		}
 
-        if (isMarked == 1) {
-            switch (crst) {
-            case Cryovial::CONFIRMED:
+		if (isMarked == 1) {
+			switch (crst) {
+			case Cryovial::STORED:
                 background = BACKGROUND_REMOVED;
                 break;
             case Cryovial::REMOVED:
@@ -580,10 +574,10 @@ void __fastcall TfrmDiscardSamples::btnConfirmClick(TObject *Sender) {
     // using Discard::Util;
 
     do {
-        if (m_context->isCreateJobStage()) {
-            frmDiscardReason->init(m_context);
-            if (frmDiscardReason->ShowModal() != mrOk) break;
-        }
+		if (m_context->isCreateJobStage()) {
+			frmNewJob->init(LCDbCryoJob::SAMPLE_DISCARD);
+			if (frmNewJob->ShowModal() != mrOk) break;
+		}
         if (m_context->isSelectJobStage()) {
             frmDiscardMethod->init(m_context);
             if (frmDiscardMethod->ShowModal() != mrOk) break;
@@ -619,8 +613,8 @@ void __fastcall TfrmDiscardSamples::btnConfirmClick(TObject *Sender) {
             TCursor cursor = Screen->Cursor;
             Screen->Cursor = crHourGlass;
 
-            error = m_samples.update(m_context->getNextDbCrstatus(),
-                                     m_context->getDescription(), m_context->getReason());
+			error = m_samples.update(m_context->getNextDbCrstatus());
+//                                     m_context->getDescription(), m_context->getReason());
 
             Screen->Cursor = cursor;
         }

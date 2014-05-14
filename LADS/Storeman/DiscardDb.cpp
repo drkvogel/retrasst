@@ -6,6 +6,7 @@
 #include "LCDbAuditTrail.h"
 #include "LPDbCryovial.h"
 #include "LPDbCryovialStore.h"
+#include "NewJob.h"
 
 #pragma package(smart_init)
 
@@ -79,17 +80,17 @@ std::string Db::getPdbname( ) const {
 void Db::setCq( LQuery * cq ) {
     do {
         cq->setSQL("select dbmsinfo('database') s");
-        if (! cq->open()) {
-            std::string error = "";
-            error += "suspect query";
-            error += " at ";
-            error += HERE;
-            throw Exception(error.c_str());
-        }
+		if (! cq->open()) {
+			std::string error = "";
+			error += "suspect query";
+			error += " at ";
+			error += HERE;
+			throw Exception(error.c_str());
+		}
 
-        const std::string s = cq->readString("s").c_str();
-
-        m_cq = cq;
+		const std::string s = cq->readString("s").c_str();
+		cq->close();
+		m_cq = cq;
 
     } while (false);
 
@@ -102,7 +103,7 @@ LQuery * Db::getCq( ) const {
 
 void Db::setPq(LQuery * pq ) {
     do {
-        pq->setSQL("select dbmsinfo('database') s");
+		pq->setSQL("select dbmsinfo('database') s");
         if (! pq->open()) {
             std::string error = "";
             error += "suspect query";
@@ -112,7 +113,7 @@ void Db::setPq(LQuery * pq ) {
         }
 
         const std::string s = pq->readString("s").c_str();
-
+		pq->close();
         m_pq = pq;
 
     } while (false);
@@ -125,35 +126,31 @@ LQuery * Db::getPq( ) const {
 }
 
 std::string Db::calcPersonFname( ) const {
-    std::string fname = "";
+	std::string fname = "";
 
     do {
         std::string sql =
             "  SELECT DISTINCT D.specimen_field_name"
-            "  FROM DESCRIP D"
-            "  JOIN PROFILE_MAP PM"
-            "  ON D.descriptor_id = PM.group_id"
-            "  WHERE 1=1"
-            "  AND PM.group_id <> 0"
-            "  AND D.specimen_field_name <> ''"
-            ;
+			"  FROM descrip D "
+			"  WHERE descriptor_name = 'source_name' "
+			"  AND status <> 99"
+			;
 
-        m_pq->setSQL(sql.c_str());
+		m_pq->setSQL(sql.c_str());
 
-        for (m_pq->open(); ! m_pq->eof(); m_pq->next()) {
-            if (fname != "") {
-                std::string error = "";
-                error += "multiple person id fields";
-                error += " at ";
-                error += HERE;
-                //throw Exception(error.c_str());
-                return ""; // fixme - bodge
-            }
-            const std::string specimen_field_name =
-                m_pq->readString("specimen_field_name").c_str();
-            fname = specimen_field_name;
-        }
-
+		for (m_pq->open(); ! m_pq->eof(); m_pq->next()) {
+			const std::string specimen_field_name =	m_pq->readString("specimen_field_name");
+			if( !specimen_field_name.empty() && specimen_field_name != "." ) {
+				if (fname.empty()) {
+					fname = specimen_field_name;
+				} else {
+					std::string error = "multiple source name fields";
+					error += " at ";
+					error += HERE;
+					throw Exception(error.c_str());
+				}
+			}
+		}
     } while (false);
 
     return fname;
@@ -214,18 +211,18 @@ const LCDbCryoJob * Db::getJob( const int jobno ) const {
     return job;
 }
 
-const LCDbCryoJob * Db::makeJob(
-    const std::string & prefix, const std::string & description, const std::string & reason ) const {
-    LCDbCryoJob newjob(0, LCDbCryoJob::SAMPLE_DISCARD );	/// fixme: may be box disposal
-    newjob.setProjectID(getPproj()->getID());
-    newjob.setStatus(LCDbCryoJob::INPROGRESS);
-    newjob.createName(*m_cq, prefix + " ");
-    newjob.setDescription(description);
-    newjob.setReason(reason.empty() ? description : reason);
-    newjob.saveRecord(*m_cq);
-    const int jobno = newjob.getID();
-
-    return getJob(jobno);
+const LCDbCryoJob * Db::makeJob() const {
+/*	const std::string & name, const std::string & description, const std::string & reason ) const {
+	LCDbCryoJob newjob(0, LCDbCryoJob::SAMPLE_DISCARD );	/// fixme: may be box disposal
+	newjob.createName(*m_cq, prefix + " ");
+	newjob.setDescription(description);
+	newjob.setReason(reason.empty() ? description : reason);
+*/
+	LCDbCryoJob newjob = frmNewJob->getDetails();
+	newjob.setProjectID(getPproj()->getID());
+	newjob.setStatus(LCDbCryoJob::INPROGRESS);
+	newjob.saveRecord(*m_cq);
+	return getJob(newjob.getID());
 }
 
 bool Db::isJob( const int jobno ) const {
@@ -237,24 +234,24 @@ const LCDbOperator * Db::getUser( const int userid ) const {
 }
 
 void Db::addSamples( SampleVec * samples, const Cryovial & cryovial ) const {
-    const std::string pfname = Person::getFname();
-    const std::string pfterm = (pfname == "") ? Util::quote("") : "S." + pfname;
+	const std::string pfname = Person::getFname();
+	const std::string pfterm = (pfname == "") ? Util::quote("") : "S." + pfname;
 
     std::string sql =
-        "  SELECT S.sample_id, S.barcode sample_barcode"
-        "  , C.cryovial_id, C.cryovial_barcode, C.aliquot_type_cid"
+		"  SELECT S.sample_id, S.barcode sample_barcode, CS.time_stamp"
+		"  , C.cryovial_id, C.cryovial_barcode, C.aliquot_type_cid"
         "  , CS.status cryovial_store_status, CS.retrieval_cid"
-        "  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
+		"  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
         ;
     sql +=
-        "  , " + pfterm + " person_id";
+		"  , " + pfterm + " source_name";
     sql +=
         "  FROM SPECIMEN S"
 		"  JOIN CRYOVIAL C ON C.sample_id = S.sample_id"
 		"  JOIN CRYOVIAL_STORE CS ON CS.cryovial_id = C.cryovial_id"
 		"  WHERE C.cryovial_barcode = :barcode"
 		"  AND CS.status NOT IN (:deleted, :removed, :analysed, :transferred)"
-		"  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
+		"  ORDER BY S.barcode, C.cryovial_barcode, CS.time_stamp DESC"
 		;
 
 	m_pq->setSQL(sql.c_str());
@@ -277,20 +274,20 @@ void Db::addSamples( SampleVec * samples, const Tube & tube ) const {
     const std::string pfterm = (pfname == "") ? Util::quote("") : "S." + pfname;
 
     std::string sql =
-        "  SELECT S.sample_id, S.barcode sample_barcode"
+		"  SELECT S.sample_id, S.barcode sample_barcode, CS.time_stamp"
         "  , C.cryovial_id, C.cryovial_barcode, C.aliquot_type_cid"
         "  , CS.status cryovial_store_status, CS.retrieval_cid"
-        "  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
+		"  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
         ;
     sql +=
-        "  , " + pfterm + " person_id";
+        "  , " + pfterm + " source_name";
     sql +=
         "  FROM SPECIMEN S"
 		"  LEFT JOIN CRYOVIAL C ON C.sample_id = S.sample_id"
 		"  LEFT JOIN CRYOVIAL_STORE CS ON CS.cryovial_id = C.cryovial_id"
 		"  WHERE S.barcode = :barcode AND S.status <> :deleted"
 		"  AND CS.status NOT IN (:deleted, :removed, :analysed, :transferred)"
-		"  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
+		"  ORDER BY S.barcode, C.cryovial_barcode, CS.time_stamp DESC"
 		;
 
 	m_pq->setSQL(sql.c_str());
@@ -313,13 +310,13 @@ void Db::addSamples( SampleVec * samples, const Box & box ) const {
     const std::string pfterm = (pfname == "") ? Util::quote("") : "S." + pfname;
 
     std::string sql =
-        "  SELECT S.sample_id, S.barcode sample_barcode"
+		"  SELECT S.sample_id, S.barcode sample_barcode, CS.time_stamp"
         "  , C.cryovial_id, C.cryovial_barcode, C.aliquot_type_cid"
         "  , CS.status cryovial_store_status, CS.retrieval_cid"
-        "  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
+		"  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
         ;
     sql +=
-        "  , " + pfterm + " person_id";
+        "  , " + pfterm + " source_name";
     sql +=
         "  FROM BOX_NAME BN"
 		"  JOIN CRYOVIAL_STORE CS ON CS.box_cid = BN.box_cid"
@@ -328,7 +325,7 @@ void Db::addSamples( SampleVec * samples, const Box & box ) const {
 		"  WHERE (BN.external_name = :name OR BN.barcode = :name)"
 		"  AND BN.status <> :deleted AND S.status <> :deleted"
 		"  AND C.status <> :deleted AND CS.status <> :deleted"
-		"  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
+		"  ORDER BY S.barcode, C.cryovial_barcode, CS.time_stamp DESC"
         ;
 
 
@@ -349,13 +346,13 @@ void Db::addSamples( SampleVec * samples, const Person & person ) const {
     const std::string pfterm = (pfname == "") ? Util::quote("") : "S." + pfname;
 
     std::string sql =
-        "  SELECT S.sample_id, S.barcode sample_barcode"
+		"  SELECT S.sample_id, S.barcode sample_barcode, CS.time_stamp"
         "  , C.cryovial_id, C.cryovial_barcode, C.aliquot_type_cid"
         "  , CS.status cryovial_store_status, CS.retrieval_cid"
-        "  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
+		"  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
         ;
     sql +=
-        "  , " + pfterm + " person_id";
+        "  , " + pfterm + " source_name";
     sql +=
         "  FROM SPECIMEN S"
 		"  LEFT JOIN CRYOVIAL C ON C.sample_id = S.sample_id"
@@ -366,7 +363,7 @@ void Db::addSamples( SampleVec * samples, const Person & person ) const {
     sql +=
 		"  AND S.status <> :deleted"
 		"  AND CS.status NOT IN (:deleted, :removed, :analysed, :transferred)"
-		"  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
+		"  ORDER BY S.barcode, C.cryovial_barcode, CS.time_stamp DESC"
 		;
 
 	m_pq->setSQL(sql.c_str());
@@ -378,7 +375,7 @@ void Db::addSamples( SampleVec * samples, const Person & person ) const {
 
 	SampleVec mysamples;
     addSamples(&mysamples);
-    setNotesForSamples(&mysamples);
+	setNotesForSamples(&mysamples);
     samples->insert(samples->end(), mysamples.begin(), mysamples.end());
 
     return;
@@ -391,13 +388,13 @@ void Db::addSamples( SampleVec * samples, const Job & job ) const {
                                : "S." + pfname;
 
     std::string sql =
-        "  SELECT S.sample_id, S.barcode sample_barcode"
+		"  SELECT S.sample_id, S.barcode sample_barcode, CS.time_stamp"
         "  , C.cryovial_id, C.cryovial_barcode, C.aliquot_type_cid"
         "  , CS.status cryovial_store_status, CS.retrieval_cid"
-        "  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
+		"  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
         ;
     sql +=
-        "  , " + pfterm + " person_id";
+		"  , " + pfterm + " source_name";
     sql +=
         "  FROM CRYOVIAL_STORE CS"
         "  JOIN CRYOVIAL C"
@@ -410,7 +407,7 @@ void Db::addSamples( SampleVec * samples, const Job & job ) const {
         "  AND CS.retrieval_cid = :id"
         "  AND CS.status <> :deleted"
         "  AND S.status <> :deleted"
-        "  ORDER BY S.barcode, C.cryovial_barcode, CS.record_id DESC"
+        "  ORDER BY S.barcode, C.cryovial_barcode, CS.time_stamp DESC"
         ;
 
     m_pq->setSQL(sql.c_str());
@@ -433,7 +430,7 @@ void Db::addSamples( SampleVec * samples ) const {
 
 		const int sample_id                 = m_pq->readInt("sample_id");
 		const std::string sample_barcode    = m_pq->readString("sample_barcode").c_str();
-		const std::string person_id         = m_pq->readString("person_id").c_str();
+		const std::string source_name         = m_pq->readString("source_name").c_str();
 		const int cryovial_id               = m_pq->readInt("cryovial_id");
 		const std::string cryovial_barcode  = m_pq->readString("cryovial_barcode").c_str();
 		const int aliquot_type_cid          = m_pq->readInt("aliquot_type_cid");
@@ -449,9 +446,9 @@ void Db::addSamples( SampleVec * samples ) const {
 		sample.setBarcode(sample_barcode);
 		sample.setCryovialId(cryovial_id);
 		sample.setCryovialBarcode(cryovial_barcode);
-		sample.setPersonId(person_id);
+		sample.setPersonId(source_name);
 		sample.setAliquotId(aliquot_type_cid);
-		sample.setCryovialStatus(cryovial_store_status);
+		sample.setCryovialStoreStatus(cryovial_store_status);
 		sample.setJobno(retrieval_cid);
 		sample.setNoteFlag(note_exists);
 		sample.setCryovialStoreId(cryovial_store_id);
@@ -517,7 +514,7 @@ void Db::setNotesForSamples( SampleVec * samples ) const {
 
 std::string Db::updateSamples(
 	const std::map<int,IntSet> & jobCsids, const int dbcrstatus,
-	const std::string & jobName, const std::string & jobDescription,
+//	const std::string & jobName, const std::string & jobDescription,
 	const IntToStringMap & sampleNote ) const {
 	std::string error = "";
 
@@ -528,8 +525,7 @@ std::string Db::updateSamples(
 				}
 				m_pdb->StartTransaction(); */
 
-		error = updateSamplesStatus(jobCsids,
-									dbcrstatus, jobName, jobDescription);
+		error = updateSamplesStatus(jobCsids, dbcrstatus); //, jobName, jobDescription);
 
 		if (error != "") {
 //			m_pdb->Rollback();
@@ -549,51 +545,51 @@ std::string Db::updateSamples(
 
 		error = updateSamplesNote(sampleNote);
 
-        if (error != "") {
+		if (error != "") {
 //			m_pdb->Rollback();
-            break;
-        }
+			break;
+		}
 
 //        m_pdb->Commit();
 
-    } while (false);
+	} while (false);
 
-    return error;
+	return error;
 }
 
 std::string Db::updateSamplesStatus(
-    const std::map<int,IntSet> & jobCsids, const int dbcrstatus,
-    const std::string & jobName, const std::string & jobDescription ) const {
-    std::string error = "";
+	const std::map<int,IntSet> & jobCsids, const int dbcrstatus ) const {
+//	const std::string & jobName, const std::string & jobDescription ) const {
+	std::string error = "";
 
-    {
-        std::string sql =
-            "  UPDATE CRYOVIAL_STORE CS"
-            "  SET status = :dbcrstatus"
-            "  , retrieval_cid = :newjobno"
-            "  , process_cid = :pid"
-            "  WHERE 1=1"
-            "  AND CS.status <> :deleted"
-            "  AND CS.record_id = :csid"
-            "  AND CS.retrieval_cid = :jobno"
-            ;
+	{
+		std::string sql =
+			"  UPDATE CRYOVIAL_STORE CS"
+			"  SET status = :dbcrstatus"
+			"  , retrieval_cid = :newjobno"
+			"  , process_cid = :pid"
+			"  WHERE 1=1"
+			"  AND CS.status <> :deleted"
+			"  AND CS.record_id = :csid"
+			"  AND CS.retrieval_cid = :jobno"
+			;
 
-        m_pq->setSQL(sql.c_str());
-    }
+		m_pq->setSQL(sql.c_str());
+	}
 
-    m_pq->setParam("deleted", LPDbCryovial::DELETED);
-    m_pq->setParam("dbcrstatus", dbcrstatus);
-    const int pid = LCDbAuditTrail::getCurrent().getProcessID();
-    m_pq->setParam("pid", pid);
+	m_pq->setParam("deleted", LPDbCryovial::DELETED);
+	m_pq->setParam("dbcrstatus", dbcrstatus);
+	const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+	m_pq->setParam("pid", pid);
 
-    for (std::map<int,IntSet>::const_iterator it1 = jobCsids.begin(); it1 != jobCsids.end(); it1++) {
-        const int jobno = it1->first;
-        const IntSet csids = it1->second;
+	for (std::map<int,IntSet>::const_iterator it1 = jobCsids.begin(); it1 != jobCsids.end(); it1++) {
+		const int jobno = it1->first;
+		const IntSet csids = it1->second;
 
-        const bool isNewJob = (jobno == 0);
-        const LCDbCryoJob * pjob = isNewJob ? makeJob(jobName, jobDescription) : getJob(jobno);
-        if (pjob == 0) {
-            error = (jobno == 0)
+		const bool isNewJob = (jobno == 0);
+		const LCDbCryoJob * pjob = isNewJob ? makeJob(/*jobName, jobDescription*/) : getJob(jobno);
+		if (pjob == 0) {
+			error = (jobno == 0)
                     ? std::string("failed to create job")
                     : "failed to find job " + Util::asString(jobno)
                     ;
@@ -642,7 +638,7 @@ std::string Db::resetSamples( const std::map<int,IntSet> & jobCsids ) const {
         		}
         		m_pdb->StartTransaction();
         */
-        error = resetSamplesStatus(jobCsids);
+		error = resetSamplesStatus(jobCsids);
 
         if (error != "") {
 //			m_pdb->Rollback();
@@ -889,7 +885,7 @@ bool Db::canAbort( const int jobno ) const {
         }
 
         std::string sql =
-            "  SELECT CS.record_id csid, CS.status csst"
+			"  SELECT CS.record_id csid, CS.status csst"
             "  FROM CRYOVIAL_STORE CS"
             "  JOIN CRYOVIAL C"
             "  ON 1=1"
@@ -1029,13 +1025,16 @@ void AliquotInfo::populate() {
 
 CrstatusInfo::CrstatusInfo() { }
 
-void CrstatusInfo::populate() {
-    set(Cryovial::EXPECTED,    LPDbCryovialStore::ALLOCATED);
-    set(Cryovial::CONFIRMED,   LPDbCryovialStore::CONFIRMED);
-    set(Cryovial::REMOVED,     LPDbCryovialStore::ANALYSED);
-    set(Cryovial::DESTROYED,   LPDbCryovialStore::DESTROYED);
-    set(Cryovial::NINETYNINED, LPDbCryovialStore::DELETED);
-    return;
+void CrstatusInfo::init() {
+	mapping.push_back( { LPDbCryovialStore::ALLOCATED,	 	Cryovial::MARKED } );
+	mapping.push_back( { LPDbCryovialStore::MOVE_EXPECTED,	Cryovial::MARKED } );
+	mapping.push_back( { LPDbCryovialStore::CONFIRMED,		Cryovial::STORED } );
+	mapping.push_back( { LPDbCryovialStore::DESTROYED,		Cryovial::DESTROYED } );
+	mapping.push_back( { LPDbCryovialStore::ANALYSED,		Cryovial::REMOVED } );
+	mapping.push_back( { LPDbCryovialStore::ALIQUOTS_TAKEN,	Cryovial::REMOVED } );
+	mapping.push_back( { LPDbCryovialStore::NOT_FOUND,		Cryovial::REMOVED } );
+	mapping.push_back( { LPDbCryovialStore::TRANSFERRED,	Cryovial::REMOVED } );
+	mapping.push_back( { LPDbCryovialStore::DELETED,		Cryovial::NINETYNINED } );
 }
 
 } // Discard

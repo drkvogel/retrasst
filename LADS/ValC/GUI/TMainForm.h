@@ -19,6 +19,11 @@
 class LogManager;
 class TLogFrame;
 
+namespace stef
+{
+    class ThreadPool;
+}
+
 namespace valcui
 {
 	class Model;
@@ -51,21 +56,15 @@ private:	// User declarations
 	std::unique_ptr<valcui::Model> m_model;
 	std::unique_ptr<valcui::SnapshotFrameController> m_snapshotFrameController;
 	std::unique_ptr<valcui::QCViewController> m_qcViewController;
+    stef::ThreadPool* m_threadPool;
 public:		// User declarations
 	__fastcall TMainForm(TComponent* Owner);
+    __fastcall ~TMainForm();
 	void __fastcall warningAlarmOn();
 	void __fastcall warningAlarmOff();
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TMainForm *MainForm;
 //---------------------------------------------------------------------------
-template<typename SubComponentClass>
-SubComponentClass* addSubComponent( TFmxObject* container )
-{
-	SubComponentClass* subComponent = new SubComponentClass( container );
-	subComponent->Parent = container;
-	subComponent->Align = TAlignLayout::alClient;
-	container->AddObject( subComponent );
-	return subComponent;
-}
+
 #endif

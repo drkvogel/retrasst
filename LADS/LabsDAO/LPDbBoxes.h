@@ -23,7 +23,6 @@ class LPDbBoxName : public LPDbID
 	int filledBy;
 	std::vector< std::string > cryovials;
 
-	const LCDbBoxSize * getLayout() const;
 	bool needsNewID( LQuery & cQuery ) const;
 
 public:
@@ -48,6 +47,8 @@ public:
 
 	void setStatus( Status update ) { status = update; }
 	Status getStatus() const { return Status( status ); }
+
+	const LCDbBoxSize * getLayout() const;
 
 	short getSize() const;
 	short getSpace() const;
@@ -84,7 +85,7 @@ public:
 	void addCryovials( LQuery pq );
 
 	const LPDbBoxName * readRecord( LQuery pQuery, int id );
-	const LPDbBoxName * readRecord( LQuery pQuery, std::string name );
+	const LPDbBoxName * readRecord( LQuery pQuery, const std::string & name );
 	const LPDbBoxName * find( const std::string & name ) const;
 	const LPDbBoxName * findSpace( int boxType ) const;
 };

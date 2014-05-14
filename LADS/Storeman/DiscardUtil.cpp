@@ -245,49 +245,49 @@ OrderedNameTable::getNames( ) const {
 }
 
 // OrderedNumberTable
-
+/*
 OrderedNumberTable::OrderedNumberTable( ) {
 }
 
 void
 OrderedNumberTable::close( ) {
-    m_ids.clear();
-    m_numbers.clear();
+	m_ids.clear();
+	m_numbers.clear();
 
-    for (IntToIntMap::const_iterator it = m_id.begin();
-            it != m_id.end(); it++) {
-        m_numbers.push_back(it->first);
-    }
-    std::sort(m_numbers.begin(), m_numbers.end());
+	for (IntToIntMap::const_iterator it = m_id.begin();
+			it != m_id.end(); it++) {
+		m_numbers.push_back(it->first);
+	}
+	std::sort(m_numbers.begin(), m_numbers.end());
 
-    const int nnumbers = m_numbers.size();
-    for (int i=0; i<nnumbers; i++) {
-        const int number = m_numbers[i];
-        const int id = m_id[number];
-        m_ids.push_back(id);
-        m_index[id] = i;
-    }
+	const int nnumbers = m_numbers.size();
+	for (int i=0; i<nnumbers; i++) {
+		const int number = m_numbers[i];
+		const int id = m_id[number];
+		m_ids.push_back(id);
+		m_index[id] = i;
+	}
 
-    m_nids = m_ids.size();
+	m_nids = m_ids.size();
 
-    return;
+	return;
 }
 
 IntVec
 OrderedNumberTable::getIds( ) const {
-    return m_ids;
+	return m_ids;
 }
 
 IntVec
 OrderedNumberTable::getNumbers( ) const {
-    return m_numbers;
+	return m_numbers;
 }
-
+*/
 
 // MyException
 
 MyException::MyException( const std::string & text )
-    : std::runtime_error(text) {
+	: std::runtime_error(text) {
 }
 
 
@@ -297,7 +297,7 @@ namespace Util {
 
 std::string
 quote( const std::string & s, const std::string & q1, const std::string & q2 ) {
-    return q1 + s + (q2 == "" ? q1 : q2);
+	return q1 + s + (q2 == "" ? q1 : q2);
 }
 
 std::string

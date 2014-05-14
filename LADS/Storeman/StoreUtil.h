@@ -82,7 +82,7 @@ public:
 		static int getCurrentLayout( const std::string & name );
 
 		static bool validateText( TEdit* txt, TLabel* controlname );
-		static int validateInteger(  TEdit* txt, int min, int max );
+		static int validateInteger( TEdit* txt, int min, int max );
 		static bool isVesselInUse( const std::string & srlno );
 		static bool isPosDuplicate( int locationCID, short pos, short shelf = 0 );
 

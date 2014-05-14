@@ -33,7 +33,7 @@ class Cryovial
 {
 public:
 	Cryovial( const std::string & barcode );
-    enum { EXPECTED, CONFIRMED, REMOVED, DESTROYED, NINETYNINED };
+    enum { STORED, MARKED, REMOVED, DESTROYED, NINETYNINED };
 };
 
 class Box
@@ -80,8 +80,8 @@ public:
 	int getAliquotId( ) const;
 	void setCryovialId( const int id );
 	int getCryovialId( ) const;
-	void setCryovialStatus( const int status );
-	int getCryovialStatus( ) const;
+	void setCryovialStoreStatus( const int status );
+	int getCryovialStoreStatus( ) const;
 	void setJobno( const int status );
 	int getJobno( ) const;
 	void setNoteFlag( const int count );

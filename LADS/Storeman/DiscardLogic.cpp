@@ -137,11 +137,11 @@ void Sample::setCryovialId( const int id ) {
     return;
 }
 
-int Sample::getCryovialStatus( ) const {
+int Sample::getCryovialStoreStatus( ) const {
     return getInt("crst");
 }
 
-void Sample::setCryovialStatus( const int status ) {
+void Sample::setCryovialStoreStatus( const int status ) {
     setInt("crst", status);
     return;
 }
@@ -190,11 +190,11 @@ std::string Sample::getNote( ) const {
 CryovialStatus::CryovialStatus( ) : m_currentIndex(-1) , m_nextIndex(-1) { }
 
 void CryovialStatus::populate( ) {
-    set(Cryovial::EXPECTED,    "Expected");
-    set(Cryovial::CONFIRMED,   "Confirmed");
-    set(Cryovial::REMOVED,     "Removed");
-    set(Cryovial::DESTROYED,   "Destroyed");
-    set(Cryovial::NINETYNINED, "99d");
+	set(Cryovial::STORED,   	"Stored");
+	set(Cryovial::MARKED,   	"Marked");
+	set(Cryovial::REMOVED,     	"Removed");
+	set(Cryovial::DESTROYED,   	"Destroyed");
+	set(Cryovial::NINETYNINED, 	"99d");
     return;
 }
 
@@ -202,10 +202,10 @@ void CryovialStatus::close( ) {
     m_ids.clear();
     m_names.clear();
 
-    m_ids.push_back(Cryovial::EXPECTED);
-    m_ids.push_back(Cryovial::CONFIRMED);
-    m_ids.push_back(Cryovial::REMOVED);
-    m_ids.push_back(Cryovial::DESTROYED);
+	m_ids.push_back(Cryovial::STORED);
+	m_ids.push_back(Cryovial::MARKED);
+	m_ids.push_back(Cryovial::REMOVED);
+	m_ids.push_back(Cryovial::DESTROYED);
 
     m_nids = m_ids.size();
 

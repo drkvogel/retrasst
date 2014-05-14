@@ -13,7 +13,7 @@
 
 class LCDbCryoJob : public LCDbID, public LDbNames
 {
-	short jobType, status;
+	short jobType, status, boxSet;
 	int exercise, primary, secondary;
 	TDateTime time_stamp, claimed_until;
 	int projectID, processID;
@@ -29,12 +29,12 @@ public:
 				SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES };
 
 	LCDbCryoJob( int id = 0, JobKind type = UNKNOWN )
-	 : LCDbID( id ), jobType( type ), status( NEW_JOB ),
+	: LCDbID( id ), jobType( type ), status( NEW_JOB ), boxSet( 0 ),
 	  exercise( 0 ), primary( 0 ), secondary( 0 ), projectID( 0 ), processID( 0 )
 	{}
 
 	LCDbCryoJob( JobKind type, const std::string & name, const std::string & desc )
-	 : LCDbID( 0 ), jobType( type ), LDbNames( name, desc ), status( NEW_JOB ),
+	: LCDbID( 0 ), LDbNames( name, desc ), jobType( type ), status( NEW_JOB ), boxSet( 0 ),
 	  exercise( 0 ), primary( 0 ), secondary( 0 ), projectID( 0 ), processID( 0 )
 	{}
 
@@ -56,6 +56,8 @@ public:
 	JobKind getJobType() const { return JobKind( jobType ); }
 	const char * getTypeName() const;
 	Status getStatus() const { return Status( status ); }
+	void setBoxSet( short job ) { boxSet = job; }
+	short getBoxSet() const { return boxSet; }
 
 	TDateTime getTimeStamp() const { return time_stamp; }
 	TDateTime getStartDate() const { return start_date; }
@@ -65,11 +67,11 @@ public:
 	int getProcessCID() const { return processID; }
 	int getUserID() const;
 
-	void setReason( const std::string & text ) { reason = text; }
-	const std::string & getReason() const { return reason; }
 	void setExercise( int objID ) { exercise = objID; }
 	void setExercise( const std::string & exName );
 	int getExercise() const { return exercise; }
+	void setReason( const std::string & text ) { reason = text; }
+	const std::string & getReason() const { return reason; }
 
 	void createName( LQuery central, const std::string & nameBase = "" );
 	bool saveRecord( LQuery central );

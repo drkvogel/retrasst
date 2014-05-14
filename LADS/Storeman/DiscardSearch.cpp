@@ -39,9 +39,9 @@ void TfrmSearch::init( Discard::Context * context ) {
         }
     }
 
-    if (Discard::Person::canSearch()) {
-        this->rgType->Controls[3]->Enabled = true;
-    }
+//    if (Discard::Person::canSearch()) {
+//        this->rgType->Controls[3]->Enabled = true;
+//    }
 
     if (m_context->isCreateJobStage()) {
         gotoStep1();

@@ -8,6 +8,7 @@
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
 #include <ComCtrls.hpp>
+#include <Vcl.Buttons.hpp>
 #include <memory>
 #include "LCDbJob.h"
 
@@ -17,8 +18,6 @@ class Box;
 class TfrmNewJob : public TForm
 {
 __published:	// IDE-managed Components
-
-	TButton *BtnOK;
 	TEdit *TxtFull;
 	TLabel *LblFull;
 	TEdit *TxtName;
@@ -27,10 +26,13 @@ __published:	// IDE-managed Components
 	TComboBox *CbExercise;
 	TButton *BtnNewEx;
 	TLabel *LblReason;
-	TEdit *TxtReason;
-
-	void __fastcall SaveClick(TObject *Sender);
+	TComboBox *cmbReason;
+	TLabel *Label1;
+	TEdit *txtBoxSet;
+	TBitBtn *BitBtn1;
+	TBitBtn *BitBtn2;
 	void __fastcall BtnNewExClick(TObject *Sender);
+	void __fastcall BitBtn1Click(TObject *Sender);
 
 private:	// User declarations
 

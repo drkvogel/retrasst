@@ -67,6 +67,8 @@ void LCDbCryoJob::createName( LQuery central, const std::string & nameBase )
 	}
 	out << '_' << abs( claimNextID( central ) );
 	setName( out.str() );
+	central.setSQL( "select max(box_set)+1 as next_set from c_retrieval_job" );
+	boxSet = central.open() ? central.getRecord().getInt( 0 ) : -1;
 }
 
 //---------------------------------------------------------------------------
@@ -104,11 +106,12 @@ bool LCDbCryoJob::saveRecord( LQuery central )
 			claimNextID( central );
 		}
 		central.setSQL( "insert into c_retrieval_job (retrieval_cid, exercise_cid, external_name,"
-						" description, job_type, project_cid, primary_aliquot, secondary_aliquot,"
+						" box_set, description, job_type, project_cid, primary_aliquot, secondary_aliquot,"
 						" process_cid, reason, status, start_date, claimed_until, finish_date)"
-						" values (:id, :ex, :nm, :dsc, :jt, :prj, :al1, :al2, :pid, :why, :sts, :sd, :cd, :fd)" );
+						" values (:id, :ex, :nm, :job, :dsc, :jt, :prj, :al1, :al2, :pid, :why, :sts, :sd, :cd, :fd)" );
 		central.setParam( "nm", getName() );
 		central.setParam( "ex", exercise );
+		central.setParam( "job", boxSet );
 		central.setParam( "dsc", getDescription() );
 		central.setParam( "prj", projectID );
 		central.setParam( "jt", jobType );

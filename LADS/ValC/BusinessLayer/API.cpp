@@ -11,6 +11,7 @@
 #include "ClusterIDs.h"
 #include "CompositeRuleEngineQueueListener.h"
 #include "CompositeRuleResultPublisher.h"
+#include "ComUtil.h"
 #include "Config.h"
 #include "ConnectionFactoryWithLogging.h"
 #include "ControlModel.h"
@@ -92,6 +93,8 @@ ApplicationContext* applicationContext = NULL;
 void InitialiseApplicationContext( int localMachineID, int user, const std::string& config, paulst::LoggingService* log,
     UserAdvisor* userAdvisor )
 {
+	paulstdb::throwUnlessOK( CoInitializeEx( NULL, COINIT_MULTITHREADED ) );
+
     if ( applicationContext )
     {
         throw Exception( L"Application context already initialised." );
@@ -173,7 +176,8 @@ void DeleteApplicationContext()
     catch( ... )
     {
     }
-    applicationContext = NULL;
+	applicationContext = NULL;
+	CoUninitialize();
 }
 
 void wait( stef::ThreadPool* taskRunner, long timeoutMillis )

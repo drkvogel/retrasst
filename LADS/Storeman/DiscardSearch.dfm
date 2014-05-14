@@ -35,7 +35,6 @@ object frmSearch: TfrmSearch
       Height = 43
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      ExplicitWidth = 602
       DesignSize = (
         538
         43)
@@ -56,7 +55,6 @@ object frmSearch: TfrmSearch
         Anchors = [akLeft, akTop, akRight]
         ReadOnly = True
         TabOrder = 1
-        ExplicitWidth = 512
       end
     end
   end
@@ -77,7 +75,6 @@ object frmSearch: TfrmSearch
       Height = 41
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      ExplicitWidth = 602
       DesignSize = (
         538
         41)
@@ -97,7 +94,6 @@ object frmSearch: TfrmSearch
         TabOrder = 0
         OnChange = ediTextChange
         OnKeyPress = ediTextKeyPress
-        ExplicitWidth = 543
       end
     end
   end
@@ -140,7 +136,6 @@ object frmSearch: TfrmSearch
       Caption = 'Back'
       TabOrder = 0
       OnClick = btnBackClick
-      ExplicitHeight = 25
     end
     object btnNext: TButton
       Left = 240
@@ -151,7 +146,6 @@ object frmSearch: TfrmSearch
       Caption = 'Next'
       TabOrder = 1
       OnClick = btnNextClick
-      ExplicitHeight = 25
     end
     object btnCancel: TButton
       Left = 460
@@ -162,8 +156,6 @@ object frmSearch: TfrmSearch
       Caption = 'Cancel'
       TabOrder = 2
       OnClick = btnCancelClick
-      ExplicitLeft = 467
-      ExplicitHeight = 25
     end
   end
   object pnlStep3b: TPanel
@@ -183,7 +175,6 @@ object frmSearch: TfrmSearch
       Height = 42
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      ExplicitWidth = 602
       DesignSize = (
         538
         42)
@@ -203,7 +194,6 @@ object frmSearch: TfrmSearch
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
         OnChange = cmbMenuChange
-        ExplicitWidth = 533
       end
     end
   end

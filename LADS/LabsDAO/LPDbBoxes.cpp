@@ -128,7 +128,7 @@ void LPDbBoxName::checkFilledBy( LQuery & pq )
 //	Read the selected box entry from the current project database
 //---------------------------------------------------------------------------
 
-const LPDbBoxName * LPDbBoxNames::readRecord( LQuery pQuery, std::string name )
+const LPDbBoxName * LPDbBoxNames::readRecord( LQuery pQuery, const std::string & name )
 {
 	pQuery.setSQL( "select * from box_name"
 				  " where upper( :bn ) in (barcode, upper(external_name))" );

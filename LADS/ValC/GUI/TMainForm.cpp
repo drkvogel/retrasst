@@ -4,11 +4,13 @@
 #pragma hdrstop
 
 #include "BusinessLayer.h"
+#include "FMXTemplates.h"
 #include "LogManager.h"
 #include "Model.h"
 #include "QCViewController.h"
 #include "SnapshotFrameController.h"
 #include "StrUtil.h"
+#include "ThreadPool.h"
 #include "TLogFrame.h"
 #include "TMainForm.h"
 #include "TQCViewFrame.h"
@@ -24,15 +26,21 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 	: TForm(Owner),
 	m_appDataDir( paulst::appDataDir() + "\\ValC" ),
 	m_config( paulst::loadContentsOf( m_appDataDir.path() + "\\config-top.txt" ) ),
-	m_logFrame(NULL)
+	m_logFrame(NULL),
+    m_threadPool( new stef::ThreadPool( 2, 5 ) )
 {
+}
+//---------------------------------------------------------------------------
+__fastcall TMainForm::~TMainForm()
+{
+    m_threadPool->shutdown( 5000, true );
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::onCreate(TObject *Sender)
 {
-	m_logFrame      = addSubComponent<TLogFrame>     ( logFrameContainer );
-	TSnapshotFrame* snapshotFrame = addSubComponent<TSnapshotFrame>( snapshotFrameContainer );
-	TQCViewFrame*   qcViewFrame   = addSubComponent<TQCViewFrame>( bottomPanel );
+	m_logFrame                    = valcui::addSubComponent<TLogFrame>     ( logFrameContainer );
+	TSnapshotFrame* snapshotFrame = valcui::addSubComponent<TSnapshotFrame>( snapshotFrameContainer );
+	TQCViewFrame*   qcViewFrame   = valcui::addSubComponent<TQCViewFrame>  ( bottomPanel );
 
 	m_logManager = std::unique_ptr<LogManager>(new LogManager( m_logFrame, m_config.get("logFile") ));
 
@@ -69,6 +77,8 @@ void __fastcall TMainForm::onCreate(TObject *Sender)
 		new valcui::QCViewController(
 			qcViewFrame,
 			m_model.get() ) );
+
+    m_qcViewController->setThreadPool( m_threadPool );
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::onResize(TObject *Sender)

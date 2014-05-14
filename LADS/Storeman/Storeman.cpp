@@ -9,30 +9,29 @@
 //---------------------------------------------------------------------------
 
 USEFORM("RationaliseTanks\RatTanksdbSelection.cpp", frmRatTankDbSelectionDialog);
-USEFORM("RationaliseTanks\RatTanksMainDialog.cpp", frmRatTanksMainDialog);
+USEFORM("RationaliseTanks\RatTanksCreateRetrievalJob.cpp", frmRatTankCreateRetrievalJob);
+USEFORM("RationaliseTanks\RatTanksBoxSelection.cpp", frmRatTanksBoxSelection);
 USEFORM("RationaliseTanks\RatTanksBoxType.cpp", frmRatTanksBoxType);
 USEFORM("RationaliseTanks\RatTanksCreateExercise.cpp", frmRatTanksRetrivalExercise);
-USEFORM("RationaliseTanks\RatTanksCreateRetrievalJob.cpp", frmRatTankCreateRetrievalJob);
-USEFORM("RetrAsstCollectBoxes.cpp", frmRetrAsstCollectBoxes);
-USEFORM("RetrAsstCollectEmpties.cpp", frmCollectEmpties);
-USEFORM("RetrAsstCollectSamples.cpp", frmRetrAsstCollectSamples);
+USEFORM("RationaliseTanks\RatTanksMainDialog.cpp", frmRatTanksMainDialog);
 USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
+USEFORM("RetrAsstCollectBoxes.cpp", frmRetrAsstCollectBoxes);
+USEFORM("RetrAsstCollectSamples.cpp", frmRetrAsstCollectSamples);
+USEFORM("ReferredBoxes.cpp", frmReferred);
 USEFORM("RationaliseTanks\RatTanksPleaseWait.cpp", frmRatTankPleaseWait);
 USEFORM("RationaliseTanks\RatTanksSignIn.cpp", frmRatTankSignIn);
-USEFORM("ReferredBoxes.cpp", frmReferred);
-USEFORM("RationaliseTanks\RatTanksBoxSelection.cpp", frmRatTanksBoxSelection);
+USEFORM("NewType.cpp", frmNewStoreType);
 USEFORM("FindSample.cpp", frmFind);
-USEFORM("DiscardReason.cpp", frmDiscardReason);
-USEFORM("DiscardSamples.cpp", frmDiscardSamples);
 USEFORM("DiscardSearch.cpp", frmSearch);
-USEFORM("MoveJobs.cpp", frmSelectJob);
+USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
+USEFORM("DiscardSamples.cpp", frmDiscardSamples);
+USEFORM("NewSection.cpp", frmNewSection);
 USEFORM("NewSite.cpp", frmNewSite);
 USEFORM("NewTank.cpp", frmNewTank);
-USEFORM("NewType.cpp", frmNewStoreType);
-USEFORM("NewSection.cpp", frmNewSection);
+USEFORM("NewJob.cpp", frmNewJob);
+USEFORM("MoveJobs.cpp", frmSelectJob);
 USEFORM("NewBoxType.cpp", frmNewBoxType);
 USEFORM("NewExercise.cpp", frmNewExercise);
-USEFORM("NewJob.cpp", frmNewJob);
 USEFORM("RetrAsstMain.cpp", frmRetrievalAssistant);
 USEFORM("SMLogin.cpp", frmSMLogin);
 USEFORM("Storemain.cpp", frmStoremain);
@@ -48,12 +47,11 @@ USEFORM("SampleEntry.cpp", frmRetrieveMain);
 USEFORM("RetrievalLists\RetrievalListResultNotesDialog.cpp", frmRetrievalListResultNotesDialog);
 USEFORM("RetrievalLists\RetrievalListResultsDialog.cpp", frmRetrievalListResultsDialog);
 USEFORM("RetrieveSamples.cpp", frmRetrieved);
-USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
+USEFORM("DiscardNote.cpp", frmDiscardNote);
 USEFORM("AddSpecimens.cpp", frmAddSpecimens);
 USEFORM("AnalyseSamples.cpp", frmAnalyseSpecimens);
-USEFORM("BoxTransfer.cpp", frmBoxList);
 USEFORM("DiscardMethod.cpp", frmDiscardMethod);
-USEFORM("DiscardNote.cpp", frmDiscardNote);
+USEFORM("BoxTransfer.cpp", frmBoxList);
 USEFORM("BrowseSample.cpp", frmBrowse);
 USEFORM("Configure.cpp", frmConfigure);
 USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
@@ -75,7 +73,6 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmDiscardMethod), &frmDiscardMethod);
          Application->CreateForm(__classid(TfrmDiscardNote), &frmDiscardNote);
          Application->CreateForm(__classid(TfrmDiscardPrologue), &frmDiscardPrologue);
-         Application->CreateForm(__classid(TfrmDiscardReason), &frmDiscardReason);
          Application->CreateForm(__classid(TfrmDiscardSamples), &frmDiscardSamples);
          Application->CreateForm(__classid(TfrmSearch), &frmSearch);
          Application->CreateForm(__classid(TfrmNewJob), &frmNewJob);
@@ -115,7 +112,7 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmRetrAsstPlanBoxes), &frmRetrAsstPlanBoxes);
          Application->CreateForm(__classid(TfrmRetrAsstCollectBoxes), &frmRetrAsstCollectBoxes);
          Application->CreateForm(__classid(TfrmRatTankSignIn), &frmRatTankSignIn);
-         Application->Run();
+		Application->Run();
 	}
 	catch (Exception &exception) {
 		Application->ShowException(&exception);

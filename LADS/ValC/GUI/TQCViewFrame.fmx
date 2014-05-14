@@ -1,11 +1,23 @@
 object QCViewFrame: TQCViewFrame
-  Height = 240.000000000000000000
-  Width = 320.000000000000000000
-  object Label1: TLabel
-    Height = 17.000000000000000000
-    Position.X = 40.000000000000000000
-    Position.Y = 32.000000000000000000
-    Text = 'I am TQCViewFrame'
-    Width = 120.000000000000000000
+  Height = 332.000000000000000000
+  Width = 594.000000000000000000
+  object titlePanel: TPanel
+    Align = alTop
+    Height = 33.000000000000000000
+    Width = 594.000000000000000000
+    TabOrder = 0
+    object Label1: TLabel
+      Height = 17.000000000000000000
+      Position.X = 32.000000000000000000
+      Position.Y = 8.000000000000000000
+      Text = 'QC Control View'
+      Width = 120.000000000000000000
+    end
+  end
+  object tree: TTreeView
+    Align = alClient
+    Height = 299.000000000000000000
+    TabOrder = 1
+    Width = 594.000000000000000000
   end
 end

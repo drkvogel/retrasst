@@ -37,8 +37,9 @@ public:
     void addJobnos( IntVec * jobnos, const int dbcrstatus ) const;
 	const LCDbCryoJob * getJob( const int jobno ) const;
     bool isJob( const int jobno ) const;
-    const LCDbCryoJob * makeJob( const std::string & prefix,
-		const std::string & description, const std::string & reason = "" ) const;
+	const LCDbCryoJob * makeJob() const ;
+//	const LCDbCryoJob * makeJob( const std::string & prefix,
+//		const std::string & description, const std::string & reason = "" ) const;
     const LCDbOperator * getUser( const int userid ) const;
     void addSamples( SampleVec * samples, const Cryovial & cryovial ) const;
     void addSamples( SampleVec * samples, const Tube & tube ) const;
@@ -49,11 +50,10 @@ public:
     void setNotesForSamples( SampleVec * samples ) const;
     std::string updateSamples( const std::map<int,IntSet> & jobCsids,
         const int dbcrstatus,
-        const std::string & jobName, const std::string & jobDescription,
+//      const std::string & jobName, const std::string & jobDescription,
         const IntToStringMap & sampleNote ) const;
     std::string updateSamplesStatus( const std::map<int,IntSet> & jobCsids,
-        const int dbcrstatus,
-        const std::string & jobName, const std::string & jobDescription ) const;
+		const int dbcrstatus ) const;
     std::string resetSamples( const std::map<int,IntSet> & jobCsids ) const;
     std::string resetSamplesStatus(
         const std::map<int,IntSet> & jobCsids ) const;
@@ -92,13 +92,15 @@ private:
 };
 
 class CrstatusInfo
-	: public OrderedNumberTable
+//	: public OrderedNumberTable
 {
 public:
 	CrstatusInfo( );
-	virtual void populate( );
+	void init( );
+	const IntPairVec & getMapping() const { return mapping; }
 protected:
 private:
+	IntPairVec mapping;
 };
 
 } // Discard

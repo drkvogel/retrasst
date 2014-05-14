@@ -417,12 +417,6 @@
             <DependentOn>DiscardPrologue.h</DependentOn>
             <BuildOrder>32</BuildOrder>
         </CppCompile>
-        <CppCompile Include="DiscardReason.cpp">
-            <Form>frmDiscardReason</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>DiscardReason.h</DependentOn>
-            <BuildOrder>15</BuildOrder>
-        </CppCompile>
         <CppCompile Include="DiscardSamples.cpp">
             <Form>frmDiscardSamples</Form>
             <FormType>dfm</FormType>
@@ -762,7 +756,7 @@
         <FormResources Include="ReferredBoxes.dfm"/>
         <FormResources Include="RationaliseTanks\RatTanksBoxSelection.dfm"/>
         <FormResources Include="FindSample.dfm"/>
-        <FormResources Include="DiscardReason.dfm"/>
+        <FormResources Include="DiscardPrologue.dfm"/>
         <FormResources Include="DiscardSamples.dfm"/>
         <FormResources Include="DiscardSearch.dfm"/>
         <FormResources Include="MoveJobs.dfm"/>
@@ -788,12 +782,11 @@
         <FormResources Include="RetrievalLists\RetrievalListResultNotesDialog.dfm"/>
         <FormResources Include="RetrievalLists\RetrievalListResultsDialog.dfm"/>
         <FormResources Include="RetrieveSamples.dfm"/>
-        <FormResources Include="DiscardPrologue.dfm"/>
+        <FormResources Include="DiscardNote.dfm"/>
         <FormResources Include="AddSpecimens.dfm"/>
         <FormResources Include="AnalyseSamples.dfm"/>
-        <FormResources Include="BoxTransfer.dfm"/>
         <FormResources Include="DiscardMethod.dfm"/>
-        <FormResources Include="DiscardNote.dfm"/>
+        <FormResources Include="BoxTransfer.dfm"/>
         <FormResources Include="BrowseSample.dfm"/>
         <FormResources Include="Configure.dfm"/>
         <FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>

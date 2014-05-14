@@ -114,6 +114,7 @@
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <Debugger_DebugSourcePath>J:\cvs\paulst\db\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <BCC_PCHUsage>None</BCC_PCHUsage>
         <DynamicRTL>false</DynamicRTL>
         <LinkPackageStatics>rtl.lib;fmx.lib;fmxobj.lib;xmlrtl.lib</LinkPackageStatics>
@@ -150,6 +151,9 @@
             <DependentOn>ExceptionHandler.h</DependentOn>
             <BuildOrder>24</BuildOrder>
         </CppCompile>
+        <None Include="FMXTemplates.h">
+            <BuildOrder>30</BuildOrder>
+        </None>
         <CppCompile Include="GUImanager.cpp">
             <DependentOn>GUImanager.h</DependentOn>
             <BuildOrder>18</BuildOrder>
@@ -180,6 +184,10 @@
         <CppCompile Include="QCViewController.cpp">
             <DependentOn>QCViewController.h</DependentOn>
             <BuildOrder>27</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="QCViewData.cpp">
+            <DependentOn>QCViewData.h</DependentOn>
+            <BuildOrder>29</BuildOrder>
         </CppCompile>
         <CppCompile Include="SnapshotFrameController.cpp">
             <DependentOn>SnapshotFrameController.h</DependentOn>
@@ -251,11 +259,11 @@
         <LibFiles Include="..\..\..\paulst\lib64\Win64\Debug\paulst_lib.a" Condition="'$(Platform)'=='Win64' Or '$(Platform)'=='OSX32'">
             <BuildOrder>7</BuildOrder>
         </LibFiles>
+        <FormResources Include="TQCViewFrame.fmx"/>
         <FormResources Include="TSnapshotFrame.fmx"/>
         <FormResources Include="TWaitDlg.fmx"/>
-        <FormResources Include="TLogFrame.fmx"/>
         <FormResources Include="TMainForm.fmx"/>
-        <FormResources Include="TQCViewFrame.fmx"/>
+        <FormResources Include="TLogFrame.fmx"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

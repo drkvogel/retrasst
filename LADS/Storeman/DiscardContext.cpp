@@ -206,8 +206,8 @@ bool SCComparator::operator()( const int & left, const int & right ) const {
 			} else {
 				sigma = (rightSample == 0)
 						? -1
-						: Util::sigma(leftSample->getCryovialStatus() -
-									  rightSample->getCryovialStatus());
+						: Util::sigma(leftSample->getCryovialStoreStatus() -
+									  rightSample->getCryovialStoreStatus());
 			}
 
 		} while (false);
@@ -267,12 +267,12 @@ std::string Context::getStudyCode( ) const {
 void Context::configCrstatus( const int index ) {
     switch (index) {
     case 0:
-        m_crstatus.setCurrentId(Cryovial::CONFIRMED);
-        m_crstatus.setNextId(Cryovial::CONFIRMED);
-        break;
+		m_crstatus.setCurrentId(Cryovial::STORED);
+		m_crstatus.setNextId(Cryovial::MARKED);
+		break;
     case 1:
-        m_crstatus.setCurrentId(Cryovial::REMOVED);
-        m_crstatus.setNextId(Cryovial::DESTROYED);
+		m_crstatus.setCurrentId(Cryovial::MARKED);
+		m_crstatus.setNextId(Cryovial::REMOVED);
         break;
     case 2:
         m_crstatus.setCurrentId(Cryovial::REMOVED);
@@ -310,26 +310,11 @@ std::string Context::getNextCrstatusName( ) const {
 }
 
 bool Context::isCreateJobStage( ) const {
-	bool isCreateJobStage = false;
-	const int nextCrstatus = m_crstatus.getNextId();
-	switch (nextCrstatus) {
-	case Cryovial::CONFIRMED:
-		isCreateJobStage = true;
-		break;
-//    case Cryovial::REMOVED: isCreateJobStage = true; break; // was FIXME 66
-	}
-	return isCreateJobStage;
+	return m_crstatus.getCurrentId() == Cryovial::STORED;
 }
 
 bool Context::isSelectJobStage( ) const {
-	bool isSelectJobStage = false;
-	const int nextCrstatus = m_crstatus.getNextId();
-	switch (nextCrstatus) {
-	case Cryovial::DESTROYED:
-		isSelectJobStage = true;
-		break;
-	}
-	return isSelectJobStage;
+	return m_crstatus.getNextId() == Cryovial::DESTROYED;
 }
 
 void Context::setReason( const std::string & reason ) {
@@ -606,11 +591,9 @@ int Context::calcCrstatus( const int dbcrstatus ) const {
 void Context::configDbCrstatusMap( ) {
 	CrstatusInfo crstatusInfo;
 	crstatusInfo.init();
-	IntVec crstatuses = crstatusInfo.getIds();
-	for (IntVec::const_iterator it=crstatuses.begin();
-			it != crstatuses.end(); it++) {
-		const int crstatus = *it;
-		const int dbcrstatus = crstatusInfo.getNumber(crstatus);
+	for( auto it : crstatusInfo.getMapping() ) {
+		const int crstatus = it.second;
+		const int dbcrstatus = it.first;
 		m_dbCrstatusMap[crstatus] = dbcrstatus;
 		m_crstatusMap[dbcrstatus] = crstatus;
 	}
@@ -869,8 +852,8 @@ const Sample * SamplePile::getSample( const int sampleno ) const {
 		   : 0;
 }
 
-std::string SamplePile::update(
-		const int dbcrstatus, const std::string & description, const std::string & reason ) {
+std::string SamplePile::update( const int dbcrstatus ) {
+//, const std::string & description, const std::string & reason ) {
 	std::string error = "";
 
 	do {
@@ -890,11 +873,8 @@ std::string SamplePile::update(
 			jobCsids[jobno].insert(csid);
 		}
 
-		const std::string jobName = description; // sic
-		const std::string jobDescription = reason; // sic
-
 		error = m_context->getDb()->updateSamples(jobCsids,
-				dbcrstatus, jobName, jobDescription, sampleNote);
+				dbcrstatus, /* jobName, jobDescription, */ sampleNote);
 		if (error != "") break;
 
 	} while (false);
@@ -950,13 +930,13 @@ int SamplePile::getNCryovialsRemaining( const int jobno ) const {
                 ++nExcused;
                 continue;
             }
-            const int dbcrstatus = sample.getCryovialStatus();
-            const int crstatus = m_context->calcCrstatus(dbcrstatus);
-            if (crstatus == Cryovial::EXPECTED) {
-                ++nExpected;
-                continue;
+			const int dbcrstatus = sample.getCryovialStoreStatus();
+			const int crstatus = m_context->calcCrstatus(dbcrstatus);
+		  if (crstatus == Cryovial::MARKED) {
+				++nExpected;
+				continue;
 			}
-            if (crstatus == Cryovial::CONFIRMED) {
+		  if (crstatus == Cryovial::STORED) {
                 ++nConfirmed;
                 continue;
             }
@@ -1001,8 +981,9 @@ bool SamplePile::isSampleMarkable( const Sample & sample ) const {
 	bool isMarkable = false;
 
 	do {
-		const int crst = sample.getCryovialStatus();
-		if (crst != m_context->getCurrentCrstatus()) break;
+		const int dbcrstatus = sample.getCryovialStoreStatus();
+		const int crstatus = m_context->calcCrstatus(dbcrstatus);
+		if (crstatus != m_context->getCurrentCrstatus()) break;
 
 		const int jobno = sample.getJobno();
 		const bool isCreateJobStage = m_context->isCreateJobStage();
@@ -1337,7 +1318,7 @@ void GridStuff::specifyGridColumns( ) {
 
     {
         Cell cell(SCComparator::SBARCODE, rowno);
-        setText(cell, "ID");
+		setText(cell, "Sample");
         setHeader(cell);
     }
 
@@ -1349,7 +1330,7 @@ void GridStuff::specifyGridColumns( ) {
 
     {
         Cell cell(SCComparator::PERSONID, rowno);
-        setText(cell, "Person");
+		setText(cell, "Source");
         setHeader(cell);
     }
 
@@ -1445,7 +1426,7 @@ void GridStuff::specifyGridCells( ) {
 
         const Cell cell(colno, rowno);
         setSampleno(cell, sampleno);
-        setText(cell, AnsiString(sampleno).c_str());
+        setText(cell, AnsiString(sampleno+1).c_str());
     }
 
     return;

@@ -27,7 +27,8 @@ LCDbBoxSize::LCDbBoxSize( const LQuery & query )
    hole( query.readInt( "empty_position" ) ),
    LDbValid( query.readDateTime( "valid_from" ),
 			 query.readDateTime( "valid_to" ),
-			 query.readInt( "status" ) )
+			 query.readInt( "status" ) ),
+   tubeType( query.readInt( "tube_type" ) )
 {}
 
 //---------------------------------------------------------------------------
@@ -55,19 +56,20 @@ bool LCDbBoxSize::saveRecord( LQuery cQuery )
 {
 	if( saved )
 	{
-		cQuery.setSQL( "Update c_box_size set description = :desc, box_capacity = :cap,"
+		cQuery.setSQL( "Update c_box_size set box_capacity = :cap,"
 					  " empty_position = :pos, status = :sts, valid_from = :from, valid_to = :to"
 					  " where box_size_cid = :cid" );
 	}
 	else
 	{	claimNextID( cQuery );
 		cQuery.setSQL( "Insert into c_box_size (box_size_cid, description, box_capacity,"
-					  "  empty_position, status, valid_from, valid_to)"
-					  " values ( :cid, :desc, :cap, :pos, :sts, :from, :to )" );
+					  " tube_type, empty_position, status, valid_from, valid_to)"
+					  " values ( :cid, :desc, :cap, :tt, :pos, :sts, :from, :to )" );
+		cQuery.setParam( "desc", getName() );
+		cQuery.setParam( "tt", tubeType );
 	}
 
 	cQuery.setParam( "cid", getID() );
-	cQuery.setParam( "desc", getName() );
 	cQuery.setParam( "cap", size );
 	cQuery.setParam( "pos", hole );
 	cQuery.setParam( "sts", status );

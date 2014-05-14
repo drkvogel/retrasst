@@ -119,7 +119,7 @@ protected:
 	int m_nids;
 private:
 };
-
+/*
 class OrderedNumberTable
 	: public NumberTable
 {
@@ -135,7 +135,7 @@ protected:
 	int m_nids;
 private:
 };
-
+*/
 class MyException
     : public std::runtime_error
 {
