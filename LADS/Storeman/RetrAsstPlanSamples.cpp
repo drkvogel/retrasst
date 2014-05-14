@@ -550,10 +550,6 @@ void LoadVialsJobThread::load() {
     qd.setParam("jobID", job->getID());
     qd.open(); debugMessage = "query open"; Synchronize((TThreadMethod)&debugLog);
     rowCount = 0; SampleRow * previous = NULL;
-
-//    LPDbBoxName( const std::string & label, int typeID = 0 )
-//	 : name( label ), status( IN_USE ), boxTypeID( typeID ), filledBy( 0 )
-
     while (!qd.eof()) {
         if (0 == rowCount % 10) {
             ostringstream oss; oss<<"Found "<<rowCount<<" vials";
@@ -565,7 +561,6 @@ void LoadVialsJobThread::load() {
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
             NULL, // no retrieval record created yet
-            //new LPDbBoxName(qd),
             qd.readString(  "cryovial_barcode"),
             qd.readString(  "source_name"),
             qd.readInt(     "dest_box_id"),
@@ -670,7 +665,6 @@ void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *S
     editDestBoxSize->Text = box_size;
     addChunk(0); // default chunk
     showChunks();
-    //showChunk();
     if (!RETRASSTDEBUG) Application->MessageBox(L"Use the 'Auto-Chunk' controls to automatically divide this list, or double click on a row to manually create chunks", L"Info", MB_OK);
     Enabled = true;
 }
