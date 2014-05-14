@@ -1,6 +1,25 @@
 ﻿1086765 ("Use primaries, keep secondaries in reserve")
 1086654 ("Primary and secondary in alternate slots")
 
+### destination box types
+
+It would now be useful to see destination box types in the lists, as we've ascertained that retrieval jobs can contain multiple aliquots from multiple projects, and some aliquots (vacutainer?) require different types of boxes to be put in. Display the box type as a column in the job/plan list and allow sorting on this column.
+
+Keep relevant dest box info loose in SampleRow struct or in LPDbBoxName (has getTypeID() method)?
+
+LPDbBoxName query constructor needs 'status' which is already in the big query....
+Other constructors are for creating new boxes. 
+
+    LPDbBoxName( const std::string & label, int typeID = 0 )
+     : name( label ), status( IN_USE ), boxTypeID( typeID ), filledBy( 0 )
+    {}
+
+can set name and box type, then change status
+
+Suggest storing
+
+
+
 ### primaries, secondaries, and other animals
 
 Sometimes, for example in a disposal job, many (more than 2) aliquots will be required, each in separate destination positions. "extra" aliquots should not throw an error.

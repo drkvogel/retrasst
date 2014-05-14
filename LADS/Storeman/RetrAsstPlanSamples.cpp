@@ -555,6 +555,12 @@ void LoadVialsJobThread::load() {
     qd.setParam("jobID", job->getID());
     qd.open(); debugMessage = "query open"; Synchronize((TThreadMethod)&debugLog);
     rowCount = 0; SampleRow * previous = NULL;
+
+//    LPDbBoxName( const std::string & label, int typeID = 0 )
+//	 : name( label ), status( IN_USE ), boxTypeID( typeID ), filledBy( 0 )
+//	{}
+
+
     while (!qd.eof()) {
         if (0 == rowCount % 10) {
             ostringstream oss; oss<<"Found "<<rowCount<<" vials";
