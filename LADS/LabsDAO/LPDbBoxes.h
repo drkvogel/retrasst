@@ -41,6 +41,7 @@ public:
 	{}
 
 	const std::string & getName() const { return name; }
+    void setTypeID(int  id) { boxTypeID = id; }
 	int getTypeID() const { return boxTypeID; }
 	void setFilledBy( int operatorID ) { filledBy = operatorID; }
 	int getFilledBy() const { return filledBy; }

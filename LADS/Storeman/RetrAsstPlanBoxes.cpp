@@ -90,6 +90,7 @@ Set status = 1 when the position's confirmed */
             q.readString("box"),
             0, //q.readInt("box_cid"),
             "",
+            0,//qd.readInt(     "dest_box_type"),
             0,
             q.readString("site"),
             q.readInt("position"),

@@ -63,8 +63,8 @@ public: //protected: ?
     string              structure_name;
     int                 box_pos;
 
-    RetrievalRow(int proj, string srcnm, int dstid, string dstnm, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-        project_cid(proj), src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm),
+    RetrievalRow(int proj, string srcnm, int dstid, string dstnm, int dstyp, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+        project_cid(proj), src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm), dest_box_type(dstyp),
         site_name(site), vessel_pos(vsps), vessel_name(vsnm), shelf_number(shlf), structure_pos(stps), structure_name(stnm), box_pos(bxps) {}
 
     // sort functions could also be factored out; not sure if worth it
@@ -123,13 +123,14 @@ class BoxRow : public RetrievalRow {
 public:
     LCDbBoxStore * store_record; // public LPDbID //LPDbBoxName ?? getStatus
 
-    BoxRow(int proj, LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-        store_record(rec), RetrievalRow(proj, srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps) {
+    BoxRow(int proj, LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstyp, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+        store_record(rec), RetrievalRow(proj, srcnm, dstid, dstnm, dstyp, site, vsps, vsnm, shlf, stps, stnm, bxps) {
     }
     ~BoxRow() { if (store_record) delete store_record; }
 
     static bool sort_asc_srcbox(const BoxRow *a, const BoxRow *b)     { return Util::numericCompare(a->src_box_name, b->src_box_name); }
     static bool sort_asc_destbox(const BoxRow *a, const BoxRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
+    static bool sort_asc_destype(const BoxRow *a, const BoxRow *b)    { return a->dest_box_type < b->dest_box_type; } // should do by type name, not id
     static bool sort_asc_site(const BoxRow *a, const BoxRow *b)       { return a->site_name.compare(b->site_name) < 0; }
     static bool sort_asc_vessname(const BoxRow *a, const BoxRow *b)   { return Util::numericCompare(a->vessel_name, b->vessel_name); }
     static bool sort_asc_vesspos(const BoxRow *a, const BoxRow *b)    { return a->vessel_pos < b->vessel_pos; }
@@ -164,9 +165,9 @@ public:
         if (retrieval_record) delete retrieval_record;
     }
     SampleRow(  int proj, LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
-                string barc, string srcnm, int dstid, string dstnm, int dstps,
+                string barc, string srcnm, int dstid, string dstnm, int dstyp, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-                RetrievalRow(proj, srcnm, dstid, dstnm, site, vsps, vsnm, shlf, stps, stnm, bxps),
+                RetrievalRow(proj, srcnm, dstid, dstnm, dstyp, site, vsps, vsnm, shlf, stps, stnm, bxps),
                 cryo_record(cryo_rec),
                 store_record(store_rec),
                 retrieval_record(retrieval_rec),
@@ -176,7 +177,7 @@ public:
     static bool sort_asc_srcbox(const SampleRow *a, const SampleRow *b)     { return Util::numericCompare(a->src_box_name, b->src_box_name); }
     static bool sort_asc_srcpos(const SampleRow *a, const SampleRow *b)     { return a->store_record->getPosition() < b->store_record->getPosition(); }
     static bool sort_asc_destbox(const SampleRow *a, const SampleRow *b)    { return Util::numericCompare(a->dest_box_name, b->dest_box_name); }
-    static bool sort_asc_desttype(const SampleRow *a, const SampleRow *b)   { return a->dest_box_type < b->dest_box_type; }
+    static bool sort_asc_destype(const SampleRow *a, const SampleRow *b)    { return a->dest_box_type < b->dest_box_type; } // should do by type name, not id
     static bool sort_asc_destpos(const SampleRow *a, const SampleRow *b)    { return a->dest_cryo_pos < b->dest_cryo_pos; }
     static bool sort_asc_site(const SampleRow *a, const SampleRow *b)       { return a->site_name.compare(b->site_name) < 0; }
     static bool sort_asc_vesspos(const SampleRow *a, const SampleRow *b)    { return a->vessel_pos < b->vessel_pos; }

@@ -40,7 +40,7 @@ __fastcall TfrmRetrAsstPlanSamples::TfrmRetrAsstPlanSamples(TComponent* Owner) :
     sgwVials->addCol("srcbox",   "Source box",       257,   SampleRow::sort_asc_srcbox,     "source box name");
     sgwVials->addCol("srcpos",   "Pos",              31,    SampleRow::sort_asc_srcpos,     "source box position");
     sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
-    sgwVials->addCol("destbox",  "Type",             67,    SampleRow::sort_asc_desttype,   "dest. box type");
+    sgwVials->addCol("destype",  "Type",             67,    SampleRow::sort_asc_destype,    "dest. box type");
     sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
     sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot type");
     sgwVials->init();
@@ -99,13 +99,6 @@ void __fastcall TfrmRetrAsstPlanSamples::FormShow(TObject *Sender) {
     frmRetrievalAssistant->clearStorageCache();
     timerLoadVials->Enabled = true;
     editDestBoxSize->Text = box_size;
-//#if X_BDE
-//    TfrmRetrievalAssistant::msgbox("X_BDE");
-//#elif X_ING
-//    TfrmRetrievalAssistant::msgbox("X_ING");
-//#else
-//    TfrmRetrievalAssistant::msgbox("not X_BDE nor X_ING"); // this one
-//#endif
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::FormClose(TObject *Sender, TCloseAction &Action) {
@@ -356,8 +349,8 @@ void TfrmRetrAsstPlanSamples::showChunk(Chunk< SampleRow > * chunk) {
         LPDbCryovial *      vial    = sampleRow->cryo_record;
         LPDbCryovialStore * store   = sampleRow->store_record;
 
-        const LPDbBoxType * boxType = boxTypes.findByID(sampleRow->dest_box_id);
-        if (boxType == NULL) { throw runtime_error("Box type not found"); }
+//        const LPDbBoxType * boxType = boxTypes.findByID(sampleRow->dest_box_id);
+//        if (boxType == NULL) { throw runtime_error("Box type not found"); }
 
         int rw = row+1; // for stringgrid
         sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
@@ -372,7 +365,8 @@ void TfrmRetrAsstPlanSamples::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->Cells[sgwVials->colNameToInt("struct" )]  [rw] = sampleRow->structure_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
         sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
-        sgVials->Cells[sgwVials->colNameToInt("desttype")] [rw] = boxType->getName().c_str();
+        //sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = boxType->getName().c_str();
+        sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sampleRow->dest_box_type;
         sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
         sgVials->Objects[0][rw] = (TObject *)sampleRow;
     }
@@ -534,8 +528,9 @@ void LoadVialsJobThread::load() {
         "  b1.box_cid as source_id,"
         "  b1.external_name as source_name,"
 		"  s1.cryovial_position as source_pos,"
-        "  s2.box_cid as dest_id,"
-        "  b2.external_name as dest_name,"
+        "  s2.box_cid as dest_box_id,"
+        "  b2.external_name as dest_box_name,"
+        "  b2.box_type_cid as dest_box_type, "
         "  s2.cryovial_position as dest_pos"
         " FROM"
         "  cryovial c, cryovial_store s1, c_box_name b1,"
@@ -558,8 +553,6 @@ void LoadVialsJobThread::load() {
 
 //    LPDbBoxName( const std::string & label, int typeID = 0 )
 //	 : name( label ), status( IN_USE ), boxTypeID( typeID ), filledBy( 0 )
-//	{}
-
 
     while (!qd.eof()) {
         if (0 == rowCount % 10) {
@@ -571,14 +564,13 @@ void LoadVialsJobThread::load() {
             qd.readInt(     "project_cid"),
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
-            NULL,
-                //new LCDbCryovialRetrieval(qd) would be needed for SampleRow::sort_asc_aliquot(...) { return a->retrieval_record->getAliType() ... }
-                // but no retrieval plan has been created at this point
-                // can use row->cryo_record->getAliquotType()
+            NULL, // no retrieval record created yet
+            //new LPDbBoxName(qd),
             qd.readString(  "cryovial_barcode"),
             qd.readString(  "source_name"),
-            qd.readInt(     "dest_id"),
-            qd.readString(  "dest_name"),
+            qd.readInt(     "dest_box_id"),
+            qd.readString(  "dest_box_name"),
+            qd.readInt(     "dest_box_type"),
             qd.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
 
@@ -588,14 +580,6 @@ void LoadVialsJobThread::load() {
         } else { // everything else, even if not explicitly primary
             frmRetrAsstPlanSamples->primaries.push_back(row);
         }
-//        if (aliquotType == primary_aliquot) {
-//            frmRetrAsstPlanSamples->primaries.push_back(row);
-//        } else if (aliquotType == secondary_aliquot) {
-//            frmRetrAsstPlanSamples->secondaries.push_back(row);
-//        } else {
-//            // not an error
-//            //throw runtime_error("unknown aliquot type "+ to_string((long long)aliquotType) + " for this job"); // std::to_string() - C++11; no overload for int, so must cast to long long
-//        }
         qd.next();
         rowCount++;
     }
@@ -927,3 +911,24 @@ void __fastcall TfrmRetrAsstPlanSamples::savePlanThreadTerminated(TObject *Sende
 //    } catch (...) {
 //        debugMessage = "unknown error"; Synchronize((TThreadMethod)&debugLog);
 //    }
+
+                // new LCDbCryovialRetrieval(qd) would be needed for SampleRow::sort_asc_aliquot() { return a->retrieval_record->getAliType() ... }
+                // but no retrieval plan has been created at this point, can use row->cryo_record->getAliquotType()
+
+//#if X_BDE
+//    TfrmRetrievalAssistant::msgbox("X_BDE");
+//#elif X_ING
+//    TfrmRetrievalAssistant::msgbox("X_ING");
+//#else
+//    TfrmRetrievalAssistant::msgbox("not X_BDE nor X_ING"); // this one
+//#endif
+
+//        if (aliquotType == primary_aliquot) {
+//            frmRetrAsstPlanSamples->primaries.push_back(row);
+//        } else if (aliquotType == secondary_aliquot) {
+//            frmRetrAsstPlanSamples->secondaries.push_back(row);
+//        } else {
+//            // not an error
+//            //throw runtime_error("unknown aliquot type "+ to_string((long long)aliquotType) + " for this job"); // std::to_string() - C++11; no overload for int, so must cast to long long
+//        }
+

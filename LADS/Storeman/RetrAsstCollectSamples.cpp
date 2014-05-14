@@ -439,6 +439,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         "    lcr.slot_number AS dest_pos, "
         "    cs.box_cid, sb.external_name AS src_box, cs.cryovial_position AS source_pos,  "
         "    db.external_name AS dest_box, "
+        "    db.box_type_cid AS dest_box_type, "
         "    cs.note_exists, cs.cryovial_id, cs.cryovial_position, cs.status, "
         "    c.sample_id, cs.record_id, "
         "    db.external_name AS dest_name "
@@ -482,6 +483,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             qd.readString(  "src_box"),
             qd.readInt(     "dest_id"),
             qd.readString(  "dest_name"),
+            qd.readInt(     "dest_box_type"),
             qd.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0); // no storage details yet
 
