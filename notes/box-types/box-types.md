@@ -57,3 +57,26 @@ and then look up the tube type in `c_object_name`:
  
     const LCDbObject * tube = LCDbObjects::records().findByID(size->getTubeType()); 
 
+cvs pull got LCDbBoxSize::getTubeType()
+
+    box_name.box_type_cid -> c_box_content.box_size_cid -> c_box_size.tube_type -> c_object_name.object_cid
+
+Could wrap this up into a map-cached util method.
+
+
+std::string Util::boxTubeTypeName(int box_cid) {
+
+member access into incomplete type 'const LCDbBoxSize' // add #include
+
+    Util::boxTubeTypeName(int box_cid) {
+
+        LQuery qc(LIMSDatabase::getCentralDb());
+        LPDbBoxNames boxes;
+        const LPDbBoxName * box     = boxes.readRecord(qc, box_cid);
+
+    LPDbBoxNames::readRecord( LQuery pQuery, int id )
+    {
+        pQuery.setSQL( "select * from box_name where box_cid = :bid" );
+        pQuery.setParam( "bid", id );
+        return pQuery.open() ? insert( LPDbBoxName( pQuery ) ) : NULL;
+    }

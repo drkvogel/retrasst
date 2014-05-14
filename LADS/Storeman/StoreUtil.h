@@ -96,6 +96,8 @@ public:
 
         static bool statsOnColumn(int project_id, std::string tableName, std::string colName);
         static bool secondaryIndexExists(int project_cid, std::string indexName, bool exactMatch=true);
+
+        static std::string boxTubeTypeName(int box_cid);
 };
 
 //---------------------------------------------------------------------------

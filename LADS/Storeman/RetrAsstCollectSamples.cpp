@@ -61,6 +61,7 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
     sgwVials->addCol("srcbox",   "Source box",      257);
     sgwVials->addCol("srcpos",   "Pos",              31);
     sgwVials->addCol("destbox",  "Destination box",  240);
+    sgwVials->addCol("destype",  "Type",             67);
     sgwVials->addCol("destpos",  "Pos",              25);
 #ifdef _DEBUG
     sgwVials->addCol("status",   "Status",           91);
@@ -104,6 +105,7 @@ void __fastcall TfrmRetrAsstCollectSamples::FormShow(TObject *Sender) {
     labelSampleID->Caption  = "loading...";
     labelStorage->Caption   = "loading...";
     labelDestbox->Caption   = "loading...";
+    labelDestype->Caption   = "loading...";
     labelPrimary->Caption   = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str();
     labelSecondary->Caption = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str();
     labelPrimary->Enabled   = true;
@@ -381,6 +383,8 @@ void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) {
     sgVials->Cells[sgwVials->colNameToInt("struct" )]  [rw] = sample->structure_name.c_str();
     sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sample->box_pos;
     sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sample->dest_box_name.c_str();
+    //sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sample->dest_box_type;
+    sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = Util::boxTubeTypeName(sample->dest_box_type).c_str();
     sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sample->dest_cryo_pos;
     sgVials->Objects[0][rw] = (TObject *)row; // keep all data, primary and secondary
 }
@@ -570,10 +574,12 @@ void TfrmRetrAsstCollectSamples::showDetails(SampleRow * sample) {
         labelSampleID->Caption  = "";
         labelStorage->Caption   = "Chunk completed";
         labelDestbox->Caption   = "";
+        labelDestype->Caption   = "";
     } else {
         labelSampleID->Caption  = sample->cryovial_barcode.c_str();
         labelStorage->Caption   = sample->storage_str().c_str();
         labelDestbox->Caption   = sample->dest_str().c_str();
+        labelDestype->Caption   = sample->dest_box_type; // fixme
     }
 }
 

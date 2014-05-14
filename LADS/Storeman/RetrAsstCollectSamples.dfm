@@ -270,8 +270,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         object labelPrimary: TLabel
           Left = 7
           Top = 20
-          Width = 80
-          Height = 16
+          Width = 143
+          Height = 28
           Align = alClient
           Caption = 'labelPrimary'
           Font.Charset = DEFAULT_CHARSET
@@ -281,6 +281,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 80
+          ExplicitHeight = 16
         end
       end
       object groupSecondary: TGroupBox
@@ -298,8 +300,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         object labelSecondary: TLabel
           Left = 7
           Top = 20
-          Width = 99
-          Height = 16
+          Width = 143
+          Height = 31
           Margins.Left = 5
           Margins.Top = 5
           Margins.Right = 5
@@ -313,6 +315,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 99
+          ExplicitHeight = 16
         end
       end
     end
@@ -324,9 +328,11 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitLeft = 431
+      ExplicitTop = 11
       object Label2: TLabel
         Left = 17
-        Top = 19
+        Top = 3
         Width = 38
         Height = 25
         Caption = 'Loc:'
@@ -338,8 +344,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         ParentFont = False
       end
       object labelStorage: TLabel
-        Left = 74
-        Top = 3
+        Left = 84
+        Top = -9
         Width = 167
         Height = 37
         Caption = 'labelStorage'
@@ -352,7 +358,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       end
       object labelDestbox: TLabel
         Left = 84
-        Top = 54
+        Top = 34
         Width = 173
         Height = 37
         Caption = 'labelDestbox'
@@ -365,10 +371,36 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       end
       object Label4: TLabel
         Left = 17
-        Top = 67
+        Top = 43
         Width = 48
         Height = 25
         Caption = 'Dest:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -21
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object labelDestype: TLabel
+        Left = 84
+        Top = 77
+        Width = 172
+        Height = 37
+        Caption = 'labelDestype'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -31
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Label6: TLabel
+        Left = 17
+        Top = 84
+        Width = 52
+        Height = 25
+        Caption = 'Type:'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -21

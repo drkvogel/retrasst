@@ -4,6 +4,9 @@
 #include "StoreUtil.h"
 #include "LCDbTankMap.h"
 #include "LCDbObject.h"
+#include "LDbBoxSize.h"
+#include "LPDbBoxes.h"
+#include "LDbBoxType.h"
 
 #pragma hdrstop
 #pragma package(smart_init)
@@ -409,5 +412,41 @@ bool Util::statsOnColumn(int project_cid, std::string tableName, std::string col
     qt.open();
     stat_count = qt.readInt(0);
     return stat_count == 1;
+}
+
+/**
+
+#### get box type from box id
+
+> is there  some pre-rolled code to extract box type information from a box id?
+> (doesn't look like there is at the moment...)
+
+If you find the box details, e.g. using something like this:
+
+    const LPDbBoxName * box = LPDbBoxNames::records().readRecord(query, id);
+
+You can get the layout (I've made the method public):
+
+    const LCDbBoxSize * size = box->getLayout();
+
+and then look up the tube type in `c_object_name`:
+
+    const LCDbObject * tube = LCDbObjects::records().findByID(size->getTubeType());
+
+cvs pull got LCDbBoxSize::getTubeType()
+
+    box_name.box_type_cid -> c_box_content.box_size_cid -> c_box_size.tube_type -> c_object_name.object_cid
+
+Could wrap this up into a map-cached util method. */
+
+std::string Util::boxTubeTypeName(int box_cid) {
+    // box_name.box_type_cid -> c_box_content.box_size_cid -> c_box_size.tube_type -> c_object_name.object_cid
+    //LQuery q(LIMSDatabase::getCentralDb());
+    LQuery q(LIMSDatabase::getProjectDb()); // might not be right project?
+    LPDbBoxNames boxes;
+    const LPDbBoxName * box     = boxes.readRecord(q, box_cid); //const LPDbBoxName * box = LPDbBoxNames::records().readRecord(query, id);
+    const LCDbBoxSize * size    = box->getLayout(); // might be null as not right project
+    const LCDbObject * tube     = LCDbObjects::records().findByID(size->getTubeType());
+    return tube->getName();
 }
 

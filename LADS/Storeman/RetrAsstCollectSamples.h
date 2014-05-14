@@ -84,6 +84,8 @@ __published:
     TLabel *labelSampleID;
     TSplitter *Splitter2;
     TSplitter *splitterDebug;
+    TLabel *labelDestype;
+    TLabel *Label6;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
