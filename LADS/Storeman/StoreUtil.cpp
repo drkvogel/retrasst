@@ -439,14 +439,44 @@ cvs pull got LCDbBoxSize::getTubeType()
 
 Could wrap this up into a map-cached util method. */
 
-std::string Util::boxTubeTypeName(int box_cid) {
+std::string Util::boxTubeTypeName(int project_cid, int box_cid) {
     // box_name.box_type_cid -> c_box_content.box_size_cid -> c_box_size.tube_type -> c_object_name.object_cid
     //LQuery q(LIMSDatabase::getCentralDb());
-    LQuery q(LIMSDatabase::getProjectDb()); // might not be right project?
-    LPDbBoxNames boxes;
-    const LPDbBoxName * box     = boxes.readRecord(q, box_cid); //const LPDbBoxName * box = LPDbBoxNames::records().readRecord(query, id);
-    const LCDbBoxSize * size    = box->getLayout(); // might be null as not right project
-    const LCDbObject * tube     = LCDbObjects::records().findByID(size->getTubeType());
-    return tube->getName();
+	//typedef std::set< SampleRow * > SetOfVials;
+    struct ProjBox {
+        int project_cid;
+        int box_cid;
+        ProjBox(int proj, int box) : project_cid(proj), box_cid(box) {}
+        operator<(const ProjBox & rhs) const { return project_cid < rhs.project_cid || box_cid < rhs.box_cid; }
+        //operator() (const ProjBox lhs, const ProjBox rhs) { return lhs.project_cid == rhs.project_cid && lhs.box_cid == rhs.box_cid; }
+    };
+    typedef std::map< ProjBox, std::string > BoxToTypeMap;
+
+//    static BoxToTypeMap map;
+//    BoxToTypeMap::iterator found;
+//    ProjBox projBox(project_cid, box_cid);
+//    found = map.find(projBox);
+//    if (found == map.end()) { // not added yet
+//        map[projBox] = "";
+//    } else { // already in map
+//        std::string temp = found->second;
+//        return temp;
+//        //return found->second;
+//    }
+
+    LQuery q(Util::projectQuery(project_cid, false)); // job->getProjectID() //LQuery q(LIMSDatabase::getProjectDb()); // might not be right project?
+    LPDbBoxNames boxes; // no LCDbBoxName(s)
+    try {
+        const LPDbBoxName * box     = boxes.readRecord(q, box_cid); //const LPDbBoxName * box = LPDbBoxNames::records().readRecord(query, id);
+        const LCDbBoxSize * size    = box->getLayout(); // might be null as not right project
+        const LCDbObject * tube     = LCDbObjects::records().findByID(size->getTubeType());
+        return tube->getName();
+    } catch (...) {
+        return "not found";
+    }
 }
+
+//if (NULL == box) throw runtime_error(__FUNC__ +" null LPDbBoxName");
+//if (NULL == size) throw runtime_error(__FUNC__ +" null LCDbBoxSize");
+//if (NULL == tube) throw runtime_error(__FUNC__ +" null LCDbObject");
 

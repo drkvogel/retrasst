@@ -384,7 +384,7 @@ void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) {
     sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sample->box_pos;
     sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sample->dest_box_name.c_str();
     //sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sample->dest_box_type;
-    sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = Util::boxTubeTypeName(sample->dest_box_type).c_str();
+    sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = Util::boxTubeTypeName(sample->project_cid, sample->dest_box_id).c_str();
     sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sample->dest_cryo_pos;
     sgVials->Objects[0][rw] = (TObject *)row; // keep all data, primary and secondary
 }

@@ -699,9 +699,11 @@
             <BuildOrder>0</BuildOrder>
         </CppCompile>
         <CppCompile Include="StoreUtil.cpp">
-            <DependentOn>StoreUtil.h</DependentOn>
-            <BuildOrder>129</BuildOrder>
+            <BuildOrder>126</BuildOrder>
         </CppCompile>
+        <None Include="StoreUtil.h">
+            <BuildOrder>127</BuildOrder>
+        </None>
         <CppCompile Include="..\..\paulst\AcquireCriticalSection.cpp">
             <DependentOn>..\..\paulst\AcquireCriticalSection.h</DependentOn>
             <BuildOrder>119</BuildOrder>

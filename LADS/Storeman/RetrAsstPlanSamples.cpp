@@ -366,7 +366,7 @@ void TfrmRetrAsstPlanSamples::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
         sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
         //sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sampleRow->dest_box_type;
-        sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = Util::boxTubeTypeName(sampleRow->dest_box_type).c_str();
+        sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = Util::boxTubeTypeName(sampleRow->project_cid, sampleRow->dest_box_id).c_str(); //sampleRow->dest_box_type
         sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
         sgVials->Objects[0][rw] = (TObject *)sampleRow;
     }

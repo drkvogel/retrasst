@@ -9,29 +9,30 @@
 //---------------------------------------------------------------------------
 
 USEFORM("RationaliseTanks\RatTanksdbSelection.cpp", frmRatTankDbSelectionDialog);
-USEFORM("RationaliseTanks\RatTanksCreateRetrievalJob.cpp", frmRatTankCreateRetrievalJob);
-USEFORM("RationaliseTanks\RatTanksBoxSelection.cpp", frmRatTanksBoxSelection);
+USEFORM("RationaliseTanks\RatTanksMainDialog.cpp", frmRatTanksMainDialog);
 USEFORM("RationaliseTanks\RatTanksBoxType.cpp", frmRatTanksBoxType);
 USEFORM("RationaliseTanks\RatTanksCreateExercise.cpp", frmRatTanksRetrivalExercise);
-USEFORM("RationaliseTanks\RatTanksMainDialog.cpp", frmRatTanksMainDialog);
-USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
+USEFORM("RationaliseTanks\RatTanksCreateRetrievalJob.cpp", frmRatTankCreateRetrievalJob);
 USEFORM("RetrAsstCollectBoxes.cpp", frmRetrAsstCollectBoxes);
+USEFORM("RetrAsstCollectEmpties.cpp", frmCollectEmpties);
 USEFORM("RetrAsstCollectSamples.cpp", frmRetrAsstCollectSamples);
-USEFORM("ReferredBoxes.cpp", frmReferred);
+USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
 USEFORM("RationaliseTanks\RatTanksPleaseWait.cpp", frmRatTankPleaseWait);
 USEFORM("RationaliseTanks\RatTanksSignIn.cpp", frmRatTankSignIn);
-USEFORM("NewType.cpp", frmNewStoreType);
+USEFORM("ReferredBoxes.cpp", frmReferred);
+USEFORM("RationaliseTanks\RatTanksBoxSelection.cpp", frmRatTanksBoxSelection);
 USEFORM("FindSample.cpp", frmFind);
-USEFORM("DiscardSearch.cpp", frmSearch);
 USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
 USEFORM("DiscardSamples.cpp", frmDiscardSamples);
-USEFORM("NewSection.cpp", frmNewSection);
+USEFORM("DiscardSearch.cpp", frmSearch);
+USEFORM("MoveJobs.cpp", frmSelectJob);
 USEFORM("NewSite.cpp", frmNewSite);
 USEFORM("NewTank.cpp", frmNewTank);
-USEFORM("NewJob.cpp", frmNewJob);
-USEFORM("MoveJobs.cpp", frmSelectJob);
+USEFORM("NewType.cpp", frmNewStoreType);
+USEFORM("NewSection.cpp", frmNewSection);
 USEFORM("NewBoxType.cpp", frmNewBoxType);
 USEFORM("NewExercise.cpp", frmNewExercise);
+USEFORM("NewJob.cpp", frmNewJob);
 USEFORM("RetrAsstMain.cpp", frmRetrievalAssistant);
 USEFORM("SMLogin.cpp", frmSMLogin);
 USEFORM("Storemain.cpp", frmStoremain);
@@ -112,7 +113,7 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmRetrAsstPlanBoxes), &frmRetrAsstPlanBoxes);
          Application->CreateForm(__classid(TfrmRetrAsstCollectBoxes), &frmRetrAsstCollectBoxes);
          Application->CreateForm(__classid(TfrmRatTankSignIn), &frmRatTankSignIn);
-		Application->Run();
+         Application->Run();
 	}
 	catch (Exception &exception) {
 		Application->ShowException(&exception);
