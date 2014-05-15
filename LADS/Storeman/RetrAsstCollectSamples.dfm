@@ -58,7 +58,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       DoubleBuffered = True
       Enabled = False
       FixedCols = 0
-      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect]
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
       ParentDoubleBuffered = False
       TabOrder = 0
       OnClick = sgVialsClick
@@ -230,7 +230,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Align = alClient
       DefaultDrawing = False
       FixedCols = 0
-      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect]
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
       ScrollBars = ssVertical
       TabOrder = 0
       OnClick = sgChunksClick
@@ -270,8 +270,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         object labelPrimary: TLabel
           Left = 7
           Top = 20
-          Width = 80
-          Height = 16
+          Width = 143
+          Height = 28
           Align = alClient
           Caption = 'labelPrimary'
           Font.Charset = DEFAULT_CHARSET
@@ -281,6 +281,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 80
+          ExplicitHeight = 16
         end
       end
       object groupSecondary: TGroupBox
@@ -298,8 +300,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         object labelSecondary: TLabel
           Left = 7
           Top = 20
-          Width = 99
-          Height = 16
+          Width = 143
+          Height = 31
           Margins.Left = 5
           Margins.Top = 5
           Margins.Right = 5
@@ -313,6 +315,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 99
+          ExplicitHeight = 16
         end
       end
     end
@@ -324,11 +328,9 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 431
-      ExplicitTop = 11
       object Label2: TLabel
         Left = 17
-        Top = 3
+        Top = 10
         Width = 38
         Height = 25
         Caption = 'Loc:'
@@ -341,7 +343,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       end
       object labelStorage: TLabel
         Left = 84
-        Top = -9
+        Top = 0
         Width = 167
         Height = 37
         Caption = 'labelStorage'
@@ -354,7 +356,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       end
       object labelDestbox: TLabel
         Left = 84
-        Top = 34
+        Top = 39
         Width = 173
         Height = 37
         Caption = 'labelDestbox'
@@ -367,7 +369,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       end
       object Label4: TLabel
         Left = 17
-        Top = 43
+        Top = 49
         Width = 48
         Height = 25
         Caption = 'Dest:'
@@ -393,7 +395,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       end
       object Label6: TLabel
         Left = 17
-        Top = 84
+        Top = 87
         Width = 52
         Height = 25
         Caption = 'Type:'

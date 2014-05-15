@@ -300,11 +300,13 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           object labelPrimary: TLabel
             Left = 7
             Top = 20
-            Width = 58
-            Height = 13
+            Width = 83
+            Height = 14
             Align = alClient
             Caption = 'labelPrimary'
             Layout = tlCenter
+            ExplicitWidth = 58
+            ExplicitHeight = 13
           end
         end
         object GroupBox2: TGroupBox
@@ -322,8 +324,8 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           object labelSecondary: TLabel
             Left = 7
             Top = 20
-            Width = 73
-            Height = 13
+            Width = 90
+            Height = 14
             Margins.Left = 5
             Margins.Top = 5
             Margins.Right = 5
@@ -331,6 +333,8 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
             Align = alClient
             Caption = 'labelSecondary'
             Layout = tlCenter
+            ExplicitWidth = 73
+            ExplicitHeight = 13
           end
         end
       end

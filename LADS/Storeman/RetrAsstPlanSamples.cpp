@@ -366,7 +366,8 @@ void TfrmRetrAsstPlanSamples::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
         sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
         //sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sampleRow->dest_box_type;
-        sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = Util::boxTubeTypeName(sampleRow->project_cid, sampleRow->dest_box_id).c_str(); //sampleRow->dest_box_type
+        //sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = Util::boxTubeTypeName(sampleRow->project_cid, sampleRow->dest_box_id).c_str(); //sampleRow->dest_box_type
+        sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sampleRow->dest_type_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
         sgVials->Objects[0][rw] = (TObject *)sampleRow;
     }
@@ -465,15 +466,24 @@ void TfrmRetrAsstPlanSamples::applySort() { // loop through sorters and apply ea
 }
 
 void TfrmRetrAsstPlanSamples::loadRows() {
-    panelLoading->Caption = loadingMessage;
-    panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
-    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
-    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
-    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+//    panelLoading->Caption = loadingMessage;
+//    panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
+//    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+//    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+//    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+    prepareProgressMessage(loadingMessage);
     Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
     Enabled = false;
     loadVialsJobThread = new LoadVialsJobThread();
     loadVialsJobThread->OnTerminate = &loadVialsJobThreadTerminated;
+}
+
+void TfrmRetrAsstPlanSamples::prepareProgressMessage(const char * loadingMessage) {
+	panelLoading->Caption = loadingMessage;
+	panelLoading->Visible = true;
+	panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
 }
 
 __fastcall LoadVialsJobThread::LoadVialsJobThread() : TThread(false) {
@@ -580,8 +590,13 @@ void LoadVialsJobThread::load() {
     }
     debugMessage = "finished retrieving rows, getting storage details"; Synchronize((TThreadMethod)&debugLog);
 
-    // *try* to match secondaries with primaries on same destination position
+    // try to match secondaries with primaries on same destination position
     combineAliquots(frmRetrAsstPlanSamples->primaries, frmRetrAsstPlanSamples->secondaries, frmRetrAsstPlanSamples->combined);
+
+    // add box tube type name
+    for (vector<SampleRow *>::iterator it = frmRetrAsstPlanSamples->combined.begin(); it != frmRetrAsstPlanSamples->combined.end(); ++it) {//, rowCount2++) {
+        (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
+    }
 
     // find locations of source boxes
     int rowCount2 = 0;
@@ -734,11 +749,12 @@ void __fastcall TfrmRetrAsstPlanSamples::btnSaveClick(TObject *Sender) {
         Screen->Cursor = crSQLWait;
         Enabled = false;
         debugLog("starting save plan");
-        panelLoading->Caption = loadingMessage;
-        panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
-        panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
-        panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
-        progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+//        panelLoading->Caption = loadingMessage;
+//        panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
+//        panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
+//        panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
+//        progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
+        prepareProgressMessage(loadingMessage);
         savePlanThread = new SavePlanThread();
         savePlanThread->OnTerminate = &savePlanThreadTerminated;
     } else { // start again

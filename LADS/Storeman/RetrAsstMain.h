@@ -55,6 +55,7 @@ public: //protected: ?
     int                 dest_box_id;
     int                 dest_box_type;
     string              dest_box_name;
+    string              dest_type_name;
     string              site_name;
     int                 vessel_pos;
     string              vessel_name;

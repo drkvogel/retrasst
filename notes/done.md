@@ -547,3 +547,11 @@ ie. 12 rows ahead - 1st chunk is 12 rows big - relative/absolute confusion in fi
 ### deferred rows should be reset to expected on chunk display
 
 clicking on a chunk to display it (e.g. having dealt with another chunk, coming back to a previously attempted one), should perhaps clear the deferred rows, resetting them back to expected, so those rows can be tried again without having to save and come out of 
+
+### collect progress window appears to jump
+
+Don't initialise and show in FormShow i.e. before form is maximised.
+
+### allow collect vials column resize
+
+.

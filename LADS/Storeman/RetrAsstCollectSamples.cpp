@@ -97,7 +97,6 @@ void TfrmRetrAsstCollectSamples::debugLog(String s) {
 void __fastcall TfrmRetrAsstCollectSamples::FormShow(TObject *Sender) {
     ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
     Caption = oss.str().c_str();
-	prepareProgressMessage(progressMessage);
     chunks.clear();
     sgwChunks->clear();
     sgwVials->clear();
@@ -384,21 +383,21 @@ void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) {
     sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sample->box_pos;
     sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sample->dest_box_name.c_str();
     //sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sample->dest_box_type;
-    sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = Util::boxTubeTypeName(sample->project_cid, sample->dest_box_id).c_str();
+    //sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = Util::boxTubeTypeName(sample->project_cid, sample->dest_box_id).c_str();
+    sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sample->dest_type_name.c_str();
     sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sample->dest_cryo_pos;
     sgVials->Objects[0][rw] = (TObject *)row; // keep all data, primary and secondary
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::timerLoadPlanTimer(TObject *Sender) {
     timerLoadPlan->Enabled = false;
+	Enabled = false; Screen->Cursor = crSQLWait;
+    prepareProgressMessage(progressMessage);
 	loadPlan();
 }
 
 void TfrmRetrAsstCollectSamples::loadPlan() {
-	prepareProgressMessage(progressMessage);
-	Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
     DEBUGSTREAM("loadRows for job "<<(job->getID())<<" (\""<<(job->getDescription().c_str())<<"\") started")
-    Enabled = false;
     loadPlanThread = new LoadPlanThread();
     loadPlanThread->OnTerminate = &loadPlanThreadTerminated;
 }
@@ -515,6 +514,13 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             previous = row;
             rowCount++; // only count primary aliquots
         }
+
+        // add box tube type name
+        //for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {//, rowCount2++) {
+        for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->vials.begin(); it != frmRetrAsstCollectSamples->vials.end(); ++it) {//, rowCount2++) {
+            (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
+        }
+
         qd.next();
         rowCountTemp++;
     } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);

@@ -1,6 +1,13 @@
 ﻿1086765 ("Use primaries, keep secondaries in reserve")
 1086654 ("Primary and secondary in alternate slots")
 
+
+
+### collect primary/secondary code no longer adequate
+
+doesn't allow for loose secondaries?
+use combineAliquots() for consistency
+
 ### destination box types
 
 See [box-types](./box-types/box-types.md).

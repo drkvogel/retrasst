@@ -414,69 +414,41 @@ bool Util::statsOnColumn(int project_cid, std::string tableName, std::string col
     return stat_count == 1;
 }
 
-/**
-
-#### get box type from box id
-
-> is there  some pre-rolled code to extract box type information from a box id?
-> (doesn't look like there is at the moment...)
-
-If you find the box details, e.g. using something like this:
-
-    const LPDbBoxName * box = LPDbBoxNames::records().readRecord(query, id);
-
-You can get the layout (I've made the method public):
-
-    const LCDbBoxSize * size = box->getLayout();
-
-and then look up the tube type in `c_object_name`:
-
-    const LCDbObject * tube = LCDbObjects::records().findByID(size->getTubeType());
-
-cvs pull got LCDbBoxSize::getTubeType()
-
-    box_name.box_type_cid -> c_box_content.box_size_cid -> c_box_size.tube_type -> c_object_name.object_cid
-
-Could wrap this up into a map-cached util method. */
-
 std::string Util::boxTubeTypeName(int project_cid, int box_cid) {
-    // box_name.box_type_cid -> c_box_content.box_size_cid -> c_box_size.tube_type -> c_object_name.object_cid
-    //LQuery q(LIMSDatabase::getCentralDb());
-	//typedef std::set< SampleRow * > SetOfVials;
+/** box_name.box_type_cid -> c_box_content.box_size_cid -> c_box_size.tube_type -> c_object_name.object_cid */
     struct ProjBox {
         int project_cid;
         int box_cid;
         ProjBox(int proj, int box) : project_cid(proj), box_cid(box) {}
         operator<(const ProjBox & rhs) const { return project_cid < rhs.project_cid || box_cid < rhs.box_cid; }
-        //operator() (const ProjBox lhs, const ProjBox rhs) { return lhs.project_cid == rhs.project_cid && lhs.box_cid == rhs.box_cid; }
+
     };
     typedef std::map< ProjBox, std::string > BoxToTypeMap;
 
-//    static BoxToTypeMap map;
-//    BoxToTypeMap::iterator found;
-//    ProjBox projBox(project_cid, box_cid);
-//    found = map.find(projBox);
-//    if (found == map.end()) { // not added yet
-//        map[projBox] = "";
-//    } else { // already in map
-//        std::string temp = found->second;
-//        return temp;
-//        //return found->second;
-//    }
-
-    LQuery q(Util::projectQuery(project_cid, false)); // job->getProjectID() //LQuery q(LIMSDatabase::getProjectDb()); // might not be right project?
-    LPDbBoxNames boxes; // no LCDbBoxName(s)
-    try {
-        const LPDbBoxName * box     = boxes.readRecord(q, box_cid); //const LPDbBoxName * box = LPDbBoxNames::records().readRecord(query, id);
-        const LCDbBoxSize * size    = box->getLayout(); // might be null as not right project
-        const LCDbObject * tube     = LCDbObjects::records().findByID(size->getTubeType());
-        return tube->getName();
-    } catch (...) {
-        return "not found";
+    std::string tubeType;
+    static BoxToTypeMap map;
+    BoxToTypeMap::iterator found;
+    ProjBox projBox(project_cid, box_cid);
+    found = map.find(projBox);
+    if (found == map.end()) { // not added yet
+        LQuery q(Util::projectQuery(project_cid, false));
+        LPDbBoxNames boxes; // no LCDbBoxName(s) (c_box_name)
+        try {
+            const LPDbBoxName * box     = boxes.readRecord(q, box_cid);
+            const LCDbBoxSize * size    = box->getLayout(); // might be null as not right project
+            const LCDbObject * tube     = LCDbObjects::records().findByID(size->getTubeType());
+            tubeType = tube->getName();
+        } catch (...) {
+            tubeType = "not found";
+        }
+        map[projBox] = tubeType;
+    } else { // already in map
+        tubeType = found->second; //std::string temp = found->second; return temp;
     }
+    return tubeType;
 }
 
 //if (NULL == box) throw runtime_error(__FUNC__ +" null LPDbBoxName");
 //if (NULL == size) throw runtime_error(__FUNC__ +" null LCDbBoxSize");
 //if (NULL == tube) throw runtime_error(__FUNC__ +" null LCDbObject");
-
+//operator() (const ProjBox lhs, const ProjBox rhs) { return lhs.project_cid == rhs.project_cid && lhs.box_cid == rhs.box_cid; }
