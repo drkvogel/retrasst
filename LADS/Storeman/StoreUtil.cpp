@@ -435,7 +435,7 @@ std::string Util::boxTubeTypeName(int project_cid, int box_cid) {
         LPDbBoxNames boxes; // no LCDbBoxName(s) (c_box_name)
         try {
             const LPDbBoxName * box     = boxes.readRecord(q, box_cid);
-            const LCDbBoxSize * size    = box->getLayout(); // might be null as not right project
+            const LCDbBoxSize * size    = box->getLayout();
             const LCDbObject * tube     = LCDbObjects::records().findByID(size->getTubeType());
             tubeType = tube->getName();
         } catch (...) {
@@ -443,12 +443,7 @@ std::string Util::boxTubeTypeName(int project_cid, int box_cid) {
         }
         map[projBox] = tubeType;
     } else { // already in map
-        tubeType = found->second; //std::string temp = found->second; return temp;
+        tubeType = found->second;
     }
     return tubeType;
 }
-
-//if (NULL == box) throw runtime_error(__FUNC__ +" null LPDbBoxName");
-//if (NULL == size) throw runtime_error(__FUNC__ +" null LCDbBoxSize");
-//if (NULL == tube) throw runtime_error(__FUNC__ +" null LCDbObject");
-//operator() (const ProjBox lhs, const ProjBox rhs) { return lhs.project_cid == rhs.project_cid && lhs.box_cid == rhs.box_cid; }

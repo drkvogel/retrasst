@@ -167,7 +167,6 @@ void __fastcall TfrmRetrAsstPlanSamples::sgVialsDrawCell(TObject *Sender, int AC
             else if (row->cryo_record->getAliquotType() == job->getSecondaryAliquot())
                 background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR;
             else
-                //background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
                 background = RETRIEVAL_ASSISTANT_EXTRA_COLOUR; // neither primary nor secondary
         }
     }
@@ -349,9 +348,6 @@ void TfrmRetrAsstPlanSamples::showChunk(Chunk< SampleRow > * chunk) {
         LPDbCryovial *      vial    = sampleRow->cryo_record;
         LPDbCryovialStore * store   = sampleRow->store_record;
 
-//        const LPDbBoxType * boxType = boxTypes.findByID(sampleRow->dest_box_id);
-//        if (boxType == NULL) { throw runtime_error("Box type not found"); }
-
         int rw = row+1; // for stringgrid
         sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sampleRow->cryovial_barcode.c_str();
         sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sampleRow->aliquotName().c_str();
@@ -365,8 +361,6 @@ void TfrmRetrAsstPlanSamples::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->Cells[sgwVials->colNameToInt("struct" )]  [rw] = sampleRow->structure_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sampleRow->box_pos;
         sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sampleRow->dest_box_name.c_str();
-        //sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sampleRow->dest_box_type;
-        //sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = Util::boxTubeTypeName(sampleRow->project_cid, sampleRow->dest_box_id).c_str(); //sampleRow->dest_box_type
         sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sampleRow->dest_type_name.c_str();
         sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sampleRow->dest_cryo_pos;
         sgVials->Objects[0][rw] = (TObject *)sampleRow;
@@ -466,11 +460,6 @@ void TfrmRetrAsstPlanSamples::applySort() { // loop through sorters and apply ea
 }
 
 void TfrmRetrAsstPlanSamples::loadRows() {
-//    panelLoading->Caption = loadingMessage;
-//    panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
-//    panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
-//    panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
-//    progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
     prepareProgressMessage(loadingMessage);
     Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
     Enabled = false;
@@ -617,9 +606,9 @@ void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const 
     struct PosKey {
         PosKey(int b, int p) : box(b), pos(p) { }
         PosKey(SampleRow * s) : box(s->dest_cryo_pos), pos(s->dest_box_id) { }
-        int box, pos; //SampleRow * row1, * row2;
+        int box, pos;
         bool operator <(const PosKey &other) const {
-            if (box < other.box) { //if (row1->S);
+            if (box < other.box) {
                 return true;
             } else if (box == other.box) {
                 return pos < other.pos;
@@ -749,11 +738,6 @@ void __fastcall TfrmRetrAsstPlanSamples::btnSaveClick(TObject *Sender) {
         Screen->Cursor = crSQLWait;
         Enabled = false;
         debugLog("starting save plan");
-//        panelLoading->Caption = loadingMessage;
-//        panelLoading->Visible = true; // appearing in wrong place because called in OnShow, form not yet maximized
-//        panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
-//        panelLoading->Left = (sgVials->Width / 2) - (panelLoading->Width / 2);
-//        progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
         prepareProgressMessage(loadingMessage);
         savePlanThread = new SavePlanThread();
         savePlanThread->OnTerminate = &savePlanThreadTerminated;
@@ -831,13 +815,11 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
     const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 
     LQuery qc(LIMSDatabase::getCentralDb());
-    //Saver s(frmSamples->job, qc, pid);
     for (vector< Chunk< SampleRow > * >::const_iterator it = frmRetrAsstPlanSamples->chunks.begin(); it != frmRetrAsstPlanSamples->chunks.end(); it++) {
-    //for (auto &it : frmSamples->chunks) {
         map<int, int> boxes; // box_id to rj_box_id, per chunk
         int rj_box_cid;
         Chunk< SampleRow > * chunk = *it;
-        //Chunk< SampleRow > * chunk = it;
+
         Saver s(frmRetrAsstPlanSamples->job, qc, pid); // to start lcr.position at 1 for each chunk
         for (int i = 0; i < chunk->getSize(); i++) {
             SampleRow * sampleRow = chunk->objectAtRel(i);
@@ -942,3 +924,6 @@ void __fastcall TfrmRetrAsstPlanSamples::savePlanThreadTerminated(TObject *Sende
 //            //throw runtime_error("unknown aliquot type "+ to_string((long long)aliquotType) + " for this job"); // std::to_string() - C++11; no overload for int, so must cast to long long
 //        }
 
+// C++11-style for
+    //for (auto &it : frmSamples->chunks) {
+        //Chunk< SampleRow > * chunk = it;

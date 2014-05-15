@@ -63,10 +63,8 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
     sgwVials->addCol("destbox",  "Destination box",  240);
     sgwVials->addCol("destype",  "Type",             67);
     sgwVials->addCol("destpos",  "Pos",              25);
-#ifdef _DEBUG
     sgwVials->addCol("status",   "Status",           91);
     sgwVials->addCol("aliquot",  "Aliquot",          90);
-#endif
     sgwVials->init();
 }
 
@@ -188,7 +186,6 @@ void __fastcall TfrmRetrAsstCollectSamples::sgVialsDrawCell(TObject *Sender, int
                     break;
                 default:
                     background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
-                    //background = RETRIEVAL_ASSISTANT_EXTRA_COLOUR; // neither primary nor secondary
             }
         }
     }
@@ -368,10 +365,8 @@ void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) {
     } else {
         sample = row;
     }
-    sgVials->Cells[sgwVials->colNameToInt("item")]     [rw] = rw;//??sample->cryovial_barcode.c_str();
+    sgVials->Cells[sgwVials->colNameToInt("item")]     [rw] = rw;
     sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sample->cryovial_barcode.c_str();
-    sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = LCDbCryovialRetrieval::statusString(sample->retrieval_record->getStatus());
-    sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sample->aliquotName().c_str();
     sgVials->Cells[sgwVials->colNameToInt("srcbox")]   [rw] = sample->src_box_name.c_str();
     sgVials->Cells[sgwVials->colNameToInt("srcpos")]   [rw] = sample->store_record->getPosition();
     sgVials->Cells[sgwVials->colNameToInt("site"   )]  [rw] = sample->site_name.c_str();
@@ -382,10 +377,10 @@ void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) {
     sgVials->Cells[sgwVials->colNameToInt("struct" )]  [rw] = sample->structure_name.c_str();
     sgVials->Cells[sgwVials->colNameToInt("boxpos" )]  [rw] = sample->box_pos;
     sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sample->dest_box_name.c_str();
-    //sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sample->dest_box_type;
-    //sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = Util::boxTubeTypeName(sample->project_cid, sample->dest_box_id).c_str();
     sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sample->dest_type_name.c_str();
     sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sample->dest_cryo_pos;
+    sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = LCDbCryovialRetrieval::statusString(sample->retrieval_record->getStatus());
+    sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sample->aliquotName().c_str();
     sgVials->Objects[0][rw] = (TObject *)row; // keep all data, primary and secondary
 }
 
@@ -1020,3 +1015,7 @@ void TfrmRetrAsstCollectSamples::collectEmpties() {
 //		frmRetrAsstCollectSamples->unactionedSamples = true;
 //    }
 
+//if (NULL == box) throw runtime_error(__FUNC__ +" null LPDbBoxName");
+//if (NULL == size) throw runtime_error(__FUNC__ +" null LCDbBoxSize");
+//if (NULL == tube) throw runtime_error(__FUNC__ +" null LCDbObject");
+//operator() (const ProjBox lhs, const ProjBox rhs) { return lhs.project_cid == rhs.project_cid && lhs.box_cid == rhs.box_cid; }
