@@ -1,5 +1,4 @@
 #include "AcquireCriticalSection.h"
-#include <boost/variant/get.hpp>
 #include "LocalRunIterator.h"
 #include "QCViewController.h"
 #include "QCViewData.h"

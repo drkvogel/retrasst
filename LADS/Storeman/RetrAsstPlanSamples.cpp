@@ -11,6 +11,7 @@
 #include "LCDbRetrieval.h"
 #include "RetrAsstMain.h"
 #include "LDbBoxType.h"
+#include "SMLogin.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -731,9 +732,9 @@ void __fastcall TfrmRetrAsstPlanSamples::btnSaveClick(TObject *Sender) {
         if (chunks[i]->getSize() > MAX_CHUNK_SIZE) {
             wstringstream oss; oss<<"Maximum chunk size is "<<MAX_CHUNK_SIZE; Application->MessageBox(oss.str().c_str(), L"Error", MB_OK); return;
         }
-    }
-    frmConfirm->initialise(LCDbCryoJob::Status::DONE, "Confirm retrieval plan");  // , projects); don't need project ids??? //status??? //std::set<int> projects; projects.insert(job->getProjectID());
-    if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)
+	}
+	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Confirm retrieval plan");  // , projects); don't need project ids??? //status??? //std::set<int> projects; projects.insert(job->getProjectID());
+	if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)
             && (RETRASSTDEBUG || mrOk == frmConfirm->ShowModal())) {
         Screen->Cursor = crSQLWait;
         Enabled = false;

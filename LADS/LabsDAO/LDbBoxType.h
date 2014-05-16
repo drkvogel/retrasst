@@ -35,6 +35,7 @@ public:
 	Expectation getUse() const { return Expectation( status ); }
 	void setUse( Expectation ex ) { status = short( ex ); }
 	int getProjectCID() const { return projectCID; }
+	void setProjectCID( int cid ) { projectCID = cid; }
 	int getSizeID() const { return sizeID; }
 	void setSizeID( int cid ) { sizeID = cid; }
 	short getLink() const { return group; }

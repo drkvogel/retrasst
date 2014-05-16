@@ -681,9 +681,7 @@ IntPair SamplePile::add( const Tube & tube ) {
 
 		for (std::vector<Sample>::const_iterator it = samples.begin();
 				it != samples.end(); it++) {
-			const Sample sample = *it;
-			add(sample);
-			m_jobnos.insert(sample.getJobno());
+			add(*it);
 		}
 
 	} while (false);
@@ -704,9 +702,7 @@ IntPair SamplePile::add( const Cryovial & cryovial ) {
 
 		for (std::vector<Sample>::const_iterator it = samples.begin();
 				it != samples.end(); it++) {
-			const Sample sample = *it;
-			add(sample);
-			m_jobnos.insert(sample.getJobno());
+			add(*it);
 		}
 
 	} while (false);
@@ -727,9 +723,7 @@ IntPair SamplePile::add( const Box & box ) {
 
 		for (std::vector<Sample>::const_iterator it = samples.begin();
 				it != samples.end(); it++) {
-			const Sample sample = *it;
-			add(sample);
-			m_jobnos.insert(sample.getJobno());
+			add(*it);
 		}
 
 	} while (false);
@@ -750,9 +744,7 @@ IntPair SamplePile::add( const Person & person ) {
 
 		for (std::vector<Sample>::const_iterator it = samples.begin();
 				it != samples.end(); it++) {
-			const Sample sample = *it;
-			add(sample);
-			m_jobnos.insert(sample.getJobno());
+			add(*it);
 		}
 
 	} while (false);
@@ -773,9 +765,7 @@ IntPair SamplePile::add( const Job & job ) {
 
 		for (std::vector<Sample>::const_iterator it = samples.begin();
 				it != samples.end(); it++) {
-			const Sample sample = *it;
-			add(sample);
-			m_jobnos.insert(sample.getJobno());
+			add(*it);
 		}
 
 	} while (false);
@@ -801,6 +791,7 @@ void SamplePile::add( const Sample & sample ) {
 
 		m_samples.push_back(Sample(sample));
 		m_crids.insert(crid);
+		m_jobnos.insert(sample.getJobno());
 
 		if (! isSampleMarkable(sample)) break;
 
@@ -852,8 +843,7 @@ const Sample * SamplePile::getSample( const int sampleno ) const {
 		   : 0;
 }
 
-std::string SamplePile::update( const int dbcrstatus ) {
-//, const std::string & description, const std::string & reason ) {
+std::string SamplePile::update( const int dbcrstatus, const LPDbBoxType & destBoxType ) {
 	std::string error = "";
 
 	do {
@@ -876,6 +866,10 @@ std::string SamplePile::update( const int dbcrstatus ) {
 		error = m_context->getDb()->updateSamples(jobCsids,
 				dbcrstatus, /* jobName, jobDescription, */ sampleNote);
 		if (error != "") break;
+
+		if (m_context->isCreateJobStage()) {
+			error = m_context->getDb()->createStoreEntries( jobCsids, destBoxType );
+		}
 
 	} while (false);
 
@@ -1034,7 +1028,7 @@ int SamplePile::toggleMarked( const int sampleno ) {
     return nchanged;
 }
 
-int SamplePile::isMarked( const int sampleno ) {
+int SamplePile::isMarked( const int sampleno ) const {
     const int n = m_ismarked.count(sampleno);
     return ((n == 0) || (n == 1)) ? n : -1;
 }

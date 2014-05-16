@@ -317,11 +317,11 @@ bool LPDbBoxName::saveRecord( LQuery & pQuery, LQuery & cQuery )
 			claimNextID( pQuery );
 		}
 		pQuery.setSQL( "insert into box_name (box_cid, box_type_cid, box_capacity,"
-					" external_name, status, time_stamp, process_cid, note_exists)"
-///// fixme - include barcode after upgrade
-					" values ( :bid, :btid, :cap, :exn, :sts, 'now', :pid, :nex)" );
+					" external_name, barcode, status, time_stamp, process_cid, note_exists)"
+					" values ( :bid, :btid, :cap, :exn, :bar, :sts, 'now', :pid, :nex)" );
 		pQuery.setParam( "exn", name );
 		pQuery.setParam( "btid", boxTypeID );
+		pQuery.setParam( "bar", barcode );
 	}
 
 	pQuery.setParam( "bid", getID() );

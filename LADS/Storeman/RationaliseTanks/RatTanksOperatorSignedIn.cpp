@@ -3,6 +3,9 @@
 #pragma hdrstop
 
 #include "RatTanksOperatorSignedIn.h"
+#include "SMLogin.h"
+#include "leaseIDs.h"
+
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 
@@ -45,9 +48,9 @@ bool operatorSignedIn::hasPermissionToSignIn()
 				continue; //for a different machine
 		}
 		std::string page_number  = prem["page_number"];
-		if (page_number  != "0")
+		if (atoi(page_number.c_str()) != TfrmSMLogin::ANY)
 		{
-			if (page_number  != "5")
+			if (atoi(page_number.c_str()) != TfrmSMLogin::RATIONALISE)
 				continue; //for a different page
 		}
 		m_hasSignedIn = true;
@@ -79,7 +82,7 @@ bool operatorSignedIn::hasPermissionToRationalise(const std::string &targetProje
 		std::map<std::string,std::string> prem = itPresmssion->second;
 
 //See if user is allowed to save data from StoreMan
-		if (prem["program_cid"] == "100") //StoreMan in c_objectname.object_cid [external_name = StoreMan]
+		if (atoi(prem["program_cid"].c_str()) == LEASEE_STOREMAN) //StoreMan in c_objectname.object_cid [external_name = StoreMan]
 		{
 			std::string machine_cid = prem["machine_cid"];
 			if (machine_cid != "0")
@@ -89,14 +92,14 @@ bool operatorSignedIn::hasPermissionToRationalise(const std::string &targetProje
 			}
 
 			std::string page_number  = prem["page_number"];
-			if (page_number  != "0")
+			if (atoi(page_number.c_str()) != TfrmSMLogin::ANY)
 			{
-				if (page_number  != "5")
+				if (atoi(page_number.c_str()) != TfrmSMLogin::RATIONALISE)
 					continue; //for a different page
 			}
 
 //for the project,
-			std::string project_cid  = prem["project_cid"];
+			std::string project_cid = prem["project_cid"];
 			if (project_cid  != "0")
 			{
 				if (targetProject_cid  != project_cid)

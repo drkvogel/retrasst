@@ -78,6 +78,8 @@ public:
 	std::string getPersonId( ) const;
 	void setAliquotId( const int id );
 	int getAliquotId( ) const;
+	void setBoxId( const int id );
+	int getBoxId( ) const;
 	void setCryovialId( const int id );
 	int getCryovialId( ) const;
 	void setCryovialStoreStatus( const int status );

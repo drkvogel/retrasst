@@ -124,8 +124,17 @@ void Sample::setAliquotId( const int id ) {
     return;
 }
 
+void Sample::setBoxId( const int id ) {
+	setInt("bcid", id);
+	return;
+}
+
 int Sample::getAliquotId( ) const {
-    return getInt("aid");
+	return getInt("aid");
+}
+
+int Sample::getBoxId( ) const {
+    return getInt("bcid");
 }
 
 int Sample::getCryovialId( ) const {

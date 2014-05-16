@@ -29,6 +29,7 @@ namespace valcui
 	class Model;
 	class QCViewController;
     class SnapshotFrameController;
+    class WorklistItemViewController;
 }
 
 class TMainForm : public TForm
@@ -45,6 +46,10 @@ __published:	// IDE-managed Components
 	TTabItem *warnTab;
 	TPanel *logFrameContainer;
 	TPanel *warningFrameContainer;
+	TPanel *bottomPanelLeft;
+	TSplitter *Splitter2;
+	TPanel *bottomPanelRight;
+	TStyleBook *StyleBook1;
 	void __fastcall onCreate(TObject *Sender);
 	void __fastcall onResize(TObject *Sender);
 	void __fastcall onClose(TObject *Sender, TCloseAction &Action);
@@ -56,6 +61,7 @@ private:	// User declarations
 	std::unique_ptr<valcui::Model> m_model;
 	std::unique_ptr<valcui::SnapshotFrameController> m_snapshotFrameController;
 	std::unique_ptr<valcui::QCViewController> m_qcViewController;
+	std::unique_ptr<valcui::WorklistItemViewController> m_worklistItemViewController;
     stef::ThreadPool* m_threadPool;
 public:		// User declarations
 	__fastcall TMainForm(TComponent* Owner);

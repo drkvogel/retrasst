@@ -14,8 +14,10 @@
 #include "TLogFrame.h"
 #include "TMainForm.h"
 #include "TQCViewFrame.h"
+#include "TWorklistItemViewFrame.h"
 #include "UserAdvisorAdapter.h"
 #include "UserAdvisorPanel.h"
+#include "WorklistItemViewController.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "TSnapshotFrame"
@@ -40,8 +42,8 @@ void __fastcall TMainForm::onCreate(TObject *Sender)
 {
 	m_logFrame                    = valcui::addSubComponent<TLogFrame>     ( logFrameContainer );
 	TSnapshotFrame* snapshotFrame = valcui::addSubComponent<TSnapshotFrame>( snapshotFrameContainer );
-	TQCViewFrame*   qcViewFrame   = valcui::addSubComponent<TQCViewFrame>  ( bottomPanel );
-
+	TQCViewFrame*   qcViewFrame   = valcui::addSubComponent<TQCViewFrame>  ( bottomPanelLeft );
+	TWorklistItemViewFrame* wiFrame = valcui::addSubComponent<TWorklistItemViewFrame>  ( bottomPanelRight );
 	m_logManager = std::unique_ptr<LogManager>(new LogManager( m_logFrame, m_config.get("logFile") ));
 
 	auto warningCache = new valcui::UserAdvisorAdapter<valcui::UserAdvisorPanel>();
@@ -79,6 +81,13 @@ void __fastcall TMainForm::onCreate(TObject *Sender)
 			m_model.get() ) );
 
     m_qcViewController->setThreadPool( m_threadPool );
+
+	m_worklistItemViewController = std::unique_ptr<valcui::WorklistItemViewController>(
+		new valcui::WorklistItemViewController(
+			wiFrame,
+			m_model.get() ) );
+
+    m_worklistItemViewController->setThreadPool( m_threadPool );
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::onResize(TObject *Sender)

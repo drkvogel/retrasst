@@ -232,49 +232,53 @@ void QCViewController::setThreadPool( stef::ThreadPool* tp )
 
 void __fastcall QCViewController::useUpdatedViewData()
 {
-    
+    paulst::AcquireCriticalSection a(m_critSec);
+
 	std::stack< TTreeViewItem* > empty;
 	m_nodeStack.swap(empty);
 	m_expandList.clear();
 	m_widgetContainer->tree->Clear();
 
-	pushNode( describeWorklistEntry(), true );
-
-	if ( m_viewData->localResults.size() )
-	{
-		pushNode( "Local results", true );
-
-		for ( 	auto i = m_viewData->localResults.begin(); i != m_viewData->localResults.end(); ++i  )
-		{
-			const valc::TestResult* r = *i;
-
-			pushNode( describeTestResult(r), true );
-
-			const valc::ControlStatus cs(r->getControlStatus());
-
-			if ( cs.summaryCode() != valc::CONTROL_STATUS_UNCONTROLLED )
-			{
-				pushNode( "Controlling QCs", true );
-
-				pushNode( "Before", true );
-				addNodesForControllingQCs( cs.precedingQCs() );
-				popNode();
-				pushNode( "After", true );
-				addNodesForControllingQCs( cs.followingQCs() );
-				popNode();
-
-				popNode();
-			}
-
-			popNode();
-		}
-
-		popNode();
-	}
-
-    for ( TTreeViewItem* item : m_expandList )
+    if ( m_viewData )
     {
-        item->Expand();
+        pushNode( describeWorklistEntry(), true );
+
+        if ( m_viewData->localResults.size() )
+        {
+            pushNode( "Local results", true );
+
+            for ( 	auto i = m_viewData->localResults.begin(); i != m_viewData->localResults.end(); ++i  )
+            {
+                const valc::TestResult* r = *i;
+
+                pushNode( describeTestResult(r), true );
+
+                const valc::ControlStatus cs(r->getControlStatus());
+
+                if ( cs.summaryCode() != valc::CONTROL_STATUS_UNCONTROLLED )
+                {
+                    pushNode( "Controlling QCs", true );
+
+                    pushNode( "Before", true );
+                    addNodesForControllingQCs( cs.precedingQCs() );
+                    popNode();
+                    pushNode( "After", true );
+                    addNodesForControllingQCs( cs.followingQCs() );
+                    popNode();
+
+                    popNode();
+                }
+
+                popNode();
+            }
+
+            popNode();
+        }
+
+        for ( TTreeViewItem* item : m_expandList )
+        {
+            item->Expand();
+        }
     }
 }
 

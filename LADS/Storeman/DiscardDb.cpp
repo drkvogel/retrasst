@@ -7,6 +7,9 @@
 #include "LPDbCryovial.h"
 #include "LPDbCryovialStore.h"
 #include "NewJob.h"
+#include "LPDbBoxes.h"
+#include "LDbBoxSize.h"
+#include "LDbBoxType.h"
 
 #pragma package(smart_init)
 
@@ -240,7 +243,7 @@ void Db::addSamples( SampleVec * samples, const Cryovial & cryovial ) const {
     std::string sql =
 		"  SELECT S.sample_id, S.barcode sample_barcode, CS.time_stamp"
 		"  , C.cryovial_id, C.cryovial_barcode, C.aliquot_type_cid"
-        "  , CS.status cryovial_store_status, CS.retrieval_cid"
+		"  , CS.box_cid, CS.status cryovial_store_status, CS.retrieval_cid"
 		"  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
         ;
     sql +=
@@ -276,7 +279,7 @@ void Db::addSamples( SampleVec * samples, const Tube & tube ) const {
     std::string sql =
 		"  SELECT S.sample_id, S.barcode sample_barcode, CS.time_stamp"
         "  , C.cryovial_id, C.cryovial_barcode, C.aliquot_type_cid"
-        "  , CS.status cryovial_store_status, CS.retrieval_cid"
+		"  , CS.box_cid, CS.status cryovial_store_status, CS.retrieval_cid"
 		"  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
         ;
     sql +=
@@ -312,7 +315,7 @@ void Db::addSamples( SampleVec * samples, const Box & box ) const {
     std::string sql =
 		"  SELECT S.sample_id, S.barcode sample_barcode, CS.time_stamp"
         "  , C.cryovial_id, C.cryovial_barcode, C.aliquot_type_cid"
-        "  , CS.status cryovial_store_status, CS.retrieval_cid"
+		"  , BN.box_cid, CS.status cryovial_store_status, CS.retrieval_cid"
 		"  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
         ;
     sql +=
@@ -348,7 +351,7 @@ void Db::addSamples( SampleVec * samples, const Person & person ) const {
     std::string sql =
 		"  SELECT S.sample_id, S.barcode sample_barcode, CS.time_stamp"
         "  , C.cryovial_id, C.cryovial_barcode, C.aliquot_type_cid"
-        "  , CS.status cryovial_store_status, CS.retrieval_cid"
+		"  , CS.box_cid, CS.status cryovial_store_status, CS.retrieval_cid"
 		"  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
         ;
     sql +=
@@ -390,13 +393,13 @@ void Db::addSamples( SampleVec * samples, const Job & job ) const {
     std::string sql =
 		"  SELECT S.sample_id, S.barcode sample_barcode, CS.time_stamp"
         "  , C.cryovial_id, C.cryovial_barcode, C.aliquot_type_cid"
-        "  , CS.status cryovial_store_status, CS.retrieval_cid"
+		"  , CS.box_cid, CS.status cryovial_store_status, CS.retrieval_cid"
 		"  , CS.note_exists note_exists, CS.record_id cryovial_store_id"
         ;
     sql +=
 		"  , " + pfterm + " source_name";
     sql +=
-        "  FROM CRYOVIAL_STORE CS"
+		"  FROM CRYOVIAL_STORE CS"
         "  JOIN CRYOVIAL C"
         "  ON 1=1"
         "  AND C.cryovial_id = CS.cryovial_id"
@@ -430,11 +433,12 @@ void Db::addSamples( SampleVec * samples ) const {
 
 		const int sample_id                 = m_pq->readInt("sample_id");
 		const std::string sample_barcode    = m_pq->readString("sample_barcode").c_str();
-		const std::string source_name         = m_pq->readString("source_name").c_str();
+		const std::string source_name       = m_pq->readString("source_name").c_str();
 		const int cryovial_id               = m_pq->readInt("cryovial_id");
 		const std::string cryovial_barcode  = m_pq->readString("cryovial_barcode").c_str();
 		const int aliquot_type_cid          = m_pq->readInt("aliquot_type_cid");
 		const int cryovial_store_status     = m_pq->readInt("cryovial_store_status");
+		const int box_cid             		= m_pq->readInt("box_cid");
 		const int retrieval_cid             = m_pq->readInt("retrieval_cid");
 		const int note_exists               = m_pq->readInt("note_exists");
 		const int cryovial_store_id         = m_pq->readInt("cryovial_store_id");
@@ -449,6 +453,7 @@ void Db::addSamples( SampleVec * samples ) const {
 		sample.setPersonId(source_name);
 		sample.setAliquotId(aliquot_type_cid);
 		sample.setCryovialStoreStatus(cryovial_store_status);
+		sample.setBoxId(box_cid);
 		sample.setJobno(retrieval_cid);
 		sample.setNoteFlag(note_exists);
 		sample.setCryovialStoreId(cryovial_store_id);
@@ -516,8 +521,8 @@ std::string Db::updateSamples(
 	const std::map<int,IntSet> & jobCsids, const int dbcrstatus,
 //	const std::string & jobName, const std::string & jobDescription,
 	const IntToStringMap & sampleNote ) const {
-	std::string error = "";
 
+	std::string error = "";
 	do {
 		/*		if (m_pdb->InTransaction) {
 					error = "unable to start transaction";
@@ -585,62 +590,110 @@ std::string Db::updateSamplesStatus(
 	for (std::map<int,IntSet>::const_iterator it1 = jobCsids.begin(); it1 != jobCsids.end(); it1++) {
 		const int jobno = it1->first;
 		const IntSet csids = it1->second;
-
 		const bool isNewJob = (jobno == 0);
 		const LCDbCryoJob * pjob = isNewJob ? makeJob(/*jobName, jobDescription*/) : getJob(jobno);
 		if (pjob == 0) {
 			error = (jobno == 0)
-                    ? std::string("failed to create job")
-                    : "failed to find job " + Util::asString(jobno)
-                    ;
-            break;
-        }
-        LCDbCryoJob job = *pjob;
-        if (!job.claim(*m_cq, isNewJob)) {
-            error = "unable to claim job";
-            break;
-        }
-        const int newjobno = job.getID();
+					? std::string("failed to create job")
+					: "failed to find job " + Util::asString(jobno)
+					;
+			break;
+		}
+		LCDbCryoJob job = *pjob;
+		if (!job.claim(*m_cq, isNewJob)) {
+			error = "unable to claim job";
+			break;
+		}
+		const int newjobno = job.getID();
 
-        m_pq->setParam("jobno", jobno);
-        m_pq->setParam("newjobno", newjobno);
+		m_pq->setParam("jobno", jobno);
+		m_pq->setParam("newjobno", newjobno);
 
-        for (IntSet::const_iterator it2 = csids.begin();
-                it2 != csids.end(); it2++) {
-            const int csid = *it2;
-            m_pq->setParam("csid", csid);
-            if (!m_pq->execSQL()) {
-                error = "failed to update cryovial csid " +
-                        Util::asString(csid);
-                break;
-            }
-        }
+		for (IntSet::const_iterator it2 = csids.begin();
+				it2 != csids.end(); it2++) {
+			const int csid = *it2;
+			m_pq->setParam("csid", csid);
+			if (!m_pq->execSQL()) {
+				error = "failed to update cryovial csid " +
+						Util::asString(csid);
+				break;
+			}
+		}
 
-        if (! job.release(*m_cq, false)) {
-            error = "unable to release job";
-            break;
-        }
+		if (! job.release(*m_cq, false)) {
+			error = "unable to release job";
+			break;
+		}
 
-        if (error != "") break;
-    }
+		if (error != "") break;
+	}
 
-    return error;
+	return error;
+}
+
+std::string Db::createStoreEntries( const std::map<int,IntSet> & jobCsids, LPDbBoxType boxType ) const {
+
+	boxType.setProjectCID( 0 );
+	boxType.saveRecord( *m_pq, *m_cq );
+	LPDbBoxNames boxes;
+	boxes.readCurrent( *m_pq );
+
+	std::string sql =
+			"  INSERT INTO CRYOVIAL_STORE "
+			"  (record_id, cryovial_id, box_cid, cryovial_position, time_stamp, process_cid, status, note_exists) "
+			"  SELECT next value for id_sequence, cryovial_id, :box, :pos, 'now', :pid, 0, 0 "
+			"  FROM CRYOVIAL_STORE CS2 WHERE CS2.record_id = :csid "
+			;
+
+	const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+	for (std::map<int,IntSet>::const_iterator it1 = jobCsids.begin(); it1 != jobCsids.end(); it1++) {
+		const int jobno = it1->first;
+		const IntSet csids = it1->second;
+
+		IntSet::const_iterator it2 = csids.begin();
+		while( it2 != csids.end() ) {
+
+			LPDbBoxName box;
+			const LPDbBoxName * existing = boxes.findSpace( boxType.getID() );
+			if( existing == NULL ) {
+				box.create( boxType, *m_pq, *m_cq );
+			} else {
+				box = *existing;
+			}
+			m_pq->setSQL( sql );
+			m_pq->setParam("box", box.getID());
+			m_pq->setParam("pid", pid);
+
+			while( box.hasSpace() && it2 != csids.end() ) {
+				int csid = *it2 ++;
+				short pos = box.addCryovial( "barcode" );
+				m_pq->setParam( "pos", pos );
+				m_pq->setParam( "csid", csid );
+				if ( !m_pq->execSQL() ) {
+					return "Failed to add destination for csid " + Util::asString(csid);
+				}
+			}
+			box.saveRecord( *m_pq, *m_cq );
+			boxes.insert( box );
+		}
+	}
+	return "";
 }
 
 std::string Db::resetSamples( const std::map<int,IntSet> & jobCsids ) const {
-    std::string error = "";
+	std::string error = "";
 
-    do {
-        /*		if (m_pdb->InTransaction)
-        		{
-        			error = "unable to start transaction";
-        			break;
-        		}
-        		m_pdb->StartTransaction();
-        */
+	do {
+		/*		if (m_pdb->InTransaction)
+				{
+					error = "unable to start transaction";
+					break;
+				}
+				m_pdb->StartTransaction();
+		*/
 		error = resetSamplesStatus(jobCsids);
 
-        if (error != "") {
+		if (error != "") {
 //			m_pdb->Rollback();
             break;
         }
@@ -991,7 +1044,7 @@ StringVec Db::getProjectNames( ) const {
 
 int Db::allocCids(const size_t count) const {
     LCDbID myLCDbID;
-    return myLCDbID.claimNextID(*m_cq);
+	return myLCDbID.claimNextID(*m_cq);
 }
 
 bool Db::addAuditEntry(const std::string & message) const {
@@ -1004,6 +1057,19 @@ bool Db::addAuditEntry(const std::string & message) const {
     } while (false);
     return ok;
 }
+
+int Db::getTubeTypeId( const int boxCid ) const {
+	LPDbBoxNames boxList;
+	const LPDbBoxName * box = boxList.readRecord( *m_pq, boxCid );
+	if( box != NULL ) {
+		const LCDbBoxSize * size = box->getLayout();
+		if( size != NULL ) {
+			return size->getTubeType();
+		}
+	}
+	return 0;
+}
+
 
 // AliquotInfo
 

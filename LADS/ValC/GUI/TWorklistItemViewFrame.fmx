@@ -1,0 +1,152 @@
+object WorklistItemViewFrame: TWorklistItemViewFrame
+  Height = 311.000000000000000000
+  Width = 476.000000000000000000
+  object titlePanel: TPanel
+    Align = alTop
+    Height = 33.000000000000000000
+    Width = 476.000000000000000000
+    TabOrder = 0
+    object Label1: TLabel
+      Height = 17.000000000000000000
+      Position.X = 32.000000000000000000
+      Position.Y = 8.000000000000000000
+      Text = 'Worklist Item View'
+      Width = 120.000000000000000000
+    end
+  end
+  object containerPanel: TPanel
+    Align = alClient
+    Height = 278.000000000000000000
+    Width = 476.000000000000000000
+    TabOrder = 1
+    object GridLayout1: TGridLayout
+      Align = alLeft
+      Height = 268.000000000000000000
+      ItemHeight = 30.000000000000000000
+      ItemWidth = 85.000000000000000000
+      Orientation = orHorizontal
+      Margins.Left = 5.000000000000000000
+      Margins.Top = 5.000000000000000000
+      Margins.Right = 5.000000000000000000
+      Margins.Bottom = 5.000000000000000000
+      Position.X = 5.000000000000000000
+      Position.Y = 5.000000000000000000
+      Width = 188.000000000000000000
+      object Label2: TLabel
+        Height = 30.000000000000000000
+        Text = 'ID:'
+        Width = 85.000000000000000000
+      end
+      object ID: TLabel
+        Height = 30.000000000000000000
+        Position.X = 85.000000000000000000
+        Text = 'ID'
+        Width = 85.000000000000000000
+      end
+      object Label4: TLabel
+        Height = 30.000000000000000000
+        Position.Y = 30.000000000000000000
+        Text = 'Barcode:'
+        Width = 85.000000000000000000
+      end
+      object barcode: TLabel
+        Height = 30.000000000000000000
+        Position.X = 85.000000000000000000
+        Position.Y = 30.000000000000000000
+        Text = 'barcode'
+        Width = 85.000000000000000000
+      end
+      object Label6: TLabel
+        Height = 30.000000000000000000
+        Position.Y = 60.000000000000000000
+        Text = 'Machine ID:'
+        Width = 85.000000000000000000
+      end
+      object machineID: TLabel
+        Height = 30.000000000000000000
+        Position.X = 85.000000000000000000
+        Position.Y = 60.000000000000000000
+        Text = 'machineID'
+        Width = 85.000000000000000000
+      end
+      object Label9: TLabel
+        Height = 30.000000000000000000
+        Position.Y = 90.000000000000000000
+        Text = 'Test:'
+        Width = 85.000000000000000000
+      end
+      object test: TLabel
+        Height = 30.000000000000000000
+        Position.X = 85.000000000000000000
+        Position.Y = 90.000000000000000000
+        Text = 'test'
+        Width = 85.000000000000000000
+      end
+      object Label11: TLabel
+        Height = 30.000000000000000000
+        Position.Y = 120.000000000000000000
+        Text = 'Status:'
+        Width = 85.000000000000000000
+      end
+      object status: TLabel
+        Height = 30.000000000000000000
+        Position.X = 85.000000000000000000
+        Position.Y = 120.000000000000000000
+        Text = 'status'
+        Width = 85.000000000000000000
+      end
+      object Label13: TLabel
+        Height = 30.000000000000000000
+        Position.Y = 150.000000000000000000
+        Text = 'Timestamp:'
+        Width = 85.000000000000000000
+      end
+      object timestamp: TLabel
+        Height = 30.000000000000000000
+        Position.X = 85.000000000000000000
+        Position.Y = 150.000000000000000000
+        Text = 'timestamp'
+        Width = 85.000000000000000000
+      end
+      object Label15: TLabel
+        Height = 30.000000000000000000
+        Position.Y = 180.000000000000000000
+        Text = 'Project ID:'
+        Width = 85.000000000000000000
+      end
+      object projectID: TLabel
+        Height = 30.000000000000000000
+        Position.X = 85.000000000000000000
+        Position.Y = 180.000000000000000000
+        Text = 'projectID'
+        Width = 85.000000000000000000
+      end
+    end
+    object resultsPanel: TPanel
+      Align = alClient
+      Height = 278.000000000000000000
+      Width = 278.000000000000000000
+      TabOrder = 1
+      object Label8: TLabel
+        Align = alTop
+        Height = 30.000000000000000000
+        Margins.Left = 3.000000000000000000
+        Position.X = 3.000000000000000000
+        Text = 'Results:'
+        Width = 275.000000000000000000
+      end
+      object resultListBox: TListBox
+        Align = alClient
+        Height = 243.000000000000000000
+        Margins.Left = 3.000000000000000000
+        Margins.Right = 5.000000000000000000
+        Margins.Bottom = 5.000000000000000000
+        TabOrder = 1
+        Width = 270.000000000000000000
+        DefaultItemStyles.ItemStyle = ''
+        DefaultItemStyles.GroupHeaderStyle = ''
+        DefaultItemStyles.GroupFooterStyle = ''
+      end
+    end
+  end
+end

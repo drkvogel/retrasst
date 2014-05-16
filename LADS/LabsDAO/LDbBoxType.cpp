@@ -94,12 +94,42 @@ bool LPDbBoxType::saveRecord( LQuery pQuery, LQuery cQuery ) {
 	if( getID() == 0 ) {
 		claimNextID( cQuery );
 	}
-	if( save( "c_box_content", cQuery ) && save( "box_content", pQuery ) ) {
-		saved = true;
-		LPDbBoxTypes::records().insert( *this );
-		return true;
+	if( !update( "c_box_content", cQuery ) && !insert( "c_box_content", cQuery ) ) {
+		return false;
 	}
-	else return false;
+	if( !update( "box_content", pQuery ) && !insert( "box_content", pQuery ) ) {
+		return false;
+	}
+	saved = true;
+	LPDbBoxTypes::records().insert( *this );
+	return true;
+}
+
+//---------------------------------------------------------------------------
+
+bool LPDbBoxType::update( const std::string & table, LQuery & query ) {
+	query.setSQL( "Update " + table + " set external_name = :nam, description = :desc, status = :sts,"
+					  " expected_use = :eu, box_size_cid = :bs, box_order = :ord, box_set_link = :lnk,"
+					  " aliquot_type1 = :at1, aliquot_type2 = :at2, aliquot_type3 = :at3"
+					  " where box_type_cid = :cid" );
+		query.setParam( "eu", uses );
+	} else {
+		query.setSQL( "Insert into " + table + " (box_type_cid, external_name, description, status,"
+					  " box_size_cid, box_order, aliquot_type1, aliquot_type2, aliquot_type3, box_set_link)"
+					  " values ( :cid, :nam, :desc, :sts, :bs, :ord, :at1, :at2, :at3, :lnk )" );
+	}
+	query.setParam( "nam", getName() );
+	query.setParam( "desc", getDescription() );
+	query.setParam( "sts", status );
+	query.setParam( "bs", sizeID );
+	query.setParam( "ord", position );
+	query.setParam( "lnk", group );
+	query.setParam( "cid", getID() );
+	std::vector< int >::const_iterator alr = content.begin();
+	query.setParam( "at1", alr == content.end() ? 0 : *alr ++ );
+	query.setParam( "at2", alr == content.end() ? 0 : *alr ++ );
+	query.setParam( "at3", alr == content.end() ? 0 : *alr ++ );
+	return query.execSQL();
 }
 
 //---------------------------------------------------------------------------

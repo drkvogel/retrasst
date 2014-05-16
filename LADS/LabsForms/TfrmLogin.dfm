@@ -1,8 +1,8 @@
 inherited frmLogin: TfrmLogin
   ClientHeight = 316
   ClientWidth = 313
-  ExplicitWidth = 329
-  ExplicitHeight = 354
+  ExplicitWidth = 319
+  ExplicitHeight = 344
   PixelsPerInch = 96
   TextHeight = 13
   inherited Label2: TLabel
@@ -51,9 +51,9 @@ inherited frmLogin: TfrmLogin
     ExplicitTop = 166
   end
   object projName: TComboBox [9]
-    Left = 126
+    Left = 122
     Top = 208
-    Width = 138
+    Width = 160
     Height = 21
     DropDownCount = 20
     Enabled = False

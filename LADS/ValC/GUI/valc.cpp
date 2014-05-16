@@ -4,11 +4,12 @@
 #pragma hdrstop
 #include <tchar.h>
 //---------------------------------------------------------------------------
-USEFORM("TQCViewFrame.cpp", QCViewFrame); /* TFrame: File Type */
-USEFORM("TSnapshotFrame.cpp", SnapshotFrame); /* TFrame: File Type */
 USEFORM("TWaitDlg.cpp", WaitDlg);
-USEFORM("TMainForm.cpp", MainForm);
+USEFORM("TSnapshotFrame.cpp", SnapshotFrame); /* TFrame: File Type */
+USEFORM("TWorklistItemViewFrame.cpp", WorklistItemViewFrame); /* TFrame: File Type */
 USEFORM("TLogFrame.cpp", LogFrame); /* TFrame: File Type */
+USEFORM("TQCViewFrame.cpp", QCViewFrame); /* TFrame: File Type */
+USEFORM("TMainForm.cpp", MainForm);
 //---------------------------------------------------------------------------
 extern "C" int FMXmain()
 {

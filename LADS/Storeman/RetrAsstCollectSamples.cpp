@@ -28,9 +28,7 @@ extra:
  * if, at the end of processing a chunk, there are any source boxes which have become empty, the user may want to discard them instead of replacing them.
    if so, provide an option to discard these empty boxes, recording it in the database
 
- destination box+position, cryovial barcode and current box+position+structure+location of the primary and secondary aliquots.
-
-*/
+ destination box+position, cryovial barcode and current box+position+structure+location of the primary and secondary aliquots. */
 
 TfrmRetrAsstCollectSamples *frmRetrAsstCollectSamples;
 
@@ -610,7 +608,7 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
     }
     if (barcode == aliquot->cryovial_barcode.c_str()) { // save
         aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
-        if (aliquot == primary && primary->backup != NULL) { // has secondary
+        if (aliquot == primary && primary->backup != NULL) { // has backup
             primary->backup->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
             TfrmRetrievalAssistant::msgbox("setting secondary status");
         } // else, it was the secondary - primary should
@@ -623,9 +621,8 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
     }
 }
 
-void TfrmRetrAsstCollectSamples::skip() {
-    debugLog("Save deferred row");
-    currentAliquot()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED);
+void TfrmRetrAsstCollectSamples::skip() { // defer
+    currentAliquot()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); // not saved to db
     nextRow();
 }
 
@@ -680,7 +677,6 @@ void TfrmRetrAsstCollectSamples::nextRow() {
 /** save both primary and secondary - secondary aliquots should always be saved if present
 * accept(): if primary aliquot !collected # expected, ignored, not found (now found?)
 * save secondary as `IGNORED` if not required? primary was */
-
     Chunk< SampleRow > * chunk = currentChunk();
     //int current = chunk->getRowRel(); //SampleRow * sample = currentAliquot();  //
     SampleRow * sample = chunk->currentObject(); // which may be the secondary aliquot
@@ -697,10 +693,10 @@ void TfrmRetrAsstCollectSamples::nextRow() {
     } else { // last row
         if (chunk->getSection() < (int)chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk
-        } //chunk->setRowRel(current+1); // past end to show complete?
+        }
     }
     labelPrimary->Enabled = true; labelSecondary->Enabled = false;
-    showChunks(); // calls showCurrentRow();
+    showChunks();
     editBarcode->Clear();
     ActiveControl = editBarcode; // focus for next barcode
 
@@ -772,13 +768,11 @@ void TfrmRetrAsstCollectSamples::exit() { // definitely exiting
     saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
 }
 void __fastcall SaveProgressThread::Execute() {
-
 /** check cryo/store old/new params correct for `LCDbCryovialRetrieval`
 * `c_box_retrieval`: set `time_stamp`, `status` = 1 (PART_FILLED)
 * `box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
 * `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
 * how to update boxes? check at save and exit that all vials in a box have been saved? */
-
 	typedef std::set< SampleRow * > SetOfVials;
 	typedef std::map< int, SetOfVials > VialsInBoxesMap;
 	VialsInBoxesMap boxes;
@@ -911,7 +905,6 @@ void __fastcall TfrmRetrAsstCollectSamples::saveProgressThreadTerminated(TObject
         // anything more to do?
         collectEmpties();
     } catch (std::exception & e) {
-        //debugMessage = e.what(); Synchronize((TThreadMethod)&debugLog);
         TfrmRetrievalAssistant::msgbox(e.what());
     }
 

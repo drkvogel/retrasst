@@ -12,6 +12,7 @@
 #include "StoreUtil.h"
 #include "SMLogin.h"
 #include "NewJob.h"
+#include "NewBoxType.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -558,121 +559,149 @@ void __fastcall TfrmDiscardSamples::grdResultsMouseUp(TObject *Sender,
 
         int rowno = -1;
         int colno = -1;
-        g->MouseToCell(X, Y, colno, rowno);
+		g->MouseToCell(X, Y, colno, rowno);
 
-        m_clickedColno = colno;
-        m_clickedRowno = rowno;
+		m_clickedColno = colno;
+		m_clickedRowno = rowno;
 
-        doSelect(m_context->isNoting());
+		doSelect(m_context->isNoting());
 
-    } while (false);
+	} while (false);
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TfrmDiscardSamples::btnConfirmClick(TObject *Sender) {
-    using Discard::Cryovial;
-    // using Discard::Util;
+	using Discard::Cryovial;
+	using Discard::Sef;
+	using Discard::SefBatch;
 
-    do {
+	std::string error = "";
+	do {
+		IntSet boxes, aliquots;
+		if (m_context->isCreateJobStage()) {
+			const int nsamples = m_samples.count();
+			for (int sampleno = 0; sampleno<nsamples; sampleno++) {
+				const Discard::Sample * s = m_samples.getSample(sampleno);
+				if( s != 0 && m_samples.isMarked(sampleno) ) {
+					boxes.insert(s->getBoxId());
+					aliquots.insert(s->getAliquotId());
+				}
+			}
+		}
+
+		if( aliquots.size() > 3 ) {
+			std::stringstream out;
+			out << "Cannot include " << aliquots.size() << " aliquot types in one box";
+			error = out.str();
+		}
+
+		int sharedSizeId = 0;
+		for( int boxId : boxes ) {
+			int boxSizeId = m_context->getDb()->getTubeTypeId( boxId );
+			if( sharedSizeId == 0 ) {
+				sharedSizeId = boxSizeId;
+			} else if( sharedSizeId != boxSizeId ) {
+				error = "Cannot mix tube types or sizes in one box";
+			}
+		}
+		if( !error.empty() ) break;
+
+		int boxTypeID = 0;
 		if (m_context->isCreateJobStage()) {
 			frmNewJob->init(LCDbCryoJob::SAMPLE_DISCARD);
 			if (frmNewJob->ShowModal() != mrOk) break;
+			frmNewBoxType->init( aliquots, sharedSizeId );
+			if (frmNewBoxType->ShowModal() != mrOk) break;
 		}
-        if (m_context->isSelectJobStage()) {
-            frmDiscardMethod->init(m_context);
-            if (frmDiscardMethod->ShowModal() != mrOk) break;
-        }
+		if (m_context->isSelectJobStage()) {
+			frmDiscardMethod->init(m_context);
+			if (frmDiscardMethod->ShowModal() != mrOk) break;
+		}
 
-        std::string summary = "";
-        const int nmarked = m_samples.getNMarked();
-        const int nnoted = m_samples.getNNoted();
-        if (m_context->isSelectJobStage()) {
-            summary += "Mark " + Discard::Util::asString(nmarked) + " cryovial";
-            if (nmarked != 1) summary += "s";
-            summary += " for disposal";
-        } else {
-            summary += "Mark " + Discard::Util::asString(nmarked) + " cryovial";
-            if (nmarked != 1) summary += "s";
-            summary += " as " + m_context->getNextCrstatusName();
-        }
-        if (nnoted > 0) {
-            summary += " (also " + Discard::Util::asString(nnoted) + " note";
-            if (nnoted != 1) summary += "s";
-            summary += ")";
-        }
-        summary += " ... ";
+		std::string summary = "";
+		const int nmarked = m_samples.getNMarked();
+		const int nnoted = m_samples.getNNoted();
+		if (m_context->isSelectJobStage()) {
+			summary += "Mark " + Discard::Util::asString(nmarked) + " cryovial";
+			if (nmarked != 1) summary += "s";
+			summary += " for disposal";
+		} else {
+			summary += "Mark " + Discard::Util::asString(nmarked) + " cryovial";
+			if (nmarked != 1) summary += "s";
+			summary += " as " + m_context->getNextCrstatusName();
+		}
+		if (nnoted > 0) {
+			summary += " (also " + Discard::Util::asString(nnoted) + " note";
+			if (nnoted != 1) summary += "s";
+			summary += ")";
+		}
+		summary += " ... ";
 
-        frmConfirm->initialise(TfrmSMLogin::DISCARD, summary.c_str());
+		frmConfirm->initialise(TfrmSMLogin::DISCARD, summary.c_str());
+		if (frmConfirm->ShowModal() != mrOk) break;
+		AnsiString userid =  frmConfirm->cbUserNames->Text ;
 
-        if (frmConfirm->ShowModal() != mrOk) break;
+		{
+			TCursor cursor = Screen->Cursor;
+			Screen->Cursor = crHourGlass;
+			LPDbBoxType bt = frmNewBoxType->getDetails();
+			error = m_samples.update(m_context->getNextDbCrstatus(), bt);
+			Screen->Cursor = cursor;
+		}
+		if( !error.empty() ) break;
 
-        AnsiString userid =  frmConfirm->cbUserNames->Text ;
-        std::string error = "";
+		SefBatch sefbatch(m_context);
+		if (m_context->isSelectJobStage()) {
 
-        {
-            TCursor cursor = Screen->Cursor;
-            Screen->Cursor = crHourGlass;
+			TCursor cursor = Screen->Cursor;
+			Screen->Cursor = crHourGlass;
 
-			error = m_samples.update(m_context->getNextDbCrstatus());
-//                                     m_context->getDescription(), m_context->getReason());
+			const int nsamples = m_samples.count();
+			for (int sampleno = 0; sampleno<nsamples; sampleno++) {
+				const Discard::Sample * s = m_samples.getSample(sampleno);
+				if (s == 0) continue;
+				if (! m_samples.isMarked(sampleno)) continue;
+				sefbatch.addSample(s);
+			}
+			Screen->Cursor = cursor;
+		}
+		const size_t nsefs = sefbatch.size();
+		if (nsefs > 0) {
+			TCursor cursor = Screen->Cursor;
+			Screen->Cursor = crHourGlass;
+			sefbatch.publish( m_context->allocCids(nsefs) );
+			Screen->Cursor = cursor;
+		}
 
-            Screen->Cursor = cursor;
-        }
+		m_context->setSaved(true);
 
-        if (error != "") {
-            String message = error.c_str();
-            Application->MessageBox( message.c_str(), L"", MB_ICONWARNING);
-            break;
-        }
+		reset();
 
-        if (m_context->isSelectJobStage()) {
-            using Discard::Sef;
-            using Discard::SefBatch;
+		this->ModalResult = mrOk;
 
-            TCursor cursor = Screen->Cursor;
-            Screen->Cursor = crHourGlass;
+	} while (false);
 
-            const int nsamples = m_samples.count();
-
-            SefBatch sefbatch(m_context);
-            for (int sampleno = 0; sampleno<nsamples; sampleno++) {
-                const Discard::Sample * s = m_samples.getSample(sampleno);
-                if (s == 0) continue;
-                if (! m_samples.isMarked(sampleno)) continue;
-                sefbatch.addSample(s);
-            }
-            const size_t nsefs = sefbatch.size();
-
-            if (nsefs > 0) {
-                sefbatch.publish(-(m_context->allocCids(nsefs)));
-            }
-
-            Screen->Cursor = cursor;
-        }
-
-        m_context->setSaved(true);
-
-        reset();
-
-        this->ModalResult = mrOk;
-
-    } while (false);
+	if (error != "") {
+		String message = error.c_str();
+		Application->MessageBox( message.c_str(), L"", MB_ICONWARNING);
+	}
 }
+
 //---------------------------------------------------------------------------
 
 void __fastcall TfrmDiscardSamples::btnClearClick(TObject *Sender) {
-    do {
-        if (this->btnConfirm->Enabled) {
-            String title = "Unsaved changes";
-            String message = "Clear search results without saving ?";
-            if (Application->MessageBox(message.c_str(), title.c_str(),
-                                        MB_OKCANCEL | MB_ICONWARNING) != IDOK) break;
-        }
+	do {
+		if (this->btnConfirm->Enabled) {
+			String title = "Unsaved changes";
+			String message = "Clear search results without saving ?";
+			if (Application->MessageBox(message.c_str(), title.c_str(),
+										MB_OKCANCEL | MB_ICONWARNING) != IDOK) break;
+		}
 
-        m_samples.clear();
-        reset();
+		m_samples.clear();
+		reset();
 
-    } while (false);
+	} while (false);
 }
 //---------------------------------------------------------------------------
 

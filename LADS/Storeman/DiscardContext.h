@@ -5,6 +5,8 @@
 #include "DiscardLogic.h"
 #include "DiscardDb.h"
 
+class LPDbBoxType;
+
 namespace Discard
 {
 
@@ -96,13 +98,13 @@ public:
     void setMethod( const std::string & method );
     const std::string & getMethod( ) const;
     void setNote( const std::string & note );
-    const std::string & getNote( ) const;
+	const std::string & getNote( ) const;
     static const MarkSampleHandler & getMarker( );
     static const UnmarkSampleHandler & getUnmarker( );
     static const ToggleMarkSampleHandler & getToggleMarker( );
     static const NoteSampleHandler & getNoter( );
     IntVec getAliquotIds( ) const;
-    std::string getAliquotName( const int aliquotId ) const;
+	std::string getAliquotName( const int aliquotId ) const;
     void configPersonFname( );
     std::string getPersonFname( ) const;
     IntVec getJobnos( ) const;
@@ -145,7 +147,7 @@ private:
     std::string m_method;
     std::string m_note;
     CryovialStatus m_crstatus;
-    static MarkSampleHandler s_marker;
+	static MarkSampleHandler s_marker;
     static UnmarkSampleHandler s_unmarker;
     static ToggleMarkSampleHandler s_toggleMarker;
     static NoteSampleHandler s_noter;
@@ -177,14 +179,14 @@ public:
 	int count( ) const;
 	std::string asString( ) const;
 	const Sample * getSample( const int sampleno ) const;
-	std::string update( const int dbcrstatus );
+	std::string update( const int dbcrstatus, const LPDbBoxType & destBoxType );
 	std::string reset( );
     int getNCryovialsRemaining( const int jobno ) const;
     bool isSampleMarkable( const Sample & sample ) const;
 	int setMarked( const int sampleno );
 	int clearMarked( const int sampleno );
 	int toggleMarked( const int sampleno );
-	int isMarked( const int sampleno );
+	int isMarked( const int sampleno ) const;
 	int getNMarked( ) const;
 	IntSet::const_iterator getMarkedBegin( ) const;
 	IntSet::const_iterator getMarkedEnd( ) const;
@@ -192,7 +194,8 @@ public:
 	int getNNoted( ) const;
 	int setNoteFromContext( const int sampleno );
 	std::string getNote( const int sampleno ) const;
-    IntVec getAliquotIds( ) const;
+	IntVec getAliquotIds( ) const;
+	IntSet getMarkedAliquotIds( ) const;
     SCComparator * getSCComparator( );
     std::string getAliquotName( const int alid ) const;
 protected:

@@ -15,7 +15,7 @@
  *					Use box_store + c_slot_allocation for compatibility
  *	16 Dec 13, NG:	Updated to use c_ tables again for database v2.7.2
  *	4 April 14, NG:	Use same ID for c_slot_allocation and box_store
- *  28 April, NG:	Clear box_store.removed if necessary, set c_slot_allocation.time_stamp
+ *  28 April, NG:	Clear box_store.removed; set c_slot_allocation.time_stamp
  *
  *--------------------------------------------------------------------------*/
 

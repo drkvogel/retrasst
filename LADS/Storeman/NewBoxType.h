@@ -6,11 +6,16 @@
 //---------------------------------------------------------------------------
 
 #include <System.Classes.hpp>
+#include <Vcl.Buttons.hpp>
 #include <Vcl.Controls.hpp>
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.Forms.hpp>
 #include <Vcl.Buttons.hpp>
-#include "LDbBoxType.h"
+#include <set>
+#include <vector>
+
+class LCDbBoxSize;
+class LPDbBoxType;
 
 //---------------------------------------------------------------------------
 class TfrmNewBoxType : public TForm
@@ -30,21 +35,38 @@ __published:	// IDE-managed Components
 	TLabel *Label6;
 	TComboBox *cbAT3;
 	TLabel *Label7;
-	TComboBox *cbForm;
-	TBitBtn *BitBtn1;
-	TBitBtn *BitBtn2;
+	TComboBox *cbForms;
+	TLabel *Label8;
+	TComboBox *cbTypes;
+	TBitBtn *btnOK;
+	TBitBtn *btnClear;
 
 	void __fastcall aliquotDropDown(TObject *Sender);
-	void __fastcall cbFormDropDown(TObject *Sender);
+	void __fastcall cbFormsDropDown(TObject *Sender);
+	void __fastcall btnClearClick(TObject *Sender);
+	void __fastcall cbFormsChange(TObject *Sender);
+	void __fastcall cbTypesDropDown(TObject *Sender);
+	void __fastcall cbTypesChange(TObject *Sender);
 	void __fastcall txtNameExit(TObject *Sender);
-	void __fastcall BitBtn1Click(TObject *Sender);
 
 private:	// User declarations
-	String checkDetails();
+
+	std::set< int > expectedAliquots;
+	int expectedTubeType;
+	const LCDbBoxSize * currentFormation;
+	const LPDbBoxType * currentBoxType;
+
+	void clearAll();
+	void clearDetails();
+	void showDetails();
+	void showExampleBox();
 	bool addAliquot( std::vector< int > & aliquotIDs, TComboBox * cbType );
+	bool checkDetails();
+	bool matchesExpected( const std::vector< int > & aliquotIDs );
 
 public:		// User declarations
 	__fastcall TfrmNewBoxType(TComponent* Owner);
+	void init( std::set< int > & aliquotIDs, int tubeTypeID );
 	LPDbBoxType getDetails();
 };
 //---------------------------------------------------------------------------
