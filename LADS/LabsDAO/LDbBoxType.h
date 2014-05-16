@@ -18,7 +18,8 @@ class LPDbBoxType : public LCDbID, public LDbNames
 	std::vector< int > content;
 
 	static bool hasLocalContent();
-	bool save( const std::string & table, LQuery & query );
+	bool update( bool central, LQuery & query );
+	bool insert( bool central, LQuery & query );
 
 public:
 

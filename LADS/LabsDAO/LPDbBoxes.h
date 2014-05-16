@@ -21,9 +21,12 @@ class LPDbBoxName : public LPDbID
 	int boxTypeID;
 //	const char * event;
 	int filledBy;
+	int projectCID;
 	std::vector< std::string > cryovials;
 
 	bool needsNewID( LQuery & cQuery ) const;
+	bool update( bool central, LQuery & query );
+	bool insert( bool central, LQuery & query );
 
 public:
 

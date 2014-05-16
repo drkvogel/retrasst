@@ -16,9 +16,10 @@
  *	27 May 2009, NG:	set rack_cid + slot_position when appropriate
  *  1 Feb 2010, NG:		count boxes that are ready to take to Worminghall
  *  5 Feb 2013, NG:		set new status (ANALYSED) if ready to be transferred
- * 20 September 2013:	ignore events - no longer required; add barcode
- * 12 December, NG:		Check box_cid not already used in another project
- * 12 March 2014, NG:	Prefer c_box_content for most queries (db 2.7.2)
+ * 	20 Sept 2013:		ignore events - no longer required; add barcode
+ * 	12 Dec 13, NG:		Check box_cid not already used in another project
+ * 	12 March 2014, NG:	Prefer c_box_content for most queries (db 2.7.2)
+ * 	16 May 2014, NG:	Save central and local copies together
  *
  *---------------------------------------------------------------------------*/
 
@@ -69,14 +70,18 @@ LPDbBoxName::LPDbBoxName( const LQuery & query )
 	if( space >= 0 && space < size ) {
 		cryovials.resize( size - space, "?" );
 	}
+	if( query.fieldExists( "project_cid" ) ) {
+		projectCID = query.readInt( "project_cid" );
+	} else {
+		projectCID = LCDbProjects::getCurrentID();
+	}
 }
 
 //---------------------------------------------------------------------------
 // 	read unconfirmed and part-filled boxes into the cache; keep IDs
 //---------------------------------------------------------------------------
 
-bool LPDbBoxNames::readCurrent( LQuery pq )
-{
+bool LPDbBoxNames::readCurrent( LQuery pq ) {
 	char select[ 120 ];
 	std::sprintf( select, "select * from box_name"
 				  " where status in ( %d, %d ) or box_capacity > 0"
@@ -90,8 +95,7 @@ bool LPDbBoxNames::readCurrent( LQuery pq )
 //	Find the cryovials the cached boxes contain and who signed them off
 //---------------------------------------------------------------------------
 
-void LPDbBoxNames::addCryovials( LQuery pq )
-{
+void LPDbBoxNames::addCryovials( LQuery pq ) {
 	for( Iterator ci = begin(); ci != end(); ci ++ ) {
 		ci -> addCryovials( pq );
 	}
@@ -187,17 +191,16 @@ bool LPDbBoxNames::readFilled( LQuery pq )
 
 bool LPDbBoxName::create( const LPDbBoxType & type, LQuery pQuery, LQuery cQuery )
 {
-	saved = false;
 	do { claimNextID( pQuery );
 	} while( needsNewID( cQuery ) );
 	unsigned code = abs( getID() );
-
+	saved = false;
+	AnsiString typeName = type.getName().c_str();
 	const LCDbProject & proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() );
 	char buff[ 32 ];
 	std::sprintf( buff, "%0.5u", code );
 	barcode = buff;
 	AnsiString projName = proj.getName().c_str();
-	AnsiString typeName = type.getName().c_str();
 	if( typeName.UpperCase().Pos( projName.UpperCase() ) == 0 ) {
 		std::sprintf( buff, "%s %s %u", projName.c_str(), typeName.c_str(), code );
 	} else {
@@ -207,6 +210,7 @@ bool LPDbBoxName::create( const LPDbBoxType & type, LQuery pQuery, LQuery cQuery
 	boxTypeID = type.getID();
 	filledBy = 0;
 	cryovials.clear();
+	projectCID = LCDbProjects::getCurrentID();
 	status = EMPTY;
 	return saveRecord( pQuery, cQuery );
 }
@@ -297,44 +301,73 @@ void LPDbBoxName::confirmAllocation( LQuery pQuery, LQuery cQuery )
 {
 	status = CONFIRMED;
 	saveRecord( pQuery, cQuery );
-
-	LPDbCryovialStores contents;
-	contents.confirmAllocation( pQuery, getID() );
+	LPDbCryovialStores().confirmAllocation( pQuery, getID() );
 }
 
 //---------------------------------------------------------------------------
-//  Add entry for this box to box_name table, ready to copy to c_box_name
+//  Add entry for this box to box_name table and to copy to c_box_name
 //---------------------------------------------------------------------------
 
 bool LPDbBoxName::saveRecord( LQuery & pQuery, LQuery & cQuery )
 {
-	if( saved ) {
-		pQuery.setSQL( "update box_name set box_capacity = :cap, status = :sts,"
+	if( getID() == 0 ) {
+		do { claimNextID( pQuery );
+		} while( needsNewID( cQuery ) );
+	}
+	if( !update( false, pQuery ) && !insert( false, pQuery ) ) {
+		saved = false;
+	} else if( !update( true, cQuery ) && !insert( true, cQuery ) ) {
+		saved = false;
+	} else {
+		saved = true;
+	}
+	return saved;
+}
+
+//---------------------------------------------------------------------------
+
+bool LPDbBoxName::update( bool central, LQuery & query ) {
+	if( central ) {
+		query.setSQL( "update c_box_name set box_capacity = :cap, status = :sts, barcode = :bar,"
+					" time_stamp = 'now', note_exists = note_exists + :nex, process_cid = :pid"
+					" where box_cid = :bid and project_cid = :proj" );
+		query.setParam( "proj", projectCID );
+	} else {
+		query.setSQL( "update box_name set box_capacity = :cap, status = :sts, barcode = :bar,"
 					" time_stamp = 'now', note_exists = note_exists + :nex, process_cid = :pid"
 					" where box_cid = :bid" );
+	}
+	query.setParam( "bid", getID() );
+	query.setParam( "bar", barcode );
+	query.setParam( "cap", getSpace() );
+	query.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
+	query.setParam( "sts", status );
+	query.setParam( "nex", 0 );
+	return query.execSQL();
+}
+
+//---------------------------------------------------------------------------
+
+bool LPDbBoxName::insert( bool central, LQuery & query ) {
+	if( central ) {
+		query.setSQL( "insert into c_box_name (box_cid, project_cid, box_type_cid, box_capacity,"
+					 " external_name, barcode, status, time_stamp, process_cid, note_exists)"
+					 " values ( :bid, :proj, :btid, :cap, :exn, :bar, :sts, 'now', :pid, :nex)" );
+		query.setParam( "proj", projectCID );
 	} else {
-		while( needsNewID( cQuery ) ) {
-			claimNextID( pQuery );
-		}
-		pQuery.setSQL( "insert into box_name (box_cid, box_type_cid, box_capacity,"
+		query.setSQL( "insert into box_name (box_cid, box_type_cid, box_capacity,"
 					" external_name, barcode, status, time_stamp, process_cid, note_exists)"
 					" values ( :bid, :btid, :cap, :exn, :bar, :sts, 'now', :pid, :nex)" );
-		pQuery.setParam( "exn", name );
-		pQuery.setParam( "btid", boxTypeID );
-		pQuery.setParam( "bar", barcode );
 	}
-
-	pQuery.setParam( "bid", getID() );
-	pQuery.setParam( "cap", getSpace() );
-	pQuery.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
-	pQuery.setParam( "sts", status );
-	pQuery.setParam( "nex", 0 );
-	if( pQuery.execSQL() ) {
-		saved = true;
-		return true;
-	} else {
-		return false;
-	}
+	query.setParam( "exn", name );
+	query.setParam( "btid", boxTypeID );
+	query.setParam( "bar", barcode );
+	query.setParam( "bid", getID() );
+	query.setParam( "cap", getSpace() );
+	query.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
+	query.setParam( "sts", status );
+	query.setParam( "nex", 0 );
+	return query.execSQL();
 }
 
 //---------------------------------------------------------------------------
@@ -413,7 +446,7 @@ public:
 	NameMatcher( const std::string & s ) : name( s ) {}
 
 	operator std::string() const { return name; }
-	
+
 	bool operator() ( const LPDbBoxName & other ) const
 	{
 		return name.compare( other.getName() ) == 0;
@@ -439,7 +472,7 @@ class /* LPDbBoxNames:: */ SpaceMatcher : public std::unary_function< LPDbBoxNam
 public:
 
 	SpaceMatcher( int boxType ) : btid( boxType ),
-	 	needed( LPDbBoxTypes::records().get( boxType ).getAliquots().size() )
+		needed( LPDbBoxTypes::records().get( boxType ).getAliquots().size() )
 	{}
 
 	operator std::string() const {

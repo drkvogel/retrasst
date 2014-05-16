@@ -78,7 +78,6 @@
         <_TCHARMapping>wchar_t</_TCHARMapping>
         <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
         <IntermediateOutputDir>.\$(Platform)\$(Config)</IntermediateOutputDir>
-        <FinalOutputDir>..\Storeman\Win64\Debug\</FinalOutputDir>
         <BCC_wpar>false</BCC_wpar>
         <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\release\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
@@ -94,17 +93,13 @@
         <IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
-        <BCC_MonitorThis>true</BCC_MonitorThis>
-        <BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
-        <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
-        <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
         <VerInfo_Debug>true</VerInfo_Debug>
         <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
         <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
         <Defines>_DEBUG;$(Defines)</Defines>
-        <BCC_InlineFunctionExpansion>true</BCC_InlineFunctionExpansion>
+        <BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
         <BCC_UseRegisterVariables>None</BCC_UseRegisterVariables>
         <DCC_Define>DEBUG</DCC_Define>
         <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
@@ -126,7 +121,6 @@
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <VerInfo_Build>14</VerInfo_Build>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.12.14;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <Debugger_DebugSourcePath>..\Storeman\RationaliseTanks\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib</LinkPackageStatics>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -345,7 +339,7 @@
         </CppCompile>
         <CppCompile Include="..\LabsObjects\LogFile.cpp">
             <DependentOn>..\LabsObjects\LogFile.h</DependentOn>
-            <BuildOrder>126</BuildOrder>
+            <BuildOrder>127</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\LabsObjects\LQuery.cpp">
             <DependentOn>..\LabsObjects\LQuery.h</DependentOn>
@@ -559,7 +553,7 @@
             <Form>frmRatTankSignIn</Form>
             <FormType>dfm</FormType>
             <DependentOn>RationaliseTanks\RatTanksSignIn.h</DependentOn>
-            <BuildOrder>126</BuildOrder>
+            <BuildOrder>105</BuildOrder>
         </CppCompile>
         <CppCompile Include="ReferredBoxes.cpp">
             <Form>frmReferred</Form>
@@ -577,19 +571,19 @@
             <Form>frmRetrAsstCollectBoxes</Form>
             <FormType>dfm</FormType>
             <DependentOn>RetrAsstCollectBoxes.h</DependentOn>
-            <BuildOrder>124</BuildOrder>
+            <BuildOrder>9</BuildOrder>
         </CppCompile>
         <CppCompile Include="RetrAsstCollectEmpties.cpp">
             <Form>frmCollectEmpties</Form>
             <FormType>dfm</FormType>
             <DependentOn>RetrAsstCollectEmpties.h</DependentOn>
-            <BuildOrder>126</BuildOrder>
+            <BuildOrder>127</BuildOrder>
         </CppCompile>
         <CppCompile Include="RetrAsstCollectSamples.cpp">
             <Form>frmRetrAsstCollectSamples</Form>
             <FormType>dfm</FormType>
             <DependentOn>RetrAsstCollectSamples.h</DependentOn>
-            <BuildOrder>125</BuildOrder>
+            <BuildOrder>4</BuildOrder>
         </CppCompile>
         <CppCompile Include="RetrAsstMain.cpp">
             <Form>frmRetrievalAssistant</Form>
@@ -601,13 +595,13 @@
             <Form>frmRetrAsstPlanBoxes</Form>
             <FormType>dfm</FormType>
             <DependentOn>RetrAsstPlanBoxes.h</DependentOn>
-            <BuildOrder>125</BuildOrder>
+            <BuildOrder>6</BuildOrder>
         </CppCompile>
         <CppCompile Include="RetrAsstPlanSamples.cpp">
             <Form>frmRetrAsstPlanSamples</Form>
             <FormType>dfm</FormType>
             <DependentOn>RetrAsstPlanSamples.h</DependentOn>
-            <BuildOrder>126</BuildOrder>
+            <BuildOrder>7</BuildOrder>
         </CppCompile>
         <CppCompile Include="RetrievalLists\RetrievalListCryovialHistoryDialog.cpp">
             <Form>frmRetrievalListCryovialHistoryDialog</Form>
@@ -707,9 +701,6 @@
         <CppCompile Include="StoreUtil.cpp">
             <BuildOrder>126</BuildOrder>
         </CppCompile>
-        <None Include="StoreUtil.h">
-            <BuildOrder>127</BuildOrder>
-        </None>
         <CppCompile Include="..\..\paulst\AcquireCriticalSection.cpp">
             <DependentOn>..\..\paulst\AcquireCriticalSection.h</DependentOn>
             <BuildOrder>119</BuildOrder>
@@ -874,8 +865,6 @@
                     <Excluded_Packages Name="$(BDSBIN)\DataExplorerDBXPlugin180.bpl">DBExpress Data Explorer Integration</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k180.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp180.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </CPlusPlusBuilder.Personality>
             <Deployment/>

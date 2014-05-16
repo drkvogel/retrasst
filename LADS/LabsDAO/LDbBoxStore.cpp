@@ -44,25 +44,30 @@ LCDbBoxStore::LCDbBoxStore( const LQuery & pq ) {
 
 //---------------------------------------------------------------------------
 
-void LCDbBoxStore::copyFields( const LQuery & ddbq )
+void LCDbBoxStore::copyFields( const LQuery & query )
 {
-	boxID = ddbq.readInt( "box_cid" );
-	int slotID = ddbq.fieldExists( "slot_cid" ) ? ddbq.readInt( "slot_cid" ) : 0;
-	int record = ddbq.fieldExists( "record_id" ) ? ddbq.readInt( "record_id" ) : slotID;
+	boxID = query.readInt( "box_cid" );
+	int slotID = query.fieldExists( "slot_cid" ) ? query.readInt( "slot_cid" ) : 0;
+	int record = query.fieldExists( "record_id" ) ? query.readInt( "record_id" ) : slotID;
 	setID( record == 0 ? boxID : record );
 
-	rackID = ddbq.fieldExists( "rack_cid" ) ? ddbq.readInt( "rack_cid" ) : 0;
-	slot = ddbq.fieldExists( "slot_position" ) ? ddbq.readInt( "slot_position" ) : 0;
-	jobID = ddbq.fieldExists( "retrieval_cid" ) ? ddbq.readInt( "retrieval_cid" ) : 0;
-	status = ddbq.readInt( "status" );
-	processID = ddbq.fieldExists( "process_cid" ) ? ddbq.readInt( "process_cid" ) : 0;
-	if( ddbq.fieldExists( "time_stamp" ) ) {
-		updated =  ddbq.readDateTime( "time_stamp" );
+	rackID = query.fieldExists( "rack_cid" ) ? query.readInt( "rack_cid" ) : 0;
+	slot = query.fieldExists( "slot_position" ) ? query.readInt( "slot_position" ) : 0;
+	jobID = query.fieldExists( "retrieval_cid" ) ? query.readInt( "retrieval_cid" ) : 0;
+	status = query.readInt( "status" );
+	processID = query.fieldExists( "process_cid" ) ? query.readInt( "process_cid" ) : 0;
+	if( query.fieldExists( "time_stamp" ) ) {
+		updated =  query.readDateTime( "time_stamp" );
 	}
-	if( jobID != 0 && ddbq.fieldExists( "removed" ) ) {
-		removed = ddbq.readDateTime( "removed" );
+	if( jobID != 0 && query.fieldExists( "removed" ) ) {
+		removed = query.readDateTime( "removed" );
 	} else {
 		removed = 0;
+	}
+	if( query.fieldExists( "project_cid" ) ) {
+		projectID = query.readInt( "project_cid" );
+	} else {
+		projectID = LCDbProjects::getCurrentID();
 	}
 }
 
@@ -151,21 +156,22 @@ bool LCDbBoxStore::findBoxRecord( LQuery & ddbq )
 
 bool LCDbBoxStore::saveRecord( LQuery pq, LQuery cq )
 {
-	bool bs = saved && updateStoreRecord( pq );
-	if( !bs ) {
-		while( needsNewID( cq ) ) {
-			claimNextID( pq );
+	if( getID() == 0 ) {
+		do { claimNextID( pq );
+		} while( needsNewID( cq ) );
+    }
+
+	bool bs = updateStoreRecord( pq ) || insertStoreRecord( pq );
+	bool cs = updateSlotRecord( cq ) || insertSlotRecord( cq );
+	if( bs && cs ) {
+		saved = true;
+		if( status == LCDbBoxStore::SLOT_CONFIRMED ) {
+			updateBoxRecord( pq );
 		}
-		bs = insertStoreRecord( pq );
+	} else {
+		saved = false;
 	}
-	bool csa = updateSlotRecord( cq );
-	if( !csa ) {
-		csa = insertSlotRecord( cq );
-	}
-	if( status == LCDbBoxStore::SLOT_CONFIRMED ) {
-		updateBoxRecord( pq );
-	}
-	return bs && csa;
+	return saved;
 }
 
 //---------------------------------------------------------------------------
