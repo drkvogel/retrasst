@@ -769,10 +769,10 @@ void TfrmRetrAsstCollectSamples::exit() { // definitely exiting
 }
 void __fastcall SaveProgressThread::Execute() {
 /** check cryo/store old/new params correct for `LCDbCryovialRetrieval`
-* `c_box_retrieval`: set `time_stamp`, `status` = 1 (PART_FILLED)
-* `box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
-* `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
-* how to update boxes? check at save and exit that all vials in a box have been saved? */
+`c_box_retrieval`: set `time_stamp`, `status` = 1 (PART_FILLED)
+`box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
+`c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
+how to update boxes? check at save and exit that all vials in a box have been saved? */
 	typedef std::set< SampleRow * > SetOfVials;
 	typedef std::map< int, SetOfVials > VialsInBoxesMap;
 	VialsInBoxesMap boxes;
