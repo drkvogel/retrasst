@@ -93,7 +93,7 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
       Align = alClient
       Caption = 'Chunks'
       TabOrder = 0
-      object Panel2: TPanel
+      object panelActions: TPanel
         Left = 869
         Top = 15
         Width = 90
@@ -141,6 +141,68 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           TabOrder = 3
           OnClick = cbLogClick
         end
+        object groupVialKey: TGroupBox
+          Left = 0
+          Top = 92
+          Width = 90
+          Height = 106
+          Align = alClient
+          Caption = 'Vial Colour Key'
+          TabOrder = 4
+          ExplicitLeft = 16
+          ExplicitTop = 176
+          ExplicitWidth = 185
+          ExplicitHeight = 105
+          object labelVialKeyExtra: TLabel
+            Left = 2
+            Top = 54
+            Width = 86
+            Height = 13
+            Align = alTop
+            Caption = 'Other'
+            Color = clAqua
+            ParentColor = False
+            Transparent = False
+            ExplicitWidth = 28
+          end
+          object labelVialKeySecondary: TLabel
+            Left = 2
+            Top = 28
+            Width = 86
+            Height = 13
+            Align = alTop
+            Caption = 'Secondary'
+            Color = clYellow
+            ParentColor = False
+            Transparent = False
+            ExplicitLeft = 1
+            ExplicitTop = 22
+          end
+          object labelVialKeyPrimary: TLabel
+            Left = 2
+            Top = 15
+            Width = 86
+            Height = 13
+            Align = alTop
+            Caption = 'Primary'
+            Color = clHighlight
+            ParentColor = False
+            Transparent = False
+            ExplicitWidth = 36
+          end
+          object labelVialKeyCombined: TLabel
+            Left = 2
+            Top = 41
+            Width = 86
+            Height = 13
+            Align = alTop
+            Caption = 'Combined'
+            Color = clLime
+            ParentColor = False
+            Transparent = False
+            ExplicitWidth = 47
+          end
+        end
       end
       object sgChunks: TStringGrid
         Left = 2
@@ -156,14 +218,13 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
         OnDrawCell = sgChunksDrawCell
         OnFixedCellClick = sgChunksFixedCellClick
       end
-      object Panel1: TPanel
+      object panelAutoChunk: TPanel
         Left = 2
         Top = 213
         Width = 957
         Height = 41
         Align = alBottom
         BevelOuter = bvNone
-        Caption = 'Panel1'
         TabOrder = 2
         object groupAutoChunk: TGroupBox
           Left = 201
@@ -173,7 +234,7 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           Align = alClient
           Caption = 'Auto-Chunk'
           TabOrder = 0
-          object Label1: TLabel
+          object labelMaxChunkSize: TLabel
             AlignWithMargins = True
             Left = 156
             Top = 16
@@ -185,7 +246,7 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
             GlowSize = 8
             Transparent = True
           end
-          object Label2: TLabel
+          object labelNextChunkSize: TLabel
             Left = 289
             Top = 16
             Width = 86
@@ -194,7 +255,7 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
             AutoSize = False
             Caption = 'Next chunk size'
           end
-          object Label3: TLabel
+          object labelDestBoxSize: TLabel
             Left = 2
             Top = 16
             Width = 111
@@ -282,9 +343,11 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
             Caption = 'Delete last'
             TabOrder = 7
             OnClick = btnDelChunkClick
+            ExplicitLeft = 671
+            ExplicitTop = 12
           end
         end
-        object GroupBox1: TGroupBox
+        object groupPrimary: TGroupBox
           Left = 0
           Top = 0
           Width = 97
@@ -309,7 +372,7 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
             ExplicitHeight = 13
           end
         end
-        object GroupBox2: TGroupBox
+        object groupSecondary: TGroupBox
           Left = 97
           Top = 0
           Width = 104
@@ -321,6 +384,8 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           Padding.Right = 5
           Padding.Bottom = 5
           TabOrder = 2
+          ExplicitLeft = 96
+          ExplicitTop = -3
           object labelSecondary: TLabel
             Left = 7
             Top = 20

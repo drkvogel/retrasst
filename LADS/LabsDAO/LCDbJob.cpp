@@ -154,7 +154,8 @@ bool LCDbCryoJob::claim( LQuery central, bool extend )
 	int pid = LCDbAuditTrail::getCurrent().getProcessID();
 	std::stringstream q;
 	q << "update c_retrieval_job set status = " << int( INPROGRESS )
-	  << ", claimed_until = date('now') + date('10 minutes')";
+	  //<< ", claimed_until = date('now') + date('10 minutes')";
+      << ", claimed_until = date('now') + date('1 minute')";
 	if( status == NEW_JOB ) {
 		q << ", start_date = date('now')";
 	}

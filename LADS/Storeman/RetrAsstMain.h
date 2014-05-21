@@ -19,21 +19,36 @@
 #include <iomanip>
 #include <boost/date_time.hpp>
 
-#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
-#define RETRIEVAL_ASSISTANT_NEW_COLOUR          clMoneyGreen
-#define RETRIEVAL_ASSISTANT_SECONDARY_COLOUR    clYellow
-#define RETRIEVAL_ASSISTANT_COMBINED_COLOUR     clWebCyan
-#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
-#define RETRIEVAL_ASSISTANT_PLANNED_COLOUR      clSkyBlue
-#define RETRIEVAL_ASSISTANT_EXTRA_COLOUR        clWebChartreuse
+//#define RETRIEVAL_ASSISTANT_HIGHLIGHT_COLOUR    clActiveCaption
+
+// job colours
+#define RETRIEVAL_ASSISTANT_JOB_NEW_COLOUR          clMoneyGreen
+#define RETRIEVAL_ASSISTANT_JOB_INPROGRESS_COLOUR   clLime
+#define RETRIEVAL_ASSISTANT_JOB_COMPLETED_COLOUR    clSkyBlue
+#define RETRIEVAL_ASSISTANT_JOB_DELETED_COLOUR      clPurple
+
+// chunk colours
+#define RETRIEVAL_ASSISTANT_CHUNK_NEW_COLOUR        clMoneyGreen
+#define RETRIEVAL_ASSISTANT_CHUNK_INPROGRESS_COLOUR clLime
+#define RETRIEVAL_ASSISTANT_CHUNK_COMPLETED_COLOUR  clSkyBlue
+
+// vial aliquot types
+#define RETRIEVAL_ASSISTANT_PRIMARY_COLOUR          clMoneyGreen
+#define RETRIEVAL_ASSISTANT_SECONDARY_COLOUR        clYellow
+#define RETRIEVAL_ASSISTANT_COMBINED_COLOUR         clWebCyan
+#define RETRIEVAL_ASSISTANT_EXTRA_COLOUR            clWebChartreuse
     // neither primary nor secondary
     // Chartreuse is a tertiary colour, halfway between green and yellow
     // http://en.wikipedia.org/wiki/Chartreuse_(color)
-#define RETRIEVAL_ASSISTANT_COLLECTED_COLOUR    clSkyBlue
-#define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR    clFuchsia
-#define RETRIEVAL_ASSISTANT_IGNORED_COLOUR      clGray
-#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
-#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clPurple
+
+// vial statuses
+#define RETRIEVAL_ASSISTANT_EXPECTED_COLOUR         clMoneyGreen
+#define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR        clFuchsia
+#define RETRIEVAL_ASSISTANT_COLLECTED_COLOUR        clSkyBlue
+#define RETRIEVAL_ASSISTANT_IGNORED_COLOUR          clGray
+
+// other
+#define RETRIEVAL_ASSISTANT_ERROR_COLOUR            clRed
 
 #define DEFAULT_BOX_SIZE 100
 #define MAX_CHUNK_SIZE 1001
@@ -507,7 +522,7 @@ __published:
     void __fastcall FormResize(TObject *Sender);
 private:
     StringGridWrapper<LCDbCryoJob> *  sgwJobs;
-    void               loadJobs();
+    void                loadJobs();
     tdvecpJob          vecJobs;
     LCDbCryoJobs       jobs;
     string             getExerciseDescription(int exercise_cid);
@@ -523,11 +538,11 @@ public:
     void init();
     void               clearStorageCache();
 	void               getStorage(SampleRow * sample);
+    void               combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
 
 	// made into class methods, NG, 17/3/14, to avoid linker error
 	static void msgbox(const char * main, const char * title="Info");
 	static void msgbox(string main, string title="Info");
-	static void msgbox(String main, string title="Info");
 };
 
 extern PACKAGE TfrmRetrievalAssistant *frmRetrievalAssistant;

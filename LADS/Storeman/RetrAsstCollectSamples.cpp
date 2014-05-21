@@ -64,6 +64,38 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
     sgwVials->addCol("status",   "Status",           91);
     sgwVials->addCol("aliquot",  "Aliquot",          90);
     sgwVials->init();
+
+/*
+Chunk< SampleRow >::NOT_STARTED:RETRIEVAL_ASSISTANT_NEW_COLOUR;
+Chunk< SampleRow >::INPROGRESS: RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR;
+Chunk< SampleRow >::DONE:       RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
+*/
+    // chunk colour key
+    labelNew->Color         = RETRIEVAL_ASSISTANT_CHUNK_NEW_COLOUR;
+    labelInProgress->Color  = RETRIEVAL_ASSISTANT_CHUNK_INPROGRESS_COLOUR;
+    labelDone->Color        = RETRIEVAL_ASSISTANT_CHUNK_COMPLETED_COLOUR;
+
+/*
+    switch (status)  // could use currentAliquot() here?
+        case LCDbCryovialRetrieval::EXPECTED:               background = RETRIEVAL_ASSISTANT_NEW_COLOUR;
+        case LCDbCryovialRetrieval::IGNORED:                background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR;
+        case LCDbCryovialRetrieval::COLLECTED:              background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
+        case LCDbCryovialRetrieval::NOT_FOUND:
+            if (NULL != row->backup)
+                switch (backupStatus)
+                    case LCDbCryovialRetrieval::EXPECTED:   background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR
+                    case LCDbCryovialRetrieval::IGNORED:    background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR
+                    case LCDbCryovialRetrieval::COLLECTED:  background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR
+                    default:                                background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR
+            else
+                background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR */
+
+    // vial colour key
+    labelVialKeyExpectedPrimary->Color      = RETRIEVAL_ASSISTANT_EXPECTED_COLOUR;
+    labelVialKeyExpectedBackup->Color       = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR;
+    labelVialKeyIgnored->Color              = RETRIEVAL_ASSISTANT_IGNORED_COLOUR;
+    labelVialKeyCollected->Color            = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
+    labelVialKeyNotFound->Color             = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR;
 }
 
 __fastcall TfrmRetrAsstCollectSamples::~TfrmRetrAsstCollectSamples() {
@@ -120,11 +152,11 @@ void __fastcall TfrmRetrAsstCollectSamples::sgChunksDrawCell(TObject *Sender, in
             int status = chunk->getStatus();  //chunkStatus(chunk);
             switch (status) {
                 case Chunk< SampleRow >::NOT_STARTED:
-                    background = RETRIEVAL_ASSISTANT_NEW_COLOUR; break;
+                    background = RETRIEVAL_ASSISTANT_CHUNK_NEW_COLOUR; break;
                 case Chunk< SampleRow >::INPROGRESS:
-                    background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR; break;
+                    background = RETRIEVAL_ASSISTANT_CHUNK_INPROGRESS_COLOUR; break;
                 case Chunk< SampleRow >::DONE:
-                    background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR; break;
+                    background = RETRIEVAL_ASSISTANT_CHUNK_COMPLETED_COLOUR; break;
                 default:
                     background = RETRIEVAL_ASSISTANT_ERROR_COLOUR; break;
             }
@@ -160,7 +192,7 @@ void __fastcall TfrmRetrAsstCollectSamples::sgVialsDrawCell(TObject *Sender, int
             switch (status) {
                 // could use currentAliquot() here?
                 case LCDbCryovialRetrieval::EXPECTED:
-                    background = RETRIEVAL_ASSISTANT_NEW_COLOUR; break;
+                    background = RETRIEVAL_ASSISTANT_EXPECTED_COLOUR; break;
                 case LCDbCryovialRetrieval::IGNORED:
                     background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
                 case LCDbCryovialRetrieval::COLLECTED:
@@ -638,12 +670,13 @@ void TfrmRetrAsstCollectSamples::notFound() {
                 fillRow(sample, rowRel + 1); // refresh sg row - now keeps pointer to row
                 showCurrentRow();
                 showDetails(sample->backup);
+                labelPrimary->Enabled = false; labelSecondary->Enabled = true;
                 return;
             } else {
                 throw runtime_error("backup already NOT_FOUND");
             }
         } else {
-            TfrmRetrievalAssistant::msgbox("No secondary aliquot exists, continuing to next sample");
+            TfrmRetrievalAssistant::msgbox("No backup aliquot exists, continuing to next sample");
             nextRow();
         }
     } else {  // primary already marked not found

@@ -225,7 +225,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     object sgChunks: TStringGrid
       Left = 2
       Top = 15
-      Width = 944
+      Width = 874
       Height = 156
       Align = alClient
       DefaultDrawing = False
@@ -236,6 +236,50 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       OnClick = sgChunksClick
       OnDrawCell = sgChunksDrawCell
       OnFixedCellClick = sgChunksFixedCellClick
+      ExplicitWidth = 944
+    end
+    object groupChunkKey: TGroupBox
+      Left = 876
+      Top = 15
+      Width = 70
+      Height = 156
+      Align = alRight
+      Caption = 'Key'
+      TabOrder = 1
+      object labelNew: TLabel
+        Left = 2
+        Top = 15
+        Width = 66
+        Height = 13
+        Align = alTop
+        Caption = 'New'
+        Color = clSkyBlue
+        ParentColor = False
+        Transparent = False
+        ExplicitWidth = 21
+      end
+      object labelInProgress: TLabel
+        Left = 2
+        Top = 28
+        Width = 66
+        Height = 13
+        Align = alTop
+        Caption = 'In Progress'
+        Color = clMoneyGreen
+        ParentColor = False
+        Transparent = False
+        ExplicitWidth = 55
+      end
+      object labelDone: TLabel
+        Left = 2
+        Top = 41
+        Width = 66
+        Height = 13
+        Align = alTop
+        Caption = 'Completed'
+        Transparent = False
+        ExplicitWidth = 51
+      end
     end
   end
   object groupDetails: TGroupBox
@@ -270,8 +314,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         object labelPrimary: TLabel
           Left = 7
           Top = 20
-          Width = 80
-          Height = 16
+          Width = 143
+          Height = 28
           Align = alClient
           Caption = 'labelPrimary'
           Font.Charset = DEFAULT_CHARSET
@@ -281,6 +325,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 80
+          ExplicitHeight = 16
         end
       end
       object groupSecondary: TGroupBox
@@ -298,8 +344,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         object labelSecondary: TLabel
           Left = 7
           Top = 20
-          Width = 99
-          Height = 16
+          Width = 143
+          Height = 31
           Margins.Left = 5
           Margins.Top = 5
           Margins.Right = 5
@@ -313,17 +359,20 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           Font.Style = [fsBold]
           ParentFont = False
           Layout = tlCenter
+          ExplicitWidth = 99
+          ExplicitHeight = 16
         end
       end
     end
     object Panel1: TPanel
       Left = 425
       Top = 15
-      Width = 521
+      Width = 431
       Height = 113
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitWidth = 521
       object Label2: TLabel
         Left = 17
         Top = 10
@@ -436,6 +485,79 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
+      end
+    end
+    object groupVialKey: TGroupBox
+      Left = 856
+      Top = 15
+      Width = 90
+      Height = 113
+      Align = alRight
+      Caption = 'Vial Colour Key'
+      TabOrder = 3
+      object labelVialKeyCollected: TLabel
+        Left = 2
+        Top = 41
+        Width = 86
+        Height = 13
+        Align = alTop
+        Caption = 'Collected'
+        Color = clAqua
+        ParentColor = False
+        Transparent = False
+        ExplicitTop = 54
+        ExplicitWidth = 44
+      end
+      object labelVialKeyExpectedBackup: TLabel
+        Left = 2
+        Top = 28
+        Width = 86
+        Height = 13
+        Align = alTop
+        Caption = 'Backup'
+        Color = clYellow
+        ParentColor = False
+        Transparent = False
+        ExplicitWidth = 34
+      end
+      object labelVialKeyExpectedPrimary: TLabel
+        Left = 2
+        Top = 15
+        Width = 86
+        Height = 13
+        Align = alTop
+        Caption = 'Preferred'
+        Color = clHighlight
+        ParentColor = False
+        Transparent = False
+        ExplicitWidth = 46
+      end
+      object labelVialKeyIgnored: TLabel
+        Left = 2
+        Top = 67
+        Width = 86
+        Height = 13
+        Align = alTop
+        Caption = 'Ignored'
+        Color = clLime
+        ParentColor = False
+        Transparent = False
+        ExplicitLeft = 1
+        ExplicitTop = 86
+      end
+      object labelVialKeyNotFound: TLabel
+        Left = 2
+        Top = 54
+        Width = 86
+        Height = 13
+        Align = alTop
+        Caption = 'Not Found'
+        Color = clFuchsia
+        ParentColor = False
+        Transparent = False
+        ExplicitLeft = 40
+        ExplicitTop = 80
+        ExplicitWidth = 50
       end
     end
   end

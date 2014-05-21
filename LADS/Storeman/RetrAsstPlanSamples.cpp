@@ -57,6 +57,37 @@ __fastcall TfrmRetrAsstPlanSamples::TfrmRetrAsstPlanSamples(TComponent* Owner) :
     sgwDebug->addCol("destbox",  "Destination box",  267);
     sgwDebug->addCol("destpos",  "Pos",              25);
     sgwDebug->init();
+
+
+/*
+#define RETRIEVAL_ASSISTANT_SECONDARY_COLOUR    clYellow
+#define RETRIEVAL_ASSISTANT_COMBINED_COLOUR     clWebCyan
+
+#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
+#define RETRIEVAL_ASSISTANT_PLANNED_COLOUR      clSkyBlue
+#define RETRIEVAL_ASSISTANT_EXTRA_COLOUR        clWebChartreuse
+    // neither primary nor secondary
+    // Chartreuse is a tertiary colour, halfway between green and yellow
+    // http://en.wikipedia.org/wiki/Chartreuse_(color)
+#define RETRIEVAL_ASSISTANT_COLLECTED_COLOUR    clSkyBlue
+#define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR    clFuchsia
+#define RETRIEVAL_ASSISTANT_IGNORED_COLOUR      clGray
+#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
+#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clPurple
+
+    background = RETRIEVAL_ASSISTANT_COMBINED_COLOUR;
+else if (row->cryo_record->getAliquotType() == job->getPrimaryAliquot())
+    background = RETRIEVAL_ASSISTANT_PLANNED_COLOUR;
+else if (row->cryo_record->getAliquotType() == job->getSecondaryAliquot())
+    background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR;
+else
+    background = RETRIEVAL_ASSISTANT_EXTRA_COLOUR;
+*/
+    // vial colour key
+    labelVialKeyPrimary->Color     = RETRIEVAL_ASSISTANT_PRIMARY_COLOUR;
+    labelVialKeySecondary->Color   = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR;
+    labelVialKeyCombined->Color    = RETRIEVAL_ASSISTANT_COMBINED_COLOUR;
+    labelVialKeyExtra->Color       = RETRIEVAL_ASSISTANT_EXTRA_COLOUR;
 }
 
 void TfrmRetrAsstPlanSamples::debugLog(String s) {
@@ -132,7 +163,7 @@ void __fastcall TfrmRetrAsstPlanSamples::sgChunksDrawCell(TObject *Sender, int A
         if (NULL == chunk) {
             background = clWindow; // for when loading, not RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         } else {
-            background = RETRIEVAL_ASSISTANT_PLANNED_COLOUR;
+            background = RETRIEVAL_ASSISTANT_PRIMARY_COLOUR;
         }
     }
     TCanvas * cnv = sgChunks->Canvas;
@@ -164,7 +195,7 @@ void __fastcall TfrmRetrAsstPlanSamples::sgVialsDrawCell(TObject *Sender, int AC
             if (row->backup != NULL)
                 background = RETRIEVAL_ASSISTANT_COMBINED_COLOUR;
             else if (row->cryo_record->getAliquotType() == job->getPrimaryAliquot())
-                background = RETRIEVAL_ASSISTANT_PLANNED_COLOUR;
+                background = RETRIEVAL_ASSISTANT_PRIMARY_COLOUR;
             else if (row->cryo_record->getAliquotType() == job->getSecondaryAliquot())
                 background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR;
             else
@@ -581,7 +612,7 @@ void LoadVialsJobThread::load() {
     debugMessage = "finished retrieving rows, getting storage details"; Synchronize((TThreadMethod)&debugLog);
 
     // try to match secondaries with primaries on same destination position
-    combineAliquots(frmRetrAsstPlanSamples->primaries, frmRetrAsstPlanSamples->secondaries, frmRetrAsstPlanSamples->combined);
+    frmRetrievalAssistant->combineAliquots(frmRetrAsstPlanSamples->primaries, frmRetrAsstPlanSamples->secondaries, frmRetrAsstPlanSamples->combined);
 
     // add box tube type name
     for (vector<SampleRow *>::iterator it = frmRetrAsstPlanSamples->combined.begin(); it != frmRetrAsstPlanSamples->combined.end(); ++it) {//, rowCount2++) {
@@ -602,47 +633,47 @@ void LoadVialsJobThread::load() {
     debugMessage = "finished getting storage details"; Synchronize((TThreadMethod)&debugLog);
 }
 
-void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
-
-    struct PosKey {
-        PosKey(int b, int p) : box(b), pos(p) { }
-        PosKey(SampleRow * s) : box(s->dest_cryo_pos), pos(s->dest_box_id) { }
-        int box, pos;
-        bool operator <(const PosKey &other) const {
-            if (box < other.box) {
-                return true;
-            } else if (box == other.box) {
-                return pos < other.pos;
-            } else {
-                return false;
-            }
-        }
-    };
-
-    typedef std::map< PosKey, SampleRow * > posCache;
-    posCache cache;
-
-    combined.clear();
-    for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
-        SampleRow * row = *it;
-        PosKey key(row);
-        cache[key] = row; // cache combination of dest box and pos
-        combined.push_back(row);
-    }
-
-    for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
-        SampleRow * row = *it;
-        PosKey key(row);
-        posCache::iterator found = cache.find(key);
-        if (found != cache.end()) { // destination box and position already used (by primary)
-            if (NULL == row)
-                throw runtime_error("null in cache");
-            found->second->backup = row; // add as backup to primary
-        } else {
-            combined.push_back(row);     // add to list in its own right
-        }
-    }
-}
+//void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
+//
+//    struct PosKey {
+//        PosKey(int b, int p) : box(b), pos(p) { }
+//        PosKey(SampleRow * s) : box(s->dest_cryo_pos), pos(s->dest_box_id) { }
+//        int box, pos;
+//        bool operator <(const PosKey &other) const {
+//            if (box < other.box) {
+//                return true;
+//            } else if (box == other.box) {
+//                return pos < other.pos;
+//            } else {
+//                return false;
+//            }
+//        }
+//    };
+//
+//    typedef std::map< PosKey, SampleRow * > posCache;
+//    posCache cache;
+//
+//    combined.clear();
+//    for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
+//        SampleRow * row = *it;
+//        PosKey key(row);
+//        cache[key] = row; // cache combination of dest box and pos
+//        combined.push_back(row);
+//    }
+//
+//    for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
+//        SampleRow * row = *it;
+//        PosKey key(row);
+//        posCache::iterator found = cache.find(key);
+//        if (found != cache.end()) { // destination box and position already used (by primary)
+//            if (NULL == row)
+//                throw runtime_error("null in cache");
+//            found->second->backup = row; // add as backup to primary
+//        } else {
+//            combined.push_back(row);     // add to list in its own right
+//        }
+//    }
+//}
 
 void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *Sender) {
     ostringstream oss; //oss<<__FUNC__<<

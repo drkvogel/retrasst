@@ -27,9 +27,9 @@ void TfrmRetrievalAssistant::msgbox(string main, string title) {
 	Application->MessageBoxW(String(main.c_str()).c_str(), String(title.c_str()).c_str(), MB_OK);
 }
 
-void TfrmRetrievalAssistant::msgbox(String main, string title ) {
-	Application->MessageBoxW(main.w_str(), String(title.c_str()).c_str(), MB_OK);
-}
+//void TfrmRetrievalAssistant::msgbox(String main, string title ) {
+//	Application->MessageBoxW(main.w_str(), String(title.c_str()).c_str(), MB_OK);
+//}
 
 void __fastcall TfrmRetrievalAssistant::FormResize(TObject *Sender) { sgwJobs->resize(); }
 
@@ -73,13 +73,13 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
     } else {
         switch (job->getStatus()) {
         case LCDbCryoJob::Status::NEW_JOB:
-            background = RETRIEVAL_ASSISTANT_NEW_COLOUR; break;
+            background = RETRIEVAL_ASSISTANT_JOB_NEW_COLOUR; break;
         case LCDbCryoJob::Status::INPROGRESS:
-            background = RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR; break;
+            background = RETRIEVAL_ASSISTANT_JOB_INPROGRESS_COLOUR; break;
         case LCDbCryoJob::Status::DONE:
-            background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR; break;
+            background = RETRIEVAL_ASSISTANT_JOB_COMPLETED_COLOUR; break;
         case LCDbCryoJob::Status::DELETED:
-            background = RETRIEVAL_ASSISTANT_DELETED_COLOUR; break;
+            background = RETRIEVAL_ASSISTANT_JOB_DELETED_COLOUR; break;
         default:
             background = RETRIEVAL_ASSISTANT_ERROR_COLOUR;
         }
@@ -311,6 +311,48 @@ void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
             sample->setLocation("No records found", 0, "", 0, 0, "", 0);
         }
         storageCache[sample->store_record->getBoxID()] = sample; // cache result
+    }
+}
+
+void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
+
+    struct PosKey {
+        PosKey(int b, int p) : box(b), pos(p) { }
+        PosKey(SampleRow * s) : box(s->dest_cryo_pos), pos(s->dest_box_id) { }
+        int box, pos;
+        bool operator <(const PosKey &other) const {
+            if (box < other.box) {
+                return true;
+            } else if (box == other.box) {
+                return pos < other.pos;
+            } else {
+                return false;
+            }
+        }
+    };
+
+    typedef std::map< PosKey, SampleRow * > posCache;
+    posCache cache;
+
+    combined.clear();
+    for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
+        SampleRow * row = *it;
+        PosKey key(row);
+        cache[key] = row; // cache combination of dest box and pos
+        combined.push_back(row);
+    }
+
+    for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
+        SampleRow * row = *it;
+        PosKey key(row);
+        posCache::iterator found = cache.find(key);
+        if (found != cache.end()) { // destination box and position already used (by primary)
+            if (NULL == row)
+                throw runtime_error("null in cache");
+            found->second->backup = row; // add as backup to primary
+        } else {
+            combined.push_back(row);     // add to list in its own right
+        }
     }
 }
 

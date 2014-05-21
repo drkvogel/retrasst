@@ -86,6 +86,16 @@ __published:
     TSplitter *splitterDebug;
     TLabel *labelDestype;
     TLabel *Label6;
+    TGroupBox *groupChunkKey;
+    TLabel *labelNew;
+    TLabel *labelInProgress;
+    TLabel *labelDone;
+    TGroupBox *groupVialKey;
+    TLabel *labelVialKeyCollected;
+    TLabel *labelVialKeyExpectedBackup;
+    TLabel *labelVialKeyExpectedPrimary;
+    TLabel *labelVialKeyIgnored;
+    TLabel *labelVialKeyNotFound;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
