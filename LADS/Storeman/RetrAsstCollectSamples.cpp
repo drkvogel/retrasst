@@ -451,6 +451,8 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     if (NULL == frmRetrAsstCollectSamples || NULL == frmRetrAsstCollectSamples->job) { throw runtime_error("wtf?"); }
     loadingMessage = frmRetrAsstCollectSamples->progressMessage;
     job = frmRetrAsstCollectSamples->job; //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+    TfrmRetrievalAssistant      * main    = frmRetrievalAssistant;
+    TfrmRetrAsstCollectSamples  * collect = frmRetrAsstCollectSamples;
 
     int primary_aliquot = job->getPrimaryAliquot(); int secondary_aliquot = job->getSecondaryAliquot();
 
@@ -489,16 +491,16 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     qd.setSQL(oss.str()); debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
     qd.setParam("rtid", job->getID()); //int retrieval_cid = job->getID();
     qd.open();
-    int rowCountTemp = 0;
+    //int rowCountTemp = 0;
     rowCount = 0; // class variable
     int curchunk = 1, chunk = 0; SampleRow * previous = NULL;
     debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
     while (!qd.eof()) {
-        if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" combined"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
+        if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" vials"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
 
         chunk = qd.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) { // new chunk, add the previous one
-            frmRetrAsstCollectSamples->addChunk(curchunk, rowCount-1);
+            collect->addChunk(curchunk, rowCount-1);
             curchunk = chunk;
         }
 
@@ -515,51 +517,65 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             qd.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0); // no storage details yet
 
-        int currentAliquotType = row->cryo_record->getAliquotType();
-
-        // primary_aliquot and secondary_aliquot are already defined
-        int previousAliquotType = previous == NULL? 0 : previous->cryo_record->getAliquotType();
+        // add box tube type name
+        // I put this in a loop outside the main loop to avoid running another query...
+        // doesn't seem to matter that it's not?
+        //for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {//, rowCount2++) {
+//        for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {//, rowCount2++) {
+//            (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
+//        }
+        row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
 
         // could use combineAliquots()?
         // void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
+        // primary_aliquot and secondary_aliquot are already defined
+        //int currentAliquotType = row->cryo_record->getAliquotType();
+        //int previousAliquotType = previous == NULL? 0 : previous->cryo_record->getAliquotType();
+//        if (secondary_aliquot != 0 &&
+//            secondary_aliquot == currentAliquotType &&
+//            previous != NULL &&
+//            previous->cryovial_barcode == row->cryovial_barcode) { // secondary aliquot, previous was primary of same sample
+//            if (previousAliquotType == currentAliquotType) {
+//                throw runtime_error("duplicate aliquot");
+//            } else if (currentAliquotType != secondary_aliquot) {
+//                throw runtime_error("spurious aliquot");
+//            } else { // secondary
+//                previous->backup = row;
+//            }
+//        } else {
+//            frmRetrAsstCollectSamples->combined.push_back(row); // new primary
+//            previous = row;
+//            rowCount++; // only count primary aliquots
+//        }
 
-        if (secondary_aliquot != 0 &&
-            secondary_aliquot == currentAliquotType &&
-            previous != NULL &&
-            previous->cryovial_barcode == row->cryovial_barcode) { // secondary aliquot, previous was primary of same sample
-            if (previousAliquotType == currentAliquotType) {
-                throw runtime_error("duplicate aliquot");
-            } else if (currentAliquotType != secondary_aliquot) {
-                throw runtime_error("spurious aliquot");
-            } else { // secondary
-                previous->backup = row;
-            }
-        } else {
-            frmRetrAsstCollectSamples->combined.push_back(row); // new primary
-            previous = row;
-            rowCount++; // only count primary aliquots
+        const int aliquotType = row->cryo_record->getAliquotType();
+        if (aliquotType == secondary_aliquot) {
+            collect->secondaries.push_back(row);
+        } else { // everything else, even if not explicitly primary
+            collect->primaries.push_back(row);
+            rowCount++;
         }
-
-        // add box tube type name
-        //for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {//, rowCount2++) {
-        for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {//, rowCount2++) {
-            (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
-        }
-
         qd.next();
-        rowCountTemp++;
+        //rowCountTemp++;
     } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
-    frmRetrAsstCollectSamples->addChunk(curchunk, rowCount-1); // the last chunk
+    collect->addChunk(curchunk, rowCount-1); // the last chunk
     if (0 == rowCount || 0 == frmRetrAsstCollectSamples->chunks.size()) { return; } // something wrong here...
 
+    // try to match secondaries with primaries on same destination position
+    main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
+
+    // previous (combineAliquots()) appears to match 2nds to 1sts, but at this point row->backup is null
+
     // find locations of source boxes
+    // should get storage for secondaries as well?
+    // this was put outside the main loop to avoid multiple queries as well - could actually be included in main loop?
     int rowCount2 = 0;
-	for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it, rowCount2++) {
+	for (vector<SampleRow *>::iterator it = collect->combined.begin(); it != collect->combined.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
-        frmRetrievalAssistant->getStorage(sample);
+        main->getStorage(sample);
         if (NULL != sample->backup) {
-            frmRetrievalAssistant->getStorage(sample->backup);
+            main->getStorage(sample->backup);
         }
         oss<<sample->storage_str(); loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 	} debugMessage = "finished load storage details"; Synchronize((TThreadMethod)&debugLog);

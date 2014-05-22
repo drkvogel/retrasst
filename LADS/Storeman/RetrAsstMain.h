@@ -541,7 +541,7 @@ public:
     void               combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
 
 	// made into class methods, NG, 17/3/14, to avoid linker error
-	static void msgbox(const char * main, const char * title="Info");
+	//static void msgbox(const char * main, const char * title="Info");
 	static void msgbox(string main, string title="Info");
 };
 

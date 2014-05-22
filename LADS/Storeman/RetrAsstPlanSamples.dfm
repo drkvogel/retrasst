@@ -147,7 +147,7 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           Width = 90
           Height = 106
           Align = alClient
-          Caption = 'Vial Colour Key'
+          Caption = 'Vial Key'
           TabOrder = 4
           ExplicitLeft = 16
           ExplicitTop = 176

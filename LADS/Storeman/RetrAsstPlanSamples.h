@@ -141,7 +141,6 @@ private:
     Chunk< SampleRow > *                        currentChunk();
     void                                        showChunks();
     void                                        loadRows();
-//    void                                        combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     const char *                                loadingMessage;
     void                                        calcSizes();

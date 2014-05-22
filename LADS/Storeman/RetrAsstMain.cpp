@@ -19,9 +19,9 @@ TfrmRetrievalAssistant *frmRetrievalAssistant;
 __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
 
 // moved from header file: linker error under 64-bit XE4
-void TfrmRetrievalAssistant::msgbox(const char * main, const char * title ) {
-	Application->MessageBoxW(String(main).w_str(), String(title).w_str(), MB_OK);
-}
+//void TfrmRetrievalAssistant::msgbox(const char * main, const char * title ) {
+//	Application->MessageBoxW(String(main).w_str(), String(title).w_str(), MB_OK);
+//}
 
 void TfrmRetrievalAssistant::msgbox(string main, string title) {
 	Application->MessageBoxW(String(main.c_str()).c_str(), String(title.c_str()).c_str(), MB_OK);

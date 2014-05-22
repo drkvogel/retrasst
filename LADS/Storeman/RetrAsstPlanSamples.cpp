@@ -525,17 +525,19 @@ void __fastcall LoadVialsJobThread::Execute() {
 }
 
 void LoadVialsJobThread::load() {
-    job = frmRetrAsstPlanSamples->job;
+    TfrmRetrievalAssistant      * main  = frmRetrievalAssistant;
+    TfrmRetrAsstPlanSamples  * plan     = frmRetrAsstPlanSamples;
 
-    frmRetrAsstPlanSamples->combined.clear(); // only contains copies of primaries and secondaries
-    delete_referenced< vector<SampleRow * > >(frmRetrAsstPlanSamples->secondaries);
-    delete_referenced< vector<SampleRow * > >(frmRetrAsstPlanSamples->primaries);  // primaries may refer to secondaries
+    job = plan->job;
+    plan->combined.clear(); // only contains copies of primaries and secondaries
+    delete_referenced< vector<SampleRow * > >(plan->secondaries);
+    delete_referenced< vector<SampleRow * > >(plan->primaries);  // primaries may refer to secondaries
 
-    ostringstream oss; oss<<frmRetrAsstPlanSamples->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
+    ostringstream oss; oss<<plan->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
     oss.str(""); oss<<"loading retrieval job id: "<<job->getID()<<", project: "<<job->getProjectID();
     debugMessage = oss.str().c_str(); Synchronize((TThreadMethod)&debugLog);
     debugMessage = "preparing query"; Synchronize((TThreadMethod)&debugLog);
-    loadingMessage = frmRetrAsstPlanSamples->loadingMessage;
+    loadingMessage = plan->loadingMessage;
 
     const int primary_aliquot     = job->getPrimaryAliquot();
     const int secondary_aliquot   = job->getSecondaryAliquot();
@@ -600,11 +602,14 @@ void LoadVialsJobThread::load() {
             qd.readInt(     "dest_pos"),
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
 
+        // add box tube type name
+        row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
+
         const int aliquotType = row->cryo_record->getAliquotType();
         if (aliquotType == secondary_aliquot) {
-            frmRetrAsstPlanSamples->secondaries.push_back(row);
+            plan->secondaries.push_back(row);
         } else { // everything else, even if not explicitly primary
-            frmRetrAsstPlanSamples->primaries.push_back(row);
+            plan->primaries.push_back(row);
         }
         qd.next();
         rowCount++;
@@ -612,21 +617,21 @@ void LoadVialsJobThread::load() {
     debugMessage = "finished retrieving rows, getting storage details"; Synchronize((TThreadMethod)&debugLog);
 
     // try to match secondaries with primaries on same destination position
-    frmRetrievalAssistant->combineAliquots(frmRetrAsstPlanSamples->primaries, frmRetrAsstPlanSamples->secondaries, frmRetrAsstPlanSamples->combined);
+    main->combineAliquots(plan->primaries, plan->secondaries, plan->combined);
 
-    // add box tube type name
-    for (vector<SampleRow *>::iterator it = frmRetrAsstPlanSamples->combined.begin(); it != frmRetrAsstPlanSamples->combined.end(); ++it) {//, rowCount2++) {
-        (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
-    }
+//    // add box tube type name
+//    for (vector<SampleRow *>::iterator it = frmRetrAsstPlanSamples->combined.begin(); it != frmRetrAsstPlanSamples->combined.end(); ++it) {//, rowCount2++) {
+//        (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
+//    }
 
     // find locations of source boxes
     int rowCount2 = 0;
-	for (vector<SampleRow *>::iterator it = frmRetrAsstPlanSamples->combined.begin(); it != frmRetrAsstPlanSamples->combined.end(); ++it, rowCount2++) {
+	for (vector<SampleRow *>::iterator it = plan->combined.begin(); it != plan->combined.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
-        frmRetrievalAssistant->getStorage(sample);
+        main->getStorage(sample);
         if (NULL != sample->backup) {
-            frmRetrievalAssistant->getStorage(sample->backup);
+            main->getStorage(sample->backup);
         }
         loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 	}
