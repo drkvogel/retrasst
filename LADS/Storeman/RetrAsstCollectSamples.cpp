@@ -46,7 +46,7 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
     sgwChunks->addCol("endvial",  "Vial",     150);
     sgwChunks->addCol("size",     "Size",     87);
     sgwChunks->init();
-    sgwVials = new StringGridWrapper<SampleRow>(sgVials, &vials);
+    sgwVials = new StringGridWrapper<SampleRow>(sgVials, &combined);
     sgwVials->addCol("item",     "Item",             30);
     sgwVials->addCol("barcode",  "Barcode",          91);
     sgwVials->addCol("site",     "Site",             90);
@@ -446,7 +446,7 @@ void __fastcall LoadPlanThread::msgbox() { Application->MessageBox(String(debugM
 void __fastcall LoadPlanThread::Execute() { 
 /** load cryovial retrieval plan:
 Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
-    delete_referenced< vector<SampleRow * > >(frmRetrAsstCollectSamples->vials); frmRetrAsstCollectSamples->chunks.clear();
+    delete_referenced< vector<SampleRow * > >(frmRetrAsstCollectSamples->combined); frmRetrAsstCollectSamples->chunks.clear();
     ostringstream oss; oss<<frmRetrAsstCollectSamples->progressMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
     if (NULL == frmRetrAsstCollectSamples || NULL == frmRetrAsstCollectSamples->job) { throw runtime_error("wtf?"); }
     loadingMessage = frmRetrAsstCollectSamples->progressMessage;
@@ -494,7 +494,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     int curchunk = 1, chunk = 0; SampleRow * previous = NULL;
     debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
     while (!qd.eof()) {
-        if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" vials"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
+        if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" combined"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
 
         chunk = qd.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) { // new chunk, add the previous one
@@ -535,14 +535,14 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
                 previous->backup = row;
             }
         } else {
-            frmRetrAsstCollectSamples->vials.push_back(row); // new primary
+            frmRetrAsstCollectSamples->combined.push_back(row); // new primary
             previous = row;
             rowCount++; // only count primary aliquots
         }
 
         // add box tube type name
         //for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {//, rowCount2++) {
-        for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->vials.begin(); it != frmRetrAsstCollectSamples->vials.end(); ++it) {//, rowCount2++) {
+        for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {//, rowCount2++) {
             (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
         }
 
@@ -554,7 +554,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 
     // find locations of source boxes
     int rowCount2 = 0;
-	for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->vials.begin(); it != frmRetrAsstCollectSamples->vials.end(); ++it, rowCount2++) {
+	for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
         ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
         frmRetrievalAssistant->getStorage(sample);
@@ -813,7 +813,7 @@ how to update boxes? check at save and exit that all vials in a box have been sa
 
 	frmRetrAsstCollectSamples->unactionedSamples = false; frmRetrAsstCollectSamples->info.clear(); frmRetrAsstCollectSamples->warnings.clear(); frmRetrAsstCollectSamples->errors.clear();
 	try {
-		for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->vials.begin(); it != frmRetrAsstCollectSamples->vials.end(); ++it) {
+		for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {
 			SampleRow * sample = *it;
 
 			int sourceBox = sample->store_record->getBoxID(); // should get id of secondary box as well and add it to map, we are checking for all empty boxes
@@ -950,7 +950,7 @@ void __fastcall TfrmRetrAsstCollectSamples::saveProgressThreadTerminated(TObject
         Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
         return;
 	} else {
-        delete_referenced< vector <SampleRow * > >(vials);
+        delete_referenced< vector <SampleRow * > >(combined);
         delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
         Close();
     }

@@ -124,7 +124,10 @@ private:
     void __fastcall                             saveProgressThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
     vector< Chunk< SampleRow > *>               chunks;
-    vecpSampleRow                               vials;
+    //vecpSampleRow                               vials;
+    vecpSampleRow                               primaries;
+    vecpSampleRow                               secondaries;
+    vecpSampleRow                               combined;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks; //std::auto_ptr< StringGridWrapper< Chunk< SampleRow > > >  sgwChunks;
     StringGridWrapper<SampleRow> *              sgwVials;
     //void                                        getStorage(SampleRow * sample); // use TfrmRetrievalAssistant::getStorage()
