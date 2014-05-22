@@ -478,9 +478,12 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         "    db.project_cid," // project of destination box (db) or source (sb)?
         "    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, cbr.box_id AS dest_id, "//cbr.status, "
         "    lcr.position AS lcr_position, lcr.cryovial_barcode, lcr.aliquot_type_cid, "
-        "    lcr.old_box_cid, lcr.old_position, lcr.new_position, "
+        "    lcr.old_box_cid, lcr.old_position, "
         "    lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, " // lcr.slot_number AS lcr_slot, "
-        "    lcr.slot_number AS dest_pos, "
+        //"    lcr.slot_number AS dest_pos, "
+        //"  s2.cryovial_position as dest_pos" (from plan)
+        //"    lcr.new_position AS dest_pos, "
+        "    lcr.new_position, "
         "    cs.box_cid, sb.external_name AS src_box, cs.cryovial_position AS source_pos,  "
         "    db.external_name AS dest_box, "
         "    db.box_type_cid AS dest_box_type, "
@@ -510,9 +513,9 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     int curchunk = 1, chunk = 0; SampleRow * previous = NULL;
     debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
     while (!qd.eof()) {
-        if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" vials"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
+        if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" vials"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }        
 
-        chunk = qd.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
+		chunk = qd.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) { // new chunk, add the previous one
             collect->addChunk(curchunk, rowCount-1);
             curchunk = chunk;
@@ -528,7 +531,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             qd.readInt(     "dest_id"),
             qd.readString(  "dest_name"),
             qd.readInt(     "dest_box_type"),
-            qd.readInt(     "dest_pos"),
+            qd.readInt(     "new_position"), // not AS dest_pos
             "", 0, "", 0, 0, "", 0); // no storage details yet
 
         // add box tube type name
@@ -570,7 +573,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             rowCount++;
         }
         qd.next();
-        //rowCountTemp++;
     } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     collect->addChunk(curchunk, rowCount-1); // the last chunk
     if (0 == rowCount || 0 == frmRetrAsstCollectSamples->chunks.size()) { return; } // something wrong here...
@@ -834,7 +836,8 @@ void TfrmRetrAsstCollectSamples::exit() { // definitely exiting
 
     saveProgressThread = new SaveProgressThread();
     saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
-}
+}
+
 void __fastcall SaveProgressThread::Execute() {
 /** check cryo/store old/new params correct for `LCDbCryovialRetrieval`
 `c_box_retrieval`: set `time_stamp`, `status` = 1 (PART_FILLED)

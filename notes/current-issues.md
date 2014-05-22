@@ -105,7 +105,7 @@ Constructor arguments are the wrong way around!:
 
     PosKey(SampleRow * s) : box(s->dest_cryo_pos), pos(s->dest_box_id) { }
 
-somehow worked in plan...
+somehow worked in plan... actually, in terms of being an `< int, int >` key, it may not have mattered that it was the wrong way round...
 
 but still no dice - no backups are shown in collect...
 just noticed that dest pos is shown as being 0 for all boxes in collect
@@ -158,6 +158,25 @@ to add to `SampleRow::str()`:
     <<"barcode: "<<store_record->getBarcode()
     <<", cryo_status: "<<sample->cryo_record->getStatus()
  
+extra (perhaps unnecessary) debug confirms that pos is 0 for all items
+
+It was constructing SampleRow with the parameter for `dest_cryo_pos` being `qd.readInt("dest_pos")`, and `dest_pos` was coming from 
+
+    lcr.slot_number AS dest_pos
+
+when it should (?) come from
+
+    lcr.new_position AS dest_pos
+
+in plan it comes from 
+
+    s2.cryovial_position as dest_pos
+
+actually, `new_position` is still required by `LCDbCryovialRetrieval`. Use it in place of `dest_pos` to construct SampleRow with correct destination positions (check that `lcr.new_position` is intended for this and populated correctly).
+
+IT WORKS! Finally! (19:32)
+
+I think before I replaced the old code in collect with combineAliquots() it was using the sorted, alternating aliquot types to succesfully match secondaries to primaries, even though they'd lost their destination positions and I hadn't noticed.
 
 
 ---
