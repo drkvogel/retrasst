@@ -260,6 +260,20 @@ void __fastcall TfrmRetrAsstCollectSamples::sgChunksClick(TObject *Sender) {
     showChunk(chunk);
 }
 
+
+/*
+   string str() {
+        ostringstream oss; oss
+            <<"id: "<<(store_record->getID())<<", " //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position// <<"status: "<<(store_record->getStatus())<<", " // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position //<<"barcode: "<<store_record->getBarcode() //<<"sampleID"<<cryo_record->getSampleID() //<<"aliquot type ID"<<cryo_record->getAliquotType()
+            <<"proj: "<<(project_cid)<<", "
+            <<"status: "<<store_record->getStatus()<<", "
+            <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquotName()<<", "
+            <<"src: {"<<store_record->getBoxID()<<", "<<src_box_name<<"["<<store_record->getPosition()<<"]}, "
+            <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_cryo_pos<<"]}, "
+            <<"loc: {"<<storage_str()<<"}";
+        return oss.str();
+*/
+
 void __fastcall TfrmRetrAsstCollectSamples::sgVialsClick(TObject *Sender) { // show details in debug window
     SampleRow * sample = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     DEBUGSTREAM(__FUNC__
@@ -561,8 +575,13 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     collect->addChunk(curchunk, rowCount-1); // the last chunk
     if (0 == rowCount || 0 == frmRetrAsstCollectSamples->chunks.size()) { return; } // something wrong here...
 
+    int size1 = collect->primaries.size(), size2 = collect->secondaries.size(), size3 = collect->combined.size();
+
     // try to match secondaries with primaries on same destination position
+    //main->combineAliquots(plan->primaries, plan->secondaries, plan->combined);
     main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
+
+    size1 = collect->primaries.size(), size2 = collect->secondaries.size(), size3 = collect->combined.size();
 
     // previous (combineAliquots()) appears to match 2nds to 1sts, but at this point row->backup is null
 

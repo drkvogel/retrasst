@@ -317,8 +317,10 @@ void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
 void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
 
     struct PosKey {
+    /** compound of box and position used for index into map of box + pos -> sample */
         PosKey(int b, int p) : box(b), pos(p) { }
-        PosKey(SampleRow * s) : box(s->dest_cryo_pos), pos(s->dest_box_id) { }
+        //PosKey(SampleRow * s) : box(s->dest_cryo_pos), pos(s->dest_box_id) { }
+        PosKey(SampleRow * s) : box(s->dest_box_id), pos(s->dest_cryo_pos) { }
         int box, pos;
         bool operator <(const PosKey &other) const {
             if (box < other.box) {
@@ -334,6 +336,7 @@ void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, co
     typedef std::map< PosKey, SampleRow * > posCache;
     posCache cache;
 
+    // store primaries and cache
     combined.clear();
     for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
         SampleRow * row = *it;
@@ -342,6 +345,7 @@ void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, co
         combined.push_back(row);
     }
 
+    // try to match secondaries based on same box/pos key
     for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
         SampleRow * row = *it;
         PosKey key(row);

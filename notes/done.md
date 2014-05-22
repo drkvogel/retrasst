@@ -555,3 +555,9 @@ Don't initialise and show in FormShow i.e. before form is maximised.
 ### allow collect vials column resize
 
 .
+
+## seconday aliquot label greyed out
+
+why is seconday aliquot label greyed out in collect? ie. 
+
+    labelSecondary->Enabled = false;

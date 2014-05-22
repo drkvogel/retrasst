@@ -247,8 +247,8 @@ void __fastcall TfrmRetrAsstPlanSamples::sgVialsFixedCellClick(TObject *Sender, 
 void __fastcall TfrmRetrAsstPlanSamples::sgVialsClick(TObject *Sender) {
     SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     debugLog("."); // line break
-    sample?debugLog(sample->str().c_str()):debugLog("NULL sample");
-    sample->backup?debugLog(sample->backup->str().c_str()):debugLog("NULL backup");
+    sample?debugLog(sample->debug_str().c_str()):debugLog("NULL sample");
+    sample->backup?debugLog(sample->backup->debug_str().c_str()):debugLog("NULL backup");
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::timerLoadVialsTimer(TObject *Sender) {
@@ -616,8 +616,12 @@ void LoadVialsJobThread::load() {
     }
     debugMessage = "finished retrieving rows, getting storage details"; Synchronize((TThreadMethod)&debugLog);
 
+    int size1 = plan->primaries.size(), size2 = plan->secondaries.size(), size3 = plan->combined.size();
+
     // try to match secondaries with primaries on same destination position
     main->combineAliquots(plan->primaries, plan->secondaries, plan->combined);
+
+    size1 = plan->primaries.size(), size2 = plan->secondaries.size(), size3 = plan->combined.size();
 
 //    // add box tube type name
 //    for (vector<SampleRow *>::iterator it = frmRetrAsstPlanSamples->combined.begin(); it != frmRetrAsstPlanSamples->combined.end(); ++it) {//, rowCount2++) {
