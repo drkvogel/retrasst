@@ -367,7 +367,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     object Panel1: TPanel
       Left = 425
       Top = 15
-      Width = 431
+      Width = 453
       Height = 113
       Align = alClient
       BevelOuter = bvNone
@@ -488,17 +488,17 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       end
     end
     object groupVialKey: TGroupBox
-      Left = 856
+      Left = 878
       Top = 15
-      Width = 90
+      Width = 68
       Height = 113
       Align = alRight
-      Caption = 'Vial Colour Key'
+      Caption = 'Key'
       TabOrder = 3
       object labelVialKeyCollected: TLabel
         Left = 2
         Top = 41
-        Width = 86
+        Width = 64
         Height = 13
         Align = alTop
         Caption = 'Collected'
@@ -511,7 +511,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       object labelVialKeyExpectedBackup: TLabel
         Left = 2
         Top = 28
-        Width = 86
+        Width = 64
         Height = 13
         Align = alTop
         Caption = 'Backup'
@@ -523,7 +523,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       object labelVialKeyExpectedPrimary: TLabel
         Left = 2
         Top = 15
-        Width = 86
+        Width = 64
         Height = 13
         Align = alTop
         Caption = 'Preferred'
@@ -535,7 +535,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       object labelVialKeyIgnored: TLabel
         Left = 2
         Top = 67
-        Width = 86
+        Width = 64
         Height = 13
         Align = alTop
         Caption = 'Ignored'
@@ -544,11 +544,12 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Transparent = False
         ExplicitLeft = 1
         ExplicitTop = 86
+        ExplicitWidth = 86
       end
       object labelVialKeyNotFound: TLabel
         Left = 2
         Top = 54
-        Width = 86
+        Width = 64
         Height = 13
         Align = alTop
         Caption = 'Not Found'
