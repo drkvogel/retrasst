@@ -19,11 +19,11 @@ TfrmSMLogin *frmSMLogin;
 
 __fastcall TfrmSMLogin::TfrmSMLogin(TComponent* Owner) : TfrmLoginBase(Owner)
 {
-	std::string ver = LIMSParams::instance().getProgVersion();
-	version -> Caption = Application -> Title + " " + ver.c_str() + " ** DEMO **";
-//	rgDatabase -> ItemIndex = LIMSDatabase::TEST_DATA;
-  //rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM;
-    rgDatabase -> ItemIndex = LIMSDatabase::LABDEV_MIRROR;
+//	std::string ver = LIMSParams::instance().getProgVersion();
+//	version -> Caption = Application -> Title + " " + ver.c_str() + " ** DEMO **";
+////	rgDatabase -> ItemIndex = LIMSDatabase::TEST_DATA;
+//  //rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM;
+//    rgDatabase -> ItemIndex = LIMSDatabase::LABDEV_MIRROR;
 }
 
 //---------------------------------------------------------------------------

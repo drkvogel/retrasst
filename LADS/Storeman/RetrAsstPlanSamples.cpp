@@ -578,7 +578,7 @@ void LoadVialsJobThread::load() {
             "", 0, "", 0, 0, "", 0 ); // no storage details yet
 
         // add box tube type name
-        row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
+        //row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
 
         const int aliquotType = row->cryo_record->getAliquotType();
         if (aliquotType == secondary_aliquot) {
@@ -593,6 +593,11 @@ void LoadVialsJobThread::load() {
 
     // try to match secondaries with primaries on same destination position
     main->combineAliquots(plan->primaries, plan->secondaries, plan->combined);
+
+    // add box tube type name
+    for (vector<SampleRow *>::iterator it = plan->combined.begin(); it != plan->combined.end(); ++it) {
+        (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
+    }
 
     // find locations of source boxes
     int rowCount2 = 0;

@@ -561,3 +561,16 @@ Don't initialise and show in FormShow i.e. before form is maximised.
 why is seconday aliquot label greyed out in collect? ie. 
 
     labelSecondary->Enabled = false;
+
+## get storage of secondaries as well
+
+`LoadPlanThread::Execute()`
+
+    // find locations of source boxes
+    // fixme should get storage for secondaries as well?
+    // fixme this was put outside the main loop to avoid multiple queries as well - could actually be included in main loop?
+
+## access violation in SampleRow::debug_str()
+
+In `LCDbCryovialRetrieval::getStatus()` - in plan, `retrieval_record` is NULL.
+

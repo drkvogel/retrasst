@@ -208,16 +208,23 @@ public:
         return Util::getAliquotDescription(cryo_record->getAliquotType());
     }
     string debug_str() {
-        ostringstream oss; oss
-            <<"id: "<<(store_record->getID())<<", " //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position// <<"status: "<<(store_record->getStatus())<<", " // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position //<<"barcode: "<<store_record->getBarcode() //<<"sampleID"<<cryo_record->getSampleID() //<<"aliquot type ID"<<cryo_record->getAliquotType()
-            <<"retrieval_status: "<<retrieval_record->getStatus()<<" ("<<retrieval_record->statusString(retrieval_record->getStatus())<<"), "
-            <<"proj: "<<(project_cid)<<", "
+        ostringstream oss;
+        try {
+            oss<<"id: "<<(store_record->getID())<<", "; //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position// <<"status: "<<(store_record->getStatus())<<", " // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position //<<"barcode: "<<store_record->getBarcode() //<<"sampleID"<<cryo_record->getSampleID() //<<"aliquot type ID"<<cryo_record->getAliquotType()
+            if (NULL != retrieval_record) {
+                oss<<"retrieval_status: "<<retrieval_record->getStatus()
+                <<" ("<<retrieval_record->statusString(retrieval_record->getStatus())<<"), ";
+            }
+            oss<<"proj: "<<(project_cid)<<", "
             <<"status: "<<store_record->getStatus()<<", "
-            <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<cryo_record->getAliquotType()<<" \""<<aliquotName()<<"\", "
+            <<"barc: \""<<cryovial_barcode<<"\", "<<"aliq: "<<cryo_record->getAliquotType()<<" \""<<aliquotName()<<"\", "
             <<"cryo_status: "<<cryo_record->getStatus()<<", "
-            <<"src: {"<<store_record->getBoxID()<<", "<<src_box_name<<"["<<store_record->getPosition()<<"]}, "
-            <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_cryo_pos<<"]}, "
+            <<"src: {"<<store_record->getBoxID()<<", \""<<src_box_name<<"\" ["<<store_record->getPosition()<<"]}, "
+            <<"dst: {"<<dest_box_id<<" \""<<dest_box_name<<"\" ["<<dest_cryo_pos<<"], type: "<<dest_box_type<<" \""<<dest_type_name<<"\"}, "
             <<"loc: {"<<storage_str()<<"}";
+        } catch (...) {
+            oss<<"error in "<<__FUNC__;
+        }
         return oss.str();
     }
     string storage_str() {

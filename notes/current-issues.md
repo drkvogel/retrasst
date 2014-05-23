@@ -1,14 +1,9 @@
 
-## fixme
-
-`LoadPlanThread::Execute()`
-
-    // find locations of source boxes
-    // fixme should get storage for secondaries as well?
-    // fixme this was put outside the main loop to avoid multiple queries as well - could actually be included in main loop?
 
 
 
+
+## fixme    
 
 ---
 

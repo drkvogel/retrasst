@@ -223,9 +223,9 @@ void __fastcall TfrmRetrAsstCollectSamples::sgChunksFixedCellClick(TObject *Send
 void __fastcall TfrmRetrAsstCollectSamples::sgChunksClick(TObject *Sender) {
     int row = sgChunks->Row;
     if (row < 1) return;
-    Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
 
     // reset deferred rows
+    Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
     for (int row=0; row < chunk->getSize(); row++) {
         SampleRow * sampleRow = chunk->objectAtRel(row);
         if (sampleRow->retrieval_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
@@ -467,7 +467,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             qd.readInt(     "project_cid"),
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
-            new LCDbCryovialRetrieval(qd), // fixme
+            new LCDbCryovialRetrieval(qd),
             qd.readString(  "cryovial_barcode"),
             qd.readString(  "src_box"),
             qd.readInt(     "dest_id"),
@@ -477,6 +477,8 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             "", 0, "", 0, 0, "", 0); // no storage details yet
 
         row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
+
+        main->getStorage(row);
 
         const int aliquotType = row->cryo_record->getAliquotType();
         if (aliquotType == secondary_aliquot) {
@@ -490,29 +492,8 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     collect->addChunk(curchunk, rowCount-1); // the last chunk
     if (0 == rowCount || 0 == frmRetrAsstCollectSamples->chunks.size()) { return; } // something wrong here...
 
-    int size1 = collect->primaries.size(), size2 = collect->secondaries.size(), size3 = collect->combined.size();
-
     // try to match secondaries with primaries on same destination position
-    //main->combineAliquots(plan->primaries, plan->secondaries, plan->combined);
     main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
-
-    size1 = collect->primaries.size(), size2 = collect->secondaries.size(), size3 = collect->combined.size();
-
-    // previous (combineAliquots()) appears to match 2nds to 1sts, but at this point row->backup is null
-
-    // find locations of source boxes
-    // fixme should get storage for secondaries as well?
-    // fixme this was put outside the main loop to avoid multiple queries as well - could actually be included in main loop?
-    int rowCount2 = 0;
-	for (vector<SampleRow *>::iterator it = collect->combined.begin(); it != collect->combined.end(); ++it, rowCount2++) {
-        SampleRow * sample = *it;
-        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
-        main->getStorage(sample);
-        if (NULL != sample->backup) {
-            main->getStorage(sample->backup);
-        }
-        oss<<sample->storage_str(); loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
-	} debugMessage = "finished load storage details"; Synchronize((TThreadMethod)&debugLog);
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::loadPlanThreadTerminated(TObject *Sender) {
@@ -560,7 +541,7 @@ void TfrmRetrAsstCollectSamples::showDetails(SampleRow * sample) {
         labelSampleID->Caption  = sample->cryovial_barcode.c_str();
         labelStorage->Caption   = sample->storage_str().c_str();
         labelDestbox->Caption   = sample->dest_str().c_str();
-        labelDestype->Caption   = sample->dest_box_type; // fixme
+        labelDestype->Caption   = sample->dest_type_name.c_str();
     }
 }
 
@@ -1047,3 +1028,20 @@ Chunk< SampleRow >::DONE:       RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
 //        for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {//, rowCount2++) {
 //            (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
 //        }
+
+//    int size1 = collect->primaries.size(), size2 = collect->secondaries.size(), size3 = collect->combined.size();
+/*
+    // find locations of source boxes
+    // fixme should get storage for secondaries as well?
+    // fixme this was put outside the main loop to avoid multiple queries as well - could actually be included in main loop?
+    int rowCount2 = 0;
+	for (vector<SampleRow *>::iterator it = collect->combined.begin(); it != collect->combined.end(); ++it, rowCount2++) {
+        SampleRow * sample = *it;
+        ostringstream oss; oss<<"Finding storage for "<<sample->cryovial_barcode<<" ["<<rowCount2<<"/"<<rowCount<<"]: ";
+        main->getStorage(sample);
+        if (NULL != sample->backup) {
+            main->getStorage(sample->backup);
+        }
+        oss<<sample->storage_str(); loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
+	} debugMessage = "finished load storage details"; Synchronize((TThreadMethod)&debugLog);
+*/
