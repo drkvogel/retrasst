@@ -4,6 +4,7 @@
 #include "API.h"
 #include <memory>
 #include <string>
+#include <System.Classes.hpp>
 
 namespace paulst
 {
@@ -31,6 +32,7 @@ public:
 		valc::UserAdvisor* warningsListener
 		);
 	~BusinessLayer();
+    void borrowSnapshot( TThreadMethod callback );
     bool close();
     void forceReload();
     valc::SnapshotPtr& getSnapshot();

@@ -91,7 +91,7 @@ void LCDbOperator::setPassword( const std::string & password ) {
 //---------------------------------------------------------------------------
 
 bool LCDbOperator::matchPassword( const std::string & password ) const {
-	return passCode.empty() || compareIC( encrypt( password ), passCode );
+	return passCode.empty() || compareIC( encrypt( password ), passCode ) == 0;
 }
 
 //---------------------------------------------------------------------------

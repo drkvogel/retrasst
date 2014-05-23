@@ -47,9 +47,9 @@ public:
 	void addSamples( SampleVec * samples, const Person & person ) const;
 	void addSamples( SampleVec * samples, const Job & job ) const;
 	std::string updateSamples( const std::map<int,IntSet> & jobCsids,
-		const int dbcrstatus, const IntToStringMap & sampleNote ) const;
+		const int dbcrstatus, int jobNo, const IntToStringMap & sampleNote ) const;
 	std::string createStoreEntries( const std::map<int,IntSet> & jobCsids,
-		LPDbBoxType boxType ) const;
+		const LPDbBoxType & boxType ) const;
 	std::string resetSamples( const std::map<int,IntSet> & jobCsids ) const;
 	std::string calcJobCounts( const int jobno, std::map<int,int> * counts ) const;
 	std::string closeJob( const int jobno ) const;
@@ -65,13 +65,15 @@ public:
 	int getTubeTypeId( const int boxCid ) const;
 	int allocCids( const size_t count = 1 ) const;
 	bool addAuditEntry( const std::string & message ) const;
+	bool createJob( LCDbCryoJob & newJob ) const;
+	bool saveBoxType( LPDbBoxType & type ) const;
 
 protected:
 	void addSamples( SampleVec * samples ) const;
 	void setNotesForSamples( SampleVec * samples ) const;
 	std::string resetSamplesStatus( const std::map<int,IntSet> & jobCsids ) const;
 	std::string updateSamplesStatus( const std::map<int,IntSet> & jobCsids,
-		const int dbcrstatus ) const;
+		const int dbcrstatus, int newJob ) const;
 
 private:
 	LIMSDatabase * m_cdb;

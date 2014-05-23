@@ -103,8 +103,8 @@ private:	// User declarations
 	void displayGridStrings();
 	void FillCryovialList(std::map<int,std::map<String,String> > &cryolist);
 
-	bgWorkerThreadTask *m_pWorkerThreadTask;
-	paulst::WorkerThread m_workerThread;
+//	bgWorkerThreadTask m_WorkerThreadTask;
+	paulst::WorkerThread *m_pWorkerThread;
 
 	std::map<int,std::map<String,String> > m_cryoLists;
 	retrievalList *m_pRetrievalList;
@@ -116,6 +116,14 @@ public:		// User declarations
 	void setup(retrievalList *retrievalList,std::vector<String> &barcodes,String &project_id,String &aliquit_id);
 	void setup(retrievalList *retrievalList,std::vector<String> &sample_barcodes,String &project_id);
 	__fastcall TfrmRetrievalListDialog(TComponent* Owner);
+	~TfrmRetrievalListDialog()
+	{
+		if (m_pWorkerThread!=NULL)
+		{
+			delete m_pWorkerThread;
+			m_pWorkerThread = NULL;
+		}
+	}
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TfrmRetrievalListDialog *frmRetrievalListDialog;

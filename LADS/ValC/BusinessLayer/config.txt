@@ -42,6 +42,9 @@ select valc_next_id.nextval
 LogAllDatabaseStatements:
 true
 
+CacheConnections:
+true
+
 PendingUpdateWaitTimeoutSecs:
 10
 

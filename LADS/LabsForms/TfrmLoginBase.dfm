@@ -19,6 +19,9 @@ object frmLoginBase: TfrmLoginBase
   OldCreateOrder = True
   Position = poScreenCenter
   OnClose = FormClose
+  DesignSize = (
+    330
+    320)
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel
@@ -75,7 +78,7 @@ object frmLoginBase: TfrmLoginBase
     OnClick = okButtonClick
   end
   object userList: TComboBox
-    Left = 122
+    Left = 124
     Top = 143
     Width = 160
     Height = 21
@@ -86,21 +89,26 @@ object frmLoginBase: TfrmLoginBase
     OnChange = textChange
   end
   object rgDatabase: TRadioGroup
-    Left = 46
+    Left = 16
     Top = 56
-    Width = 238
-    Height = 42
-    Columns = 3
+    Width = 298
+    Height = 49
+    Anchors = [akLeft, akTop, akRight]
+    Columns = 5
+    Ctl3D = True
     Items.Strings = (
-      'Test'
       'Live'
-      'Mirror')
+      'Test'
+      'Mirror'
+      'Dev'
+      'DbTest')
+    ParentCtl3D = False
     TabOrder = 0
     TabStop = True
     OnClick = rgDatabaseClick
   end
   object ebPassword: TEdit
-    Left = 122
+    Left = 124
     Top = 187
     Width = 160
     Height = 21

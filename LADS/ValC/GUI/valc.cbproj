@@ -126,6 +126,11 @@
         <TASM_Debugging>None</TASM_Debugging>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <DynamicRTL>false</DynamicRTL>
+        <LinkPackageStatics>rtl.lib;fmx.lib;fmxobj.lib;xmlrtl.lib</LinkPackageStatics>
+        <BCC_PCHUsage>None</BCC_PCHUsage>
         <BCC_PCHName_Clang>valcPCH1.h</BCC_PCHName_Clang>
     </PropertyGroup>
     <ItemGroup>
@@ -271,19 +276,15 @@
             <DependentOn>WorklistItemViewController.h</DependentOn>
             <BuildOrder>33</BuildOrder>
         </CppCompile>
-        <CppCompile Include="WorklistItemViewData.cpp">
-            <DependentOn>WorklistItemViewData.h</DependentOn>
-            <BuildOrder>32</BuildOrder>
-        </CppCompile>
         <LibFiles Include="..\..\..\paulst\lib64\Win64\Debug\paulst_lib.a" Condition="'$(Platform)'=='Win64' Or '$(Platform)'=='OSX32'">
             <BuildOrder>7</BuildOrder>
         </LibFiles>
-        <FormResources Include="TWaitDlg.fmx"/>
         <FormResources Include="TSnapshotFrame.fmx"/>
-        <FormResources Include="TWorklistItemViewFrame.fmx"/>
-        <FormResources Include="TLogFrame.fmx"/>
         <FormResources Include="TQCViewFrame.fmx"/>
+        <FormResources Include="TWorklistItemViewFrame.fmx"/>
+        <FormResources Include="TWaitDlg.fmx"/>
         <FormResources Include="TMainForm.fmx"/>
+        <FormResources Include="TLogFrame.fmx"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

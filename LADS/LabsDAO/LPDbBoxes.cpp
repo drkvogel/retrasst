@@ -189,30 +189,55 @@ bool LPDbBoxNames::readFilled( LQuery pq )
 //  Set up an empty box of the given type with a new name and ID
 //---------------------------------------------------------------------------
 
-bool LPDbBoxName::create( const LPDbBoxType & type, LQuery pQuery, LQuery cQuery )
+bool LPDbBoxName::create( const LPDbBoxType & type, short boxSet, LQuery pQuery, LQuery cQuery )
 {
+	saved = false;
+	projectCID = LCDbProjects::getCurrentID();
 	do { claimNextID( pQuery );
 	} while( needsNewID( cQuery ) );
-	unsigned code = abs( getID() );
-	saved = false;
-	AnsiString typeName = type.getName().c_str();
-	const LCDbProject & proj = LCDbProjects::records().get( LCDbProjects::getCurrentID() );
-	char buff[ 32 ];
-	std::sprintf( buff, "%0.5u", code );
-	barcode = buff;
-	AnsiString projName = proj.getName().c_str();
-	if( typeName.UpperCase().Pos( projName.UpperCase() ) == 0 ) {
-		std::sprintf( buff, "%s %s %u", projName.c_str(), typeName.c_str(), code );
+	char buff[ 20 ];
+	if( boxSet == 0 ) {
+		std::sprintf( buff, "%0.5u", abs( getID() ) );
 	} else {
-		std::sprintf( buff, "%s %u", typeName.c_str(), code );
+		std::sprintf( buff, "%u_%u", abs( boxSet ), abs( getID() ) );
 	}
-	name = buff;
+	barcode = buff;
 	boxTypeID = type.getID();
+	name = createName( type.getName() );
 	filledBy = 0;
 	cryovials.clear();
-	projectCID = LCDbProjects::getCurrentID();
 	status = EMPTY;
 	return saveRecord( pQuery, cQuery );
+}
+
+//---------------------------------------------------------------------------
+//  Concatenate project, box type and barcode to create the box name
+//---------------------------------------------------------------------------
+
+std::string LPDbBoxName::createName( const std::string & type ) const {
+	char buff[ 64 ];
+	unsigned len = 0;
+	const LCDbProjects & projs = LCDbProjects::records();
+	const LCDbProject * proj = projs.findByID( projectCID );
+	const char * next = type.c_str();
+	if( proj != NULL ) {
+		for( char ch : proj->getName() ) {
+			buff[ len ++ ] = std::isalnum( ch ) ? ch : '_';
+		}
+		if( LDbNames::compareIC( proj->getName(), type.substr( len ) ) == 0 ) {
+			next = next + len + 1;
+		}
+		buff[ len ++ ] = ' ';
+	}
+	do {
+		buff[ len ++ ] = std::isalnum( *next ) ? *next : '_';
+	} while( len < 32 && *(++next) != '\0' );
+	buff[ len ++ ] = ' ';
+
+	for( char ch : barcode ) {
+		buff[ len ++ ] = std::isalnum( ch ) ? ch : '_';
+	}
+	return std::string( buff, len );
 }
 
 //---------------------------------------------------------------------------
@@ -329,12 +354,12 @@ bool LPDbBoxName::saveRecord( LQuery & pQuery, LQuery & cQuery )
 bool LPDbBoxName::update( bool central, LQuery & query ) {
 	if( central ) {
 		query.setSQL( "update c_box_name set box_capacity = :cap, status = :sts, barcode = :bar,"
-					" time_stamp = 'now', note_exists = note_exists + :nex, process_cid = :pid"
+					" time_stamp = 'now', process_cid = :pid"
 					" where box_cid = :bid and project_cid = :proj" );
 		query.setParam( "proj", projectCID );
 	} else {
 		query.setSQL( "update box_name set box_capacity = :cap, status = :sts, barcode = :bar,"
-					" time_stamp = 'now', note_exists = note_exists + :nex, process_cid = :pid"
+					" time_stamp = 'now', process_cid = :pid"
 					" where box_cid = :bid" );
 	}
 	query.setParam( "bid", getID() );
@@ -342,7 +367,6 @@ bool LPDbBoxName::update( bool central, LQuery & query ) {
 	query.setParam( "cap", getSpace() );
 	query.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
 	query.setParam( "sts", status );
-	query.setParam( "nex", 0 );
 	return query.execSQL();
 }
 
@@ -351,13 +375,13 @@ bool LPDbBoxName::update( bool central, LQuery & query ) {
 bool LPDbBoxName::insert( bool central, LQuery & query ) {
 	if( central ) {
 		query.setSQL( "insert into c_box_name (box_cid, project_cid, box_type_cid, box_capacity,"
-					 " external_name, barcode, status, time_stamp, process_cid, note_exists)"
-					 " values ( :bid, :proj, :btid, :cap, :exn, :bar, :sts, 'now', :pid, :nex)" );
+					 " external_name, barcode, status, time_stamp, process_cid)"
+					 " values ( :bid, :proj, :btid, :cap, :exn, :bar, :sts, 'now', :pid)" );
 		query.setParam( "proj", projectCID );
 	} else {
 		query.setSQL( "insert into box_name (box_cid, box_type_cid, box_capacity,"
 					" external_name, barcode, status, time_stamp, process_cid, note_exists)"
-					" values ( :bid, :btid, :cap, :exn, :bar, :sts, 'now', :pid, :nex)" );
+					" values ( :bid, :btid, :cap, :exn, :bar, :sts, 'now', :pid, 0)" );
 	}
 	query.setParam( "exn", name );
 	query.setParam( "btid", boxTypeID );
@@ -366,7 +390,6 @@ bool LPDbBoxName::insert( bool central, LQuery & query ) {
 	query.setParam( "cap", getSpace() );
 	query.setParam( "pid", LCDbAuditTrail::getCurrent().getProcessID() );
 	query.setParam( "sts", status );
-	query.setParam( "nex", 0 );
 	return query.execSQL();
 }
 
@@ -433,30 +456,23 @@ bool LPDbBoxName::addEventRecord( LQuery query, const LCDbObject * event, const 
 	return query.execSQL();
 }
 */
+
 //---------------------------------------------------------------------------
 //	Find a box with the given name (usually based on type + ID)
 //---------------------------------------------------------------------------
 
-class /* LPDbBoxNames:: */ NameMatcher : public std::unary_function< LPDbBoxName, bool >
+class LPDbBoxNames::NameMatcher : public LDbNames::LCMatcher
 {
-	const std::string name;
-
 public:
-
-	NameMatcher( const std::string & s ) : name( s ) {}
-
-	operator std::string() const { return name; }
-
-	bool operator() ( const LPDbBoxName & other ) const
-	{
-		return name.compare( other.getName() ) == 0;
+	NameMatcher( const std::string & s ) : LCMatcher( s ) {}
+	bool operator() ( const LPDbBoxName & other ) const	{
+		return lcValue == LDbNames::makeLower( other.getName() );
 	}
 };
 
 //---------------------------------------------------------------------------
 
-const LPDbBoxName * LPDbBoxNames::find( const std::string & name ) const
-{
+const LPDbBoxName * LPDbBoxNames::find( const std::string & name ) const {
 	return findMatch( NameMatcher( name ) );
 }
 
@@ -464,15 +480,15 @@ const LPDbBoxName * LPDbBoxNames::find( const std::string & name ) const
 //	Find a box of the given type with space for further cryovials
 //---------------------------------------------------------------------------
 
-class /* LPDbBoxNames:: */ SpaceMatcher : public std::unary_function< LPDbBoxName, bool >
+class LPDbBoxNames::SpaceMatcher : public std::unary_function< LPDbBoxName, bool >
 {
 	const int btid;
 	const short needed;
 
 public:
 
-	SpaceMatcher( int boxType ) : btid( boxType ),
-		needed( LPDbBoxTypes::records().get( boxType ).getAliquots().size() )
+	SpaceMatcher( int boxType )
+	 : btid( boxType ),	needed( LPDbBoxTypes::records().get( boxType ).getAliquots().size() )
 	{}
 
 	operator std::string() const {
@@ -481,16 +497,14 @@ public:
 		return out.str();
 	}
 
-	bool operator() ( const LPDbBoxName & other ) const
-	{
+	bool operator() ( const LPDbBoxName & other ) const {
 		return other.getTypeID() == btid && other.getSpace() >= needed;
 	}
 };
 
 //---------------------------------------------------------------------------
 
-const LPDbBoxName * LPDbBoxNames::findSpace( int boxType ) const
-{
+const LPDbBoxName * LPDbBoxNames::findSpace( int boxType ) const {
 	return findMatch( SpaceMatcher( boxType ) );
 }
 

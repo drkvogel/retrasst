@@ -13,6 +13,7 @@
 #include "CompositeRuleResultPublisher.h"
 #include "ComUtil.h"
 #include "Config.h"
+#include "ConnectionFactoryWithCaching.h"
 #include "ConnectionFactoryWithLogging.h"
 #include "ControlModel.h"
 #include "Cursor.h"
@@ -117,10 +118,17 @@ void InitialiseApplicationContext( int localMachineID, int user, const std::stri
         {
             throw Exception( L"ConnectionFactoryType (in config) is not valid.  Valid values are 'ADO' or 'Mock'." );
         }
+
         if ( "true" == ac->getProperty("LogAllDatabaseStatements") )
         {
             ac->connectionFactory = new paulstdb::ConnectionFactoryWithLogging( ac->connectionFactory, log );
         }
+
+        if ( "true" == ac->getProperty("CacheConnections") )
+        {
+            ac->connectionFactory = new paulstdb::ConnectionFactoryWithCaching( ac->connectionFactory );
+        }
+
         ac->localMachineID                      = localMachineID;
         ac->user                                = user;
         ac->userAdvisor                         = userAdvisor;

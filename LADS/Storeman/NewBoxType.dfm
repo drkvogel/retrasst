@@ -106,6 +106,7 @@ object frmNewBoxType: TfrmNewBoxType
     Height = 21
     Sorted = True
     TabOrder = 5
+    OnChange = cbATChange
     OnDropDown = aliquotDropDown
   end
   object cbAT2: TComboBox
@@ -115,6 +116,7 @@ object frmNewBoxType: TfrmNewBoxType
     Height = 21
     Sorted = True
     TabOrder = 6
+    OnChange = cbATChange
     OnDropDown = aliquotDropDown
   end
   object cbAT3: TComboBox
@@ -124,6 +126,7 @@ object frmNewBoxType: TfrmNewBoxType
     Height = 21
     Sorted = True
     TabOrder = 7
+    OnChange = cbATChange
     OnDropDown = aliquotDropDown
   end
   object cbForms: TComboBox

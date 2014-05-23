@@ -33,13 +33,12 @@ public:
 
 	class LCMatcher : public std::unary_function< LDbNames, bool >
 	{
+	protected:
 		std::string value, lcValue;
 
 	public:
-
-		LCMatcher( const std::string & s ) : value( s ), lcValue( makeLower( s ) )
-		{}
-
+		LCMatcher( const std::string & s ) : value( s ), lcValue( makeLower( s ) ) {
+		}
 		const std::string & getLCValue() const { return lcValue; }
 		operator std::string() const { return lcValue; }
 		bool operator() ( const LDbNames & other ) const;

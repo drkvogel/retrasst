@@ -48,6 +48,7 @@ __published:	// IDE-managed Components
 	void __fastcall cbTypesDropDown(TObject *Sender);
 	void __fastcall cbTypesChange(TObject *Sender);
 	void __fastcall txtNameExit(TObject *Sender);
+	void __fastcall cbATChange(TObject *Sender);
 
 private:	// User declarations
 

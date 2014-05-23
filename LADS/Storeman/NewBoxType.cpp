@@ -242,8 +242,7 @@ bool TfrmNewBoxType::checkDetails() {
 
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmNewBoxType::txtNameExit(TObject *Sender)
-{
+void __fastcall TfrmNewBoxType::txtNameExit(TObject *Sender) {
 	AnsiString name = ((TEdit*)Sender)->Text;
 	bool ready = false;
 	if( !name.IsEmpty() ) {
@@ -268,6 +267,13 @@ bool TfrmNewBoxType::matchesExpected( const std::vector< int > & aliquotIDs ) {
 		required.erase( aliquot );
 	}
 	return required.empty();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmNewBoxType::cbATChange(TObject *Sender)
+{
+	btnOK->Enabled = checkDetails();
 }
 
 //---------------------------------------------------------------------------

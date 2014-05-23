@@ -4,6 +4,7 @@
  *
  *		8 June 2012		Initial version, based on Guru's Lab API code
  *      11 Sept 2013	Find database name from LCDbProjects if needed
+ *      21 May 14, NG:	Switch vnodes between vlab and vlabdev
  *
  --------------------------------------------------------------------------- */
 
@@ -40,7 +41,7 @@ LIMSDatabase LIMSDatabase::getProjectDb( int projID ) {
 	if( projID == 0 || projID == -1 ) {
 		projID = LCDbProjects::getCurrentID( );
 	}
-	return getProjectDb( LCDbProjects::records( ).get( projID ).getDbName() );
+	return getProjectDb( LCDbProjects::records().get( projID ).getDbName() );
 }
 
 //---------------------------------------------------------------------------
@@ -53,7 +54,7 @@ LIMSDatabase LIMSDatabase::getProjectDb( const std::string & dbName, bool distri
 //---------------------------------------------------------------------------
 
 LIMSDatabase::LIMSDatabase( const std::string &rootName )
- : name( rootName ), xdb( NULL ), dbs( UNKNOWN ) {
+ : name( rootName ), xdb( NULL ), owner( UNKNOWN ) {
 }
 
 //---------------------------------------------------------------------------
@@ -70,7 +71,7 @@ LIMSDatabase::~LIMSDatabase( ) {
 //---------------------------------------------------------------------------
 
 LIMSDatabase::LIMSDatabase( const LIMSDatabase &other )
- : name( other.name ), xdb( NULL ), dbs( UNKNOWN ) {
+ : name( other.name ), xdb( NULL ), owner( other.owner ) {
 }
 
 //---------------------------------------------------------------------------
@@ -88,7 +89,7 @@ bool LIMSDatabase::includes( const std::string & dbName ) {
 }
 
 //---------------------------------------------------------------------------
-//	Ignore test_ or t_ prefix; add them depending on current system
+//	Ignore test_ or t_ prefix (add them depending on current system)
 //---------------------------------------------------------------------------
 
 std::string LIMSDatabase::getRootName( const std::string &dbName ) {
@@ -105,12 +106,34 @@ std::string LIMSDatabase::getRootName( const std::string &dbName ) {
 
 std::string LIMSDatabase::getPrefix( DbSystem system ) {
 	switch( system ) {
-		case LIVE_DATA:
+		case VLAB_LIVE:
+		case LABDEV_MIRROR:
 			return "";
-		case TEST_DATA:
+		case VLAB_TEST:
+		case LABDEV_TEST:
 			return "test_";
-		case MIRROR_SYSTEM:
+		case LABDEV_DEV:
 			return "t_";
+		default:
+			throw Exception( "Database system not selected" );
+	}
+}
+
+//---------------------------------------------------------------------------
+//	chose the apropriate vnode for the given database
+//---------------------------------------------------------------------------
+
+std::string LIMSDatabase::getVNode( DbSystem system ) {
+	switch( system ) {
+		case VLAB_LIVE:
+		case VLAB_TEST:
+			return "vnode_vlab_64";
+
+		case LABDEV_MIRROR:
+		case LABDEV_TEST:
+		case LABDEV_DEV:
+			return "vnode_labdev_64";
+
 		default:
 			throw Exception( "Database system not selected" );
 	}
@@ -119,29 +142,28 @@ std::string LIMSDatabase::getPrefix( DbSystem system ) {
 //---------------------------------------------------------------------------
 
 std::string LIMSDatabase::getDbName( ) const {
-	DbSystem system = isConnected() ? dbs : current;
-	return getPrefix( system ) + name;
+	DbSystem dbs = isConnected() ? owner : current;
+	return getVNode( dbs ) + "::" + getPrefix( dbs ) + name;
+}
+
+//---------------------------------------------------------------------------
+
+std::string LIMSDatabase::getConnectionName( const std::string & dbName ) {
+	return getVNode( current ) + "::" + getPrefix( current ) + getRootName( dbName );
 }
 
 //---------------------------------------------------------------------------
 // 	Switch to current system and connect (using installation password)
 //---------------------------------------------------------------------------
 
-#if _WIN64
-static std::string vnode = "vnode_vlab_64";
-// static std::string vnode = "vnode_labdev_64";
-#elif _WIN32
-static std::string vnode = "vnode_vlab";
-#endif
-
 XDB *LIMSDatabase::connect( bool readLocks ) {
-	if( isConnected() && dbs != current ) {
+	if( isConnected() && owner != current ) {
 		xdb->close();
 		delete xdb;
 		xdb = NULL;
 	}
 	if( !isConnected() ) {
-		std::string dbName = vnode + "::" + getPrefix( current ) + name;
+		std::string dbName = getVNode( current ) + "::" + getPrefix( current ) + name;
 		xdb = new XDB( dbName );
 		if( !xdb->open( ) ) {
 			throw Exception( String( "Cannot open " ) + dbName.c_str( ) );
@@ -152,7 +174,7 @@ XDB *LIMSDatabase::connect( bool readLocks ) {
 				throw Exception( "Error disabling read locks" );
 			}
 		}
-		dbs = current;
+		owner = current;
 		setErrorCallBacks( );
 	}
 	return xdb;

@@ -1,16 +1,15 @@
 #ifndef WorklistItemViewControllerH
 #define WorklistItemViewControllerH
 
-#include "API.h"
-#include "CritSec.h"
 #include "ModelEventListenerAdapter.h"
-#include "WorklistItemViewData.h"
-#include <stack>
-#include "TWorklistItemViewFrame.h"
 
-namespace stef
+class TWorklistItemViewFrame;
+
+namespace valc
 {
-    class ThreadPool;
+    class SnapshotPtr;
+    class TestResult;
+    class WorklistRelative;
 }
 
 namespace valcui
@@ -23,25 +22,22 @@ class WorklistItemViewController
 {
 public:
 	WorklistItemViewController( TWorklistItemViewFrame* widgetContainer, Model* m );
-    void factoryCallback( bool cancelled, const std::string& error, const WorklistItemViewData& output );
-	void onForceReload( valc::SnapshotPtr& );
-	void onWarningAlarmOn();
-	void onWarningAlarmOff();
-	void onWorklistEntrySelected( int worklistEntryID );
-    void setThreadPool( stef::ThreadPool* tp );
-    void __fastcall useUpdatedViewData();
+    void __fastcall familyTreeClickHandler( TObject* sender );
+	void notify( int modelEvent );
+    void __fastcall update();
 private:
-	TWorklistItemViewFrame* m_widgetContainer;
-	ModelEventListenerAdapter<WorklistItemViewController> m_eventListener;
-    stef::ThreadPool* m_threadPool;
-    valc::SnapshotPtr m_snapshotPtr;
-    std::unique_ptr<WorklistItemViewData> m_viewData;
-	paulst::CritSec m_critSec;
+	TWorklistItemViewFrame* const                           m_widgetContainer;
+	ModelEventListenerAdapter<WorklistItemViewController>   m_eventListener;
+    Model* const                                            m_model;
 
+    void addTreeNodeForWorklistEntry( const valc::SnapshotPtr& s, const valc::WorklistRelative& wr, TTreeViewItem* parent = NULL );
     void clear();
+    std::string describe( const valc::SnapshotPtr& s, const valc::WorklistRelative& wr ) const;
+    void describeFamilyTree( const valc::SnapshotPtr& snapshot, const valc::WorklistEntry* w );
 	void describeResult( const valc::TestResult* r );
-    UnicodeString describeTest( int testID ) const;
-
+    UnicodeString describeTest( const valc::SnapshotPtr& s, int testID ) const;
+    const valc::WorklistEntry* searchLocalRunSequenceForWorklistEntry( const valc::SnapshotPtr& snapshot, int worklistEntryID ) const;
+    const valc::WorklistEntry* searchQueueForWorklistEntry           ( const valc::SnapshotPtr& snapshot, int worklistEntryID ) const;
 };
 
 }

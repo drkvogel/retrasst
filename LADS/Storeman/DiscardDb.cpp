@@ -214,22 +214,19 @@ const LCDbCryoJob * Db::getJob( const int jobno ) const {
     return job;
 }
 
-const LCDbCryoJob * Db::makeJob() const {
-/*	const std::string & name, const std::string & description, const std::string & reason ) const {
-	LCDbCryoJob newjob(0, LCDbCryoJob::SAMPLE_DISCARD );	/// fixme: may be box disposal
-	newjob.createName(*m_cq, prefix + " ");
-	newjob.setDescription(description);
-	newjob.setReason(reason.empty() ? description : reason);
-*/
-	LCDbCryoJob newjob = frmNewJob->getDetails();
-	newjob.setProjectID(getPproj()->getID());
-	newjob.setStatus(LCDbCryoJob::INPROGRESS);
-	newjob.saveRecord(*m_cq);
-	return getJob(newjob.getID());
+bool Db::createJob( LCDbCryoJob & newJob ) const {
+	newJob.setProjectID(getPproj()->getID());
+	newJob.setStatus(LCDbCryoJob::NEW_JOB);
+	return newJob.saveRecord(*m_cq);
 }
 
 bool Db::isJob( const int jobno ) const {
-    return getJob(jobno) != 0;
+	return getJob(jobno) != 0;
+}
+
+bool Db::saveBoxType( LPDbBoxType & type ) const {
+	type.setProjectCID( 0 );
+	return type.saveRecord( *m_pq, *m_cq );
 }
 
 const LCDbOperator * Db::getUser( const int userid ) const {
@@ -519,8 +516,7 @@ void Db::setNotesForSamples( SampleVec * samples ) const {
 
 std::string Db::updateSamples(
 	const std::map<int,IntSet> & jobCsids, const int dbcrstatus,
-//	const std::string & jobName, const std::string & jobDescription,
-	const IntToStringMap & sampleNote ) const {
+	int jobNo, const IntToStringMap & sampleNote ) const {
 
 	std::string error = "";
 	do {
@@ -530,7 +526,7 @@ std::string Db::updateSamples(
 				}
 				m_pdb->StartTransaction(); */
 
-		error = updateSamplesStatus(jobCsids, dbcrstatus); //, jobName, jobDescription);
+		error = updateSamplesStatus(jobCsids, dbcrstatus, jobNo); //, jobName, jobDescription);
 
 		if (error != "") {
 //			m_pdb->Rollback();
@@ -563,8 +559,7 @@ std::string Db::updateSamples(
 }
 
 std::string Db::updateSamplesStatus(
-	const std::map<int,IntSet> & jobCsids, const int dbcrstatus ) const {
-//	const std::string & jobName, const std::string & jobDescription ) const {
+	const std::map<int,IntSet> & jobCsids, const int dbcrstatus, int newJob ) const {
 	std::string error = "";
 
 	{
@@ -578,7 +573,6 @@ std::string Db::updateSamplesStatus(
 			"  AND CS.record_id = :csid"
 			"  AND CS.retrieval_cid = :jobno"
 			;
-
 		m_pq->setSQL(sql.c_str());
 	}
 
@@ -589,9 +583,8 @@ std::string Db::updateSamplesStatus(
 
 	for (std::map<int,IntSet>::const_iterator it1 = jobCsids.begin(); it1 != jobCsids.end(); it1++) {
 		const int jobno = it1->first;
-		const IntSet csids = it1->second;
 		const bool isNewJob = (jobno == 0);
-		const LCDbCryoJob * pjob = isNewJob ? makeJob(/*jobName, jobDescription*/) : getJob(jobno);
+		const LCDbCryoJob * pjob = getJob( isNewJob ? newJob : jobno );
 		if (pjob == 0) {
 			error = (jobno == 0)
 					? std::string("failed to create job")
@@ -609,6 +602,7 @@ std::string Db::updateSamplesStatus(
 		m_pq->setParam("jobno", jobno);
 		m_pq->setParam("newjobno", newjobno);
 
+		const IntSet csids = it1->second;
 		for (IntSet::const_iterator it2 = csids.begin();
 				it2 != csids.end(); it2++) {
 			const int csid = *it2;
@@ -631,10 +625,8 @@ std::string Db::updateSamplesStatus(
 	return error;
 }
 
-std::string Db::createStoreEntries( const std::map<int,IntSet> & jobCsids, LPDbBoxType boxType ) const {
+std::string Db::createStoreEntries( const std::map<int,IntSet> & jobCsids, const LPDbBoxType & boxType ) const {
 
-	boxType.setProjectCID( 0 );
-	boxType.saveRecord( *m_pq, *m_cq );
 	LPDbBoxNames boxes;
 	boxes.readCurrent( *m_pq );
 
@@ -647,16 +639,15 @@ std::string Db::createStoreEntries( const std::map<int,IntSet> & jobCsids, LPDbB
 
 	const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 	for (std::map<int,IntSet>::const_iterator it1 = jobCsids.begin(); it1 != jobCsids.end(); it1++) {
-		const int jobno = it1->first;
+		const LCDbCryoJob * job = LCDbCryoJobs::records().findByID( it1->first );
+		const short boxSet = (job == NULL ? 0 : job->getBoxSet());
 		const IntSet csids = it1->second;
-
 		IntSet::const_iterator it2 = csids.begin();
 		while( it2 != csids.end() ) {
-
 			LPDbBoxName box;
 			const LPDbBoxName * existing = boxes.findSpace( boxType.getID() );
 			if( existing == NULL ) {
-				box.create( boxType, *m_pq, *m_cq );
+				box.create( boxType, boxSet, *m_pq, *m_cq );
 			} else {
 				box = *existing;
 			}
@@ -742,7 +733,7 @@ std::string Db::resetSamplesStatus( const std::map<int,IntSet> & jobCsids ) cons
         const int jobno = it1->first;
         const IntSet csids = it1->second;
 
-        const LCDbCryoJob * pjob = getJob(jobno);
+		const LCDbCryoJob * pjob = getJob(jobno);
         if (pjob == 0) {
             error = "failed to find job " + Util::asString(jobno);
             break;
@@ -846,7 +837,7 @@ std::string Db::closeJob( const int jobno ) const {
 
         if (nremaining != 0) break;
 
-        const LCDbCryoJob * pjob = getJob(jobno);
+		const LCDbCryoJob * pjob = getJob(jobno);
         if (pjob == 0) {
             error = "failed to find job " + Util::asString(jobno);
             break;
@@ -1001,7 +992,7 @@ time_t Db::getJobCreationUtime( const int jobno ) const {
     time_t utime = -1;
 
     do {
-        const LCDbCryoJob * job = getJob(jobno);
+		const LCDbCryoJob * job = getJob(jobno);
         if (job == 0) break;
 
         const TDateTime epoch(1970, 1, 1);

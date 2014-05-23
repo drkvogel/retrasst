@@ -95,9 +95,9 @@ bool LPDbBoxType::saveRecord( LQuery pQuery, LQuery cQuery ) {
 	if( getID() == 0 ) {
 		claimNextID( cQuery );
 	}
-	if( !update( true, cQuery ) && !insert( true, cQuery ) ) {
+	if( !update( false, pQuery ) && !insert( false, pQuery ) ) {
 		saved = false;
-	} else if( !update( false, pQuery ) && !insert( false, pQuery ) ) {
+	} else if( !update( true, cQuery ) && !insert( true, cQuery ) ) {
 		saved = false;
 	} else {
 		saved = true;
@@ -115,7 +115,7 @@ bool LPDbBoxType::update( bool central, LQuery & query ) {
 					" where box_type_cid = :cid" );
 		query.setParam( "proj", projectCID );
 	} else {
-		query.setSQL( "Update box_content set status = :sts, time_stamp = 'now'"
+		query.setSQL( "Update box_content set status = :sts, time_stamp = 'now',"
 					" expected_use = :eu, box_size_cid = :bs, box_order = :ord, box_set_link = :lnk,"
 					" aliquot_type1 = :at1, aliquot_type2 = :at2, aliquot_type3 = :at3"
 					" where box_type_cid = :cid" );
@@ -160,6 +160,29 @@ bool LPDbBoxType::insert( bool central, LQuery & query ) {
 	query.setParam( "at2", alr == content.end() ? 0 : *alr ++ );
 	query.setParam( "at3", alr == content.end() ? 0 : *alr ++ );
 	return query.execSQL();
+}
+
+
+//---------------------------------------------------------------------------
+//	Find a type with a similar name in this or all projects
+//---------------------------------------------------------------------------
+
+class LPDbBoxTypes::NameMatcher : public LDbNames::LCMatcher
+{
+public:
+	NameMatcher( const std::string & s ) : LCMatcher( s ) {}
+	bool operator() ( const LPDbBoxType & other ) const	{
+		return (other.getProjectCID() == 0
+			 || other.getProjectCID() == LCDbProjects::getCurrentID())
+			&& (lcValue == LDbNames::makeLower( other.getName() )
+			 || lcValue == LDbNames::makeLower( other.getDescription() ));
+	}
+};
+
+//---------------------------------------------------------------------------
+
+const LPDbBoxType * LPDbBoxTypes::find( const std::string & name ) const {
+	return findMatch( NameMatcher( name ) );
 }
 
 //---------------------------------------------------------------------------

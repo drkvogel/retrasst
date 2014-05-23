@@ -12,7 +12,7 @@
  *  7 Jan 2009      Also read test definitions when user log on
  *  7 Apr 09, NG:	Show user name, not "NULL", if they cannot log in!
  *  23 Mar 11, NG:	Warn user before switching between databases
- *
+ *  21 May 14, NG:	Include vlab and vlabdev in system selection
  *--------------------------------------------------------------------------*/
 
 #include <vcl.h>
@@ -45,11 +45,11 @@ __fastcall TfrmLoginBase::TfrmLoginBase(TComponent* Owner) : TForm(Owner)
 	std::string ver = LIMSParams::instance().getProgVersion();
 	String app = Application -> Title + " " + ver.c_str();
 #ifdef _DEBUG
-	rgDatabase -> ItemIndex = LIMSDatabase::MIRROR_SYSTEM;
+	rgDatabase -> ItemIndex = LIMSDatabase::LABDEV_DEV;
 	version -> Font -> Color = clRed;
 	version -> Caption = app + " **DEBUG**";
 #else
-	rgDatabase -> ItemIndex = LIMSDatabase::LIVE_DATA;
+	rgDatabase -> ItemIndex = LIMSDatabase::VLAB_LIVE;
 	version -> Font -> Color = clBlack;
 	version -> Caption = app + " **FINAL**";
 #endif
@@ -114,8 +114,8 @@ void __fastcall TfrmLoginBase::initialise(TObject *)
     for (int i=0; i < userList->Items->Count; i++) {
         if (0 == userList->Items->Strings[i].CompareIC("Chris Bird")) {
             userList->ItemIndex = i;
-            //ebPassword->Text = "albatross";
-            ebPassword->Text = "hunter";
+            ebPassword->Text = "albatross";
+            //ebPassword->Text = "hunter";
         }
     }
     //userList->ItemIndex = 4;

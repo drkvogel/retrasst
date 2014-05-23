@@ -82,36 +82,51 @@ object MainForm: TMainForm
     object Splitter1: TSplitter
       Align = alTop
       Cursor = crVSplit
-      Height = 17.000000000000000000
+      Height = 19.000000000000000000
       MinSize = 20.000000000000000000
       Position.Y = 329.000000000000000000
       Width = 685.000000000000000000
     end
     object bottomPanel: TPanel
       Align = alClient
-      Height = 206.000000000000000000
+      Height = 167.000000000000000000
       Width = 685.000000000000000000
       TabOrder = 2
       object bottomPanelLeft: TPanel
         Align = alLeft
-        Height = 206.000000000000000000
+        Height = 167.000000000000000000
         Width = 313.000000000000000000
         TabOrder = 0
       end
       object Splitter2: TSplitter
         Align = alLeft
         Cursor = crHSplit
-        Height = 206.000000000000000000
+        Height = 167.000000000000000000
         MinSize = 20.000000000000000000
         Position.X = 313.000000000000000000
         Width = 17.000000000000000000
       end
       object bottomPanelRight: TPanel
         Align = alClient
-        Height = 206.000000000000000000
+        Height = 167.000000000000000000
         Width = 355.000000000000000000
         TabOrder = 2
       end
+    end
+    object midPanel: TPanel
+      Align = alTop
+      Height = 21.000000000000000000
+      Position.Y = 348.000000000000000000
+      Width = 685.000000000000000000
+      TabOrder = 3
+    end
+    object Splitter3: TSplitter
+      Align = alTop
+      Cursor = crVSplit
+      Height = 16.000000000000000000
+      MinSize = 20.000000000000000000
+      Position.Y = 369.000000000000000000
+      Width = 685.000000000000000000
     end
   end
   object StyleBook1: TStyleBook

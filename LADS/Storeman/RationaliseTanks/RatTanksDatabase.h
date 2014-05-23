@@ -155,8 +155,8 @@ public:
 
 	TMemo *m_debugMemo;
 
-	void connect(String &selectDB,TMemo *debugMem);
-	bool connectProject(std::string projectName);
+	void connect(const AnsiString &selectDB,TMemo *debugMem);
+	bool connectProject(const std::string &projectName);
 
 	void getExerciseList(std::map<std::string, std::map<std::string,std::string> > &exerciseList);
 	void getAllAliquotsFromCentral(std::map<std::string, std::map<std::string,std::string> >  &aliquotList);

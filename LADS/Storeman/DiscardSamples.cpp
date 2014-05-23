@@ -606,12 +606,13 @@ void __fastcall TfrmDiscardSamples::btnConfirmClick(TObject *Sender) {
 		}
 		if( !error.empty() ) break;
 
-		int boxTypeID = 0;
 		if (m_context->isCreateJobStage()) {
 			frmNewJob->init(LCDbCryoJob::SAMPLE_DISCARD);
 			if (frmNewJob->ShowModal() != mrOk) break;
+			m_context->setJob(frmNewJob->getDetails());
 			frmNewBoxType->init( aliquots, sharedSizeId );
 			if (frmNewBoxType->ShowModal() != mrOk) break;
+			m_context->setBoxType(frmNewBoxType->getDetails());
 		}
 		if (m_context->isSelectJobStage()) {
 			frmDiscardMethod->init(m_context);
@@ -640,12 +641,10 @@ void __fastcall TfrmDiscardSamples::btnConfirmClick(TObject *Sender) {
 		frmConfirm->initialise(TfrmSMLogin::DISCARD, summary.c_str());
 		if (frmConfirm->ShowModal() != mrOk) break;
 		AnsiString userid =  frmConfirm->cbUserNames->Text ;
-
 		{
 			TCursor cursor = Screen->Cursor;
 			Screen->Cursor = crHourGlass;
-			LPDbBoxType bt = frmNewBoxType->getDetails();
-			error = m_samples.update(m_context->getNextDbCrstatus(), bt);
+			error = m_samples.update(m_context->getNextDbCrstatus());
 			Screen->Cursor = cursor;
 		}
 		if( !error.empty() ) break;

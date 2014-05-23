@@ -1,5 +1,6 @@
 #include <FMX.Dialogs.hpp>
 #include "Model.h"
+#include "ModelEventConstants.h"
 #include "SnapshotFrameController.h"
 
 namespace valcui
@@ -44,27 +45,25 @@ void SnapshotFrameController::notifySelected( int worklistEntryID )
     m_model->setSelectedWorklistEntry( worklistEntryID );
 }
 
-void SnapshotFrameController::onForceReload( valc::SnapshotPtr& snapshot )
+void __fastcall SnapshotFrameController::update()
 {
     m_dataManager->haveSnapshot = false;
     m_dataManager->clearAll();
     m_guiManager->clearAll();
-    m_dataManager->makeDataModel(snapshot);
+    m_dataManager->makeDataModel(m_model->getSnapshot());
     m_guiManager->setUpGUIcomponents();  // components representing the data model
 }
 
-void SnapshotFrameController::onWarningAlarmOn()
+void SnapshotFrameController::notify( int modelEvent )
 {
-    ShowMessage( "Warning alarm on" );
-}
+    using namespace MODEL_EVENT;
 
-void SnapshotFrameController::onWarningAlarmOff()
-{
-    ShowMessage( "Warning alarm off" );
-}
-
-void SnapshotFrameController::onWorklistEntrySelected( int worklistEntryID )
-{
+    switch( modelEvent )
+    {
+    case FORCE_RELOAD       : m_model->borrowSnapshot( update ); break;
+    case WARNING_ALARM_ON   : ShowMessage( "Warning alarm on" ); break;
+    case WARNING_ALARM_OFF  : ShowMessage( "Warning alarm off" ); break;
+    }
 }
 
 void SnapshotFrameController::resize()

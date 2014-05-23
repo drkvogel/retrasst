@@ -7,6 +7,8 @@ object QCViewFrame: TQCViewFrame
     Width = 594.000000000000000000
     TabOrder = 0
     object Label1: TLabel
+      Font.Style = [fsBold]
+      StyledSettings = [ssFamily, ssSize, ssFontColor]
       Height = 17.000000000000000000
       Position.X = 32.000000000000000000
       Position.Y = 8.000000000000000000

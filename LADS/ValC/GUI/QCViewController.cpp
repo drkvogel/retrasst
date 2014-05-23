@@ -1,7 +1,8 @@
-#include "AcquireCriticalSection.h"
 #include "FMXTemplates.h"
 #include "Model.h"
+#include "ModelEventConstants.h"
 #include "QCViewController.h"
+#include "QCViewData.h"
 #include "Require.h"
 #include <sstream>
 
@@ -14,35 +15,38 @@ QCViewController::QCViewController( TQCViewFrame* widgetContainer, Model* m )
 	:
 	m_widgetContainer( widgetContainer ),
 	m_eventListener(this),
-    m_threadPool(NULL)
+    m_model(m)
 {
 	m->registerModelEventListener( &m_eventListener );
 }
 
-void QCViewController::addNodesForControllingQCs( const valc::QCControls& controls )
+void QCViewController::addNodesForControllingQCs( 
+    const QCViewData& data, 
+    const valc::SnapshotPtr& snapshot, 
+    const valc::QCControls& controls )
 {
 	for ( int i = 0; i < controls.size(); ++i )
 	{
 		const valc::QCControl& c = controls[i];
 
-        pushNode( describeControl( c ), false );
+        pushNode( describeControl( data, c ), false );
 
         pushNode( "Result", false );
-        pushNode( describeControlResult( c ), false );
+        pushNode( describeControlResult( data, c ), false );
         popNode();
         popNode();
 
         pushNode( "Rules applied", false  );
-		addNodesForRules( c.resultID() );
+		addNodesForRules( snapshot, c.resultID() );
 		popNode();
 
         popNode();
 	}
 }
 
-void QCViewController::addNodesForRules( int controlResultID )
+void QCViewController::addNodesForRules( const valc::SnapshotPtr& snapshot, int controlResultID )
 {
-    valc::RuleResults rr = m_snapshotPtr->getRuleResults( controlResultID );
+    valc::RuleResults rr = snapshot->getRuleResults( controlResultID );
 
     for ( const valc::RuleResult& r : rr )
     {
@@ -78,10 +82,10 @@ std::string QCViewController::describe( valc::ResultCode rc ) const
     return s;
 }
 
-std::string QCViewController::describeControl( const valc::QCControl& c ) const
+std::string QCViewController::describeControl( const QCViewData& data, const valc::QCControl& c ) const
 {
 	// The QCControl gives the result ID.  Try to get hold of the associated WorklistEntry.
-	const valc::WorklistEntry* qcWorklistEntry = m_viewData->lookupWorklistEntry( c.resultID() );
+	const valc::WorklistEntry* qcWorklistEntry = data.lookupQCWorklistEntry( c.resultID() );
 
 	std::ostringstream label;
 
@@ -99,11 +103,11 @@ std::string QCViewController::describeControl( const valc::QCControl& c ) const
 	return label.str();
 }
 
-std::string QCViewController::describeControlResult( const valc::QCControl& c ) const
+std::string QCViewController::describeControlResult( const QCViewData& data, const valc::QCControl& c ) const
 {
     std::ostringstream s;
 
-    const valc::TestResult* qcResult = m_viewData->lookupResult( c.resultID() );
+    const valc::TestResult* qcResult = data.lookupQCResult( c.resultID() );
 
     if ( qcResult ) 
     {
@@ -140,62 +144,35 @@ std::string QCViewController::describeTestResult( const valc::TestResult* r ) co
 	return label.str();
 }
 
-std::string QCViewController::describeWorklistEntry() const
+std::string QCViewController::describeWorklistEntry( const QCViewData& data, const valc::SnapshotPtr& snapshot ) const
 {
 	std::ostringstream label;
 
-	if ( m_viewData->worklistEntry )
+	if ( data.getWorklistEntry() )
 	{
-		label << m_viewData->worklistEntry->getBarcode()
+		label << data.getWorklistEntry()->getBarcode()
 			<< "  "
-			<< m_snapshotPtr->getTestName( m_viewData->worklistEntry->getTestID() )
+			<< snapshot->getTestName( data.getWorklistEntry()->getTestID() )
 			<< " (id:"
-			<< m_viewData->worklistEntry->getID()
+			<< data.getWorklistEntry()->getID()
 			<< ")";
 	}
 	else
 	{
 		label << "Details for worklist entry "
-			<< m_viewData->worklistEntryID
+			<< data.getWorklistEntryID()
 			<< " not found.  Perhaps not run on this analyser?";
 	}
 
 	return label.str();
 }
 
-void QCViewController::factoryCallback( bool cancelled, const std::string& error, const QCViewData& output )
+void QCViewController::notify( int modelEvent )
 {
-    paulst::AcquireCriticalSection a(m_critSec);
-
-    if ( cancelled || error.size() )
+    if (  modelEvent == MODEL_EVENT::WORKLIST_ENTRY_SELECTION_CHANGE )
     {
-        m_viewData.reset();
+        m_model->borrowSnapshot( update );
     }
-    else
-    {
-        m_viewData = std::unique_ptr<QCViewData>(new QCViewData(output));
-    }
-
-    TThread::Queue(NULL,useUpdatedViewData);
-}
-
-void QCViewController::onForceReload( valc::SnapshotPtr& sp )
-{
-    m_snapshotPtr = sp;
-}
-
-void QCViewController::onWarningAlarmOn()
-{
-}
-
-void QCViewController::onWarningAlarmOff()
-{
-}
-
-void QCViewController::onWorklistEntrySelected( int worklistEntryID )
-{
-    require( m_threadPool );
-    new QCViewData::Factory::Order( m_snapshotPtr, worklistEntryID, this, m_threadPool );
 }
 
 void QCViewController::popNode()
@@ -225,49 +202,41 @@ void QCViewController::pushNode( const std::string& label, bool expand )
 	}
 }
 
-void QCViewController::setThreadPool( stef::ThreadPool* tp )
+void __fastcall QCViewController::update()
 {
-    m_threadPool = tp;
-}
-
-void __fastcall QCViewController::useUpdatedViewData()
-{
-    paulst::AcquireCriticalSection a(m_critSec);
-
 	std::stack< TTreeViewItem* > empty;
 	m_nodeStack.swap(empty);
 	m_expandList.clear();
 	m_widgetContainer->tree->Clear();
 
-    if ( m_viewData )
+    const valc::SnapshotPtr snapshot( m_model->getSnapshot() );
+
+    const QCViewData data( snapshot, m_model->getSelectedWorklistEntry() );
+
+    pushNode( describeWorklistEntry( data, snapshot ), true );
+
+    if ( data.hasLocalResults() )
     {
-        pushNode( describeWorklistEntry(), true );
+        pushNode( "Local results", true );
 
-        if ( m_viewData->localResults.size() )
+        for ( auto i = data.localResultBegin(); i != data.localResultEnd(); ++i  )
         {
-            pushNode( "Local results", true );
+            const valc::TestResult* r = *i;
 
-            for ( 	auto i = m_viewData->localResults.begin(); i != m_viewData->localResults.end(); ++i  )
+            pushNode( describeTestResult(r), true );
+
+            const valc::ControlStatus cs(r->getControlStatus());
+
+            if ( cs.summaryCode() != valc::CONTROL_STATUS_UNCONTROLLED )
             {
-                const valc::TestResult* r = *i;
+                pushNode( "Controlling QCs", true );
 
-                pushNode( describeTestResult(r), true );
-
-                const valc::ControlStatus cs(r->getControlStatus());
-
-                if ( cs.summaryCode() != valc::CONTROL_STATUS_UNCONTROLLED )
-                {
-                    pushNode( "Controlling QCs", true );
-
-                    pushNode( "Before", true );
-                    addNodesForControllingQCs( cs.precedingQCs() );
-                    popNode();
-                    pushNode( "After", true );
-                    addNodesForControllingQCs( cs.followingQCs() );
-                    popNode();
-
-                    popNode();
-                }
+                pushNode( "Before", true );
+                addNodesForControllingQCs( data, snapshot, cs.precedingQCs() );
+                popNode();
+                pushNode( "After", true );
+                addNodesForControllingQCs( data, snapshot, cs.followingQCs() );
+                popNode();
 
                 popNode();
             }
@@ -275,10 +244,12 @@ void __fastcall QCViewController::useUpdatedViewData()
             popNode();
         }
 
-        for ( TTreeViewItem* item : m_expandList )
-        {
-            item->Expand();
-        }
+        popNode();
+    }
+
+    for ( TTreeViewItem* item : m_expandList )
+    {
+        item->Expand();
     }
 }
 

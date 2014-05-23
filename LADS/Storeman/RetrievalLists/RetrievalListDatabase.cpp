@@ -1,3 +1,5 @@
+//---------------------------------------------------------------------------
+
 #include "RetrievalListDatabase.h"
 #include "xdb.h"
 #include "xquery.h"
@@ -7,6 +9,10 @@
 #include <sstream>
 #include "RetrievalListGridUtils.h"
 #include "RetrievalListMainListDialog.h"
+#include "LIMSDatabase.h"
+#pragma hdrstop
+
+//---------------------------------------------------------------------------
 
 #pragma package(smart_init)
 
@@ -88,19 +94,17 @@ static bool dbErrorCallback( const std::string object, const int instance,const 
 	return( true );
 }
 //---------------------------------------------------------------------------
-
+/*
 #if _WIN64
 static const char * vnode = "vnode_vlab_64";
 #elif _WIN32
 static const char * vnode = "vnode_vlab";
 #endif
-
-void RetrievalListDatabase::connect(String &selectDB)
+*/
+void RetrievalListDatabase::connect(const AnsiString &selectDB)
 {
 	try
-	{
-		String dbName = String(vnode) + "::" + selectDB;
-		m_dbCentral = std::auto_ptr<XDB>( new XDB( AnsiString(dbName.c_str()).c_str() ) );
+	{	m_dbCentral = std::auto_ptr<XDB>( new XDB( selectDB.c_str() ) );
 		m_dbCentral->setErrorCallBack( dbErrorCallback );
 		throwUnless ( m_dbCentral->open(), "Failed to connect!" );
 	}
@@ -115,15 +119,14 @@ void RetrievalListDatabase::connect(String &selectDB)
 }
 //---------------------------------------------------------------------------
 
-void RetrievalListDatabase::connectProject(String &projectName)
+void RetrievalListDatabase::connectProject(const AnsiString &projectName)
 {
-	AnsiString connectionString = AnsiString(vnode) + "::" + projectName;
-	m_dbProject = std::auto_ptr<XDB>( new XDB( connectionString.c_str() ) );
+	std::string connectionString = LIMSDatabase::getConnectionName( projectName.c_str() );
 	try
-	{
+	{	m_dbProject = std::auto_ptr<XDB>( new XDB( connectionString ) );
 		m_dbProject->setErrorCallBack( dbErrorCallback );
 		throwUnless ( m_dbProject->open(), "Failed to connect!" );
-        //new database. so clear the objectname mapping
+		//new database. so clear the objectname mapping
 		m_ObjectNameList.clear();
 	}
 	catch( const std::string& msg )

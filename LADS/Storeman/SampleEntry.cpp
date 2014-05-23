@@ -192,12 +192,13 @@ void __fastcall TfrmRetrieveMain::btnDestinationClick(TObject *Sender)
 	if( boxType == NULL ) {
 		throw Exception( "No matching formation type" );
 	}
+	short boxSet = 0;	//// FIXME: get box set from job entry
 
 	LQuery cQuery = LIMSDatabase::getCentralDb();
 	LQuery pQuery = LIMSDatabase::getProjectDb();
 	LPDbBoxName box;
 	for( std::vector<GridEntry>::iterator ge = rows.begin(); ge != rows.end(); ++ ge ) {
-		if( !box.hasSpace() && !box.create( *boxType, pQuery, cQuery ) ) {
+		if( !box.hasSpace() && !box.create( *boxType, boxSet, pQuery, cQuery ) ) {
 			throw Exception( "Cannot create destination box" );
 		}
 		ge -> new_box = box.getName();

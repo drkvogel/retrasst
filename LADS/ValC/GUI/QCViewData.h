@@ -1,32 +1,39 @@
 #ifndef QCVIEWDATAH
 #define QCVIEWDATAH
 
-#include "API.h"
-#include "CritSec.h"
 #include <map>
-#include "TaskWithCallback.h"
 #include <vector>
 
-namespace stef
+namespace valc
 {
-    class ThreadPool;
+    class QCControls;
+    class SnapshotPtr;
+    class TestResult;
+    class WorklistEntry;
 }
 
 namespace valcui
 {
 
-class QCViewController;
-
-struct QCViewData
+class QCViewData
 {
-    public:
+public:
 
-	int worklistEntryID{};
-    const valc::WorklistEntry* worklistEntry{};
-    std::vector< const valc::TestResult* > localResults;
+    typedef std::vector< const valc::TestResult* > LocalResults;
+    typedef LocalResults::const_iterator const_iterator;
 
-    private:
-    /*
+    QCViewData( const valc::SnapshotPtr& snapshot, int worklistID );
+    const valc::WorklistEntry*   getWorklistEntry() const;
+    int                         getWorklistEntryID() const;
+    bool                        hasLocalResults() const;
+    const_iterator              localResultBegin() const;
+    const_iterator              localResultEnd() const;
+    // Opportunities to look up supplementary control-related info. May return NULL.
+    const valc::TestResult*     lookupQCResult( int resultID ) const;
+    const valc::WorklistEntry*  lookupQCWorklistEntry( int resultID ) const;
+    
+private:
+   /*
         localResults have a 'ControlStatus' property which (indirectly) publishes the ID of the QC results that 
         perform a controlling role.  However, there is no means of obtaining the associated Worklist entries for these QCs.
         SupplementaryQCData exists to compensate for this.  Given the ID of a QC result, querying SupplementaryQCData SHOULD
@@ -34,54 +41,16 @@ struct QCViewData
         some circumstances).
     */
     typedef std::map< int, const valc::WorklistEntry* > SupplementaryQCData;
-    SupplementaryQCData supplement;
+    SupplementaryQCData         m_supplement;
+	const int                   m_worklistEntryID;
+    const valc::WorklistEntry*  m_worklistEntry{};
+    LocalResults                m_localResults;
 
-    public:
 
-    // Opportunities to look up supplementary control-related info.
-    // May return NULL.
-    const valc::TestResult* lookupResult( int resultID ) const;
-    const valc::WorklistEntry* lookupWorklistEntry( int resultID ) const;
-
-    struct Factory
-    {
-        public:
-
-        valc::SnapshotPtr snapshotPtr;
-        int worklistEntryID;
-
-        // This is the factory method, which builds an instance of QCViewData and assigns it to the supplied variable 'out'.
-        void operator()( QCViewData& out );
-
-        private:
-
-        void findWorklistEntriesFor( const std::vector<int>& resultIDs, SupplementaryQCData& out );
-        void listLocalResultsForWorklistEntry( QCViewData& out );
-        void listResultIDsOf( const valc::QCControls& qcControls, std::vector<int>& out );
-        void listResultIDsOfControllingQCsFor( const valc::TestResult* result, std::vector<int>& out );
-
-        public:
-
-        /*
-            Construct an Order on the heap.  It will delete itself when it is done, after delivering output to QCViewController
-            (method 'factoryCallback').
-        */
-        struct Order
-        {
-            QCViewController* controller;
-            typedef stef::Submission< QCViewData, QCViewData::Factory, QCViewData::Factory::Order > OrderSubmission;
-            OrderSubmission* submission;
-            paulst::CritSec m_critSec;
-
-            Order( valc::SnapshotPtr snapshotPtr, int worklistEntryID, QCViewController* c, stef::ThreadPool* tp );
-
-            void set( bool cancelled, const std::string& error, const QCViewData& output );
-
-        private:
-            Order( const Order& );
-            Order& operator=( const Order& );
-        };
-    };
+    void cacheSupplementaryWorklistEntriesFor   ( const std::vector<int>& resultIDs, const valc::SnapshotPtr& snapshot );
+    void listLocalResultsForWorklistEntry       ( const valc::SnapshotPtr& snapshot );
+    void listResultIDsOf                        ( const valc::QCControls& qcControls, std::vector<int>& out );
+    void listResultIDsOfControllingQCsFor       ( const valc::TestResult* result, std::vector<int>& out );
 };
 
 }

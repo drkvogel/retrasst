@@ -1,3 +1,4 @@
+#include "AbstractConnectionFactory.h"
 #include "AcquireCriticalSection.h"
 #include "Config.h"
 #include "ExceptionUtil.h"
@@ -35,9 +36,8 @@ private:
 
 paulstdb::DBConnection* obtainConnectionFromCache( const char* connectionString, void* connectionState )
 {
-    ConnectionCache* cache = (ConnectionCache*)connectionState;
-    require( cache );
-    return cache->getConnection( connectionString );
+    paulstdb::AbstractConnectionFactory* conFac = (paulstdb::AbstractConnectionFactory*)connectionState;
+    return conFac->createConnection( connectionString, "" );
 }
 
 ResultAssessmentTask::ResultAssessmentTask( const UncontrolledResult& result, RulesCache* rulesCache, 
@@ -462,7 +462,7 @@ RulesCache::RulesCache()
     :
     m_rulesConfig(0),
     m_ruleLoader(0),
-    m_connectionCache(0),
+    m_connectionFactory(0),
     m_log(0),
     m_gates(0),
     m_config(0)
@@ -520,7 +520,7 @@ Rules* RulesCache::load( int ruleID, int test, int machine, int project )
     m_log->logFormatted( "Loading script for rule ID '\%d'", ruleID );
     std::string script = m_ruleLoader->loadRulesFor( ruleID );
     return new Rules( 
-        m_ruleLoader->getRuleDescriptor( ruleID ), script, obtainConnectionFromCache, m_connectionCache, m_ruleLoader, m_log, m_gates,
+        m_ruleLoader->getRuleDescriptor( ruleID ), script, obtainConnectionFromCache, m_connectionFactory, m_ruleLoader, m_log, m_gates,
                             test, machine, project, m_config );
 }
 
@@ -529,9 +529,9 @@ void RulesCache::setConfig( const paulst::Config* c )
     m_config = c;
 }
 
-void RulesCache::setConnectionCache( ConnectionCache* cc )
+void RulesCache::setConnectionFactory( paulstdb::AbstractConnectionFactory* cc )
 {
-    m_connectionCache = cc;
+    m_connectionFactory = cc;
 }
 
 void RulesCache::setGates( Gates* g )
@@ -564,7 +564,6 @@ RuleEngine::RuleEngine( int maxThreads)
     m_resultAssessor( new stef::ThreadPool( 0, maxThreads ) ),
     m_queueListener(0)
 {
-    m_rulesCache.setConnectionCache( &m_connectionCache );
 }
 
 RuleEngine::~RuleEngine()
@@ -595,7 +594,7 @@ void RuleEngine::setConfig( const paulst::Config* c )
 
 void RuleEngine::setConnectionFactory( paulstdb::AbstractConnectionFactory* conFac )
 {
-    m_connectionCache.setConnectionFactory( conFac );
+    m_rulesCache.setConnectionFactory( conFac );
 }
 
 void RuleEngine::setDefaultTaskExceptionHandler( stef::TaskExceptionHandler* teh )

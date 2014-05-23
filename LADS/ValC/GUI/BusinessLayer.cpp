@@ -8,6 +8,23 @@
 namespace valcui
 {
 
+class UIThreadCallback : public stef::Task
+{
+public:
+    UIThreadCallback( TThreadMethod callback )
+        :
+        m_callback(callback)
+    {
+    }
+protected:
+    void doStuff()
+    {
+        TThread::Synchronize( NULL, m_callback );
+    }
+private:
+    TThreadMethod m_callback;
+};
+
 struct ForceReload
 {
     void operator()( valc::SnapshotPtr& sp )
@@ -64,6 +81,11 @@ BusinessLayer::BusinessLayer(
 BusinessLayer::~BusinessLayer()
 {
 	m_threadPool->shutdown( THREAD_POOL_SHUTDOWN_WAIT_MILLIS, true );
+}
+
+void BusinessLayer::borrowSnapshot( TThreadMethod callback )
+{
+    m_threadPool->addTask( new UIThreadCallback( callback ) );
 }
 
 void BusinessLayer::forceReload()

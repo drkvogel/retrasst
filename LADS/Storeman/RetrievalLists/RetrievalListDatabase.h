@@ -86,8 +86,8 @@ public:
 	~RetrievalListDatabase();
 
 //setup the database connections
-	void connect(String &selectDB);
-	void connectProject(String &projectName);
+	void connect(const AnsiString &selectDB);
+	void connectProject(const AnsiString &projectName);
 //query database
 	void getRetrivalLists(std::map<int,std::map<String,String> > &newRetrivalLists, int exercise_cid);
 	void getRetrivalLists(std::map<int,std::map<String,String> > &newRetrivalLists);

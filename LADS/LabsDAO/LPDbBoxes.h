@@ -24,6 +24,7 @@ class LPDbBoxName : public LPDbID
 	int projectCID;
 	std::vector< std::string > cryovials;
 
+	std::string createName( const std::string & type ) const;
 	bool needsNewID( LQuery & cQuery ) const;
 	bool update( bool central, LQuery & query );
 	bool insert( bool central, LQuery & query );
@@ -61,7 +62,7 @@ public:
 	short addCryovial( const std::string & barcode );
 	const std::vector< std::string > & getCryovials() const { return cryovials; }
 
-	bool create( const LPDbBoxType & type, LQuery pQuery, LQuery cQuery );
+	bool create( const LPDbBoxType & type, short boxSet, LQuery pQuery, LQuery cQuery );
 	void findSpace( const LPDbBoxType & type, LQuery query );
 	bool saveRecord( LQuery & pQuery, LQuery & cQuery );
 //	bool addEventRecord( LQuery query, const LCDbObject * event, const std::string & text );
@@ -78,11 +79,10 @@ public:
 
 class LPDbBoxNames : public LDbCache< LPDbBoxName >
 {
-//	class NameMatcher;
-//	class SpaceMatcher;
+	class NameMatcher;
+	class SpaceMatcher;
 
 public:
-
 	bool readCurrent( LQuery pq );
 	bool readFilled( LQuery ddq );
 	void addCryovials( LQuery pq );

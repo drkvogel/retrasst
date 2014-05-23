@@ -25,7 +25,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
     TabOrder = 0
     object Label5: TLabel
       Left = 16
-      Top = 5
+      Top = 8
       Width = 170
       Height = 19
       Caption = 'Search by retrieval job'
@@ -33,15 +33,15 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
       Font.Color = clWindowText
       Font.Height = -16
       Font.Name = 'Arial'
-      Font.Style = [fsBold, fsUnderline]
+      Font.Style = [fsBold]
       ParentFont = False
     end
     object Label1: TLabel
-      Left = 15
-      Top = 78
-      Width = 92
+      Left = 16
+      Top = 86
+      Width = 69
       Height = 17
-      Caption = 'Retrieval Lists'
+      Caption = 'Job details'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -15
@@ -51,10 +51,10 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
     end
     object Label7: TLabel
       Left = 16
-      Top = 30
-      Width = 165
+      Top = 36
+      Width = 234
       Height = 17
-      Caption = 'Storage/Retrivel Exercise'
+      Caption = 'Retrieval/Disposal/Storage Exercise'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -15
@@ -64,7 +64,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
     end
     object retrivalListComboBox: TComboBox
       Left = 16
-      Top = 101
+      Top = 109
       Width = 529
       Height = 21
       TabOrder = 0
@@ -79,8 +79,8 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
       OnClick = OpenListByNameButtonClick
     end
     object exerciseListComboBox: TComboBox
-      Left = 15
-      Top = 53
+      Left = 16
+      Top = 59
       Width = 530
       Height = 21
       TabOrder = 2
@@ -95,7 +95,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
     Height = 194
     TabOrder = 1
     object barCodeFileLabel: TLabel
-      Left = 19
+      Left = 16
       Top = 142
       Width = 195
       Height = 16
@@ -121,8 +121,8 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
       ParentFont = False
     end
     object Label4: TLabel
-      Left = 19
-      Top = 82
+      Left = 16
+      Top = 87
       Width = 74
       Height = 16
       Caption = 'Aliquot type'
@@ -143,7 +143,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
       Font.Color = clWindowText
       Font.Height = -16
       Font.Name = 'Arial'
-      Font.Style = [fsBold, fsUnderline]
+      Font.Style = [fsBold]
       ParentFont = False
     end
     object findBarCodesButton: TButton
@@ -156,7 +156,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
       OnClick = findBarCodesButtonClick
     end
     object ProjectNamesComboBox: TComboBox
-      Left = 19
+      Left = 16
       Top = 55
       Width = 526
       Height = 21
@@ -173,8 +173,8 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
       OnClick = OpenList2ButtonClick
     end
     object aliquitListComboBox: TComboBox
-      Left = 19
-      Top = 104
+      Left = 16
+      Top = 109
       Width = 526
       Height = 21
       TabOrder = 3
@@ -197,11 +197,11 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
       Font.Color = clWindowText
       Font.Height = -16
       Font.Name = 'Arial'
-      Font.Style = [fsBold, fsUnderline]
+      Font.Style = [fsBold]
       ParentFont = False
     end
     object barCode3FileLabel: TLabel
-      Left = 18
+      Left = 16
       Top = 95
       Width = 192
       Height = 16
@@ -245,7 +245,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
       OnClick = OpenList3ButtonClick
     end
     object ProjectNamesComboBox3: TComboBox
-      Left = 19
+      Left = 16
       Top = 55
       Width = 526
       Height = 21
@@ -254,7 +254,7 @@ object frmRetrievalListViewListMain: TfrmRetrievalListViewListMain
     end
   end
   object OpenTextFileDialog1: TOpenTextFileDialog
-    Left = 544
-    Top = 8
+    Left = 504
+    Top = 16
   end
 end

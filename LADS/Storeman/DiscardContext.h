@@ -138,30 +138,36 @@ public:
     int allocCids( const size_t count = 1 ) const;
     std::string getCurrentUserName( ) const;
     bool addAuditEntry( const std::string & message ) const;
-    void setJobno( const int jobno );
-    int getJobno( ) const;
+	void setJobno( const int jobno );
+	int getJobno( ) const;
+	void setJob( const LCDbCryoJob & ref );
+	LCDbCryoJob & getJobRecord() ;
+	void setBoxType( const LPDbBoxType & ref );
+	LPDbBoxType & getBoxType() ;
+
 protected:
 private:
-    std::string m_reason;
-    std::string m_description;
-    std::string m_method;
-    std::string m_note;
-    CryovialStatus m_crstatus;
+	std::string m_reason;
+	std::string m_description;
+	std::string m_method;
+	std::string m_note;
+	CryovialStatus m_crstatus;
 	static MarkSampleHandler s_marker;
-    static UnmarkSampleHandler s_unmarker;
-    static ToggleMarkSampleHandler s_toggleMarker;
-    static NoteSampleHandler s_noter;
-    AliquotInfo m_alinfo;
-    std::string m_personFname;
-    std::string m_searchType;
-    std::string m_searchSource;
-    StringSet m_searchTexts;
-    IntToIntMap m_dbCrstatusMap;
-    IntToIntMap m_crstatusMap;
-    Db * m_db;
-    int m_selectMode;
-    bool m_isSaved;
-    int m_jobno;
+	static UnmarkSampleHandler s_unmarker;
+	static ToggleMarkSampleHandler s_toggleMarker;
+	static NoteSampleHandler s_noter;
+	AliquotInfo m_alinfo;
+	std::string m_personFname;
+	std::string m_searchType;
+	std::string m_searchSource;
+	StringSet m_searchTexts;
+	IntToIntMap m_dbCrstatusMap;
+	IntToIntMap m_crstatusMap;
+	LCDbCryoJob m_retrieval;
+	LPDbBoxType m_destBoxType;
+	Db * m_db;
+	int m_selectMode;
+	bool m_isSaved;
 };
 
 class SamplePile
@@ -179,7 +185,7 @@ public:
 	int count( ) const;
 	std::string asString( ) const;
 	const Sample * getSample( const int sampleno ) const;
-	std::string update( const int dbcrstatus, const LPDbBoxType & destBoxType );
+	std::string update( const int dbcrstatus );
 	std::string reset( );
     int getNCryovialsRemaining( const int jobno ) const;
     bool isSampleMarkable( const Sample & sample ) const;

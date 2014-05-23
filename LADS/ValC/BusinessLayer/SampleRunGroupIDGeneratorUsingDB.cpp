@@ -5,6 +5,7 @@
 #include "DBConnection.h"
 #include "ExceptionUtil.h"
 #include "SampleRunGroupIDGeneratorUsingDB.h"
+#include "ResourceHandle.h"
 
 namespace valc
 {
@@ -22,7 +23,8 @@ SampleRunGroupIDGeneratorUsingDB::SampleRunGroupIDGeneratorUsingDB(
 
 int SampleRunGroupIDGeneratorUsingDB::nextID()
 {
-    boost::scoped_ptr<paulstdb::DBConnection> con( m_connectionFactory->createConnection( m_connectionString, m_sessionReadLockSetting ) );
+    paulst::ResourceHandle<paulstdb::DBConnection> con( 
+        m_connectionFactory->createConnection( m_connectionString, m_sessionReadLockSetting ) );
 
     boost::scoped_ptr<paulstdb::Cursor> cursor( con->executeQuery( m_sqlQuery ) );
 

@@ -10,6 +10,8 @@
 #include <FMX.Types.hpp>
 #include <FMX.Layouts.hpp>
 #include <FMX.ListBox.hpp>
+#include <FMX.Grid.hpp>
+#include <FMX.TreeView.hpp>
 //---------------------------------------------------------------------------
 class TWorklistItemViewFrame : public TFrame
 {
@@ -24,9 +26,7 @@ __published:	// IDE-managed Components
 	TLabel *barcode;
 	TLabel *Label6;
 	TLabel *machineID;
-	TPanel *resultsPanel;
-	TLabel *Label8;
-	TListBox *resultListBox;
+	TPanel *resultsAndRelativesPanel;
 	TLabel *Label9;
 	TLabel *test;
 	TLabel *Label11;
@@ -35,6 +35,13 @@ __published:	// IDE-managed Components
 	TLabel *timestamp;
 	TLabel *Label15;
 	TLabel *projectID;
+	TPanel *resultsPanel;
+	TLabel *Label3;
+	TListBox *resultListBox;
+	TPanel *relativesPanel;
+	TLabel *Label5;
+	TTreeView *familyTree;
+	TFlowLayout *FlowLayout1;
 private:	// User declarations
 public:		// User declarations
 	__fastcall TWorklistItemViewFrame(TComponent* Owner);

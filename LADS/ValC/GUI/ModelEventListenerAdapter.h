@@ -16,25 +16,10 @@ public:
     {
     }
 
-    void onForceReload( valc::SnapshotPtr& s )
+    void notify( int eventID )
     {
-        m_t->onForceReload( s );
+        m_t->notify( eventID );
     }
-
-    void onWarningAlarmOn()
-    {
-        m_t->onWarningAlarmOn();
-    }
-
-    void onWarningAlarmOff()
-    {
-        m_t->onWarningAlarmOff();
-	}
-
-	void onWorklistEntrySelected( int worklistEntryID )
-	{
-		m_t->onWorklistEntrySelected( worklistEntryID );
-	}
 
 private:
     T* m_t;

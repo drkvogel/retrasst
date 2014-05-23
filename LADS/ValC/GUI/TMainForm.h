@@ -19,11 +19,6 @@
 class LogManager;
 class TLogFrame;
 
-namespace stef
-{
-    class ThreadPool;
-}
-
 namespace valcui
 {
 	class Model;
@@ -50,6 +45,8 @@ __published:	// IDE-managed Components
 	TSplitter *Splitter2;
 	TPanel *bottomPanelRight;
 	TStyleBook *StyleBook1;
+	TPanel *midPanel;
+	TSplitter *Splitter3;
 	void __fastcall onCreate(TObject *Sender);
 	void __fastcall onResize(TObject *Sender);
 	void __fastcall onClose(TObject *Sender, TCloseAction &Action);
@@ -62,10 +59,8 @@ private:	// User declarations
 	std::unique_ptr<valcui::SnapshotFrameController> m_snapshotFrameController;
 	std::unique_ptr<valcui::QCViewController> m_qcViewController;
 	std::unique_ptr<valcui::WorklistItemViewController> m_worklistItemViewController;
-    stef::ThreadPool* m_threadPool;
 public:		// User declarations
 	__fastcall TMainForm(TComponent* Owner);
-    __fastcall ~TMainForm();
 	void __fastcall warningAlarmOn();
 	void __fastcall warningAlarmOff();
 };

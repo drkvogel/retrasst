@@ -1,9 +1,12 @@
-#include "AcquireCriticalSection.h"
+#include "API.h"
 #include "FMXTemplates.h"
+#include "LocalRunIterator.h"
 #include "Model.h"
+#include "ModelEventConstants.h"
 #include "WorklistItemViewController.h"
 #include "Require.h"
 #include <sstream>
+#include "TWorklistItemViewFrame.h"
 
 
 namespace valcui
@@ -13,15 +16,12 @@ WorklistItemViewController::WorklistItemViewController( TWorklistItemViewFrame* 
 	:
 	m_widgetContainer( widgetContainer ),
 	m_eventListener(this),
-    m_threadPool(NULL)
+    m_model( m )
 {
 	m->registerModelEventListener( &m_eventListener );
 }
 
-void addCellText(
-	TListBoxItem* i,
-	const UnicodeString& cell,
-	const UnicodeString& text )
+void addCellText( TListBoxItem* i, const UnicodeString& cell, const UnicodeString& text )
 {
 	TText* t = (TText*)i->FindStyleResource(cell);
 
@@ -33,9 +33,81 @@ void addCellText(
 
 void WorklistItemViewController::clear()
 {
+	m_widgetContainer->ID       ->Text = L"";
+    m_widgetContainer->barcode  ->Text = L"";
+    m_widgetContainer->machineID->Text = L"";
+    m_widgetContainer->test     ->Text = L"";
+    m_widgetContainer->status   ->Text = L"";
+    m_widgetContainer->projectID->Text = L"";
+    m_widgetContainer->timestamp->Text = L"";
 	m_widgetContainer->resultListBox->Clear();
+	m_widgetContainer->familyTree->Clear();
 }
 
+void WorklistItemViewController::addTreeNodeForWorklistEntry(
+    const valc::SnapshotPtr& snapshot, 
+    const valc::WorklistRelative& wr, 
+    TTreeViewItem* parent )
+{
+    TTreeViewItem* newNode{};
+
+    if ( parent )
+    {
+        newNode = addNodeUnder( parent, describe(snapshot,wr) );
+    }
+    else
+    {
+        newNode = addNodeUnder( m_widgetContainer->familyTree, describe(snapshot,wr) );
+    }
+
+	newNode->Tag     = wr.getID();
+    newNode->OnClick = familyTreeClickHandler;
+
+    if( wr.hasChildren() )
+    {
+        auto children = wr.getChildren();
+
+        for ( valc::WorklistRelative& child : children )
+        {
+            addTreeNodeForWorklistEntry( snapshot, child, newNode );
+        }
+    }
+}
+
+std::string WorklistItemViewController::describe( const valc::SnapshotPtr& snapshot, const valc::WorklistRelative& wr ) const
+{
+    std::ostringstream s;
+
+    s << wr.getID();
+
+    switch( wr.getRelation() )
+    {
+    case 'a': s << " [triggered]"; break;
+    case 'b': s << " [rerun]"; break;
+    }
+
+    if ( wr.isBoundToWorklistEntryInstance() )
+    {
+        s << " " << wr->getBarcode() << " " << snapshot->getTestName( wr->getTestID() );
+    }
+
+    return s.str();
+}
+
+void WorklistItemViewController::describeFamilyTree( const valc::SnapshotPtr& snapshot, const valc::WorklistEntry* w )
+{
+    valc::WorklistRelative wr = snapshot->viewRelatively( w );
+
+    while ( wr.hasParent() )
+    {
+        wr = wr.getParent();
+    }
+
+	addTreeNodeForWorklistEntry( snapshot, wr ); // recursively adds nodes for all the children
+
+	m_widgetContainer->familyTree->ExpandAll();
+}
+ 
 void WorklistItemViewController::describeResult( const valc::TestResult* r )
 {
 	TListBox* b = m_widgetContainer->resultListBox;
@@ -52,75 +124,109 @@ void WorklistItemViewController::describeResult( const valc::TestResult* r )
 	addCellText( i, "3_2", r->getDateAnalysed().FormatString(L"d mmm h:nn:ss") );
 }
 
-UnicodeString WorklistItemViewController::describeTest( int testID ) const
+UnicodeString WorklistItemViewController::describeTest( const valc::SnapshotPtr& snapshot, int testID ) const
 {
     std::ostringstream s;
-    s << m_snapshotPtr->getTestName( testID ) << " (" << testID << ")";
+    s << snapshot->getTestName( testID ) << " (" << testID << ")";
     return s.str().c_str();
 }
 
-void WorklistItemViewController::factoryCallback( bool cancelled, const std::string& error, const WorklistItemViewData& output )
+void __fastcall WorklistItemViewController::familyTreeClickHandler( TObject* sender )
 {
-    paulst::AcquireCriticalSection a(m_critSec);
+	TTreeViewItem* i = dynamic_cast<TTreeViewItem*>(sender);
+	if ( i )
+	{
+		const UnicodeString clickedOn( i->Tag );
 
-    if ( cancelled || error.size() )
+		if ( m_widgetContainer->ID->Text != clickedOn )
+		{
+			m_model->setSelectedWorklistEntry( i->Tag );
+		}
+		else
+		{
+			ShowMessage( UnicodeString("You clicked on ") + clickedOn );
+		}
+	}
+}
+
+void WorklistItemViewController::notify( int modelEvent )
+{
+    if ( modelEvent == MODEL_EVENT::WORKLIST_ENTRY_SELECTION_CHANGE )
     {
-        m_viewData.reset();
+        m_model->borrowSnapshot( update );
     }
-    else
+}
+
+const valc::WorklistEntry* WorklistItemViewController::searchLocalRunSequenceForWorklistEntry( 
+    const valc::SnapshotPtr& snapshot, 
+    int worklistEntryID ) const
+{
+    for ( LocalRunIterator localRun( snapshot->localBegin(), snapshot->localEnd() ), end; localRun != end; ++localRun )
     {
-        m_viewData = std::unique_ptr<WorklistItemViewData>(new WorklistItemViewData(output));
+        valc::Range<valc::WorklistEntryIterator> worklistEntries = snapshot->getWorklistEntries( localRun->getSampleDescriptor() );
+
+        for ( valc::WorklistEntryIterator w = worklistEntries.first; w != worklistEntries.second; ++w )
+        {
+            if ( (*w)->getID() == worklistEntryID )
+			{
+				return *w;
+            }
+        }
+    }
+    return NULL;
+}            
+
+const valc::WorklistEntry* WorklistItemViewController::searchQueueForWorklistEntry( 
+    const valc::SnapshotPtr& snapshot, int worklistEntryID ) const
+{
+    for ( auto queuedSample = snapshot->queueBegin(); queuedSample != snapshot->queueEnd(); ++queuedSample )
+    {
+        auto worklistEntries = snapshot->getWorklistEntries( queuedSample->getSampleDescriptor() );
+        for ( auto worklistEntry = worklistEntries.first; worklistEntry != worklistEntries.second; ++worklistEntry )
+        {
+            if ( (*worklistEntry)->getID() == worklistEntryID )
+            {
+                return *worklistEntry;
+            }
+        }
     }
 
-    TThread::Queue(NULL,useUpdatedViewData);
+    return NULL;
 }
 
-void WorklistItemViewController::onForceReload( valc::SnapshotPtr& sp )
+void __fastcall WorklistItemViewController::update()
 {
-    m_snapshotPtr = sp;
-}
-
-void WorklistItemViewController::onWarningAlarmOn()
-{
-}
-
-void WorklistItemViewController::onWarningAlarmOff()
-{
-}
-
-void WorklistItemViewController::onWorklistEntrySelected( int worklistEntryID )
-{
-    require( m_threadPool );
-    new WorklistItemViewData::Factory::Order( m_snapshotPtr, worklistEntryID, this, m_threadPool );
-}
-
-void WorklistItemViewController::setThreadPool( stef::ThreadPool* tp )
-{
-    m_threadPool = tp;
-}
-
-void __fastcall WorklistItemViewController::useUpdatedViewData()
-{
-    paulst::AcquireCriticalSection a(m_critSec);
-    
     clear();
 
-    if ( m_viewData && m_viewData->worklistEntry )
+    const valc::SnapshotPtr snapshot( m_model->getSnapshot() );
+
+    const int worklistEntryID = m_model->getSelectedWorklistEntry();
+
+    const valc::WorklistEntry* worklistEntry = searchLocalRunSequenceForWorklistEntry( snapshot, worklistEntryID  );
+
+    if ( ! worklistEntry )
     {
-		m_widgetContainer->ID       ->Text = m_viewData->worklistEntry->getID();
-        m_widgetContainer->barcode  ->Text = m_viewData->worklistEntry->getBarcode().c_str();
-        m_widgetContainer->machineID->Text = m_viewData->worklistEntry->getMachineID();
-        m_widgetContainer->test     ->Text = describeTest( m_viewData->worklistEntry->getTestID() );
-        m_widgetContainer->status   ->Text = m_viewData->worklistEntry->getStatus();
-        m_widgetContainer->projectID->Text = m_viewData->worklistEntry->getProjectID();
-		m_widgetContainer->timestamp->Text = m_viewData->worklistEntry->getTimeStamp().FormatString(L"d mmm h:nn:ss");
-		valc::Range<valc::TestResultIterator> results =
-			m_viewData->worklistEntry->getTestResults();
+        worklistEntry = searchQueueForWorklistEntry( snapshot, worklistEntryID );
+    }
+
+    if ( worklistEntry )
+    {
+		m_widgetContainer->ID       ->Text = worklistEntry->getID();
+        m_widgetContainer->barcode  ->Text = worklistEntry->getBarcode().c_str();
+        m_widgetContainer->machineID->Text = worklistEntry->getMachineID();
+        m_widgetContainer->test     ->Text = describeTest( snapshot, worklistEntry->getTestID() );
+        m_widgetContainer->status   ->Text = worklistEntry->getStatus();
+        m_widgetContainer->projectID->Text = worklistEntry->getProjectID();
+		m_widgetContainer->timestamp->Text = worklistEntry->getTimeStamp().FormatString(L"d mmm h:nn:ss");
+
+		valc::Range<valc::TestResultIterator> results = worklistEntry->getTestResults();
 
 		for( auto result = results.first; result != results.second; ++result )
 		{
 			describeResult( *result );
 		}
+
+		describeFamilyTree( snapshot, worklistEntry );
 	}
 }
 

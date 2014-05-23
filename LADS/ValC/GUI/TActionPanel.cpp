@@ -10,7 +10,6 @@
 #include "VisualComponents.h"
 #include "DataContainers.h"
 #include "GUImanager.h"
-#include "Main.h"
 
 //---------------------------------------------------------------------------
 #pragma package(smart_init)

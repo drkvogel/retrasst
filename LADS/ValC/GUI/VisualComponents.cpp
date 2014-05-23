@@ -12,9 +12,9 @@
 #include "Trace.h"   // then can do trace("...") in constructors/destructors
 #include "ConsoleWriter.h"
 
-#include "Main.h"
 #include "Utils.h"
 #include "DataContainers.h"
+#include "GUImanager.h"
 #include "InfoPanels.h"
 #include "TSnapshotFrame.h"
 #include "VisualComponents.h"

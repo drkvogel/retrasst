@@ -7,6 +7,7 @@
 #include "Config.h"
 #include "Cursor.h"
 #include "DBConnection.h"
+#include "ResourceHandle.h"
 #include <string>
 #include "Task.h"
 
@@ -14,7 +15,6 @@
 namespace valc
 {
 
-void releaseConnection( paulstdb::DBConnection* c );
 void releaseCursor( paulstdb::Cursor* c );
 
 typedef boost::function<void (paulstdb::Cursor*)> CursorConsumer;
@@ -39,9 +39,8 @@ public:
 protected:
     void doStuff()
     {
-        paulstdb::DBConnection* con = m_connectionFactory->createConnection( m_connectionString, m_sessionReadLockSetting );
-
-        boost::shared_ptr<void> releaseConnectionOnBlockExit( con, releaseConnection );
+        paulst::ResourceHandle<paulstdb::DBConnection> con( 
+            m_connectionFactory->createConnection( m_connectionString, m_sessionReadLockSetting ) );
 
         {
             paulstdb::Cursor* c = con->executeQuery( m_sql );

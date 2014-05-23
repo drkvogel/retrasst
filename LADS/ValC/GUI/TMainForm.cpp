@@ -10,7 +10,6 @@
 #include "QCViewController.h"
 #include "SnapshotFrameController.h"
 #include "StrUtil.h"
-#include "ThreadPool.h"
 #include "TLogFrame.h"
 #include "TMainForm.h"
 #include "TQCViewFrame.h"
@@ -28,14 +27,8 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 	: TForm(Owner),
 	m_appDataDir( paulst::appDataDir() + "\\ValC" ),
 	m_config( paulst::loadContentsOf( m_appDataDir.path() + "\\config-top.txt" ) ),
-	m_logFrame(NULL),
-    m_threadPool( new stef::ThreadPool( 2, 5 ) )
+	m_logFrame(NULL)
 {
-}
-//---------------------------------------------------------------------------
-__fastcall TMainForm::~TMainForm()
-{
-    m_threadPool->shutdown( 5000, true );
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::onCreate(TObject *Sender)
@@ -80,14 +73,10 @@ void __fastcall TMainForm::onCreate(TObject *Sender)
 			qcViewFrame,
 			m_model.get() ) );
 
-    m_qcViewController->setThreadPool( m_threadPool );
-
 	m_worklistItemViewController = std::unique_ptr<valcui::WorklistItemViewController>(
 		new valcui::WorklistItemViewController(
 			wiFrame,
 			m_model.get() ) );
-
-    m_worklistItemViewController->setThreadPool( m_threadPool );
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::onResize(TObject *Sender)

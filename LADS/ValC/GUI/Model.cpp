@@ -1,8 +1,10 @@
 #include "BusinessLayer.h"
 #include "ExceptionHandler.h"
 #include <memory>
-#include "ModelEventListener.h"
 #include "Model.h"
+#include "ModelEventConstants.h"
+#include "ModelEventListener.h"
+#include "Require.h"
 #include <SysUtils.hpp>
 
 namespace valcui
@@ -15,11 +17,36 @@ Model::Model()
 {
 }
 
+void Model::borrowSnapshot( TThreadMethod callback )
+{
+    require( m_businessLayer );
+    m_businessLayer->borrowSnapshot( callback );
+}
+
 void Model::close()
 {
     if ( m_businessLayer )
     {
         m_businessLayer->close();
+    }
+}
+
+int Model::getSelectedWorklistEntry() const
+{
+    return m_selectedWorklistEntry;
+}
+
+valc::SnapshotPtr Model::getSnapshot() const
+{
+    require( m_businessLayer );
+    return m_businessLayer->getSnapshot();
+}
+
+void Model::notifyListeners( int eventID )
+{
+    for ( ModelEventListener* l : m_listeners )
+    {
+        l->notify( eventID );
     }
 }
 
@@ -36,10 +63,7 @@ void Model::doForceReload()
     {
         m_businessLayer->forceReload();
 
-        for ( Listeners::iterator i = m_listeners.begin(); i != m_listeners.end(); ++i )
-        {
-            (*i)->onForceReload( m_businessLayer->getSnapshot() );
-        }
+        notifyListeners( MODEL_EVENT::FORCE_RELOAD );
     }
     catch( const Exception& e )
     {
@@ -68,27 +92,18 @@ void Model::setSelectedWorklistEntry( int worklistEntryID )
     {
         m_selectedWorklistEntry = worklistEntryID;
 
-        for ( Listeners::iterator i = m_listeners.begin(); i != m_listeners.end(); ++i )
-        {
-            (*i)->onWorklistEntrySelected(m_selectedWorklistEntry);
-        }
+        notifyListeners( MODEL_EVENT::WORKLIST_ENTRY_SELECTION_CHANGE );
     }
 }
 
 void __fastcall Model::warningAlarmOn()
 {
-    for ( Listeners::iterator i = m_listeners.begin(); i != m_listeners.end(); ++i )
-    {
-        (*i)->onWarningAlarmOn();
-    }
+    notifyListeners( MODEL_EVENT::WARNING_ALARM_ON );
 }
 
 void __fastcall Model::warningAlarmOff()
 {
-    for ( Listeners::iterator i = m_listeners.begin(); i != m_listeners.end(); ++i )
-    {
-        (*i)->onWarningAlarmOff();
-    }
+    notifyListeners( MODEL_EVENT::WARNING_ALARM_OFF );
 }
 
 }

@@ -20,6 +20,7 @@ TfrmRetrievalListDialog *listDialog;
 __fastcall TfrmRetrievalListDialog::TfrmRetrievalListDialog(TComponent* Owner)
 	: TForm(Owner)
 {
+	m_pWorkerThread = NULL;
 }
 //---------------------------------------------------------------------------
 
@@ -47,10 +48,13 @@ void TfrmRetrievalListDialog::displayGridStrings()
 //		m_cryoLists.insert(std::pair<int,std::map<String,String> > (cryoid,listInfo));
 	}
 	m_cryoLists = newMap;
-//	NOW SET OFF THE WORKER THREAD, GET MORE DETAILS
-	bgWorkerThreadTask *m_pWorkerThreadTask = new bgWorkerThreadTask();
-	m_pWorkerThreadTask->setUp(m_cryoLists,m_pRetrievalList,m_BGProcessingCount);
-	m_workerThread.queueTask(dynamic_cast<paulst::WorkerThreadTask *>(m_pWorkerThreadTask));
+//	NOW SET OFF THE WORKER THREAD, GET MORE DETAILS	m_pWorkerThreadTask = new bgWorkerThreadTask();
+	m_pWorkerThread = new paulst::WorkerThread();
+
+	bgWorkerThreadTask *pWorkerThreadTask = new bgWorkerThreadTask();
+
+	pWorkerThreadTask->setUp(m_cryoLists,m_pRetrievalList,m_BGProcessingCount);
+	m_pWorkerThread->queueTask(dynamic_cast<paulst::WorkerThreadTask *>(pWorkerThreadTask));
 
     mainStringGrid->Enabled = false;
 
@@ -752,9 +756,14 @@ void __fastcall TfrmRetrievalListDialog::NotesFromBoxNameMenuClick(TObject *Send
 
 void __fastcall TfrmRetrievalListDialog::FormClose(TObject *Sender, TCloseAction &Action)
 {
-	m_workerThread.cancelCurrentlyExecuting();
+	if (m_pWorkerThread!=NULL)
+	{
+		delete m_pWorkerThread;
+		m_pWorkerThread = NULL;
+	}
+
 	//don't quit will we know it's cancelled
-	while (m_pRetrievalList->isBackgroundProcessing()) {};
+ //	while (m_pRetrievalList->isBackgroundProcessing()) {};
 }
 //---------------------------------------------------------------------------
 

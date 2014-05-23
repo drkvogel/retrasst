@@ -2,7 +2,6 @@
 #define RULEENGINEH
 
 #include "API.h"
-#include "ConnectionCache.h"
 #include "CritSec.h"
 #include "LuaDB.h"
 #include <map>
@@ -97,7 +96,7 @@ public:
     void  clear();
     Rules* getRulesFor      ( int test, int machine, int project );
     void setConfig          ( const paulst::Config* c );
-    void setConnectionCache ( ConnectionCache* cc );
+    void setConnectionFactory ( paulstdb::AbstractConnectionFactory* cc );
     void setGates           ( Gates* g );
     void setLog             ( paulst::LoggingService* l );
     void setRulesConfig     ( RulesConfig* c );
@@ -108,7 +107,7 @@ private:
     RulesConfig*            m_rulesConfig;
     RuleLoaderInterface*    m_ruleLoader;
     Cache                   m_cache;
-    ConnectionCache*        m_connectionCache;
+    paulstdb::AbstractConnectionFactory*        m_connectionFactory;
     paulst::LoggingService* m_log;
     Gates*                  m_gates;
     const paulst::Config*   m_config;
@@ -151,8 +150,6 @@ public:
     void setConfig( const paulst::Config* c );
     /*
         This connection factory is used when a rule script wants a connection.
-        It is invoked indirectly, via ConnectionCache. The latter enforces
-        one-at-a-time access to this connection factory.
     */
     void setConnectionFactory( paulstdb::AbstractConnectionFactory* conFac );
     void setDefaultTaskExceptionHandler( stef::TaskExceptionHandler* teh );
@@ -169,7 +166,6 @@ private:
     paulst::CritSec             m_cs;
     RuleResultPublisher*        m_publisher;
     RulesCache                  m_rulesCache;
-    ConnectionCache             m_connectionCache;
     paulst::LoggingService*     m_log;
     int                         m_pending;
     HANDLE                      m_signalWhenNonPending;

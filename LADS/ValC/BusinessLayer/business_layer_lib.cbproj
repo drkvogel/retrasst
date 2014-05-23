@@ -139,10 +139,6 @@
             <DependentOn>CompositeRuleResultPublisher.h</DependentOn>
             <BuildOrder>11</BuildOrder>
         </CppCompile>
-        <CppCompile Include="ConnectionCache.cpp">
-            <DependentOn>ConnectionCache.h</DependentOn>
-            <BuildOrder>12</BuildOrder>
-        </CppCompile>
         <CppCompile Include="ControlModel.cpp">
             <DependentOn>ControlModel.h</DependentOn>
             <BuildOrder>13</BuildOrder>

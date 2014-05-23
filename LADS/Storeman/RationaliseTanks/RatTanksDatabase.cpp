@@ -1,7 +1,5 @@
 //---------------------------------------------------------------------------
 
-#pragma hdrstop
-
 #include "RatTanksDatabase.h"
 #include <cstddef>
 #include <string>
@@ -17,21 +15,26 @@
 #include <System.SysUtils.hpp>
 #include "assert.h"
 #include <cstdio>
-//---------------------------------------------------------------------------
-#pragma package(smart_init)
-
+#include "LIMSDatabase.h"
 #include "RatTanksCreateRetrievalJob.h"
+#pragma hdrstop
+
+//---------------------------------------------------------------------------
+
+#pragma package(smart_init)
 
 using namespace RationaliseTanks;
 #define MIN_SPACE 1
-//---------------------------------------------------------------------------
+
 const std::string database::DEFINE_OBJECT_NAME_CID = "object_name_cid";
 const std::string database::DEFINE_OBJECT_NAME_EXTERNAL_NAME = "object_name_ext_name";
 const std::string database::DEFINE_OBJECT_NAME_EXTERNAL_FULL = "object_name_ext_full";
 const std::string database::DEFINE_PROGRAM_NAME = "Rationalise tanks";
 const std::string database::DEFINE_PROGRAM_VERSION = "v1.0.0";
 bool database::m_bIsAutoCommit = true;
+
 //---------------------------------------------------------------------------
+
 database::database()
 {
 	m_pCurrentProject = 0;
@@ -60,19 +63,17 @@ static bool dbErrorCallback( const std::string object, const int instance,const 
 }
 
 //---------------------------------------------------------------------------
-
+/*
 #if _WIN64
 static const char * vnode = "vnode_vlab_64";
 #elif _WIN32
 static const char * vnode = "vnode_vlab";
 #endif
-
-void database::connect(String &selectDB,TMemo *debugMemo)
+*/
+void database::connect(const AnsiString &selectDB,TMemo *debugMemo)
 {
 	try
-	{
-		String dbName = String(vnode) + "::" + selectDB;
-		m_dbCentral = std::unique_ptr<XDB>( new XDB( AnsiString(dbName.c_str()).c_str() ) );
+	{	m_dbCentral = std::unique_ptr<XDB>( new XDB( selectDB.c_str() ) );
 		m_dbCentral->setErrorCallBack( dbErrorCallback );
 		throwUnless ( m_dbCentral->open(), "Failed to connect!" );
 	}
@@ -86,16 +87,16 @@ void database::connect(String &selectDB,TMemo *debugMemo)
 	}
 	m_debugMemo = debugMemo;
 }
+
 //---------------------------------------------------------------------------
 
-bool database::connectProject(std::string projectName)
+bool database::connectProject(const std::string &projectName)
 {
 	m_pCurrentProject = 0;
 
 	if (m_dbProjects.find(projectName) != m_dbProjects.end())
 	{
 		std::map<std::string, XDB *>::iterator it = m_dbProjects.find(projectName);
-
 		if (it != m_dbProjects.end())
 		{
 			m_pCurrentProject = it->second;
@@ -103,11 +104,9 @@ bool database::connectProject(std::string projectName)
 		}
 	}
 
-	std::string connectionString = std::string(vnode) + "::" + projectName;
-	m_pCurrentProject = new XDB(connectionString);
-
+	std::string connectionString = LIMSDatabase::getConnectionName( projectName );
 	try
-	{
+	{	m_pCurrentProject = new XDB( connectionString );
 		m_pCurrentProject->setErrorCallBack( dbErrorCallback );
 		throwUnless ( m_pCurrentProject->open(), "Failed to connect!" );
 		m_dbProjects[projectName] = m_pCurrentProject;

@@ -54,11 +54,11 @@ public:
 
 class LPDbBoxTypes : public LDbCache< LPDbBoxType >, public LCDbSingleton< LPDbBoxTypes >
 {
+	class NameMatcher;
+
 public:
 	bool read( LQuery cQuery, bool readAll = false );
-	const LPDbBoxType * find( const std::string & name ) const {
-		return findMatch( LDbNames::LCMatcher( name ) );
-	}
+	const LPDbBoxType * find( const std::string & name ) const;
 };
 
 //---------------------------------------------------------------------------

@@ -23,11 +23,9 @@ public:
 	void notifyForceReloadButtonClick( TSnapshotFrame* tsf );
 	void notifyMainSplitterMouseUp( TSnapshotFrame* tsf );
     void notifySelected( int worklistEntryID );
-    void onForceReload( valc::SnapshotPtr& );
-    void onWarningAlarmOn();
-	void onWarningAlarmOff();
-	void onWorklistEntrySelected( int worklistEntryID );
+    void notify( int modelEvent ); // ModelEventConstants.h
     void resize();
+    void __fastcall update();
 private:
     valcui::Model* m_model;
     ModelEventListenerAdapter<SnapshotFrameController> m_eventListener;

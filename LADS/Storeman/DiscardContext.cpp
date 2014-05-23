@@ -244,8 +244,7 @@ ToggleMarkSampleHandler Context::s_toggleMarker;
 NoteSampleHandler Context::s_noter;
 
 Context::Context( Db * db )
-    : m_db(db)
-    , m_jobno(0) {
+	: m_db(db) {
     configDbCrstatusMap();
     m_crstatus.init();
     m_alinfo.init();
@@ -394,7 +393,7 @@ IntVec Context::getJobnos( ) const {
 }
 
 std::string Context::calcJobPrompt( int jobno ) const {
-	if (jobno == 0) jobno = m_jobno;
+	if (jobno == 0) jobno = getJobno( );
 
 	std::string prompt = Util::asString(jobno);
 
@@ -414,7 +413,7 @@ std::string Context::calcJobPrompt( int jobno ) const {
 }
 
 std::string Context::calcJobDescription( int jobno ) const {
-    if (jobno == 0) jobno = m_jobno;
+	if (jobno == 0) jobno = getJobno( );
 
     std::string description = Util::asString(jobno);
 
@@ -438,7 +437,7 @@ std::string Context::calcJobDescription( int jobno ) const {
 }
 
 std::string Context::calcJobStatus( int jobno ) const {
-    if (jobno == 0) jobno = m_jobno;
+	if (jobno == 0) jobno = getJobno( );
 
     std::string text = "";
 
@@ -471,31 +470,31 @@ std::string Context::calcJobStatus( int jobno ) const {
 }
 
 bool Context::canAbort( int jobno ) const {
-    if (jobno == 0) jobno = m_jobno;
+	if (jobno == 0) jobno = getJobno( );
 
     return m_db->canAbort(jobno);
 }
 
 std::string Context::getJobOwner( int jobno ) const {
-    if (jobno == 0) jobno = m_jobno;
+	if (jobno == 0) jobno = getJobno( );
 
     return m_db->getJobOwner(jobno);
 }
 
 std::string Context::getJobDescription( int jobno ) const {
-    if (jobno == 0) jobno = m_jobno;
+	if (jobno == 0) jobno = getJobno( );
 
     return m_db->getJobName(jobno); // sic
 }
 
 std::string Context::getJobReason( int jobno ) const {
-    if (jobno == 0) jobno = m_jobno;
+	if (jobno == 0) jobno = getJobno( );
 
     return m_db->getJobDescription(jobno); // sic
 }
 
 time_t Context::getJobCreationUtime( int jobno ) const {
-    if (jobno == 0) jobno = m_jobno;
+	if (jobno == 0) jobno = getJobno( );
 
     return m_db->getJobCreationUtime(jobno);
 }
@@ -642,12 +641,28 @@ bool Context::addAuditEntry( const std::string & message ) const {
 }
 
 void Context::setJobno( const int jobno ) {
-	m_jobno = jobno;
+	m_retrieval = LCDbCryoJob( jobno );
 	return;
 }
 
+void Context::setJob( const LCDbCryoJob & ref ) {
+	m_retrieval = ref;
+	return;
+}
 int Context::getJobno( ) const {
-	return m_jobno;
+	return m_retrieval.getID();
+}
+
+LCDbCryoJob & Context::getJobRecord( ) {
+	return m_retrieval;
+}
+
+void Context::setBoxType( const LPDbBoxType & ref ) {
+	m_destBoxType = ref;
+}
+
+LPDbBoxType & Context::getBoxType() {
+	return m_destBoxType;
 }
 
 // SamplePile
@@ -843,7 +858,7 @@ const Sample * SamplePile::getSample( const int sampleno ) const {
 		   : 0;
 }
 
-std::string SamplePile::update( const int dbcrstatus, const LPDbBoxType & destBoxType ) {
+std::string SamplePile::update( const int dbcrstatus ) {
 	std::string error = "";
 
 	do {
@@ -863,12 +878,18 @@ std::string SamplePile::update( const int dbcrstatus, const LPDbBoxType & destBo
 			jobCsids[jobno].insert(csid);
 		}
 
-		error = m_context->getDb()->updateSamples(jobCsids,
-				dbcrstatus, /* jobName, jobDescription, */ sampleNote);
-		if (error != "") break;
-
 		if (m_context->isCreateJobStage()) {
-			error = m_context->getDb()->createStoreEntries( jobCsids, destBoxType );
+			if( !m_context->getDb()->createJob( m_context->getJobRecord() ) ) {
+				error = "Failed to create job record";
+			} else if( !m_context->getDb()->saveBoxType( m_context->getBoxType() ) ) {
+				error = "Failed to update box content record";
+			} else {
+				error = m_context->getDb()->createStoreEntries( jobCsids, m_context->getBoxType() );
+            }
+		}
+		if( error.empty() ) {
+			error = m_context->getDb()->updateSamples(jobCsids,
+					dbcrstatus, m_context->getJobno(), sampleNote);
 		}
 
 	} while (false);
