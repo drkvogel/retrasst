@@ -143,10 +143,15 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
 }
 
 void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
-    ostringstream oss; //oss;// << __FUNC__;
+    ostringstream oss;
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
     if (NULL == job) return;
-    oss << endl << "job: "<<job->getID()<<", projectid: "<<job->getProjectID()<<", status: "<<(job->getStatus());//oss<<sgwJobs->printColWidths();
+    oss << endl
+    <<"job: "<<job->getID()
+    <<", projectid: "<<job->getProjectID()
+    <<", status: "<<job->getStatus() //);//oss<<sgwJobs->printColWidths();
+    <<", type: "<<job->getJobType()
+    <<": desc: "<<job->getDescription().c_str();
     debugLog(oss.str().c_str());
 }
 
@@ -206,9 +211,9 @@ void TfrmRetrievalAssistant::loadJobs() {
 	delete_referenced<tdvecpJob>(vecJobs);
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {
         if (!jr->isAvailable()) continue;
-        ostringstream oss;
-        oss<<__FUNC__<<", type: "<<jr->getJobType()<<": desc: "<<jr->getDescription().c_str();
-        debugLog(oss.str().c_str());
+//        ostringstream oss;
+//        oss<<__FUNC__<<", type: "<<jr->getJobType()<<": desc: "<<jr->getDescription().c_str();
+//        debugLog(oss.str().c_str());
         if (jr->getStatus() == LCDbCryoJob::Status::NEW_JOB             && !cbNewJob->Checked) continue;
         if (jr->getStatus() == LCDbCryoJob::Status::INPROGRESS          && !cbInProgress->Checked) continue;
         if (jr->getStatus() == LCDbCryoJob::Status::DONE                && !cbDone->Checked) continue;
@@ -329,16 +334,18 @@ void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, co
 
     // store primaries and cache
     combined.clear();
-    for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
-        SampleRow * row = *it;
+    //for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
+    for (auto &row: primaries) {
+        //SampleRow * row = *it;
         PosKey key(row);
         cache[key] = row; // cache combination of dest box and pos
         combined.push_back(row);
     }
 
     // try to match secondaries based on same box/pos key
-    for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
-        SampleRow * row = *it;
+    //for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
+    for (auto &row: secondaries) {
+        //SampleRow * row = *it;
         PosKey key(row);
         posCache::iterator found = cache.find(key);
         if (found != cache.end()) { // destination box and position already used (by primary)

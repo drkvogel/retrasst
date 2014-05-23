@@ -222,8 +222,9 @@ void __fastcall TfrmRetrAsstPlanSamples::sgVialsFixedCellClick(TObject *Sender, 
 void __fastcall TfrmRetrAsstPlanSamples::sgVialsClick(TObject *Sender) {
     SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     debugLog("."); // line break
-    sample?debugLog(sample->debug_str().c_str()):debugLog("NULL sample");
-    sample->backup?debugLog(sample->backup->debug_str().c_str()):debugLog("NULL backup");
+    sample ? debugLog(sample->debug_str().c_str()) : debugLog("NULL sample");
+    sample->backup ? debugLog(string("backup: " + sample->backup->debug_str()).c_str()) : debugLog("NULL backup");
+    debugLog(".");
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::timerLoadVialsTimer(TObject *Sender) {
@@ -615,7 +616,7 @@ void LoadVialsJobThread::load() {
 
 void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *Sender) {
     ostringstream oss; oss<<__FUNC__
-    <<"finished loading job id: "<<job->getID()<<" \""<<job->getName()<<"\", \""<<job->getDescription().c_str()<<"\""; debugLog(oss.str().c_str());
+    <<" finished loading job id: "<<job->getID()<<" \""<<job->getName()<<"\", \""<<job->getDescription().c_str()<<"\""; debugLog(oss.str().c_str());
     oss.str(""); oss <<" primary: ["  <<job->getPrimaryAliquot()<<"] "<<Util::getAliquotDescription(job->getPrimaryAliquot())<<" secondary: ["<<job->getSecondaryAliquot()<<"] "<<Util::getAliquotDescription(job->getSecondaryAliquot()); debugLog(oss.str().c_str());
 
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
