@@ -65,30 +65,10 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
     sgwVials->addCol("aliquot",  "Aliquot",          90);
     sgwVials->init();
 
-/*
-Chunk< SampleRow >::NOT_STARTED:RETRIEVAL_ASSISTANT_NEW_COLOUR;
-Chunk< SampleRow >::INPROGRESS: RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR;
-Chunk< SampleRow >::DONE:       RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
-*/
     // chunk colour key
     labelNew->Color         = RETRIEVAL_ASSISTANT_CHUNK_NEW_COLOUR;
     labelInProgress->Color  = RETRIEVAL_ASSISTANT_CHUNK_INPROGRESS_COLOUR;
     labelDone->Color        = RETRIEVAL_ASSISTANT_CHUNK_COMPLETED_COLOUR;
-
-/*
-    switch (status)  // could use currentAliquot() here?
-        case LCDbCryovialRetrieval::EXPECTED:               background = RETRIEVAL_ASSISTANT_NEW_COLOUR;
-        case LCDbCryovialRetrieval::IGNORED:                background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR;
-        case LCDbCryovialRetrieval::COLLECTED:              background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
-        case LCDbCryovialRetrieval::NOT_FOUND:
-            if (NULL != row->backup)
-                switch (backupStatus)
-                    case LCDbCryovialRetrieval::EXPECTED:   background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR
-                    case LCDbCryovialRetrieval::IGNORED:    background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR
-                    case LCDbCryovialRetrieval::COLLECTED:  background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR
-                    default:                                background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR
-            else
-                background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR */
 
     // vial colour key
     labelVialKeyExpectedPrimary->Color      = RETRIEVAL_ASSISTANT_EXPECTED_COLOUR;
@@ -260,47 +240,13 @@ void __fastcall TfrmRetrAsstCollectSamples::sgChunksClick(TObject *Sender) {
     showChunk(chunk);
 }
 
-
-/*
-   string str() {
-        ostringstream oss; oss
-            <<"id: "<<(store_record->getID())<<", " //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position// <<"status: "<<(store_record->getStatus())<<", " // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position //<<"barcode: "<<store_record->getBarcode() //<<"sampleID"<<cryo_record->getSampleID() //<<"aliquot type ID"<<cryo_record->getAliquotType()
-            <<"proj: "<<(project_cid)<<", "
-            <<"status: "<<store_record->getStatus()<<", "
-            <<"barc: "<<cryovial_barcode<<", "<<"aliq: "<<aliquotName()<<", "
-            <<"src: {"<<store_record->getBoxID()<<", "<<src_box_name<<"["<<store_record->getPosition()<<"]}, "
-            <<"dst: {"<<dest_box_id<<", "<<dest_box_name<<"["<<dest_cryo_pos<<"]}, "
-            <<"loc: {"<<storage_str()<<"}";
-        return oss.str();
-*/
-
 void __fastcall TfrmRetrAsstCollectSamples::sgVialsClick(TObject *Sender) { // show details in debug window
     SampleRow * sample = (SampleRow *)sgVials->Objects[0][sgVials->Row];
-    DEBUGSTREAM(__FUNC__
-        <<" retrieval_status: "<<sample->retrieval_record->getStatus()
-        <<" ("<<sample->retrieval_record->statusString(sample->retrieval_record->getStatus())<<")"
-        <<", cryo_status: "<<sample->cryo_record->getStatus()
-        <<", store_status: "<<sample->store_record->getStatus()
-        <<", barcode: "<<sample->cryovial_barcode.c_str()
-        <<", storage: "<<sample->storage_str().c_str()
-        <<", dest: "<<sample->dest_str().c_str()
-        <<", aliq: "<<sample->cryo_record->getAliquotType()
-        )
+    ostringstream oss; oss<<sample->debug_str(); debugLog(oss.str().c_str());
     SampleRow * backup = sample->backup;
-    if (!backup) {
-        DEBUGSTREAM(" (no backup)")
-        return;
-    }
-    DEBUGSTREAM(
-        " (backup) retrieval_status: "<<backup->retrieval_record->getStatus()
-        <<" ("<<backup->retrieval_record->statusString(backup->retrieval_record->getStatus())<<")"
-        <<", cryo_status: "<<backup->cryo_record->getStatus()
-        <<", store_status: "<<backup->store_record->getStatus()
-        <<", barcode: "<<backup->cryovial_barcode.c_str()
-        <<", storage: "<<backup->storage_str().c_str()
-        <<", dest: "<<backup->dest_str().c_str()
-        <<", aliq: "<<sample->cryo_record->getAliquotType()
-        )
+    if (!backup) { debugLog(" (no backup)"); return; }
+    oss.str(); oss<<" (backup) "<<sample->debug_str(); debugLog(oss.str().c_str());
+
     //int row = sgVials->Row; sgVials->Row = row; // how to put these before and after to save row clicked on?
 }
 
@@ -480,10 +426,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         "    lcr.position AS lcr_position, lcr.cryovial_barcode, lcr.aliquot_type_cid, "
         "    lcr.old_box_cid, lcr.old_position, "
         "    lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, " // lcr.slot_number AS lcr_slot, "
-        //"    lcr.slot_number AS dest_pos, "
-        //"  s2.cryovial_position as dest_pos" (from plan)
-        //"    lcr.new_position AS dest_pos, "
-        "    lcr.new_position, "
+        "    lcr.new_position, " // lcr.new_position AS dest_pos, // s2.cryovial_position as dest_pos
         "    cs.box_cid, sb.external_name AS src_box, cs.cryovial_position AS source_pos,  "
         "    db.external_name AS dest_box, "
         "    db.box_type_cid AS dest_box_type, "
@@ -508,7 +451,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     qd.setSQL(oss.str()); debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
     qd.setParam("rtid", job->getID()); //int retrieval_cid = job->getID();
     qd.open();
-    //int rowCountTemp = 0;
     rowCount = 0; // class variable
     int curchunk = 1, chunk = 0; SampleRow * previous = NULL;
     debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
@@ -534,36 +476,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             qd.readInt(     "new_position"), // not AS dest_pos
             "", 0, "", 0, 0, "", 0); // no storage details yet
 
-        // add box tube type name
-        // I put this in a loop outside the main loop to avoid running another query...
-        // doesn't seem to matter that it's not?
-        //for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {//, rowCount2++) {
-//        for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {//, rowCount2++) {
-//            (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
-//        }
         row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
-
-        // could use combineAliquots()?
-        // void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
-        // primary_aliquot and secondary_aliquot are already defined
-        //int currentAliquotType = row->cryo_record->getAliquotType();
-        //int previousAliquotType = previous == NULL? 0 : previous->cryo_record->getAliquotType();
-//        if (secondary_aliquot != 0 &&
-//            secondary_aliquot == currentAliquotType &&
-//            previous != NULL &&
-//            previous->cryovial_barcode == row->cryovial_barcode) { // secondary aliquot, previous was primary of same sample
-//            if (previousAliquotType == currentAliquotType) {
-//                throw runtime_error("duplicate aliquot");
-//            } else if (currentAliquotType != secondary_aliquot) {
-//                throw runtime_error("spurious aliquot");
-//            } else { // secondary
-//                previous->backup = row;
-//            }
-//        } else {
-//            frmRetrAsstCollectSamples->combined.push_back(row); // new primary
-//            previous = row;
-//            rowCount++; // only count primary aliquots
-//        }
 
         const int aliquotType = row->cryo_record->getAliquotType();
         if (aliquotType == secondary_aliquot) {
@@ -588,8 +501,8 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     // previous (combineAliquots()) appears to match 2nds to 1sts, but at this point row->backup is null
 
     // find locations of source boxes
-    // should get storage for secondaries as well?
-    // this was put outside the main loop to avoid multiple queries as well - could actually be included in main loop?
+    // fixme should get storage for secondaries as well?
+    // fixme this was put outside the main loop to avoid multiple queries as well - could actually be included in main loop?
     int rowCount2 = 0;
 	for (vector<SampleRow *>::iterator it = collect->combined.begin(); it != collect->combined.end(); ++it, rowCount2++) {
         SampleRow * sample = *it;
@@ -1083,3 +996,54 @@ void TfrmRetrAsstCollectSamples::collectEmpties() {
 //if (NULL == size) throw runtime_error(__FUNC__ +" null LCDbBoxSize");
 //if (NULL == tube) throw runtime_error(__FUNC__ +" null LCDbObject");
 //operator() (const ProjBox lhs, const ProjBox rhs) { return lhs.project_cid == rhs.project_cid && lhs.box_cid == rhs.box_cid; }
+
+/*
+Chunk< SampleRow >::NOT_STARTED:RETRIEVAL_ASSISTANT_NEW_COLOUR;
+Chunk< SampleRow >::INPROGRESS: RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR;
+Chunk< SampleRow >::DONE:       RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
+*/
+
+/*
+    switch (status)  // could use currentAliquot() here?
+        case LCDbCryovialRetrieval::EXPECTED:               background = RETRIEVAL_ASSISTANT_NEW_COLOUR;
+        case LCDbCryovialRetrieval::IGNORED:                background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR;
+        case LCDbCryovialRetrieval::COLLECTED:              background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
+        case LCDbCryovialRetrieval::NOT_FOUND:
+            if (NULL != row->backup)
+                switch (backupStatus)
+                    case LCDbCryovialRetrieval::EXPECTED:   background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR
+                    case LCDbCryovialRetrieval::IGNORED:    background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR
+                    case LCDbCryovialRetrieval::COLLECTED:  background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR
+                    default:                                background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR
+            else
+                background = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR */
+
+// could use combineAliquots()?
+        // void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
+        // primary_aliquot and secondary_aliquot are already defined
+        //int currentAliquotType = row->cryo_record->getAliquotType();
+        //int previousAliquotType = previous == NULL? 0 : previous->cryo_record->getAliquotType();
+//        if (secondary_aliquot != 0 &&
+//            secondary_aliquot == currentAliquotType &&
+//            previous != NULL &&
+//            previous->cryovial_barcode == row->cryovial_barcode) { // secondary aliquot, previous was primary of same sample
+//            if (previousAliquotType == currentAliquotType) {
+//                throw runtime_error("duplicate aliquot");
+//            } else if (currentAliquotType != secondary_aliquot) {
+//                throw runtime_error("spurious aliquot");
+//            } else { // secondary
+//                previous->backup = row;
+//            }
+//        } else {
+//            frmRetrAsstCollectSamples->combined.push_back(row); // new primary
+//            previous = row;
+//            rowCount++; // only count primary aliquots
+//        }
+
+        // add box tube type name
+        // I put this in a loop outside the main loop to avoid running another query...
+        // doesn't seem to matter that it's not?
+        //for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {//, rowCount2++) {
+//        for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {//, rowCount2++) {
+//            (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
+//        }

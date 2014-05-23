@@ -58,31 +58,6 @@ __fastcall TfrmRetrAsstPlanSamples::TfrmRetrAsstPlanSamples(TComponent* Owner) :
     sgwDebug->addCol("destpos",  "Pos",              25);
     sgwDebug->init();
 
-
-/*
-#define RETRIEVAL_ASSISTANT_SECONDARY_COLOUR    clYellow
-#define RETRIEVAL_ASSISTANT_COMBINED_COLOUR     clWebCyan
-
-#define RETRIEVAL_ASSISTANT_IN_PROGRESS_COLOUR  clLime
-#define RETRIEVAL_ASSISTANT_PLANNED_COLOUR      clSkyBlue
-#define RETRIEVAL_ASSISTANT_EXTRA_COLOUR        clWebChartreuse
-    // neither primary nor secondary
-    // Chartreuse is a tertiary colour, halfway between green and yellow
-    // http://en.wikipedia.org/wiki/Chartreuse_(color)
-#define RETRIEVAL_ASSISTANT_COLLECTED_COLOUR    clSkyBlue
-#define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR    clFuchsia
-#define RETRIEVAL_ASSISTANT_IGNORED_COLOUR      clGray
-#define RETRIEVAL_ASSISTANT_ERROR_COLOUR        clRed
-#define RETRIEVAL_ASSISTANT_DELETED_COLOUR      clPurple
-
-    background = RETRIEVAL_ASSISTANT_COMBINED_COLOUR;
-else if (row->cryo_record->getAliquotType() == job->getPrimaryAliquot())
-    background = RETRIEVAL_ASSISTANT_PLANNED_COLOUR;
-else if (row->cryo_record->getAliquotType() == job->getSecondaryAliquot())
-    background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR;
-else
-    background = RETRIEVAL_ASSISTANT_EXTRA_COLOUR;
-*/
     // vial colour key
     labelVialKeyPrimary->Color     = RETRIEVAL_ASSISTANT_PRIMARY_COLOUR;
     labelVialKeySecondary->Color   = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR;
@@ -616,17 +591,8 @@ void LoadVialsJobThread::load() {
     }
     debugMessage = "finished retrieving rows, getting storage details"; Synchronize((TThreadMethod)&debugLog);
 
-    int size1 = plan->primaries.size(), size2 = plan->secondaries.size(), size3 = plan->combined.size();
-
     // try to match secondaries with primaries on same destination position
     main->combineAliquots(plan->primaries, plan->secondaries, plan->combined);
-
-    size1 = plan->primaries.size(), size2 = plan->secondaries.size(), size3 = plan->combined.size();
-
-//    // add box tube type name
-//    for (vector<SampleRow *>::iterator it = frmRetrAsstPlanSamples->combined.begin(); it != frmRetrAsstPlanSamples->combined.end(); ++it) {//, rowCount2++) {
-//        (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
-//    }
 
     // find locations of source boxes
     int rowCount2 = 0;
@@ -642,51 +608,9 @@ void LoadVialsJobThread::load() {
     debugMessage = "finished getting storage details"; Synchronize((TThreadMethod)&debugLog);
 }
 
-//void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
-//
-//    struct PosKey {
-//        PosKey(int b, int p) : box(b), pos(p) { }
-//        PosKey(SampleRow * s) : box(s->dest_cryo_pos), pos(s->dest_box_id) { }
-//        int box, pos;
-//        bool operator <(const PosKey &other) const {
-//            if (box < other.box) {
-//                return true;
-//            } else if (box == other.box) {
-//                return pos < other.pos;
-//            } else {
-//                return false;
-//            }
-//        }
-//    };
-//
-//    typedef std::map< PosKey, SampleRow * > posCache;
-//    posCache cache;
-//
-//    combined.clear();
-//    for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
-//        SampleRow * row = *it;
-//        PosKey key(row);
-//        cache[key] = row; // cache combination of dest box and pos
-//        combined.push_back(row);
-//    }
-//
-//    for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
-//        SampleRow * row = *it;
-//        PosKey key(row);
-//        posCache::iterator found = cache.find(key);
-//        if (found != cache.end()) { // destination box and position already used (by primary)
-//            if (NULL == row)
-//                throw runtime_error("null in cache");
-//            found->second->backup = row; // add as backup to primary
-//        } else {
-//            combined.push_back(row);     // add to list in its own right
-//        }
-//    }
-//}
-
 void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *Sender) {
-    ostringstream oss; //oss<<__FUNC__<<
-    oss <<"finished loading job id: "<<job->getID()<<" \""<<job->getName()<<"\", \""<<job->getDescription().c_str()<<"\""; debugLog(oss.str().c_str());
+    ostringstream oss; oss<<__FUNC__
+    <<"finished loading job id: "<<job->getID()<<" \""<<job->getName()<<"\", \""<<job->getDescription().c_str()<<"\""; debugLog(oss.str().c_str());
     oss.str(""); oss <<" primary: ["  <<job->getPrimaryAliquot()<<"] "<<Util::getAliquotDescription(job->getPrimaryAliquot())<<" secondary: ["<<job->getSecondaryAliquot()<<"] "<<Util::getAliquotDescription(job->getSecondaryAliquot()); debugLog(oss.str().c_str());
 
     progressBottom->Style = pbstNormal; progressBottom->Visible = false;
@@ -839,13 +763,12 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
         void saveSample(Chunk< SampleRow > * chunk, SampleRow * sampleRow, int rj_box_cid) {
             LCDbCryovialRetrieval vial(
                 rj_box_cid,
-                ++pos,
-                // wrong! this should be the position in the plan and auto-incremented (in the DAO?) sampleRow->dest_cryo_pos,
+                ++pos, // xxx the position in the plan - should be auto-incremented? (in the DAO?)
                 sampleRow->cryo_record->getBarcode(),
                 sampleRow->cryo_record->getAliquotType(),
-                sampleRow->store_record->getBoxID(),    //??? old_box_cid
-                sampleRow->store_record->getPosition(), //??? old_position
-                sampleRow->dest_cryo_pos,               //??? new_position
+                sampleRow->store_record->getBoxID(),    // old_box_cid
+                sampleRow->store_record->getPosition(), // old_position
+                sampleRow->dest_cryo_pos,               // new_position
                 pid,
                 LCDbCryovialRetrieval::Status::EXPECTED
             );
@@ -968,3 +891,11 @@ void __fastcall TfrmRetrAsstPlanSamples::savePlanThreadTerminated(TObject *Sende
 // C++11-style for
     //for (auto &it : frmSamples->chunks) {
         //Chunk< SampleRow > * chunk = it;
+
+//    int size1 = plan->primaries.size(), size2 = plan->secondaries.size(), size3 = plan->combined.size();
+
+//    // add box tube type name
+//    for (vector<SampleRow *>::iterator it = frmRetrAsstPlanSamples->combined.begin(); it != frmRetrAsstPlanSamples->combined.end(); ++it) {//, rowCount2++) {
+//        (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
+//    }
+

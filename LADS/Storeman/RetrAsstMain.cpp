@@ -19,17 +19,9 @@ TfrmRetrievalAssistant *frmRetrievalAssistant;
 __fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
 
 // moved from header file: linker error under 64-bit XE4
-//void TfrmRetrievalAssistant::msgbox(const char * main, const char * title ) {
-//	Application->MessageBoxW(String(main).w_str(), String(title).w_str(), MB_OK);
-//}
-
 void TfrmRetrievalAssistant::msgbox(string main, string title) {
 	Application->MessageBoxW(String(main.c_str()).c_str(), String(title.c_str()).c_str(), MB_OK);
 }
-
-//void TfrmRetrievalAssistant::msgbox(String main, string title ) {
-//	Application->MessageBoxW(main.w_str(), String(title.c_str()).c_str(), MB_OK);
-//}
 
 void __fastcall TfrmRetrievalAssistant::FormResize(TObject *Sender) { sgwJobs->resize(); }
 
@@ -319,7 +311,6 @@ void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, co
     struct PosKey {
     /** compound of box and position used for index into map of box + pos -> sample */
         PosKey(int b, int p) : box(b), pos(p) { }
-        //PosKey(SampleRow * s) : box(s->dest_cryo_pos), pos(s->dest_box_id) { }
         PosKey(SampleRow * s) : box(s->dest_box_id), pos(s->dest_cryo_pos) { }
         int box, pos;
         bool operator <(const PosKey &other) const {
