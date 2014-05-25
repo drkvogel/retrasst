@@ -382,7 +382,7 @@ void __fastcall TfrmRetrAsstCollectSamples::timerLoadPlanTimer(TObject *Sender) 
 }
 
 void TfrmRetrAsstCollectSamples::loadPlan() {
-    DEBUGSTREAM("loadRows for job "<<(job->getID())<<" (\""<<(job->getDescription().c_str())<<"\") started")
+    ostringstream oss; oss<<__FUNC__<<": job: "<<job->str(); debugLog(oss.str().c_str());
     loadPlanThread = new LoadPlanThread();
     loadPlanThread->OnTerminate = &loadPlanThreadTerminated;
 }

@@ -63,19 +63,16 @@ cvs pull got LCDbBoxSize::getTubeType()
 
 Could wrap this up into a map-cached util method.
 
-
-std::string Util::boxTubeTypeName(int box_cid) {
+    std::string Util::boxTubeTypeName(int box_cid)
 
 member access into incomplete type 'const LCDbBoxSize' // add #include
 
     Util::boxTubeTypeName(int box_cid) {
-
         LQuery qc(LIMSDatabase::getCentralDb());
         LPDbBoxNames boxes;
         const LPDbBoxName * box     = boxes.readRecord(qc, box_cid);
 
-    LPDbBoxNames::readRecord( LQuery pQuery, int id )
-    {
+    LPDbBoxNames::readRecord( LQuery pQuery, int id ) {
         pQuery.setSQL( "select * from box_name where box_cid = :bid" );
         pQuery.setParam( "bid", id );
         return pQuery.open() ? insert( LPDbBoxName( pQuery ) ) : NULL;

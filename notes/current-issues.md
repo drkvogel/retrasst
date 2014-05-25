@@ -3,10 +3,22 @@
 can do 'other things' in meantime. 
 make program send email to myself with details of how long each query took, for records.
 
-## lcdbjob::str()
+## LCDbCryoJob::str()
 
 put debug string in here, inc. name, desc, id, etc
 primary, secondary aliquot
+
+ loadRows for job
+
+## move Util::getAliquotDescription() to LCDbCryoJob?
+
+so job.str() can print meaningful aliquot types
+
+## debugLog() should take std::string
+
+    debugLog
+
+
 
 ## bad chunk
 
@@ -18,10 +30,13 @@ primary, secondary aliquot
 
 699 total
 
+Primary: `EDTA_1`, Secondary: `EDTA_2`
 
 1.  EDTA_BC     199
 2.  EDTA_2      100
 3.  EDTA_1      400
+
+Appears to save 100 vials in chunk 2 (says 'primary' though - incorrect text)
 
 #### collect
 

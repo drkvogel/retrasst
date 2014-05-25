@@ -311,3 +311,15 @@ const LCDbCryoJob * LCDbCryoJobs::findByName( const std::string & name ) const {
 
 //---------------------------------------------------------------------------
 
+std::string LCDbCryoJob::str() {
+    std::ostringstream oss; oss<<
+    "id: "<<getID()<<
+    ", name: \""<<getName()<<"\""<<
+    ", desc: \""<<getDescription()<<"\""<<
+    ", type: "<<getJobType()<<
+    ", status: "<<getStatus()<<
+    ", project: "<<getProjectID()<<
+    ", primary: "<<getPrimaryAliquot()<<", secondary: "<<getSecondaryAliquot()<<
+    ", reason: \""<<getReason()<<"\"";
+    return oss.str();
+}

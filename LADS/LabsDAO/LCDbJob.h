@@ -3,6 +3,8 @@
 #ifndef LCDbJobH
 #define LCDbJobH
 
+#include <sstream>
+
 #include <Extctrls.hpp>
 #include "LDbIdClasses.h"
 #include "LDbNameBase.h"
@@ -77,6 +79,8 @@ public:
 	bool saveRecord( LQuery central );
 	bool claim( LQuery central, bool extend );
 	bool release( LQuery central, bool finished );
+
+    std::string str();
 };
 
 //---------------------------------------------------------------------------

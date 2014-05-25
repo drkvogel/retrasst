@@ -501,8 +501,8 @@ void __fastcall LoadVialsJobThread::Execute() {
 }
 
 void LoadVialsJobThread::load() {
-    TfrmRetrievalAssistant      * main  = frmRetrievalAssistant;
-    TfrmRetrAsstPlanSamples  * plan     = frmRetrAsstPlanSamples;
+    TfrmRetrievalAssistant   * main = frmRetrievalAssistant;
+    TfrmRetrAsstPlanSamples  * plan = frmRetrAsstPlanSamples;
 
     job = plan->job;
     plan->combined.clear(); // only contains copies of primaries and secondaries
@@ -510,7 +510,7 @@ void LoadVialsJobThread::load() {
     delete_referenced< vector<SampleRow * > >(plan->primaries);  // primaries may refer to secondaries
 
     ostringstream oss; oss<<plan->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
-    oss.str(""); oss<<"loading retrieval job id: "<<job->getID()<<", project: "<<job->getProjectID();
+    oss.str(""); oss<<"loading retrieval job: "<<job->str();
     debugMessage = oss.str().c_str(); Synchronize((TThreadMethod)&debugLog);
     debugMessage = "preparing query"; Synchronize((TThreadMethod)&debugLog);
     loadingMessage = plan->loadingMessage;

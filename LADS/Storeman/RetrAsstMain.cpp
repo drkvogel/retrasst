@@ -146,12 +146,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
     ostringstream oss;
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
     if (NULL == job) return;
-    oss << endl
-    <<"job: "<<job->getID()
-    <<", projectid: "<<job->getProjectID()
-    <<", status: "<<job->getStatus() //);//oss<<sgwJobs->printColWidths();
-    <<", type: "<<job->getJobType()
-    <<": desc: "<<job->getDescription().c_str();
+    oss<<job->str();
     debugLog(oss.str().c_str());
 }
 
@@ -334,18 +329,14 @@ void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, co
 
     // store primaries and cache
     combined.clear();
-    //for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
     for (auto &row: primaries) {
-        //SampleRow * row = *it;
         PosKey key(row);
         cache[key] = row; // cache combination of dest box and pos
         combined.push_back(row);
     }
 
     // try to match secondaries based on same box/pos key
-    //for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
     for (auto &row: secondaries) {
-        //SampleRow * row = *it;
         PosKey key(row);
         posCache::iterator found = cache.find(key);
         if (found != cache.end()) { // destination box and position already used (by primary)
@@ -394,3 +385,9 @@ void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, co
 
 // LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
 // LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
+
+
+    //for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
+        //SampleRow * row = *it;
+    //for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
+        //SampleRow * row = *it;
