@@ -448,7 +448,9 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         " ORDER BY "
         "    chunk, rj_box_cid, lcr_position, aliquot_type_cid "
         << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"); //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
-    qd.setSQL(oss.str()); debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
+    qd.setSQL(oss.str());
+    debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
+    debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     qd.setParam("rtid", job->getID()); //int retrieval_cid = job->getID();
     qd.open();
     rowCount = 0; // class variable
@@ -485,8 +487,8 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             collect->secondaries.push_back(row);
         } else { // everything else, even if not explicitly primary
             collect->primaries.push_back(row);
-            rowCount++;
         }
+        rowCount++;
         qd.next();
     } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     collect->addChunk(curchunk, rowCount-1); // the last chunk

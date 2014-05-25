@@ -335,6 +335,8 @@ void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, co
         combined.push_back(row);
     }
 
+    int size1 = primaries.size(), size3 = combined.size();
+
     // try to match secondaries based on same box/pos key
     for (auto &row: secondaries) {
         PosKey key(row);
@@ -347,6 +349,8 @@ void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, co
             combined.push_back(row);     // add to list in its own right
         }
     }
+
+    size1 = primaries.size(); int size2 = secondaries.size(); size3 = combined.size();
 }
 
 //template <class T>

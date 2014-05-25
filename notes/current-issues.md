@@ -40,6 +40,10 @@ Appears to save 100 vials in chunk 2 (says 'primary' though - incorrect text)
 
 #### collect
 
+    25/05/2014 18:19:26: loadPlan: job: id: 978238, name: "Retrieval_978238", desc: "Several REVEAL boxes for Chris", type: 4, status: 1, project: -582959, primary: -31781, secondary: -31782, reason: "Checking Retrieval Assistant"
+
+appears to load 690+ vials
+
 1.  EDTA_BC     199
 2.  ?           0
 3.  EDTA_1      400
@@ -48,14 +52,33 @@ chunk 2 is size 0.
 
 i.e. secondaries (EDTA_2) just ain't there.
 
-    for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
-        combined.push_back(row);
+#### combineAliquots()
+
+primaries.size():   599
+secondaries.size(): 100
+combined.size():    699
+
+i.e. looks OK
 
 because of recent changes?
 
-box types are all the same?
+e.g. in `LoadPlanThread::Execute()`?
+
+        row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
+
+        main->getStorage(row);
+
+were put in main loop, take out
+
+has the `order by` gone wrong?
+
+now chunks _looks_ OK - 199, 100, 400 == 699 - not sure what I did to change this - but chunk 2 is all `EDTA_1` instead of `EDTA_2`, and chunk 3 has the `EDTA_2`s at the end - something has gone wrong with chunking
+
+Ah, I moved `rowCount++`, and `rowCount` is a class variable.... I think that might have something to do with it...
+
+## box types are all the same?
     e.g. 978238 QClot_new 978237
-    are they meant to be?
+    are they meant to be? yes, no jobs with multiple box types yet
     take out of main loop
 
 ### job: 978253, projectid: -149662, status: 1
