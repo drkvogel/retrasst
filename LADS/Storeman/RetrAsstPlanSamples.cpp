@@ -567,6 +567,7 @@ void LoadVialsJobThread::load() {
         }
         SampleRow * row = new SampleRow(
             qd.readInt(     "project_cid"),
+            NULL, // new LCDbBoxRetrieval(qd),
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
             NULL, // no retrieval record created yet
@@ -597,7 +598,8 @@ void LoadVialsJobThread::load() {
 
     // add box tube type name
     for (vector<SampleRow *>::iterator it = plan->combined.begin(); it != plan->combined.end(); ++it) {
-        (*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
+        //(*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
+        (*it)->dest_type_name = Util::boxTubeTypeName((*it)->cbr_record->getProjId(), (*it)->dest_box_id).c_str();
     }
 
     // find locations of source boxes

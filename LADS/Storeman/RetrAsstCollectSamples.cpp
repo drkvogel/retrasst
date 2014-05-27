@@ -168,7 +168,7 @@ void __fastcall TfrmRetrAsstCollectSamples::sgVialsDrawCell(TObject *Sender, int
         if (NULL == row) {
             background = clWindow; // whilst loading
         } else {
-            int status = row->retrieval_record->getStatus();
+            int status = row->lcr_record->getStatus();
             switch (status) {
                 // could use currentAliquot() here?
                 case LCDbCryovialRetrieval::EXPECTED:
@@ -179,7 +179,7 @@ void __fastcall TfrmRetrAsstCollectSamples::sgVialsDrawCell(TObject *Sender, int
                     background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR; break;
                 case LCDbCryovialRetrieval::NOT_FOUND:
                     if (NULL != row->backup) {
-                        int backupStatus = row->backup->retrieval_record->getStatus();
+                        int backupStatus = row->backup->lcr_record->getStatus();
                         switch (backupStatus) {
                             case LCDbCryovialRetrieval::EXPECTED:
                                 background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR; break;
@@ -228,11 +228,11 @@ void __fastcall TfrmRetrAsstCollectSamples::sgChunksClick(TObject *Sender) {
     Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
     for (int row=0; row < chunk->getSize(); row++) {
         SampleRow * sampleRow = chunk->objectAtRel(row);
-        if (sampleRow->retrieval_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
-            sampleRow->retrieval_record->setStatus(LCDbCryovialRetrieval::EXPECTED);
-        } else if ( sampleRow->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && sampleRow->backup != NULL) {
-            if (sampleRow->backup->retrieval_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
-                sampleRow->backup->retrieval_record->setStatus(LCDbCryovialRetrieval::EXPECTED);
+        if (sampleRow->lcr_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
+            sampleRow->lcr_record->setStatus(LCDbCryovialRetrieval::EXPECTED);
+        } else if ( sampleRow->lcr_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && sampleRow->backup != NULL) {
+            if (sampleRow->backup->lcr_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
+                sampleRow->backup->lcr_record->setStatus(LCDbCryovialRetrieval::EXPECTED);
             }
         }
     }
@@ -349,7 +349,7 @@ void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) {
 
 void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) {
     SampleRow * sample;
-    if (    row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND
+    if (    row->lcr_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND
         &&  row->backup != NULL) {
         sample = row->backup;
     } else {
@@ -369,7 +369,7 @@ void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) {
     sgVials->Cells[sgwVials->colNameToInt("destbox")]  [rw] = sample->dest_box_name.c_str();
     sgVials->Cells[sgwVials->colNameToInt("destype")]  [rw] = sample->dest_type_name.c_str();
     sgVials->Cells[sgwVials->colNameToInt("destpos")]  [rw] = sample->dest_cryo_pos;
-    sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = LCDbCryovialRetrieval::statusString(sample->retrieval_record->getStatus());
+    sgVials->Cells[sgwVials->colNameToInt("status") ]  [rw] = LCDbCryovialRetrieval::statusString(sample->lcr_record->getStatus());
     sgVials->Cells[sgwVials->colNameToInt("aliquot")]  [rw] = sample->aliquotName().c_str();
     sgVials->Objects[0][rw] = (TObject *)row; // keep all data, primary and secondary
 }
@@ -459,7 +459,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     qd.setParam("rtid", collect->job->getID()); //int retrieval_cid = job->getID();
     qd.open();
-    rowCount = 0; // class variable
+    //rowCount = 0; // class variable
     //int curchunk = 1, chunk = 0;
     //SampleRow * previous = NULL;
     debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
@@ -475,6 +475,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 
         SampleRow * row = new SampleRow(
             qd.readInt(     "project_cid"),
+            new LCDbBoxRetrieval(qd),
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
             new LCDbCryovialRetrieval(qd),
@@ -486,7 +487,8 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             qd.readInt(     "new_position"), // not AS dest_pos
             "", 0, "", 0, 0, "", 0); // no storage details yet
 
-        row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
+        //row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
+        row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
 
         main->getStorage(row);
 
@@ -496,25 +498,30 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         } else { // everything else, even if not explicitly primary
             collect->primaries.push_back(row);
         }
-        rowCount++;
+
         qd.next();
     } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
-    collect->addChunk(curchunk, rowCount-1); // the last chunk
-    if (0 == rowCount || 0 == frmRetrAsstCollectSamples->chunks.size()) { return; } // something wrong here...
+
+
 
     // try to match secondaries with primaries on same destination position
     main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
 
     // create chunks
+    rowCount = 0; // class variable
     int curchunk = 1, chunk = 0;
     for (auto &row: collect->combined) {
-		chunk = row->;
+        rowCount++;
+		//chunk = row->;
         //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) { // new chunk, add the previous one
             collect->addChunk(curchunk, rowCount-1);
             curchunk = chunk;
         }
     }
+    collect->addChunk(curchunk, rowCount-1); // the last chunk
+
+    if (0 == rowCount || 0 == frmRetrAsstCollectSamples->chunks.size()) { return; } // something wrong here...
 
 }
 
@@ -580,7 +587,7 @@ void TfrmRetrAsstCollectSamples::addChunk(int number, int endRowAbs) { // don't 
 void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct vial; could be missing, swapped etc
     SampleRow * primary = currentSample();  // could be primary, primary w/backup, or secondary
     SampleRow * aliquot = currentAliquot(); // primary or secondary - this is a bit confusing
-    switch (aliquot->retrieval_record->getStatus()) {
+    switch (aliquot->lcr_record->getStatus()) {
         case LCDbCryovialRetrieval::EXPECTED:
         case LCDbCryovialRetrieval::IGNORED:
             break; // ok, carry on
@@ -590,13 +597,13 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
             if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) return;
     }
     if (barcode == aliquot->cryovial_barcode.c_str()) { // save
-        aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
+        aliquot->lcr_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
         if (aliquot == primary && primary->backup != NULL) { // has backup
-            primary->backup->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
+            primary->backup->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
             TfrmRetrievalAssistant::msgbox("setting secondary status");
         } // else, it was the secondary - primary should
 
-        //sample->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
+        //sample->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
         debugLog("Save accepted row");
         nextRow();
     } else {
@@ -605,7 +612,7 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
 }
 
 void TfrmRetrAsstCollectSamples::skip() { // defer
-    currentAliquot()->retrieval_record->setStatus(LCDbCryovialRetrieval::IGNORED); // not saved to db
+    currentAliquot()->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); // not saved to db
     nextRow();
 }
 
@@ -613,11 +620,11 @@ void TfrmRetrAsstCollectSamples::notFound() {
     DEBUGSTREAM("Save not found row")
     int rowRel = currentChunk()->getRowRel();
     SampleRow * sample = currentChunk()->objectAtRel(rowRel);
-    if (sample->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
-        sample->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
+    if (sample->lcr_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
+        sample->lcr_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
         if (sample->backup) {
             TfrmRetrievalAssistant::msgbox("Secondary aliquot found");
-            if (sample->backup->retrieval_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // backup already marked not found
+            if (sample->backup->lcr_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // backup already marked not found
                 fillRow(sample, rowRel + 1); // refresh sg row - now keeps pointer to row
                 showCurrentRow();
                 showDetails(sample->backup);
@@ -632,7 +639,7 @@ void TfrmRetrAsstCollectSamples::notFound() {
         }
     } else {  // primary already marked not found
         if (sample->backup) {
-            sample->backup->retrieval_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
+            sample->backup->lcr_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
             nextRow();
         } else {
             throw runtime_error("no secondary for not found primary, should have moved on to next row");
@@ -646,7 +653,7 @@ SampleRow * TfrmRetrAsstCollectSamples::currentSample() {
 
 SampleRow * TfrmRetrAsstCollectSamples::currentAliquot() {
     SampleRow * row = currentSample();
-    if (row->retrieval_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND) {
+    if (row->lcr_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND) {
         if (NULL == row->backup) {
             return NULL;
         } else {
@@ -666,9 +673,9 @@ void TfrmRetrAsstCollectSamples::nextRow() {
     SampleRow * sample = chunk->currentObject(); // which may be the secondary aliquot
 
     // save changes both primary and secondary in l_cryovial_retrieval (not cryovial/_store at this point)
-    if (!sample->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed"); }
+    if (!sample->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed"); }
     if (sample->backup) {
-        if (!sample->backup->retrieval_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed for secondary"); }
+        if (!sample->backup->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed for secondary"); }
     } // deferred (IGNORED) vials are not actually saved to the database, they remain EXPECTED
 
     // don't need to save chunk - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
@@ -783,7 +790,7 @@ how to update boxes? check at save and exit that all vials in a box have been sa
             ostringstream oss; oss<<sample->cryovial_barcode<<" "<<sample->aliquotName<<" in box with id "<<sourceBox;
             loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 
-			int status  = sample->retrieval_record->getStatus();
+			int status  = sample->lcr_record->getStatus();
 			if (status != LCDbCryovialRetrieval::EXPECTED && status != LCDbCryovialRetrieval::IGNORED) { // changed
 				storeSample(sample);
 			} else {
@@ -803,7 +810,7 @@ how to update boxes? check at save and exit that all vials in a box have been sa
 			SetOfVials::const_iterator it;
 			for (it = setOfVials.begin(); it != setOfVials.end(); it++) { // for each vial in the box
 				SampleRow * sample = *it;
-				switch (sample->retrieval_record->getStatus()) { // what about secondaries?
+				switch (sample->lcr_record->getStatus()) { // what about secondaries?
 				case LCDbCryovialRetrieval::EXPECTED:
 					vialRemains = true;
                 default:

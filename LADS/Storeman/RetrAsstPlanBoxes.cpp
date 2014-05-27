@@ -86,6 +86,7 @@ Set status = 1 when the position's confirmed */
 //BoxRow(LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps)
         BoxRow * box = new BoxRow(
             q.readInt("project_cid"),
+            NULL, //fixme
             store,
             q.readString("box"),
             0, //q.readInt("box_cid"),

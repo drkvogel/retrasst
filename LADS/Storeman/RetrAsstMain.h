@@ -66,6 +66,7 @@ using namespace std;
 class RetrievalRow {
 public: //protected: ?
     int                 project_cid;
+    LCDbBoxRetrieval *  cbr_record;
     string              src_box_name;       // id and cryo pos are in store_record
     int                 dest_box_id;
     int                 dest_box_type;
@@ -79,8 +80,11 @@ public: //protected: ?
     string              structure_name;
     int                 box_pos;
 
-    RetrievalRow(int proj, string srcnm, int dstid, string dstnm, int dstyp, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-        project_cid(proj), src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm), dest_box_type(dstyp),
+//    RetrievalRow(int proj, string srcnm, int dstid, string dstnm, int dstyp, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+//        project_cid(proj), src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm), dest_box_type(dstyp),
+    RetrievalRow(int proj, LCDbBoxRetrieval * cbr_rec, string srcnm, int dstid, string dstnm, int dstyp, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+        cbr_record(cbr_rec), src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm), dest_box_type(dstyp),
+
         site_name(site), vessel_pos(vsps), vessel_name(vsnm), shelf_number(shlf), structure_pos(stps), structure_name(stnm), box_pos(bxps) {}
 
     // sort functions could also be factored out; not sure if worth it
@@ -139,9 +143,13 @@ class BoxRow : public RetrievalRow {
 public:
     LCDbBoxStore * store_record; // public LPDbID //LPDbBoxName ?? getStatus
 
-    BoxRow(int proj, LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstyp, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-        store_record(rec), RetrievalRow(proj, srcnm, dstid, dstnm, dstyp, site, vsps, vsnm, shlf, stps, stnm, bxps) {
+//    BoxRow(int proj, LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstyp, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+//        store_record(rec), RetrievalRow(proj, srcnm, dstid, dstnm, dstyp, site, vsps, vsnm, shlf, stps, stnm, bxps) {
+//    }
+    BoxRow(int proj, LCDbBoxRetrieval * cbr_rec, LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstyp, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
+        store_record(rec), RetrievalRow(proj, cbr_rec, srcnm, dstid, dstnm, dstyp, site, vsps, vsnm, shlf, stps, stnm, bxps) {
     }
+
     ~BoxRow() { if (store_record) delete store_record; }
 
     static bool sort_asc_srcbox(const BoxRow *a, const BoxRow *b)     { return Util::numericCompare(a->src_box_name, b->src_box_name); }
@@ -170,7 +178,7 @@ class SampleRow : public RetrievalRow {
 public:
     LPDbCryovial *          cryo_record; // auto_ptr for these?
     LPDbCryovialStore *     store_record;
-    LCDbCryovialRetrieval * retrieval_record;
+    LCDbCryovialRetrieval * lcr_record;
     string                  cryovial_barcode;
     int                     dest_cryo_pos;      // cryovial_position/tube_position
     SampleRow *             backup;
@@ -178,17 +186,17 @@ public:
         if (store_record) delete store_record;
         if (cryo_record) delete cryo_record;
         if (backup) delete backup;
-        if (retrieval_record) delete retrieval_record;
+        if (lcr_record) delete lcr_record;
     }
-    SampleRow(  int proj, LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
+    //SampleRow(  int proj, LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
+    SampleRow(  int proj, LCDbBoxRetrieval * cbr_rec, LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * lcr_rec,
                 string barc, string srcnm, int dstid, string dstnm, int dstyp, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-                RetrievalRow(proj, srcnm, dstid, dstnm, dstyp, site, vsps, vsnm, shlf, stps, stnm, bxps),
+                RetrievalRow(proj, cbr_record, srcnm, dstid, dstnm, dstyp, site, vsps, vsnm, shlf, stps, stnm, bxps),
                 cryo_record(cryo_rec),
                 store_record(store_rec),
-                retrieval_record(retrieval_rec),
-                cryovial_barcode(barc), dest_cryo_pos(dstps), backup(NULL) {
-    }
+                lcr_record(lcr_rec),
+                cryovial_barcode(barc), dest_cryo_pos(dstps), backup(NULL) {}
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
     static bool sort_asc_srcbox(const SampleRow *a, const SampleRow *b)     { return Util::numericCompare(a->src_box_name, b->src_box_name); }
     static bool sort_asc_srcpos(const SampleRow *a, const SampleRow *b)     { return a->store_record->getPosition() < b->store_record->getPosition(); }
@@ -211,11 +219,12 @@ public:
         ostringstream oss;
         try {
             oss<<"id: "<<(store_record->getID())<<", "; //	LPDbCryovialStore: cryovialID, boxID, retrievalID, status, position// <<"status: "<<(store_record->getStatus())<<", " // LPDbCryovial: barcode, boxID, sampleID, typeID, storeID, retrievalID, status, position //<<"barcode: "<<store_record->getBarcode() //<<"sampleID"<<cryo_record->getSampleID() //<<"aliquot type ID"<<cryo_record->getAliquotType()
-            if (NULL != retrieval_record) {
-                oss<<"retrieval_status: "<<retrieval_record->getStatus()
-                <<" ("<<retrieval_record->statusString(retrieval_record->getStatus())<<"), ";
+            if (NULL != lcr_record) {
+                oss<<"retrieval_status: "<<lcr_record->getStatus()
+                <<" ("<<lcr_record->statusString(lcr_record->getStatus())<<"), ";
             }
             oss<<"proj: "<<(project_cid)<<", "
+            //oss<<"proj: "<<(cbr_record->getProjId())<<", "
             <<"status: "<<store_record->getStatus()<<", "
             <<"barc: \""<<cryovial_barcode<<"\", "<<"aliq: "<<cryo_record->getAliquotType()<<" \""<<aliquotName()<<"\", "
             <<"cryo_status: "<<cryo_record->getStatus()<<", "
@@ -394,12 +403,12 @@ public:
         SampleRow * sample;
         for (rowAbs = startAbs; rowAbs < endAbs; rowAbs++) {
             sample = objectAtAbs(rowAbs);
-            if (sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
+            if (sample->lcr_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
                 break;
             } else if (
-                    sample->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::NOT_FOUND &&
+                    sample->lcr_record->getStatus() == LCDbCryovialRetrieval::Status::NOT_FOUND &&
                     sample->backup != NULL &&
-                    sample->backup->retrieval_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
+                    sample->backup->lcr_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
                 break;
             } // else carry on
         }
@@ -420,7 +429,7 @@ public:
     float getProgress() {
         processed = 0; int size = getSize(); if (0 == size) return 0;
         for (int i=0; i<size; i++) { // there could be gaps (previously deferred vials). Gotta count 'em.
-            int status = objectAtRel(i)->retrieval_record->getStatus();
+            int status = objectAtRel(i)->lcr_record->getStatus();
             switch (status) { // EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND
                 case LCDbCryovialRetrieval::EXPECTED:
                 case LCDbCryovialRetrieval::IGNORED:
@@ -446,7 +455,7 @@ public:
         bool complete = true;
         bool not_started = true;
         for (int i=0; i<getSize(); i++) {
-            int status = objectAtRel(i)->retrieval_record->getStatus();
+            int status = objectAtRel(i)->lcr_record->getStatus();
             switch (status) {
                 case LCDbCryovialRetrieval::EXPECTED:
                 case LCDbCryovialRetrieval::IGNORED:
