@@ -342,8 +342,7 @@ void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, co
         PosKey key(row);
         posCache::iterator found = cache.find(key);
         if (found != cache.end()) { // destination box and position already used (by primary)
-            if (NULL == row)
-                throw runtime_error("null in cache");
+            if (NULL == row) throw runtime_error("null in cache");
             found->second->backup = row; // add as backup to primary
         } else {
             combined.push_back(row);     // add to list in its own right

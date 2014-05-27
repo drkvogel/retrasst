@@ -406,18 +406,24 @@ void __fastcall LoadPlanThread::msgbox() { Application->MessageBox(String(debugM
 void __fastcall LoadPlanThread::Execute() { 
 /** load cryovial retrieval plan:
 Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
-    delete_referenced< vector<SampleRow * > >(frmRetrAsstCollectSamples->combined); frmRetrAsstCollectSamples->chunks.clear();
-    ostringstream oss; oss<<frmRetrAsstCollectSamples->progressMessage<<" (preparing query)"; loadingMessage = oss.str().c_str(); //return;
-    if (NULL == frmRetrAsstCollectSamples || NULL == frmRetrAsstCollectSamples->job) { throw runtime_error("wtf?"); }
-    loadingMessage = frmRetrAsstCollectSamples->progressMessage;
-    job = frmRetrAsstCollectSamples->job; //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
     TfrmRetrievalAssistant      * main    = frmRetrievalAssistant;
     TfrmRetrAsstCollectSamples  * collect = frmRetrAsstCollectSamples;
 
-    int primary_aliquot = job->getPrimaryAliquot(); int secondary_aliquot = job->getSecondaryAliquot();
+    //delete_referenced< vector<SampleRow * > >(collect->combined);
+    delete_referenced< vector<SampleRow * > >(collect->primaries);
+    delete_referenced< vector<SampleRow * > >(collect->secondaries);
+    collect->combined.clear();
+    collect->chunks.clear();
+
+    ostringstream oss; oss<<collect->progressMessage<<" (preparing query)"; loadingMessage = collect->progressMessage; //loadingMessage = oss.str().c_str(); //return;
+
+
+    //job = collect->job; //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+
+    int primary_aliquot = collect->job->getPrimaryAliquot(); int secondary_aliquot = collect->job->getSecondaryAliquot();
 
     debugMessage = "select sample details from plan"; Synchronize((TThreadMethod)&debugLog);
-    LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
+    LQuery qd(Util::projectQuery(collect->job->getProjectID(), true)); // ddb
 
     oss.str(""); oss<<
         " SELECT "
@@ -443,28 +449,29 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         "    c.aliquot_type_cid  = lcr.aliquot_type_cid  AND "
         "    cs.cryovial_id      = c.cryovial_id  AND "
         "    cbr.retrieval_cid   = cs.retrieval_cid AND "
-        "    cs.box_cid          = sb.box_cid "
-        //"    AND db.status != 99 AND sb.status != 99"
+        "    cs.box_cid          = sb.box_cid " //"    AND db.status != 99 AND sb.status != 99"
         " ORDER BY "
         "    chunk, rj_box_cid, lcr_position" //, aliquot_type_cid "
         //<< (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"
-        ); //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+        ; //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     qd.setSQL(oss.str());
     debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
     debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
-    qd.setParam("rtid", job->getID()); //int retrieval_cid = job->getID();
+    qd.setParam("rtid", collect->job->getID()); //int retrieval_cid = job->getID();
     qd.open();
     rowCount = 0; // class variable
-    int curchunk = 1, chunk = 0; SampleRow * previous = NULL;
+    //int curchunk = 1, chunk = 0;
+    //SampleRow * previous = NULL;
     debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
     while (!qd.eof()) {
         if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" vials"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }        
 
-		chunk = qd.readInt("chunk"); //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
-        if (chunk > curchunk) { // new chunk, add the previous one
-            collect->addChunk(curchunk, rowCount-1);
-            curchunk = chunk;
-        }
+//		chunk = qd.readInt("chunk");
+//        //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
+//        if (chunk > curchunk) { // new chunk, add the previous one
+//            collect->addChunk(curchunk, rowCount-1);
+//            curchunk = chunk;
+//        }
 
         SampleRow * row = new SampleRow(
             qd.readInt(     "project_cid"),
@@ -497,17 +504,27 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 
     // try to match secondaries with primaries on same destination position
     main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
+
+    // create chunks
+    int curchunk = 1, chunk = 0;
+    for (auto &row: collect->combined) {
+		chunk = row->;
+        //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
+        if (chunk > curchunk) { // new chunk, add the previous one
+            collect->addChunk(curchunk, rowCount-1);
+            curchunk = chunk;
+        }
+    }
+
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::loadPlanThreadTerminated(TObject *Sender) {
-	progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false;
-    Screen->Cursor = crDefault;
+	progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false; Enabled = true; Screen->Cursor = crDefault;
     try {
         showChunks();
     } catch (std::exception & e) {
         TfrmRetrievalAssistant::msgbox(e.what());
     }
-    Enabled = true;
     DEBUGSTREAM(__FUNC__<<"loadRows for job "<<job->getID()<<" finished")
 }
 

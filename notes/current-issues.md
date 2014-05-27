@@ -30,7 +30,20 @@ don't need order by aliquot? plan should determine order in collect
 rowCount - class variable
 if secondary doesn't match, put in combined-
 
+should plan store secondaries or 
+should they be implicit and displayed only by collect?
 
+showChunks()
+showChunk()
+
+are we reading all aliquots from db
+or just 'primaries'?
+
+now we combinealiquots *after* loading rows, not during the loop - but still create the chunks during the loop, using the rowCount - this is incorrect
+
+should create chunks after load - but need section (chunk), which is in LCDbBoxRetrieval but not LCDbCryovialRetrieval
+
+include LCDbBoxRetrieval in SampleRow or just `int status`
 
 ### 978238 several REVEAL boxes
 

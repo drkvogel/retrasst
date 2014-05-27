@@ -19,7 +19,7 @@ protected:
 public:
     __fastcall LoadPlanThread();
     //Chunk< SampleRow > * loadingChunk;
-    LCDbCryoJob *   job;
+    //LCDbCryoJob *   job;
     int             rowCount; // class variable needed for synchronise
     string          loadingMessage;
     string          debugMessage;
@@ -35,7 +35,7 @@ public:
     __fastcall SaveProgressThread();
     void            storeSample(SampleRow * sample);
     void            jobFinished();
-    int             rowCount;
+    //int             rowCount;
     string          loadingMessage;
     string          debugMessage;
     void __fastcall updateStatus();

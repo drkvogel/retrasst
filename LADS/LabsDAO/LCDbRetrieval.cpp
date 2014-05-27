@@ -60,10 +60,9 @@ LCDbCryovialRetrieval::LCDbCryovialRetrieval(const LQuery & query) : //LCDbID(1)
     aliquot_type_cid(query.readInt("aliquot_type_cid")),
     old_box_cid(query.readInt("old_box_cid")),
     old_position(query.readInt("old_position")),
-    new_position(query.readInt("new_position")),
+    new_position(query.readInt("new_position")), //slot_number(query.readInt("lcr_slot")),
     process_cid(query.readInt("lcr_procid")),
     status(query.readInt("lcr_status")),
-	//slot_number(query.readInt("lcr_slot")),
 	time_stamp(query.readDateTime("time_stamp"))
 {
     saved = true;
