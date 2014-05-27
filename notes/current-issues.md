@@ -3,6 +3,10 @@
 can do 'other things' in meantime. 
 make program send email to myself with details of how long each query took, for records.
 
+## cache/hash column names
+
+not important
+
 ## LCDbCryoJob::str()
 
 put debug string in here, inc. name, desc, id, etc
@@ -21,6 +25,12 @@ so job.str() can print meaningful aliquot types
 
 
 ## bad chunk
+
+don't need order by aliquot? plan should determine order in collect
+rowCount - class variable
+if secondary doesn't match, put in combined-
+
+
 
 ### 978238 several REVEAL boxes
 

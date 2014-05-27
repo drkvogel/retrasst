@@ -446,8 +446,9 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         "    cs.box_cid          = sb.box_cid "
         //"    AND db.status != 99 AND sb.status != 99"
         " ORDER BY "
-        "    chunk, rj_box_cid, lcr_position, aliquot_type_cid "
-        << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"); //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+        "    chunk, rj_box_cid, lcr_position" //, aliquot_type_cid "
+        //<< (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"
+        ); //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     qd.setSQL(oss.str());
     debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
     debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
