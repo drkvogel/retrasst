@@ -596,6 +596,8 @@ void LoadVialsJobThread::load() {
     // try to match secondaries with primaries on same destination position
     main->combineAliquots(plan->primaries, plan->secondaries, plan->combined);
 
+    int size1 = plan->primaries.size(), size2 = plan->secondaries.size(), size3 = plan->combined.size();
+
     // add box tube type name
     for (vector<SampleRow *>::iterator it = plan->combined.begin(); it != plan->combined.end(); ++it) {
         //(*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();

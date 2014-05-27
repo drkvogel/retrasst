@@ -428,7 +428,9 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     oss.str(""); oss<<
         " SELECT "
         "    db.project_cid," // project of destination box (db) or source (sb)?
-        "    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, cbr.box_id AS dest_id, "//cbr.status, "
+        //"    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, cbr.box_id AS dest_id, "//cbr.status, "
+        //"    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, cbr.box_id, "
+        "    cbr.retrieval_cid, cbr.section, cbr.rj_box_cid, cbr.box_id, "
         "    lcr.position AS lcr_position, lcr.cryovial_barcode, lcr.aliquot_type_cid, "
         "    lcr.old_box_cid, lcr.old_position, "
         "    lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, " // lcr.slot_number AS lcr_slot, "
@@ -451,7 +453,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         "    cbr.retrieval_cid   = cs.retrieval_cid AND "
         "    cs.box_cid          = sb.box_cid " //"    AND db.status != 99 AND sb.status != 99"
         " ORDER BY "
-        "    chunk, rj_box_cid, lcr_position" //, aliquot_type_cid "
+        "    section, rj_box_cid, lcr_position" //, aliquot_type_cid "
         //<< (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"
         ; //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     qd.setSQL(oss.str());
@@ -459,10 +461,10 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     qd.setParam("rtid", collect->job->getID()); //int retrieval_cid = job->getID();
     qd.open();
-    //rowCount = 0; // class variable
+
+    rowCount = 0; // class variable
     //int curchunk = 1, chunk = 0;
-    //SampleRow * previous = NULL;
-    debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
+     debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
     while (!qd.eof()) {
         if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" vials"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }        
 
@@ -481,16 +483,17 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             new LCDbCryovialRetrieval(qd),
             qd.readString(  "cryovial_barcode"),
             qd.readString(  "src_box"),
-            qd.readInt(     "dest_id"),
+            //qd.readInt(     "dest_id"),
+            qd.readInt(     "box_id"),
             qd.readString(  "dest_name"),
             qd.readInt(     "dest_box_type"),
             qd.readInt(     "new_position"), // not AS dest_pos
             "", 0, "", 0, 0, "", 0); // no storage details yet
 
         //row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
-        row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+        //row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
 
-        main->getStorage(row);
+        //main->getStorage(row);
 
         const int aliquotType = row->cryo_record->getAliquotType();
         if (aliquotType == secondary_aliquot) {
@@ -500,19 +503,52 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         }
 
         qd.next();
+        rowCount++;
     } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
 
 
+    // add box tube type name
+    for (auto &row: collect->primaries) {
+        try {
+            row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+        } catch (...) {
+            row->dest_type_name = "error";
+        }
+        try {
+            main->getStorage(row);
+        } catch (...) {
+            row->setLocation("error", 0, "error", 0, 0, "error", 0);
+        }
+        //row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+        //main->getStorage(row);
+    }
+
+    for (auto &row: collect->secondaries) {
+        try {
+            row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+        } catch (...) {
+            row->dest_type_name = "error";
+        }
+        try {
+            main->getStorage(row);
+        } catch (...) {
+            row->setLocation("error", 0, "error", 0, 0, "error", 0);
+        }
+//        row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+//        main->getStorage(row);
+    }
 
     // try to match secondaries with primaries on same destination position
     main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
 
+    int size1 = collect->primaries.size(), size2 = collect->secondaries.size(), size3 = collect->combined.size();
+
     // create chunks
     rowCount = 0; // class variable
-    int curchunk = 1, chunk = 0;
+    int curchunk = 0, chunk = 0;
     for (auto &row: collect->combined) {
         rowCount++;
-		//chunk = row->;
+		chunk = row->cbr_record->getSection();
         //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
         if (chunk > curchunk) { // new chunk, add the previous one
             collect->addChunk(curchunk, rowCount-1);

@@ -7,6 +7,15 @@ make program send email to myself with details of how long each query took, for 
 
 not important
 
+## debugging rosetta/database errors
+
+put breakpoints on 
+
+    LIMSDatabase::xerrorCallback()
+    LIMSDatabase::rosettaCallback()
+    LIMSDatabase::xdbErrorCallback()
+
+
 ## LCDbCryoJob::str()
 
 put debug string in here, inc. name, desc, id, etc
@@ -43,7 +52,15 @@ now we combinealiquots *after* loading rows, not during the loop - but still cre
 
 should create chunks after load - but need section (chunk), which is in LCDbBoxRetrieval but not LCDbCryovialRetrieval
 
-include LCDbBoxRetrieval in SampleRow or just `int status`
+include LCDbBoxRetrieval in SampleRow or just `int status`?
+
+calling
+
+    row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+
+inside or out of the main loops seems to cause `LoadPlanThread` to terminate early (leaving 0 chunks and therefore an exception)
+
+
 
 ### 978238 several REVEAL boxes
 
