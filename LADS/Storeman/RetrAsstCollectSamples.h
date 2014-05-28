@@ -23,6 +23,7 @@ public:
     int             rowCount; // class variable needed for synchronise
     string          loadingMessage;
     string          debugMessage;
+    void            addSampleDetails(SampleRow * row);
     void __fastcall updateStatus(); // synchronized methods can't have args
     void __fastcall debugLog();
     void __fastcall msgbox();

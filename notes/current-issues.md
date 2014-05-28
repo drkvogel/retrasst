@@ -15,6 +15,10 @@ put breakpoints on
     LIMSDatabase::rosettaCallback()
     LIMSDatabase::xdbErrorCallback()
 
+## more loading messages
+
+to show something's happening
+
 
 ## LCDbCryoJob::str()
 
@@ -58,8 +62,15 @@ calling
 
     row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
 
-inside or out of the main loops seems to cause `LoadPlanThread` to terminate early (leaving 0 chunks and therefore an exception)
+inside or out of the main loops seems to cause `LoadPlanThread` to terminate early (leaving 0 chunks and therefore an exception). rebooted as weird things happening...
 
+SampleRow row->cbr_record appears to be initialised but is then null..
+
+Ah, was initialising superclass with uninitialised `cbr_record` member rather than `cbr_rec` constructor parameter
+
+separating into primary and secondary, then doing combineAliquot messes up order of rows
+
+when secondaries are 'loose'
 
 
 ### 978238 several REVEAL boxes

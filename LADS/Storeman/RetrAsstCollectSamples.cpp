@@ -464,9 +464,9 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 
     rowCount = 0; // class variable
     //int curchunk = 1, chunk = 0;
-     debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
+    debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
     while (!qd.eof()) {
-        if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" vials"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }        
+        if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" vials"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
 
 //		chunk = qd.readInt("chunk");
 //        //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
@@ -506,46 +506,34 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         rowCount++;
     } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
 
-
-    // add box tube type name
-    for (auto &row: collect->primaries) {
-        try {
-            row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
-        } catch (...) {
-            row->dest_type_name = "error";
-        }
-        try {
-            main->getStorage(row);
-        } catch (...) {
-            row->setLocation("error", 0, "error", 0, 0, "error", 0);
-        }
-        //row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
-        //main->getStorage(row);
-    }
-
-    for (auto &row: collect->secondaries) {
-        try {
-            row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
-        } catch (...) {
-            row->dest_type_name = "error";
-        }
-        try {
-            main->getStorage(row);
-        } catch (...) {
-            row->setLocation("error", 0, "error", 0, 0, "error", 0);
-        }
-//        row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
-//        main->getStorage(row);
-    }
-
     // try to match secondaries with primaries on same destination position
     main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
+    //int size1 = collect->primaries.size(), size2 = collect->secondaries.size();
+    int combinedCount = collect->combined.size();
 
-    int size1 = collect->primaries.size(), size2 = collect->secondaries.size(), size3 = collect->combined.size();
+//    // add box tube type name
+//    for (auto &row: collect->combined) {
+//            row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+//            main->getStorage(row);
+//        if (NULL != row->backup) {
+//            row->backup->dest_type_name = Util::boxTubeTypeName(row->backup->cbr_record->getProjId(), row->backup->dest_box_id).c_str();
+//            main->getStorage(row->backup);
+//        }
+//    }
+
+    // add box tube type name
+    rowCount = 0;
+    for (auto &row: collect->combined) {
+        if (0 == ++rowCount % 10) { ostringstream oss; oss<<"Adding storage details ["<<rowCount<<"/"<<combinedCount<<"]"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
+        addSampleDetails(row);
+    }
+
 
     // create chunks
     rowCount = 0; // class variable
-    int curchunk = 0, chunk = 0;
+    //int curchunk = collect->chunks.size(); // first 'chunk' has already been added?
+    int curchunk = 1; // add chunk object at *end* of each set of samples
+    int chunk = 0;
     for (auto &row: collect->combined) {
         rowCount++;
 		chunk = row->cbr_record->getSection();
@@ -557,8 +545,19 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     }
     collect->addChunk(curchunk, rowCount-1); // the last chunk
 
-    if (0 == rowCount || 0 == frmRetrAsstCollectSamples->chunks.size()) { return; } // something wrong here...
+    //if (0 == rowCount || 0 == frmRetrAsstCollectSamples->chunks.size()) { return; } // something wrong here...
 
+}
+
+void LoadPlanThread::addSampleDetails(SampleRow * row) {
+    TfrmRetrievalAssistant * main    = frmRetrievalAssistant;
+
+    row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+    main->getStorage(row);
+    if (NULL != row->backup) {
+        row->backup->dest_type_name = Util::boxTubeTypeName(row->backup->cbr_record->getProjId(), row->backup->dest_box_id).c_str();
+        main->getStorage(row->backup);
+    }
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::loadPlanThreadTerminated(TObject *Sender) {
@@ -1108,3 +1107,34 @@ Chunk< SampleRow >::DONE:       RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
         oss<<sample->storage_str(); loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 	} debugMessage = "finished load storage details"; Synchronize((TThreadMethod)&debugLog);
 */
+
+//    // add box tube type name
+//    for (auto &row: collect->primaries) {
+//        try {
+//            row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+//        } catch (...) {
+//            row->dest_type_name = "error";
+//        }
+//        try {
+//            main->getStorage(row);
+//        } catch (...) {
+//            row->setLocation("error", 0, "error", 0, 0, "error", 0);
+//        }
+//        //row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+//        //main->getStorage(row);
+//    }
+//
+//    for (auto &row: collect->secondaries) {
+//        try {
+//            row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+//        } catch (...) {
+//            row->dest_type_name = "error";
+//        }
+//        try {
+//            main->getStorage(row);
+//        } catch (...) {
+//            row->setLocation("error", 0, "error", 0, 0, "error", 0);
+//        }
+////        row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+////        main->getStorage(row);
+//    }
