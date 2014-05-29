@@ -19,17 +19,13 @@ put breakpoints on
 
 to show something's happening
 
-
 ## LCDbCryoJob::str()
 
-put debug string in here, inc. name, desc, id, etc
-primary, secondary aliquot
-
- loadRows for job
+put debug string in here, inc. name, desc, id, primary, secondary aliquot
 
 ## move Util::getAliquotDescription() to LCDbCryoJob?
 
-so job.str() can print meaningful aliquot types
+So `job.str()` can print meaningful aliquot types
 
 ## debugLog() should take std::string
 
@@ -39,39 +35,84 @@ so job.str() can print meaningful aliquot types
 
 ## bad chunk
 
-don't need order by aliquot? plan should determine order in collect
-rowCount - class variable
+    FormShow()
+        chunks.clear();
+        sgwChunks->clear();
+
+    LoadPlanThread::Execute() 
+        if (aliquotType == secondary_aliquot)
+            collect->secondaries.push_back(row)
+        else // everything else, even if not explicitly primary
+            collect->primaries.push_back(row)
+        
+        main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
+        int combinedCount = collect->combined.size() // 699
+        
+
+combineAliquots(primaries, secondaries, combined) {
+    posCache cache
+
+    # store primaries and cache
+    combined.clear();
+    foreach row in primaries
+        PosKey key(row)
+        cache[key] = row
+        combined.push_back(row)
+
+    # try to match secondaries based on same box/pos key
+    foreach row in secondaries
+        PosKey key(row)
+        found = cache.find(key)
+        if found != cache.end()         # destination box and position already used (by primary)
+            if NULL == row throw runtime_error
+            found->second->backup = row # add as backup to primary
+        else
+            combined.push_back(row)     # add to list in its own right
+
+
+### problem
+
+Separating into primary and secondary, then doing `combineAliquot()`, messes up the order of the rows when secondaries are 'loose'
+
+### solution
+
+either:
+
+sort combined by section, pos
+
+or:
+
+don't sort into primary and secondary - in `combineAliquots()`, just match ones where `aliquotType == secondary_aliquot`
+
+will this mess up the combine in plan? think not, because the list is meant to be unsorted at that point.
+
+
+
+Chunk::add method?
+
+Don't need order by aliquot? plan should determine order in collect
+Remember `rowCount` is a class variable - check it's been reset where needed.
 if secondary doesn't match, put in combined-
 
-should plan store secondaries or 
-should they be implicit and displayed only by collect?
+Should plan store secondaries, or should they be implicit and displayed only by collect?
 
-showChunks()
-showChunk()
+    showChunks() -> showChunk()
 
-are we reading all aliquots from db
-or just 'primaries'?
+Are we reading all aliquots from db or just 'primaries'?
 
-now we combinealiquots *after* loading rows, not during the loop - but still create the chunks during the loop, using the rowCount - this is incorrect
+Now we combinealiquots *after* loading rows, not during the loop - but still create the chunks during the loop, using the rowCount - this is incorrect? Should create chunks after load - but need section (chunk), which is in LCDbBoxRetrieval but not LCDbCryovialRetrieval. Need to include `LCDbBoxRetrieval` in `SampleRow` or just `int section`?
 
-should create chunks after load - but need section (chunk), which is in LCDbBoxRetrieval but not LCDbCryovialRetrieval
-
-include LCDbBoxRetrieval in SampleRow or just `int status`?
+### weird bomb-outs
 
 calling
 
     row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
 
-inside or out of the main loops seems to cause `LoadPlanThread` to terminate early (leaving 0 chunks and therefore an exception). rebooted as weird things happening...
+inside or out of the main loops seems to cause `LoadPlanThread` to terminate early (leaving 0 chunks and therefore an exception). rebooted as weird things happening... Turns out Ingres on `vlabdev` was throwing wobblies.
 
-SampleRow row->cbr_record appears to be initialised but is then null..
+### cbr_record NULL
 
-Ah, was initialising superclass with uninitialised `cbr_record` member rather than `cbr_rec` constructor parameter
-
-separating into primary and secondary, then doing combineAliquot messes up order of rows
-
-when secondaries are 'loose'
-
+`SampleRow` `row->cbr_record` appears to be initialised but is then null.. Ah, I was initialising superclass with uninitialised `cbr_record` member rather than `cbr_rec` constructor parameter.
 
 ### 978238 several REVEAL boxes
 

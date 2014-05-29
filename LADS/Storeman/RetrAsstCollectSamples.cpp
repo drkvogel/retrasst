@@ -32,6 +32,27 @@ extra:
 
 TfrmRetrAsstCollectSamples *frmRetrAsstCollectSamples;
 
+void TfrmRetrAsstCollectSamples::debugLog(String s) {
+    String tmp = Now().CurrentDateTime().DateTimeString() + ": " + s;
+    memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
+}
+
+void __fastcall LoadPlanThread::debugLog() { frmRetrAsstCollectSamples->debugLog(debugMessage.c_str()); }
+
+void __fastcall LoadPlanThread::msgbox() { Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK); }
+
+__fastcall LoadPlanThread::LoadPlanThread() : TThread(false) { FreeOnTerminate = true; }
+
+__fastcall SaveProgressThread::SaveProgressThread() : TThread(false) { FreeOnTerminate = true; }
+
+void __fastcall LoadPlanThread::updateStatus() { // can't use args for synced method, don't know why
+	frmRetrAsstCollectSamples->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectSamples->panelLoading->Repaint();
+}
+
+void __fastcall SaveProgressThread::updateStatus() {
+	frmRetrAsstCollectSamples->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectSamples->panelLoading->Repaint();
+}
+
 __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Owner) : TForm(Owner) {
     destroying = false;
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
@@ -78,12 +99,6 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
     labelVialKeyNotFound->Color             = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR;
 }
 
-__fastcall TfrmRetrAsstCollectSamples::~TfrmRetrAsstCollectSamples() {
-    destroying = true;
-    delete sgwChunks;
-    delete sgwVials;
-}
-
 void __fastcall TfrmRetrAsstCollectSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     cbLog->Checked      = RETRASSTDEBUG;
@@ -97,27 +112,10 @@ void __fastcall TfrmRetrAsstCollectSamples::FormClose(TObject *Sender, TCloseAct
     //exit(); //???
 }
 
-void TfrmRetrAsstCollectSamples::debugLog(String s) {
-    String tmp = Now().CurrentDateTime().DateTimeString() + ": " + s;
-    memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
-}
-
-void __fastcall TfrmRetrAsstCollectSamples::FormShow(TObject *Sender) {
-    ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
-    Caption = oss.str().c_str();
-    chunks.clear();
-    sgwChunks->clear();
-    sgwVials->clear();
-    frmRetrievalAssistant->clearStorageCache();
-    labelSampleID->Caption  = "loading...";
-    labelStorage->Caption   = "loading...";
-    labelDestbox->Caption   = "loading...";
-    labelDestype->Caption   = "loading...";
-    labelPrimary->Caption   = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str();
-    labelSecondary->Caption = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str();
-    labelPrimary->Enabled   = true;
-    labelSecondary->Enabled = false;
-    timerLoadPlan->Enabled  = true;
+__fastcall TfrmRetrAsstCollectSamples::~TfrmRetrAsstCollectSamples() {
+    destroying = true;
+    delete sgwChunks;
+    delete sgwVials;
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
@@ -291,6 +289,24 @@ void TfrmRetrAsstCollectSamples::checkExit() {
     }
 }
 
+void __fastcall TfrmRetrAsstCollectSamples::FormShow(TObject *Sender) {
+    ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
+    Caption = oss.str().c_str();
+    chunks.clear();
+    sgwChunks->clear();
+    sgwVials->clear();
+    frmRetrievalAssistant->clearStorageCache();
+    labelSampleID->Caption  = "loading...";
+    labelStorage->Caption   = "loading...";
+    labelDestbox->Caption   = "loading...";
+    labelDestype->Caption   = "loading...";
+    labelPrimary->Caption   = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str();
+    labelSecondary->Caption = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str();
+    labelPrimary->Enabled   = true;
+    labelSecondary->Enabled = false;
+    timerLoadPlan->Enabled  = true;
+}
+
 void TfrmRetrAsstCollectSamples::showChunks() {
     if (0 == chunks.size()) { throw runtime_error("No chunks"); } // must always have one chunk anyway
     else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
@@ -349,12 +365,11 @@ void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) {
 
 void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) {
     SampleRow * sample;
-    if (    row->lcr_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND
-        &&  row->backup != NULL) {
+    if (row->lcr_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && row->backup != NULL)
         sample = row->backup;
-    } else {
+    else
         sample = row;
-    }
+
     sgVials->Cells[sgwVials->colNameToInt("item")]     [rw] = rw;
     sgVials->Cells[sgwVials->colNameToInt("barcode")]  [rw] = sample->cryovial_barcode.c_str();
     sgVials->Cells[sgwVials->colNameToInt("srcbox")]   [rw] = sample->src_box_name.c_str();
@@ -387,22 +402,6 @@ void TfrmRetrAsstCollectSamples::loadPlan() {
     loadPlanThread->OnTerminate = &loadPlanThreadTerminated;
 }
 
-__fastcall LoadPlanThread::LoadPlanThread() : TThread(false) { FreeOnTerminate = true; }
-
-__fastcall SaveProgressThread::SaveProgressThread() : TThread(false) { FreeOnTerminate = true; }
-
-void __fastcall LoadPlanThread::updateStatus() { // can't use args for synced method, don't know why
-	frmRetrAsstCollectSamples->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectSamples->panelLoading->Repaint();
-}
-
-void __fastcall SaveProgressThread::updateStatus() {
-	frmRetrAsstCollectSamples->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectSamples->panelLoading->Repaint();
-}
-
-void __fastcall LoadPlanThread::debugLog() { frmRetrAsstCollectSamples->debugLog(debugMessage.c_str()); }
-
-void __fastcall LoadPlanThread::msgbox() { Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK); }
-
 void __fastcall LoadPlanThread::Execute() { 
 /** load cryovial retrieval plan:
 Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
@@ -416,7 +415,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     collect->chunks.clear();
 
     ostringstream oss; oss<<collect->progressMessage<<" (preparing query)"; loadingMessage = collect->progressMessage; //loadingMessage = oss.str().c_str(); //return;
-
 
     //job = collect->job; //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 
@@ -453,10 +451,11 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         "    cbr.retrieval_cid   = cs.retrieval_cid AND "
         "    cs.box_cid          = sb.box_cid " //"    AND db.status != 99 AND sb.status != 99"
         " ORDER BY "
-        "    section, rj_box_cid, lcr_position" //, aliquot_type_cid "
+        "    section, rj_box_cid, lcr_position";
+         //, aliquot_type_cid "
         //<< (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"
-        ; //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     qd.setSQL(oss.str());
+    debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
     debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     qd.setParam("rtid", collect->job->getID()); //int retrieval_cid = job->getID();
@@ -492,7 +491,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 
         //row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
         //row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
-
         //main->getStorage(row);
 
         const int aliquotType = row->cryo_record->getAliquotType();
@@ -508,7 +506,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 
     // try to match secondaries with primaries on same destination position
     main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
-    //int size1 = collect->primaries.size(), size2 = collect->secondaries.size();
     int combinedCount = collect->combined.size();
 
 //    // add box tube type name
@@ -523,6 +520,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 
     // add box tube type name
     rowCount = 0;
+    //ostringstream oss; oss<<"Adding storage details ["<<rowCount<<"/"<<combinedCount<<"]"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
     for (auto &row: collect->combined) {
         if (0 == ++rowCount % 10) { ostringstream oss; oss<<"Adding storage details ["<<rowCount<<"/"<<combinedCount<<"]"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
         addSampleDetails(row);
