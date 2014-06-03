@@ -148,7 +148,7 @@ private:
     void                                        nextRow();
     void                                        collectEmpties();
     const char *                                progressMessage;
-    void                                        prepareProgressMessage(const char * loadingMessage);
+    void                                        showProgressMessage(const char * loadingMessage);
     void                                        debugLog(String s);
     //bool                                        isChunkComplete(Chunk< SampleRow > * chunk);
     void                                        chunkComplete(Chunk< SampleRow > * chunk);

@@ -117,7 +117,7 @@ private:
     void                                        calcSizes();
     int                                         section_size;
     int                                         box_size;
-    void                                        prepareProgressMessage(const char * loadingMessage);
+    void                                        showProgressMessage(const char * loadingMessage);
 public:
     __fastcall                                  TfrmRetrAsstPlanSamples(TComponent* Owner);
     void                                        debugLog(String s);

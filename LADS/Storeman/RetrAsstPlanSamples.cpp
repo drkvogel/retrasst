@@ -468,14 +468,14 @@ void TfrmRetrAsstPlanSamples::applySort() { // loop through sorters and apply ea
 }
 
 void TfrmRetrAsstPlanSamples::loadRows() {
-    prepareProgressMessage(loadingMessage);
+    showProgressMessage(loadingMessage);
     Screen->Cursor = crSQLWait; // disable mouse? //ShowCursor(false);
     Enabled = false;
     loadVialsJobThread = new LoadVialsJobThread();
     loadVialsJobThread->OnTerminate = &loadVialsJobThreadTerminated;
 }
 
-void TfrmRetrAsstPlanSamples::prepareProgressMessage(const char * loadingMessage) {
+void TfrmRetrAsstPlanSamples::showProgressMessage(const char * loadingMessage) {
 	panelLoading->Caption = loadingMessage;
 	panelLoading->Visible = true;
 	panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
@@ -675,24 +675,15 @@ void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *S
     <<" finished loading job id: "<<job->getID()<<" \""<<job->getName()<<"\", \""<<job->getDescription().c_str()<<"\""; debugLog(oss.str().c_str());
     oss.str(""); oss <<" primary: ["  <<job->getPrimaryAliquot()<<"] "<<Util::getAliquotDescription(job->getPrimaryAliquot())<<" secondary: ["<<job->getSecondaryAliquot()<<"] "<<Util::getAliquotDescription(job->getSecondaryAliquot()); debugLog(oss.str().c_str());
 
-    progressBottom->Style = pbstNormal; progressBottom->Visible = false;
-    panelLoading->Visible = false;
-    Screen->Cursor = crDefault;
-    Enabled = true;
-    chunks.clear();
-    sgwChunks->clear();
+    progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false;
+    Screen->Cursor = crDefault; Enabled = true;
+    chunks.clear(); sgwChunks->clear();
 
     if (0 == combined.size()) {
         Application->MessageBox(L"No samples found, exiting", L"Info", MB_OK);
         if (!RETRASSTDEBUG) Close();
         return;
     }
-
-
-    // CRASH - c_box_name not found
-
-    //LQuery qd(Util::projectQuery(frmRetrAsstPlanSamples->job->getProjectID(), true));
-    //const LPDbBoxName * found = boxes.readRecord(LIMSDatabase::getProjectDb(), box_id);
 
     // work out destination box size from first box
     LPDbBoxNames boxes;
@@ -769,10 +760,9 @@ void __fastcall TfrmRetrAsstPlanSamples::btnSaveClick(TObject *Sender) {
 	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Confirm retrieval plan");  // , projects); don't need project ids??? //status??? //std::set<int> projects; projects.insert(job->getProjectID());
 	if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)
             && (RETRASSTDEBUG || mrOk == frmConfirm->ShowModal())) {
-        Screen->Cursor = crSQLWait;
-        Enabled = false;
+        Screen->Cursor = crSQLWait; Enabled = false;
         debugLog("starting save plan");
-        prepareProgressMessage(loadingMessage);
+        showProgressMessage(loadingMessage);
         savePlanThread = new SavePlanThread();
         savePlanThread->OnTerminate = &savePlanThreadTerminated;
     } else { // start again
@@ -875,9 +865,7 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
 
 void __fastcall TfrmRetrAsstPlanSamples::savePlanThreadTerminated(TObject *Sender) {
     debugLog("finished save plan");
-    Screen->Cursor = crDefault;
-    btnSave->Enabled = false;
-    Enabled = true;
+    Screen->Cursor = crDefault; btnSave->Enabled = false; Enabled = true;
 }
 
 //                { // must go out of scope otherwise read locks db with "no mst..."

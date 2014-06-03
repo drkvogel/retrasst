@@ -277,7 +277,7 @@ void __fastcall TfrmRetrAsstCollectSamples::btnNotFoundClick(TObject *Sender) { 
 
 void __fastcall TfrmRetrAsstCollectSamples::btnSkipClick(TObject *Sender) { skip(); }
 
-void TfrmRetrAsstCollectSamples::prepareProgressMessage(const char * loadingMessage) {
+void TfrmRetrAsstCollectSamples::showProgressMessage(const char * loadingMessage) {
 	panelLoading->Caption = loadingMessage;
 	panelLoading->Visible = true;
 	panelLoading->Top = (sgVials->Height / 2) - (panelLoading->Height / 2);
@@ -394,7 +394,7 @@ void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) {
 void __fastcall TfrmRetrAsstCollectSamples::timerLoadPlanTimer(TObject *Sender) {
     timerLoadPlan->Enabled = false;
 	Enabled = false; Screen->Cursor = crSQLWait;
-    prepareProgressMessage(progressMessage);
+    showProgressMessage(progressMessage);
 	loadPlan();
 }
 
@@ -782,7 +782,7 @@ void TfrmRetrAsstCollectSamples::exit() { // definitely exiting
 		return; // fixme what now?
 	}
 
-	prepareProgressMessage(progressMessage); Screen->Cursor = crSQLWait; Enabled = false;
+	showProgressMessage(progressMessage); Screen->Cursor = crSQLWait; Enabled = false;
     DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
 
     saveProgressThread = new SaveProgressThread();

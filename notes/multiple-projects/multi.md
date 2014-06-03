@@ -63,3 +63,9 @@ sample::debug_str() says proj is 0 for e.g. from box -623955:
     03/06/2014 18:46:04: id: 378304, proj: 0, status: 2, barc: "112089327", aliq: -31782 "EDTA_2", cryo_status: 2, src: {-623955, "EDTAs 10_623955" [29]}, dst: {-624094 "EDTA1_2 1_624094" [50], type: 978201 "QClot_new"}, loc: {No records found[0]: :0[0]/[0]}
 
 no project id shouldn't affect `getStorage()`/`findBox()` , but..
+
+some boxes have project id 0:
+
+    select * from c_box_name where project_cid = 0
+
+Maybe mistake in copying script. Get it instead from the LCDbProject pointer used to open the query in the first place.
