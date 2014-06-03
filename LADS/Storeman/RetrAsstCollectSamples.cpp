@@ -55,6 +55,7 @@ void __fastcall SaveProgressThread::updateStatus() {
 
 __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Owner) : TForm(Owner) {
     destroying = false;
+
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  60);
     sgwChunks->addCol("status",   "Status",   91);
@@ -67,6 +68,7 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
     sgwChunks->addCol("endvial",  "Vial",     150);
     sgwChunks->addCol("size",     "Size",     87);
     sgwChunks->init();
+
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &combined);
     sgwVials->addCol("item",     "Item",             30);
     sgwVials->addCol("barcode",  "Barcode",          91);
@@ -408,15 +410,13 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     TfrmRetrievalAssistant      * main    = frmRetrievalAssistant;
     TfrmRetrAsstCollectSamples  * collect = frmRetrAsstCollectSamples;
 
-    //delete_referenced< vector<SampleRow * > >(collect->combined);
     delete_referenced< vector<SampleRow * > >(collect->primaries);
     delete_referenced< vector<SampleRow * > >(collect->secondaries);
     collect->combined.clear();
     collect->chunks.clear();
 
     ostringstream oss; oss<<collect->progressMessage<<" (preparing query)"; loadingMessage = collect->progressMessage; //loadingMessage = oss.str().c_str(); //return;
-
-    //job = collect->job; //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
+    //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 
     int primary_aliquot = collect->job->getPrimaryAliquot(); int secondary_aliquot = collect->job->getSecondaryAliquot();
 
@@ -426,8 +426,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     oss.str(""); oss<<
         " SELECT "
         "    db.project_cid," // project of destination box (db) or source (sb)?
-        //"    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, cbr.box_id AS dest_id, "//cbr.status, "
-        //"    cbr.retrieval_cid, section AS chunk, cbr.rj_box_cid, cbr.box_id, "
         "    cbr.retrieval_cid, cbr.section, cbr.rj_box_cid, cbr.box_id, "
         "    lcr.position AS lcr_position, lcr.cryovial_barcode, lcr.aliquot_type_cid, "
         "    lcr.old_box_cid, lcr.old_position, "

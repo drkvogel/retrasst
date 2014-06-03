@@ -45,4 +45,9 @@ buscopan
 
 getstorage use LQuery q(LIMSDatabase::getCentralDb())?
 
-bombs out before getStorage(), hence all blank
+bombs out before getStorage(), hence all blank-x
+
+no records found for 
+
+979124 "Retrieval_1", "A contrived example mixing THRIVE and REVEAL" secondaries
+primary: [-31781] EDTA_1 secondary: [0] Not specified

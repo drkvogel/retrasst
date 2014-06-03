@@ -1,12 +1,4 @@
-## Invalid project ID
 
-following CVS pull and new ('contrived') multi-project job.
-
-
-## long waits for queries slows down dev
-
-can do 'other things' in meantime. 
-make program send email to myself with details of how long each query took, for records.
 
 ## cache/hash column names
 
@@ -24,19 +16,13 @@ put breakpoints on
 
 to show something's happening
 
-## LCDbCryoJob::str()
-
-put debug string in here, inc. name, desc, id, primary, secondary aliquot
-
 ## move Util::getAliquotDescription() to LCDbCryoJob?
 
 So `job.str()` can print meaningful aliquot types
 
-## debugLog() should take std::string
+## debugLog() should take std::string?
 
-    debugLog
-
-
+    debugLog()
 
 ## bad chunk
 

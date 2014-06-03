@@ -574,3 +574,16 @@ why is seconday aliquot label greyed out in collect? ie.
 
 In `LCDbCryovialRetrieval::getStatus()` - in plan, `retrieval_record` is NULL.
 
+## LCDbCryoJob::str()
+
+put debug string in here, inc. name, desc, id, primary, secondary aliquot
+
+## long waits for queries slows down dev
+
+can do 'other things' in meantime. 
+make program send email to myself with details of how long each query took, for records.
+
+## Invalid project ID
+
+following CVS pull and new ('contrived') multi-project job.
+

@@ -587,9 +587,10 @@ void LoadVialsJobThread::loadVialsFromProject(const LCDbProject * pr) {
     ostringstream oss;
     oss<<"Loading vials from project "<<pr->getName()<<""; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
     oss.str("");
-    oss<<"proj name: "<<pr->getName()<<", id: "<<pr->getID()<<", db: "<<pr->getDbName(); debugMessage = oss.str().c_str(); Synchronize((TThreadMethod)&debugLog);
+    oss<<"Loading vials from project name: "<<pr->getName()<<", id: "<<pr->getID()<<", db: "<<pr->getDbName(); debugMessage = oss.str().c_str(); Synchronize((TThreadMethod)&debugLog);
 
     //bool LCDbAuditTrail::sendEMail( const std::string & body, std::string address, std::string subject )
+    LCDbAuditTrail::getCurrent().sendEMail(oss.str(), "chris.bird@ctsu.ox.ac.uk", oss.str());
     LQuery qd(Util::projectQuery(pr->getID(), true)); // ddb
 
     oss.str(""); oss << // actual query now we know there are some rows
@@ -659,6 +660,7 @@ void LoadVialsJobThread::loadVialsFromProject(const LCDbProject * pr) {
     oss.str(""); oss<<"Finished loading vials from project \""<<pr->getName()<<"\"";
     loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
     //bool LCDbAuditTrail::sendEMail( const std::string & body, std::string address, std::string subject )
+    LCDbAuditTrail::getCurrent().sendEMail(oss.str(), "chris.bird@ctsu.ox.ac.uk", oss.str());
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *Sender) {
