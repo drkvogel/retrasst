@@ -545,10 +545,17 @@ void LoadVialsJobThread::load() {
     int size1 = plan->primaries.size(), size2 = plan->secondaries.size(), size3 = plan->combined.size();
 
     // add box tube type name
-//    for (vector<SampleRow *>::iterator it = plan->combined.begin(); it != plan->combined.end(); ++it) {
+    // might be better to do here to avoid knackering Ingres
+    // ...actually it seemed to bomb out here rather than in the main loop...
+    //for (vector<SampleRow *>::iterator it = plan->combined.begin(); it != plan->combined.end(); ++it) {
+//    for (auto &row : plan->combined) {
 //        //(*it)->dest_type_name = Util::boxTubeTypeName((*it)->project_cid, (*it)->dest_box_id).c_str();
 //        // CRASH
-//        (*it)->dest_type_name = Util::boxTubeTypeName((*it)->cbr_record->getProjId(), (*it)->dest_box_id).c_str();
+//        //(*it)->dest_type_name = Util::boxTubeTypeName((*it)->cbr_record->getProjId(), (*it)->dest_box_id).c_str();
+//        row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+//        if (NULL != row->backup) {
+//            row->backup->dest_type_name = Util::boxTubeTypeName(row->backup->cbr_record->getProjId(), row->backup->dest_box_id).c_str();
+//        }
 //    }
 
     // find locations of source boxes
@@ -587,15 +594,14 @@ void LoadVialsJobThread::loadVialsFromProject(const LCDbProject * pr) {
     ostringstream oss;
     oss<<"Loading vials from project "<<pr->getName()<<""; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
     oss.str("");
-    oss<<"Loading vials from project name: "<<pr->getName()<<", id: "<<pr->getID()<<", db: "<<pr->getDbName(); debugMessage = oss.str().c_str(); Synchronize((TThreadMethod)&debugLog);
+    oss<<"Loading vials for job: "<<plan->job->getID()<<" from project name: "<<pr->getName()<<", id: "<<pr->getID()<<", db: "<<pr->getDbName(); debugMessage = oss.str().c_str(); Synchronize((TThreadMethod)&debugLog);
 
-    //bool LCDbAuditTrail::sendEMail( const std::string & body, std::string address, std::string subject )
     LCDbAuditTrail::getCurrent().sendEMail(oss.str(), "chris.bird@ctsu.ox.ac.uk", oss.str());
     LQuery qd(Util::projectQuery(pr->getID(), true)); // ddb
 
     oss.str(""); oss << // actual query now we know there are some rows
         "SELECT"
-        "  b1.project_cid,"
+        //"  b1.project_cid,"
 		"  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
         "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
         "  c.cryovial_barcode,"
@@ -632,7 +638,8 @@ void LoadVialsJobThread::loadVialsFromProject(const LCDbProject * pr) {
             Synchronize((TThreadMethod)&updateStatus);
         }
         SampleRow * row = new SampleRow(
-            qd.readInt(     "project_cid"),
+            //qd.readInt(     "project_cid"),
+            pr->getID(),
             NULL, // new LCDbBoxRetrieval(qd),
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),
@@ -659,7 +666,7 @@ void LoadVialsJobThread::loadVialsFromProject(const LCDbProject * pr) {
     }
     oss.str(""); oss<<"Finished loading vials from project \""<<pr->getName()<<"\"";
     loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
-    //bool LCDbAuditTrail::sendEMail( const std::string & body, std::string address, std::string subject )
+
     LCDbAuditTrail::getCurrent().sendEMail(oss.str(), "chris.bird@ctsu.ox.ac.uk", oss.str());
 }
 

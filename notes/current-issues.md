@@ -1,28 +1,7 @@
 
 
-## cache/hash column names
 
-not important
 
-## debugging rosetta/database errors
-
-put breakpoints on 
-
-    LIMSDatabase::xerrorCallback()
-    LIMSDatabase::rosettaCallback()
-    LIMSDatabase::xdbErrorCallback()
-
-## more loading messages
-
-to show something's happening
-
-## move Util::getAliquotDescription() to LCDbCryoJob?
-
-So `job.str()` can print meaningful aliquot types
-
-## debugLog() should take std::string?
-
-    debugLog()
 
 ## bad chunk
 

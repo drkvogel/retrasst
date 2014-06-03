@@ -43,11 +43,23 @@ not so much
 
 buscopan
 
-getstorage use LQuery q(LIMSDatabase::getCentralDb())?
+`getStorage()`: use LQuery q(LIMSDatabase::getCentralDb())?
 
 bombs out before getStorage(), hence all blank-x
 
-no records found for 
+## no storage for contrived secondaries
 
-979124 "Retrieval_1", "A contrived example mixing THRIVE and REVEAL" secondaries
-primary: [-31781] EDTA_1 secondary: [0] Not specified
+no records found for secondaries of `979124 "Retrieval_1", "A contrived example mixing THRIVE and REVEAL" primary: [-31781] EDTA_1 secondary: [0] Not specified`
+
+`getStorage()`
+`findBox()` <findBox.sql>
+
+e.g. box -623955: no results for `select * from c_slot_allocation where box_cid = -623955` - well there ain't no storage records it seems, so printing "no records found" would seem to be correct.
+
+in collect, sorting into primary and secondary (which is ok in plan), ruins the order of the plan. combineAliquots() could perhaps do its thing in a different way on one vector
+
+sample::debug_str() says proj is 0 for e.g. from box -623955:
+
+    03/06/2014 18:46:04: id: 378304, proj: 0, status: 2, barc: "112089327", aliq: -31782 "EDTA_2", cryo_status: 2, src: {-623955, "EDTAs 10_623955" [29]}, dst: {-624094 "EDTA1_2 1_624094" [50], type: 978201 "QClot_new"}, loc: {No records found[0]: :0[0]/[0]}
+
+no project id shouldn't affect `getStorage()`/`findBox()` , but..
