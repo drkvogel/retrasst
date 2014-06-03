@@ -1,3 +1,5 @@
+
+
 ## long waits for queries slows down dev
 
 can do 'other things' in meantime. 

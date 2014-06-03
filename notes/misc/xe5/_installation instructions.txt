@@ -1,0 +1,60 @@
+Embarcadero RAD Studio XE5 Working Crack
+
+I will guide you through the steps, describing them as clearly as I can. 
+You must do exactly what each step says to avoid the crack not working. 
+I have included images for each step (except step 1, I think that is easy 
+enough for everyone to do) to try make it easier if you're struggling. Each 
+image is named according to the corrosponding step.
+
+NOTE: These cracks do not contain any type of virus, trojan, spyware or any 
+crap like that. They are legit and work 100%. Tested on Windows 7 64bit.
+Some anti-virus programs will delete cracking programs, so both cracking 
+programs are provided as encrypted RAR files.  The password to extract the
+files is 12345.
+
+Steps:
+
+0. Disable anti-virus (probably not necessary).
+
+1. Download Embarcadero RAD Studio XE5 from Embarcadero's official website. 
+     (It's much faster than having to download it via a torrent)
+
+Link:
+http://altd.embarcadero.com/download/radstudio/xe5/delphicbuilder_xe5_win.iso
+
+2. Mount the .iso file (with which ever software you prefer, I used Alcohol 120%) 
+   and start the installer. (If you don't know how to mount a .iso file with Alcohol 
+   120% (or your software of choice), just Google it)
+
+3. When the serial number part of the installer is displayed, open the Keygen.exe 
+   program and select "Embarcadero Delphi & C++Builder XE5 Architect" from the "[Product]" 
+   list (It should already be selected by default).  Click "Generate Serial" and copy 
+   the generated serial number into the installer and click next to continue the installer.  
+   Copy/paste is clunky.  Do this for each of the four sections carefully.
+   Edit the Serial Number as needed until it is exactly as it appears in the keygen.
+   (Note: DO NOT click on "Generate Activation File", it is not needed for this installation 
+   and might cause the crack not to work. You can close the Keygen.exe program at this point 
+   if you wish.) 
+
+4. Wait for the installation to finish.  It might take a long time, so be patient.
+   Uncheck "Automatically check for updates..." and "View additional available downloads".
+   Click Finish, then close the main installer program.  Do not run Rad Studio XE5 Program yet.
+
+5. Open the Activator.exe program and click on the "Active" button to complete the cracking process. 
+   A dialog box will appear that says "OK!" if the cracking was succesful. (It is not necessary 
+   to copy the Activator.exe program to the install directory. You can run it from anywhere.)  
+   Click the OK button, then Exit the Activator.
+
+6. Run Embarcadero RAD Studio XE5 via the Start button, or you can click on the "Run EX5" button in the 
+   Activator.exe program. 
+     Allow Windows Firewall to block the program.  Open Windows Firewall to verify that the program is blocked.
+     You can always allow it later if you need to.  Protect the crack by going online with this
+     program as little as possible.  I do not know if it is safe to go online with this program.
+     
+7. Click Help/about.  See the three pictures.  Run all three programs, and verify that they are
+   all licensed.  The programs are cracked and ready to use.  Never update this program.  I do not 
+   know if it is possible to update this installation.  If you are able to do it successfully, 
+   please let us know in the comment section.
+
+
+
