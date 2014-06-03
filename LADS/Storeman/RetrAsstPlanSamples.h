@@ -14,35 +14,6 @@
 
 using namespace std;
 
-class LoadVialsJobThread : public TThread {
-protected:
-    void __fastcall Execute();
-    void load();
-    LCDbCryoJob *   job;
-    int             rowCount;
-    string          loadingMessage;
-    void __fastcall updateStatus(); // synchronized methods can't have args
-    string          debugMessage;
-    void __fastcall debugLog();
-    void            combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
-public:
-    __fastcall LoadVialsJobThread();
-};
-
-class SavePlanThread : public TThread {
-protected:
-    void __fastcall Execute();
-    void save();
-    //LCDbCryoJob *   job;
-    int             rowCount;
-    string          loadingMessage;
-    void __fastcall updateStatus();
-    string          debugMessage;
-    void __fastcall debugLog();
-public:
-    __fastcall SavePlanThread();
-};
-
 class TfrmRetrAsstPlanSamples : public TForm {
     friend class LoadVialsJobThread;
     friend class SavePlanThread;
@@ -151,6 +122,42 @@ public:
     __fastcall                                  TfrmRetrAsstPlanSamples(TComponent* Owner);
     void                                        debugLog(String s);
     void                                        setJob(LCDbCryoJob * ajob) { job = ajob; };
+};
+
+class LoadVialsJobThread : public TThread {
+protected:
+    TfrmRetrievalAssistant   * main;
+    TfrmRetrAsstPlanSamples  * plan;
+    void __fastcall Execute();
+    void load();
+    bool hasVialsInJob(const LCDbProject * project);
+    //void loadVialsFromProject(int project_cid);
+    void loadVialsFromProject(const LCDbProject * project);
+    //LCDbCryoJob *   job;
+    int             rowCount;
+    string          loadingMessage;
+    void __fastcall updateStatus(); // synchronized methods can't have args
+    string          debugMessage;
+    void __fastcall debugLog();
+    void            combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
+public:
+    __fastcall LoadVialsJobThread();
+};
+
+class SavePlanThread : public TThread {
+protected:
+    TfrmRetrievalAssistant   * main;
+    TfrmRetrAsstPlanSamples  * plan;
+    void __fastcall Execute();
+    void save();
+    //LCDbCryoJob *   job;
+    int             rowCount;
+    string          loadingMessage;
+    void __fastcall updateStatus();
+    string          debugMessage;
+    void __fastcall debugLog();
+public:
+    __fastcall SavePlanThread();
 };
 
 extern PACKAGE TfrmRetrAsstPlanSamples *frmRetrAsstPlanSamples;

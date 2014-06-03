@@ -68,7 +68,7 @@ private:	// User declarations
 public:		// User declarations
 	__fastcall TfrmNewBoxType(TComponent* Owner);
 	void init( std::set< int > & aliquotIDs, int tubeTypeID );
-	LPDbBoxType getDetails();
+	LPDbBoxType * getDetails();
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TfrmNewBoxType *frmNewBoxType;

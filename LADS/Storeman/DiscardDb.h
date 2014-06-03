@@ -49,7 +49,7 @@ public:
 	std::string updateSamples( const std::map<int,IntSet> & jobCsids,
 		const int dbcrstatus, int jobNo, const IntToStringMap & sampleNote ) const;
 	std::string createStoreEntries( const std::map<int,IntSet> & jobCsids,
-		const LPDbBoxType & boxType ) const;
+		const LPDbBoxType & boxType, const LCDbCryoJob & job ) const;
 	std::string resetSamples( const std::map<int,IntSet> & jobCsids ) const;
 	std::string calcJobCounts( const int jobno, std::map<int,int> * counts ) const;
 	std::string closeJob( const int jobno ) const;

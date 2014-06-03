@@ -41,9 +41,6 @@
 #pragma hdrstop
 #pragma package(smart_init)
 
-// static const char * CRYOVIALS_ADDED = "MoreCryovials";
-// static const char * CONTENT_CONFIRMED = "BoxConfirmed";
-
 //---------------------------------------------------------------------------
 //	read a box_name record and try to work out if there's any space left
 //---------------------------------------------------------------------------
@@ -65,10 +62,10 @@ LPDbBoxName::LPDbBoxName( const LQuery & query )
 		}
 		barcode = name.substr( n );
 	}
-	int space = query.readInt( "box_capacity" );
-	short size = getSize();
-	if( space >= 0 && space < size ) {
-		cryovials.resize( size - space, "?" );
+	const LCDbBoxSize * bl = getLayout();
+	short free = query.readInt( "box_capacity" );
+	if( bl != NULL && free >= 0 && free < bl->getLast() ) {
+		cryovials.resize( bl->getLast() - free, "?" );
 	}
 	if( query.fieldExists( "project_cid" ) ) {
 		projectCID = query.readInt( "project_cid" );
@@ -81,14 +78,14 @@ LPDbBoxName::LPDbBoxName( const LQuery & query )
 // 	read unconfirmed and part-filled boxes into the cache; keep IDs
 //---------------------------------------------------------------------------
 
-bool LPDbBoxNames::readCurrent( LQuery pq ) {
+bool LPDbBoxNames::readCurrent( LQuery central ) {
 	char select[ 120 ];
-	std::sprintf( select, "select * from box_name"
+	std::sprintf( select, "select * from c_box_name"
 				  " where status in ( %d, %d ) or box_capacity > 0"
 				  " order by box_cid",
 				   LPDbBoxName::EMPTY, LPDbBoxName::IN_USE );
-	pq.setSQL( select );
-	return readData( pq );
+	central.setSQL( select );
+	return readData( central );
 }
 
 //---------------------------------------------------------------------------
@@ -109,7 +106,7 @@ void LPDbBoxName::addCryovials( LQuery & pq )
 	content.readByBoxID( pq, getID() );
 	for( const LPDbCryovial & cr : content ) {
 		addCryovial( cr.getPosition(), cr.getBarcode() );
-    }
+	}
 	checkFilledBy( pq );
 }
 
@@ -132,21 +129,21 @@ void LPDbBoxName::checkFilledBy( LQuery & pq )
 //	Read the selected box entry from the current project database
 //---------------------------------------------------------------------------
 
-const LPDbBoxName * LPDbBoxNames::readRecord( LQuery pQuery, const std::string & name )
+const LPDbBoxName * LPDbBoxNames::readRecord( LQuery central, const std::string & name )
 {
-	pQuery.setSQL( "select * from box_name"
-				  " where upper( :bn ) in (barcode, upper(external_name))" );
-	pQuery.setParam( "bn", name );
-	return pQuery.open() ? insert( LPDbBoxName( pQuery ) ) : NULL;
+	central.setSQL( "select * from c_box_name"
+				   " where upper( :bn ) in (barcode, upper(external_name))" );
+	central.setParam( "bn", name );
+	return central.open() ? insert( LPDbBoxName( central ) ) : NULL;
 }
 
 //---------------------------------------------------------------------------
 
-const LPDbBoxName * LPDbBoxNames::readRecord( LQuery pQuery, int id )
+const LPDbBoxName * LPDbBoxNames::readRecord( LQuery central, int id )
 {
-	pQuery.setSQL( "select * from box_name where box_cid = :bid" );
-	pQuery.setParam( "bid", id );
-	return pQuery.open() ? insert( LPDbBoxName( pQuery ) ) : NULL;
+	central.setSQL( "select * from c_box_name where box_cid = :bid" );
+	central.setParam( "bid", id );
+	return central.open() ? insert( LPDbBoxName( central ) ) : NULL;
 }
 
 //---------------------------------------------------------------------------
@@ -155,9 +152,8 @@ const LPDbBoxName * LPDbBoxNames::readRecord( LQuery pQuery, int id )
 
 bool LPDbBoxNames::readFilled( LQuery pq )
 {
-	pq.setSQL( "select * from box_name b"
-			   " where b.status in ( :conf, :rdy )"
-			   " order by box_cid" );
+	pq.setSQL( "select * from box_name b where b.status in ( :conf, :rdy )"
+			  " order by box_cid" );
 	pq.setParam( "conf", LPDbBoxName::CONFIRMED );
 	pq.setParam( "rdy", LPDbBoxName::ANALYSED );
 	return readData( pq );
@@ -192,7 +188,6 @@ bool LPDbBoxNames::readFilled( LQuery pq )
 bool LPDbBoxName::create( const LPDbBoxType & type, short boxSet, LQuery pQuery, LQuery cQuery )
 {
 	saved = false;
-	projectCID = LCDbProjects::getCurrentID();
 	do { claimNextID( pQuery );
 	} while( needsNewID( cQuery ) );
 	char buff[ 20 ];
@@ -203,6 +198,9 @@ bool LPDbBoxName::create( const LPDbBoxType & type, short boxSet, LQuery pQuery,
 	}
 	barcode = buff;
 	boxTypeID = type.getID();
+	if( projectCID == 0 ) {
+		projectCID = type.getProjectCID();
+	}
 	name = createName( type.getName() );
 	filledBy = 0;
 	cryovials.clear();
@@ -215,22 +213,32 @@ bool LPDbBoxName::create( const LPDbBoxType & type, short boxSet, LQuery pQuery,
 //---------------------------------------------------------------------------
 
 std::string LPDbBoxName::createName( const std::string & type ) const {
-	char buff[ 64 ];
-	unsigned len = 0;
-	const LCDbProjects & projs = LCDbProjects::records();
-	const LCDbProject * proj = projs.findByID( projectCID );
 	const char * next = type.c_str();
-	if( proj != NULL ) {
-		for( char ch : proj->getName() ) {
-			buff[ len ++ ] = std::isalnum( ch ) ? ch : '_';
+	char buff[ 60 ];
+	unsigned len = 0;
+	if( projectCID != 0 ) {
+		const LCDbProject * proj = LCDbProjects::records().findByID( projectCID );
+		if( proj != NULL ) {
+			for( char ch : proj->getName() ) {
+				buff[ len ++ ] = std::isalnum( ch ) ? ch : '_';
+			}
+			if( type.size() > len && LDbNames::compareIC( proj->getName(), type.substr( len ) ) == 0 ) {
+				next = next + len + 1;
+			}
+			buff[ len ++ ] = ' ';
 		}
-		if( LDbNames::compareIC( proj->getName(), type.substr( len ) ) == 0 ) {
-			next = next + len + 1;
-		}
-		buff[ len ++ ] = ' ';
 	}
+	bool pending = false;
 	do {
-		buff[ len ++ ] = std::isalnum( *next ) ? *next : '_';
+		if( !std::isalnum( *next ) ) {
+			pending = (len > 0);
+		} else {
+			if( pending ) {
+				buff[ len ++ ] =  '_';
+				pending = false;
+			}
+			buff[ len ++ ] =  *next;
+		}
 	} while( len < 32 && *(++next) != '\0' );
 	buff[ len ++ ] = ' ';
 
@@ -241,19 +249,22 @@ std::string LPDbBoxName::createName( const std::string & type ) const {
 }
 
 //---------------------------------------------------------------------------
+
+const LPDbBoxType * LPDbBoxName::getContent() const {
+	return LPDbBoxTypes::records().findByID( boxTypeID );
+}
+
+//---------------------------------------------------------------------------
 //	Find total space in this box (including hole, cryovials and free space)
 //---------------------------------------------------------------------------
 
 const LCDbBoxSize * LPDbBoxName::getLayout() const {
-	const LPDbBoxType * bt = LPDbBoxTypes::records().findByID( boxTypeID );
-	return bt == NULL ? NULL : LCDbBoxSizes::records().findByID( bt->getSizeID() );
-}
-
-//---------------------------------------------------------------------------
-
-short LPDbBoxName::getSize() const {
-	const LCDbBoxSize * bl = getLayout();
-	return bl == NULL ? -1 : bl->getLast();
+	const LPDbBoxType * bt = getContent();
+	if( bt == NULL ) {
+		return NULL;
+	} else {
+		return LCDbBoxSizes::records().findByID( bt->getSizeID() );
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -509,4 +520,5 @@ const LPDbBoxName * LPDbBoxNames::findSpace( int boxType ) const {
 }
 
 //---------------------------------------------------------------------------
+
 

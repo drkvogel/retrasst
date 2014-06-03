@@ -21,32 +21,28 @@ protected:
     virtual bool isMarkable( SamplePile * samples, const int sampleno ) const;
 };
 
-class MarkSampleHandler
-	: public SampleHandler
+class MarkSampleHandler : public SampleHandler
 {
 public:
 	MarkSampleHandler( );
 	virtual int operator()( SamplePile * samples, const int sampleno ) const;
 };
 
-class UnmarkSampleHandler
-	: public SampleHandler
+class UnmarkSampleHandler : public SampleHandler
 {
 public:
 	UnmarkSampleHandler( );
 	virtual int operator()( SamplePile * samples, const int sampleno ) const;
 };
 
-class ToggleMarkSampleHandler
-	: public SampleHandler
+class ToggleMarkSampleHandler : public SampleHandler
 {
 public:
 	ToggleMarkSampleHandler( );
 	virtual int operator()( SamplePile * samples, const int sampleno ) const;
 };
 
-class NoteSampleHandler
-	: public SampleHandler
+class NoteSampleHandler : public SampleHandler
 {
 public:
 	NoteSampleHandler( );
@@ -58,8 +54,7 @@ class SCComparator
 public:
     enum { HIDDEN = 0, RESULTNO, SBARCODE, CBARCODE, PERSONID, ALIQUOT0, };
     SCComparator( const int sortcolno = 1 );
-    bool operator( ) ( const int & left,
-        const int & right ) const;
+	bool operator( ) ( const int & left, const int & right ) const;
     void insertSortcolno( const int abssortcolno, const int direction = 0 );
     int getSortPosition( const int abssortcolno ) const;
     void setScalidToSampleno( const std::map<IntPair,int> & scalidToSampleno );
@@ -140,9 +135,9 @@ public:
     bool addAuditEntry( const std::string & message ) const;
 	void setJobno( const int jobno );
 	int getJobno( ) const;
-	void setJob( const LCDbCryoJob & ref );
+	void setJob( const LCDbCryoJob * ref );
 	LCDbCryoJob & getJobRecord() ;
-	void setBoxType( const LPDbBoxType & ref );
+	void setBoxType( const LPDbBoxType * ref );
 	LPDbBoxType & getBoxType() ;
 
 protected:

@@ -45,6 +45,7 @@ public:
 	void setPosition( short pos ) { position = pos; }
 	short getExpectedUses() const { return uses; }
 	void setExpectedUses( short count ) { uses = count; }
+	short getCapacity() const;
 	const std::vector< int > & getAliquots() const { return content; }
 	bool hasAliquot( int atid ) const;
 	void setAliquots( const std::vector< int > & aliquotTypes );

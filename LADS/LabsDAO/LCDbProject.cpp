@@ -143,22 +143,14 @@ bool LCDbProject::isInCurrentSystem() const {
 //  Class used to search cache for name, description or database name
 //---------------------------------------------------------------------------
 
-class /* LCDbProjects:: */ PdbMatcher : public std::unary_function< LCDbProject, bool >
+class /* LCDbProjects:: */ PdbMatcher : public LDbNames::LCMatcher
 {
-	const std::string value;
-
 public:
-
-	PdbMatcher( const std::string & s ) : value( s )
-	{}
-
-	operator std::string() const { return value; }
-
-	bool operator() ( const LCDbProject & other ) const
-	{
-		return value.compare( other.getName() ) == 0
-			|| value.compare( other.getDescription() ) == 0
-			|| value.compare( other.getDbName() ) == 0;
+	PdbMatcher( const std::string & s ) : LCMatcher( s ) {}
+	bool operator() ( const LCDbProject & other ) const {
+		return lcValue == LDbNames::makeLower( other.getName() )
+			|| lcValue == LDbNames::makeLower( other.getDescription() )
+			|| lcValue == LDbNames::makeLower( other.getDbName() );
 	}
 };
 
@@ -176,13 +168,16 @@ const LCDbProject * LCDbProjects::findByName( const std::string & nameOrDb ) con
 //	Switch to using this project's database if a lease is available
 //---------------------------------------------------------------------------
 
-void LCDbProjects::setCurrent( const LCDbProject & proj )
+void LCDbProjects::setCurrent( const LCDbProject * proj )
 {
-	if( proj.isCentral() ) {
-		String name = proj.getDbName().c_str();
+	if( proj == NULL ) {
+		currentID = LCDbProject::NONE_SELECTED;
+	} else if( proj->isCentral() ) {
+		String name = proj->getDbName().c_str();
 		throw Exception( name + " is not a project database" );
+	} else {
+		currentID = proj->getID();
 	}
-	currentID = proj.getID();
 }
 
 //---------------------------------------------------------------------------

@@ -82,7 +82,7 @@ void TfrmBoxList::init( const LCDbProject *selected ) {
 	if( selected == NULL ) {
 		selected = projList.findByID( LCDbProjects::getCurrentID( ) );
 	} else {
-		projList.setCurrent( *selected );
+		projList.setCurrent( selected );
 	}
 	if( selected == NULL ) {
 		cbProject->Text = "";

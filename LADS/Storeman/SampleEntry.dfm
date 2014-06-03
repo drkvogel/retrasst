@@ -2,74 +2,72 @@ object frmRetrieveMain: TfrmRetrieveMain
   Left = 0
   Top = 0
   Caption = 'Modify Retrieval List'
-  ClientHeight = 660
-  ClientWidth = 1091
+  ClientHeight = 515
+  ClientWidth = 841
   Color = 12316364
+  Constraints.MaxHeight = 1100
+  Constraints.MaxWidth = 1700
+  Constraints.MinHeight = 520
+  Constraints.MinWidth = 840
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poOwnerFormCenter
   OnResize = FormResize
   DesignSize = (
-    1091
-    660)
+    841
+    515)
   PixelsPerInch = 96
   TextHeight = 13
   object LblAliquot1: TLabel
-    Left = 8
-    Top = 83
+    Left = 10
+    Top = 73
     Width = 75
     Height = 13
     Caption = 'Primary aliquot:'
   end
   object LblAliquot2: TLabel
-    Left = 313
-    Top = 83
+    Left = 315
+    Top = 73
     Width = 55
     Height = 13
     Caption = 'Secondary:'
   end
   object Label1: TLabel
-    Left = 8
-    Top = 33
+    Left = 10
+    Top = 27
     Width = 38
     Height = 13
     Caption = 'Project:'
   end
   object Label2: TLabel
-    Left = 867
-    Top = 33
+    Left = 595
+    Top = 27
     Width = 53
     Height = 13
     Caption = 'Sort order:'
   end
-  object Label3: TLabel
-    Left = 608
-    Top = 83
-    Width = 63
-    Height = 13
-    Caption = 'Output type:'
-  end
   object grdSamples: TStringGrid
-    Left = 8
-    Top = 176
-    Width = 1075
-    Height = 461
+    Left = 3
+    Top = 240
+    Width = 835
+    Height = 255
     Anchors = [akLeft, akTop, akRight, akBottom]
     ColCount = 6
     DefaultColWidth = 90
     FixedCols = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goFixedRowClick]
     ScrollBars = ssVertical
-    TabOrder = 9
+    TabOrder = 11
     OnFixedCellClick = grdSamplesFixedCellClick
   end
   object btnAddFile: TButton
-    Left = 8
-    Top = 128
-    Width = 105
+    Left = 23
+    Top = 192
+    Width = 100
     Height = 32
     Caption = 'Add from file'
     Enabled = False
@@ -77,9 +75,9 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnClick = AddClick
   end
   object btnLocate: TButton
-    Left = 300
-    Top = 128
-    Width = 105
+    Left = 301
+    Top = 192
+    Width = 100
     Height = 32
     Caption = 'Check location'
     Enabled = False
@@ -87,43 +85,44 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnClick = btnLocateClick
   end
   object CmbAliquot1: TComboBox
-    Left = 92
-    Top = 80
-    Width = 165
+    Left = 107
+    Top = 70
+    Width = 174
     Height = 21
     Enabled = False
     Sorted = True
-    TabOrder = 2
+    TabOrder = 1
     OnDropDown = CmbAliquot1DropDown
   end
   object rgItemType: TRadioGroup
-    Left = 313
-    Top = 8
-    Width = 280
+    Left = 8
+    Top = 115
+    Width = 269
     Height = 52
     Caption = 'Source type'
     Columns = 3
+    Enabled = False
     ItemIndex = 1
     Items.Strings = (
       'Sample'
       'Cryovial'
       'Box')
-    TabOrder = 1
+    TabOrder = 3
   end
   object CmbAliquot2: TComboBox
-    Left = 380
-    Top = 80
-    Width = 165
+    Left = 387
+    Top = 70
+    Width = 174
     Height = 21
     Enabled = False
     Sorted = True
-    TabOrder = 3
+    TabOrder = 2
     OnDropDown = CmbAliquot2DropDown
   end
   object cbProject: TComboBox
-    Left = 92
-    Top = 30
-    Width = 165
+    Left = 107
+    Top = 24
+    Width = 174
     Height = 21
     Sorted = True
     TabOrder = 0
@@ -132,81 +131,64 @@ object frmRetrieveMain: TfrmRetrieveMain
   end
   object progress: TProgressBar
     Left = 0
-    Top = 643
-    Width = 1091
+    Top = 498
+    Width = 841
     Height = 17
     Align = alBottom
     Step = 1
-    TabOrder = 10
-  end
-  object btnDestination: TButton
-    Left = 447
-    Top = 128
-    Width = 105
-    Height = 32
-    Caption = 'Set destination'
-    Enabled = False
-    TabOrder = 7
-    OnClick = btnDestinationClick
+    TabOrder = 12
+    ExplicitTop = 491
+    ExplicitWidth = 830
   end
   object lbSortCols: TListBox
-    Left = 928
-    Top = 18
-    Width = 154
-    Height = 104
+    Left = 667
+    Top = 19
+    Width = 152
+    Height = 148
     Enabled = False
     ItemHeight = 13
-    TabOrder = 11
+    TabOrder = 10
   end
   object btnAddRecords: TButton
-    Left = 154
-    Top = 128
-    Width = 105
+    Left = 162
+    Top = 192
+    Width = 100
     Height = 32
     Caption = 'Add specimens'
     Enabled = False
     TabOrder = 5
   end
   object btnSaveList: TButton
-    Left = 740
-    Top = 128
-    Width = 105
+    Left = 579
+    Top = 192
+    Width = 100
     Height = 32
-    Caption = 'Create list'
+    Caption = 'Save job'
     Enabled = False
     TabOrder = 8
     OnClick = btnSaveListClick
   end
   object btnClrSort: TButton
-    Left = 956
-    Top = 128
-    Width = 105
+    Left = 718
+    Top = 192
+    Width = 100
     Height = 32
-    Caption = 'Unsort'
-    TabOrder = 12
+    Caption = 'Undo sorting'
+    Enabled = False
+    TabOrder = 9
     OnClick = btnClrSortClick
   end
-  object btnNewContent: TButton
-    Left = 593
-    Top = 128
-    Width = 105
+  object btnClearList: TButton
+    Left = 440
+    Top = 192
+    Width = 100
     Height = 32
-    Caption = 'Add Output Type'
-    Enabled = False
-    TabOrder = 13
-    OnClick = btnNewContentClick
-  end
-  object cbBoxType: TComboBox
-    Left = 680
-    Top = 80
-    Width = 165
-    Height = 21
-    TabOrder = 14
-    OnChange = cbBoxTypeChange
-    OnDropDown = cbBoxTypeDropDown
+    Caption = 'Clear list'
+    TabOrder = 7
+    OnClick = btnClearListClick
   end
   object OpenDialog1: TOpenDialog
-    Left = 114
-    Top = 219
+    Left = 650
+    Top = 283
   end
 end

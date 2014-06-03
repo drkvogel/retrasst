@@ -1,3 +1,6 @@
+## Invalid project ID
+
+following CVS pull and new ('contrived') multi-project job.
 
 
 ## long waits for queries slows down dev

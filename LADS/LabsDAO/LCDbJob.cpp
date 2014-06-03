@@ -1,6 +1,9 @@
 //---------------------------------------------------------------------------
+//
 //  Version history:
 //		07/12/10, NG:	Added method to get operator from process ID
+//		02/06/14, NG:	Include box set; use it in default name
+//
 //---------------------------------------------------------------------------
 
 
@@ -49,6 +52,7 @@ LCDbCryoJob::LCDbCryoJob( const LQuery & query )
 	if( query.fieldExists( "claimed_until" ) ) {
 		claimed_until = query.readDateTime( "claimed_until" );
 	}
+	boxSet = query.fieldExists( "box_set" ) ? query.readInt( "box_set" ) : 0;
 	secondary = query.fieldExists( "secondary_aliquot" ) ? query.readInt( "secondary_aliquot" ) : 0;
 	processID = query.fieldExists( "process_cid" ) ? query.readInt( "process_cid" ) : 0;
 }
@@ -65,10 +69,15 @@ void LCDbCryoJob::createName( LQuery central, const std::string & nameBase )
 	} else {
 		out << nameBase;
 	}
-	out << '_' << abs( claimNextID( central ) );
-	setName( out.str() );
 	central.setSQL( "select max(box_set)+1 as next_set from c_retrieval_job" );
-	boxSet = central.open() ? central.getRecord().getInt( 0 ) : -1;
+	if( central.open() ) {
+		boxSet = central.getRecord().getInt( 0 );
+		out << '_' << boxSet;
+	} else {
+		boxSet = 0;
+		out << '_' << abs( claimNextID( central ) );
+	}
+	setName( out.str() );
 }
 
 //---------------------------------------------------------------------------
@@ -94,14 +103,14 @@ const char * LCDbCryoJob::getTypeName() const {
 
 bool LCDbCryoJob::saveRecord( LQuery central )
 {
+	if( getName().empty() ) {
+		createName( central, "AUTOJOB" );
+	}
 	if( saved ) {
 		central.setSQL( "update c_retrieval_job set status = :sts, process_cid = :pid,"
 						" start_date = :sd, claimed_until = :cd, finish_date = :fd"
 						" where retrieval_cid = :id" );
 	} else {
-		if( getName().empty() ) {
-			createName( central, "AUTOJOB" );
-		}
 		if( getID() == 0 ) {
 			claimNextID( central );
 		}

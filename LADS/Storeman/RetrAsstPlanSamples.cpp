@@ -18,6 +18,9 @@
 TfrmRetrAsstPlanSamples *frmRetrAsstPlanSamples;
 
 __fastcall TfrmRetrAsstPlanSamples::TfrmRetrAsstPlanSamples(TComponent* Owner) : TForm(Owner) {
+    //TfrmRetrievalAssistant   * main = frmRetrievalAssistant;
+    //TfrmRetrAsstPlanSamples  * plan = frmRetrAsstPlanSamples;
+
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",            87);
     sgwChunks->addCol("start",    "Start",              70);
@@ -484,6 +487,8 @@ void TfrmRetrAsstPlanSamples::prepareProgressMessage(const char * loadingMessage
 }
 
 __fastcall LoadVialsJobThread::LoadVialsJobThread() : TThread(false) {
+    main = frmRetrievalAssistant;
+    plan = frmRetrAsstPlanSamples;
     FreeOnTerminate = true;
 }
 
@@ -501,96 +506,74 @@ void __fastcall LoadVialsJobThread::Execute() {
 }
 
 void LoadVialsJobThread::load() {
-    TfrmRetrievalAssistant   * main = frmRetrievalAssistant;
-    TfrmRetrAsstPlanSamples  * plan = frmRetrAsstPlanSamples;
 
-    job = plan->job;
+    //job = plan->job;
     plan->combined.clear(); // only contains copies of primaries and secondaries
     delete_referenced< vector<SampleRow * > >(plan->secondaries);
     delete_referenced< vector<SampleRow * > >(plan->primaries);  // primaries may refer to secondaries
 
     ostringstream oss; oss<<plan->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
-    oss.str(""); oss<<"loading retrieval job: "<<job->str();
+    oss.str(""); oss<<"loading retrieval job: "<<plan->job->str();
     debugMessage = oss.str().c_str(); Synchronize((TThreadMethod)&debugLog);
     debugMessage = "preparing query"; Synchronize((TThreadMethod)&debugLog);
     loadingMessage = plan->loadingMessage;
 
-    const int primary_aliquot     = job->getPrimaryAliquot();
-    const int secondary_aliquot   = job->getSecondaryAliquot();
+    //const int primary_aliquot     = plan->job->getPrimaryAliquot();
+    //const int secondary_aliquot   = plan->job->getSecondaryAliquot();
 
-    LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
+    //LQuery qd(Util::projectQuery(job->getProjectID(), true)); // ddb
 
-    oss.str(""); oss << // quick check to avoid wasting time
-        "SELECT COUNT(*) FROM cryovial_store s1, cryovial_store s2"
-        " WHERE s1.cryovial_id = s2.cryovial_id AND s2.status = 0 AND s1.retrieval_cid = :jobID";
-    qd.setSQL(oss.str());
-    qd.setParam("jobID", job->getID());
-    qd.open();
-    rowCount = qd.readInt(0);
-    if (0 == rowCount) return;
-    oss.str(""); oss << // actual query now we know there are some rows
-        "SELECT"
-        "  b1.project_cid,"
-		"  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
-        "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
-        "  c.cryovial_barcode,"
-        "  b1.box_cid as source_id,"
-        "  b1.external_name as source_name,"
-		"  s1.cryovial_position as source_pos,"
-        "  s2.box_cid as dest_box_id,"
-        "  b2.external_name as dest_box_name,"
-        "  b2.box_type_cid as dest_box_type, "
-        "  s2.cryovial_position as dest_pos"
-        " FROM"
-        "  cryovial c, cryovial_store s1, c_box_name b1,"
-        "  cryovial_store s2, box_name b2"
-        " WHERE"
-        "  c.cryovial_id = s1.cryovial_id AND"
-        "  b1.box_cid = s1.box_cid AND"
-        "  s1.cryovial_id = s2.cryovial_id AND"
-        "  s2.status = 0 AND" //"  b1.status != 99 AND b2.status != 99 AND"
-        "  b2.box_cid = s2.box_cid AND" //"  aliquot_type_cid = :aliquotID AND"
-        "  s1.retrieval_cid = :jobID"
-        " ORDER BY"
-        "  cryovial_barcode, aliquot_type_cid "
-        << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC");
+    //std::set< int > projects;
+    std::set< const LCDbProject * > projects;
 
-    qd.setSQL(oss.str()); debugMessage = qd.getSQL(); Synchronize((TThreadMethod)&debugLog);
-    qd.setParam("jobID", job->getID());
-    qd.open(); debugMessage = "query open"; Synchronize((TThreadMethod)&debugLog);
-    rowCount = 0; SampleRow * previous = NULL;
-    while (!qd.eof()) {
-        if (0 == rowCount % 10) {
-            ostringstream oss; oss<<"Found "<<rowCount<<" vials";
-            loadingMessage = oss.str().c_str();
-            Synchronize((TThreadMethod)&updateStatus);
+    if (0 == plan->job->getProjectID()) { // multi-project
+        // quick scan for job
+        for (Range< LCDbProject > pr = LCDbProjects::records(); pr.isValid(); ++pr) {
+            if( pr->isInCurrentSystem() && pr->isActive() && !pr->isCentral() ) {
+                //if (hasVialsInJob(pr->getID())) { // check each project for job
+                if (hasVialsInJob(&(*pr))) { // check each project for job
+                    //projects.insert(pr->getID());
+                    projects.insert(&(*pr));
+                }
+            }
+//            LQuery qd(Util::projectQuery(pr->getID(), true)); // ddb
+//            ostringstream oss;
+//            oss.str(""); oss << // quick check to avoid wasting time
+//                "SELECT COUNT(*) FROM cryovial_store s1, cryovial_store s2"
+//                " WHERE s1.cryovial_id = s2.cryovial_id AND s2.status = 0 AND s1.retrieval_cid = :jobID";
+//            qd.setSQL(oss.str());
+//            qd.setParam("jobID", main->job->getID());
+//            qd.open();
+//            rowCount = qd.readInt(0);
+//            if (0 == rowCount) return;
+//            if( pr->isInCurrentSystem() && pr->isActive() && !pr->isCentral() ) {
+//                cbProject->Items->Add( pr->getName( ).c_str( ) );
+//            }
+//            if( pr->getID( ) == LCDbProjects::getCurrentID( ) ) {
+//                init( &( *pr ) );
+//            }
         }
-        SampleRow * row = new SampleRow(
-            qd.readInt(     "project_cid"),
-            NULL, // new LCDbBoxRetrieval(qd),
-            new LPDbCryovial(qd),
-            new LPDbCryovialStore(qd),
-            NULL, // no retrieval record created yet
-            qd.readString(  "cryovial_barcode"),
-            qd.readString(  "source_name"),
-            qd.readInt(     "dest_box_id"),
-            qd.readString(  "dest_box_name"),
-            qd.readInt(     "dest_box_type"),
-            qd.readInt(     "dest_pos"),
-            "", 0, "", 0, 0, "", 0 ); // no storage details yet
 
-        // add box tube type name
-        //row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
-
-        const int aliquotType = row->cryo_record->getAliquotType();
-        if (aliquotType == secondary_aliquot) {
-            plan->secondaries.push_back(row);
-        } else { // everything else, even if not explicitly primary
-            plan->primaries.push_back(row);
+    } else {
+        const LCDbProject * proj;
+        LCDbProjects & projList = LCDbProjects::records();
+        proj = projList.findByID(plan->job->getProjectID());
+//        if (hasVialsInJob(plan->job->getProjectID())) {
+//            projects.insert(plan->job->getProjectID());
+        if (hasVialsInJob(proj)) {
+            projects.insert(proj);
+        } else {
+            return; // empty job
         }
-        qd.next();
-        rowCount++;
     }
+
+//    for (auto &project: projects) {
+//        loadVialsFromProject(project);
+//    }
+    for (auto &project: projects) {
+        loadVialsFromProject(project);
+    }
+
     debugMessage = "finished retrieving rows, getting storage details"; Synchronize((TThreadMethod)&debugLog);
 
     // try to match secondaries with primaries on same destination position
@@ -618,6 +601,112 @@ void LoadVialsJobThread::load() {
     debugMessage = "finished getting storage details"; Synchronize((TThreadMethod)&debugLog);
 }
 
+bool LoadVialsJobThread::hasVialsInJob(const LCDbProject * pr) {
+    ostringstream oss; oss<<"Checking project "<<pr->getName()<<" ["<<pr->getID()<<"]";
+    loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
+
+//    const LCDbProject *proj;
+//    LCDbProjects &projList = LCDbProjects::records();
+//    proj = projList.findByID(project_cid);
+
+    LQuery qd(Util::projectQuery(pr->getID(), true)); // ddb
+    //ostringstream oss;
+    oss.str(""); oss << // quick check to avoid wasting time
+        "SELECT COUNT(*) FROM cryovial_store s1, cryovial_store s2"
+        " WHERE s1.cryovial_id = s2.cryovial_id AND s2.status = 0 AND s1.retrieval_cid = :jobID";
+    qd.setSQL(oss.str());
+    qd.setParam("jobID", plan->job->getID());
+    qd.open();
+    rowCount = qd.readInt(0);
+    if (0 == rowCount)
+        return false;
+    else
+        return true;
+}
+
+void LoadVialsJobThread::loadVialsFromProject(const LCDbProject * project) {
+//void LoadVialsJobThread::loadVialsFromProject(int project_cid) {
+//    LQuery qd(Util::projectQuery(project_cid, true)); // ddb
+//    ostringstream oss;
+//    oss.str(""); oss << // quick check to avoid wasting time
+//        "SELECT COUNT(*) FROM cryovial_store s1, cryovial_store s2"
+//        " WHERE s1.cryovial_id = s2.cryovial_id AND s2.status = 0 AND s1.retrieval_cid = :jobID";
+//    qd.setSQL(oss.str());
+//    qd.setParam("jobID", job->getID());
+//    qd.open();
+//    rowCount = qd.readInt(0);
+//    if (0 == rowCount) return;
+    LQuery qd(Util::projectQuery(project->getID(), true)); // ddb
+    //LQuery qd(Util::projectQuery(project_cid, true)); // ddb
+
+    //debug message - which database?
+
+    ostringstream oss; oss << // actual query now we know there are some rows
+        "SELECT"
+        "  b1.project_cid,"
+		"  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
+        "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
+        "  c.cryovial_barcode,"
+        "  b1.box_cid as source_id,"
+        "  b1.external_name as source_name,"
+		"  s1.cryovial_position as source_pos,"
+        "  s2.box_cid as dest_box_id,"
+        "  b2.external_name as dest_box_name,"
+        "  b2.box_type_cid as dest_box_type, "
+        "  s2.cryovial_position as dest_pos"
+        " FROM"
+        "  cryovial c, cryovial_store s1, c_box_name b1,"
+        "  cryovial_store s2, box_name b2"
+        " WHERE"
+        "  c.cryovial_id = s1.cryovial_id AND"
+        "  b1.box_cid = s1.box_cid AND"
+        "  s1.cryovial_id = s2.cryovial_id AND"
+        "  s2.status = 0 AND" //"  b1.status != 99 AND b2.status != 99 AND"
+        "  b2.box_cid = s2.box_cid AND" //"  aliquot_type_cid = :aliquotID AND"
+        "  s1.retrieval_cid = :jobID"
+//        " ORDER BY"
+//        "  cryovial_barcode, aliquot_type_cid "
+//        << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC")
+        ;
+
+    qd.setSQL(oss.str()); debugMessage = qd.getSQL(); Synchronize((TThreadMethod)&debugLog);
+    qd.setParam("jobID", plan->job->getID());
+    qd.open(); debugMessage = "query open"; Synchronize((TThreadMethod)&debugLog);
+    rowCount = 0; SampleRow * previous = NULL;
+    while (!qd.eof()) {
+        if (0 == rowCount % 10) {
+            ostringstream oss; oss<<"Found "<<rowCount<<" vials";
+            loadingMessage = oss.str().c_str();
+            Synchronize((TThreadMethod)&updateStatus);
+        }
+        SampleRow * row = new SampleRow(
+            qd.readInt(     "project_cid"),
+            NULL, // new LCDbBoxRetrieval(qd),
+            new LPDbCryovial(qd),
+            new LPDbCryovialStore(qd),
+            NULL, // no retrieval record created yet
+            qd.readString(  "cryovial_barcode"),
+            qd.readString(  "source_name"),
+            qd.readInt(     "dest_box_id"),
+            qd.readString(  "dest_box_name"),
+            qd.readInt(     "dest_box_type"),
+            qd.readInt(     "dest_pos"),
+            "", 0, "", 0, 0, "", 0 ); // no storage details yet
+
+        // add box tube type name
+        //row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
+
+        const int aliquotType = row->cryo_record->getAliquotType();
+        if (aliquotType == plan->job->getSecondaryAliquot()) {
+            plan->secondaries.push_back(row);
+        } else { // everything else, even if not explicitly primary
+            plan->primaries.push_back(row);
+        }
+        qd.next();
+        rowCount++;
+    }
+}
+
 void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *Sender) {
     ostringstream oss; oss<<__FUNC__
     <<" finished loading job id: "<<job->getID()<<" \""<<job->getName()<<"\", \""<<job->getDescription().c_str()<<"\""; debugLog(oss.str().c_str());
@@ -640,7 +729,7 @@ void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *S
     if (found == NULL) {
         throw runtime_error("box not found"); //Application->MessageBox(L"Box not found, exiting", L"Info", MB_OK); Close(); return;
     }
-    box_size = found->getSize();
+    box_size = found->getContent()->getCapacity();
     editDestBoxSize->Text = box_size;
     addChunk(0); // default chunk
     showChunks();
@@ -725,6 +814,8 @@ void __fastcall TfrmRetrAsstPlanSamples::btnSaveClick(TObject *Sender) {
 }
 
 __fastcall SavePlanThread::SavePlanThread() : TThread(false) {
+    main = frmRetrievalAssistant;
+    plan = frmRetrAsstPlanSamples;
     FreeOnTerminate = true;
 }
 

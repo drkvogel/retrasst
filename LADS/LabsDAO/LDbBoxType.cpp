@@ -14,6 +14,7 @@
 #include <sstream>
 #include "LDbBoxType.h"
 #include "LCDbProject.h"
+#include "LDbBoxSize.h"
 
 #pragma hdrstop
 #pragma package(smart_init)
@@ -183,6 +184,21 @@ public:
 
 const LPDbBoxType * LPDbBoxTypes::find( const std::string & name ) const {
 	return findMatch( NameMatcher( name ) );
+}
+
+//---------------------------------------------------------------------------
+//	Find how many cryovials fit into this type of box/rack
+//---------------------------------------------------------------------------
+
+short LPDbBoxType::getCapacity() const {
+	const LCDbBoxSize * bs = LCDbBoxSizes::records().findByID( sizeID );
+	if( bs == NULL ) {
+		return -1;
+	} else if( bs->getHole() < 0 ) {
+		return bs->getLast();
+	} else {
+		return bs->getLast() - 1;
+   }
 }
 
 //---------------------------------------------------------------------------

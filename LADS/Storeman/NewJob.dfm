@@ -85,7 +85,6 @@ object frmNewJob: TfrmNewJob
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
     Text = '(none)'
-    ExplicitWidth = 241
   end
   object BtnNewEx: TButton
     Left = 320
@@ -105,7 +104,6 @@ object frmNewJob: TfrmNewJob
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 5
-    ExplicitWidth = 350
   end
   object txtBoxSet: TEdit
     Left = 350

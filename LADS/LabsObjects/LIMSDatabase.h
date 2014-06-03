@@ -31,7 +31,7 @@ public:
 	LIMSDatabase( const LIMSDatabase & other );
 	~LIMSDatabase();
 
-	enum DbSystem { VLAB_LIVE, VLAB_TEST, LABDEV_MIRROR, LABDEV_DEV, LABDEV_TEST, UNKNOWN = 99 };
+	enum DbSystem { VLAB_LIVE, VLAB_TEST, LABDEV_DEV, LABDEV_MIRROR, LABDEV_TEST, UNKNOWN = 99 };
 
 	static DbSystem getCurrentSystem() { return current; }
 	static void setCurrentSystem( DbSystem system );

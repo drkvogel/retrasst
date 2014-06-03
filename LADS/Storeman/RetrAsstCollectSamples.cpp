@@ -455,7 +455,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
          //, aliquot_type_cid "
         //<< (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"
     qd.setSQL(oss.str());
-    debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
     debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
     qd.setParam("rtid", collect->job->getID()); //int retrieval_cid = job->getID();

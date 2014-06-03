@@ -638,10 +638,12 @@ bool StoreDAO::loadAnalysisHistory( const std::string & cryovial_barcode, int al
 	return !results.empty();
 }
 
+//---------------------------------------------------------------------------
+
 void StoreDAO::loadAliquotTypes( std::vector<ROSETTA>& results )
 {
 	results.clear();
-	LCDbObjects& objs = LCDbObjects::records();
+	const LCDbObjects& objs = LCDbObjects::records();
 	ROSETTA result;
 	for( Range<LCDbObject> ul = objs; ul.isValid(); ++ ul ) {
 		if( ul->isActive() && ul->getObjectType() == LCDbObject::Category(LCDbObject::ALIQUOT_TYPE) ) {
@@ -657,12 +659,12 @@ void StoreDAO::loadAliquotTypes( std::vector<ROSETTA>& results )
 bool StoreDAO::loadCryovials( short source, const std::string & id, int primary, int secondary, int proj_id, std::vector<ROSETTA>& results )
 {
 	std::stringstream q;
-	q << "SELECT c.cryovial_id, c.aliquot_type_cid, c.cryovial_barcode, t.external_name as aliquot,"
-			" c.sample_id, sp.barcode, cs.box_cid, b.external_name as box_name, cs.cryovial_position"
-			" FROM cryovial_store cs, cryovial c, specimen sp, box_name b, c_object_name t"
+	q << "SELECT c.cryovial_id, c.aliquot_type_cid, c.cryovial_barcode, c.sample_id,"
+			" sp.barcode, cs.box_cid, b.external_name as box_name, cs.cryovial_position"
+			" FROM cryovial_store cs, cryovial c, specimen sp, box_name b"
 			" WHERE cs.status in (0, 1)" 	// expected or confirmed
 			" AND cs.cryovial_id = c.cryovial_id AND c.sample_id = sp.sample_id "
-			" AND b.box_cid = cs.box_cid AND c.aliquot_type_cid = t.object_cid";
+			" AND b.box_cid = cs.box_cid";
 	switch( source ) {
 		case 0: // sample
 			q << " AND sp.barcode = '" << id << '\'';
@@ -678,7 +680,7 @@ bool StoreDAO::loadCryovials( short source, const std::string & id, int primary,
 
 		default:
 			return false;	// filter missing
-    }
+	}
 
 	if( primary != 0 ) {
 		if( secondary == 0 ) {
@@ -692,13 +694,15 @@ bool StoreDAO::loadCryovials( short source, const std::string & id, int primary,
 		}
 	}
 
-	LQuery pQuery = Util::projectQuery( proj_id, true );
+	results.clear();
+	LQuery pQuery( LIMSDatabase::getProjectDb( proj_id ) );
 	pQuery.setSQL( q.str() );
 	if( !pQuery.open() ) {
 		return false;
 	}
-	do
-	{  	results.push_back( pQuery.getRecord() );
+	do {
+		results.push_back( pQuery.getRecord() );
+		results.back().setInt( "project_cid", proj_id );
 		pQuery.next();
 	} while( !pQuery.eof() );
 	return true;

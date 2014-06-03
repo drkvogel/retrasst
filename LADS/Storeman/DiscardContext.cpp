@@ -252,6 +252,8 @@ Context::Context( Db * db )
 
 void Context::setProjectName( const std::string & name ) {
 	m_db->setProjectName(name);
+	LCDbProjects & projects = LCDbProjects::records();
+	projects.setCurrent( projects.findByName( name ) );
 	return;
 }
 
@@ -645,8 +647,8 @@ void Context::setJobno( const int jobno ) {
 	return;
 }
 
-void Context::setJob( const LCDbCryoJob & ref ) {
-	m_retrieval = ref;
+void Context::setJob( const LCDbCryoJob * ref ) {
+	m_retrieval = *ref;
 	return;
 }
 int Context::getJobno( ) const {
@@ -657,8 +659,8 @@ LCDbCryoJob & Context::getJobRecord( ) {
 	return m_retrieval;
 }
 
-void Context::setBoxType( const LPDbBoxType & ref ) {
-	m_destBoxType = ref;
+void Context::setBoxType( const LPDbBoxType * ref ) {
+	m_destBoxType = *ref;
 }
 
 LPDbBoxType & Context::getBoxType() {
@@ -884,8 +886,9 @@ std::string SamplePile::update( const int dbcrstatus ) {
 			} else if( !m_context->getDb()->saveBoxType( m_context->getBoxType() ) ) {
 				error = "Failed to update box content record";
 			} else {
-				error = m_context->getDb()->createStoreEntries( jobCsids, m_context->getBoxType() );
-            }
+				error = m_context->getDb()->createStoreEntries( jobCsids,
+					m_context->getBoxType(), m_context->getJobRecord() );
+			}
 		}
 		if( error.empty() ) {
 			error = m_context->getDb()->updateSamples(jobCsids,

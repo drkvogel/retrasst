@@ -107,12 +107,12 @@ private: // User declarations
 public: // User declarations
 	__fastcall TfrmDiscardSamples( TComponent* Owner );
 	static const TColor BACKGROUND_OOPS = TColor( 0xff00ff );
-	static const TColor BACKGROUND_CONFIRMED = TColor( 0x88ff88 );
-	static const TColor BACKGROUND_REMOVED = TColor( 0x88ffff );
-	static const TColor BACKGROUND_DESTROYED = TColor( 0x8888ff );
-	static const TColor BACKGROUND_CANTSELECT = TColor( 0xffdddd );
-	static const TColor BACKGROUND_HEADER = TColor( 0xdddddd );
-	static const TColor FOREGROUND_OOPS = TColor( 0xff77ff );
+	static const TColor BACKGROUND_CONFIRMED = TColor( 0x66ff66 );
+	static const TColor BACKGROUND_REMOVED = TColor( 0x66ffff );
+	static const TColor BACKGROUND_DESTROYED = TColor( 0x6666ff );
+	static const TColor BACKGROUND_CANTSELECT = TColor( 0xffcccc );
+	static const TColor BACKGROUND_HEADER = TColor( 0xcccccc );
+	static const TColor FOREGROUND_OOPS = TColor( 0xff99ff );
 	static const TColor FOREGROUND_NORMAL = TColor( 0x000000 );
 	static const TColor FOREGROUND_ASCENDING = TColor( 0x00cc00 );
 	static const TColor FOREGROUND_DESCENDING = TColor( 0x0000cc );

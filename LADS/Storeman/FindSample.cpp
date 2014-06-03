@@ -69,7 +69,7 @@ void __fastcall TfrmFind::cbProjectChange(TObject *Sender)
 		cbType->Enabled = false;
 		txtName->Enabled = false;
 	} else {
-		pl.setCurrent( *proj );
+		pl.setCurrent( proj );
 		cbType->Enabled = true;
 		txtName->Enabled = boxSearch;
 	}
