@@ -14,16 +14,17 @@
 
 class TSnapshotFrame;
 
+/** An interface to which widget changes (eg button clicks) are broadcast. */
 class SnapshotFrameObserver
 {
 public:
 	SnapshotFrameObserver();
 	virtual ~SnapshotFrameObserver();
-	virtual void notifyAssociatedWith( TSnapshotFrame* tsf ) = 0;
-    virtual void notifySelected( int worklistEntryID ) = 0;
-	virtual void notifyDestroyed( TSnapshotFrame* tsf ) = 0;
-	virtual void notifyForceReloadButtonClick( TSnapshotFrame* tsf ) = 0;
-	virtual void notifyMainSplitterMouseUp( TSnapshotFrame* tsf ) = 0;
+	virtual void notifyAssociatedWith(TSnapshotFrame* tsf) = 0;
+	virtual void notifyDestroyed(TSnapshotFrame* tsf) = 0;
+	virtual void notifyForceReloadButtonClick(TSnapshotFrame* tsf) = 0;
+	virtual void notifyMainSplitterMouseUp(TSnapshotFrame* tsf) = 0;
+	virtual void notifySelected(int worklistEntryID) = 0;
 };
 
 class TSnapshotFrame : public TFrame
@@ -45,9 +46,11 @@ __published:	// IDE-managed Components
 	TImage *ToolbarBackground;
 	void __fastcall ForceReloadButtonClick(TObject *Sender);
 	void __fastcall MainSplitterMouseUp(TObject *Sender, TMouseButton Button,
-          TShiftState Shift, float X, float Y);
+		  TShiftState Shift, float X, float Y);
+
 private:	// User declarations
 	SnapshotFrameObserver* m_observer;
+
 public:		// User declarations
 	__fastcall TSnapshotFrame(TComponent* Owner);
 	__fastcall ~TSnapshotFrame();

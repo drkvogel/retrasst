@@ -29,10 +29,13 @@ DataManager::DataManager(LogManager *m)
 {
 }
 
-// Carefully returns to the heap any memory used by the given list.
-// Note that this may get called when the list is not well formed
-// (for example, when the snapshot only got partially loaded), so
-// should be able to cope with being given a NULL list.
+/** Carefully returns to the heap any memory used by the given list.
+  * Note that this may get called when the list is not well formed
+  * (for example, when the snapshot only got partially loaded), so
+  * copes with being given a NULL list.
+  *
+  * @param srlist  the list of sample runs to be destroyed
+  */
 void DataManager::destroyData(SampleRunsList *srlist)
 {
 	if (srlist!=NULL) {

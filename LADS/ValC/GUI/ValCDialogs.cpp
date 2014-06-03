@@ -6,6 +6,7 @@
 namespace valcui
 {
 
+
 void reportException( const Exception& e )
 {
     MessageDlg( e.Message, TMsgDlgType::mtError, TMsgDlgButtons() << TMsgDlgBtn::mbOK, 0 );
