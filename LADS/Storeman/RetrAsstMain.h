@@ -82,10 +82,14 @@ public: //protected: ?
 
 //    RetrievalRow(int proj, string srcnm, int dstid, string dstnm, int dstyp, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
 //        project_cid(proj), src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm), dest_box_type(dstyp),
-    RetrievalRow(int proj, LCDbBoxRetrieval * cbr_rec, string srcnm, int dstid, string dstnm, int dstyp, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-        cbr_record(cbr_rec), src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm), dest_box_type(dstyp),
-
-        site_name(site), vessel_pos(vsps), vessel_name(vsnm), shelf_number(shlf), structure_pos(stps), structure_name(stnm), box_pos(bxps) {}
+    RetrievalRow(int proj, LCDbBoxRetrieval * cbr_rec, string srcnm,
+                int dstid, string dstnm, int dstyp,
+                string site, int vsps, string vsnm, int shlf, int stps, string stnm,
+                int bxps) :
+        project_cid(proj), cbr_record(cbr_rec), src_box_name(srcnm),
+        dest_box_id(dstid), dest_box_name(dstnm), dest_box_type(dstyp),
+        site_name(site), vessel_pos(vsps), vessel_name(vsnm), shelf_number(shlf), structure_pos(stps), structure_name(stnm),
+        box_pos(bxps) {}
 
     // sort functions could also be factored out; not sure if worth it
     // fun refactoring for a rainy day?

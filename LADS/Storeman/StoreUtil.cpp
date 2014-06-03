@@ -433,7 +433,8 @@ std::string Util::boxTubeTypeName(int project_cid, int box_cid) {
     ProjBox projBox(project_cid, box_cid);
     found = map.find(projBox);
     if (found == map.end()) { // not added yet
-        LQuery q(Util::projectQuery(project_cid, false));
+        //LQuery q(Util::projectQuery(project_cid, false));
+        LQuery q(LIMSDatabase::getCentralDb());
         LPDbBoxNames boxes; // no LCDbBoxName(s) (c_box_name)
         try {
             const LPDbBoxName * box     = boxes.readRecord(q, box_cid);
