@@ -41,9 +41,17 @@ void __fastcall LoadPlanThread::debugLog() { frmRetrAsstCollectSamples->debugLog
 
 void __fastcall LoadPlanThread::msgbox() { Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK); }
 
-__fastcall LoadPlanThread::LoadPlanThread() : TThread(false) { FreeOnTerminate = true; }
+__fastcall LoadPlanThread::LoadPlanThread() : TThread(false) {
+    main    = frmRetrievalAssistant;
+    collect = frmRetrAsstCollectSamples;
+    FreeOnTerminate = true;
+}
 
-__fastcall SaveProgressThread::SaveProgressThread() : TThread(false) { FreeOnTerminate = true; }
+__fastcall SaveProgressThread::SaveProgressThread() : TThread(false) {
+    main    = frmRetrievalAssistant;
+    collect = frmRetrAsstCollectSamples;
+    FreeOnTerminate = true;
+}
 
 void __fastcall LoadPlanThread::updateStatus() { // can't use args for synced method, don't know why
 	frmRetrAsstCollectSamples->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectSamples->panelLoading->Repaint();
@@ -404,12 +412,9 @@ void TfrmRetrAsstCollectSamples::loadPlan() {
     loadPlanThread->OnTerminate = &loadPlanThreadTerminated;
 }
 
-void __fastcall LoadPlanThread::Execute() { 
+void __fastcall LoadPlanThread::Execute() {
 /** load cryovial retrieval plan:
 Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
-    TfrmRetrievalAssistant      * main    = frmRetrievalAssistant;
-    TfrmRetrAsstCollectSamples  * collect = frmRetrAsstCollectSamples;
-
     delete_referenced< vector<SampleRow * > >(collect->primaries);
     delete_referenced< vector<SampleRow * > >(collect->secondaries);
     collect->combined.clear();
@@ -479,8 +484,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             new LCDbCryovialRetrieval(qd),
             qd.readString(  "cryovial_barcode"),
             qd.readString(  "src_box"),
-            //qd.readInt(     "dest_id"),
-            qd.readInt(     "box_id"),
+            qd.readInt(     "box_id"), //qd.readInt(     "dest_id"),
             qd.readString(  "dest_name"),
             qd.readInt(     "dest_box_type"),
             qd.readInt(     "new_position"), // not AS dest_pos
@@ -545,7 +549,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 }
 
 void LoadPlanThread::addSampleDetails(SampleRow * row) {
-    TfrmRetrievalAssistant * main    = frmRetrievalAssistant;
 
     row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
     main->getStorage(row);

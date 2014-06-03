@@ -11,38 +11,7 @@
 #include <Vcl.ComCtrls.hpp>
 #include <Vcl.ExtCtrls.hpp>
 
-#define PlanThread 25
-
-class LoadPlanThread : public TThread {
-protected:
-    void __fastcall Execute();
-public:
-    __fastcall LoadPlanThread();
-    //Chunk< SampleRow > * loadingChunk;
-    //LCDbCryoJob *   job;
-    int             rowCount; // class variable needed for synchronise
-    string          loadingMessage;
-    string          debugMessage;
-    void            addSampleDetails(SampleRow * row);
-    void __fastcall updateStatus(); // synchronized methods can't have args
-    void __fastcall debugLog();
-    void __fastcall msgbox();
-};
-
-class SaveProgressThread : public TThread {
-protected:
-    void __fastcall Execute();
-public:
-    __fastcall SaveProgressThread();
-    void            storeSample(SampleRow * sample);
-    void            jobFinished();
-    //int             rowCount;
-    string          loadingMessage;
-    string          debugMessage;
-    void __fastcall updateStatus();
-    void __fastcall debugLog();
-    void __fastcall msgbox();
-};
+//#define PlanThread 25
 
 class TfrmRetrAsstCollectSamples : public TForm {
     friend class LoadPlanThread;
@@ -165,6 +134,43 @@ public:
     void                                        setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmRetrAsstCollectSamples(TComponent* Owner);
     __fastcall ~TfrmRetrAsstCollectSamples();
+};
+
+class LoadPlanThread : public TThread {
+private:
+    TfrmRetrievalAssistant      * main;
+    TfrmRetrAsstCollectSamples  * collect;
+protected:
+    void __fastcall Execute();
+public:
+    __fastcall LoadPlanThread();
+    //Chunk< SampleRow > * loadingChunk;
+
+    int             rowCount; // class variable needed for synchronise
+    string          loadingMessage;
+    string          debugMessage;
+    void            addSampleDetails(SampleRow * row);
+    void __fastcall updateStatus(); // synchronized methods can't have args
+    void __fastcall debugLog();
+    void __fastcall msgbox();
+};
+
+class SaveProgressThread : public TThread {
+private:
+    TfrmRetrievalAssistant      * main;
+    TfrmRetrAsstCollectSamples  * collect;
+protected:
+    void __fastcall Execute();
+public:
+    __fastcall SaveProgressThread();
+    void            storeSample(SampleRow * sample);
+    void            jobFinished();
+    //int             rowCount;
+    string          loadingMessage;
+    string          debugMessage;
+    void __fastcall updateStatus();
+    void __fastcall debugLog();
+    void __fastcall msgbox();
 };
 
 extern PACKAGE TfrmRetrAsstCollectSamples *frmRetrAsstCollectSamples;

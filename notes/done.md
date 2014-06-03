@@ -587,3 +587,7 @@ make program send email to myself with details of how long each query took, for 
 
 following CVS pull and new ('contrived') multi-project job.
 
+### cbr_record NULL
+
+`SampleRow` `row->cbr_record` appears to be initialised but is then null.. Ah, I was initialising superclass with uninitialised `cbr_record` member rather than `cbr_rec` constructor parameter.
+
