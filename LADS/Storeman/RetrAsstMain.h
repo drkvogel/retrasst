@@ -232,15 +232,15 @@ public:
             <<"status: "<<store_record->getStatus()<<", "
             <<"barc: \""<<cryovial_barcode<<"\", "<<"aliq: "<<cryo_record->getAliquotType()<<" \""<<aliquotName()<<"\", "
             <<"cryo_status: "<<cryo_record->getStatus()<<", "
-            <<"src: {"<<store_record->getBoxID()<<", \""<<src_box_name<<"\" ["<<store_record->getPosition()<<"]}, "
-            <<"dst: {"<<dest_box_id<<" \""<<dest_box_name<<"\" ["<<dest_cryo_pos<<"], type: "<<dest_box_type<<" \""<<dest_type_name<<"\"}, "
+            <<"src: {"<<store_record->getBoxID()<<", \""<<src_box_name<<"\", pos: "<<store_record->getPosition()<<"}, "
+            <<"dst: {"<<dest_box_id<<" \""<<dest_box_name<<"\", pos: "<<dest_cryo_pos<<", type: "<<dest_box_type<<" \""<<dest_type_name<<"\"}, "
             <<"loc: {"<<storage_str()<<"}";
         } catch (...) {
             oss<<"error in "<<__FUNC__;
         }
         return oss.str();
     }
-    string storage_str() {
+    string storage_str() { // for public consumption
         ostringstream oss;
         oss<<site_name<<"["<<vessel_pos<<"]: "
             <<vessel_name<<":"<<shelf_number<<"["<<structure_pos<<"]/"<<structure_name<<"["<<box_pos<<"]";

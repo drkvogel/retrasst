@@ -638,8 +638,7 @@ void LoadVialsJobThread::loadVialsFromProject(const LCDbProject * pr) {
             Synchronize((TThreadMethod)&updateStatus);
         }
         SampleRow * row = new SampleRow(
-            //qd.readInt(     "project_cid"),
-            pr->getID(),
+            pr->getID(), //qd.readInt(     "project_cid"),
             NULL, // new LCDbBoxRetrieval(qd),
             new LPDbCryovial(qd),
             new LPDbCryovialStore(qd),

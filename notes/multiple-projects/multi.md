@@ -1,18 +1,4 @@
-    ---------------------------
-    Debugger Exception Notification
-    ---------------------------
-    Project Storeman.exe raised exception class Exception with message 'XDB error: IIAPI_ST_ERRORInfo: ERROR '42500' 2117: Table 'c_box_name' does not exist or is not owned by you.
-     svr_id_error     = 67653632
-     svr_local error  = 2117
-     svr_id_server    = 10154
-     svr_server_type  = 0
-     svr_severity     = IIAPI_SVR_DEFAULT ( 0x0 )
-        : 'Tue Jun  3 14:36:33 2014 E_US0845_2117   Table 'c_box_name' does not exist or is not owned by you.''.
-    ---------------------------
-    Break   Continue   Help   
-    ---------------------------
 
-`LPDbBoxNames::readRecord()` now reads from `c_box_name` and not `box_name`.
 
     { { "proj name: dev_hps2-thrive, id: -149662, db: t_ldb20", 5, {  } } }
 
@@ -46,27 +32,76 @@ buscopan
 
 bombs out before getStorage(), hence all blank-x
 
-## no storage for contrived secondaries
-
-no records found for secondaries of `979124 "Retrieval_1", "A contrived example mixing THRIVE and REVEAL" primary: [-31781] EDTA_1 secondary: [0] Not specified`
-
-`getStorage()`
-`findBox()` <findBox.sql>
-
-e.g. box -623955: no results for `select * from c_slot_allocation where box_cid = -623955` - well there ain't no storage records it seems, so printing "no records found" would seem to be correct.
-
-## project_cid == 0 in plan
-
-sample::debug_str() says proj is 0 for some rows e.g. from box -623955:
-
-    03/06/2014 18:46:04: id: 378304, proj: 0, status: 2, barc: "112089327", aliq: -31782 "EDTA_2", cryo_status: 2, src: {-623955, "EDTAs 10_623955" [29]}, dst: {-624094 "EDTA1_2 1_624094" [50], type: 978201 "QClot_new"}, loc: {No records found[0]: :0[0]/[0]}
-
-no project id shouldn't affect `getStorage()`/`findBox()` , but..
-
-some boxes have project id 0:
-
-    select * from c_box_name where project_cid = 0
-
-Maybe mistake in copying script. Get it instead from the LCDbProject pointer used to open the query in the first place.
+---
 
 
+plan query:
+
+    SELECT    
+        db.project_cid,    /*cbr.retrieval_cid, */
+        cbr.section, 
+        cbr.rj_box_cid, cbr.box_id, 
+        lcr.position AS lcr_position, 
+        lcr.cryovial_barcode, lcr.aliquot_type_cid, 
+        /* lcr.old_box_cid, lcr.old_position, lcr.process_cid AS lcr_procid, lcr.status AS lcr_status, lcr.new_position, cs.box_cid, sb.external_name AS src_box, cs.cryovial_position AS source_pos,      db.external_name AS dest_box, */
+        db.box_type_cid AS dest_box_type,     
+        /* cs.note_exists, cs.cryovial_id, cs.cryovial_position, cs.status, c.sample_id, cs.record_id, */
+        db.external_name AS dest_name  
+    FROM     c_box_retrieval cbr, l_cryovial_retrieval lcr, c_box_name db, c_box_name sb, cryovial c, cryovial_store cs  
+    WHERE     cbr.retrieval_cid   = 978253 
+        AND cbr.rj_box_cid = lcr.rj_box_cid AND cbr.box_id = db.box_cid AND c.cryovial_barcode  = lcr.cryovial_barcode AND c.aliquot_type_cid = lcr.aliquot_type_cid AND cs.cryovial_id = c.cryovial_id 
+        AND cbr.retrieval_cid = cs.retrieval_cid AND cs.box_cid = sb.box_cid  
+    ORDER BY /*section, rj_box_cid, lcr_position */
+        section, lcr_position
+
+## are secondaries stored by plan and how?
+
+    978253 "Retrieving THRIVE samples (with secondary)"
+
+reset job
+run plan query - no results.
+10 combined vials. order by pos 
+chunks
+1. dest pos 1, 2, 4
+2. dest pos 5, 7, 11
+3. dest pos 12, 13, 14, 16
+save
+
+secondaries are included in plan with separate lcr_pos to primaries
+ie. if plan is *saved* correctly, secondaries should appear in list after the primaries they are a backup of
+is this the case?
+looks like it in SavePlanThread::save() and from plan query
+then in collect, don't need to sort by aliquot - they should be in the right order - and each secondary should be able to be matched to a previous primary.
+but because of combineAliquots()(?) the order is messed up.
+
+what would combineAliquots() do to this list?
+looks like it does it correctly
+should work on combined one
+but if there are loose secondaries, they would be the end of the combined list, possibly out of chunk order
+
+can combineAliquots combine backups with primaries correctly as it stands? no
+can it be made to do so? er...
+do we need a new function to combine in collect? maybe do it the old way
+
+
+they should not be sorted into prim/sec in the main loop, just in one list which will be ordered correctly
+combine function should add backup to previous if they match, loose if not
+
+## difference between addSampleDetails and getStorage
+
+getStorage
+    # just gets storage details
+addSampleDetails 
+    # calls getStorage and boxTubeTypeName on preferred and backup
+    # ie. good to run once samples have been combined - to avoid doing in main loop
+
+## is rebuild chunking working
+
+    it chunks one too late
+    fixed
+
+
+---
+
+shower
+nusol
