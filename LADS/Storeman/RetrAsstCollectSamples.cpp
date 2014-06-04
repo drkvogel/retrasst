@@ -479,12 +479,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             qd.readInt(     "new_position"), // not AS dest_pos
             "", 0, "", 0, 0, "", 0); // no storage details yet
 
-//        const int aliquotType = row->cryo_record->getAliquotType();
-//        if (aliquotType == secondary_aliquot) {
-//            collect->secondaries.push_back(row);
-//        } else { // everything else, even if not explicitly primary
-//            collect->primaries.push_back(row);
-//        }
         const int aliquotType = row->cryo_record->getAliquotType();
         if (    aliquotType         == secondary_aliquot
             &&  row->dest_box_id    == previous->dest_box_id
@@ -498,9 +492,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         qd.next();
         rowCount++;
     } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
-
-    // try to match secondaries with primaries on same destination position
-//    main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
     int combinedCount = collect->combined.size();
 
     // add storage details and box tube type name
@@ -602,7 +593,7 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
         case LCDbCryovialRetrieval::IGNORED:
             break; // ok, carry on
         case LCDbCryovialRetrieval::COLLECTED:
-			TfrmRetrievalAssistant::msgbox("Already collected - please inform Core Programming"); return;
+			TfrmRetrievalAssistant::msgbox("Already collected"); return;
         case LCDbCryovialRetrieval::NOT_FOUND:
             if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) return;
     }

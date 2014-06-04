@@ -28,8 +28,6 @@ not so much
 
 buscopan
 
-`getStorage()`: use LQuery q(LIMSDatabase::getCentralDb())?
-
 bombs out before getStorage(), hence all blank-x
 
 ---
@@ -54,7 +52,11 @@ plan query:
     ORDER BY /*section, rj_box_cid, lcr_position */
         section, lcr_position
 
-## are secondaries stored by plan and how?
+## fix/replace combineAliquots in collect
+
+replace with code similar to old method, based on assumption that backups will be immediately after preferred vials in the plan (which they will)
+
+## are secondaries stored by plan and how? (yes)
 
     978253 "Retrieving THRIVE samples (with secondary)"
 
@@ -83,22 +85,35 @@ can combineAliquots combine backups with primaries correctly as it stands? no
 can it be made to do so? er...
 do we need a new function to combine in collect? maybe do it the old way
 
-
 they should not be sorted into prim/sec in the main loop, just in one list which will be ordered correctly
 combine function should add backup to previous if they match, loose if not
 
-## difference between addSampleDetails and getStorage
 
-getStorage
-    # just gets storage details
-addSampleDetails 
-    # calls getStorage and boxTubeTypeName on preferred and backup
-    # ie. good to run once samples have been combined - to avoid doing in main loop
 
-## is rebuild chunking working
 
-    it chunks one too late
-    fixed
+
+## how are we going to deal with multiple projects?
+
+### try to create then load plan for contrived example (thrive and reveal)
+
+250 vials: 
+130 EDTA_1
+120 EDTA_2
+
+break into 4 chunks: 79, 51 (`EDTA_1`), 71, 49 (`EDTA_1`), save
+
+load in collect:
+thought it worked a couple of times! combinedCount is 120??
+but now crashes with invalid project id 0, which it would be with a multi project job.
+shelve multi projects for now?
+
+
+
+
+
+
+
+
 
 
 ---

@@ -635,3 +635,8 @@ Nick
 
 `LPDbBoxNames::readRecord()` now reads from `c_box_name` and not `box_name`.
 
+## is rebuild chunking working
+
+    it chunks one too late
+    fixed
+
