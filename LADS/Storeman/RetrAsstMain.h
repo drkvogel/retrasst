@@ -523,6 +523,7 @@ __published:
     TCheckBox *cbRejected;
     TPanel *panelDebug;
     TMemo *memoDebug;
+    TPanel *Panel1;
     TButton *btnResetJobs;
     void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall cbNewJobClick(TObject *Sender);

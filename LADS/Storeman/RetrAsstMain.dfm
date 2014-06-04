@@ -221,20 +221,32 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       object memoDebug: TMemo
         Left = 1
         Top = 1
-        Width = 616
+        Width = 653
         Height = 97
-        Align = alLeft
+        Align = alClient
         ScrollBars = ssVertical
         TabOrder = 0
+        ExplicitWidth = 384
       end
-      object btnResetJobs: TButton
-        Left = 660
-        Top = 13
-        Width = 75
-        Height = 25
-        Caption = 'Reset Job'
+      object Panel1: TPanel
+        Left = 654
+        Top = 1
+        Width = 112
+        Height = 97
+        Align = alRight
+        BevelOuter = bvNone
         TabOrder = 1
-        OnClick = btnResetJobsClick
+        object btnResetJobs: TButton
+          Left = 0
+          Top = 64
+          Width = 112
+          Height = 33
+          Align = alBottom
+          Caption = 'Reset Job'
+          TabOrder = 0
+          OnClick = btnResetJobsClick
+          ExplicitWidth = 185
+        end
       end
     end
   end

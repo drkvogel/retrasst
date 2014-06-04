@@ -115,7 +115,7 @@ void __fastcall TfrmRetrAsstCollectSamples::FormCreate(TObject *Sender) {
     sgVials->Enabled    = RETRASSTDEBUG;
     panelDebug->Visible = cbLog->Checked;
     job                 = NULL;
-    progressMessage = "Loading retrieval list, please wait...";
+    progressMessage = "init";
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::FormClose(TObject *Sender, TCloseAction &Action) {
@@ -253,8 +253,7 @@ void __fastcall TfrmRetrAsstCollectSamples::sgVialsClick(TObject *Sender) { // s
     ostringstream oss; oss<<sample->debug_str(); debugLog(oss.str().c_str());
     SampleRow * backup = sample->backup;
     if (!backup) { debugLog(" (no backup)"); return; }
-    oss.str(); oss<<" (backup) "<<sample->debug_str(); debugLog(oss.str().c_str());
-
+    oss.str(); oss<<" (backup) "<<backup->debug_str(); debugLog(oss.str().c_str());
     //int row = sgVials->Row; sgVials->Row = row; // how to put these before and after to save row clicked on?
 }
 
@@ -402,7 +401,7 @@ void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) {
 void __fastcall TfrmRetrAsstCollectSamples::timerLoadPlanTimer(TObject *Sender) {
     timerLoadPlan->Enabled = false;
 	Enabled = false; Screen->Cursor = crSQLWait;
-    showProgressMessage(progressMessage);
+    showProgressMessage("Loading retrieval list, please wait...");
 	loadPlan();
 }
 
@@ -419,20 +418,14 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     delete_referenced< vector<SampleRow * > >(collect->secondaries);
     collect->combined.clear();
     collect->chunks.clear();
-
-    //ostringstream oss; oss<<collect->progressMessage<<" (preparing query)"; loadingMessage = collect->progressMessage; //loadingMessage = oss.str().c_str(); //return;
-
     int primary_aliquot = collect->job->getPrimaryAliquot(); int secondary_aliquot = collect->job->getSecondaryAliquot();
+    ostringstream oss;
 
-    //const LCDbProject * proj; proj = LCDbProjects::records().findByID(collect->job->getProjectID());
     const LCDbProject * proj = LCDbProjects::records().findByID(collect->job->getProjectID());
-    ostringstream oss; oss<<__FUNC__<<": job: "<<collect->job->str()<<", project: "<<proj->getName()<<" ["<<proj->getID()<<"], "<<proj->getDbName();
+    oss<<__FUNC__<<": job: "<<collect->job->str()<<", project: "<<proj->getName()<<" ["<<proj->getID()<<"], "<<proj->getDbName();
     debugMessage = oss.str().c_str(); debugLog();
 
-    //debugMessage = "select sample details from plan"; Synchronize((TThreadMethod)&debugLog);
     LQuery qd(Util::projectQuery(collect->job->getProjectID(), true)); // ddb
-
-
     oss.str(""); oss<<
         " SELECT "
         "    db.project_cid," // project of destination box (db) or source (sb)?
@@ -459,10 +452,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         "    cbr.retrieval_cid   = cs.retrieval_cid AND "
         "    cs.box_cid          = sb.box_cid " //"    AND db.status != 99 AND sb.status != 99"
         " ORDER BY "
-        //"    section, rj_box_cid, lcr_position";
         "    section, lcr_position"; // lcr_position should make sure backup secondaries are after primaries
-         //, aliquot_type_cid "
-        //<< (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"
     qd.setSQL(oss.str());
     debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
     debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
@@ -470,17 +460,9 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     qd.open();
 
     rowCount = 0; // class variable
-    //int curchunk = 1, chunk = 0;
     debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
     while (!qd.eof()) {
         if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" vials"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
-
-//		chunk = qd.readInt("chunk");
-//        //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
-//        if (chunk > curchunk) { // new chunk, add the previous one
-//            collect->addChunk(curchunk, rowCount-1);
-//            curchunk = chunk;
-//        }
 
         SampleRow * row = new SampleRow(
             qd.readInt(     "project_cid"),
@@ -495,10 +477,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             qd.readInt(     "dest_box_type"),
             qd.readInt(     "new_position"), // not AS dest_pos
             "", 0, "", 0, 0, "", 0); // no storage details yet
-
-        //row->dest_type_name = Util::boxTubeTypeName(row->project_cid, row->dest_box_id).c_str();
-        row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
-        //main->getStorage(row);
 
         const int aliquotType = row->cryo_record->getAliquotType();
         if (aliquotType == secondary_aliquot) {
@@ -515,22 +493,11 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
     int combinedCount = collect->combined.size();
 
-//    // add box tube type name
-//    for (auto &row: collect->combined) {
-//            row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
-//            main->getStorage(row);
-//        if (NULL != row->backup) {
-//            row->backup->dest_type_name = Util::boxTubeTypeName(row->backup->cbr_record->getProjId(), row->backup->dest_box_id).c_str();
-//            main->getStorage(row->backup);
-//        }
-//    }
-
-    // add box tube type name
+    // add storage details and box tube type name
     rowCount = 0;
-    //ostringstream oss; oss<<"Adding storage details ["<<rowCount<<"/"<<combinedCount<<"]"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
     for (auto &row: collect->combined) {
         if (0 == ++rowCount % 10) { ostringstream oss; oss<<"Adding storage details ["<<rowCount<<"/"<<combinedCount<<"]"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
-        addSampleDetails(row);
+        addSampleDetails(row); // adds storage details and box tube type name, good for combined aliquots
     }
 
     // create chunks
@@ -539,7 +506,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     int chunk = 0;
     for (auto &row: collect->combined) {
 		chunk = row->cbr_record->getSection();
-
         if (chunk > curchunk) { // new chunk, add chunk object at *end* of each set of samples
             collect->addChunk(curchunk, rowCount-1);//rowCount-1);
             curchunk = chunk;
@@ -637,7 +603,6 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
             TfrmRetrievalAssistant::msgbox("setting secondary status");
         } // else, it was the secondary - primary should
 
-        //sample->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
         debugLog("Save accepted row");
         nextRow();
     } else {
@@ -707,10 +672,12 @@ void TfrmRetrAsstCollectSamples::nextRow() {
     SampleRow * sample = chunk->currentObject(); // which may be the secondary aliquot
 
     // save changes both primary and secondary in l_cryovial_retrieval (not cryovial/_store at this point)
+    // deferred (IGNORED) vials are not actually saved written to db...
     if (!sample->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed"); }
-    if (sample->backup) {
+    if (sample->backup) { // backup not needed
+        sample->backup->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); // ...unless not needed
         if (!sample->backup->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed for secondary"); }
-    } // deferred (IGNORED) vials are not actually saved to the database, they remain EXPECTED
+    }
 
     // don't need to save chunk - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
     if (chunk->getRowRel() < chunk->getSize()-1) {
@@ -1140,3 +1107,22 @@ Chunk< SampleRow >::DONE:       RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
 
 //const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
+
+//    // add box tube type name
+//    for (auto &row: collect->combined) {
+//            row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
+//            main->getStorage(row);
+//        if (NULL != row->backup) {
+//            row->backup->dest_type_name = Util::boxTubeTypeName(row->backup->cbr_record->getProjId(), row->backup->dest_box_id).c_str();
+//            main->getStorage(row->backup);
+//        }
+//    }
+//, aliquot_type_cid " //<< (primary_aliquot < secondary_aliquot ? "ASC" : "DESC"
+
+//		chunk = qd.readInt("chunk");
+//        //wstringstream oss; oss<<__FUNC__<<oss<<"chunk:"<<chunk<<", rowCount: "<<rowCount; OutputDebugString(oss.str().c_str());
+//        if (chunk > curchunk) { // new chunk, add the previous one
+//            collect->addChunk(curchunk, rowCount-1);
+//            curchunk = chunk;
+//        }
+
