@@ -224,9 +224,16 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Width = 653
         Height = 97
         Align = alClient
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitWidth = 384
+        ExplicitLeft = -5
+        ExplicitTop = 6
       end
       object Panel1: TPanel
         Left = 654

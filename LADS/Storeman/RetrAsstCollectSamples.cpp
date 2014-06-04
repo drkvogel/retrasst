@@ -249,12 +249,12 @@ void __fastcall TfrmRetrAsstCollectSamples::sgChunksClick(TObject *Sender) {
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::sgVialsClick(TObject *Sender) { // show details in debug window
+    debugLog(".");
     SampleRow * sample = (SampleRow *)sgVials->Objects[0][sgVials->Row];
-    ostringstream oss; oss<<sample->debug_str(); debugLog(oss.str().c_str());
+    ostringstream oss; oss<<"(prefer): "<<sample->debug_str(); debugLog(oss.str().c_str());
     SampleRow * backup = sample->backup;
-    if (!backup) { debugLog(" (no backup)"); return; }
-    oss.str(); oss<<" (backup) "<<backup->debug_str(); debugLog(oss.str().c_str());
-    //int row = sgVials->Row; sgVials->Row = row; // how to put these before and after to save row clicked on?
+    if (!backup) { debugLog("(no backup)"); return; }
+    oss.str(""); oss<<"(backup): "<<backup->debug_str(); debugLog(oss.str().c_str());
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
@@ -460,6 +460,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     qd.open();
 
     rowCount = 0; // class variable
+    SampleRow * previous;
     debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
     while (!qd.eof()) {
         if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" vials"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
@@ -478,19 +479,28 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
             qd.readInt(     "new_position"), // not AS dest_pos
             "", 0, "", 0, 0, "", 0); // no storage details yet
 
+//        const int aliquotType = row->cryo_record->getAliquotType();
+//        if (aliquotType == secondary_aliquot) {
+//            collect->secondaries.push_back(row);
+//        } else { // everything else, even if not explicitly primary
+//            collect->primaries.push_back(row);
+//        }
         const int aliquotType = row->cryo_record->getAliquotType();
-        if (aliquotType == secondary_aliquot) {
-            collect->secondaries.push_back(row);
+        if (    aliquotType         == secondary_aliquot
+            &&  row->dest_box_id    == previous->dest_box_id
+            &&  row->dest_cryo_pos  == previous->dest_cryo_pos) { // backup for previous
+            previous->backup = row;
         } else { // everything else, even if not explicitly primary
-            collect->primaries.push_back(row);
+            collect->combined.push_back(row);
         }
 
+        previous = row;
         qd.next();
         rowCount++;
     } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
 
     // try to match secondaries with primaries on same destination position
-    main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
+//    main->combineAliquots(collect->primaries, collect->secondaries, collect->combined);
     int combinedCount = collect->combined.size();
 
     // add storage details and box tube type name
@@ -672,12 +682,10 @@ void TfrmRetrAsstCollectSamples::nextRow() {
     SampleRow * sample = chunk->currentObject(); // which may be the secondary aliquot
 
     // save changes both primary and secondary in l_cryovial_retrieval (not cryovial/_store at this point)
-    // deferred (IGNORED) vials are not actually saved written to db...
     if (!sample->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed"); }
-    if (sample->backup) { // backup not needed
-        sample->backup->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); // ...unless not needed
+    if (sample->backup) {
         if (!sample->backup->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed for secondary"); }
-    }
+    } // deferred (IGNORED) vials are not actually saved to the database, they remain EXPECTED
 
     // don't need to save chunk - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
     if (chunk->getRowRel() < chunk->getSize()-1) {
@@ -1126,3 +1134,5 @@ Chunk< SampleRow >::DONE:       RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
 //            curchunk = chunk;
 //        }
 
+// not needed in debug
+//int row = sgVials->Row; sgVials->Row = row; // how to put these before and after to save row clicked on?

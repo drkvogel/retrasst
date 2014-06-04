@@ -63,6 +63,12 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
       Width = 712
       Height = 96
       Align = alLeft
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Courier New'
+      Font.Style = []
+      ParentFont = False
       ScrollBars = ssVertical
       TabOrder = 0
     end
@@ -149,53 +155,53 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           Align = alClient
           Caption = 'Vial Key'
           TabOrder = 4
-          ExplicitLeft = 16
-          ExplicitTop = 176
-          ExplicitWidth = 185
-          ExplicitHeight = 105
           object labelVialKeyExtra: TLabel
             Left = 2
             Top = 54
-            Width = 28
+            Width = 86
             Height = 13
             Align = alTop
             Caption = 'Other'
             Color = clAqua
             ParentColor = False
             Transparent = False
+            ExplicitWidth = 28
           end
           object labelVialKeySecondary: TLabel
             Left = 2
             Top = 28
-            Width = 51
+            Width = 86
             Height = 13
             Align = alTop
             Caption = 'Secondary'
             Color = clYellow
             ParentColor = False
             Transparent = False
+            ExplicitWidth = 51
           end
           object labelVialKeyPrimary: TLabel
             Left = 2
             Top = 15
-            Width = 36
+            Width = 86
             Height = 13
             Align = alTop
             Caption = 'Primary'
             Color = clHighlight
             ParentColor = False
             Transparent = False
+            ExplicitWidth = 36
           end
           object labelVialKeyCombined: TLabel
             Left = 2
             Top = 41
-            Width = 47
+            Width = 86
             Height = 13
             Align = alTop
             Caption = 'Combined'
             Color = clLime
             ParentColor = False
             Transparent = False
+            ExplicitWidth = 47
           end
         end
       end
@@ -338,8 +344,6 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
             Caption = 'Delete last'
             TabOrder = 7
             OnClick = btnDelChunkClick
-            ExplicitLeft = 671
-            ExplicitTop = 12
           end
         end
         object groupPrimary: TGroupBox
@@ -358,11 +362,13 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           object labelPrimary: TLabel
             Left = 7
             Top = 20
-            Width = 58
-            Height = 13
+            Width = 83
+            Height = 14
             Align = alClient
             Caption = 'labelPrimary'
             Layout = tlCenter
+            ExplicitWidth = 58
+            ExplicitHeight = 13
           end
         end
         object groupSecondary: TGroupBox
@@ -377,13 +383,11 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           Padding.Right = 5
           Padding.Bottom = 5
           TabOrder = 2
-          ExplicitLeft = 96
-          ExplicitTop = -3
           object labelSecondary: TLabel
             Left = 7
             Top = 20
-            Width = 73
-            Height = 13
+            Width = 90
+            Height = 14
             Margins.Left = 5
             Margins.Top = 5
             Margins.Right = 5
@@ -391,6 +395,8 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
             Align = alClient
             Caption = 'labelSecondary'
             Layout = tlCenter
+            ExplicitWidth = 73
+            ExplicitHeight = 13
           end
         end
       end
