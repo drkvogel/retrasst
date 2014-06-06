@@ -37,51 +37,41 @@ void TfrmRetrAsstCollectSamples::debugLog(String s) {
     memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
 }
 
-void LoadPlanThread::debugLog(string body) {
+
+// fixme should put these in main but had a circular dependency problem, leave for now
+
+__fastcall RetrAsstThread::RetrAsstThread() {
+    main    = frmRetrievalAssistant;
+    collect = frmRetrAsstCollectSamples;
+    FreeOnTerminate = true;
+}
+
+void RetrAsstThread::debugLog(string body) {
     messageBody = body;
     Synchronize((TThreadMethod)&_debugLog);
 }
 
-void LoadPlanThread::_debugLog() {
+void RetrAsstThread::_debugLog() {
     collect->debugLog(messageBody.c_str());
 }
 
-void LoadPlanThread::msgbox(string body, string title="Info") {
+void RetrAsstThread::msgbox(string body, string title="Info") {
     messageBody  = body;
     messageTitle = title;
     Synchronize((TThreadMethod)&_msgbox);
 }
 
-void LoadPlanThread::_msgbox() {
-    //Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK);
+void RetrAsstThread::_msgbox() {
     Application->MessageBox(String(messageBody.c_str()).c_str(), String(messageTitle.c_str()).c_str(), MB_OK);
 }
 
-__fastcall LoadPlanThread::LoadPlanThread() : TThread(false) {
-    main    = frmRetrievalAssistant;
-    collect = frmRetrAsstCollectSamples;
-    FreeOnTerminate = true;
-}
-
-__fastcall SaveProgressThread::SaveProgressThread() : TThread(false) {
-    main    = frmRetrievalAssistant;
-    collect = frmRetrAsstCollectSamples;
-    FreeOnTerminate = true;
-}
-
-void SaveProgressThread::msgbox(string body, string title="Info") {
+void RetrAsstThread::updateStatus(string body, string title="Info") {
     messageBody  = body;
     messageTitle = title;
-    Application->MessageBox(String(messageBody.c_str()).c_str(), String(messageTitle.c_str()).c_str(), MB_OK);
+    Synchronize((TThreadMethod)&_updateStatus);
 }
 
-void LoadPlanThread::updateStatus(string body, string title="Info") { // can't use args for synced method, don't know why
-	//frmRetrAsstCollectSamples->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectSamples->panelLoading->Repaint();
-    collect->panelLoading->Caption = messageBody.c_str(); collect->panelLoading->Repaint();
-}
-
-void SaveProgressThread::updateStatus(string body, string title="Info") {
-	//frmRetrAsstCollectSamples->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectSamples->panelLoading->Repaint();
+void RetrAsstThread::_updateStatus() {
     collect->panelLoading->Caption = messageBody.c_str(); collect->panelLoading->Repaint();
 }
 

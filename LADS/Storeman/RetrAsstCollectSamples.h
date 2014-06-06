@@ -6,14 +6,13 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.Grids.hpp>
 #include <Vcl.Menus.hpp>
-#include "LCDbJob.h"
-#include "RetrAsstMain.h"
 #include <Vcl.ComCtrls.hpp>
 #include <Vcl.ExtCtrls.hpp>
-
-//#define PlanThread 25
+#include "LCDbJob.h"
+#include "RetrAsstMain.h"
 
 class TfrmRetrAsstCollectSamples : public TForm {
+    friend class RetrAsstThread;
     friend class LoadPlanThread;
     friend class SaveProgressThread;
 __published:
@@ -132,53 +131,40 @@ public:
     __fastcall ~TfrmRetrAsstCollectSamples();
 };
 
-class RetrAsstThread :  public TThread {
-
-};
-
-class LoadPlanThread : public TThread {
-private:
+class RetrAsstThread : public TThread {
+protected:
+    RetrAsstThread(); // : TThread(false);
     TfrmRetrievalAssistant      * main;
     TfrmRetrAsstCollectSamples  * collect;
-protected:
-    void __fastcall Execute();
+    string          messageTitle; // can't use args for synced method, don't know why
+    string          messageBody;  // so need these temp strings
 public:
-    __fastcall LoadPlanThread();
-    //Chunk< SampleRow > * loadingChunk;
-
-    int             rowCount; // class variable needed for synchronise
-    //string          loadingMessage;
-    //string          debugMessage;
-    string          messageTitle;
-    string          messageBody;
-    void            addSampleDetails(SampleRow * row);
+    //virtual
     void            debugLog(string body);
-    void            _debugLog(); // synchronized methods can't have args
+    void            _debugLog( ); // synchronized methods can't have args
     void            updateStatus(string body, string title);
     void            _updateStatus();
     void            msgbox(string body, string title);
     void            _msgbox();
 };
 
-class SaveProgressThread : public TThread {
-private:
-    TfrmRetrievalAssistant      * main;
-    TfrmRetrAsstCollectSamples  * collect;
-protected:
+class LoadPlanThread : public RetrAsstThread {
     void __fastcall Execute();
 public:
-    __fastcall SaveProgressThread();
+    int             rowCount; // class variable needed for synchronise
+    void            addSampleDetails(SampleRow * row);
+};
+
+class SaveProgressThread : public RetrAsstThread {
+    void __fastcall Execute();
     void            storeSample(SampleRow * sample);
     void            jobFinished();
-    //int             rowCount;
-    //string          loadingMessage;
-    //string          debugMessage;
-    string          messageTitle;
-    string          messageBody;
-    void            debugLog(string body);
-    void            updateStatus(string body, string title);
-    void            msgbox(string body, string title);
 };
 
 extern PACKAGE TfrmRetrAsstCollectSamples *frmRetrAsstCollectSamples;
 #endif
+
+    //Chunk< SampleRow > * loadingChunk;
+    //__fastcall SaveProgressThread();
+        //__fastcall LoadPlanThread();
+

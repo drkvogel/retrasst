@@ -15,6 +15,7 @@
 #include "LPDbCryovial.h"
 #include "LDbBoxStore.h"
 #include "LCDbRetrieval.h"
+//#include "RetrAsstCollectSamples.h"
 // for setprecision:
 #include <iomanip>
 #include <boost/date_time.hpp>
@@ -476,14 +477,6 @@ public:
     }
 };
 
- //	FIXME - C++ compiler error:	  typedef std::vector< Chunk * > vecpChunk;
-
-//???
-//class RetrievalList {
-//    RetrievalRow rows[];
-//    Chunk chunks[];
-//};
-
 static const char * jobStatusString(short status) {
     // enum Status { NEW_JOB, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES };
     static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Rejected" };
@@ -567,9 +560,37 @@ public:
 	static void msgbox(string main, string title="Info");
 };
 
+//class TfrmRetrAsstCollectSamples : public TForm;
+//class TfrmRetrAsstCollectSamples;
+
+//class RetrAsstThread : public TThread {
+//protected:
+//    RetrAsstThread(); // : TThread(false);
+//    TfrmRetrievalAssistant      * main;
+//    TfrmRetrAsstCollectSamples  * collect;
+//    string          messageTitle; // can't use args for synced method, don't know why
+//    string          messageBody;  // so need these temp strings
+//public:
+//    //virtual
+//    void            debugLog(string body);
+//    void            _debugLog( ); // synchronized methods can't have args
+//    void            updateStatus(string body, string title);
+//    void            _updateStatus();
+//    void            msgbox(string body, string title);
+//    void            _msgbox();
+//};
+
 extern PACKAGE TfrmRetrievalAssistant *frmRetrievalAssistant;
 #endif
 
 //wstringstream oss; oss << __FUNC__; oss<<"sorting "<<rows->size()<<" rows: start:"<<start<<", end: "<<end; //debugLog(oss.str().c_str());
 //OutputDebugString(L"test"); //OutputDebugString(oss.str().c_str());
 //frmSamples->debugLog(oss.str().c_str());
+
+ //	FIXME - C++ compiler error:	  typedef std::vector< Chunk * > vecpChunk;
+
+//???
+//class RetrievalList {
+//    RetrievalRow rows[];
+//    Chunk chunks[];
+//};
