@@ -223,12 +223,9 @@ void __fastcall TfrmRetrAsstPlanSamples::sgVialsClick(TObject *Sender) {
     SampleRow * sample  = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     debugLog("."); // line break
     ostringstream oss; oss<<"(prefer): "<<sample->debug_str().c_str(); debugLog(oss.str().c_str());
-    //sample ? debugLog(sample->debug_str().c_str()) : debugLog("NULL sample");
-    //sample->backup ? debugLog(string("backup: " + sample->backup->debug_str()).c_str()) : debugLog("NULL backup");
-    //debugLog(".");
     SampleRow * backup = sample->backup;
     if (!backup) { debugLog("(no backup)"); return; }
-    oss.str(""); oss<<"(backup): "<<backup->debug_str(); debugLog(oss.str().c_str())
+    oss.str(""); oss<<"(backup): "<<backup->debug_str(); debugLog(oss.str().c_str());
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::timerLoadVialsTimer(TObject *Sender) {

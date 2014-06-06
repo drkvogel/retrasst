@@ -414,18 +414,24 @@ void TfrmRetrAsstCollectSamples::loadPlan() {
 void __fastcall LoadPlanThread::Execute() {
 /** load cryovial retrieval plan:
 Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.rj_box_cid order by b.section, c.position */
-    delete_referenced< vector<SampleRow * > >(collect->primaries);
-    delete_referenced< vector<SampleRow * > >(collect->secondaries);
+    //delete_referenced< vector<SampleRow * > >(collect->primaries);
+    //delete_referenced< vector<SampleRow * > >(collect->secondaries);
     collect->combined.clear();
     collect->chunks.clear();
     int primary_aliquot = collect->job->getPrimaryAliquot(); int secondary_aliquot = collect->job->getSecondaryAliquot();
     ostringstream oss;
+    int project_cid = collect->job->getProjectID();
 
-    const LCDbProject * proj = LCDbProjects::records().findByID(collect->job->getProjectID());
+    if (0 == project_cid) {
+        // fixme handle multiple projects
+        return;
+    }
+
+    const LCDbProject * proj = LCDbProjects::records().findByID(project_cid);
     oss<<__FUNC__<<": job: "<<collect->job->str()<<", project: "<<proj->getName()<<" ["<<proj->getID()<<"], "<<proj->getDbName();
     debugMessage = oss.str().c_str(); debugLog();
 
-    LQuery qd(Util::projectQuery(collect->job->getProjectID(), true)); // ddb
+    LQuery qd(Util::projectQuery(project_cid, true)); // ddb
     oss.str(""); oss<<
         " SELECT "
         "    db.project_cid," // project of destination box (db) or source (sb)?

@@ -95,8 +95,8 @@ private:
     LCDbCryoJob *                               job;
     vector< Chunk< SampleRow > *>               chunks;
     //vecpSampleRow                               vials;
-    vecpSampleRow                               primaries;
-    vecpSampleRow                               secondaries;
+    //vecpSampleRow                               primaries;
+    //vecpSampleRow                               secondaries;
     vecpSampleRow                               combined;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks; //std::auto_ptr< StringGridWrapper< Chunk< SampleRow > > >  sgwChunks;
     StringGridWrapper<SampleRow> *              sgwVials;
