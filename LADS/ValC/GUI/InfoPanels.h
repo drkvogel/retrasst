@@ -16,7 +16,7 @@
 
 							// some forward declarations
 							class TTestPanel;
-							class GUImanager;
+							class WorklistEntriesView;
 							class DNote;
 
 
@@ -34,7 +34,7 @@ class TInfoPanel : public TCalloutPanel
 private:
 protected:
 
-	GUImanager *gui;    /// reference to the object that manages the GUI
+	WorklistEntriesView *gui;    /// reference to the object that manages the GUI
 
 	__fastcall void setUpOuterArea(TTestPanel *t);
 
@@ -94,7 +94,7 @@ public:
 	virtual void initialiseContents() = 0;
 	void setUpOuterArea();
 	__fastcall ~TInfoPanel();
-	__fastcall TInfoPanel(GUImanager *g, TComponent *owner, TTestPanel *t,
+	__fastcall TInfoPanel(WorklistEntriesView *g, TComponent *owner, TTestPanel *t,
 	                      int p, int f, int a);
 
 __published:
@@ -118,7 +118,7 @@ public:
 
 
 	__fastcall ~TBasicInfoPanel();
-	__fastcall TBasicInfoPanel(GUImanager *g, TComponent *owner, TTestPanel *t);
+	__fastcall TBasicInfoPanel(WorklistEntriesView *g, TComponent *owner, TTestPanel *t);
 	void initialiseContents();
 	void __fastcall removeClick(TObject *Sender);
 
@@ -133,7 +133,7 @@ public:
 class TNotesPanel : public TInfoPanel
 {
 private:
-	void addListItem(const DNote &n);
+	void addListItem(const std::string &n);
 protected:
 public:
 
@@ -143,7 +143,7 @@ public:
 
 
 	__fastcall ~TNotesPanel();
-	__fastcall TNotesPanel(GUImanager *g, TComponent *owner, TTestPanel *t);
+	__fastcall TNotesPanel(WorklistEntriesView *g, TComponent *owner, TTestPanel *t);
 	void initialiseContents();
 	void __fastcall removeClick(TObject *Sender);
 };

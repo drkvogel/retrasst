@@ -12,12 +12,12 @@ SnapshotFrameController::SnapshotFrameController(TSnapshotFrame* tsf,
 												 const std::string& guiConfig)
   : m_model(model),
     m_eventListener(this),
-	m_dataManager(new DataManager(log)),
-	m_guiManager(new GUImanager(tsf,m_dataManager.get(),log,guiConfig))
+	// m_dataManager(new DataManager(log)),
+	m_entriesView(new WorklistEntriesView(tsf,log,guiConfig))
 {
 	m_model->registerModelEventListener(&m_eventListener);
 	tsf->setObserver(this);
-	m_guiManager->setObserver(this);
+	m_entriesView->setObserver(this);
 }
 
 //------------ begin SnapshotFrameObserver methods -------------//
@@ -37,7 +37,7 @@ void SnapshotFrameController::notifyForceReloadButtonClick( TSnapshotFrame* tsf 
 
 void SnapshotFrameController::notifyMainSplitterMouseUp( TSnapshotFrame* tsf )
 {
-    m_guiManager->recordPanelHeights();
+    m_entriesView->recordPanelHeights();
 }
 
 void SnapshotFrameController::notifySelected( int worklistEntryID )
@@ -50,11 +50,8 @@ void SnapshotFrameController::notifySelected( int worklistEntryID )
 
 void __fastcall SnapshotFrameController::update()
 {
-    m_dataManager->haveSnapshot = false;
-    m_dataManager->clearAll();
-    m_guiManager->clearAll();
-    m_dataManager->makeDataModel(m_model->getSnapshot());
-    m_guiManager->setUpGUIcomponents();  // components representing the data model
+	m_entriesView->clearAll();
+	m_entriesView->setUpVisualComponents(m_model->getSnapshot());
 }
 
 void SnapshotFrameController::notify( int modelEvent )
@@ -71,7 +68,7 @@ void SnapshotFrameController::notify( int modelEvent )
 
 void SnapshotFrameController::resize()
 {
-    m_guiManager->adjustPanelHeights();
+    m_entriesView->adjustPanelHeights();
 }
 
 }

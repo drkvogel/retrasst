@@ -6,6 +6,7 @@
 #include "WorklistItemViewController.h"
 #include "Require.h"
 #include <sstream>
+#include "StrUtil.h"
 #include "TWorklistItemViewFrame.h"
 
 
@@ -82,8 +83,8 @@ std::string WorklistItemViewController::describe( const valc::SnapshotPtr& snaps
 
     switch( wr.getRelation() )
     {
-    case 'a': s << " [triggered]"; break;
-    case 'b': s << " [rerun]"; break;
+    case 'T': s << " [triggered]"; break;
+    case 'R': s << " [rerun]"; break;
     }
 
     if ( wr.isBoundToWorklistEntryInstance() )
@@ -119,7 +120,7 @@ void WorklistItemViewController::describeResult( const valc::TestResult* r )
 	addCellText( i, "1_1", "ID:" );
 	addCellText( i, "1_2", r->getID() );
 	addCellText( i, "2_1", "Value:" );
-	addCellText( i, "2_2", r->getResultValue() );
+	addCellText( i, "2_2", paulst::formatFloatToFit( r->getResultValue(), 8/*max chars*/ ).c_str() );
 	addCellText( i, "3_1", "Date Analysed:" );
 	addCellText( i, "3_2", r->getDateAnalysed().FormatString(L"d mmm h:nn:ss") );
 }

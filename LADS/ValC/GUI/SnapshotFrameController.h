@@ -1,18 +1,18 @@
 #ifndef SnapshotFrameControllerH
 #define SnapshotFrameControllerH
 
-#include "DataManager.h"
-#include "GUImanager.h"
+
+#include "WorklistEntriesView.h"
 #include <memory>
 #include "ModelEventListenerAdapter.h"
 #include "TSnapshotFrame.h"
 
-class LogManager;
+                                class LogManager;
 
 namespace valcui
 {
 
-class Model;
+                                class Model;
 
 class SnapshotFrameController : public SnapshotFrameObserver
 {
@@ -24,12 +24,12 @@ public:
 
 
 	// methods in the SnapshotFrameObserver interface:
-	void notifyAssociatedWith( TSnapshotFrame* tsf );
-	void notifyDestroyed( TSnapshotFrame* tsf );
-	void notifyForceReloadButtonClick( TSnapshotFrame* tsf );
-	void notifyMainSplitterMouseUp( TSnapshotFrame* tsf );
-	void notifySelected( int worklistEntryID );
-	void notify( int modelEvent ); // ModelEventConstants.h
+	void notifyAssociatedWith(TSnapshotFrame* tsf);
+	void notifyDestroyed(TSnapshotFrame* tsf);
+	void notifyForceReloadButtonClick(TSnapshotFrame* tsf);
+	void notifyMainSplitterMouseUp(TSnapshotFrame* tsf);
+	void notifySelected(int worklistEntryID);
+	void notify(int modelEvent); // ModelEventConstants.h
 
 
 	void resize();
@@ -38,8 +38,8 @@ public:
 private:
     valcui::Model* m_model;
     ModelEventListenerAdapter<SnapshotFrameController> m_eventListener;
-    std::unique_ptr<DataManager> m_dataManager;
-    std::unique_ptr<GUImanager> m_guiManager;
+    // std::unique_ptr<DataManager> m_dataManager;
+    std::unique_ptr<WorklistEntriesView> m_entriesView;
 };
 
 }

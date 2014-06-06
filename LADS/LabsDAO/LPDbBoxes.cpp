@@ -209,43 +209,43 @@ bool LPDbBoxName::create( const LPDbBoxType & type, short boxSet, LQuery pQuery,
 }
 
 //---------------------------------------------------------------------------
-//  Concatenate project, box type and barcode to create the box name
+//  Concatenate project, box type and barcode to create a box name
 //---------------------------------------------------------------------------
 
 std::string LPDbBoxName::createName( const std::string & type ) const {
-	const char * next = type.c_str();
-	char buff[ 60 ];
-	unsigned len = 0;
+	const char * mid = type.c_str();
+	char buff[ 40 ];
+	unsigned copied = 0, name = (32 - barcode.length());
 	if( projectCID != 0 ) {
 		const LCDbProject * proj = LCDbProjects::records().findByID( projectCID );
 		if( proj != NULL ) {
 			for( char ch : proj->getName() ) {
-				buff[ len ++ ] = std::isalnum( ch ) ? ch : '_';
+				buff[ copied ++ ] = std::isalnum( ch ) ? ch : '_';
 			}
-			if( type.size() > len && LDbNames::compareIC( proj->getName(), type.substr( len ) ) == 0 ) {
-				next = next + len + 1;
+			if( type.size() > copied && LDbNames::compareIC( proj->getName(), type.substr( copied ) ) == 0 ) {
+				mid = mid + copied + 1;
 			}
-			buff[ len ++ ] = ' ';
+			buff[ copied ++ ] = ' ';
 		}
 	}
 	bool pending = false;
 	do {
-		if( !std::isalnum( *next ) ) {
-			pending = (len > 0);
+		if( !std::isalnum( *mid ) ) {
+			pending = (copied > 0);
 		} else {
 			if( pending ) {
-				buff[ len ++ ] =  '_';
+				buff[ copied ++ ] =  '_';
 				pending = false;
 			}
-			buff[ len ++ ] =  *next;
+			buff[ copied ++ ] =  *mid;
 		}
-	} while( len < 32 && *(++next) != '\0' );
-	buff[ len ++ ] = ' ';
+	} while( copied < name && *(++mid) != '\0' );
+	buff[ copied ++ ] = ' ';
 
 	for( char ch : barcode ) {
-		buff[ len ++ ] = std::isalnum( ch ) ? ch : '_';
+		buff[ copied ++ ] = std::isalnum( ch ) ? ch : '_';
 	}
-	return std::string( buff, len );
+	return std::string( buff, copied );
 }
 
 //---------------------------------------------------------------------------

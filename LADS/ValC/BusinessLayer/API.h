@@ -440,7 +440,7 @@ public:
     char                            getRelation()                       const;
 private:
     const WorklistEntry* m_worklistEntry;
-    char m_howCreated;// triggered? rerun?
+    char m_howCreated;// T-riggered? R-erun?
     int  m_id;
 
     const Impl* m_impl;

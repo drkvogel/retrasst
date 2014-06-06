@@ -56,6 +56,7 @@ __published:	// IDE-managed Components
 	TButton *btnSaveList;
 	TButton *btnClrSort;
 	TButton *btnClearList;
+	TRadioGroup *rgDestOrder;
 
 	void __fastcall AddClick(TObject *Sender);
 	void __fastcall cbProjectChange(TObject *Sender);
@@ -68,13 +69,16 @@ __published:	// IDE-managed Components
 	void __fastcall btnSaveListClick(TObject *Sender);
 	void __fastcall btnClrSortClick(TObject *Sender);
 	void __fastcall btnClearListClick(TObject *Sender);
+	void __fastcall rgItemTypeClick(TObject *Sender);
+	void __fastcall CmbAliquotChange(TObject *Sender);
+	void __fastcall rgDestOrderClick(TObject *Sender);
 
 private:	// User declarations
 
 	enum Cols { SAMPLE, CRYOVIAL, ALIQUOT, SITE, LOCATION, VESSEL, SHELF,
 			STRUCTURE, SLOT_POS, OLD_BOX, OLD_POS, NEW_POS, COL_COUNT };
-
-	short nextPos;
+	enum ItemType { SAMPLES, CRYOVIALS, BOXES };
+	enum DestOrder { FIXED, SORTED, FROM_FILE };
 
 	void populate( TComboBox * target, TComboBox * other );
 	static int getAliquotTypeID( TComboBox * cb );
@@ -83,7 +87,7 @@ private:	// User declarations
 	void checkBoxTypes();
 	void setValue( int col, int row, short value );
 	void setValue( int col, int row, const std::string & value );
-	void addCryovials( const std::string & barcode );
+	AnsiString addCryovials( const AnsiString & barcode, int pos );
 	LPDbBoxType * getBoxType();
 	LCDbCryoJob * createJob();
 	void createBoxes( const LCDbCryoJob & job, const LPDbBoxType & boxType );

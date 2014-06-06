@@ -48,6 +48,8 @@ public:
 	int getTypeID() const { return boxTypeID; }
 	void setFilledBy( int operatorID ) { filledBy = operatorID; }
 	int getFilledBy() const { return filledBy; }
+	void setProjectCID( int cid ) { projectCID = cid; }
+	int getProjectCID() const { return projectCID; }
 
 	void setStatus( Status update ) { status = update; }
 	Status getStatus() const { return Status( status ); }

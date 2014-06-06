@@ -8,7 +8,7 @@
                             // some forward declarations
 							class TInfoPanel;
 							class TTestPanel;
-							class GUImanager;
+							class WorklistEntriesView;
 
 //---------------------------------------------------------------------------
 
@@ -95,13 +95,13 @@ struct PopupPositioning {
 /** Provides constants for positioning and alignment, and can also position
   * pop-up panels intelligently with respect to where they have to point to.
   * There is a singleton Positioning object, which is a sidekick for the
-  * GUImanager object.
+  * WorklistEntriesView object.
   */
 class Positioning {
 
 private:
 
-	GUImanager *gui;   // link back to the GUImanager object, used for parameters
+	WorklistEntriesView *gui;   // link back to the WorklistEntriesView object, used for parameters
 
 	float minTriOffset; // minimum distance between triangle centre-line and edge
 	                    // of panel, useful for seeing if panels will fit
@@ -142,7 +142,7 @@ public:
 	/** used to express a preference for lower positioning or alignment */
 	const static int BOTTOM = 2;
 
-	Positioning(GUImanager *g);
+	Positioning(WorklistEntriesView *g);
 
 	void positionInfoPanel(TInfoPanel *panel);
 

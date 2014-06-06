@@ -44,7 +44,6 @@ void TfrmRetrieveMain::init( ) {
 	grdSamples->Cells[ NEW_POS ][ 0 ] = "New pos";
 	rows.clear( );
 	sortList.clear( );
-	nextPos = 1;
 	updateDisplay( );
 }
 
@@ -66,40 +65,89 @@ void __fastcall TfrmRetrieveMain::AddClick( TObject *Sender ) {
 	}
 	Screen->Cursor = crSQLWait;
 	progress->Position = 0;
-	std::unique_ptr < TStrings > idList( new TStringList );
-	idList->LoadFromFile( OpenDialog1->FileName );
-	progress->Max = idList->Count;
-	for( int i = 0; i < idList->Count; i++ ) {
-		AnsiString id = idList->Strings[ i ];
-		if( !id.IsEmpty( ) ) {
-			addCryovials( id.c_str( ) );
-			progress->StepIt( );
+	std::unique_ptr < TStrings > lines( new TStringList );
+	lines->LoadFromFile( OpenDialog1->FileName );
+	progress->Max = lines->Count;
+	std::unique_ptr < TStrings > fields( new TStringList );
+	bool expectPos = (rgDestOrder->ItemIndex == FROM_FILE);
+	bool finished = false;
+	for( int line = 0; line < lines->Count; ) {
+		fields->CommaText = lines->Strings[ line ++ ];
+		int pos;
+		String warning;
+		switch( fields->Count ) {
+			case 0:
+				continue;
+			case 1:
+				if( expectPos ) {
+					warning = "No position";
+				} else {
+					pos = rows.size() + 1;
+				}
+				break;
+			case 2:
+				if( expectPos ) {
+					pos = fields->Strings[ 1 ].ToIntDef( -1 );
+					if( pos < 1 ) {
+						warning = "Invalid position";
+					}
+					break;
+				}
+			default:
+				warning = "Extra characters";
 		}
+
+		if( warning.IsEmpty() ) {
+			warning = addCryovials( fields->Strings[ 0 ], pos );
+		}
+		if( !warning.IsEmpty() ) {
+			warning = warning + " on line " + String( line );
+			if( Application->MessageBox( warning.c_str(), L"Warning", MB_OKCANCEL | MB_ICONWARNING) != IDOK ) {
+				rows.clear( );
+				break;
+			}
+		}
+		progress->StepIt( );
+		fillGrid( );
 		Application->ProcessMessages( );
 	}
-	sortList.clear( );
-	updateDisplay( );
 	Screen->Cursor = crDefault;
+	sortList.clear( );
+	updateDisplay();
 }
 
 // ---------------------------------------------------------------------------
 
-void TfrmRetrieveMain::addCryovials( const std::string & barcode ) {
+AnsiString TfrmRetrieveMain::addCryovials( const AnsiString & barcode, int pos ) {
+	StoreDAO dao;
 	short source = rgItemType->ItemIndex;
 	int primary = getAliquotTypeID( CmbAliquot1 ), secondary = getAliquotTypeID( CmbAliquot2 );
 	int projID = LCDbProjects::getCurrentID( );
-	StoreDAO dao;
 	std::vector < ROSETTA > results;
-	if( dao.loadCryovials( source, barcode, primary, secondary, projID, results ) ) {
-		for( const ROSETTA & r : results ) {
-			rows.push_back( GridEntry( r, nextPos ) );
-		}
-		nextPos++;
-		fillGrid( );
-	} else {
-		String error = "No samples found for " + AnsiString( barcode.c_str( ) );
-		Application->MessageBox( error.c_str( ), NULL, MB_OK );
+	dao.loadCryovials( source, barcode.c_str(), primary, secondary, projID, results );
+	AnsiString warning;
+	switch( results.size() ) {
+		case 0:
+			warning = "No samples found for " + barcode;
+			break;
+		case 1:
+			rows.push_back( GridEntry( *results.begin(), pos ) );
+			break;
+		case 2:
+			if( primary != 0 && secondary != 0 ) {
+				rows.push_back( GridEntry( results[ 0 ], pos ) );
+				rows.push_back( GridEntry( results[ 1 ], pos ) );
+				break;
+			}
+		default:
+			if( source != BOXES ) {
+				warning = "Multiple cryovials for " + barcode;
+			}
+			for( const ROSETTA & r : results ) {
+				rows.push_back( GridEntry( r, pos ++ ) );
+			}
 	}
+	return warning;
 }
 
 // ---------------------------------------------------------------------------
@@ -373,41 +421,48 @@ void TfrmRetrieveMain::createBoxes( const LCDbCryoJob & job, const LPDbBoxType &
 		LPDbBoxName record;
 		std::set<int> projects;
 	} current;
-	std::map<short,Box> saved;
+	std::map<short,Box> boxes;
 	short size = boxType.getCapacity();
 	if( size < 1 ) {
-		size = 100;		// MVE boxes hold 100 cryovials
+		size = 100;		// assume MVE boxes
 	}
-	StoreDAO dao;
-	LQuery cq( LIMSDatabase::getCentralDb( ) );
+	// work out which projects each box belong to
 	progress->Position = 0;
-	progress->Max = rows.size( );
 	for( const GridEntry & ge : rows ) {
 		short boxNumber = (ge.new_pos-1) / size;
-		std::map<short,Box>::iterator existing = saved.find( boxNumber );
-		if( existing == saved.end() ) {
-			// create record for each new box in central and current project
-			LQuery pq( LIMSDatabase::getProjectDb( ge.pid ) );
-			if( current.record.create( boxType, job.getBoxSet( ), pq, cq ) ) {
-				current.projects.insert( ge.pid );
-				saved[ boxNumber ] = current;
-			} else {
-				throw Exception( "Cannot create destination box" );
-			}
-		} else {
-			if( existing->second.projects.count( ge.pid ) == 0 ) {
-				// copy record if box contains cryovials from more projects
-				LQuery pq( LIMSDatabase::getProjectDb( ge.pid ) );
-				if( existing->second.record.saveRecord( pq, cq ) ) {
-					existing->second.projects.insert( ge.pid );
-				} else {
-					throw Exception( "Cannot copy destination box" );
-				}
-			}
-			current = existing->second;
+		boxes[ boxNumber ].projects.insert( ge.pid );
+	}
+	for( auto & entry : boxes ) {
+		const std::set<int> & projList = entry.second.projects;
+		int projID = projList.size() == 1 ? *projList.begin() : 0;
+		entry.second.record.setProjectCID( projID );
+	}
+	// create records in central and project databases
+	LQuery cq( LIMSDatabase::getCentralDb( ) );
+	for( auto & entry : boxes ) {
+		const std::set<int> & projList = entry.second.projects;
+		auto pi = projList.begin();
+		LQuery pq1( LIMSDatabase::getProjectDb( *pi ) );
+		LPDbBoxName & box = entry.second.record;
+		if( !box.create( boxType, job.getBoxSet( ), pq1, cq ) ) {
+			throw Exception( "Cannot create destination box" );
 		}
+		while( ++pi != projList.end() ) {
+			LQuery pq( LIMSDatabase::getProjectDb( *pi ) );
+			if( !box.saveRecord( pq, cq ) ) {
+				throw Exception( "Cannot copy destination box" );
+			}
+		}
+	}
+	// mark the cryovials for removal into the new boxes
+	progress->Max = rows.size( );
+	StoreDAO dao;
+	for( const GridEntry & ge : rows ) {
+		short boxNumber = (ge.new_pos-1) / size;
+		const LPDbBoxName & box = boxes[ boxNumber ].record;
 		short position = ge.new_pos - (boxNumber * size);
-		if( dao.addToRetrieval( job.getID( ), ge.cid, ge.pid, current.record.getID( ), position ) ) {
+		LQuery pq( LIMSDatabase::getProjectDb( ge.pid ) );
+		if( dao.addToRetrieval( job.getID( ), ge.cid, ge.pid, box.getID(), position ) ) {
 			progress->StepIt( );
 		} else {
 			throw Exception( "Cannot add cryovial(s)" );
@@ -458,6 +513,11 @@ void GridEntry::copyLocation( const GridEntry & other ) {
 void __fastcall TfrmRetrieveMain::btnClrSortClick( TObject *Sender ) {
 	sortList.clear( );
 	std::sort( rows.begin( ), rows.end( ), sortList );
+	if( rgDestOrder->ItemIndex == SORTED ) {
+		for( short n = 0; n < rows.size(); n ++ ) {
+            rows[ n ].new_pos = n + 1;
+        }
+    }
 	updateDisplay( );
 }
 
@@ -611,19 +671,27 @@ bool TfrmRetrieveMain::Sorter:: operator( )( GER a, GER b ) const {
 void TfrmRetrieveMain::enableButtons( ) {
 	std::string projName = AnsiString( cbProject->Text ).c_str( );
 	const LCDbProject * pp = LCDbProjects::records( ).findByName( projName );
-	bool proj = ( pp != NULL );
-	CmbAliquot1->Enabled = proj;
-	CmbAliquot2->Enabled = proj;
-	rgItemType->Enabled = proj;
-	btnAddFile->Enabled = proj;
-	btnAddRecords->Enabled = false;
-	/// fixme
-	bool read = !rows.empty( );
-	bool sorted = !sortList.empty( );
-	btnLocate->Enabled = read;
-	btnClrSort->Enabled = sorted;
-	btnClearList->Enabled = read;
-	btnSaveList->Enabled = read;
+	if( pp == NULL ) {
+		// user must select project before importing any data
+		CmbAliquot1->Enabled = false;
+		CmbAliquot2->Enabled = false;
+		btnAddFile->Enabled = false;
+	} else if( rgItemType->ItemIndex == BOXES ) {
+		// box list cannot include secondary or position
+		CmbAliquot1->Enabled = true;
+		CmbAliquot2->Enabled = false;
+		btnAddFile->Enabled = (CmbAliquot2->ItemIndex < 0) && (rgDestOrder->ItemIndex != FROM_FILE);
+	} else {
+		// sorting should not affect position of secondary
+		CmbAliquot1->Enabled = true;
+		CmbAliquot2->Enabled = true;
+		btnAddFile->Enabled = (CmbAliquot2->ItemIndex < 0) || (rgDestOrder->ItemIndex != SORTED);
+	}
+	btnLocate->Enabled = !rows.empty( );
+	btnClrSort->Enabled = !sortList.empty( );
+	btnClearList->Enabled = !rows.empty( );
+	btnSaveList->Enabled = !rows.empty( );
+	btnAddRecords->Enabled = false;  	/// FIXME
 }
 
 // ---------------------------------------------------------------------------
@@ -635,3 +703,26 @@ void __fastcall TfrmRetrieveMain::btnClearListClick( TObject *Sender ) {
 }
 
 // ---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::rgItemTypeClick(TObject *Sender) {
+	if( rgItemType->ItemIndex == BOXES ) {
+		CmbAliquot1->Clear();
+		CmbAliquot2->Clear();
+	}
+	enableButtons();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::CmbAliquotChange(TObject *Sender) {
+	enableButtons();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::rgDestOrderClick(TObject *Sender) {
+	enableButtons();
+}
+
+//---------------------------------------------------------------------------
+

@@ -27,7 +27,8 @@ class LCDbProject : public LCDbID, public LDbNames, public LDbValid
 
 public:
 
-	static const short IS_LIVE = 1, BOX_IMPORT = 2;
+	static const short IS_LIVE_STATUS = 1, BOX_IMPORT_STATUS = 2;
+	static const short ANALYSIS_ACTIVITY = 1, COMPLETED_ACTIVITY = 2, SAMPLE_STORAGE = 4, BOX_STORAGE = 8;
 	static const int CENTRAL_DB = 0, NONE_SELECTED = -1;
 
 	LCDbProject( int id = NONE_SELECTED )

@@ -69,13 +69,23 @@ void LCDbCryoJob::createName( LQuery central, const std::string & nameBase )
 	} else {
 		out << nameBase;
 	}
-	central.setSQL( "select max(box_set)+1 as next_set from c_retrieval_job" );
-	if( central.open() ) {
-		boxSet = central.getRecord().getInt( 0 );
-		out << '_' << boxSet;
-	} else {
-		boxSet = 0;
+
+	switch( jobType ) {
+		case SAMPLE_RETRIEVAL:
+		case SAMPLE_DISCARD:
+		case SAMPLE_RATIONALISE:
+			central.setSQL( "select max(box_set)+1 as next_set from c_retrieval_job" );
+			if( central.open() ) {
+				boxSet = central.getRecord().getInt( 0 );
+				break;
+			}
+		default:
+			boxSet = 0;
+	}
+	if(	boxSet == 0 ) {
 		out << '_' << abs( claimNextID( central ) );
+	} else {
+		out << '_' << boxSet;
 	}
 	setName( out.str() );
 }
@@ -92,6 +102,8 @@ const char * LCDbCryoJob::getTypeName() const {
 		case SAMPLE_DISCARD:
 		case BOX_DISCARD:
 			return "Discard";
+		case SAMPLE_RATIONALISE:
+			return "Rationalise";
 		default:
 			return "Task";
 	}

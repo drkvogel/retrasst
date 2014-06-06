@@ -2,6 +2,8 @@
 #include<algorithm>
 #include<string>
 
+#include <fmx.h>
+
 #include "Utils.h"
 
 #pragma hdrstop
@@ -138,3 +140,24 @@ bool Utils::str2int(std::string str, int *i) {
 	*/
 	return !problem;
 }
+
+/////////////--------------------------------------/////////////////
+
+/** Calculates what the width of the given string would be, if displayed
+  * using default settings.
+  *
+  * @param s     the string whose width is to be calculated
+  * @return      the width in pixels of the text, if it were to be displayed
+  */
+int Utils::findTextWidth(const std::string &s)
+{
+	TText *txt;
+	txt = new TText(NULL);
+	txt->AutoSize = true;
+	txt->Text = Utils::str2unicodestr(s);
+	int w = (int)txt->Width;
+	delete txt;
+	return w;
+}
+
+

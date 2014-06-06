@@ -30,6 +30,9 @@ public:
 	static UnicodeString str2unicodestr(std::string str);
 	static std::auto_ptr<wchar_t> charstr2wcharstr(const char* source);
 	static std::auto_ptr<char> wcharstr2charstr(const wchar_t* source);
+
+
+	static int findTextWidth(const std::string &s);
 };
 
 //---------------------------------------------------------------------------

@@ -8,11 +8,13 @@
 #include "LogManager.h"
 #include "Model.h"
 #include "QCViewController.h"
+#include "SampleRunViewController.h"
 #include "SnapshotFrameController.h"
 #include "StrUtil.h"
 #include "TLogFrame.h"
 #include "TMainForm.h"
 #include "TQCViewFrame.h"
+#include "TSampleRunFrame.h"
 #include "TWorklistItemViewFrame.h"
 #include "UserAdvisorAdapter.h"
 #include "UserAdvisorPanel.h"
@@ -37,6 +39,7 @@ void __fastcall TMainForm::onCreate(TObject *Sender)
 	TSnapshotFrame* snapshotFrame = valcui::addSubComponent<TSnapshotFrame>( snapshotFrameContainer );
 	TQCViewFrame*   qcViewFrame   = valcui::addSubComponent<TQCViewFrame>  ( bottomPanelLeft );
 	TWorklistItemViewFrame* wiFrame = valcui::addSubComponent<TWorklistItemViewFrame>  ( bottomPanelRight );
+	TSampleRunFrame* srFrame = valcui::addSubComponent<TSampleRunFrame>  ( midPanel );
 	m_logManager = std::unique_ptr<LogManager>(new LogManager( m_logFrame, m_config.get("logFile") ));
 
 	auto warningCache = new valcui::UserAdvisorAdapter<valcui::UserAdvisorPanel>();
@@ -77,6 +80,11 @@ void __fastcall TMainForm::onCreate(TObject *Sender)
 		new valcui::WorklistItemViewController(
 			wiFrame,
 			m_model.get() ) );
+
+	m_sampleRunViewController = std::unique_ptr<valcui::SampleRunViewController>(
+		new valcui::SampleRunViewController(
+			srFrame,
+			m_model.get() ) );
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::onResize(TObject *Sender)
@@ -100,4 +108,5 @@ void __fastcall TMainForm::onClose(TObject *Sender, TCloseAction &Action)
 	Action = TCloseAction::caFree;
 }
 //---------------------------------------------------------------------------
+
 

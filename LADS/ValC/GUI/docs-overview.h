@@ -18,7 +18,7 @@ Very little code is in there; the rest is delegated to assorted managers:
 
 + a logging manager (an instance of the LogManager class)
 + a data manager (an instance of the DataManager class)
-+ a manager for all the GUI components (an instance of the GUImanager class), 
++ a manager for all the GUI components (an instance of the WorklistEntriesView class), 
   except the logging window 
 
 There are also utilities such as number/string conversion in Utils.cpp.
@@ -58,7 +58,7 @@ There is a singleton GUI manager, whose responsibility it is to manage all the v
 for ValC, except for the logging window.
 
 For more information about the GUI management, please see the documentation
-for the GUImanager class.
+for the WorklistEntriesView class.
   
  
 

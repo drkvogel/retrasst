@@ -13,15 +13,36 @@
 #include "ConsoleWriter.h"
 
 #include "Utils.h"
-#include "DataContainers.h"
-#include "GUImanager.h"
+#include "WorklistEntriesView.h"
 #include "InfoPanels.h"
 #include "TSnapshotFrame.h"
 #include "VisualComponents.h"
 
 #pragma package(smart_init)
 
-//--------------------- begin TBarcodePanel functions-----------------------
+//--------------------- begin TSampleRunPanel functions -----------------------
+
+static inline void ValidCtrCheck(TSampleRunPanel *)
+{
+	new TSampleRunPanel(NULL);
+}
+
+__fastcall TSampleRunPanel::TSampleRunPanel(TComponent *owner)
+	: TPanel(owner),
+	  barcodePanel(NULL), testsPanel(NULL)
+{
+	testPanels = new EntryPanelsList();
+}
+
+__fastcall TSampleRunPanel::~TSampleRunPanel()
+{
+	delete testPanels;
+	// pointers to panels are taken care of elsewhere
+}
+
+//--------------------- end TSampleRunPanel functions -----------------------
+
+//--------------------- begin TBarcodePanel functions -----------------------
 
 
 /** Used to check that TBarcodePanel does not have any pure virtual functions
@@ -30,22 +51,25 @@
   */
 static inline void ValidCtrCheck(TBarcodePanel *)
 {
-	new TBarcodePanel(NULL,NULL,NULL,true);
+	new TBarcodePanel(NULL,NULL,true);
 }
 
 
 __fastcall TBarcodePanel::~TBarcodePanel()
 {
+	delete attributes;
+	delete ids;
 }
 
 
-__fastcall TBarcodePanel::TBarcodePanel(GUImanager *g, TComponent *Owner,
-										DSampleRun *s, bool queued)
-										: TPanel(Owner),
-										  gui(g),
-										  sample(s)
+__fastcall TBarcodePanel::TBarcodePanel(WorklistEntriesView *g,
+										TComponent *Owner,
+										bool queued)
+	: TPanel(Owner),
+	  gui(g)
 {
-	sample->setVisual(this);  // link from the sample to here
+	attributes = new std::map <std::string,std::string>();
+	ids = new std::map <std::string,int>();
 
 
 	// set up the label on which the barcode is displayed
@@ -54,15 +78,13 @@ __fastcall TBarcodePanel::TBarcodePanel(GUImanager *g, TComponent *Owner,
 	// position of label is relative to panel
 	barcodeLabel->Position->X = gui->param("barcodeLabelOffsetX");
 	barcodeLabel->Position->Y = 5;
-	barcodeLabel->Text = sample->getBarcode().c_str();
+	barcodeLabel->Text = "[barcode?]";
 	barcodeLabel->StyleLookup = "BarcodeLabelStyle";
 	barcodeLabel->Parent = this;
+	// TKTK later: can move label into style, then remove need for g
 
 	if (queued) {
 		StyleLookup = "BarcodeQueuedPanelStyle";
-	}
-	else if (sample->getAttentionNeed()) {
-		StyleLookup = "BarcodeAlertPanelStyle";
 	}
 	else {
 		StyleLookup = "BarcodePanelStyle";
@@ -75,6 +97,54 @@ __fastcall TBarcodePanel::TBarcodePanel(GUImanager *g, TComponent *Owner,
 
 }
 
+/** Sets the barcode label of this panel. (The barcode isn't known on
+  * construction, only once the worklist entries are examined.)
+  * This should be called before the Parent attribute is set.
+  */
+void TBarcodePanel::updateBarcode(const std::string & barcode)
+{
+	barcodeLabel->Text = Utils::str2unicodestr(barcode);
+}
+
+/** Makes the the style of the barcode panel looking like the sample run
+  * needs attention. This should be called before the Parent attribute is set.
+  */
+void TBarcodePanel::needsAttention()
+{
+	StyleLookup = "BarcodeAlertPanelStyle";
+}
+
+
+/** Returns the attribute labelled with the given key, or "" otherwise if
+  * no such key exists.
+  */
+std::string TBarcodePanel::getAttribute(const std::string & key)
+{
+	return (attributes->count(key)>0) ? (*attributes)[key] : "";
+}
+
+/** Returns the attribute labelled with the given key, or "" otherwise if
+  * no such key exists.
+  */
+int TBarcodePanel::getIntAttribute(const std::string & key)
+{
+	return (ids->count(key)>0) ? (*ids)[key] : 0;
+}
+
+
+/** Records a string attribute for this instance of a sample being tested. */
+void TBarcodePanel::setAttribute(const std::string & key, const std::string & value)
+{
+	(*attributes)[key] = value;
+}
+
+/** Records an integer attribute for this instance of a sample being tested. */
+void TBarcodePanel::setAttribute(const std::string & key, int value)
+{
+	(*ids)[key] = value;
+}
+
+
 //--------------------- end TBarcodePanel functions-----------------------
 
 //--------------------- begin TTestPanel functions-----------------------
@@ -86,13 +156,15 @@ __fastcall TBarcodePanel::TBarcodePanel(GUImanager *g, TComponent *Owner,
   */
 static inline void ValidCtrCheck(TTestPanel *)
 {
-	new TTestPanel(NULL,NULL,NULL,0,true);
+	new TTestPanel(NULL,NULL,NULL,NULL,NULL,NULL,true);
 }
 
 
 /** Destroys the child components of this panel, including buttons and labels. */
 __fastcall TTestPanel::~TTestPanel() {
 
+	delete attributes;
+	delete ids;
 	delete testNameButton;
 	// delete testResultDisplay;
 	delete notesButton;
@@ -102,174 +174,156 @@ __fastcall TTestPanel::~TTestPanel() {
 	// same for other info panels
 }
 
-/** Calculates how wide a TTestPanel would need to be, to accommodate the
-  * given worklist entry. Useful for calculating in advance what panel sizes
-  * should be used.
-  *
-  * @param gui     this should be a link to the GUImanager object
-  * @param entry   the worklist entry for which the display size is to be calculated
-  * @param queued  true when the worklist entry is queued (not active yet)
-  * @return        the size the displayed entry would be if displayed as compactly as possible
-  */
-int TTestPanel::findPanelWidth(GUImanager *gui, DSampleTest *entry, bool queued)
-{   // Internally, this calculation needs to match what takes place in
-	// setUpTestNameButton(), setUpNotesButton() and setUpResultButton()
 
-	int size = 2*gui->param("cornerWidth");
-	size += gui->textWidth(entry->displayTestName)
-			- gui->param("notesOffsetLeft")
-			+ gui->param("notesButtonWidth");
+/** Constructs a panel to represent a worklist entry.
+  *
+  * @param v           the WorklistEntriesView object
+  * @param owner       the panel to which this will belong
+  * @param testName    the name of the scheduled test for this sample
+  * @param tag         the tag that the WorklistEntriesView wants to label it with
+  * @param ob          the observer of any action on this panel (like a click)
+  * @param queued      true if this represents a queued worklist entry
+  */
+__fastcall TTestPanel::TTestPanel(WorklistEntriesView *v,
+								  TPanel *owner,
+								  const std::string & testName,
+								  const std::string & testResult,
+								  const std::string & label,
+								  SnapshotFrameObserver* ob,
+								  bool qd)
+	: TPanel(owner),
+	  testName(testName), testResult(testResult), gui(v), queued(qd),
+	  observer(ob), myBasicInfo(NULL), myNotes(NULL),
+	  myActions(NULL), clockface(NULL)
+{
+	attributes = new std::map <std::string,std::string>();
+	ids = new std::map <std::string,int>();
+
+	StyleLookup = queued                       // default styles
+				  ? "TestQueuedPanelStyle"
+				  : "TestResultPanelStyle";
+	TagString = Utils::str2unicodestr(label);
+
+	initialiseTestNameButton();
 	if (!queued) {
-							// result display width incorporates a cornerWidth
-		size += TTestPanel::findResultDisplayWidth(gui,entry->getDefaultResult())
-				- gui->param("notesOffsetRight");
+		initialiseNotesButton();
+		initialiseResultsButton();
 	}
-	else {
-		size += gui->param("cornerWidth"); // leaving space for the end
-	}
-	// when changing things displayed for queued samples,
-	// check setUpQueuedSample() to see that this corresponds
-	return size;
 }
 
 
-void TTestPanel::setUpTestNameButton()
-{   // sets up a button and label with the name of the test;
-	// the button is invisible until the user mouses over
-
+// Sets up a button to hold the name of the test.
+// This button looks like a label, until the user mouses over,
+// then subtle 3d shading appears that makes it look like a button.
+void TTestPanel::initialiseTestNameButton()
+{
 	testNameButton = new TSpeedButton(this);
 	testNameButton->StyleLookup = "HalfVisibleButtonStyle";
 	testNameButton->Position->X = 2*gui->param("cornerWidth");
 	testNameButton->Position->Y = gui->param("testResultY");
-	testNameButton->Text = entry->displayTestName.c_str();        // was ""
-	testNameButton->Width = gui->textWidth(entry->displayTestName);
-
-	/* Test to see if I can get hold of an internal component of the style:
-
-	TText *t = (TText *)testNameButton->FindStyleResource("text");  // this is null, bother!
-	if (t !=NULL) {
-		gui->mainForm->StatusLabel->Text = Utils::str2unicodestr("width is " + Utils::int2str(t->Width));
-		// doesn't result in anything
-	}
-	else {
-        gui->mainForm->StatusLabel->Text = "'Twas null...";
-    }
-    */
-
+	std::string displayText = " " + testName + " ";
+	testNameButton->Text = Utils::str2unicodestr(displayText);
+	testNameButton->Width = Utils::findTextWidth(displayText);
 	testNameButton->HitTest = true;
 	testNameButton->OnClick = onClick;
 	testNameButton->Parent = this;
-
 }
 
-void TTestPanel::setUpNotesButton()
-{	// sets up a button for adding/viewing notes
-	// (assumes that the test name button (testNameDisplay)
-	// has already been set up)
-
-
-	// next, set up button for viewing/adding notes
-	int n = entry->getNotesQuantity();       // how many notes?
+// Sets up a button for viewing/adding notes, with a default appearance.
+void TTestPanel::initialiseNotesButton()
+{
 	notesButton = new TSpeedButton(this);
-	if (n==0) {
-		// button will be invisible, but if you hover over it,
-		// it will appear and the user can press it to add a note
-		notesButton->StyleLookup = "InvisibleNoteButtonStyle";
-	}
-	else if (n==1) {
-		if (entry->hasManualNote) {
-			// button will have a note+pencil icon on it
-			notesButton->StyleLookup = "HalfVisibleManualNoteButtonStyle";
-		}
-		else {
-			// button will have a note icon on it
-			notesButton->StyleLookup = "HalfVisibleNoteButtonStyle";
-		}
-	}
-	else if (entry->hasManualNote) {
-		// button will have an icon depicting two notes + pencil
-		notesButton->StyleLookup = "HalfVisibleManualNotesButtonStyle";
-	}
-	else {
-		// button will have an icon depicting two notes
-		notesButton->StyleLookup = "HalfVisibleNotesButtonStyle";
-	}
-	int notesPosX = testNameButton->Position->X
-					+ testNameButton->Width - gui->param("notesOffsetLeft");
-
-	notesButton->Position->X = notesPosX;
+	notesButton->StyleLookup = "InvisibleNoteButtonStyle";  // default
+	notesButton->Position->X = testNameButton->Position->X
+							   + testNameButton->Width
+							   - gui->param("notesOffsetLeft");
 	notesButton->Position->Y = gui->param("testResultY");
 	notesButton->Width = gui->param("notesButtonWidth");
 	notesButton->Text = "";
 	notesButton->OnClick = onClick;
 	notesButton->Parent = this;
-
 }
 
-float TTestPanel::findResultDisplayWidth(GUImanager *gui, std::string res)
-{   // calculates the width required for the test result label (res),
-	// which is either to fit, or a default size if the label would be small
 
-	int dr = gui->param("defaultResultWidth");
-	float w = dr + gui->param("resultGap"); // default label width,
-											// to be used for narrow labels
-	int r = gui->textWidth(res);
-	if (r > dr) {
-		// increase width to match
-		w = w + (r - dr);
+
+/** Calculates how wide the left hand side of a TTestPanel would need to be,
+  * at minimum, to accommodate the given worklist entry.
+  *
+  * @return   minimum width for this test panel
+  */
+int TTestPanel::findPanelLeftWidth()
+{
+	// Note: this calculation needs to match the code that sets the buttons up
+	// (check for both queued and non-queued samples)
+
+	int size = 2*gui->param("cornerWidth");
+	size += testNameButton->Width;
+
+	if (!queued) {
+		size +=  gui->param("notesButtonWidth")
+				- gui->param("notesOffsetLeft");
 	}
-	return w;
-}
-
-void TTestPanel::setUpResultButton(bool queued)
-{  	// results that exist (but labelled pending) are explicitly treated
-	// as completed (this will also display weird statuses in a completed
-	// fashion, so long as there are result(s) available)
-	displayAsCompleted = (entry->status=='C') || entry->resultExists();
-
-	// figure out what test result should be displayed
-	if (queued) {
-		testResult = "-";
+	/*
+	if (!queued) { // result display width incorporates a cornerWidth
+		size += TTestPanel::findResultDisplayWidth()
+				- gui->param("notesOffsetRight");
 	}
 	else {
-		if (displayAsCompleted) {
-			testResult = entry->getDefaultResult();
-		}
-		else if (entry->status=='P') {   // don't display a test result if pending
-			testResult = "p"; //tmp
-		}
-		else { // non-completed, not pending, no result
-			testResult = "?";
-		}
+		size += gui->param("cornerWidth"); // leaving a bit of space at the end
 	}
-	float widthResult = findResultDisplayWidth(gui,testResult);
-	resultPosX = this->Width - widthResult;
+	*/
+	return size;
+}
+
+/** Calculates how wide a TTestPanel would need to be, at minimum,
+  * to accommodate the given button widths.
+  */
+int TTestPanel::findPanelWidth(WorklistEntriesView *v,
+							   int maxNameWidth,
+							   int maxResultWidth)
+{
+	int size = 2*v->param("cornerWidth");
+	size += maxNameWidth;
+	size +=  v->param("notesButtonWidth")
+			 - v->param("notesOffsetLeft")
+			 - v->param("notesOffsetRight");
+	size += maxResultWidth;
+	return size;
+}
+
+
+
+/** Calculates how wide the results label would have to be. */
+int TTestPanel::findResultDisplayWidth()
+{
+	return Utils::findTextWidth(testResult) + gui->param("resultGap");
+}
+
+void TTestPanel::initialiseResultsButton()
+{
 	float yPos = gui->param("testResultY") + gui->param("labelOffsetY");
-
-
-	if (entry->status=='P') {   // don't display a test result if pending
+	if (testResult.length()==0) {  // assume pending
 		clockface = new TPanel(this);
 		clockface->StyleLookup = "PendingPanelStyle";
-		clockface->Position->X = resultPosX;
+		clockface->Position->X = notesButton->Position->X
+								 + gui->param("notesButtonWidth")
+								 - gui->param("notesOffsetRight");;
 		clockface->Position->Y = yPos;
 		clockface->Width = 16;   // yes, these are in the style, but if I don't
 		clockface->Height = 16;  // put them in, weird things happen
 		clockface->Parent = this;
-		// testResultDisplay->Visible = false;
 	}
-
 	else {
-		// sets up a button (invisible unless moused over)
+ 		// sets up a button (invisible unless moused over)
 		resultButton = new TSpeedButton(this);
 		resultButton->StyleLookup = "HalfVisibleFixedButtonStyle";
-		resultButton->Position->X = resultPosX;
+		// was resultButton->Position->X = this->Width -  findResultDisplayWidth(gui,testResult);
 		resultButton->Position->Y = gui->param("testResultY");
-		resultButton->Width = widthResult;
-		resultButton->Text = testResult.c_str();    // was "";
+		resultButton->Width = findResultDisplayWidth();
+		resultButton->Text = testResult.c_str();
 		resultButton->HitTest = true;
 		resultButton->OnClick = onClick;
-		resultButton->Parent = this;
-	}
+    }
 }
 
 
@@ -278,6 +332,7 @@ void TTestPanel::setUpNonLocal()
   // which has a kinda faded effect; this is for representing results that
   // got done on another analyser
 
+   // to do: put this onto a style
    screen = new TRectangle(this);
    screen->Fill->Kind = TBrushKind::bkSolid;
    screen->Fill->Color = TAlphaColorRec::White;   // not TColorRec, has no effect
@@ -289,99 +344,20 @@ void TTestPanel::setUpNonLocal()
    screen->Position->X = 0;
    screen->Position->Y = 0;
    screen->HitTest = false;
-   screen->Width = Width;
-   screen->Height = Height;
    screen->Opacity = 0.5;
-   screen->Parent = this;
-   screen->BringToFront();
+   // remaining set up done after width of panel is finalised
 }
 
-void TTestPanel::setUpQueuedSample()
-{ // puts child components on a panel displaying a queued worklist entry
 
-	StyleLookup = "TestQueuedPanelStyle";
-	Width = gui->param("queuedTestWidth");
 
-	setUpTestNameButton();
-	setUpNotesButton();
-	// setUpResultDisplay(true);
-}
-
-void TTestPanel::setUpSampleResults()
-{ // puts child components on a panel displaying an active worklist entry
-
-	if (entry->getAttentionNeed()) {
-		StyleLookup = "TestResultActionPanelStyle";
-	}
-	else {
-		StyleLookup = "TestResultPanelStyle";
-	}
-	Width = gui->param("testResultWidth");
-
-	setUpTestNameButton();
-	setUpNotesButton();
-	setUpResultButton(false);
-
-	localMachine = entry->locallyPertinent
-				   || entry->status=='P'
-				   || entry->status=='Q';
-
-	if (!localMachine) {
-		setUpNonLocal();
-	}
-
-}
-
-/** Constructs a panel to represent the given worklist entry.
-  * This sets up its child components, including labels for the test
-  * name and result, and buttons for notes, alerts/actions and standard information
-  * about a worklist entry and its result(s).
-  *
-  * The positioning of the buttons and labels is controlled by various
-  * parameters from the GUI configuration file, and is as follows:
-  *
-  * @image html TTestPanel-labels.png "A TTestPanel, with variables listed below and GUI parameters above"
-  *
-  * @param g        the GUImanager object
-  * @param Owner    the panel (within the depiction of a sample run) that will hold this TTestPanel
-  * @param d        the worklist entry that this visually represents
-  * @param posX     the position from the left that this panel is to be placed at
-  * @param queued   true if this worklist entry is queued (not yet put on an analyser)
+/** Makes the the style of the barcode panel looking like the sample run
+  * needs attention. This should be called before the Parent attribute is set.
   */
-__fastcall TTestPanel::TTestPanel(GUImanager *g,
-								  TPanel *Owner,
-								  DSampleTest *d,
-								  const int posX,
-								  bool queued)
-					: TPanel(Owner),
-					  myBasicInfo(NULL),
-					  myNotes(NULL),
-					  myActions(NULL),
-					  gui(g),
-					  entry(d),   // link from here to the worklist entry
-                      observer(NULL)
+void TTestPanel::needsAttention()
 {
- //	entry->setVisual(this);  // link from the worklist entry to this panel
-	prev = NULL;
-	next = NULL;
-	clockface = NULL;
-
-	Height = gui->param("testResultHeight");
-	Position->X = posX;
-	Position->Y = 0;
-	Opacity = 1;
-
-	// then do various display options according to type of worklist entry
-	if (queued) {
-		setUpQueuedSample();
-	}
-	else {
-		setUpSampleResults();
-	}
-	// gui->mainForm->log("...");
-	Parent = Owner;
-
+	StyleLookup = "TestResultActionPanelStyle";
 }
+
 
 //---------------------------------------------------------------------------
 
@@ -402,11 +378,7 @@ void __fastcall TTestPanel::basicInfoClick(TObject *Sender)
 
 		gui->popupInfoPanel(t,TInfoPanel::panel_BASIC);
 	}
-
-	//	std::string s = "width of name button is "
-	//				+ Utils::float2str(testNameButton->Width);
-	// gui->mainForm->StatusLabel->Text = Utils::str2unicodestr(s);
-} // end of TTestPanel::basicInfoClick
+}
 
 
 /** Brings up a pop-up notes panel that indicates at the test result displayed
@@ -425,31 +397,28 @@ void __fastcall TTestPanel::notesClick(TObject *Sender)
 
 		gui->popupInfoPanel(t,TInfoPanel::panel_NOTES);
 	}
-
-   //	std::string s = "width of bubble x is "
-   //					+ Utils::float2str(this->Width);
-   //	gui->mainForm->StatusLabel->Text = Utils::str2unicodestr(s);
-
-} // end of TTestPanel::notesClick
+}
 
 
 void __fastcall TTestPanel::onClick(TObject* sender)
 {
-    valcui::assertion( ( sender == testNameButton ) || ( sender == notesButton ) || ( sender == resultButton ), "origin of click not recognised" );
+	valcui::assertion((sender == testNameButton
+					   || sender == notesButton
+					   || sender == resultButton),
+					  "origin of click not recognised" );
 
-    observer->notifySelected( entry->getWorklistId() );
+	int i = getIntAttribute("Worklist Id");
 
-    if ( sender == testNameButton )
-    {
-        basicInfoClick( sender );
-    }
-    else if ( sender == notesButton )
-    {
-        notesClick( sender );
-    }
-    else
-    {
-        resultClick( sender );
+	observer->notifySelected(i);
+
+	if (sender == testNameButton) {
+		basicInfoClick(sender);
+	}
+	else if (sender == notesButton) {
+		notesClick(sender);
+	}
+	else {
+        resultClick(sender);
     }
 }
 
@@ -465,26 +434,66 @@ void __fastcall TTestPanel::resultClick(TObject *Sender)
 
 	if (t->myActions==NULL) { // there isn't already an action panel here
 		gui->popupInfoPanel(t,TInfoPanel::panel_ACTION);
-
-		/* For debugging purposes:
-		std::string s = "height of TActionPanel is "
-					+ Utils::float2str(t->myActions->Height);
-		s += ", height of inner area "
-			 + Utils::float2str(t->myActions->innerArea->Height)
-			 + ", height of main area "
-			 + Utils::float2str(t->myActions->mainArea->Height)
-			 + ", height of alertListBox "
-			 + Utils::float2str(t->myActions->alertListBox->Height);
-		gui->mainForm->StatusLabel->Text = Utils::str2unicodestr(s);
-		*/
 	}
 
 } // end of TTestPanel::resultClick
 
-void TTestPanel::setObserver( SnapshotFrameObserver* o )
+void TTestPanel::setObserver(SnapshotFrameObserver* ob)
 {
-    observer = o;
+    observer = ob;
 }
+
+/** Comparison relation for sorting the worklist entries included in a
+  * sample run. Used to sort the entries in order of test name.
+  *
+  * @param first   the first worklist entry
+  * @param second  the second worklist entry
+  * @return        true if the first test's name is alphabetically before
+  *                that of the second
+  */
+bool TTestPanel::goCompare(const TTestPanel * first, const TTestPanel * second)
+{
+	std::string firstname = first->testName;
+	std::string secondname = second->testName;
+	return (firstname.compare(secondname)<0);   // firstname < secondname
+}
+
+
+/** Returns true if this TTestPanel has this attribute. */
+bool TTestPanel::hasAttribute(const std::string & attr)
+{
+	return (attributes->count(attr)>0 || ids->count(attr)>0);
+}
+
+/** Returns the value for the given attribute, or "" otherwise if
+  * no such key exists.
+  */
+std::string TTestPanel::getAttribute(const std::string & attr)
+{
+	return (attributes->count(attr)>0) ? (*attributes)[attr] : "";
+}
+
+/** Returns the value for the given attribute, or "" otherwise if
+  * no such key exists.
+  */
+int TTestPanel::getIntAttribute(const std::string & key)
+{
+	return (ids->count(key)>0) ? (*ids)[key] : 0;
+}
+
+
+/** Records a string attribute for this instance of a sample being tested. */
+void TTestPanel::setAttribute(const std::string & key, const std::string & value)
+{
+	(*attributes)[key] = value;
+}
+
+/** Records an integer attribute for this instance of a sample being tested. */
+void TTestPanel::setAttribute(const std::string & key, int value)
+{
+	(*ids)[key] = value;
+}
+
 
 //--------------------- end TTestPanel functions-----------------------
 
