@@ -111,7 +111,7 @@ private:
     void                                        notFound();
     void                                        skip();
     void                                        nextRow();
-    const char *                                progressMessage;
+    void                                        saveProgress();
     void                                        showProgressMessage(const char * loadingMessage);
     void                                        debugLog(String s);
     void                                        chunkCompleted(Chunk< SampleRow > * chunk);

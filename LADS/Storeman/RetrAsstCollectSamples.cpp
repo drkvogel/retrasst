@@ -129,7 +129,6 @@ void __fastcall TfrmRetrAsstCollectSamples::FormCreate(TObject *Sender) {
     sgVials->Enabled    = RETRASSTDEBUG;
     panelDebug->Visible = cbLog->Checked;
     job                 = NULL;
-    progressMessage = "init";
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::FormClose(TObject *Sender, TCloseAction &Action) {
@@ -698,7 +697,6 @@ void TfrmRetrAsstCollectSamples::nextRow() {
 * accept(): if primary aliquot !collected # expected, ignored, not found (now found?)
 * save secondary as `IGNORED` if not required? primary was */
     Chunk< SampleRow > * chunk = currentChunk();
-    //int current = chunk->getRowRel(); //SampleRow * sample = currentAliquot();  //
     SampleRow * sample = chunk->currentObject(); // which may be the secondary aliquot
 
     // save changes both primary and secondary in l_cryovial_retrieval (not cryovial/_store at this point)
@@ -723,9 +721,38 @@ void TfrmRetrAsstCollectSamples::nextRow() {
     if (Chunk< SampleRow >::Status::DONE == chunk->getStatus()) { // chunk is complete (no EXPECTED or REFERRED vials)
         chunkCompleted(chunk);
     }
+}
 
+/* * Require user to sign off
+    * update cryo store records
+    * calculate if there are any empty boxes
+    * create tick list or switch list of boxes, empty/otherwise
+    * ask user to comfirm that empty boxes are in fact empty
+    * if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation` */
+void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
+
+    // Require user to sign off
+	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
+	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
+		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
+		return; // fixme what now?
+	}
+
+    // update cryo store records
+    for (int row=0; row < chunk->getSize(); row++) {
+        SampleRow *         sampleRow = chunk->objectAtRel(row);
+    }
+
+    // calculate if there are any empty boxes
+    collectEmpties();
+    //saveProgress();
+    // create tick list or switch list of boxes, empty/otherwise
+    // ask user to comfirm that empty boxes are in fact empty
+    // if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
+    // `c_box_name` and `c_slot_allocation` fields together == `l_box_arrival`
     if (isJobComplete()) { // job is complete
         if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
+        //jobFinished();//??
         ModalResult = mrOk;
     }
 }
@@ -739,41 +766,6 @@ bool TfrmRetrAsstCollectSamples::isJobComplete() {
     return true;
 }
 
-void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
-/**
-    * Require user to sign off
-    * update cryo store records
-    * calculate if there are any empty boxes
-    * create tick list or switch list of boxes, empty/otherwise
-    * ask user to comfirm that empty boxes are in fact empty
-    * if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
-*/
-
-    // Require user to sign off
-	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
-	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
-		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
-		return; // fixme what now?
-	}
-
-//    Screen->Cursor = crSQLWait; Enabled = false; DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
-//    saveProgressThread = new SaveProgressThread();
-//    saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
-
-    // update cryo store records
-    for (int row=0; row < chunk->getSize(); row++) {
-        SampleRow *         sampleRow = chunk->objectAtRel(row);
-    }
-
-    // calculate if there are any empty boxes
-    collectEmpties();
-    // create tick list or switch list of boxes, empty/otherwise
-    // ask user to comfirm that empty boxes are in fact empty
-    // if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
-    // `c_box_name` and `c_slot_allocation` fields together == `l_box_arrival`
-
-}
-
 void TfrmRetrAsstCollectSamples::exit() { // definitely exiting
 /** update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
 	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
@@ -782,9 +774,13 @@ void TfrmRetrAsstCollectSamples::exit() { // definitely exiting
 		return; // fixme what now?
 	}
 
-	showProgressMessage(progressMessage); Screen->Cursor = crSQLWait; Enabled = false;
-    DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
+    saveProgress();//???
 
+	//showProgressMessage(progressMessage); Screen->Cursor = crSQLWait; Enabled = false;
+    DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
+}
+
+void TfrmRetrAsstCollectSamples::saveProgress() {
     saveProgressThread = new SaveProgressThread();
     saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
 }
@@ -911,13 +907,13 @@ void SaveProgressThread::storeSample(SampleRow * sample) {
 }
 
 void SaveProgressThread::jobFinished() {
-    LQuery qp(Util::projectQuery(frmRetrAsstCollectSamples->job->getProjectID(), false));
+    LQuery qp(Util::projectQuery(collect->job->getProjectID(), false));
     LQuery qc(LIMSDatabase::getCentralDb());
 
     // all boxes must be finished if here (ie. all samples are finished)
     // is this necessary?
     qc.setSQL("SELECT * FROM c_box_retrieval WHERE retrieval_cid = :rtid");
-    qc.setParam("rtid", frmRetrAsstCollectSamples->job->getID());
+    qc.setParam("rtid", collect->job->getID());
     qc.open();
     while (!qc.eof()) {
         // `c_box_retrieval`: set `time_stamp`, `status=2` (collected)
@@ -931,23 +927,26 @@ void SaveProgressThread::jobFinished() {
     }
 
     // `c_retrieval_job`: update `finish_date`, `status` = 2
-    frmRetrAsstCollectSamples->job->setStatus(LCDbCryoJob::DONE);
-    frmRetrAsstCollectSamples->job->saveRecord(qc); // finish date is updated by this method
+    collect->job->setStatus(LCDbCryoJob::DONE);
+    collect->job->saveRecord(qc); // finish date is updated by this method
 }
 // `cryovial_store`: as above (dealt with already?)
 
 void __fastcall TfrmRetrAsstCollectSamples::saveProgressThreadTerminated(TObject *Sender) {
 	progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false; Screen->Cursor = crDefault;
     Enabled = true; DEBUGSTREAM(__FUNC__<<"save plan for job "<<job->getID()<<" finished")
+
+    // were we exiting or just finished a chunk?
+
     try {
-        // anything more to do?
         collectEmpties();
+        // anything more to do?
     } catch (std::exception & e) {
         TfrmRetrievalAssistant::msgbox(e.what());
     }
 
     vector<string>::const_iterator strIt;
-    if (frmRetrAsstCollectSamples->errors.size() > 0) {
+    if (errors.size() > 0) {
         ostringstream out;
         for (strIt = errors.begin(); strIt != errors.end(); strIt++) { out<<*strIt<<endl; }
         Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
