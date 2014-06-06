@@ -94,9 +94,6 @@ private:
     void __fastcall                             saveProgressThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
     vector< Chunk< SampleRow > *>               chunks;
-    //vecpSampleRow                               vials;
-    //vecpSampleRow                               primaries;
-    //vecpSampleRow                               secondaries;
     vecpSampleRow                               combined;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks; //std::auto_ptr< StringGridWrapper< Chunk< SampleRow > > >  sgwChunks;
     StringGridWrapper<SampleRow> *              sgwVials;
@@ -119,8 +116,7 @@ private:
     const char *                                progressMessage;
     void                                        showProgressMessage(const char * loadingMessage);
     void                                        debugLog(String s);
-    //bool                                        isChunkComplete(Chunk< SampleRow > * chunk);
-    void                                        chunkComplete(Chunk< SampleRow > * chunk);
+    void                                        chunkCompleted(Chunk< SampleRow > * chunk);
     bool                                        isJobComplete();
     std::set< int >                             emptyBoxes;
     void                                        discardBoxes();
@@ -136,6 +132,10 @@ public:
     __fastcall ~TfrmRetrAsstCollectSamples();
 };
 
+class RetrAsstThread :  public TThread {
+
+};
+
 class LoadPlanThread : public TThread {
 private:
     TfrmRetrievalAssistant      * main;
@@ -147,12 +147,17 @@ public:
     //Chunk< SampleRow > * loadingChunk;
 
     int             rowCount; // class variable needed for synchronise
-    string          loadingMessage;
-    string          debugMessage;
+    //string          loadingMessage;
+    //string          debugMessage;
+    string          messageTitle;
+    string          messageBody;
     void            addSampleDetails(SampleRow * row);
-    void __fastcall updateStatus(); // synchronized methods can't have args
-    void __fastcall debugLog();
-    void __fastcall msgbox();
+    void            debugLog(string body);
+    void            _debugLog(); // synchronized methods can't have args
+    void            updateStatus(string body, string title);
+    void            _updateStatus();
+    void            msgbox(string body, string title);
+    void            _msgbox();
 };
 
 class SaveProgressThread : public TThread {
@@ -166,11 +171,13 @@ public:
     void            storeSample(SampleRow * sample);
     void            jobFinished();
     //int             rowCount;
-    string          loadingMessage;
-    string          debugMessage;
-    void __fastcall updateStatus();
-    void __fastcall debugLog();
-    void __fastcall msgbox();
+    //string          loadingMessage;
+    //string          debugMessage;
+    string          messageTitle;
+    string          messageBody;
+    void            debugLog(string body);
+    void            updateStatus(string body, string title);
+    void            msgbox(string body, string title);
 };
 
 extern PACKAGE TfrmRetrAsstCollectSamples *frmRetrAsstCollectSamples;

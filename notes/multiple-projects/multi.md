@@ -1,4 +1,5 @@
-
+how is collect going to deal with multiple projects?
+it's not, for now
 
     { { "proj name: dev_hps2-thrive, id: -149662, db: t_ldb20", 5, {  } } }
 

@@ -37,9 +37,25 @@ void TfrmRetrAsstCollectSamples::debugLog(String s) {
     memoDebug->Lines->Add(tmp); // could use varargs: http://stackoverflow.com/questions/1657883/variable-number-of-arguments-in-c
 }
 
-void __fastcall LoadPlanThread::debugLog() { frmRetrAsstCollectSamples->debugLog(debugMessage.c_str()); }
+void LoadPlanThread::debugLog(string body) {
+    messageBody = body;
+    Synchronize((TThreadMethod)&_debugLog);
+}
 
-void __fastcall LoadPlanThread::msgbox() { Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK); }
+void LoadPlanThread::_debugLog() {
+    collect->debugLog(messageBody.c_str());
+}
+
+void LoadPlanThread::msgbox(string body, string title="Info") {
+    messageBody  = body;
+    messageTitle = title;
+    Synchronize((TThreadMethod)&_msgbox);
+}
+
+void LoadPlanThread::_msgbox() {
+    //Application->MessageBox(String(debugMessage.c_str()).c_str(), L"Info", MB_OK);
+    Application->MessageBox(String(messageBody.c_str()).c_str(), String(messageTitle.c_str()).c_str(), MB_OK);
+}
 
 __fastcall LoadPlanThread::LoadPlanThread() : TThread(false) {
     main    = frmRetrievalAssistant;
@@ -53,12 +69,20 @@ __fastcall SaveProgressThread::SaveProgressThread() : TThread(false) {
     FreeOnTerminate = true;
 }
 
-void __fastcall LoadPlanThread::updateStatus() { // can't use args for synced method, don't know why
-	frmRetrAsstCollectSamples->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectSamples->panelLoading->Repaint();
+void SaveProgressThread::msgbox(string body, string title="Info") {
+    messageBody  = body;
+    messageTitle = title;
+    Application->MessageBox(String(messageBody.c_str()).c_str(), String(messageTitle.c_str()).c_str(), MB_OK);
 }
 
-void __fastcall SaveProgressThread::updateStatus() {
-	frmRetrAsstCollectSamples->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectSamples->panelLoading->Repaint();
+void LoadPlanThread::updateStatus(string body, string title="Info") { // can't use args for synced method, don't know why
+	//frmRetrAsstCollectSamples->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectSamples->panelLoading->Repaint();
+    collect->panelLoading->Caption = messageBody.c_str(); collect->panelLoading->Repaint();
+}
+
+void SaveProgressThread::updateStatus(string body, string title="Info") {
+	//frmRetrAsstCollectSamples->panelLoading->Caption = loadingMessage.c_str(); frmRetrAsstCollectSamples->panelLoading->Repaint();
+    collect->panelLoading->Caption = messageBody.c_str(); collect->panelLoading->Repaint();
 }
 
 __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Owner) : TForm(Owner) {
@@ -429,7 +453,8 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 
     const LCDbProject * proj = LCDbProjects::records().findByID(project_cid);
     oss<<__FUNC__<<": job: "<<collect->job->str()<<", project: "<<proj->getName()<<" ["<<proj->getID()<<"], "<<proj->getDbName();
-    debugMessage = oss.str().c_str(); debugLog();
+    //debugMessage = oss.str().c_str(); debugLog();
+    debugLog(oss.str());
 
     LQuery qd(Util::projectQuery(project_cid, true)); // ddb
     oss.str(""); oss<<
@@ -460,16 +485,23 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         " ORDER BY "
         "    section, lcr_position"; // lcr_position should make sure backup secondaries are after primaries
     qd.setSQL(oss.str());
-    debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
-    debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+    //debugMessage = "open query"; Synchronize((TThreadMethod)&debugLog);
+    debugLog("open query");
+    //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+    debugLog(oss.str());
     qd.setParam("rtid", collect->job->getID()); //int retrieval_cid = job->getID();
     qd.open();
 
     rowCount = 0; // class variable
     SampleRow * previous;
-    debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
+    //debugMessage = "foreach row"; Synchronize((TThreadMethod)&debugLog);
+    debugLog("foreach row");
     while (!qd.eof()) {
-        if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" vials"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
+        if (0 == rowCount % 10) {
+            ostringstream oss; oss<<"Found "<<rowCount<<" vials";
+            //loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
+            updateStatus(oss.str());
+        }
 
         SampleRow * row = new SampleRow(
             qd.readInt(     "project_cid"),
@@ -497,13 +529,20 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         previous = row;
         qd.next();
         rowCount++;
-    } oss.str(""); oss<<"finished loading "<<rowCount<<" samples"; debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+    }
+    oss.str(""); oss<<"finished loading "<<rowCount<<" samples";
+    //debugMessage = oss.str(); Synchronize((TThreadMethod)&debugLog);
+    debugLog(oss.str());
     int combinedCount = collect->combined.size();
 
     // add storage details and box tube type name
     rowCount = 0;
     for (auto &row: collect->combined) {
-        if (0 == ++rowCount % 10) { ostringstream oss; oss<<"Adding storage details ["<<rowCount<<"/"<<combinedCount<<"]"; loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
+        if (0 == ++rowCount % 10) {
+            ostringstream oss; oss<<"Adding storage details ["<<rowCount<<"/"<<combinedCount<<"]";
+            //loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus); }
+            updateStatus(oss.str());
+        }
         addSampleDetails(row); // adds storage details and box tube type name, good for combined aliquots
     }
 
@@ -681,7 +720,7 @@ void TfrmRetrAsstCollectSamples::nextRow() {
     // save changes both primary and secondary in l_cryovial_retrieval (not cryovial/_store at this point)
     if (!sample->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed"); }
     if (sample->backup) {
-        if (!sample->backup->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed for secondary"); }
+        if (!sample->backup->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed for backup"); }
     } // deferred (IGNORED) vials are not actually saved to the database, they remain EXPECTED
 
     // don't need to save chunk - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
@@ -692,13 +731,12 @@ void TfrmRetrAsstCollectSamples::nextRow() {
             sgChunks->Row = sgChunks->Row+1; // next chunk
         }
     }
-    labelPrimary->Enabled = true; labelSecondary->Enabled = false;
+    labelPrimary->Enabled = true; labelSecondary->Enabled = false; editBarcode->Clear(); ActiveControl = editBarcode; // focus for next barcode
+
     showChunks();
-    editBarcode->Clear();
-    ActiveControl = editBarcode; // focus for next barcode
 
     if (Chunk< SampleRow >::Status::DONE == chunk->getStatus()) { // chunk is complete (no EXPECTED or REFERRED vials)
-        chunkComplete(chunk);
+        chunkCompleted(chunk);
     }
 
     if (isJobComplete()) { // job is complete
@@ -716,7 +754,7 @@ bool TfrmRetrAsstCollectSamples::isJobComplete() {
     return true;
 }
 
-void TfrmRetrAsstCollectSamples::chunkComplete(Chunk< SampleRow > * chunk) {
+void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
 /** At the end of chunk, check if the chunk is actually finished (no REFERRED vials). If finished:
     * Require user to sign off
     * update cryo store records
@@ -741,6 +779,12 @@ void TfrmRetrAsstCollectSamples::chunkComplete(Chunk< SampleRow > * chunk) {
 //    saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
 
     // update cryo store records
+    for (int row=0; row < chunk->getSize(); row++) {
+        SampleRow *         sampleRow = chunk->objectAtRel(row);
+        //fillRow(sampleRow, row+1); // row+1 for stringgrid
+    }
+
+
     // calculate if there are any empty boxes
     collectEmpties();
     // create tick list or switch list of boxes, empty/otherwise
@@ -776,7 +820,7 @@ how to update boxes? check at save and exit that all vials in a box have been sa
 	VialsInBoxesMap boxes;
 	VialsInBoxesMap::iterator found;
 
-	frmRetrAsstCollectSamples->unactionedSamples = false; frmRetrAsstCollectSamples->info.clear(); frmRetrAsstCollectSamples->warnings.clear(); frmRetrAsstCollectSamples->errors.clear();
+	collect->unactionedSamples = false; collect->info.clear(); collect->warnings.clear(); collect->errors.clear();
 	try {
 		for (vector<SampleRow *>::iterator it = frmRetrAsstCollectSamples->combined.begin(); it != frmRetrAsstCollectSamples->combined.end(); ++it) {
 			SampleRow * sample = *it;
@@ -794,20 +838,21 @@ how to update boxes? check at save and exit that all vials in a box have been sa
 			}
 
             ostringstream oss; oss<<sample->cryovial_barcode<<" "<<sample->aliquotName<<" in box with id "<<sourceBox;
-            loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
+            //loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
+            updateStatus(oss.str());
 
 			int status  = sample->lcr_record->getStatus();
 			if (status != LCDbCryovialRetrieval::EXPECTED && status != LCDbCryovialRetrieval::IGNORED) { // changed
 				storeSample(sample);
 			} else {
-				frmRetrAsstCollectSamples->unactionedSamples = true;
+				collect->unactionedSamples = true;
 			}
             if (NULL != sample->backup) {
                 storeSample(sample->backup);
             }
 		}
 
-        frmRetrAsstCollectSamples->emptyBoxes.clear();  //std::set< int > discardBoxes; //std::set< LCDbBoxRetrieval * > discardBoxes;
+        collect->emptyBoxes.clear();  //std::set< int > discardBoxes; //std::set< LCDbBoxRetrieval * > discardBoxes;
 
 		// now check for completed boxes
 		for (found = boxes.begin(); found != boxes.end(); found++) { // for each source box
@@ -824,18 +869,24 @@ how to update boxes? check at save and exit that all vials in a box have been sa
 				}
 			}
 			if (!vialRemains) { // empty/completed box, mark for discard
-                frmRetrAsstCollectSamples->emptyBoxes.insert(found->first); // set of int box_cids, used in discardBoxes() //LCDbBoxRetrieval * box = found->first;
+                collect->emptyBoxes.insert(found->first); // set of int box_cids, used in discardBoxes() //LCDbBoxRetrieval * box = found->first;
 			}
 		}
     } catch (std::exception & e) {
-        TfrmRetrievalAssistant::msgbox(e.what());
+        //TfrmRetrievalAssistant::msgbox(e.what());
+        msgbox(e.what());
     }
 
-    if (frmRetrAsstCollectSamples->errors.size() != 0) {
-        //msgbox
-    } else if (frmRetrAsstCollectSamples->unactionedSamples) {
+    if (collect->errors.size() != 0) {
+        ostringstream oss;
+        oss<<"There were errors:\n\n";
+        for (auto &error: collect->errors) {
+            oss<<error<<"\n";
+        }
+        msgbox(oss.str());
+    } else if (collect->unactionedSamples) {
         ;
-    } else if (!frmRetrAsstCollectSamples->unactionedSamples) { // job finished
+    } else if (!collect->unactionedSamples) { // job finished
 		jobFinished();
 	}
 }
@@ -980,6 +1031,12 @@ void TfrmRetrAsstCollectSamples::collectEmpties() {
     * otherwise box should be referred */
     Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
 }
+
+
+
+
+
+
 
 //* Ask the relevant question(s) from the URS when they’re ready to finish
 //    * only this: "). The option to exit the process saving progress should be offered, with an “are you sure?” message in case of accidental selection (REQ 8.3.12)."
