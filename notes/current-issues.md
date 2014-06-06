@@ -14,23 +14,32 @@ currentAliquot()
 chunk->currentObject()
 fillRow()
 
-## chunkCompleted()
+---
 
-## exit()
+chunkCompleted()
 
+isJobComplete() 
+    true if all chunks complete
+
+exit()
 calls:
 
-## SaveProgressThread::Execute()
+SaveProgressThread::Execute()
+
+    foreach sample
+        find source box and cache
+        if status not in EXPECTED, IGNORED
+            storeSample
+        else
+            unactionedSamples = true
+        if backup
+            storeSample(sample->backup)
 
 
 
-## SaveProgressThread::storeSample()
+SaveProgressThread::storeSample()
 
+SaveProgressThread::jobFinished()
 
-
-## SaveProgressThread::jobFinished()
-
-
-## saveProgressThreadTerminated
-
+saveProgressThreadTerminated
 -> collectEmpties()
