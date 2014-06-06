@@ -81,8 +81,6 @@ public: //protected: ?
     string              structure_name;
     int                 box_pos;
 
-//    RetrievalRow(int proj, string srcnm, int dstid, string dstnm, int dstyp, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-//        project_cid(proj), src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm), dest_box_type(dstyp),
     RetrievalRow(int proj, LCDbBoxRetrieval * cbr_rec, string srcnm,
                 int dstid, string dstnm, int dstyp,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm,
@@ -148,9 +146,6 @@ class BoxRow : public RetrievalRow {
 public:
     LCDbBoxStore * store_record; // public LPDbID //LPDbBoxName ?? getStatus
 
-//    BoxRow(int proj, LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstyp, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-//        store_record(rec), RetrievalRow(proj, srcnm, dstid, dstnm, dstyp, site, vsps, vsnm, shlf, stps, stnm, bxps) {
-//    }
     BoxRow(int proj, LCDbBoxRetrieval * cbr_rec, LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstyp, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
         store_record(rec), RetrievalRow(proj, cbr_rec, srcnm, dstid, dstnm, dstyp, site, vsps, vsnm, shlf, stps, stnm, bxps) {
     }
@@ -193,7 +188,6 @@ public:
         if (backup) delete backup;
         if (lcr_record) delete lcr_record;
     }
-    //SampleRow(  int proj, LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
     SampleRow(  int proj, LCDbBoxRetrieval * cbr_rec, LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * lcr_rec,
                 string barc, string srcnm, int dstid, string dstnm, int dstyp, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :

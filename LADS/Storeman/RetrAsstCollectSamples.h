@@ -111,25 +111,25 @@ private:
     void                                        notFound();
     void                                        skip();
     void                                        nextRow();
-    void                                        collectEmpties();
     const char *                                progressMessage;
     void                                        showProgressMessage(const char * loadingMessage);
     void                                        debugLog(String s);
     void                                        chunkCompleted(Chunk< SampleRow > * chunk);
     bool                                        isJobComplete();
+    void                                        collectEmpties();
     std::set< int >                             emptyBoxes;
-    void                                        discardBoxes();
+    bool                                        unactionedSamples;
     void                                        checkExit();
 	void                                        exit();
 	void 										storeSample(SampleRow * sample);
 	void										jobFinished();
     bool                                        destroying;  // for FormResize
-    bool                                        unactionedSamples;
 public:
     void                                        setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmRetrAsstCollectSamples(TComponent* Owner);
     __fastcall ~TfrmRetrAsstCollectSamples();
 };
+
 
 class RetrAsstThread : public TThread {
 protected:

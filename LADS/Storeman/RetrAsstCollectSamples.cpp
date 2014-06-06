@@ -774,7 +774,6 @@ void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
         //fillRow(sampleRow, row+1); // row+1 for stringgrid
     }
 
-
     // calculate if there are any empty boxes
     collectEmpties();
     // create tick list or switch list of boxes, empty/otherwise
@@ -828,7 +827,6 @@ how to update boxes? check at save and exit that all vials in a box have been sa
 			}
 
             ostringstream oss; oss<<sample->cryovial_barcode<<" "<<sample->aliquotName<<" in box with id "<<sourceBox;
-            //loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
             updateStatus(oss.str());
 
 			int status  = sample->lcr_record->getStatus();
@@ -842,7 +840,7 @@ how to update boxes? check at save and exit that all vials in a box have been sa
             }
 		}
 
-        collect->emptyBoxes.clear();  //std::set< int > discardBoxes; //std::set< LCDbBoxRetrieval * > discardBoxes;
+        collect->emptyBoxes.clear();
 
 		// now check for completed boxes
 		for (found = boxes.begin(); found != boxes.end(); found++) { // for each source box
@@ -859,11 +857,10 @@ how to update boxes? check at save and exit that all vials in a box have been sa
 				}
 			}
 			if (!vialRemains) { // empty/completed box, mark for discard
-                collect->emptyBoxes.insert(found->first); // set of int box_cids, used in discardBoxes() //LCDbBoxRetrieval * box = found->first;
+                collect->emptyBoxes.insert(found->first); // set of int box_cids, used in discardBoxes()
 			}
 		}
     } catch (std::exception & e) {
-        //TfrmRetrievalAssistant::msgbox(e.what());
         msgbox(e.what());
     }
 
@@ -875,7 +872,7 @@ how to update boxes? check at save and exit that all vials in a box have been sa
         }
         msgbox(oss.str());
     } else if (collect->unactionedSamples) {
-        ;
+        ; // fixme
     } else if (!collect->unactionedSamples) { // job finished
 		jobFinished();
 	}
@@ -962,7 +959,25 @@ void __fastcall TfrmRetrAsstCollectSamples::saveProgressThreadTerminated(TObject
     }
 }
 
-void TfrmRetrAsstCollectSamples::discardBoxes() {
+void TfrmRetrAsstCollectSamples::collectEmpties() {
+/** if, at the end of processing a chunk, there are any source boxes which have become empty,
+    the user may want to discard them instead of replacing them.
+    if so, provide an option to discard these empty boxes, recording it in the database */
+
+    // find out if there are any
+
+    //if (IDYES != Application->MessageBox(L"There are empty boxes. Would you like to mark these as discarded?", L"Info", MB_YESNO)) return;
+
+//    for
+
+/*  * collect empties (all vials "accepted" or "not found") for discard
+    * at the end of processing each chunk, if source boxes are now empty
+    * unlikely for test tasks but rat tanks may throw old boxes away
+    * all source boxes from a reorganisation task should end up empty
+    * ask user to confirm that vessel/structure/slot is now empty
+    * otherwise box should be referred */
+    Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
+
     LQuery qp(Util::projectQuery(job->getProjectID(), false));
     LPDbBoxNames boxNames;
     boxNames.readFilled(qp); // reads CONFIRMED [2], ANALYSED [3]. boxes.readCurrent(qp) reads EMPTY [0], IN_USE [1]
@@ -983,10 +998,8 @@ void TfrmRetrAsstCollectSamples::discardBoxes() {
         if (NULL == pBoxName) { // IN_TANK [4] records not read and findByID for those ids returns a null
             throw runtime_error("box not found"); //???
         } else {
-            //pBoxName->saveRecord(qp); // can't do this on const *
-            LPDbBoxName boxName = *(pBoxName); // so make mutable object
-            boxes.push_back(boxName); // can't convert const * to *
-            // not supposed to change - but I think we need to in this instance
+            LPDbBoxName boxName = *(pBoxName); // make mutable object
+            boxes.push_back(boxName);
         }
     }
 
@@ -1002,25 +1015,6 @@ void TfrmRetrAsstCollectSamples::discardBoxes() {
     }
 }
 
-void TfrmRetrAsstCollectSamples::collectEmpties() {
-/** if, at the end of processing a chunk, there are any source boxes which have become empty,
-    the user may want to discard them instead of replacing them.
-    if so, provide an option to discard these empty boxes, recording it in the database */
-
-    // find out if there are any
-
-    //if (IDYES != Application->MessageBox(L"There are empty boxes. Would you like to mark these as discarded?", L"Info", MB_YESNO)) return;
-
-//    for
-
-/*  * collect empties (all vials "accepted" or "not found") for discard
-    * at the end of processing each chunk, if source boxes are now empty
-    * unlikely for test tasks but rat tanks may throw old boxes away
-    * all source boxes from a reorganisation task should end up empty
-    * ask user to confirm that vessel/structure/slot is now empty
-    * otherwise box should be referred */
-    Application->MessageBox(L"Handle disposal of empty boxes", L"Info", MB_OK);
-}
 
 
 
