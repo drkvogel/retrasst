@@ -574,3 +574,69 @@ why is seconday aliquot label greyed out in collect? ie.
 
 In `LCDbCryovialRetrieval::getStatus()` - in plan, `retrieval_record` is NULL.
 
+## LCDbCryoJob::str()
+
+put debug string in here, inc. name, desc, id, primary, secondary aliquot
+
+## long waits for queries slows down dev
+
+can do 'other things' in meantime. 
+make program send email to myself with details of how long each query took, for records.
+
+## Invalid project ID
+
+following CVS pull and new ('contrived') multi-project job.
+
+### cbr_record NULL
+
+`SampleRow` `row->cbr_record` appears to be initialised but is then null.. Ah, I was initialising superclass with uninitialised `cbr_record` member rather than `cbr_rec` constructor parameter.
+
+## no storage for contrived secondaries
+
+no records found for secondaries of `979124 "Retrieval_1", "A contrived example mixing THRIVE and REVEAL" primary: [-31781] EDTA_1 secondary: [0] Not specified`
+
+`getStorage()`
+`findBox()` <findBox.sql>
+
+e.g. box -623955: no results for `select * from c_slot_allocation where box_cid = -623955` - well there ain't no storage records it seems, so printing "no records found" would seem to be correct.
+
+>Yes, they've already been taken out of storage - I was testing my code too - Nick
+
+## project_cid == 0 in plan
+
+sample::debug_str() says proj is 0 for some rows e.g. from box -623955:
+
+    03/06/2014 18:46:04: id: 378304, proj: 0, status: 2, barc: "112089327", aliq: -31782 "EDTA_2", cryo_status: 2, src: {-623955, "EDTAs 10_623955" [29]}, dst: {-624094 "EDTA1_2 1_624094" [50], type: 978201 "QClot_new"}, loc: {No records found[0]: :0[0]/[0]}
+
+no project id shouldn't affect `getStorage()`/`findBox()` , but..
+
+some boxes have project id 0:
+
+    select * from c_box_name where project_cid = 0
+
+Maybe mistake in copying script. Get it instead from the LCDbProject pointer used to open the query in the first place.
+
+>If they're all 0, that might be a problem with my code - I'll check on Thursday, but some will be. If the box has cryovials from more than one project, project cid is 0 and the details are copied into each box name. Ditto for c/box_content
+Nick
+
+    ---------------------------
+    Debugger Exception Notification
+    ---------------------------
+    Project Storeman.exe raised exception class Exception with message 'XDB error: IIAPI_ST_ERRORInfo: ERROR '42500' 2117: Table 'c_box_name' does not exist or is not owned by you.
+     svr_id_error     = 67653632
+     svr_local error  = 2117
+     svr_id_server    = 10154
+     svr_server_type  = 0
+     svr_severity     = IIAPI_SVR_DEFAULT ( 0x0 )
+        : 'Tue Jun  3 14:36:33 2014 E_US0845_2117   Table 'c_box_name' does not exist or is not owned by you.''.
+    ---------------------------
+    Break   Continue   Help   
+    ---------------------------
+
+`LPDbBoxNames::readRecord()` now reads from `c_box_name` and not `box_name`.
+
+## is rebuild chunking working
+
+    it chunks one too late
+    fixed
+

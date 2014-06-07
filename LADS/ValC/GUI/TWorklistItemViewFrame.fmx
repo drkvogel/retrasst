@@ -36,91 +36,91 @@ object WorklistItemViewFrame: TWorklistItemViewFrame
       Width = 212.000000000000000000
       object Label2: TLabel
         Height = 20.000000000000000000
-        Text = 'ID:'
-        Width = 100.000000000000000000
-      end
-      object ID: TLabel
-        Height = 20.000000000000000000
-        Position.X = 100.000000000000000000
-        Text = 'ID'
-        Width = 100.000000000000000000
-      end
-      object Label4: TLabel
-        Height = 20.000000000000000000
-        Position.Y = 20.000000000000000000
         Text = 'Barcode:'
         Width = 100.000000000000000000
       end
       object barcode: TLabel
         Height = 20.000000000000000000
         Position.X = 100.000000000000000000
-        Position.Y = 20.000000000000000000
         Text = 'barcode'
         Width = 100.000000000000000000
       end
-      object Label6: TLabel
+      object Label4: TLabel
         Height = 20.000000000000000000
-        Position.Y = 40.000000000000000000
-        Text = 'Machine ID:'
-        Width = 100.000000000000000000
-      end
-      object machineID: TLabel
-        Height = 20.000000000000000000
-        Position.X = 100.000000000000000000
-        Position.Y = 40.000000000000000000
-        Text = 'machineID'
-        Width = 100.000000000000000000
-      end
-      object Label9: TLabel
-        Height = 20.000000000000000000
-        Position.Y = 60.000000000000000000
+        Position.Y = 20.000000000000000000
         Text = 'Test:'
         Width = 100.000000000000000000
       end
       object test: TLabel
         Height = 20.000000000000000000
         Position.X = 100.000000000000000000
-        Position.Y = 60.000000000000000000
+        Position.Y = 20.000000000000000000
         Text = 'test'
         Width = 100.000000000000000000
       end
-      object Label11: TLabel
+      object Label6: TLabel
         Height = 20.000000000000000000
-        Position.Y = 80.000000000000000000
-        Text = 'Status:'
-        Width = 100.000000000000000000
-      end
-      object status: TLabel
-        Height = 20.000000000000000000
-        Position.X = 100.000000000000000000
-        Position.Y = 80.000000000000000000
-        Text = 'status'
-        Width = 100.000000000000000000
-      end
-      object Label13: TLabel
-        Height = 20.000000000000000000
-        Position.Y = 100.000000000000000000
+        Position.Y = 40.000000000000000000
         Text = 'Timestamp:'
         Width = 100.000000000000000000
       end
       object timestamp: TLabel
         Height = 20.000000000000000000
         Position.X = 100.000000000000000000
-        Position.Y = 100.000000000000000000
+        Position.Y = 40.000000000000000000
         Text = 'timestamp'
         Width = 100.000000000000000000
       end
-      object Label15: TLabel
+      object Label9: TLabel
         Height = 20.000000000000000000
-        Position.Y = 120.000000000000000000
+        Position.Y = 60.000000000000000000
+        Text = 'Status:'
+        Width = 100.000000000000000000
+      end
+      object status: TLabel
+        Height = 20.000000000000000000
+        Position.X = 100.000000000000000000
+        Position.Y = 60.000000000000000000
+        Text = 'status'
+        Width = 100.000000000000000000
+      end
+      object Label11: TLabel
+        Height = 20.000000000000000000
+        Position.Y = 80.000000000000000000
+        Text = 'MachineID:'
+        Width = 100.000000000000000000
+      end
+      object machineID: TLabel
+        Height = 20.000000000000000000
+        Position.X = 100.000000000000000000
+        Position.Y = 80.000000000000000000
+        Text = 'machineID'
+        Width = 100.000000000000000000
+      end
+      object Label13: TLabel
+        Height = 20.000000000000000000
+        Position.Y = 100.000000000000000000
         Text = 'Project ID:'
         Width = 100.000000000000000000
       end
       object projectID: TLabel
         Height = 20.000000000000000000
         Position.X = 100.000000000000000000
-        Position.Y = 120.000000000000000000
+        Position.Y = 100.000000000000000000
         Text = 'projectID'
+        Width = 100.000000000000000000
+      end
+      object Label15: TLabel
+        Height = 20.000000000000000000
+        Position.Y = 120.000000000000000000
+        Text = 'ID:'
+        Width = 100.000000000000000000
+      end
+      object ID: TLabel
+        Height = 20.000000000000000000
+        Position.X = 100.000000000000000000
+        Position.Y = 120.000000000000000000
+        Text = 'ID'
         Width = 100.000000000000000000
       end
     end

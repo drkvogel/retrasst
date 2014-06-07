@@ -24,7 +24,7 @@ __fastcall TSnapshotFrame::TSnapshotFrame( TComponent* Owner )
 //---------------------------------------------------------------------------
 __fastcall TSnapshotFrame::~TSnapshotFrame()
 {
-	if ( m_observer )
+	if (m_observer)
 	{
 		m_observer->notifyDestroyed( this );
 	}
@@ -32,28 +32,30 @@ __fastcall TSnapshotFrame::~TSnapshotFrame()
 //---------------------------------------------------------------------------
 void __fastcall TSnapshotFrame::ForceReloadButtonClick(TObject *Sender)
 {
-	if ( m_observer )
+	if (m_observer)
 	{
-		m_observer->notifyForceReloadButtonClick( this );
+		m_observer->notifyForceReloadButtonClick(this);
 	}
 }
 
 
-void __fastcall TSnapshotFrame::MainSplitterMouseUp(TObject *Sender, TMouseButton Button,
-		  TShiftState Shift, float X, float Y)
+void __fastcall TSnapshotFrame::MainSplitterMouseUp(TObject *Sender,
+													TMouseButton Button,
+													TShiftState Shift,
+													float X, float Y)
 {
-	if ( m_observer )
+	if (m_observer)
 	{
-		m_observer->notifyMainSplitterMouseUp( this );
+		m_observer->notifyMainSplitterMouseUp(this);
 	}
 }
 
-void TSnapshotFrame::setObserver( SnapshotFrameObserver* obs )
+void TSnapshotFrame::setObserver(SnapshotFrameObserver* obs)
 {
 	m_observer = obs;
-	if ( m_observer )
+	if (m_observer)
 	{
-		m_observer->notifyAssociatedWith( this );
+		m_observer->notifyAssociatedWith(this);
 	}
 }
 

@@ -6,10 +6,9 @@
 
 #include "API.h"
 
-#include "TActionPanel.h"
 #include "VisualComponents.h"
-#include "DataContainers.h"
-#include "GUImanager.h"
+#include "WorklistEntriesView.h"
+#include "TActionPanel.h"
 
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -62,19 +61,21 @@ __fastcall TActionPanel::~TActionPanel()
   * @param owner   the component (if any, could be NULL) that will own this panel
   * @param t        the test panel from which the alert icon was clicked, in order to bring up this panel in the first place
   */
-__fastcall TActionPanel::TActionPanel(GUImanager *g, TComponent *owner, TTestPanel *t)
+__fastcall TActionPanel::TActionPanel(WorklistEntriesView *g, TComponent *owner, TTestPanel *t)
 	: TInfoPanel(g,owner,t,panel_ACTION,
 				 Positioning::BOTTOM,Positioning::CENTRE)
 {
-	int a = originator->entry->getAlertLevel();
-	if (a==valc::ResultCode::RESULT_CODE_FAIL
-		|| a==valc::ResultCode::RESULT_CODE_BORDERLINE
-		|| a==valc::ResultCode::RESULT_CODE_ERROR) {
-		StyleLookup = "AlertPanelStyle";
+	StyleLookup = "InfoPanelStyle";  // no red heavy outline, by default
+
+	if (originator->hasAttribute("Result Code")) {
+		int a = originator->getIntAttribute("Result Code");
+		if (a==valc::ResultCode::RESULT_CODE_FAIL
+			|| a==valc::ResultCode::RESULT_CODE_BORDERLINE
+			|| a==valc::ResultCode::RESULT_CODE_ERROR) {
+			StyleLookup = "AlertPanelStyle";
+		}
 	}
-	else {
-		StyleLookup = "InfoPanelStyle";  // no red heavy outline
-	}
+
 	innerSize.height = calculateHeight(t);
 	innerSize.width = gui->param("actionPanelWidth");
 	Visible = true;
@@ -86,7 +87,7 @@ __fastcall TActionPanel::TActionPanel(GUImanager *g, TComponent *owner, TTestPan
   * positioning, and initialises the contents of the panel's inner area.
   * Includes a place to put an icon and a list of alerts, currently.
   *
-  * @see GUImanager::positionInfoPanel
+  * @see WorklistEntriesView::positionInfoPanel
   * @todo  display suitable alert icons for error, and no rules applied
   */
 void TActionPanel::initialiseContents()
@@ -101,8 +102,8 @@ void TActionPanel::initialiseContents()
 	mainArea->Width = innerArea->Width;
 	mainArea->Parent = innerArea;
 
-	initialiseLeftArea();
-	initialiseRightArea();
+	// initialiseLeftArea();
+	// initialiseRightArea();
 }
 
 
@@ -122,20 +123,25 @@ void TActionPanel::initialiseTopArea()
 
 	// iconPanel contains the icon indicating pass/fail/maybe
 	iconPanel = new TPanel(topArea);
-	int a = originator->entry->getAlertLevel();
-	if (a==valc::ResultCode::RESULT_CODE_FAIL) {
-		iconPanel->StyleLookup = "AlertPanelFailIconStyle";
+	if (originator->hasAttribute("Result Code")) {
+		int a = originator->getIntAttribute("Result Code");
+		if (a==valc::ResultCode::RESULT_CODE_FAIL) {
+			iconPanel->StyleLookup = "AlertPanelFailIconStyle";
+		}
+		else if (a==valc::ResultCode::RESULT_CODE_BORDERLINE) {
+			iconPanel->StyleLookup = "AlertPanelMaybeIconStyle";
+		}
+		else if (a==valc::ResultCode::RESULT_CODE_ERROR) {
+			iconPanel->StyleLookup = "AlertPanelErrorIconStyle";
+		}
+		else if (a==valc::ResultCode::RESULT_CODE_PASS) {
+			iconPanel->StyleLookup = "AlertPanelPassIconStyle";
+		}
 	}
-	else if (a==valc::ResultCode::RESULT_CODE_BORDERLINE) {
-		iconPanel->StyleLookup = "AlertPanelMaybeIconStyle";
-	}
-	else if (a==valc::ResultCode::RESULT_CODE_ERROR) {
-		iconPanel->StyleLookup = "AlertPanelErrorIconStyle";
-	}
-	else if (a==valc::ResultCode::RESULT_CODE_PASS) {
-		iconPanel->StyleLookup = "AlertPanelPassIconStyle";
-	}
-	// otherwise, must be no rules applied, so leave blank?
+	else {
+        iconPanel->StyleLookup = "AlertPanelBlankIconStyle";
+    }
+
 	iconPanel->Position->X = 0;
 	iconPanel->Position->Y = 0;
 	iconPanel->Width = gui->param("resultIconWidth")
@@ -168,15 +174,10 @@ void TActionPanel::initialiseTestResultLabels()
 	testNameLabel->Position->X = iconPanel->Width;
 	testNameLabel->Position->Y = 0;
 	testNameLabel->Parent = topArea;
-	/* gui->mainForm->log("testNameLabel: (x,y)=(" +
-							 Utils::int2str((int)testNameLabel->Position->X)
-							 + "," +
-							 Utils::int2str((int)testNameLabel->Position->Y)
-							 + ")");      */
 
 	testNameDisplay = new TLabel(topArea);
 	testNameDisplay->StyleLookup = "PlainDisplayStyle";
-	gui->positioner->fitText(testNameDisplay,originator->entry->testName);
+	gui->positioner->fitText(testNameDisplay,originator->testName);
 	gui->positioner->putRightOf(testNameLabel,testNameDisplay);
 	testNameDisplay->Parent = topArea;
 
@@ -189,7 +190,7 @@ void TActionPanel::initialiseTestResultLabels()
 
 	testResultDisplay = new TLabel(topArea);
 	testResultDisplay->StyleLookup = "PlainDisplayStyle";
-	gui->positioner->fitText(testResultDisplay,originator->entry->getDefaultResult());
+	gui->positioner->fitText(testResultDisplay,originator->testResult);
 	gui->positioner->putRightOf(testResultLabel,testResultDisplay);
 	testResultDisplay->Parent = topArea;
 
@@ -202,7 +203,7 @@ void TActionPanel::initialiseTestResultLabels()
 
 	testTimeDisplay = new TLabel(topArea);
 	testTimeDisplay->StyleLookup = "PlainDisplayStyle";
-	gui->positioner->fitText(testTimeDisplay,originator->entry->getResultTime());
+	gui->positioner->fitText(testTimeDisplay,originator->getAttribute("Time Analysed"));
 	gui->positioner->putRightOf(testTimeLabel,testTimeDisplay);
 	testTimeDisplay->Parent = topArea;
 
@@ -214,12 +215,13 @@ void TActionPanel::initialiseTestResultLabels()
 
 	testDateDisplay = new TLabel(topArea);
 	testDateDisplay->StyleLookup = "PlainDisplayStyle";
-	testDateDisplay->Text = Utils::str2unicodestr(originator->entry->getResultDate());
+	testDateDisplay->Text = Utils::str2unicodestr(originator->getAttribute("Date Analysed"));
 	gui->positioner->putRightOf(testDateLabel,testDateDisplay);
 	testDateDisplay->Parent = topArea;
 
 }
 
+// (not currently in use)
 void TActionPanel::initialiseLeftArea()
 {
 	leftArea = new TLayout(mainArea);
@@ -238,11 +240,9 @@ void TActionPanel::initialiseLeftArea()
 
 
 
-/** Constructs labels and icons to show all (if any) of the alerts for
-  * this test result. e.g. like this:      3:2s O  Pass
-  *
-  * @todo   Figure out why the heck the word wrap doesn't.
-  */
+// Constructs labels and icons to show all (if any) of the alerts for
+// this test result. e.g. like this:      3:2s O  Pass
+// (not currently in use)
 void TActionPanel::displayAlertItems()
 {
 
@@ -259,8 +259,9 @@ void TActionPanel::displayAlertItems()
 
 	int height = gui->param("panelAlertItemHeight");    // pre-fetch
 
-	// and some alert items to put in it
-	std::list<DAlert>::const_iterator iter = originator->entry->alerts.begin();
+	/*
+	// and some alert items to put in it   (for some reason word wrap doesn't work here)
+	std::list<DAlert>::const_iterator iter = originator->alerts.begin();
 	while (iter!=originator->entry->alerts.end()) {
 
 		const DAlert *a = &*iter;
@@ -274,7 +275,7 @@ void TActionPanel::displayAlertItems()
 		item->WordWrap = true;
 		int tinySize = gui->param("alertTinyIconSize");
 		std::string buffer = "   ";
-		while (gui->findTextWidth(buffer)<tinySize+2) {
+		while (Utils::findTextWidth(buffer)<tinySize+2) {
 			buffer += " ";
 		}
 		item->Text = Utils::str2unicodestr(buffer + "[" + a->rule + "] " + a->message);
@@ -308,9 +309,10 @@ void TActionPanel::displayAlertItems()
 		item->Parent = alertListBox;
 
 		iter++;
-	}
+	} */
 }
 
+// (not currently in use)
 void TActionPanel::initialiseRightArea()
 {
 	rightArea = new TLayout(mainArea);
@@ -337,7 +339,7 @@ int TActionPanel::calculateHeight(TTestPanel *t)
 
 // TODO  make for rectangleheight, not with the triangle  (that we know)
 
-	int n = t->entry->alerts.size();
+	int n = 0; // TKTKTK    t->entry->alerts.size();
 	int h = gui->param("calloutTriangleHeight")
 			+ 3*gui->param("edgeGap")
 			+ gui->param("panelTopAreaHeight")

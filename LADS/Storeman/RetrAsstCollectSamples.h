@@ -6,45 +6,13 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.Grids.hpp>
 #include <Vcl.Menus.hpp>
-#include "LCDbJob.h"
-#include "RetrAsstMain.h"
 #include <Vcl.ComCtrls.hpp>
 #include <Vcl.ExtCtrls.hpp>
-
-#define PlanThread 25
-
-class LoadPlanThread : public TThread {
-protected:
-    void __fastcall Execute();
-public:
-    __fastcall LoadPlanThread();
-    //Chunk< SampleRow > * loadingChunk;
-    //LCDbCryoJob *   job;
-    int             rowCount; // class variable needed for synchronise
-    string          loadingMessage;
-    string          debugMessage;
-    void            addSampleDetails(SampleRow * row);
-    void __fastcall updateStatus(); // synchronized methods can't have args
-    void __fastcall debugLog();
-    void __fastcall msgbox();
-};
-
-class SaveProgressThread : public TThread {
-protected:
-    void __fastcall Execute();
-public:
-    __fastcall SaveProgressThread();
-    void            storeSample(SampleRow * sample);
-    void            jobFinished();
-    //int             rowCount;
-    string          loadingMessage;
-    string          debugMessage;
-    void __fastcall updateStatus();
-    void __fastcall debugLog();
-    void __fastcall msgbox();
-};
+#include "LCDbJob.h"
+#include "RetrAsstMain.h"
 
 class TfrmRetrAsstCollectSamples : public TForm {
+    friend class RetrAsstThread;
     friend class LoadPlanThread;
     friend class SaveProgressThread;
 __published:
@@ -125,9 +93,6 @@ private:
     void __fastcall                             saveProgressThreadTerminated(TObject *Sender);
     LCDbCryoJob *                               job;
     vector< Chunk< SampleRow > *>               chunks;
-    //vecpSampleRow                               vials;
-    vecpSampleRow                               primaries;
-    vecpSampleRow                               secondaries;
     vecpSampleRow                               combined;
     StringGridWrapper< Chunk< SampleRow > > *   sgwChunks; //std::auto_ptr< StringGridWrapper< Chunk< SampleRow > > >  sgwChunks;
     StringGridWrapper<SampleRow> *              sgwVials;
@@ -146,26 +111,60 @@ private:
     void                                        notFound();
     void                                        skip();
     void                                        nextRow();
-    void                                        collectEmpties();
-    const char *                                progressMessage;
-    void                                        prepareProgressMessage(const char * loadingMessage);
+    void                                        saveProgress();
+    void                                        showProgressMessage(const char * loadingMessage);
     void                                        debugLog(String s);
-    //bool                                        isChunkComplete(Chunk< SampleRow > * chunk);
-    void                                        chunkComplete(Chunk< SampleRow > * chunk);
+    void                                        chunkCompleted(Chunk< SampleRow > * chunk);
     bool                                        isJobComplete();
+    void                                        collectEmpties();
     std::set< int >                             emptyBoxes;
-    void                                        discardBoxes();
+    bool                                        unactionedSamples;
     void                                        checkExit();
 	void                                        exit();
 	void 										storeSample(SampleRow * sample);
 	void										jobFinished();
     bool                                        destroying;  // for FormResize
-    bool                                        unactionedSamples;
 public:
     void                                        setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmRetrAsstCollectSamples(TComponent* Owner);
     __fastcall ~TfrmRetrAsstCollectSamples();
 };
 
+
+class RetrAsstThread : public TThread {
+protected:
+    RetrAsstThread(); // : TThread(false);
+    TfrmRetrievalAssistant      * main;
+    TfrmRetrAsstCollectSamples  * collect;
+    string          messageTitle; // can't use args for synced method, don't know why
+    string          messageBody;  // so need these temp strings
+public:
+    //virtual
+    void            debugLog(string body);
+    void            _debugLog( ); // synchronized methods can't have args
+    void            updateStatus(string body, string title);
+    void            _updateStatus();
+    void            msgbox(string body, string title);
+    void            _msgbox();
+};
+
+class LoadPlanThread : public RetrAsstThread {
+    void __fastcall Execute();
+public:
+    int             rowCount; // class variable needed for synchronise
+    void            addSampleDetails(SampleRow * row);
+};
+
+class SaveProgressThread : public RetrAsstThread {
+    void __fastcall Execute();
+    void            storeSample(SampleRow * sample);
+    void            jobFinished();
+};
+
 extern PACKAGE TfrmRetrAsstCollectSamples *frmRetrAsstCollectSamples;
 #endif
+
+    //Chunk< SampleRow > * loadingChunk;
+    //__fastcall SaveProgressThread();
+        //__fastcall LoadPlanThread();
+

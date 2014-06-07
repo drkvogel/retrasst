@@ -5,10 +5,9 @@
 //---------------------------------------------------------------------------
 
 
-#include "DataContainers.h"
 #include "InfoPanels.h"
 #include "VisualComponents.h"
-#include "GUImanager.h"
+#include "WorklistEntriesView.h"
 #include "GUIpositioning.h"
 
 #pragma package(smart_init)
@@ -96,7 +95,7 @@ void TInfoPanel::setUpOuterArea()
   * @param a       the display preference of the alignment of this panel,
   *                relative to the area it is positioned in (e.g. Position::CENTRE)
   */
-__fastcall TInfoPanel::TInfoPanel(GUImanager *g, TComponent *owner, TTestPanel *t,
+__fastcall TInfoPanel::TInfoPanel(WorklistEntriesView *g, TComponent *owner, TTestPanel *t,
 								  int p, int f, int a)
 	: TCalloutPanel(Owner),
 	  panel_type(p),
@@ -139,7 +138,7 @@ void TBasicInfoPanel::addListItem(const std::string &s) {
   * @param t        the test panel from which the button was clicked, 
   *                 in order to bring up this panel in the first place
   */
-__fastcall TBasicInfoPanel::TBasicInfoPanel(GUImanager *g, TComponent *owner, TTestPanel *t)
+__fastcall TBasicInfoPanel::TBasicInfoPanel(WorklistEntriesView *g, TComponent *owner, TTestPanel *t)
 	: TInfoPanel(g,owner,t,panel_BASIC,
 				 Positioning::TOP,Positioning::LEFT)
 {
@@ -155,7 +154,7 @@ __fastcall TBasicInfoPanel::TBasicInfoPanel(GUImanager *g, TComponent *owner, TT
 /** Initialises the contents of this pop-up panel. Currently, just
   * positions the xButton.
   *
-  * @see GUImanager::positionInfoPanel
+  * @see WorklistEntriesView::positionInfoPanel
   */
 void TBasicInfoPanel::initialiseContents()
 {
@@ -170,24 +169,19 @@ void TBasicInfoPanel::initialiseContents()
 
 	// and some information items to put in it
 
-	addListItem("Test: " + originator->entry->testName);
-	addListItem("Result: " + originator->entry->getDefaultResult());
-	addListItem("Time (result obtained): " + originator->entry->getResultTime());
-	addListItem("Date: " + originator->entry->getResultDate());
-	if (originator->entry->resultExists()) {
-		addListItem("[Result ID: " + Utils::int2str(originator->entry->getResultId()) + "]");
+	addListItem("Test: " + originator->testName);
+
+	for (auto it = originator->ids->cbegin();
+		 it != originator->ids->cend(); ++it) {
+		std::string label = (*it).first + ": "
+							 + Utils::int2str((*it).second);
+		addListItem(label);
 	}
-	std::string str = "[Status: ";
-	str += originator->entry->status;
-	addListItem(str + "]");
-	addListItem("[Project ID: " + originator->entry->getProjectName() + "]");
-	addListItem("[Machine ID: " + originator->entry->getMachineName() + "]");
-	addListItem("[Profile ID: " + Utils::int2str(originator->entry->getProfileId()) + "]");
-	addListItem("[Sample ID: " + Utils::int2str(originator->entry->getSampleId()) + "]");
-	addListItem("[Test ID: " + Utils::int2str(originator->entry->getTestId()) + "]");
-	addListItem("[Worklist ID: " + Utils::int2str(originator->entry->getWorklistId()) + "]");
-
-
+	for (auto it = originator->attributes->cbegin();
+		 it != originator->attributes->cend(); ++it) {
+		std::string label = (*it).first + ": " + (*it).second;
+		addListItem(label);
+	}
 
 }
 
@@ -221,7 +215,7 @@ __fastcall TNotesPanel::~TNotesPanel()
   * @param owner   the component (if any, could be NULL) that will own this panel
   * @param t       the test panel from which the button was clicked, in order to bring up this panel in the first place
   */
-__fastcall TNotesPanel::TNotesPanel(GUImanager *g, TComponent *owner, TTestPanel *t)
+__fastcall TNotesPanel::TNotesPanel(WorklistEntriesView *g, TComponent *owner, TTestPanel *t)
 	: TInfoPanel(g,owner,t,panel_NOTES,
 				 Positioning::BOTTOM,Positioning::CENTRE)
 {
@@ -239,18 +233,18 @@ __fastcall TNotesPanel::TNotesPanel(GUImanager *g, TComponent *owner, TTestPanel
   *
   * @param s   the string to be added to the list box
   */
-void TNotesPanel::addListItem(const DNote &n) {
+void TNotesPanel::addListItem(const std::string &n) {
 	TListBoxItem *item = new TListBoxItem(notesListBox);
 	item->StyleLookup = "AlertListBoxItemStyle";
 	item->WordWrap = true;
 	// item->Height = gui->param("panelAlertItemHeight");
-	item->Text = Utils::str2unicodestr(n.text);
+	item->Text = Utils::str2unicodestr(n);
 	item->Parent = notesListBox;
 }
 
 /** Initialises the contents of this pop-up panel.
   *
-  * @see GUImanager::positionInfoPanel
+  * @see WorklistEntriesView::positionInfoPanel
   */
 void TNotesPanel::initialiseContents()
 {
@@ -263,7 +257,8 @@ void TNotesPanel::initialiseContents()
 	notesListBox->Width = innerArea->Width - xButton->Width - gui->param("edgeGap");
 	notesListBox->Height = innerArea->Height;
 	notesListBox->Parent = innerArea;
-
+    addListItem("[dummy note]");
+	/*
 	// and some information items to put in it
 	std::list<DNote>::const_iterator iter = originator->entry->notes.begin();
 	while (iter!=originator->entry->notes.end()) {
@@ -271,6 +266,7 @@ void TNotesPanel::initialiseContents()
 		addListItem(*n);
 		iter++;
 	}
+	*/
 
 }
 

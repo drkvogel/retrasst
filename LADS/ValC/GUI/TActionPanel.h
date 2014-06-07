@@ -7,7 +7,7 @@
 
 							// some forward declarations
 							class TTestPanel;
-							class GUImanager;
+							class WorklistEntriesView;
 
 
 
@@ -114,7 +114,7 @@ private:
 public:
 
 	__fastcall ~TActionPanel();
-	__fastcall TActionPanel(GUImanager *g, TComponent *owner, TTestPanel *t);
+	__fastcall TActionPanel(WorklistEntriesView *g, TComponent *owner, TTestPanel *t);
 
 
 	void __fastcall removeClick(TObject *Sender);

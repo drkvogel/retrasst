@@ -25,7 +25,7 @@ object frmLoginBase: TfrmLoginBase
   PixelsPerInch = 96
   TextHeight = 13
   object Label2: TLabel
-    Left = 48
+    Left = 47
     Top = 147
     Width = 55
     Height = 13
@@ -48,14 +48,14 @@ object frmLoginBase: TfrmLoginBase
     OnMouseLeave = versionMouseLeave
   end
   object Label3: TLabel
-    Left = 48
-    Top = 191
+    Left = 47
+    Top = 194
     Width = 50
     Height = 13
     Caption = 'Password:'
   end
   object exitButton: TBitBtn
-    Left = 180
+    Left = 175
     Top = 252
     Width = 108
     Height = 38
@@ -66,7 +66,7 @@ object frmLoginBase: TfrmLoginBase
     OnClick = exitButtonClick
   end
   object okButton: TBitBtn
-    Left = 41
+    Left = 43
     Top = 252
     Width = 108
     Height = 38
@@ -78,8 +78,8 @@ object frmLoginBase: TfrmLoginBase
     OnClick = okButtonClick
   end
   object userList: TComboBox
-    Left = 124
-    Top = 143
+    Left = 120
+    Top = 144
     Width = 160
     Height = 21
     DropDownCount = 20
@@ -89,27 +89,26 @@ object frmLoginBase: TfrmLoginBase
     OnChange = textChange
   end
   object rgDatabase: TRadioGroup
-    Left = 16
+    Left = 9
     Top = 56
-    Width = 298
+    Width = 312
     Height = 49
     Anchors = [akLeft, akTop, akRight]
+    Caption = 'Databases'
     Columns = 5
-    Ctl3D = True
     Items.Strings = (
       'Live'
       'Test'
-      'Mirror'
       'Dev'
+      'Mirror'
       'DbTest')
-    ParentCtl3D = False
     TabOrder = 0
     TabStop = True
     OnClick = rgDatabaseClick
   end
   object ebPassword: TEdit
-    Left = 124
-    Top = 187
+    Left = 120
+    Top = 191
     Width = 160
     Height = 21
     Enabled = False

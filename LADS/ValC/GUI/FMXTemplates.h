@@ -9,8 +9,12 @@
 #include <FMX.Types.hpp>
 #include <FMX.TabControl.hpp>
 #include <FMX.TreeView.hpp>
+#include "Require.h"
 #include <string>
 
+/*
+    Methods for working with FireMonkey components.
+*/
 namespace valcui
 {
 
@@ -33,6 +37,25 @@ TTreeViewItem* addNodeUnder( Parent* p, const std::string& text = "" )
 	newNode->Text = UnicodeString( text.c_str() );
     return newNode;
 }
+
+/*
+    Looks for an instance of type T that is the named subcomponent of 'control'.
+
+    Throws an Exception if such a subcomponent is not found.
+*/
+template<typename T>
+T* findStyleResource( TStyledControl* control, const char* styleName )
+{
+    T* t = (T*) control->FindStyleResource( styleName );
+    throwUnless( t );
+    return t;
+}
+
+/*
+    Looks for a TText subcomponent of control with the style name specified by 'textSubcomponentName' and
+    assigns the value of text to the 'Text' property of this subcomponent.
+*/
+void setText( TStyledControl* control, const char* textSubcomponentName, const std::string& text );
 
 }
 

@@ -35,6 +35,7 @@
 #include "QCGates.h"
 #include "QCSampleDescriptorDerivationStrategyImpl.h"
 #include "Require.h"
+#include "ResourceHandle.h"
 #include "ResultAttributes.h"
 #include "ResultIndex.h"
 #include "RuleEngineContainer.h"
@@ -234,7 +235,7 @@ SnapshotPtr Load()
 
     applicationContext->sampleRunIDResolutionService->clear();
     
-    std::auto_ptr<paulstdb::DBConnection> dbConnection( applicationContext->connectionFactory->createConnection(
+    paulst::ResourceHandle<paulstdb::DBConnection> dbConnection( applicationContext->connectionFactory->createConnection(
         applicationContext->getProperty("ForceReloadConnectionString"),
         applicationContext->getProperty("ForceReloadSessionReadLockSetting") ) );
 

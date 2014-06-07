@@ -599,31 +599,36 @@ void __fastcall TfrmMove::CreateClick(TObject *Sender)
 	if( frmNewJob -> ShowModal() != mrOk )
 		return;
 
-	String error;
 	BtnCreate -> Visible = false;
 	Screen->Cursor = crSQLWait;
 	leftKids.clear();
 	rightKids.clear();
 	listAssignedBoxes( part );
+	LCDbCryoJob * newJob = NULL;
 	if( frmNewJob -> createJob( leftKids ) ) {
-		job = frmNewJob -> getDetails();
-	} else {
-		error = "Error creating job record";
+		newJob = frmNewJob -> getDetails();
 	}
-	progress -> Position = 0;
-	progress -> Max = leftKids.size();
-	for( Box *left : leftKids ) {
-		Box *right = (Box*)(left->getMapped());
-		if( left->addToLHSJobList( job.getID() ) && right->addToRHSJobList( job.getID() ) ) {
-			progress -> StepIt();
-		} else {
-			error = "Error creating movement job";
-			break;
+	String error;
+	if( newJob == NULL ) {
+		error = "Error creating job record";
+	} else {
+		progress -> Position = 0;
+		progress -> Max = leftKids.size();
+		int jobID = newJob->getID();
+		for( Box *left : leftKids ) {
+			Box *right = (Box*)(left->getMapped());
+			if( left->addToLHSJobList( jobID ) && right->addToRHSJobList( jobID ) ) {
+				progress -> StepIt();
+			} else {
+				error = "Error creating movement job";
+				break;
+			}
 		}
 	}
 	Screen->Cursor = crDefault;
 	if( error.IsEmpty() ) {
 		this -> ModalResult = mrOk;
+		job = *newJob;
 	} else {
 		Application->MessageBox( error.c_str(), NULL, MB_OK );
 		updateDisplay();

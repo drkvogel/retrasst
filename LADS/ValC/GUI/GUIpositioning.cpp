@@ -4,7 +4,7 @@
 #pragma hdrstop
 //---------------------------------------------------------------------------
 
-#include "GUImanager.h"
+#include "WorklistEntriesView.h"
 #include "GUIpositioning.h"
 #include "InfoPanels.h"
 #include "TSnapshotFrame.h"
@@ -15,11 +15,11 @@
 
 //---------------------------------------------------------------------------
 
-/** Sets up this Positioning object with a link to the GUImanager.
+/** Sets up this Positioning object with a link to the WorklistEntriesView.
   *
-  * @param g       a pointer to the GUImanager object
+  * @param g       a pointer to the WorklistEntriesView object
   */
-Positioning::Positioning(GUImanager *g)
+Positioning::Positioning(WorklistEntriesView *g)
 	: gui(g)
 {
 	minTriOffset = gui->param("calloutTriangleOffset")
@@ -518,10 +518,10 @@ PopupPositioning Positioning::smartPanelPosition(const Block & pointsAt,
 
 	// see where the viewport is
 	Block viewport;
-	viewport.topLeft.x = gui->mainForm->ResultsScrollBox->ViewportPosition.x;
-	viewport.topLeft.y = gui->mainForm->ResultsScrollBox->ViewportPosition.y;
-	viewport.bottomRight.x = viewport.topLeft.x + gui->mainForm->ResultsScrollBox->ClipRect.Width();
-	viewport.bottomRight.y = viewport.topLeft.y + gui->mainForm->ResultsScrollBox->ClipRect.Height();
+	viewport.topLeft.x = gui->viewFrame->ResultsScrollBox->ViewportPosition.x;
+	viewport.topLeft.y = gui->viewFrame->ResultsScrollBox->ViewportPosition.y;
+	viewport.bottomRight.x = viewport.topLeft.x + gui->viewFrame->ResultsScrollBox->ClipRect.Width();
+	viewport.bottomRight.y = viewport.topLeft.y + gui->viewFrame->ResultsScrollBox->ClipRect.Height();
 
 	// Two decisions to make:
 	// (1) where does it float?
@@ -650,7 +650,7 @@ void Positioning::positionInfoPanel(TInfoPanel *panel)
 void Positioning::fitText(TLabel *component, const std::string &label)
 {
 	component->Text = Utils::str2unicodestr(label);
-	component->Width = gui->findTextWidth(label) + 1;
+	component->Width = Utils::findTextWidth(label) + 1;
 }
 
 /** Changes the x and y coordinates of a label to position it to

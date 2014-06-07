@@ -48,13 +48,14 @@ public:
 	int getTypeID() const { return boxTypeID; }
 	void setFilledBy( int operatorID ) { filledBy = operatorID; }
 	int getFilledBy() const { return filledBy; }
+	void setProjectCID( int cid ) { projectCID = cid; }
+	int getProjectCID() const { return projectCID; }
 
 	void setStatus( Status update ) { status = update; }
 	Status getStatus() const { return Status( status ); }
 
+	const LPDbBoxType * getContent() const;
 	const LCDbBoxSize * getLayout() const;
-
-	short getSize() const;
 	short getSpace() const;
 	bool hasSpace() const;
 
@@ -83,14 +84,15 @@ class LPDbBoxNames : public LDbCache< LPDbBoxName >
 	class SpaceMatcher;
 
 public:
-	bool readCurrent( LQuery pq );
-	bool readFilled( LQuery ddq );
-	void addCryovials( LQuery pq );
+	bool readFilled( LQuery pQuery );
+	void addCryovials( LQuery pQuery );
 
-	const LPDbBoxName * readRecord( LQuery pQuery, int id );
-	const LPDbBoxName * readRecord( LQuery pQuery, const std::string & name );
 	const LPDbBoxName * find( const std::string & name ) const;
 	const LPDbBoxName * findSpace( int boxType ) const;
+
+	bool readCurrent( LQuery central );
+	const LPDbBoxName * readRecord( LQuery central, int id );
+	const LPDbBoxName * readRecord( LQuery central, const std::string & name );
 };
 
 //---------------------------------------------------------------------------

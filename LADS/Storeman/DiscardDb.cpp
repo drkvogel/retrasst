@@ -203,7 +203,7 @@ const LCDbCryoJob * Db::getJob( const int jobno ) const {
     const LCDbCryoJob * job = 0;
 
     do {
-        const LCDbCryoJob * myjob = LCDbCryoJobs::records().readRecord(*m_cq, jobno);
+		const LCDbCryoJob * myjob = LCDbCryoJobs::records().readRecord(*m_cq, jobno);
         if (myjob == 0) break;
         if (! myjob->isActive()) break;
 
@@ -586,46 +586,37 @@ std::string Db::updateSamplesStatus(
 		const bool isNewJob = (jobno == 0);
 		const LCDbCryoJob * pjob = getJob( isNewJob ? newJob : jobno );
 		if (pjob == 0) {
-			error = (jobno == 0)
-					? std::string("failed to create job")
+			error = (isNewJob)
+					? "failed to create job " + Util::asString(newJob)
 					: "failed to find job " + Util::asString(jobno)
 					;
 			break;
 		}
 		LCDbCryoJob job = *pjob;
-		if (!job.claim(*m_cq, isNewJob)) {
-			error = "unable to claim job";
+		if( !isNewJob && !job.claim(*m_cq, true)) {
+			error = "unable to claim job " + Util::asString(jobno);
 			break;
 		}
-		const int newjobno = job.getID();
-
 		m_pq->setParam("jobno", jobno);
-		m_pq->setParam("newjobno", newjobno);
+		m_pq->setParam("newjobno", job.getID());
 
-		const IntSet csids = it1->second;
-		for (IntSet::const_iterator it2 = csids.begin();
-				it2 != csids.end(); it2++) {
-			const int csid = *it2;
+		for( int csid : it1->second ) {
 			m_pq->setParam("csid", csid);
 			if (!m_pq->execSQL()) {
-				error = "failed to update cryovial csid " +
-						Util::asString(csid);
+				error = "failed to update cryovial csid " +	Util::asString(csid);
 				break;
 			}
 		}
-
-		if (! job.release(*m_cq, false)) {
-			error = "unable to release job";
-			break;
+		if( !isNewJob && !job.release(*m_cq, false) ) {
+			error = "unable to release job " + Util::asString(jobno);
 		}
-
 		if (error != "") break;
 	}
-
 	return error;
 }
 
-std::string Db::createStoreEntries( const std::map<int,IntSet> & jobCsids, const LPDbBoxType & boxType ) const {
+std::string Db::createStoreEntries( const std::map<int,IntSet> & jobCsids,
+		const LPDbBoxType & boxType, const LCDbCryoJob & job ) const {
 
 	LPDbBoxNames boxes;
 	boxes.readCurrent( *m_pq );
@@ -639,15 +630,13 @@ std::string Db::createStoreEntries( const std::map<int,IntSet> & jobCsids, const
 
 	const int pid = LCDbAuditTrail::getCurrent().getProcessID();
 	for (std::map<int,IntSet>::const_iterator it1 = jobCsids.begin(); it1 != jobCsids.end(); it1++) {
-		const LCDbCryoJob * job = LCDbCryoJobs::records().findByID( it1->first );
-		const short boxSet = (job == NULL ? 0 : job->getBoxSet());
 		const IntSet csids = it1->second;
 		IntSet::const_iterator it2 = csids.begin();
 		while( it2 != csids.end() ) {
 			LPDbBoxName box;
 			const LPDbBoxName * existing = boxes.findSpace( boxType.getID() );
 			if( existing == NULL ) {
-				box.create( boxType, boxSet, *m_pq, *m_cq );
+				box.create( boxType, job.getBoxSet(), *m_pq, *m_cq );
 			} else {
 				box = *existing;
 			}
@@ -1051,7 +1040,7 @@ bool Db::addAuditEntry(const std::string & message) const {
 
 int Db::getTubeTypeId( const int boxCid ) const {
 	LPDbBoxNames boxList;
-	const LPDbBoxName * box = boxList.readRecord( *m_pq, boxCid );
+	const LPDbBoxName * box = boxList.readRecord( *m_cq, boxCid );
 	if( box != NULL ) {
 		const LCDbBoxSize * size = box->getLayout();
 		if( size != NULL ) {
@@ -1084,8 +1073,8 @@ CrstatusInfo::CrstatusInfo() { }
 
 void CrstatusInfo::init() {
 	mapping.push_back( { LPDbCryovialStore::ALLOCATED,	 	Cryovial::MARKED } );
-	mapping.push_back( { LPDbCryovialStore::MOVE_EXPECTED,	Cryovial::MARKED } );
 	mapping.push_back( { LPDbCryovialStore::CONFIRMED,		Cryovial::STORED } );
+	mapping.push_back( { LPDbCryovialStore::MOVE_EXPECTED,	Cryovial::MARKED } );
 	mapping.push_back( { LPDbCryovialStore::DESTROYED,		Cryovial::DESTROYED } );
 	mapping.push_back( { LPDbCryovialStore::ANALYSED,		Cryovial::REMOVED } );
 	mapping.push_back( { LPDbCryovialStore::ALIQUOTS_TAKEN,	Cryovial::REMOVED } );

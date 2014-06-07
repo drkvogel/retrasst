@@ -120,14 +120,14 @@ void TfrmStoremain::updateCounts()
 }
 
 //---------------------------------------------------------------------------
-//	count boxes in the current system that have yet to be stored
+//	count boxes in next available project that have yet to be stored
 //---------------------------------------------------------------------------
 
 void TfrmStoremain::countBoxes() {
 	LCDbProjects & projects = LCDbProjects::records();
 	auto pi = projIDs.begin();
 	if( pi != projIDs.end() ) {
-		projects.setCurrent( projects.get( *pi ) );
+		projects.setCurrent( projects.findByID( *pi ) );
 		LPDbBoxNames boxes;
 		if( boxes.readFilled( LIMSDatabase::getProjectDb() ) ) {
 			boxesReady += boxes.size();
@@ -305,7 +305,7 @@ void __fastcall TfrmStoremain::BtnDiscardClick(TObject *Sender)
 				error += HERE;
 				throw Exception(error.c_str());
 			}
-			projects.setCurrent(*project);
+			projects.setCurrent( project );
 		}
 
 		LIMSDatabase pdb = LIMSDatabase::getProjectDb();

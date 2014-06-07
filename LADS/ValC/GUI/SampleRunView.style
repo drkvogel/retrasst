@@ -1,0 +1,228 @@
+object TStyleContainer
+  object TLayout
+    StyleName = 'runbox'
+    DesignVisible = False
+    Height = 85.000000000000000000
+    Position.X = -106.000000000000000000
+    Position.Y = 370.000000000000000000
+    Width = 985.000000000000000000
+    object TRectangle
+      StyleName = 'Rectangle1'
+      Height = 85.000000000000000000
+      HitTest = False
+      Width = 985.000000000000000000
+    end
+    object TFlowLayout
+      StyleName = 'resultflow'
+      Height = 85.000000000000000000
+      HitTest = False
+      Margins.Top = 5.000000000000000000
+      Position.X = 2.000000000000000000
+      Position.Y = 20.000000000000000000
+      Width = 985.000000000000000000
+      Justify = fjLeft
+      JustifyLastLine = fjLeft
+      FlowDirection = fdLeftToRight
+      HorizontalGap = 5.000000000000000000
+    end
+    object TText
+      StyleName = 'caption'
+      Color = claBlack
+      Height = 20.000000000000000000
+      HitTest = False
+      HorzTextAlign = taLeading
+      Position.X = 2.000000000000000000
+      Position.Y = 2.000000000000000000
+      Width = 500.000000000000000000
+    end
+  end
+  object TLayout
+    StyleName = 'status_ok'
+    DesignVisible = False
+    Height = 20.000000000000000000
+    Position.X = 376.000000000000000000
+    Position.Y = 324.000000000000000000
+    Width = 20.000000000000000000
+    object TRectangle
+      StyleName = 'Rectangle5'
+      Align = alClient
+      Fill.Color = claGreen
+      Height = 20.000000000000000000
+      HitTest = False
+      XRadius = 5.000000000000000000
+      YRadius = 5.000000000000000000
+      Width = 20.000000000000000000
+    end
+    object TText
+      StyleName = 'Text5'
+      Align = alClient
+      Color = claWhite
+      Font.Family = 'Segoe UI Semibold'
+      Font.Size = 10.000000000000000000
+      Font.Style = [fsBold]
+      Height = 20.000000000000000000
+      HitTest = False
+      Text = 'OK'
+      Width = 20.000000000000000000
+    end
+  end
+  object TLayout
+    StyleName = 'status_warn'
+    Cursor = crHandPoint
+    DesignVisible = False
+    Height = 20.000000000000000000
+    HitTest = True
+    Position.X = 376.000000000000000000
+    Position.Y = 324.000000000000000000
+    Width = 20.000000000000000000
+    object TRectangle
+      StyleName = 'Rectangle5'
+      Align = alClient
+      Fill.Color = claOrange
+      Height = 20.000000000000000000
+      HitTest = False
+      XRadius = 5.000000000000000000
+      YRadius = 5.000000000000000000
+      Width = 20.000000000000000000
+    end
+    object TText
+      StyleName = 'Text5'
+      Align = alClient
+      Color = claBlack
+      Font.Family = 'Segoe UI Semibold'
+      Font.Size = 17.000000000000000000
+      Font.Style = [fsBold]
+      Height = 20.000000000000000000
+      HitTest = False
+      Text = '?'
+      Width = 20.000000000000000000
+    end
+  end
+  object TLayout
+    StyleName = 'status_fail'
+    DesignVisible = False
+    Height = 20.000000000000000000
+    Position.X = 376.000000000000000000
+    Position.Y = 324.000000000000000000
+    Width = 20.000000000000000000
+    object TRectangle
+      StyleName = 'Rectangle5'
+      Align = alClient
+      Fill.Color = claYellow
+      Height = 20.000000000000000000
+      HitTest = False
+      XRadius = 5.000000000000000000
+      YRadius = 5.000000000000000000
+      Width = 20.000000000000000000
+    end
+    object TText
+      StyleName = 'Text5'
+      Align = alClient
+      Color = claBlack
+      Font.Family = 'Segoe UI Semibold'
+      Font.Size = 17.000000000000000000
+      Font.Style = [fsBold]
+      Height = 20.000000000000000000
+      HitTest = False
+      Text = '!'
+      Width = 20.000000000000000000
+    end
+  end
+  object TLayout
+    StyleName = 'status_pending'
+    DesignVisible = False
+    Height = 20.000000000000000000
+    Position.X = 376.000000000000000000
+    Position.Y = 324.000000000000000000
+    Width = 20.000000000000000000
+    object TRectangle
+      StyleName = 'Rectangle1'
+      Fill.Color = claWhite
+      Height = 20.000000000000000000
+      HitTest = False
+      XRadius = 5.000000000000000000
+      YRadius = 5.000000000000000000
+      Width = 20.000000000000000000
+    end
+    object TText
+      StyleName = 'Text1'
+      Color = claBlack
+      Font.Family = 'Segoe UI Semibold'
+      Font.Size = 17.000000000000000000
+      Font.Style = [fsBold]
+      Height = 20.000000000000000000
+      HitTest = False
+      Width = 20.000000000000000000
+    end
+  end
+  object TLayout
+    StyleName = 'resultbox'
+    DesignVisible = False
+    Height = 55.000000000000000000
+    Position.X = 356.000000000000000000
+    Position.Y = 386.000000000000000000
+    Width = 60.000000000000000000
+    object TFlowLayout
+      StyleName = 'FlowLayout1'
+      Align = alClient
+      Height = 53.000000000000000000
+      HitTest = False
+      Margins.Top = 2.000000000000000000
+      Width = 60.000000000000000000
+      Justify = fjCenter
+      JustifyLastLine = fjCenter
+      FlowDirection = fdLeftToRight
+      object TPanel
+        StyleName = 'resultbox_status'
+        Height = 20.000000000000000000
+        HitTest = False
+        Position.X = 20.000000000000000000
+        Position.Y = 2.000000000000000000
+        Width = 20.000000000000000000
+        TabOrder = 0
+      end
+      object TFlowLayoutBreak
+        StyleName = 'FlowLayoutBreak1'
+        ChangesRules = False
+        Justify = fjLeft
+        JustifyLastLine = fjLeft
+        FlowDirection = fdLeftToRight
+        DesignVisible = True
+      end
+      object TText
+        StyleName = 'resultbox_test'
+        Color = claBlack
+        Height = 12.000000000000000000
+        HitTest = False
+        Position.Y = 22.000000000000000000
+        Width = 60.000000000000000000
+      end
+      object TFlowLayoutBreak
+        StyleName = 'FlowLayoutBreak1'
+        ChangesRules = False
+        Justify = fjLeft
+        JustifyLastLine = fjLeft
+        FlowDirection = fdLeftToRight
+        DesignVisible = True
+      end
+      object TText
+        StyleName = 'resultbox_value'
+        Color = claBlack
+        Height = 12.000000000000000000
+        HitTest = False
+        Position.Y = 34.000000000000000000
+        Width = 60.000000000000000000
+      end
+    end
+    object TRectangle
+      StyleName = 'resultbox_bounds'
+      Cursor = crHandPoint
+      Fill.Kind = bkNone
+      Height = 55.000000000000000000
+      HitTest = False
+      XRadius = 5.000000000000000000
+      YRadius = 5.000000000000000000
+      Width = 60.000000000000000000
+    end
+  end
+end

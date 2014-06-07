@@ -291,11 +291,13 @@ LQuery Util::projectQuery( int projID, bool ddb ) {
 	if( projID == 0 ) {
 		projID = current;
 	}
-	const LCDbProject & proj = projList.get( projID );
-	if( projID != current ) {
+	const LCDbProject * proj = projList.findByID( projID );
+	if( proj == NULL || proj->isCentral() || !proj->isInCurrentSystem() ) {
+		throw Exception( "Invalid project ID" );
+	} else {
 		projList.setCurrent( proj );
+		return LQuery( LIMSDatabase::getProjectDb( proj->getDbName(), ddb ) );
 	}
-	return LQuery( LIMSDatabase::getProjectDb( proj.getDbName(), ddb ) );
 }
 
 //---------------------------------------------------------------------------
@@ -431,7 +433,8 @@ std::string Util::boxTubeTypeName(int project_cid, int box_cid) {
     ProjBox projBox(project_cid, box_cid);
     found = map.find(projBox);
     if (found == map.end()) { // not added yet
-        LQuery q(Util::projectQuery(project_cid, false));
+        //LQuery q(Util::projectQuery(project_cid, false));
+        LQuery q(LIMSDatabase::getCentralDb());
         LPDbBoxNames boxes; // no LCDbBoxName(s) (c_box_name)
         try {
             const LPDbBoxName * box     = boxes.readRecord(q, box_cid);

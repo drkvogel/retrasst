@@ -1,0 +1,62 @@
+object SampleRunFrame: TSampleRunFrame
+  Height = 240.000000000000000000
+  Width = 337.000000000000000000
+  object titlePanel: TPanel
+    Align = alTop
+    Height = 33.000000000000000000
+    Width = 337.000000000000000000
+    TabOrder = 0
+    object title: TLabel
+      Font.Style = [fsBold]
+      StyledSettings = [ssFamily, ssSize, ssFontColor]
+      Height = 17.000000000000000000
+      Position.X = 32.000000000000000000
+      Position.Y = 8.000000000000000000
+      Text = 'Sample-Run View'
+      Width = 120.000000000000000000
+    end
+  end
+  object barcodePanel: TPanel
+    Align = alClient
+    Height = 207.000000000000000000
+    Width = 337.000000000000000000
+    TabOrder = 1
+    object runContainer: TScrollBox
+      Align = alClient
+      Height = 207.000000000000000000
+      TabOrder = 0
+      Width = 337.000000000000000000
+      object barcode: TText
+        Color = claBlack
+        Height = 20.000000000000000000
+        Position.X = 80.000000000000000000
+        Width = 81.000000000000000000
+      end
+      object sampleID: TText
+        Color = claBlack
+        Height = 20.000000000000000000
+        Position.X = 240.000000000000000000
+        Width = 80.000000000000000000
+      end
+      object Text1: TText
+        Color = claBlack
+        Font.Style = [fsBold]
+        Height = 20.000000000000000000
+        Text = 'Barcode:'
+        Width = 80.000000000000000000
+      end
+      object Text3: TText
+        Color = claBlack
+        Font.Style = [fsBold]
+        Height = 20.000000000000000000
+        Position.X = 160.000000000000000000
+        Text = 'Sample ID:'
+        Width = 80.000000000000000000
+      end
+    end
+  end
+  object popupMenu: TPopupMenu
+    Left = 144
+    Top = 161
+  end
+end

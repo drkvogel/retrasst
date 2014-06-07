@@ -693,10 +693,10 @@ void __fastcall TfrmDiscardSamples::btnClearClick(TObject *Sender) {
 		if (this->btnConfirm->Enabled) {
 			String title = "Unsaved changes";
 			String message = "Clear search results without saving ?";
-			if (Application->MessageBox(message.c_str(), title.c_str(),
-										MB_OKCANCEL | MB_ICONWARNING) != IDOK) break;
+			if( Application->MessageBox(message.c_str(), title.c_str(), MB_OKCANCEL | MB_ICONWARNING) != IDOK ) {
+				break;
+			}
 		}
-
 		m_samples.clear();
 		reset();
 

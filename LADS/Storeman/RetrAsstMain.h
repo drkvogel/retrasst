@@ -15,6 +15,7 @@
 #include "LPDbCryovial.h"
 #include "LDbBoxStore.h"
 #include "LCDbRetrieval.h"
+//#include "RetrAsstCollectSamples.h"
 // for setprecision:
 #include <iomanip>
 #include <boost/date_time.hpp>
@@ -80,12 +81,14 @@ public: //protected: ?
     string              structure_name;
     int                 box_pos;
 
-//    RetrievalRow(int proj, string srcnm, int dstid, string dstnm, int dstyp, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-//        project_cid(proj), src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm), dest_box_type(dstyp),
-    RetrievalRow(int proj, LCDbBoxRetrieval * cbr_rec, string srcnm, int dstid, string dstnm, int dstyp, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-        cbr_record(cbr_rec), src_box_name(srcnm), dest_box_id(dstid), dest_box_name(dstnm), dest_box_type(dstyp),
-
-        site_name(site), vessel_pos(vsps), vessel_name(vsnm), shelf_number(shlf), structure_pos(stps), structure_name(stnm), box_pos(bxps) {}
+    RetrievalRow(int proj, LCDbBoxRetrieval * cbr_rec, string srcnm,
+                int dstid, string dstnm, int dstyp,
+                string site, int vsps, string vsnm, int shlf, int stps, string stnm,
+                int bxps) :
+        project_cid(proj), cbr_record(cbr_rec), src_box_name(srcnm),
+        dest_box_id(dstid), dest_box_name(dstnm), dest_box_type(dstyp),
+        site_name(site), vessel_pos(vsps), vessel_name(vsnm), shelf_number(shlf), structure_pos(stps), structure_name(stnm),
+        box_pos(bxps) {}
 
     // sort functions could also be factored out; not sure if worth it
     // fun refactoring for a rainy day?
@@ -143,9 +146,6 @@ class BoxRow : public RetrievalRow {
 public:
     LCDbBoxStore * store_record; // public LPDbID //LPDbBoxName ?? getStatus
 
-//    BoxRow(int proj, LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstyp, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
-//        store_record(rec), RetrievalRow(proj, srcnm, dstid, dstnm, dstyp, site, vsps, vsnm, shlf, stps, stnm, bxps) {
-//    }
     BoxRow(int proj, LCDbBoxRetrieval * cbr_rec, LCDbBoxStore * rec, string srcnm, int dstid, string dstnm, int dstyp, int dstps, string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
         store_record(rec), RetrievalRow(proj, cbr_rec, srcnm, dstid, dstnm, dstyp, site, vsps, vsnm, shlf, stps, stnm, bxps) {
     }
@@ -188,7 +188,6 @@ public:
         if (backup) delete backup;
         if (lcr_record) delete lcr_record;
     }
-    //SampleRow(  int proj, LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * retrieval_rec,
     SampleRow(  int proj, LCDbBoxRetrieval * cbr_rec, LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * lcr_rec,
                 string barc, string srcnm, int dstid, string dstnm, int dstyp, int dstps,
                 string site, int vsps, string vsnm, int shlf, int stps, string stnm, int bxps) :
@@ -228,15 +227,15 @@ public:
             <<"status: "<<store_record->getStatus()<<", "
             <<"barc: \""<<cryovial_barcode<<"\", "<<"aliq: "<<cryo_record->getAliquotType()<<" \""<<aliquotName()<<"\", "
             <<"cryo_status: "<<cryo_record->getStatus()<<", "
-            <<"src: {"<<store_record->getBoxID()<<", \""<<src_box_name<<"\" ["<<store_record->getPosition()<<"]}, "
-            <<"dst: {"<<dest_box_id<<" \""<<dest_box_name<<"\" ["<<dest_cryo_pos<<"], type: "<<dest_box_type<<" \""<<dest_type_name<<"\"}, "
+            <<"src: {"<<store_record->getBoxID()<<", \""<<src_box_name<<"\", pos: "<<store_record->getPosition()<<"}, "
+            <<"dst: {"<<dest_box_id<<" \""<<dest_box_name<<"\", pos: "<<dest_cryo_pos<<", type: "<<dest_box_type<<" \""<<dest_type_name<<"\"}, "
             <<"loc: {"<<storage_str()<<"}";
         } catch (...) {
             oss<<"error in "<<__FUNC__;
         }
         return oss.str();
     }
-    string storage_str() {
+    string storage_str() { // for public consumption
         ostringstream oss;
         oss<<site_name<<"["<<vessel_pos<<"]: "
             <<vessel_name<<":"<<shelf_number<<"["<<structure_pos<<"]/"<<structure_name<<"["<<box_pos<<"]";
@@ -472,14 +471,6 @@ public:
     }
 };
 
- //	FIXME - C++ compiler error:	  typedef std::vector< Chunk * > vecpChunk;
-
-//???
-//class RetrievalList {
-//    RetrievalRow rows[];
-//    Chunk chunks[];
-//};
-
 static const char * jobStatusString(short status) {
     // enum Status { NEW_JOB, INPROGRESS, DONE, REJECTED, DELETED = 99, NUM_STATUSES };
     static const char * jobStatusStrings[] = { "New job", "In progress", "Done", "Rejected" };
@@ -519,6 +510,7 @@ __published:
     TCheckBox *cbRejected;
     TPanel *panelDebug;
     TMemo *memoDebug;
+    TPanel *Panel1;
     TButton *btnResetJobs;
     void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall cbNewJobClick(TObject *Sender);
@@ -562,9 +554,37 @@ public:
 	static void msgbox(string main, string title="Info");
 };
 
+//class TfrmRetrAsstCollectSamples : public TForm;
+//class TfrmRetrAsstCollectSamples;
+
+//class RetrAsstThread : public TThread {
+//protected:
+//    RetrAsstThread(); // : TThread(false);
+//    TfrmRetrievalAssistant      * main;
+//    TfrmRetrAsstCollectSamples  * collect;
+//    string          messageTitle; // can't use args for synced method, don't know why
+//    string          messageBody;  // so need these temp strings
+//public:
+//    //virtual
+//    void            debugLog(string body);
+//    void            _debugLog( ); // synchronized methods can't have args
+//    void            updateStatus(string body, string title);
+//    void            _updateStatus();
+//    void            msgbox(string body, string title);
+//    void            _msgbox();
+//};
+
 extern PACKAGE TfrmRetrievalAssistant *frmRetrievalAssistant;
 #endif
 
 //wstringstream oss; oss << __FUNC__; oss<<"sorting "<<rows->size()<<" rows: start:"<<start<<", end: "<<end; //debugLog(oss.str().c_str());
 //OutputDebugString(L"test"); //OutputDebugString(oss.str().c_str());
 //frmSamples->debugLog(oss.str().c_str());
+
+ //	FIXME - C++ compiler error:	  typedef std::vector< Chunk * > vecpChunk;
+
+//???
+//class RetrievalList {
+//    RetrievalRow rows[];
+//    Chunk chunks[];
+//};

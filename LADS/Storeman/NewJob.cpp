@@ -68,20 +68,11 @@ bool TfrmNewJob::createJob( const std::vector<Box*> & boxes )
 			}
 		}
 	}
-	int projID = (projects.size() == 1 ? *(projects.begin()) : 0);
+
+	job.setProjectID(projects.size() == 1 ? *projects.begin() : 0);
 	std::set<int>::const_iterator ai = aliquots.begin();
-	int al1 = (ai == aliquots.end() ? 0 : *ai ++ );
-	int al2 = (ai == aliquots.end() ? 0 : *ai ++ );
-	return createJob( projID, al1, al2 );
-}
-
-//---------------------------------------------------------------------------
-
-bool TfrmNewJob::createJob( int projID, int al1, int al2 )
-{
-	job.setProjectID( projID );
-	job.setPrimaryAliquot( al1 );
-	job.setSecondaryAliquot( al2 );
+	job.setPrimaryAliquot(ai == aliquots.end() ? 0 : *ai ++ );
+	job.setSecondaryAliquot(ai == aliquots.end() ? 0 : *ai ++ );
 	return job.saveRecord( LIMSDatabase::getCentralDb() );
 }
 

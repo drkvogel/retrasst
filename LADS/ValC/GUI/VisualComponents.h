@@ -8,25 +8,45 @@
 #include <FMX.StdCtrls.hpp>
 #include <FMX.Types.hpp>
 #include <string>
-
-
+#include <map>
+#include <list>
 
 
 /* This file contains some visual components:
+       TSampleRunPanel
 	   TBarcodePanel           (displays a DSampleRun)
 	   TTestPanel              (displays a DSampleTest)
 */
 
 							// some forward declarations
-							class DSampleRun;
-							class DSampleTest;
-							class GUImanager;
+							class WorklistEntriesView;
                             class SnapshotFrameObserver;
 							class TInfoPanel;
 							class TActionPanel;
 							class TNotesPanel;
 							class TBasicInfoPanel;
+							class TBarcodePanel;
+							class TTestPanel;
 
+typedef std::list<TTestPanel *> EntryPanelsList;
+
+typedef EntryPanelsList::iterator EntryPanelsIterator;
+typedef EntryPanelsList::reverse_iterator EntryPanelsReverseIterator;
+
+//---------------------------------------------------------------------------
+
+/** A simple panel to hold the barcode panel and panels representing tests on samples. */
+class TSampleRunPanel : public TPanel
+{
+public:
+	TBarcodePanel *barcodePanel;
+	TPanel *testsPanel;
+	EntryPanelsList *testPanels;  // list of the TTestPanels contained in testsPanel
+								  // (this is a separate list so I can get at it)
+
+	__fastcall TSampleRunPanel(TComponent *owner);
+	__fastcall ~TSampleRunPanel();
+};
 
 //---------------------------------------------------------------------------
 
@@ -34,15 +54,27 @@
 class TBarcodePanel : public TPanel
 {
 public:
-	DSampleRun *sample; // the data associated with this barcode panel
-	__fastcall TBarcodePanel(GUImanager *g, TComponent *Owner,
-							 DSampleRun *s, bool queued);
+	// DSampleRun *sample; // the data associated with this barcode panel
+	__fastcall TBarcodePanel(WorklistEntriesView *g, TComponent *Owner,
+							 bool queued);
 	__fastcall ~TBarcodePanel();
+
+	void updateBarcode(const std::string & barcode);
+	void needsAttention();
+
+	// quick & flexible get/set attribute stuff for prototyping purposes
+	std::string getAttribute(const std::string & key);
+	int getIntAttribute(const std::string & key);
+	void setAttribute(const std::string & key, const std::string & value);
+	void setAttribute(const std::string & key, int value);
 
 private:
 	TLabel *barcodeLabel;
-	GUImanager *gui;
+	WorklistEntriesView *gui;
 
+	std::map <std::string,int> *ids;     // later: figure how to get TBarcodePanel
+										 // & TTestPanel implement the same
+	std::map <std::string,std::string> *attributes;	 // attributes/ids interface
 };
 
 
@@ -57,6 +89,9 @@ private:
   */
 class TTestPanel : public TPanel
 {
+	friend class TBasicInfoPanel;
+	friend class TActionPanel;
+	friend class WorklistEntriesView;
 
 public:
 
@@ -105,31 +140,47 @@ public:
 	  * worklist entry. This is NULL if no pop-up is displayed.     */
 	TActionPanel *myActions;
 
-	TTestPanel *next, *prev;  // not sure if I'll need these, but anyway...
-
-	/** the worklist entry associated with this panel */
-	const DSampleTest *entry;
 
 // For comments on methods, please see their implementations.
 
-
-	__fastcall TTestPanel(GUImanager *g, TPanel *Owner,
-						  DSampleTest *d, const int posX, bool queued);
+	__fastcall TTestPanel(WorklistEntriesView *v, TPanel *owner,
+						  const std::string & testName,
+						  const std::string & testResult,
+						  const std::string & label,
+						  SnapshotFrameObserver* ob, bool qd);
 	__fastcall ~TTestPanel();
 
-    static int findPanelWidth(GUImanager *gui, DSampleTest *entry, bool queued);
+	int findPanelLeftWidth();
+	static int findPanelWidth(WorklistEntriesView *v, int maxNameWidth, int maxResultWidth);
+	// static int findPanelWidth(WorklistEntriesView *gui, DSampleTest *entry, bool queued);
+	static bool goCompare(const TTestPanel * first, const TTestPanel * second);
 
-    void __fastcall onClick(TObject *Sender);
+	void needsAttention();
 
-    void setObserver( SnapshotFrameObserver* o );
+	bool hasAttribute(const std::string & attr);
+	std::string getAttribute(const std::string & key);
+	int getIntAttribute(const std::string & key);
+	void setAttribute(const std::string & key, const std::string & value);
+	void setAttribute(const std::string & key, int value);
+
+	void __fastcall onClick(TObject *Sender);
+
+	void setObserver(SnapshotFrameObserver* ob);
 
 private:
-	GUImanager *gui;
+	WorklistEntriesView *gui;
 
+	std::map <std::string,std::string> *attributes;
+	std::map <std::string,int> *ids;
 
-	TRectangle *screen;   // for making things a bit transparent
+	// If non-null, the screen has the effect of making the TTestPanel
+	// look faded, for the purposes of non-local result from worklist entries
+	TRectangle *screen;
+
 	std::string testName;
 	std::string testResult;
+	bool queued;
+
 	bool displayAsCompleted;   // true for entries with results,
 							   // will be displayed in a completed style even
 							   // if the status is still 'P'
@@ -142,12 +193,15 @@ private:
     void __fastcall notesClick(TObject *Sender);
 	void __fastcall resultClick(TObject *Sender);
 
-	void setUpTestNameButton();
+	void initialiseTestNameButton();
+	void initialiseNotesButton();
+	void initialiseResultsButton();
+
+  //	void setUpTestNameButton();  // old
 	void setUpNotesButton();
-	static float findResultDisplayWidth(GUImanager *gui, std::string res);
+	int findResultDisplayWidth();
 	void setUpResultButton(bool queued);
 	void setUpNonLocal();
-	void setUpQueuedSample();
 	void setUpSampleResults();
 
 

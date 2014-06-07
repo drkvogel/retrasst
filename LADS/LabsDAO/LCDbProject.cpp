@@ -13,7 +13,7 @@
  *      15 April 11, NG:	Check for _STAR when switching database
  *      7 October 2011:		Split live/test/mirror switching into DbFamily
  *		7 June 2012, NG:	C++Builder XE2 version
- *
+ *      5 June 2014, NG:	Check activity flags for box storage
  *-------------------------------------------------------------------------*/
 
 #include <vcl.h>
@@ -51,7 +51,9 @@ LCDbProject::LCDbProject( const LQuery & query  )
 		code = getName().substr( 0, 2 );
 
    liveData = (database.substr(0,3)== "ldb");
-   boxImport = (status != DELETED && (status & BOX_IMPORT) != 0);
+
+   int activity = query.fieldExists( "activity_flags" ) ? query.readInt( "activity_flags" ) : 0;
+   boxImport = (status != DELETED && (status & BOX_IMPORT_STATUS) != 0) || (activity & BOX_STORAGE) != 0;
 }
 
 //---------------------------------------------------------------------------
@@ -79,8 +81,7 @@ bool LCDbProjects::read( LQuery central, bool readAll )
 
 bool LCDbProject::saveRecord( LQuery query )
 {
-	if( saved )
-	{
+	if( saved ) {
 		query.setSQL( "Update c_project set external_full = :fnam, info_url = :url,"
 					 " study_code = :sco, valid_from = :from, valid_to = :to, status = :sts"
 					 " where project_cid = :cid" );
@@ -126,9 +127,9 @@ int LCDbProject::getFlags()
 	if( !isActive() )
 		status = DELETED;
 	else
-	{	status = isLive() ? IS_LIVE : 0;
+	{	status = isLive() ? IS_LIVE_STATUS : 0;
 		if( hasBoxes() )
-			status |= BOX_IMPORT;
+			status |= BOX_IMPORT_STATUS;
 	}
 	return status;
 }
@@ -143,22 +144,14 @@ bool LCDbProject::isInCurrentSystem() const {
 //  Class used to search cache for name, description or database name
 //---------------------------------------------------------------------------
 
-class /* LCDbProjects:: */ PdbMatcher : public std::unary_function< LCDbProject, bool >
+class /* LCDbProjects:: */ PdbMatcher : public LDbNames::LCMatcher
 {
-	const std::string value;
-
 public:
-
-	PdbMatcher( const std::string & s ) : value( s )
-	{}
-
-	operator std::string() const { return value; }
-
-	bool operator() ( const LCDbProject & other ) const
-	{
-		return value.compare( other.getName() ) == 0
-			|| value.compare( other.getDescription() ) == 0
-			|| value.compare( other.getDbName() ) == 0;
+	PdbMatcher( const std::string & s ) : LCMatcher( s ) {}
+	bool operator() ( const LCDbProject & other ) const {
+		return lcValue == LDbNames::makeLower( other.getName() )
+			|| lcValue == LDbNames::makeLower( other.getDescription() )
+			|| lcValue == LDbNames::makeLower( other.getDbName() );
 	}
 };
 
@@ -176,13 +169,16 @@ const LCDbProject * LCDbProjects::findByName( const std::string & nameOrDb ) con
 //	Switch to using this project's database if a lease is available
 //---------------------------------------------------------------------------
 
-void LCDbProjects::setCurrent( const LCDbProject & proj )
+void LCDbProjects::setCurrent( const LCDbProject * proj )
 {
-	if( proj.isCentral() ) {
-		String name = proj.getDbName().c_str();
+	if( proj == NULL ) {
+		currentID = LCDbProject::NONE_SELECTED;
+	} else if( proj->isCentral() ) {
+		String name = proj->getDbName().c_str();
 		throw Exception( name + " is not a project database" );
+	} else {
+		currentID = proj->getID();
 	}
-	currentID = proj.getID();
 }
 
 //---------------------------------------------------------------------------

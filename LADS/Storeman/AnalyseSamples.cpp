@@ -49,7 +49,7 @@ void __fastcall TfrmAnalyseSpecimens::cbProjectChange( TObject *Sender ) {
 	std::string proj = AnsiString(cbProject->Text).c_str();
 	const LCDbProject *selected = projList.findByName( proj );
 	if( selected != NULL ) {
-		projList.setCurrent( *selected );
+		projList.setCurrent( selected );
 	}
 }
 

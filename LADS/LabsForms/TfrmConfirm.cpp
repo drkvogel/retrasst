@@ -38,25 +38,26 @@ void TfrmConfirm::initialise( short stage, const std::string & summary )
 	initialise( stage, summary, projects );
 }
 
+//---------------------------------------------------------------------
+
 void TfrmConfirm::initialise( short stage, const std::string & summary, const std::set< int > & projects )
 {
 	cbUserNames -> Clear();
 	int current = -1;
-	for( Range< LCDbOperator > user = LCDbOperators::records(); user.isValid(); ++ user )
-	{
+	for( const LCDbOperator & user : LCDbOperators::records() ) {
 		unsigned count = 0;
-		for( std::set< int >::const_iterator pi = projects.begin(); pi != projects.end(); ++ pi )
-			if( user -> canRun( *pi, 0, stage ) )
+		for( int pi : projects ) {
+			if( user.canRun( pi, 0, stage ) ) {
 				count ++;
-
-		if( count == projects.size() )
-		{
-			if( user -> getID() == LCDbOperators::getCurrentID() )
+			}
+		}
+		if( count == projects.size() ) {
+			if( user.getID() == LCDbOperators::getCurrentID() ) {
 				current = cbUserNames -> Items -> Count;
-			cbUserNames -> Items -> Add( user -> getDescription().c_str() );
+			}
+			cbUserNames -> Items -> Add( user.getDescription().c_str() );
 		}
 	}
-
 	cbUserNames -> ItemIndex = current;
 	edtPassword -> Text = "";
 	lblSummary -> Caption = summary.c_str();

@@ -27,7 +27,8 @@ class LCDbProject : public LCDbID, public LDbNames, public LDbValid
 
 public:
 
-	static const short IS_LIVE = 1, BOX_IMPORT = 2;
+	static const short IS_LIVE_STATUS = 1, BOX_IMPORT_STATUS = 2;
+	static const short ANALYSIS_ACTIVITY = 1, COMPLETED_ACTIVITY = 2, SAMPLE_STORAGE = 4, BOX_STORAGE = 8;
 	static const int CENTRAL_DB = 0, NONE_SELECTED = -1;
 
 	LCDbProject( int id = NONE_SELECTED )
@@ -75,7 +76,7 @@ public:
 	const LCDbProject * findByName( const std::string & nameOrDB ) const;
 
 	static int getCurrentID() { return records().currentID; }
-	void setCurrent( const LCDbProject & proj );
+	void setCurrent( const LCDbProject * proj );
 	void clearCurrentID() { currentID = LCDbProject::NONE_SELECTED; }
 };
 
@@ -90,11 +91,14 @@ template< typename Values > struct LPDbCacheMap
 		Values & cache = shared[ projID ];
 		if( cache.empty() ) {
 			LCDbProjects & projList = LCDbProjects::records();
-			const LCDbProject & proj = projList.get( projID );
+			const LCDbProject * proj = projList.findByID( projID );
+			if( proj == NULL || proj->isCentral() ) {
+				throw Exception( "Invalid project CID" );
+			}
 			if( projID != projList.getCurrentID() ) {
 				projList.setCurrent( proj );
 			}
-			cache.read( LIMSDatabase::getProjectDb( proj.getDbName(), true ) );
+			cache.read( LIMSDatabase::getProjectDb( proj->getDbName(), true ) );
 		}
 		return cache;
 	}

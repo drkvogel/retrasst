@@ -150,12 +150,12 @@ std::string QCViewController::describeWorklistEntry( const QCViewData& data, con
 
 	if ( data.getWorklistEntry() )
 	{
-		label << data.getWorklistEntry()->getBarcode()
-			<< "  "
-			<< snapshot->getTestName( data.getWorklistEntry()->getTestID() )
-			<< " (id:"
-			<< data.getWorklistEntry()->getID()
-			<< ")";
+		label
+			<< "Barcode: " << data.getWorklistEntry()->getBarcode()
+			<< "    "
+			<< "Test: " << snapshot->getTestName( data.getWorklistEntry()->getTestID() )
+			<< "    "
+			<< "ID: "	<< data.getWorklistEntry()->getID();
 	}
 	else
 	{
