@@ -53,6 +53,35 @@ Looking at the details for the [original torrent](http://thepiratebay.se/torrent
 
 It's 5,019,125,760b, same as the one straight from Embarcadero. Tried to run it - clicking Install from the splash screen doesn't seem to do anything again.
 
+Or at least... it didn't do anything until I re-enabled on-access scanning in Sophos...
+
+Started install again. Chose to install Delphi as well this time (which gives you the Android bit which isn't available if you uncheck Delphi - installer bug?)
+
+
+3NAP-2KSZFS-53MB6D-MBPN
+10417151
+
+VNFS-SQB4KP-PDJBCS-KPQP
+10417151
+
+
+
+(Note: DO NOT click on "Generate Activation File", it is not needed for this installation ) - oops, I did
+
+BDS not support!
+
+reply on thread
+
+tried to back up `delphicbuilder_xe5_upd1_win (1).iso` on phone SD but it wouldn't - presume FAT32 filesystem or similar.
+
+copied radstudio_xe4_esd from 
+
+    \\sanback\Software Installers\RAD Studio\radstudio_xe4_esd
+
+
+
+
+
 xe5 
  install-
  don't need
