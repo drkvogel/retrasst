@@ -1,0 +1,147 @@
+Hi
+
+We’ve got the licences for RAD studio XE4, and your keys are below.
+
+I’ve put the installer in L:\IT\deploy\radstudio_xe4_esd
+
+ 
+
+Make sure any projects that you move to XE4 are well backed up just in case!
+
+Chreag
+
+ 
+
+CNFF-A3DSUD-76W4BE-3BPS        Alan Young
+
+ 
+
+3NFF-NADS4D-N6W5BE-3BNS        Andrew Munday
+
+ 
+
+MNAG-N3A8UF-N6W4BD-32PS        Chris Bird
+
+ 
+
+3NFG-NDD8UF-7ZW5BD-3BPS        Geraint Jones
+
+ 
+
+MNFF-A3S84F-7QR4BE-3BPS        Guru Sohoni
+
+ 
+
+3NAF-ADN84A-7QQ5BD-32NS        Keith Anderson
+
+ 
+
+MNFG-NCN84F-78Q4BD-3BRS        Martin Bowes
+
+ 
+
+MNAG-NDNK4K-7WQ5BE-32QS        Nicholas Goodwin
+
+ 
+
+3NAF-NANDUD-NYX4BD-32QS        Paul Storey
+
+ 
+
+ 
+
+IBLite XE3 for iOS Deployment License
+
+ 
+
+ 
+
+ERA7-YCD2X8-NQX9AB-CBF3        Alan Young
+
+ 
+
+BRAV-Y3ARJ8-7SXUAB-C2G3        Andrew Munday
+
+ 
+
+BRFV-LAA2JN-NSXZAA-C2G3        Chris Bird
+
+ 
+
+ERF7-LAN2X8-76QUAA-C2F3        Geraint Jones
+
+ 
+
+GRA7-Y3SXJS-N7R9AB-CBJ3        Guru Sohoni
+
+ 
+
+ERFV-LDNRJ8-7XQUAA-C2J3        Keith Anderson
+
+ 
+
+BRAV-LAN2X7-NQR9AA-CBJ3        Martin Bowes
+
+ 
+
+GRF7-L3N2JN-NUWUAA-CBJ3        Nicholas Goodwin
+
+ 
+
+BRF7-YASRJ8-NSX9AA-C2J3        Paul Storey
+
+ 
+
+ 
+
+ 
+
+InterBase XE3 ToGo Test Deployment
+
+ 
+
+ 
+
+F2AF-LADVXN-Q7XUNB-CBW3        Alan Young
+
+ 
+
+F2AF-LDAGJS-W8W9NB-C2X3        Andrew Munday
+
+ 
+
+F2AG-LCDGJS-WPXUNB-C273        Chris Bird
+
+ 
+
+D2FG-Y3ABJS-QSX9NB-CBW3        Geraint Jones
+
+ 
+
+K2AF-YASVJ7-WRRUNB-CB73        Guru Sohoni
+
+ 
+
+F2FF-YDNPXN-WUR9NA-CBW3        Keith Anderson
+
+ 
+
+A2AG-YDNGJ7-WWQUNA-C273        Martin Bowes
+
+ 
+
+D2FG-YDSVX7-QZQ9NA-CBV3        Nicholas Goodwin
+
+ 
+
+A2AF-LANPXN-WWWUNA-CBW3        Paul Storey
+
+ 
+
+ 
+
+ 
+
+ 
+
+IBLite for iOS Web Registration Code: 737479 InterBase XE3 ToGo Test Deployment Web Registration Code: 737479

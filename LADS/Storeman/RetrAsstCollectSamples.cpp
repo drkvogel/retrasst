@@ -542,8 +542,19 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     collect->addChunk(curchunk, rowCount-1); // the last chunk
 }
 
-void LoadPlanThread::addSampleDetails(SampleRow * row) {
+void TfrmRetrAsstCollectSamples::addChunk(int number, int endRowAbs) { // don't assume chunk/section numbers instead of assuming it's the next number?
+/** add chunk with section = number, start row = end of previous chunk + 1, end row = endRowAbs */
+    Chunk< SampleRow > * newchunk; // Chunk(sgw, section, startAbs, endAbs, rowRel(0))
+    if (chunks.size() == 0) { // first chunk
+        newchunk = new Chunk< SampleRow >(sgwVials, number, 0, endRowAbs);
+    } else {
+        int previousEnd = chunks[chunks.size() - 1]->getEndAbs();
+        newchunk = new Chunk< SampleRow >(sgwVials, number, previousEnd + 1, endRowAbs);
+    }
+    chunks.push_back(newchunk);
+}
 
+void LoadPlanThread::addSampleDetails(SampleRow * row) {
     row->dest_type_name = Util::boxTubeTypeName(row->cbr_record->getProjId(), row->dest_box_id).c_str();
     main->getStorage(row);
     if (NULL != row->backup) {
@@ -599,18 +610,6 @@ void TfrmRetrAsstCollectSamples::showDetails(SampleRow * sample) {
     }
 }
 
-void TfrmRetrAsstCollectSamples::addChunk(int number, int endRowAbs) { // don't assume chunk/section numbers instead of assuming it's the next number?
-/** add chunk with section = number, start row = end of previous chunk + 1, end row = endRowAbs */
-    Chunk< SampleRow > * newchunk; // Chunk(sgw, section, startAbs, endAbs, rowRel(0))
-    if (chunks.size() == 0) { // first chunk
-        newchunk = new Chunk< SampleRow >(sgwVials, number, 0, endRowAbs);
-    } else {
-        int previousEnd = chunks[chunks.size() - 1]->getEndAbs();
-        newchunk = new Chunk< SampleRow >(sgwVials, number, previousEnd + 1, endRowAbs);
-    }
-    chunks.push_back(newchunk);
-}
-
 void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct vial; could be missing, swapped etc
     SampleRow * primary = currentSample();  // could be primary, primary w/backup, or secondary
     SampleRow * aliquot = currentAliquot(); // primary or secondary - this is a bit confusing
@@ -631,7 +630,6 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
         } else { // else, it was the secondary - primary should already have been set NOT_FOUND, but make sure
             primary->lcr_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND); //???
         }
-
         debugLog("Save accepted row");
         nextRow();
     } else {
@@ -745,7 +743,7 @@ void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
 
     // calculate if there are any empty boxes
     collectEmpties();
-    //saveProgress();
+    saveProgress();
     // create tick list or switch list of boxes, empty/otherwise
     // ask user to comfirm that empty boxes are in fact empty
     // if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
