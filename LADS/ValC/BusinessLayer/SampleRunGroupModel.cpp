@@ -3,6 +3,7 @@
 #include "Require.h"
 #include "SampleRunGroup.h"
 #include "SampleRunGroupModel.h"
+#include <sstream>
 
 namespace valc
 {
@@ -153,7 +154,26 @@ void SampleRunGroupModel::startNewGroup( const std::string& runID, bool isQC, co
 
     if ( m_currentGroup && (!isQC) && ! m_currentGroup->isQC() )
     {
-        paulst::exception( "Cannot transition from a group of Unknowns to another group of Unknowns (sample run: %s)", runID.c_str() );
+        std::ostringstream msg;
+    
+        msg << "Cannot transition from a group of Unknowns to another group of Unknowns."
+            << "\nState:\n"
+            << "Wanting to start a new group for run " << runID << ". This is a run of an Unknown, i.e. not a QC.";
+
+        if ( groupID.isNull() )
+        {
+            msg << " Supplied a groupID value of NULL for this run.";
+        }
+        else
+        {
+            msg << " Supplied a groupID value of " << (int)groupID << " for this run.";
+        }
+
+        msg << "\nDetails for the current group, in which this run would have no part:\n"
+            << "isQC: " << ( m_currentGroup->isQC() ? "true" : "false" ) << "\n"
+            << "ID: " << m_currentGroup->getID() << "\n";
+
+        throwException( msg.str() );
     }
 
     int grpID = groupID.isNull() ? m_groupIDGenerator->nextID() : (int)groupID;

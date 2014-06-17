@@ -10,14 +10,12 @@
 //---------------------------------------------------------------------------
 
 USEFORM("TSnapshotFrame.cpp", SnapshotFrame); /* TFrame: File Type */
-USEFORM("TSampleRunFrame.cpp", SampleRunFrame); /* TFrame: File Type */
-USEFORM("TWorklistItemViewFrame.cpp", WorklistItemViewFrame); /* TFrame: File Type */
-USEFORM("TWaitDlg.cpp", WaitDlg);
-USEFORM("TQCViewFrame.cpp", QCViewFrame); /* TFrame: File Type */
-USEFORM("TMainForm.cpp", MainForm);
-USEFORM("TLogFrame.cpp", LogFrame); /* TFrame: File Type */
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
+USEFORM("TSampleRunFrame.cpp", SampleRunFrame); /* TFrame: File Type */
+USEFORM("TWorklistItemViewFrame.cpp", WorklistItemViewFrame); /* TFrame: File Type */
+USEFORM("TWaitDlg.cpp", WaitDlg);
+USEFORM("TQCViewFrame.cpp", QCViewFrame); /* TFrame: File Type */
+USEFORM("TMainForm.cpp", MainForm);
+USEFORM("TLogFrame.cpp", LogFrame); /* TFrame: File Type */
 extern "C" int FMXmain()
 
 {

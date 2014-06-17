@@ -9,9 +9,10 @@
 //---------------------------------------------------------------------------
 
 USEFORM("RationaliseTanks\RatTanksMainDialog.cpp", frmRatTanksMainDialog);
+USEFORM("RationaliseTanks\RatTanksCreateRetrievalJob.cpp", frmRatTankCreateRetrievalJob);
+USEFORM("RationaliseTanks\RatTanksBoxSelection.cpp", frmRatTanksBoxSelection);
 USEFORM("RationaliseTanks\RatTanksBoxType.cpp", frmRatTanksBoxType);
 USEFORM("RationaliseTanks\RatTanksCreateExercise.cpp", frmRatTanksRetrivalExercise);
-USEFORM("RationaliseTanks\RatTanksCreateRetrievalJob.cpp", frmRatTankCreateRetrievalJob);
 USEFORM("RetrAsstCollectBoxes.cpp", frmRetrAsstCollectBoxes);
 USEFORM("RetrAsstCollectEmpties.cpp", frmCollectEmpties);
 USEFORM("RetrAsstCollectSamples.cpp", frmRetrAsstCollectSamples);
@@ -19,19 +20,19 @@ USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
 USEFORM("RationaliseTanks\RatTanksPleaseWait.cpp", frmRatTankPleaseWait);
 USEFORM("RationaliseTanks\RatTanksSignIn.cpp", frmRatTankSignIn);
 USEFORM("ReferredBoxes.cpp", frmReferred);
-USEFORM("RationaliseTanks\RatTanksBoxSelection.cpp", frmRatTanksBoxSelection);
+USEFORM("NewType.cpp", frmNewStoreType);
 USEFORM("FindSample.cpp", frmFind);
+USEFORM("DiscardSearch.cpp", frmSearch);
+USEFORM("DiscardNote.cpp", frmDiscardNote);
 USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
 USEFORM("DiscardSamples.cpp", frmDiscardSamples);
-USEFORM("DiscardSearch.cpp", frmSearch);
-USEFORM("MoveJobs.cpp", frmSelectJob);
+USEFORM("NewSection.cpp", frmNewSection);
 USEFORM("NewSite.cpp", frmNewSite);
 USEFORM("NewTank.cpp", frmNewTank);
-USEFORM("NewType.cpp", frmNewStoreType);
-USEFORM("NewSection.cpp", frmNewSection);
+USEFORM("NewJob.cpp", frmNewJob);
+USEFORM("MoveJobs.cpp", frmSelectJob);
 USEFORM("NewBoxType.cpp", frmNewBoxType);
 USEFORM("NewExercise.cpp", frmNewExercise);
-USEFORM("NewJob.cpp", frmNewJob);
 USEFORM("RetrAsstMain.cpp", frmRetrievalAssistant);
 USEFORM("SMLogin.cpp", frmSMLogin);
 USEFORM("Storemain.cpp", frmStoremain);
@@ -47,7 +48,6 @@ USEFORM("SampleEntry.cpp", frmRetrieveMain);
 USEFORM("RetrievalLists\RetrievalListResultNotesDialog.cpp", frmRetrievalListResultNotesDialog);
 USEFORM("RetrievalLists\RetrievalListResultsDialog.cpp", frmRetrievalListResultsDialog);
 USEFORM("RetrieveSamples.cpp", frmRetrieved);
-USEFORM("DiscardNote.cpp", frmDiscardNote);
 USEFORM("AddSpecimens.cpp", frmAddSpecimens);
 USEFORM("AnalyseSamples.cpp", frmAnalyseSpecimens);
 USEFORM("DiscardMethod.cpp", frmDiscardMethod);
@@ -59,7 +59,9 @@ USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
 USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
 USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
 USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
+
 //---------------------------------------------------------------------------
+
 WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
 	try
@@ -94,7 +96,7 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 		Application->CreateForm(__classid(TfrmFind), &frmFind);
 		Application->CreateForm(__classid(TfrmSelectBoxes), &frmSelectBoxes);
 		Application->CreateForm(__classid(TfrmReferredBoxesSummary), &frmReferredBoxesSummary);
-         Application->CreateForm(__classid(TfrmReferred), &frmReferred);
+		Application->CreateForm(__classid(TfrmReferred), &frmReferred);
 		Application->CreateForm(__classid(TfrmNewStoreType), &frmNewStoreType);
 		Application->CreateForm(__classid(TfrmNewBoxType), &frmNewBoxType);
 		Application->CreateForm(__classid(TfrmRatTanksBoxType), &frmRatTanksBoxType);
@@ -106,12 +108,12 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 		Application->CreateForm(__classid(TfrmRetrievalListViewListMain), &frmRetrievalListViewListMain);
 		Application->CreateForm(__classid(TfrmRetrievalListResultNotesDialog), &frmRetrievalListResultNotesDialog);
 		Application->CreateForm(__classid(TfrmRetrievalAssistant), &frmRetrievalAssistant);
-         Application->CreateForm(__classid(TfrmRatTankSignIn), &frmRatTankSignIn);
+		Application->CreateForm(__classid(TfrmRatTankSignIn), &frmRatTankSignIn);
 		Application->CreateForm(__classid(TfrmRetrAsstCollectSamples), &frmRetrAsstCollectSamples);
-         Application->CreateForm(__classid(TfrmCollectEmpties), &frmCollectEmpties);
+		Application->CreateForm(__classid(TfrmCollectEmpties), &frmCollectEmpties);
 		Application->CreateForm(__classid(TfrmRetrAsstCollectBoxes), &frmRetrAsstCollectBoxes);
 		Application->CreateForm(__classid(TfrmRetrAsstPlanBoxes), &frmRetrAsstPlanBoxes);
-         Application->CreateForm(__classid(TfrmRetrAsstPlanSamples), &frmRetrAsstPlanSamples);
+		Application->CreateForm(__classid(TfrmRetrAsstPlanSamples), &frmRetrAsstPlanSamples);
 		Application->Run();
 	}
 	catch (Exception &exception) {

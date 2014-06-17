@@ -6,7 +6,7 @@
 
 std::string LDbNames::makeLower( const std::string & s )
 {
-	static const MAX_LENGTH = 30;
+	static const short MAX_LENGTH = 30;
 	char nameBuff[ MAX_LENGTH + 1 ];
 	int i = 0;
 	for( const char * c = s.c_str(); *c != '\0' && i < MAX_LENGTH; i ++, c ++ )	{

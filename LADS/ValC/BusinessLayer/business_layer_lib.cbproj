@@ -127,6 +127,10 @@
             <DependentOn>BuddyDatabaseEntryIndex.h</DependentOn>
             <BuildOrder>8</BuildOrder>
         </CppCompile>
+        <CppCompile Include="BuddyRun.cpp">
+            <DependentOn>BuddyRun.h</DependentOn>
+            <BuildOrder>70</BuildOrder>
+        </CppCompile>
         <CppCompile Include="BuddySampleIDKeyedOnSampleRunID.cpp">
             <DependentOn>BuddySampleIDKeyedOnSampleRunID.h</DependentOn>
             <BuildOrder>9</BuildOrder>
@@ -162,17 +166,13 @@
             <DependentOn>DBUpdateTask.h</DependentOn>
             <BuildOrder>18</BuildOrder>
         </CppCompile>
-        <CppCompile Include="DBUpdateTaskInsertSampleRun.cpp">
-            <DependentOn>DBUpdateTaskInsertSampleRun.h</DependentOn>
-            <BuildOrder>19</BuildOrder>
-        </CppCompile>
         <CppCompile Include="DBUpdateTaskLinkResultToWorklistEntry.cpp">
             <DependentOn>DBUpdateTaskLinkResultToWorklistEntry.h</DependentOn>
             <BuildOrder>20</BuildOrder>
         </CppCompile>
-        <CppCompile Include="DBUpdateTaskUpdateSampleRunID.cpp">
-            <DependentOn>DBUpdateTaskUpdateSampleRunID.h</DependentOn>
-            <BuildOrder>21</BuildOrder>
+        <CppCompile Include="DBUpdateTaskSyncBuddyDatabaseAndSampleRun.cpp">
+            <DependentOn>DBUpdateTaskSyncBuddyDatabaseAndSampleRun.h</DependentOn>
+            <BuildOrder>69</BuildOrder>
         </CppCompile>
         <CppCompile Include="ExceptionalDataHandler.cpp">
             <DependentOn>ExceptionalDataHandler.h</DependentOn>

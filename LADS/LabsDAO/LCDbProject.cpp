@@ -50,10 +50,16 @@ LCDbProject::LCDbProject( const LQuery & query  )
 	if( code.empty() || code == "." )
 		code = getName().substr( 0, 2 );
 
-   liveData = (database.substr(0,3)== "ldb");
+	liveData = (database.substr(0,3)== "ldb");
 
-   int activity = query.fieldExists( "activity_flags" ) ? query.readInt( "activity_flags" ) : 0;
-   boxImport = (status != DELETED && (status & BOX_IMPORT_STATUS) != 0) || (activity & BOX_STORAGE) != 0;
+	int activity = query.fieldExists( "activity_flags" ) ? query.readInt( "activity_flags" ) : 0;
+	if( getID() == CENTRAL_DB ) {
+		boxImport = canStore = false;
+	} else {
+		boxImport = (status != DELETED && (status & BOX_IMPORT_STATUS) != 0)
+				 || (activity == 0 || (activity & BOX_STORAGE) != 0);
+		canStore = boxImport || (activity & SAMPLE_STORAGE) != 0;
+	}
 }
 
 //---------------------------------------------------------------------------

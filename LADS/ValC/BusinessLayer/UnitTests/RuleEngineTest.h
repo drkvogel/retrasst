@@ -391,8 +391,8 @@ namespace tut
                 waitForQueued(testFixture.ruleEngine);
 
                 ensure_equals( "There should be 9 results", testFixture.countResults(), 9 );
-                ensure_equals( "expect 1 connection constructed", connectionsOpened, 1 );// connection re-use
-                ensure_equals( "expect 0 connections closed", connectionsClosed, 0 );
+                ensure_equals( "expect 10 connection constructed", connectionsOpened, 10 );// connection re-use
+                ensure_equals( "expect 10 connections closed", connectionsClosed, 10 );
 
                 // Each iteration is expected to use the same instance of the script.
                 // Within the script, globalValue is getting incremented. The 
@@ -425,9 +425,6 @@ namespace tut
                 ensure( ansiStr.c_str(), false );
             }
         }
-
-        // As the RuleEngine's ConnectionCache goes out of scope, the cached connection should have been closed
-        ensure_equals( "expect 1 connection instance closed", connectionsClosed, 1 );
 	}
 
     template<>

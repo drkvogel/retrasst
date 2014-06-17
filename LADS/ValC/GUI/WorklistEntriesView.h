@@ -102,7 +102,7 @@ private:
 
 	TSampleRunPanel* createSampleRunPanel(TPanel *parentPanel, int y, bool queued);
     void finaliseTestPanel(TTestPanel *t, TPanel *parent, int x, bool queued);
-	void addWorklistEntries(valc::SnapshotPtr sn,
+	int addWorklistEntries(valc::SnapshotPtr sn,
 							const std::string & sampleDescriptor,
 							TSampleRunPanel *runPanel,
 							int & maxRunWidth,

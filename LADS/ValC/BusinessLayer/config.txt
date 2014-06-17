@@ -11,7 +11,7 @@ SampleRunInsertSQL:
     insert into sample_run ( run_id, sequence_position, group_id ) values ( %d, %d, %d )
 
 SampleRunGroupIDConnectionString:
-    dsn=paulst_brat_64;db=paulst_test3
+    dsn=paulst_brat_64;db=paulst_test4
 
 SampleRunGroupIDSessionReadLockSetting:
     set lockmode session where readlock = nolock
@@ -52,10 +52,10 @@ RuleEngineTimeoutSecs:
 10
 
 QCResultSequenceConnectionString:
-dsn=paulst_brat_64;db=paulst_test3
+dsn=paulst_brat_64;db=paulst_test4
 
 ProjectsConnectionString:
-dsn=paulst_brat_64;db=paulst_test3
+dsn=paulst_brat_64;db=paulst_test4
 
 ProjectsSessionReadLockSetting:
 set lockmode session where readlock = nolock
@@ -64,7 +64,7 @@ ProjectsQuery:
 select project_cid, lower(external_name), lower(db_name) from c_project
 
 ClusterIDsConnectionString:
-dsn=paulst_brat_64;db=paulst_test3
+dsn=paulst_brat_64;db=paulst_test4
 
 ClusterIDsSessionReadLockSetting:
 set lockmode session where readlock = nolock
@@ -73,7 +73,7 @@ ClusterIDsQuery:
 SELECT cluster_cid FROM c_cluster_machine WHERE machine_cid = -1019429
 
 TestNamesConnectionString:
-dsn=paulst_brat_64;db=paulst_test3
+dsn=paulst_brat_64;db=paulst_test4
 
 TestNamesSessionReadLockSetting:
 set lockmode session where readlock = nolock
@@ -82,7 +82,7 @@ TestNamesQuery:
 select test_cid, external_name from c_test
 
 QCGatesConnectionString:
-dsn=paulst_brat_64;db=paulst_test3
+dsn=paulst_brat_64;db=paulst_test4
 
 QCGatesSessionReadLockSetting:
 set lockmode session where readlock = nolock
@@ -101,7 +101,7 @@ QCGatesQuery:
     qc_lot.qc_status in ( 0, 1, 2 )
 
 QCRuleConnectionString:
-dsn=paulst_brat_64;db=paulst_test3
+dsn=paulst_brat_64;db=paulst_test4
 
 QCRuleSessionReadLockSetting:
 set lockmode session where readlock = nolock
@@ -116,7 +116,7 @@ QCRuleQuery:
     and qr.valid_to   > date('now')
 
 QCRuleConfigConnectionString:
-dsn=paulst_brat_64;db=paulst_test3
+dsn=paulst_brat_64;db=paulst_test4
 
 QCRuleConfigSessionReadLockSetting:
 set lockmode session where readlock = nolock
@@ -136,13 +136,13 @@ ConnectionFactoryType:
 ADO
 
 ForceReloadConnectionString:
-dsn=paulst_brat_64;db=paulst_test3
+dsn=paulst_brat_64;db=paulst_test4
 
 ForceReloadSessionReadLockSetting:
 set lockmode session where readlock = nolock
 
 DBUpdateThreadConnectionString:
-dsn=paulst_brat_64;db=paulst_test3
+dsn=paulst_brat_64;db=paulst_test4
 
 DBUpdateThreadSessionReadLockSetting:
 
@@ -157,7 +157,7 @@ LoadBuddyDatabase:
     bd.database_name, bd.alpha_sample_id, bd.machine_cid,         
     brf.buddy_result_id, brf.test_id, brf.res_value,             
     brf.action_flag, brf.date_analysed, brf.res_text,           
-    brf.update_when, brf.cbw_record_no, sr.run_id, sr.is_open, 
+    brf.update_when, brf.cbw_record_no, sr.run_id, NVL2( sr.closed_by, 0, 1 ), 
     sr.created_when, sr.closed_when, sr.sequence_position,     
     NVL( sr.fao_level_one, 'y' ) as fao_level_one, sr.group_id
     FROM                                                     
@@ -224,7 +224,7 @@ WorklistInclusionRule:
 
 
 WorklistRelationConnectionString:
-dsn=paulst_brat_64;db=paulst_test3
+dsn=paulst_brat_64;db=paulst_test4
 
 WorklistRelationSessionReadLockSetting:
 set lockmode session where readlock = nolock

@@ -48,6 +48,15 @@ void TfrmRetrieveMain::init( ) {
 }
 
 // ---------------------------------------------------------------------------
+//	Expand or shrink columns to fit - allow double width for the box name
+// ---------------------------------------------------------------------------
+
+void __fastcall TfrmRetrieveMain::FormResize( TObject *Sender ) {
+	resizeGrid( );
+	updateDisplay( );
+}
+
+// ---------------------------------------------------------------------------
 
 void TfrmRetrieveMain::resizeGrid( ) {
 	grdSamples->ColCount = COL_COUNT;
@@ -57,6 +66,8 @@ void TfrmRetrieveMain::resizeGrid( ) {
 	grdSamples->ColWidths[ OLD_BOX ] = grdSamples->ClientWidth - narrowCols;
 }
 
+// ---------------------------------------------------------------------------
+//	add cryovials from a text file of barcodes and (optional) destination
 // ---------------------------------------------------------------------------
 
 void __fastcall TfrmRetrieveMain::AddClick( TObject *Sender ) {
@@ -117,6 +128,8 @@ void __fastcall TfrmRetrieveMain::AddClick( TObject *Sender ) {
 }
 
 // ---------------------------------------------------------------------------
+//	add cryovials at given position from given box/sample/cryovial barcode
+// ---------------------------------------------------------------------------
 
 AnsiString TfrmRetrieveMain::addCryovials( const AnsiString & barcode, int pos ) {
 	StoreDAO dao;
@@ -151,12 +164,14 @@ AnsiString TfrmRetrieveMain::addCryovials( const AnsiString & barcode, int pos )
 }
 
 // ---------------------------------------------------------------------------
+//	List projects in current system that may include cryovials to retrieve
+// ---------------------------------------------------------------------------
 
 void __fastcall TfrmRetrieveMain::cbProjectDropDown( TObject *Sender ) {
 	cbProject->Clear( );
 	int selected = -1;
 	for( const LCDbProject & pr : LCDbProjects::records( ) ) {
-		if( pr.isInCurrentSystem( ) && pr.isActive( ) && !pr.isCentral( ) ) {
+		if( pr.isInCurrentSystem( ) && pr.hasStorage( ) && !pr.isCentral( ) ) {
 			if( pr.getID( ) == LCDbProjects::getCurrentID( ) ) {
 				selected = cbProject->Items->Count;
 			}
@@ -166,6 +181,8 @@ void __fastcall TfrmRetrieveMain::cbProjectDropDown( TObject *Sender ) {
 	cbProject->ItemIndex = selected;
 }
 
+// ---------------------------------------------------------------------------
+//	switch project (leave existing list to allow multi-project retrievals)
 // ---------------------------------------------------------------------------
 
 void __fastcall TfrmRetrieveMain::cbProjectChange( TObject *Sender ) {
@@ -179,26 +196,14 @@ void __fastcall TfrmRetrieveMain::cbProjectChange( TObject *Sender ) {
 }
 
 // ---------------------------------------------------------------------------
-
-void TfrmRetrieveMain::setValue( int col, int row, const std::string & value ) {
-	grdSamples->Cells[ col ][ row ] = value.c_str( );
-}
-
-// ---------------------------------------------------------------------------
-
-void TfrmRetrieveMain::setValue( int col, int row, short value ) {
-	if( value == 0 ) {
-		grdSamples->Cells[ col ][ row ] = " ";
-	} else {
-		grdSamples->Cells[ col ][ row ] = value;
-	}
-}
-
+//	update the display after sorting, clearing or importing cryovial data
 // ---------------------------------------------------------------------------
 
 void TfrmRetrieveMain::updateDisplay( ) {
-	if( sortList.empty( ) ) {
-		lbSortCols->Clear( );
+	lbSortCols->Clear( );
+	for( const Column & ci : sortList.columns ) {
+		AnsiString order = ci.ascending ? " ascending" : " descending";
+		lbSortCols->Items->Add( ci.label.c_str( ) + order );
 	}
 	if( rows.empty( ) ) {
 		grdSamples->RowCount = 2;
@@ -237,11 +242,22 @@ void TfrmRetrieveMain::fillGrid( ) {
 
 // ---------------------------------------------------------------------------
 
-void __fastcall TfrmRetrieveMain::FormResize( TObject *Sender ) {
-	resizeGrid( );
-	updateDisplay( );
+void TfrmRetrieveMain::setValue( int col, int row, const std::string & value ) {
+	grdSamples->Cells[ col ][ row ] = value.c_str( );
 }
 
+// ---------------------------------------------------------------------------
+
+void TfrmRetrieveMain::setValue( int col, int row, short value ) {
+	if( value == 0 ) {
+		grdSamples->Cells[ col ][ row ] = " ";
+	} else {
+		grdSamples->Cells[ col ][ row ] = value;
+	}
+}
+
+// ---------------------------------------------------------------------------
+//	List aliquots that may be available in the current project
 // ---------------------------------------------------------------------------
 
 void __fastcall TfrmRetrieveMain::CmbAliquot1DropDown( TObject *Sender ) {
@@ -286,6 +302,8 @@ int TfrmRetrieveMain::getAliquotTypeID( TComboBox * cb ) {
 }
 
 // ---------------------------------------------------------------------------
+//	check location of the source boxes (if recorded); refresh display
+// ---------------------------------------------------------------------------
 
 void __fastcall TfrmRetrieveMain::btnLocateClick( TObject *Sender ) {
 	StoreDAO dao;
@@ -314,6 +332,8 @@ void __fastcall TfrmRetrieveMain::btnLocateClick( TObject *Sender ) {
 }
 
 // ---------------------------------------------------------------------------
+//	Create retrieval job, flag cryovials for removal and set destination
+// ---------------------------------------------------------------------------
 
 void __fastcall TfrmRetrieveMain::btnSaveListClick( TObject *Sender ) {
 	String error;
@@ -340,6 +360,8 @@ void __fastcall TfrmRetrieveMain::btnSaveListClick( TObject *Sender ) {
 	}
 }
 
+// ---------------------------------------------------------------------------
+//	ask the user to select or create a box type to hold all the cryovials
 // ---------------------------------------------------------------------------
 
 LPDbBoxType * TfrmRetrieveMain::getBoxType( ) {
@@ -392,6 +414,8 @@ LPDbBoxType * TfrmRetrieveMain::getBoxType( ) {
 }
 
 // ---------------------------------------------------------------------------
+//	create a retrieval job record, including a unique box set number
+// ---------------------------------------------------------------------------
 
 LCDbCryoJob * TfrmRetrieveMain::createJob( ) {
 	LCDbCryoJob *job = NULL;
@@ -414,6 +438,8 @@ LCDbCryoJob * TfrmRetrieveMain::createJob( ) {
 	return job;
 }
 
+// ---------------------------------------------------------------------------
+//	Create a set of boxes and allocate the cryovials to them, in order
 // ---------------------------------------------------------------------------
 
 void TfrmRetrieveMain::createBoxes( const LCDbCryoJob & job, const LPDbBoxType & boxType ) {
@@ -471,6 +497,8 @@ void TfrmRetrieveMain::createBoxes( const LCDbCryoJob & job, const LPDbBoxType &
 }
 
 // ---------------------------------------------------------------------------
+//	store current cryovial data, record_number gives position in list
+// ---------------------------------------------------------------------------
 
 GridEntry::GridEntry( const ROSETTA & details, short position )
 	: sid( details.getInt( "sample_id" ) ), sample( details.getString( "barcode" ) ),
@@ -511,13 +539,21 @@ void GridEntry::copyLocation( const GridEntry & other ) {
 // ---------------------------------------------------------------------------
 
 void __fastcall TfrmRetrieveMain::btnClrSortClick( TObject *Sender ) {
-	sortList.clear( );
+	sortList.clear();
+	displaySortedList();
+}
+
+// ---------------------------------------------------------------------------
+//	sort the cryovial list or restore the original order
+// ---------------------------------------------------------------------------
+
+void TfrmRetrieveMain::displaySortedList() {
 	std::sort( rows.begin( ), rows.end( ), sortList );
 	if( rgDestOrder->ItemIndex == SORTED ) {
 		for( short n = 0; n < rows.size(); n ++ ) {
-            rows[ n ].new_pos = n + 1;
-        }
-    }
+			rows[ n ].new_pos = n + 1;
+		}
+	}
 	updateDisplay( );
 }
 
@@ -574,6 +610,8 @@ static int compareStructure( GER i, GER j ) {
 }
 
 // ---------------------------------------------------------------------------
+//	add or reverse a comparator when the user clicks on a column heading
+// ---------------------------------------------------------------------------
 
 void __fastcall TfrmRetrieveMain::grdSamplesFixedCellClick( TObject *Sender, int ACol, int ARow ) {
 	int( *compare )( GER, GER );
@@ -618,16 +656,8 @@ void __fastcall TfrmRetrieveMain::grdSamplesFixedCellClick( TObject *Sender, int
 	default:
 		return;
 	}
-
 	sortList.addColumn( compare, heading.c_str( ) );
-	lbSortCols->Clear( );
-	for( const Column & ci : sortList.columns ) {
-		AnsiString order = ci.ascending ? " ascending" : " descending";
-		lbSortCols->Items->Add( ci.label.c_str( ) + order );
-	}
-	std::sort( rows.begin( ), rows.end( ), sortList );
-	fillGrid( );
-	enableButtons( );
+	displaySortedList( );
 }
 
 // ---------------------------------------------------------------------------
@@ -666,6 +696,8 @@ bool TfrmRetrieveMain::Sorter:: operator( )( GER a, GER b ) const {
 	return a.record_number < b.record_number;
 }
 
+// ---------------------------------------------------------------------------
+//	try to prevent the user from doing anything they shouldn't
 // ---------------------------------------------------------------------------
 
 void TfrmRetrieveMain::enableButtons( ) {

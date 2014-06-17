@@ -223,10 +223,9 @@ bool Util::isPosDuplicate( int locationCID, short pos, short shelf )
 	bool duplicate = false;
 	for( Range< LCDbTankMap > store = LCDbTankMaps::records(); store.isValid(); ++ store ) {
 		if( store->getStatus() < LCDbTankMap::OFFLINE ) {
-			if( store->getLocationCID() == locationCID && store->getPosition() == pos ) {
-				if( shelf == 0 || store->getPopulation() == 0 || store->getPopulation() == shelf ) {
-					duplicate = true;
-				}
+			if( store->getLocationCID() == locationCID && store->getPosition() == pos
+			&& (shelf == 0 || store->getPopulation() == shelf) ) {
+				duplicate = true;
 			}
 		}
 	}
@@ -422,7 +421,7 @@ std::string Util::boxTubeTypeName(int project_cid, int box_cid) {
         int project_cid;
         int box_cid;
         ProjBox(int proj, int box) : project_cid(proj), box_cid(box) {}
-        operator<(const ProjBox & rhs) const { return project_cid < rhs.project_cid || box_cid < rhs.box_cid; }
+        bool operator<(const ProjBox & rhs) const { return project_cid < rhs.project_cid || box_cid < rhs.box_cid; }
 
     };
     typedef std::map< ProjBox, std::string > BoxToTypeMap;

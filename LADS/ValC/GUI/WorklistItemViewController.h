@@ -23,14 +23,14 @@ class WorklistItemViewController
 public:
 	WorklistItemViewController( TWorklistItemViewFrame* widgetContainer, Model* m );
     void __fastcall familyTreeClickHandler( TObject* sender );
-	void notify( int modelEvent );
+	void notify( int modelEvent, const std::string& eventData );
     void __fastcall update();
 private:
 	TWorklistItemViewFrame* const                           m_widgetContainer;
 	ModelEventListenerAdapter<WorklistItemViewController>   m_eventListener;
     Model* const                                            m_model;
 
-    void addTreeNodeForWorklistEntry( const valc::SnapshotPtr& s, const valc::WorklistRelative& wr, TTreeViewItem* parent = NULL );
+    void addTreeNodeForWorklistEntry( int idOfSelectedWorklistEntry, const valc::SnapshotPtr& s, const valc::WorklistRelative& wr, TTreeViewItem* parent = NULL );
     void clear();
     std::string describe( const valc::SnapshotPtr& s, const valc::WorklistRelative& wr ) const;
     void describeFamilyTree( const valc::SnapshotPtr& snapshot, const valc::WorklistEntry* w );

@@ -21,7 +21,7 @@ public:
     volatile int newWorklistID;
     int sampleRunID;
     int userID;
-    volatile bool success;
+    std::string errorMsg;
 
 
     std::string describe() const
@@ -33,8 +33,6 @@ public:
 
     void execute( paulstdb::DBConnection* c, const paulst::Config* config )
     {
-        success = false;
-
         setAutoCommit( c, false );
 
         boost::shared_ptr<void> restoreAutoCommitOnBlockExit( c, boost::bind( setAutoCommit, _1, true ) );
@@ -47,10 +45,16 @@ public:
             c->executeStmt( paulst::format( config->get( "SQLStmtInsertRerun"            ).c_str(), newWorklistID, worklistID ) );
             c->executeStmt( paulst::format( config->get( "SQLStmtInsertWorklistRelation" ).c_str(), newWorklistID, worklistID ) );
             commit( c );
-            success = true;
+        }
+        catch( const Exception& e )
+        {
+            errorMsg = AnsiString( e.Message.c_str() ).c_str();   
+            rollback( c );
+            throw;
         }
         catch( ... )
         {
+            errorMsg = "Unspecified error";
             rollback( c );
             throw;
         }

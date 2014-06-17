@@ -1,4 +1,5 @@
 #include "BuddyDatabaseBuilder.h"
+#include <algorithm>
 #include "API.h"
 #include <boost/lexical_cast.hpp>
 #include "BuddyDatabase.h"
@@ -24,6 +25,23 @@
 
 namespace valc
 {
+
+struct SameRunID
+{
+    std::string targetRunID;
+
+    SameRunID( const std::string& runID )
+        :
+        targetRunID( runID )
+    {
+    }
+
+    bool operator()( const SampleRun& sr ) const
+    {
+        return targetRunID == sr.getID();
+    }
+};
+
 
 BuddyDatabaseBuilder::BuddyDatabaseBuilder( 
     const Projects*                     p, 
@@ -173,12 +191,27 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
         }
 
         std::string sampleRunID      = hasSampleRun ? paulst::toString(srID) : sampleDescriptor;
-        SampleRuns* targetCollection = hasSampleRun ? m_sampleRuns : m_candidateSampleRuns;
         SampleRun   sampleRun( sampleRunID, sampleDescriptor, srIsOpen != 0, srCreatedWhen, srClosedWhen, srSequencePosition, srGroupID, isQC() );
 
         m_buddyDatabaseEntryIndex->add( buddySampleID, alphaSampleID, barcode, databaseName, dateAnalysed );
 
-        targetCollection->push_back( sampleRun );
+        if ( hasSampleRun )
+        {
+            m_sampleRuns->push_back( sampleRun );
+        }
+        else
+        {
+            // Implicit in this code is that, when earlier SampleRun instances are preferred to later, if they 
+            // are otherwise equivalent in respect of their ID.  Because, the order of candidates is driven by buddy_sample_id,
+            // this means that the lowest value for buddy_sample_id wins out. This value becomes the sequence_position for 
+            // the sample run.
+            // There is a dependency between this code and the behaviour of DBUpdateSchedule::scheduleUpdate, which also
+            // prefers the earliest candidate when there are duplicates.
+            if ( 0 == std::count_if( m_candidateSampleRuns->begin(), m_candidateSampleRuns->end(), SameRunID( sampleRunID ) ) )
+            {
+                m_candidateSampleRuns->push_back( sampleRun );
+            }
+        }
 
         m_buddySampleIDKeyedOnSampleRunID->addEntry( sampleRunID, buddySampleID );
 

@@ -122,18 +122,13 @@ void LoadBuddyDatabase::doStuff()
 	sampleRuns->resize( std::distance( sampleRuns->begin(), sampleRunsEnd ) );
 	LOG( std::string("Number of sample-runs after deduplication: ") << sampleRuns->size() );
     
-	// Remove duplicates from candidateSampleRuns
-	LOG( std::string("Number of candidate-sample-runs before deduplication: ") << candidateSampleRuns->size() );
-	std::sort( candidateSampleRuns->begin(), candidateSampleRuns->end(), compareRuns );
-
-	SampleRuns::iterator candidatesEnd = std::unique( candidateSampleRuns->begin(), candidateSampleRuns->end(), equivalentRuns );
-	LOG( std::string("Number of candidate-sample-runs after deduplication: ") <<
-	std::distance( candidateSampleRuns->begin(), candidatesEnd ) );
+	// candidateSampleRuns should not have any duplicates. BuddyDatabaseBuilder only adds candidates to the list
+    // if there isn't already an entry with the same ID
 
     // Remove candidates for which there already exists an open sample-run for the same sample.
     // Note that a side-effect of this procedure is that sampleRunIDResolutionService may gain 
     // mappings, in order to avoid TestResult instances having dangling references to removed candidate-sample runs.
-    candidatesEnd = std::remove_if( candidateSampleRuns->begin(), candidatesEnd, 
+    SampleRuns::iterator candidatesEnd = std::remove_if( candidateSampleRuns->begin(), candidateSampleRuns->end(), 
         ExistsAnOpenSampleRunMatchingOnSampleDescriptor( *sampleRuns, *m_sampleRunIDResolutionService ) );
 
     // Remaining candidates represent genuine sample-runs that don't yet exist in the sample_run table. Add them to sampleRuns.

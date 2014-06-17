@@ -126,7 +126,6 @@ void SampleRunViewController::addResultBox(
 	p->PopupMenu = NULL;
 	p->Tag = worklistEntry->getID();
 	p->OnClick = selectWorklistEntry;
-	p->HitTest = true;
 
     require( m_selectedWorklistEntry.get() );
 
@@ -159,7 +158,18 @@ TFlowLayout* SampleRunViewController::createRow( const std::string& labelText )
 
 	setText( p, "caption", labelText );
 
-	return findStyleResource<TFlowLayout>( p, "resultflow" );
+	TFlowLayout* fl = findStyleResource<TFlowLayout>( p, "resultflow" );
+
+	/*
+	FireMonkey appears sometimes to cache styles. Consequently,
+	the flowlayout obtained above sometimes comes with sub-elements
+	already added. Hence...
+	*/
+	fl->DeleteChildren();
+
+	assertion( fl->ChildrenCount == 0, "FlowLayout not expected to have any children yet" );
+
+	return fl;
 }
 
 void SampleRunViewController::describeLocalRun( const valc::LocalRun& lr, valc::SnapshotPtr snapshot, WorklistEntrySet& outPending )
@@ -218,12 +228,15 @@ void SampleRunViewController::describePending( const WorklistEntrySet& pending, 
     }
 }
 
-void SampleRunViewController::notify( int modelEvent )
+void SampleRunViewController::notify( int modelEvent, const std::string& eventData )
 {
-	if ( modelEvent == MODEL_EVENT::WORKLIST_ENTRY_SELECTION_CHANGE )
-	{
-		m_model->borrowSnapshot(update);
-	}
+    switch( modelEvent )
+    {
+    case MODEL_EVENT::WORKLIST_ENTRY_SELECTION_CHANGE:
+    case MODEL_EVENT::RERUN_QUEUED:
+        m_model->borrowSnapshot( update );
+        break;
+    }
 }
 
 void __fastcall SampleRunViewController::selectWorklistEntry( TObject* sender )
@@ -256,6 +269,13 @@ void __fastcall SampleRunViewController::rerun(TObject* sender)
     }
 
     ShowMessage( msg.str().c_str() );
+
+    m_model->doRerun(
+        m_selectedWorklistEntry->getID(),
+        m_selectedWorklistEntry->getRunAssociation().runID,
+        m_selectedWorklistEntry->getSampleDescriptor(),
+        m_selectedWorklistEntry->getBarcode(),
+        m_selectedWorklistEntry->getTestName() );
 }
 
 void __fastcall SampleRunViewController::update()

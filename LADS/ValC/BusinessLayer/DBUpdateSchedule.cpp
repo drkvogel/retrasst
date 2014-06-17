@@ -2,13 +2,25 @@
 #include <boost/foreach.hpp>
 #include "DBTransactionHandler.h"
 #include "DBUpdateSchedule.h"
-#include "DBUpdateTaskInsertSampleRun.h"
+#include "DBUpdateTaskSyncBuddyDatabaseAndSampleRun.h"
 #include "DBUpdateTaskLinkResultToWorklistEntry.h"
-#include "DBUpdateTaskUpdateSampleRunID.h"
-#include <set>
 
 namespace valc
 {
+
+struct SameBuddyID
+{
+    int targetID{};
+
+    SameBuddyID( int i ) : targetID(i)
+    {
+    }
+
+    bool operator()( const BuddyRun& br ) const
+    {
+        return br.buddySampleID == targetID;
+    }
+};
 
 DBUpdateSchedule::DBUpdateSchedule()
 {
@@ -31,6 +43,13 @@ void DBUpdateSchedule::queueScheduledUpdates( DBTransactionHandler* th )
     paulst::AcquireCriticalSection a(m_cs);
 
     {
+        if ( ! m_newBuddyRuns.empty() )
+        {
+            th->queue( new DBUpdateTaskSyncBuddyDatabaseAndSampleRun( m_newBuddyRuns.begin(), m_newBuddyRuns.end() ) );
+        }
+
+        m_newBuddyRuns.clear();
+
         while (  m_updates.size() )
         {
             DBUpdateTask* t = m_updates.front();
@@ -46,11 +65,9 @@ void DBUpdateSchedule::scheduleUpdate( int forBuddySampleID, const std::string& 
     paulst::AcquireCriticalSection a(m_cs);
 
     {
-        if ( 0U == m_buddyDatabaseEntriesScheduledForUpdate.count( forBuddySampleID ) )
+        if ( 0 == std::count_if( m_newBuddyRuns.begin(), m_newBuddyRuns.end(), SameBuddyID( forBuddySampleID ) ) )
         {
-            m_updates.push_front( new DBUpdateTaskInsertSampleRun  ( candidateNewSampleRunID, forBuddySampleID ) );
-            m_updates.push_back ( new DBUpdateTaskUpdateSampleRunID( candidateNewSampleRunID, forBuddySampleID ) );
-            m_buddyDatabaseEntriesScheduledForUpdate.insert( forBuddySampleID );
+            m_newBuddyRuns.push_back( BuddyRun( forBuddySampleID, candidateNewSampleRunID ) );
         }
     }
 }

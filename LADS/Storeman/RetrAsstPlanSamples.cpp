@@ -510,7 +510,7 @@ void LoadVialsJobThread::load() {
     delete_referenced< vector<SampleRow * > >(plan->primaries);  // primaries may refer to secondaries
 
     ostringstream oss; oss<<plan->loadingMessage<<" (preparing query)"; loadingMessage = oss.str().c_str();
-    oss.str(""); oss<<"loading retrieval job: "<<plan->job->str();
+    oss.str(""); oss<<"loading retrieval job: "<<plan->job->getName();
     debugMessage = oss.str().c_str(); Synchronize((TThreadMethod)&debugLog);
     debugMessage = "preparing query"; Synchronize((TThreadMethod)&debugLog);
     loadingMessage = plan->loadingMessage;

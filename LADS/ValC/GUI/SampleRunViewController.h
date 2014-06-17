@@ -91,7 +91,7 @@ class SampleRunViewController
 {
 public:
 	SampleRunViewController( TSampleRunFrame* widgetContainer, Model* m );
-	void notify( int modelEvent );
+	void notify( int modelEvent, const std::string& eventData );
 	void __fastcall selectWorklistEntry(TObject* sender);
 	void __fastcall rerun(TObject* sender);
     void __fastcall update();

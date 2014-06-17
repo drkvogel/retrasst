@@ -25,30 +25,22 @@
 
 LPDbBoxType::LPDbBoxType( const LQuery & cQuery )
  : LCDbID( cQuery.readInt( "box_type_cid" ) ),
-   LDbNames( cQuery.readString( "external_name" ),
-			 cQuery.readString( "description" ) ),
+   LDbNames( cQuery.readString( "external_name" ), cQuery.readString( "description" ) ),
    status( cQuery.readInt( "status" ) ),
    uses( cQuery.readInt( "expected_use" ) ),
-   sizeID( cQuery.readInt( "box_size_cid" ) ),
-   group( cQuery.readInt( "box_set_link" ) ),
-   position( cQuery.readInt( "box_order" ) )
-{
-	char field[ 16 ];
-	for( int i = 1; i < 4; i ++ )
-	{
+   sizeID( cQuery.readInt( "box_size_cid" ) ) {
+	char field[ 20 ];
+	for( int i = 1; i < 4; i ++ ) {
 		std::sprintf( field, "aliquot_type%d", i );
-		if( cQuery.fieldExists( field ) )
-		{
+		if( cQuery.fieldExists( field ) ) {
 			int aliquot = cQuery.readInt( field );
 			if( aliquot != 0 )
 				content.push_back( aliquot );
 		}
 	}
-	if( cQuery.fieldExists( "project_cid" ) ) {
-		projectCID = cQuery.readInt( "project_cid" );
-	} else {
-		projectCID = LCDbProjects::getCurrentID();
-	}
+	group = cQuery.fieldExists( "box_set_link" ) ? cQuery.readInt( "box_set_link" ) : 0;
+	position = cQuery.fieldExists( "box_order" ) ? cQuery.readInt( "box_order" ) : -1;
+	projectCID = cQuery.fieldExists( "project_cid" ) ? cQuery.readInt( "project_cid" ) : LCDbProjects::getCurrentID();
 }
 
 //---------------------------------------------------------------------------

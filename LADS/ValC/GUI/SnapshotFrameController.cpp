@@ -54,7 +54,7 @@ void __fastcall SnapshotFrameController::update()
 	m_entriesView->setUpVisualComponents(m_model->getSnapshot());
 }
 
-void SnapshotFrameController::notify( int modelEvent )
+void SnapshotFrameController::notify( int modelEvent, const std::string& eventData )
 {
     using namespace MODEL_EVENT;
 

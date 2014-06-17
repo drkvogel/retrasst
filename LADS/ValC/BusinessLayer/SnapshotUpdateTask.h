@@ -21,11 +21,15 @@ class SnapshotObserver;
 
 void setSignal( HANDLE h );
 
+/*
+Constructor acquires an event HANDLE.  This is exposed via 'getDoneSignal'.
+It is the responsibility of client code to close this handle. Otherwise
+this resource will be leaked.
+*/
 class SnapshotUpdateTask : public stef::Task
 {
 public:
     SnapshotUpdateTask();
-    virtual ~SnapshotUpdateTask();
     HANDLE getDoneSignal();
     void setDBTransactionHandler( DBTransactionHandler* dbth );
     void setLog( paulst::LoggingService* log );

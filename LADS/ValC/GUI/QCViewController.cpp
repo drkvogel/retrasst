@@ -167,7 +167,7 @@ std::string QCViewController::describeWorklistEntry( const QCViewData& data, con
 	return label.str();
 }
 
-void QCViewController::notify( int modelEvent )
+void QCViewController::notify( int modelEvent, const std::string& eventData )
 {
     if (  modelEvent == MODEL_EVENT::WORKLIST_ENTRY_SELECTION_CHANGE )
     {
@@ -227,21 +227,18 @@ void __fastcall QCViewController::update()
 
             const valc::ControlStatus cs(r->getControlStatus());
 
-            if ( cs.summaryCode() != valc::CONTROL_STATUS_UNCONTROLLED )
-            {
-                pushNode( "Controlling QCs", true );
+            pushNode( "Controlling QCs", true );
 
-                pushNode( "Before", true );
-                addNodesForControllingQCs( data, snapshot, cs.precedingQCs() );
-                popNode();
-                pushNode( "After", true );
-                addNodesForControllingQCs( data, snapshot, cs.followingQCs() );
-                popNode();
-
-                popNode();
-            }
-
+            pushNode( "Before", true );
+            addNodesForControllingQCs( data, snapshot, cs.precedingQCs() );
             popNode();
+            pushNode( "After", true );
+            addNodesForControllingQCs( data, snapshot, cs.followingQCs() );
+            popNode();
+
+            popNode(); // Controlling QCs
+
+            popNode(); // describeTestResult
         }
 
         popNode();

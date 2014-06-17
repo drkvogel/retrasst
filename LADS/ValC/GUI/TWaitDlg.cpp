@@ -18,19 +18,25 @@ __fastcall TWaitDlg::TWaitDlg(
 	)
 	: TForm(Owner),
 	m_signal( signal ),
-	m_millis( waitMillis )
+	m_millis( waitMillis ),
+    m_waitResult(0)
 {
 	message->Text = msg.c_str();
 	delayBeforeWait->Interval = beforeWaitMillis;
 	delayBeforeWait->Enabled = true;
 }
 //---------------------------------------------------------------------------
+unsigned long TWaitDlg::getWaitResult() const
+{
+    return m_waitResult;
+}
+//---------------------------------------------------------------------------
 void __fastcall TWaitDlg::waitForSignal(TObject *Sender)
 {
 	delayBeforeWait->Enabled = false;
 
-	unsigned long waitResult = WaitForSingleObject( m_signal, m_millis );
+	m_waitResult = WaitForSingleObject( m_signal, m_millis );
 
-	ModalResult = ( waitResult == WAIT_OBJECT_0 ? mrOk : mrCancel );
+	ModalResult = ( m_waitResult == WAIT_OBJECT_0 ? mrOk : mrCancel );
 }
 //---------------------------------------------------------------------------

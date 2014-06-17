@@ -19,6 +19,7 @@ __published:	// IDE-managed Components
 private:	// User declarations
 	HANDLE m_signal;
 	unsigned long m_millis;
+    unsigned long m_waitResult;
 public:		// User declarations
 	__fastcall TWaitDlg(
 		TComponent* Owner,
@@ -26,6 +27,7 @@ public:		// User declarations
 		unsigned long beforeWaitMillis,
 		unsigned long waitMillis,
 		const std::string& msg );
+        unsigned long getWaitResult() const;
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TWaitDlg *WaitDlg;

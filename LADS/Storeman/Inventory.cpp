@@ -456,14 +456,14 @@ void Tank::loadTankDetails( ) {
 	int best = -1;
 	for( unsigned i = 0; i < mapping.size( ); i++ ) {
 		if( mapping[ i ].getInt( "status" ) != LCDbTankMap::DELETED ) {
-			// remember first valid mapping for first shelf
+			// remember (current) mapping for (most recent) shelf
 			Layout population( mapping[ i ] );
-			if( best < 0 || population < Layout( mapping[ best ] ) ) {
-				best = i;
-			}
 			if( population.availability( ) == IPart::Availability::IS_AVAILABLE ) {
+				best = i;
 				online = true;
-			}
+			} else if( best < 0 ) {
+				best = i;
+            }
 			// add to history (may create multiple entries)
 			std::stringstream detail;
 			const LCDbObject * site = names.findByID( population.getLocation_cid( ) );

@@ -420,10 +420,12 @@ void TfrmReferred::loadBoxes() {
         "SELECT bn.process_cid, sa.project_cid, bn.time_stamp AS bn_stamp, bn.external_name AS box_name,"
         " bn.status AS bn_status,"
         " sa.slot_position, sa.time_stamp AS sa_stamp"
-        " FROM c_box_name bn, c_slot_allocation sa,"// c_object_name on"
-        " WHERE status = :referred"
-        //" AND" - join on c_object_name for tank, rack?
-        " ORDER BY box_name ASC");
+        " FROM c_box_name bn, c_slot_allocation sa"	// , c_object_name on"
+		" WHERE sa.status = :referred"
+		" AND bn.box_cid = sa.box_cid"
+		//" AND" - join on c_object_name for tank, rack?
+		" ORDER BY box_name ASC");
+	qc.setParam( "referred", LCDbBoxStore::REFERRED );
     qc.open();
     while (!qc.eof()) {
         BoxArrivalRecord * box = new BoxArrivalRecord(

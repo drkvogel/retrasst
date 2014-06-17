@@ -15,8 +15,14 @@ namespace valcui
 
 void reportException( const Exception& e );
 
-/* Returns true if signal obtained before timeout. */
-bool showWaitDialog( HANDLE signal, const std::string& msg, unsigned long waitMillis );
+/* Returns one of:
+WAIT_ABANDONED
+WAIT_OBJECT_0
+WAIT_TIMEOUT
+WAIT_FAILED
+For details, refer to msdn.microsoft.com.
+*/ 
+unsigned long showWaitDialog( HANDLE signal, const std::string& msg, unsigned long waitMillis );
 
 }
 

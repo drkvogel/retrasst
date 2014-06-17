@@ -30,11 +30,26 @@ void assertion( bool expression, const char* msg )
     }
 }
 
-void throwTimeoutException( const std::string& operation )
+std::string describeWaitResult( unsigned long waitResult )
+{
+    std::string desc;
+
+    switch( waitResult )
+    {
+    case WAIT_ABANDONED : desc = "WAIT_ABANDONED"   ; break;
+    case WAIT_OBJECT_0  : desc = "WAIT_OBJECT_0"    ; break;
+    case WAIT_TIMEOUT   : desc = "WAIT_TIMEOUT"     ; break;
+    case WAIT_FAILED    : desc = "WAIT_FAILED"      ; break;
+    }
+
+    return desc;
+}
+
+void throwWaitException( unsigned long waitResult, const std::string& operation )
 {
     std::ostringstream ss;
     
-    ss << "Given up on '" << operation << "'. Taking too long.";
+    ss << "Abandoned waiting for operation '" << operation << "': " << describeWaitResult( waitResult );
 
     throw Exception( ss.str().c_str() );
 }

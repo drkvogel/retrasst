@@ -46,9 +46,10 @@ void WorklistItemViewController::clear()
 }
 
 void WorklistItemViewController::addTreeNodeForWorklistEntry(
-    const valc::SnapshotPtr& snapshot, 
-    const valc::WorklistRelative& wr, 
-    TTreeViewItem* parent )
+	int idOfSelectedWorklistEntry,
+	const valc::SnapshotPtr& snapshot,
+	const valc::WorklistRelative& wr,
+	TTreeViewItem* parent )
 {
     TTreeViewItem* newNode{};
 
@@ -62,15 +63,21 @@ void WorklistItemViewController::addTreeNodeForWorklistEntry(
     }
 
 	newNode->Tag     = wr.getID();
-    newNode->OnClick = familyTreeClickHandler;
+	newNode->OnClick = familyTreeClickHandler;
+	newNode->Expand();
 
-    if( wr.hasChildren() )
+	if ( wr.getID() == idOfSelectedWorklistEntry )
+	{
+		newNode->Select();
+	}
+
+	if( wr.hasChildren() )
     {
         auto children = wr.getChildren();
 
         for ( valc::WorklistRelative& child : children )
         {
-            addTreeNodeForWorklistEntry( snapshot, child, newNode );
+            addTreeNodeForWorklistEntry( idOfSelectedWorklistEntry, snapshot, child, newNode );
         }
     }
 }
@@ -104,9 +111,7 @@ void WorklistItemViewController::describeFamilyTree( const valc::SnapshotPtr& sn
         wr = wr.getParent();
     }
 
-	addTreeNodeForWorklistEntry( snapshot, wr ); // recursively adds nodes for all the children
-
-	m_widgetContainer->familyTree->ExpandAll();
+	addTreeNodeForWorklistEntry( w->getID(), snapshot, wr ); // recursively adds nodes for all the children
 }
  
 void WorklistItemViewController::describeResult( const valc::TestResult* r )
@@ -143,18 +148,17 @@ void __fastcall WorklistItemViewController::familyTreeClickHandler( TObject* sen
 		{
 			m_model->setSelectedWorklistEntry( i->Tag );
 		}
-		else
-		{
-			ShowMessage( UnicodeString("You clicked on ") + clickedOn );
-		}
 	}
 }
 
-void WorklistItemViewController::notify( int modelEvent )
+void WorklistItemViewController::notify( int modelEvent, const std::string& eventData )
 {
-    if ( modelEvent == MODEL_EVENT::WORKLIST_ENTRY_SELECTION_CHANGE )
+    switch( modelEvent )
     {
+    case MODEL_EVENT::WORKLIST_ENTRY_SELECTION_CHANGE:
+    case MODEL_EVENT::RERUN_QUEUED:
         m_model->borrowSnapshot( update );
+        break;
     }
 }
 

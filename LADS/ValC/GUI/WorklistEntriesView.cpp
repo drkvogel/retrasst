@@ -8,10 +8,12 @@
 
 #include "ConsoleWriter.h"
 
+#include "ExceptionHandler.h"
 #include "WorklistEntriesView.h"
 #include "GUIpositioning.h"
 #include "LogManager.h"
 #include "InfoPanels.h"
+#include "StrUtil.h"
 #include "TActionPanel.h"
 #include "TSnapshotFrame.h"
 #include "VisualComponents.h"
@@ -239,8 +241,10 @@ void WorklistEntriesView::assignAttributes(TSampleRunPanel *runPanel,
   * @param maxRunSize        to hold the max # of tests in a sample run
   * @param maxTestWidth      to hold the max width of a TTestPanel
   * @param queued            will be true if this is a queued sample run
+
+  * @return the number of worklist entries added
   */
-void WorklistEntriesView::addWorklistEntries(valc::SnapshotPtr sn,
+int WorklistEntriesView::addWorklistEntries(valc::SnapshotPtr sn,
 											 const std::string & sampleDescriptor,
 											 TSampleRunPanel *runPanel,
 											 int & maxRunSize,
@@ -324,6 +328,8 @@ void WorklistEntriesView::addWorklistEntries(valc::SnapshotPtr sn,
 	if (count>maxRunSize) {
 		maxRunSize = count;
     }
+
+    return count;
 }
 
 /** Sets the width, position and parent of the given TTestPanel.
@@ -561,9 +567,14 @@ bool WorklistEntriesView::createResultsEntries(valc::SnapshotPtr snapshot,
 				std::string descriptor = r.getSampleDescriptor();
 				std::string runId = r.getRunID();
 				runPanel->barcodePanel->setAttribute("Run Id",runId);
-				addWorklistEntries(snapshot,descriptor,runPanel,
+				int numWorklistEntries = addWorklistEntries(snapshot,descriptor,runPanel,
 								   maxRunSize,maxTestLeftWidth,maxResultWidth,
 								   SENT_TO_ANALYSER);
+
+                if ( 0 == numWorklistEntries )
+                {
+                    logManager->log( paulst::format( "No worklist entries for sample-run %s", runId.c_str() ).c_str() );
+                }
 
 				resultsComponents->push_back(runPanel);
 				runPanel->Parent = viewFrame->ResultsInnerPanel;

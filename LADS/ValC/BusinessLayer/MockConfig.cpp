@@ -5,6 +5,7 @@ namespace valc
 
 MockConfig::MockConfig()
 {
+    addProperty( "CacheConnections", "false" );
     addProperty( "BuddyDatabaseSampleRunIDUpdateSQL", "update buddy_database set sample_run_id = %d where buddy_sample_id = %d" );
     addProperty( "LinkResultToWorklistEntryUpdateSQL", "update buddy_result_float set cbw_record_no = %d where buddy_result_id = %d" );
     addProperty( "SampleRunIDQueryString"                       , "select sample_run_id.nextval"  );
@@ -66,25 +67,26 @@ MockConfig::MockConfig()
 "        end                                                            \n"
 "        return ok                                                      \n"
 "    end                                                                \n"
-"    ---------------------------------------------------------          \n"
+"    ---------------------------------------------------------          \\n"
 "    function getProjectIDFor( barcode )                                \n"
 "        if ( string.find( barcode, '118' ) ~= 1 ) then                 \n"
 "            error( \"Cannot identify project ID for barcode \" .. barcode )  \n"
 "        end                                                            \n"
 "        return -832455                                                 \n"
 "    end                                                                \n"
-"    ---------------------------------------------------------          \n"
+"    ---------------------------------------------------------          \\n"
 "    function notifyBuddyDatabaseEntryIgnored()                         \n"
 "        local continueProcessing = true                                \n"
 "        local adviseUser = true                                        \n"
 "        return continueProcessing, adviseUser                          \n"
 "    end  \n"
-"    ---------------------------------------------------------          \n"
+"    ---------------------------------------------------------          \\n"
 "    function notifyWorklistEntryIgnored()                              \n"
 "        local continueProcessing = true                                \n"
 "        local adviseUser = true                                        \n"
 "        return continueProcessing, adviseUser                          \n"
 "    end  \n"
+"    ---------------------------------------------------------          \\n"
 "    function notifyCannotAllocateResultToWorklistEntry()               \n"
 "        local continueProcessing = true                                \n"
 "        local adviseUser = true                                        \n"

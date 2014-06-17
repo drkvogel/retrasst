@@ -12,18 +12,23 @@ use DBUtil;
 use File::Slurp;
 
 my $configRule = {
-        script_file     => 'rule_config.lua',
+        script_file     => 'rule_config_simple.lua',
     };
 
 my $componentRules = [
     {
         internal_name   => '3:2s',
         script_file     => 'rule_3_2s.lua',
-    },];
+    },
+    {
+        internal_name   => '1:2s',
+        script_file     => 'rule_1_2s.lua',
+    },
+    ];
 
 
-my ($vnode, $db)        = ( 'cp_brat_64', 'paulst_test3' );
-my $dataSource          = 'paulst_test3_on_brat';
+my ($vnode, $db)        = ( 'cp_brat_64', 'paulst_test4' );
+my $dataSource          = 'paulst_test4_on_brat';
 my $connectionString    = "dbi:ODBC:DSN=$dataSource";
 my $username            = undef;
 my $qcProjectID         = -1234;

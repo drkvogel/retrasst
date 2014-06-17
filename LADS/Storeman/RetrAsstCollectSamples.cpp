@@ -440,7 +440,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     }
 
     const LCDbProject * proj = LCDbProjects::records().findByID(project_cid);
-    oss<<__FUNC__<<": job: "<<collect->job->str()<<", project: "<<proj->getName()<<" ["<<proj->getID()<<"], "<<proj->getDbName();
+    oss<<__FUNC__<<": job: "<<collect->job->getName()<<", project: "<<proj->getName()<<" ["<<proj->getID()<<"], "<<proj->getDbName();
     debugLog(oss.str());
 
     LQuery qd(Util::projectQuery(project_cid, true)); // ddb

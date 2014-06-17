@@ -17,11 +17,6 @@ SnapshotUpdateTask::SnapshotUpdateTask()
 {
 }
 
-SnapshotUpdateTask::~SnapshotUpdateTask()
-{
-    CloseHandle( doneSignal );
-}
-
 HANDLE SnapshotUpdateTask::getDoneSignal()
 {
     return doneSignal;

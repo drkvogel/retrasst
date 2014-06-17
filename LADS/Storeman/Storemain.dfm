@@ -30,7 +30,6 @@ object frmStoremain: TfrmStoremain
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
-    ExplicitHeight = 264
     DesignSize = (
       176
       274)
@@ -61,7 +60,6 @@ object frmStoremain: TfrmStoremain
       TabOrder = 2
       WordWrap = True
       OnClick = ConfigureClick
-      ExplicitTop = 162
     end
     object BtnBrowse: TButton
       Left = 30
@@ -73,7 +71,6 @@ object frmStoremain: TfrmStoremain
       TabOrder = 0
       WordWrap = True
       OnClick = TreeBrowse
-      ExplicitTop = 68
     end
     object btnMove: TButton
       Left = 30
@@ -85,7 +82,6 @@ object frmStoremain: TfrmStoremain
       TabOrder = 1
       WordWrap = True
       OnClick = btnMoveClick
-      ExplicitTop = 115
     end
     object BtnRationalyse: TButton
       Left = 30
@@ -97,7 +93,6 @@ object frmStoremain: TfrmStoremain
       TabOrder = 3
       WordWrap = True
       OnClick = BtnRationalyseClick
-      ExplicitTop = 210
     end
   end
   object Panel2: TPanel
@@ -109,8 +104,6 @@ object frmStoremain: TfrmStoremain
     Caption = 'Panel2'
     ShowCaption = False
     TabOrder = 1
-    ExplicitWidth = 175
-    ExplicitHeight = 264
     DesignSize = (
       185
       274)
@@ -142,8 +135,6 @@ object frmStoremain: TfrmStoremain
       TabOrder = 0
       WordWrap = True
       OnClick = BtnXferClick
-      ExplicitLeft = 30
-      ExplicitTop = 68
     end
     object BtnDiscard: TButton
       Left = 35
@@ -155,8 +146,6 @@ object frmStoremain: TfrmStoremain
       TabOrder = 1
       WordWrap = True
       OnClick = BtnDiscardClick
-      ExplicitLeft = 30
-      ExplicitTop = 115
     end
     object BtnAnalyse: TButton
       Left = 35
@@ -168,8 +157,6 @@ object frmStoremain: TfrmStoremain
       TabOrder = 2
       WordWrap = True
       OnClick = BtnAnalyseClick
-      ExplicitLeft = 30
-      ExplicitTop = 162
     end
     object BtnReferred: TButton
       Left = 35
@@ -181,8 +168,6 @@ object frmStoremain: TfrmStoremain
       TabOrder = 3
       WordWrap = True
       OnClick = BtnReferredClick
-      ExplicitLeft = 30
-      ExplicitTop = 210
     end
   end
   object Panel3: TPanel
@@ -194,8 +179,6 @@ object frmStoremain: TfrmStoremain
     Caption = 'Panel3'
     ShowCaption = False
     TabOrder = 2
-    ExplicitLeft = 351
-    ExplicitHeight = 264
     DesignSize = (
       176
       274)
@@ -226,7 +209,6 @@ object frmStoremain: TfrmStoremain
       TabOrder = 1
       WordWrap = True
       OnClick = OnCreateList
-      ExplicitTop = 115
     end
     object btnViewLists: TButton
       Left = 30
@@ -238,7 +220,6 @@ object frmStoremain: TfrmStoremain
       TabOrder = 0
       WordWrap = True
       OnClick = btnViewListsClick
-      ExplicitTop = 68
     end
     object BtnRetrieve: TButton
       Left = 30
@@ -250,7 +231,6 @@ object frmStoremain: TfrmStoremain
       TabOrder = 2
       WordWrap = True
       OnClick = BtnRetrieveClick
-      ExplicitTop = 162
     end
   end
   object Panel4: TPanel
@@ -262,8 +242,6 @@ object frmStoremain: TfrmStoremain
     Caption = 'Panel4'
     ShowCaption = False
     TabOrder = 3
-    ExplicitTop = 270
-    ExplicitWidth = 527
     DesignSize = (
       537
       63)

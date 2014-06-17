@@ -18,7 +18,7 @@ class QCViewController
 {
 public:
 	QCViewController( TQCViewFrame* widgetContainer, Model* m );
-	void notify( int modelEvent );
+	void notify( int modelEvent, const std::string& eventData );
     void __fastcall update();
 private:
 	TQCViewFrame* const                         m_widgetContainer;

@@ -16,9 +16,9 @@ public:
     {
     }
 
-    void notify( int eventID )
+    void notify( int eventID, const std::string& eventData )
     {
-        m_t->notify( eventID );
+        m_t->notify( eventID, eventData );
     }
 
 private:

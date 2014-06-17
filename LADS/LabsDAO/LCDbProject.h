@@ -16,7 +16,7 @@ class TLeaseManager;
 class LCDbProject : public LCDbID, public LDbNames, public LDbValid
 {
 	std::string database, contact, code;
-	bool liveData, boxImport;
+	bool liveData, boxImport, canStore;
 	struct Version {
 		short major, minor, phase;
 		Version( short a, short b, short c ) : major(a), minor(b), phase(c)
@@ -32,7 +32,7 @@ public:
 	static const int CENTRAL_DB = 0, NONE_SELECTED = -1;
 
 	LCDbProject( int id = NONE_SELECTED )
-	 : LCDbID( id ), version( 2, 7, 0 ), liveData( false ), boxImport( false )
+	 : LCDbID( id ), version( 2, 7, 0 ), liveData( false ), boxImport( false ), canStore( false )
 	{}
 
 	LCDbProject( const LQuery & central );
@@ -42,6 +42,7 @@ public:
 	bool isCentral() const { return getID() == CENTRAL_DB; }
 	bool isInCurrentSystem() const;
 	bool hasBoxes() const { return boxImport; }
+	bool hasStorage() const { return canStore; }
 
 	const std::string & getDbName() const { return database; }
 	void setDbName( const std::string & name ) { database = name; }

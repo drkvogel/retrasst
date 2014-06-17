@@ -83,9 +83,9 @@ void TfrmNewTank::initModLayout( Tank * p_tank, TTreeNode* p_parent, TTreeView *
 		i = layman.find( layman.getDefaultLayoutId( oldtank->getID() ) );
 	}
 	cbLayout->ItemIndex = i;
+	cbLayout->Enabled = (reason != EDIT_VESSEL);
 
 	// frames have a population on each shelf, tanks have no shelves
-	chkPop->Enabled = false;
 	short shelf = oldtank->getShelfNumber();
 	if( reason == ADD_LAYOUT ) {
 		const std::vector<IPart*> & layout = oldtank->getList();
@@ -96,6 +96,7 @@ void TfrmNewTank::initModLayout( Tank * p_tank, TTreeNode* p_parent, TTreeView *
 			}
 		}
 	}
+	chkPop->Enabled = (shelf == 0);
 	setPopulation( shelf );
 }
 
@@ -103,7 +104,6 @@ void TfrmNewTank::initModLayout( Tank * p_tank, TTreeNode* p_parent, TTreeView *
 
 void TfrmNewTank::setPopulation( short shelf ) {
 	bool canAlter = (shelf > 0);
-	chkPop->Checked = canAlter;
 	lblPop->Visible = canAlter;
 	TxtPop->Text = shelf;
 	TxtPop->Visible = canAlter;
@@ -256,7 +256,7 @@ void TfrmNewTank::TankConfirmInit()
 		TxtLocation1->Text = site->getDescription().c_str();
 	}
 	TxtPos1->Text = tank->getPosition();
-	TxtPop1->Text = tank->getShelfNumber();
+
 	const LCDbObject * type = names.findByID( tank->getStoreType() );
 	if( type == NULL ) {
 		txtStoreType1->Text = tank->getStoreType();
@@ -264,9 +264,12 @@ void TfrmNewTank::TankConfirmInit()
 		txtStoreType1->Text = type->getDescription().c_str();
 	}
 	Layout * lay = layman.getLayout( layman.find( layout_cid ) );
+	short shelf = tank->getShelfNumber();
 	TxtLayName1->Text = lay->getLayoutDescription().c_str();
-	ShowGrid( grdProps1, lay->getList() );
-	if( mode == NEW_VESSEL || mode == ADD_LAYOUT || layout_cid != oldtank->getLayoutID() ) {
+	TxtPop1->Text = shelf;
+		ShowGrid( grdProps1, lay->getList() );
+	if( mode == NEW_VESSEL || shelf != oldtank->getShelfNumber()
+	 || mode == ADD_LAYOUT || layout_cid != oldtank->getLayoutID() ) {
 		std::string population = getNextPopulation();
 		std::string layout = AnsiString( TxtLayName1 -> Text ).c_str();
 		tank->setContent( population, layout + ' ' + population );

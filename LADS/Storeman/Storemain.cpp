@@ -115,6 +115,10 @@ void TfrmStoremain::updateCounts()
 			} else {
 				countBoxes();
 			}
+			break;
+
+		case FINISHED:
+			break;
 	}
 	Screen -> Cursor = crDefault;
 }
@@ -263,7 +267,7 @@ void __fastcall TfrmStoremain::BtnRationalyseClick(TObject *Sender)
 
 void __fastcall TfrmStoremain::BtnReferredClick(TObject *Sender)
 {
-	frmReferred -> init();
+//	frmReferred -> init();
 	frmReferred -> ShowModal();
 }
 

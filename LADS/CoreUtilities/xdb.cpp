@@ -57,21 +57,20 @@ std::string XDB_ERROR::ingExpandError( II_PTR handle )
 				txt += "USER MESSAGE";
 				break;
 			default:
-				sprintf( buf, "Unknown error type=%d",
-					+  gete.ge_type );
+				sprintf( buf, "Unknown error type=%ld", gete.ge_type );
 				txt += buf;
 				break;
 			}
-		sprintf( buf, "' %d: ", gete.ge_errorCode );
+		sprintf( buf, "' %ld: ", gete.ge_errorCode );
 		txt += std::string(" '") + gete.ge_SQLSTATE + buf
 			+ ( gete.ge_message
 			? std::string(gete.ge_message) : std::string("NULL") );
 		if ( gete.ge_serverInfoAvail )
 			{
-			sprintf( buf, "\n svr_id_error     = %d"
-				"\n svr_local error  = %d"
-				"\n svr_id_server    = %d"
-				"\n svr_server_type  = %d"
+			sprintf( buf, "\n svr_id_error     = %ld"
+				"\n svr_local error  = %ld"
+				"\n svr_id_server    = %ld"
+				"\n svr_server_type  = %ld"
 				"\n svr_severity     = ",
 				gete.ge_serverInfo->svr_id_error,
 				gete.ge_serverInfo->svr_local_error,
@@ -96,7 +95,7 @@ std::string XDB_ERROR::ingExpandError( II_PTR handle )
 					txt += "(unknown)";
 					break;
 				}
-			sprintf( buf, " ( 0x%x )\n",
+			sprintf( buf, " ( 0x%lx )\n",
 				gete.ge_serverInfo->svr_severity );
 			txt += buf;
 			for( i = 0; i < gete.ge_serverInfo->svr_parmCount; i++ )
@@ -290,7 +289,7 @@ bool XDB::ingInitAPI( void )
 	envHandle = initParm.in_envHandle;
 	if ( initParm.in_status != IIAPI_ST_SUCCESS )
 		{char	ebuf[100];
-		sprintf( ebuf, "Error in IIapi_initialize, in_status=%d",
+		sprintf( ebuf, "Error in IIapi_initialize, in_status=%ld",
 			initParm.in_status );
 		error( initParm.in_status, ebuf );
 		return( false );

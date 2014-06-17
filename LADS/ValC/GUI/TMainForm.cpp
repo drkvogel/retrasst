@@ -6,6 +6,7 @@
 #include "BusinessLayer.h"
 #include "FMXTemplates.h"
 #include "LogManager.h"
+#include "MenuViewController.h"
 #include "Model.h"
 #include "QCViewController.h"
 #include "SampleRunViewController.h"
@@ -85,6 +86,12 @@ void __fastcall TMainForm::onCreate(TObject *Sender)
 		new valcui::SampleRunViewController(
 			srFrame,
 			m_model.get() ) );
+
+	m_menuViewController = std::unique_ptr<valcui::MenuViewController>(
+		new valcui::MenuViewController(
+			MainMenu1,
+			m_model.get(),
+			this ) );
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::onResize(TObject *Sender)
@@ -104,9 +111,11 @@ void __fastcall TMainForm::warningAlarmOff()
 
 void __fastcall TMainForm::onClose(TObject *Sender, TCloseAction &Action)
 {
-	m_model->close();
+	m_model->doClose();
 	Action = TCloseAction::caFree;
 }
 //---------------------------------------------------------------------------
 
+
+//---------------------------------------------------------------------------
 

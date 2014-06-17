@@ -6,7 +6,7 @@ local isFailure = nil
 if ( tooHigh( context.qc.resultValue, context.gate.mean, context.gate.stdDev ) ) then isFailure = tooHigh end 
 
 if ( tooLow ( context.qc.resultValue, context.gate.mean, context.gate.stdDev ) ) then assert( not(isFailure) ) isFailure = tooLow end 
-                                                                                                          
+
 if ( isFailure ) then                                                                                     
    local beyondFirst = false
    local failures = 1
@@ -39,7 +39,9 @@ if ( isFailure ) then
    elseif ( ( tested < 3 ) and ( passes == 0 ) ) then
       result.resultCode = ERROR
    end 
-
+else
+    log( string.format( "Rule 3:2s. Result value of %f for %d considered tolerable. Mean %f. StdDev: %f.", 
+        context.qc.resultValue, context.qc.resultID, context.gate.mean, context.gate.stdDev ) )
 end 
 
 local errorText = { [0] = 'Fail', [1] = 'Pass', [2] = 'Bord', [3] = 'Err', [-1] = 'None' } 

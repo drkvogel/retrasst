@@ -41,10 +41,16 @@ public:
 
     void notify( DBTransactionRerun& dbt )  
     {
-        if ( dbt.success )
+        if ( dbt.errorMsg.empty() )
+        {
             m_newWorklistID = dbt.newWorklistID;
-
-        log->logFormatted( "notifyDBTransactionCompleted: %s", dbt.success ? "OK" : "FAILED" );
+            log->log( "notifyDBTransactionCompleted OK" );
+        }
+        else
+        {
+            m_transactionError = dbt.errorMsg;
+            log->logFormatted( "Database transaction failed: %s", m_transactionError.c_str() );
+        }
 
         SetEvent( m_dbUpdateCallbackEvent );
     }
@@ -75,6 +81,17 @@ protected:
         {
             throw Exception( L"Abandoned waiting for database transaction" );
         }
+
+        if ( ! m_transactionError.empty() )
+        {
+            throw Exception( 
+                paulst::format( 
+                    "Failed to update the database: %s",
+                    m_transactionError.c_str() 
+                    ).c_str()
+                );
+        }
+
         log->log( "Done updating database" );
     }
 
@@ -101,6 +118,7 @@ private:
     const    std::string m_sampleRunID;
     const    std::string m_sampleDescriptor;
     paulst::MeetingPlace< SnapshotUpdateTaskQRerun, DBUpdateTaskRerun, int, DBTransactionRerun >* m_meetingPlace;
+    std::string          m_transactionError;
 };
 
 void leaveMeetingPlace( SnapshotUpdateTaskQRerun* s )

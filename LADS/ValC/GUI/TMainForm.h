@@ -18,6 +18,7 @@
 
 #include "Config.h"
 #include "DirUtil.h"
+#include <FMX.Menus.hpp>
 #include <memory>
 
 
@@ -27,6 +28,7 @@ class TLogFrame;
 
 namespace valcui
 {
+	class MenuViewController;
 	class Model;
 	class QCViewController;
     class SampleRunViewController;
@@ -59,6 +61,11 @@ __published:	// IDE-managed Components
 	TPanel *midPanel;
 	TSplitter *Splitter3;
 	TStyleBook *SampleRunView;
+	TMainMenu *MainMenu1;
+	TMenuItem *menuItemDatabase;
+	TMenuItem *menuItemRunPendingUpdates;
+	TMenuItem *menuItemApplication;
+	TMenuItem *menuItemClose;
 	void __fastcall onCreate(TObject *Sender);
 	void __fastcall onResize(TObject *Sender);
 	void __fastcall onClose(TObject *Sender, TCloseAction &Action);
@@ -74,7 +81,7 @@ private:	// User declarations
 	std::unique_ptr<valcui::QCViewController> m_qcViewController;
 	std::unique_ptr<valcui::WorklistItemViewController> m_worklistItemViewController;
 	std::unique_ptr<valcui::SampleRunViewController> m_sampleRunViewController;
-
+    std::unique_ptr<valcui::MenuViewController>      m_menuViewController;
 public:		// User declarations
 
 	__fastcall TMainForm(TComponent* Owner);

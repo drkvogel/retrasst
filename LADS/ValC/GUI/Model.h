@@ -3,6 +3,9 @@
 
 #include "API.h"
 #include <memory>
+#include "ModelEventListenerAdapter.h"
+#include "ModelEventListeners.h"
+#include "SnapshotObserverAdapter.h"
 #include <System.Classes.hpp>
 #include <SysUtils.hpp>
 #include <vector>
@@ -36,6 +39,13 @@ public:
     operations that might tie up the UI thread for too long, as this would render the application
     unresponsive.
 
+    Note that, for the duration of the callback, the single BusinessLayer thread is suspended in a wait state. 
+    Therefore callback code must not call methods on the Model that depend on this thread for their execution 
+    and are blocking methods.  Deadlock will result. Blocking methods that depend on the BusinessLayer thread for 
+    their execution have the prefix 'do' - e.g. doForceReload
+
+    borrowSnapshot exists for READING / QUERYING the model.  To UPDATE the model, use the (blocking) doXYZ methods.
+
     Because borrowSnapshot is only queueing a request and because the callback happens asynchronously,
     'borrowSnapshot' consumes negligible processing resources.
     */
@@ -44,7 +54,7 @@ public:
 	/**
     Close the Model in order to release resources.
     */
-    void close();
+    void doClose();
 
 	/**
     Retrieve the SnapshotPtr that is maintained by the underlying BusinessLayer instance.
@@ -53,12 +63,7 @@ public:
     */
     valc::SnapshotPtr getSnapshot() const;
 
-	/**
-	Register for notifications of when the Model has changed,
-	i.e. some kind of an event has occurred.
-	An event could be a ForceReload, for example.
-    */
-    void registerModelEventListener( ModelEventListener*  );
+
 
 	/**
     Performs a 'force reload'.
@@ -69,6 +74,23 @@ public:
     point registered listeners are notified.
     */
     void doForceReload();
+
+    /*
+    Queues a rerun of the specified worklist entry.
+
+    Those wanting to call this method should call it on the main UI thread.
+
+    The method effectively blocks until the rerun has been queued, at which 
+    point registered listeners are notified.
+    */
+    void doRerun( 
+        int worklistID, 
+        const std::string& sampleRunID, 
+        const std::string& sampleDescriptor,
+        const std::string& barcode,
+        const std::string& testName );
+
+	void doRunPendingUpdates();
 
 	/**
     Via getSelectedWorklistEntry and setSelectedWorklistEntry, the Model offers the opportunity
@@ -84,6 +106,13 @@ public:
     retrieve the ID of the worklist entry that has been clicked on and update their UI components as necessary.
     */
     int  getSelectedWorklistEntry() const;
+
+	/**
+	Register for notifications of when the Model has changed,
+	i.e. some kind of an event has occurred.
+	An event could be a ForceReload, for example.
+    */
+	void registerModelEventListener( ModelEventListener*  );
 
 	/**
     Specify the LogManager instance to which log messages should be written.
@@ -125,14 +154,13 @@ public:
     void __fastcall warningAlarmOff();
 
 private:
-    typedef std::vector<ModelEventListener*> Listeners;
-    Listeners m_listeners;
+    ModelEventListeners m_listeners;
     std::unique_ptr<BusinessLayer> m_businessLayer;
     LogManager* m_log;
+    SnapshotObserverAdapter m_snapshotObserver;
     int m_selectedWorklistEntry;
     
     void handleException( const Exception& e );
-    void notifyListeners( int eventID );
 };
 
 }

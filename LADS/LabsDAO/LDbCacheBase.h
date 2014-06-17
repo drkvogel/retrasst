@@ -149,7 +149,7 @@ public:
 		return data.empty();
 	}
 
-	bool size() const {
+	size_t size() const {
 		return data.size();
 	}
 

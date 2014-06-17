@@ -338,7 +338,7 @@ object frmNewTank: TfrmNewTank
       Caption = 'Name:'
     end
     object LblPos: TLabel
-      Left = 350
+      Left = 369
       Top = 43
       Width = 41
       Height = 13
@@ -373,7 +373,7 @@ object frmNewTank: TfrmNewTank
       Caption = 'Site:'
     end
     object lblPop: TLabel
-      Left = 350
+      Left = 369
       Top = 220
       Width = 28
       Height = 13
@@ -388,7 +388,7 @@ object frmNewTank: TfrmNewTank
       TabOrder = 8
     end
     object TxtPos: TEdit
-      Left = 400
+      Left = 426
       Top = 40
       Width = 45
       Height = 21
@@ -408,7 +408,7 @@ object frmNewTank: TfrmNewTank
       TabOrder = 3
     end
     object UpDownPos: TUpDown
-      Left = 445
+      Left = 470
       Top = 40
       Width = 17
       Height = 21
@@ -434,7 +434,7 @@ object frmNewTank: TfrmNewTank
       TabOrder = 2
     end
     object TxtPop: TEdit
-      Left = 400
+      Left = 426
       Top = 217
       Width = 45
       Height = 21
@@ -444,7 +444,7 @@ object frmNewTank: TfrmNewTank
       Text = '1'
     end
     object UpDownPop: TUpDown
-      Left = 445
+      Left = 470
       Top = 217
       Width = 16
       Height = 21

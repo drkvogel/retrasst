@@ -93,6 +93,7 @@ private:	// User declarations
 	void createBoxes( const LCDbCryoJob & job, const LPDbBoxType & boxType );
 	void enableButtons();
 	void updateDisplay();
+	void displaySortedList();
 
 	typedef int (*CompareFunction)( const GridEntry & a, const GridEntry & b );
 

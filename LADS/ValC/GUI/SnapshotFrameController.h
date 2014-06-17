@@ -29,7 +29,7 @@ public:
 	void notifyForceReloadButtonClick(TSnapshotFrame* tsf);
 	void notifyMainSplitterMouseUp(TSnapshotFrame* tsf);
 	void notifySelected(int worklistEntryID);
-	void notify(int modelEvent); // ModelEventConstants.h
+	void notify(int modelEvent, const std::string& eventData ); // ModelEventConstants.h
 
 
 	void resize();

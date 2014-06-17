@@ -17,9 +17,9 @@ private:
     LogManager* m_log;
 };
 
-void assertion( bool expression, const char* msg );
-
-void throwTimeoutException( const std::string& operation );
+void        assertion( bool expression, const char* msg );
+std::string describeWaitResult( unsigned long waitResult );
+void        throwWaitException( unsigned long waitResult, const std::string& operation );
 
 }
 

@@ -1,16 +1,18 @@
 #ifndef DBUPDATESCHEDULEH
 #define DBUPDATESCHEDULEH
 
+#include "BuddyRun.h"
 #include "CritSec.h"
 #include <deque>
-#include <set>
 #include <string>
+#include <vector>
 
 namespace valc
 {
 
 class DBTransactionHandler;
 class DBUpdateTask;
+
 
 class DBUpdateSchedule 
 {
@@ -23,7 +25,7 @@ public:
 private:
     std::deque< DBUpdateTask* > m_updates;
     paulst::CritSec             m_cs;
-    std::set< int >             m_buddyDatabaseEntriesScheduledForUpdate;
+    std::vector< BuddyRun >     m_newBuddyRuns;
 };
 
 }
