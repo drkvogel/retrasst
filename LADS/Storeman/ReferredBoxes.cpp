@@ -925,6 +925,7 @@ void TfrmReferred::okOrDiscard(int status) {
         LCDbRack rackData("", editedBox.tank_cid, editedBox.rack_name);
         if (!rackData.findRack(qc)) {
             ostringstream oss;
+            // tank_name not initialised?
             oss <<"Rack not found.\n\ntank: '"<<editedBox.tank_name<<"'\nrack: '"<<editedBox.rack_name<<"'";
             oss <<"\n(Is tank correct?)";
             if (REFBOXESDEBUG) {
@@ -994,8 +995,9 @@ void __fastcall CheckTRSWorkerThread::Execute() {
 
     // check that tank/rack/slot is available (or still in use for selected box) and give an appropriate error message if necessary
     // repeat query for each project database to find out if the slot is occupied
-    for (Range< LCDbProject > pr = LCDbProjects::records(); pr.isValid(); ++ pr) { //&& !pr->isCentral())
+    for (Range< LCDbProject > pr = LCDbProjects::records(); pr.isValid(); ++pr) { //&& !pr->isCentral())
         curProj = *pr;
+        if (!curProj.isInCurrentSystem() || !curProj.isActive() || curProj.isCentral()) continue;
         Synchronize((TThreadMethod)&updateStatus); // don't do graphical things in the thread without Synchronising
         LQuery qi(Util::projectQuery(pr->getID()));;
         qi.setSQL(

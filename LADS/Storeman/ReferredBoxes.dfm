@@ -38,7 +38,7 @@ object frmReferred: TfrmReferred
     TabOrder = 0
     object Splitter1: TSplitter
       Left = 0
-      Top = 540
+      Top = 401
       Width = 177
       Height = 8
       Cursor = crVSplit
@@ -50,7 +50,7 @@ object frmReferred: TfrmReferred
       Left = 0
       Top = 0
       Width = 177
-      Height = 540
+      Height = 401
       Align = alTop
       Caption = 'Projects (click here to deselect)'
       TabOrder = 0
@@ -59,7 +59,7 @@ object frmReferred: TfrmReferred
         Left = 2
         Top = 15
         Width = 173
-        Height = 523
+        Height = 384
         Align = alClient
         ItemHeight = 13
         Items.Strings = (
@@ -80,22 +80,27 @@ object frmReferred: TfrmReferred
         MultiSelect = True
         TabOrder = 0
         OnClick = listboxProjectsClick
+        ExplicitLeft = 3
+        ExplicitTop = 19
+        ExplicitHeight = 352
       end
     end
     object groupboxBoxTypes: TGroupBox
       Left = 0
-      Top = 548
+      Top = 409
       Width = 177
-      Height = 28
+      Height = 167
       Align = alClient
-      Caption = 'Box types'
+      Caption = 'Box types (click here to deselect)'
       TabOrder = 1
       OnClick = groupboxBoxTypesClick
+      ExplicitTop = 548
+      ExplicitHeight = 28
       object listboxBoxTypes: TListBox
         Left = 2
         Top = 15
         Width = 173
-        Height = 11
+        Height = 150
         Align = alClient
         ItemHeight = 13
         Items.Strings = (
@@ -113,6 +118,7 @@ object frmReferred: TfrmReferred
         Sorted = True
         TabOrder = 0
         OnClick = listboxBoxTypesClick
+        ExplicitHeight = 11
       end
     end
     object panelBottom: TPanel
