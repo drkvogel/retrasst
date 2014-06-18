@@ -1,10 +1,11 @@
-current-issues2
+# current-issues2
 
-current-issues.md has been changed or just moved?
+current-issues.md has been changed or just moved? changed
+copy big collect query sql from crashed vdba window
 
 ## referred boxes
 
-in FindMatchesWorkerThread::Execute()
+### in FindMatchesWorkerThread::Execute()
 
 tank_name not filled in
 could cache tank name

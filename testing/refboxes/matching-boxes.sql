@@ -15,7 +15,7 @@ SELECT b.box_cid, b.external_name, b.status, bs.status AS storestatus, bs.slot_p
 -- first_position 1
 -- last_position  100
 
-
+-- project_cid -1078608, dev_stics, t_ldb26
 
 SELECT b.box_cid, b.external_name, b.status, bs.status AS storestatus, bs.slot_position AS slot,
              s1.cryovial_position AS pos1, c1.cryovial_barcode AS barc1,

@@ -207,7 +207,7 @@ object frmReferred: TfrmReferred
       Height = 58
       Align = alBottom
       Caption = 'Box details'
-      TabOrder = 1
+      TabOrder = 0
       DesignSize = (
         1079
         58)
@@ -404,44 +404,6 @@ object frmReferred: TfrmReferred
         OnClick = btnDiscardClick
       end
     end
-    object groupboxReferredBoxes: TGroupBox
-      Left = 0
-      Top = 0
-      Width = 1079
-      Height = 167
-      Align = alClient
-      Caption = 'Referred boxes'
-      TabOrder = 0
-      object sgReferredBoxes: TStringGrid
-        Left = 2
-        Top = 15
-        Width = 662
-        Height = 150
-        Align = alClient
-        ColCount = 11
-        Ctl3D = True
-        DefaultColWidth = 72
-        DefaultDrawing = False
-        FixedCols = 0
-        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
-        ParentCtl3D = False
-        TabOrder = 0
-        OnDrawCell = sgReferredBoxesDrawCell
-        OnMouseUp = sgReferredBoxesMouseUp
-      end
-      object memoDebug: TMemo
-        Left = 664
-        Top = 15
-        Width = 413
-        Height = 150
-        Align = alRight
-        Lines.Strings = (
-          'memoDebug')
-        ScrollBars = ssBoth
-        TabOrder = 1
-        Visible = False
-      end
-    end
     object groupboxFoundIn: TGroupBox
       Left = 0
       Top = 233
@@ -449,7 +411,7 @@ object frmReferred: TfrmReferred
       Height = 273
       Align = alBottom
       Caption = 'Possible matches found in project database:'
-      TabOrder = 2
+      TabOrder = 1
       object sgMatches: TStringGrid
         Left = 2
         Top = 15
@@ -480,7 +442,7 @@ object frmReferred: TfrmReferred
       Height = 103
       Align = alBottom
       Caption = 'Box Storage History'
-      TabOrder = 3
+      TabOrder = 2
       object sgStorage: TStringGrid
         Left = 2
         Top = 15
@@ -506,6 +468,60 @@ object frmReferred: TfrmReferred
           64
           64
           64)
+      end
+    end
+    object groupboxReferredBoxes: TGroupBox
+      Left = 0
+      Top = 0
+      Width = 1079
+      Height = 167
+      Align = alClient
+      Caption = 'Referred boxes'
+      TabOrder = 3
+      object splitterDebug: TSplitter
+        Left = 2
+        Top = 110
+        Width = 1075
+        Height = 5
+        Cursor = crVSplit
+        Align = alBottom
+        Visible = False
+        ExplicitLeft = -2
+        ExplicitTop = 99
+      end
+      object sgReferredBoxes: TStringGrid
+        Left = 2
+        Top = 15
+        Width = 1075
+        Height = 95
+        Align = alClient
+        ColCount = 11
+        Ctl3D = True
+        DefaultColWidth = 72
+        DefaultDrawing = False
+        FixedCols = 0
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
+        ParentCtl3D = False
+        TabOrder = 0
+        OnDrawCell = sgReferredBoxesDrawCell
+        OnMouseUp = sgReferredBoxesMouseUp
+        ExplicitLeft = 5
+        ExplicitWidth = 1069
+        ExplicitHeight = 100
+      end
+      object memoDebug: TMemo
+        Left = 2
+        Top = 115
+        Width = 1075
+        Height = 50
+        Align = alBottom
+        Lines.Strings = (
+          'memoDebug')
+        ScrollBars = ssBoth
+        TabOrder = 1
+        Visible = False
+        ExplicitLeft = 3
+        ExplicitTop = 54
       end
     end
   end

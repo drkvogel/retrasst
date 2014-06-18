@@ -16,6 +16,15 @@ fillRow()
 
 ---
 
+right hash of it
+
+nextRow()
+    if DONE == chunk->getStatus()
+        chunkCompleted()
+     if (isJobComplete())
+        if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
+        ModalResult = mrOk;    
+
 chunkCompleted()
 
 isJobComplete() 

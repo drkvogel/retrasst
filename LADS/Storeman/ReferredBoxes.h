@@ -60,33 +60,38 @@ public:
 	int         laptop_cid;
 	int         process_cid;
 	int         box_arrival_id;
-	TDateTime   swipe_time;
 	int         status;
-    int         box_store_status; /* LCDbBoxStore::Status { EXPECTED = 0, MOVE_EXPECTED = 1, REMOVED = 3, SLOT_ALLOCATED = 5, SLOT_CONFIRMED = 6, REFERRED = 7, DELETED = 99 }; */
-	int         tank_cid;
-    int         rack_cid;       // for t_ldbx::box_store.rack_cid
-	string      rack_name;      // for t_ldbc::l_b_a.rack_number - which is a varchar
-    int         slot_position;  // for t_ldbc::l_b_a.slot_position or t_ldbx::box_store.slot_position
-    string      tank_name;
-    string      slot_name;      // to avoid converting int to string more than once: it's painful!
+	int         tank_cid;           // must be worked out via rack_cid?
+    string      tank_name;          // must be worked out via rack_cid?
+    int         rack_cid;           // t_ldbx::box_store.rack_cid
+	string      rack_name;          // t_ldbc::l_b_a.rack_number - which is a varchar
+    int         slot_position;      // t_ldbc::l_b_a.slot_position or t_ldbx::box_store.slot_position
+    string      slot_name;          // to avoid converting int to string more than once
+    int         box_store_status;   // LCDbBoxStore::Status { EXPECTED = 0, MOVE_EXPECTED = 1, REMOVED = 3, SLOT_ALLOCATED = 5, SLOT_CONFIRMED = 6, REFERRED = 7, DELETED = 99 };
     TDateTime   time_stamp;
+    TDateTime   swipe_time;
     TDateTime   removed;
     bool        changed;
-    string      typeFromName() const;
 
     BoxArrivalRecord() {}
     BoxArrivalRecord
-		(int recn, int ltid, int psid, int baid, int pjid, TDateTime stime, string bname, int st,
-		string firstbar, int firstpos, string lastbar, int lastpos,
-		int tankid, string racknum, int rackslot, TDateTime tstamp) :
-        record_no(recn),
-        laptop_cid(ltid), process_cid(psid), box_arrival_id (baid), swipe_time(stime), status(st),
-        tank_cid(tankid), rack_name(racknum), slot_position(rackslot), time_stamp(tstamp), changed(false)
+		(string bname, int pjid, string firstbar, int firstpos, string lastbar, int lastpos, // BoxRecord
+
+        int recn, int ltid, int psid, int baid, int st,
+		int tankid, string tname, int rackid, string racknum, int rackslot, string slotname,
+        int storestatus,
+        TDateTime tstamp, TDateTime stime, TDateTime rtime) :
+
+        record_no(recn), laptop_cid(ltid), process_cid(psid), box_arrival_id (baid), status(st),
+        tank_cid(tankid), tank_name(tname), rack_cid(rackid), rack_name(racknum), slot_position(rackslot), slot_name(slotname),
+        box_store_status(storestatus),
+        time_stamp(tstamp), swipe_time(stime), removed(rtime), changed(false)
     {
         box_name = bname; project_cid = pjid;
         first_barcode = firstbar; first_position = firstpos;
         last_barcode = lastbar;   last_position = lastpos;
 	}
+    string      typeFromName() const;
     std::string str() {
         std::stringstream out;
         out
@@ -198,8 +203,6 @@ __published:	// IDE-managed Components
     TGroupBox *groupboxBoxTypes;
     TListBox *listboxBoxTypes;
     TPanel *panelBoxes;
-    TGroupBox *groupboxReferredBoxes;
-    TStringGrid *sgReferredBoxes;
     TGroupBox *groupboxBoxDetails;
     TLabel *Label2;
     TLabel *Label4;
@@ -229,7 +232,6 @@ __published:	// IDE-managed Components
     TSplitter *Splitter4;
     TStringGrid *sgStorage;
     TTimer *timerReferredBoxClicked;
-    TMemo *memoDebug;
     TCheckBox *cbLog;
     TComboBox *comboEventHistory;
     TTimer *timerBoxNameEdited;
@@ -239,6 +241,10 @@ __published:	// IDE-managed Components
     TUpDown *updownSlot;
     TStatusBar *statusBar;
     TLabel *Label8;
+    TGroupBox *groupboxReferredBoxes;
+    TSplitter *splitterDebug;
+    TStringGrid *sgReferredBoxes;
+    TMemo *memoDebug;
     void __fastcall listboxProjectsClick(TObject *Sender);
     void __fastcall listboxBoxTypesClick(TObject *Sender);
     void __fastcall btnSaveBoxClick(TObject *Sender);

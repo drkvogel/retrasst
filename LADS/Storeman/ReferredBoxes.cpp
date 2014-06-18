@@ -80,7 +80,8 @@ void __fastcall TfrmReferred::btnDoneClick(TObject *Sender) { Close(); }
 void __fastcall TfrmReferred::FormShow(TObject *Sender) { init(); }
 
 void __fastcall TfrmReferred::cbLogClick(TObject *Sender) {
-    memoDebug->Visible = cbLog->Checked;
+    memoDebug->Visible      = cbLog->Checked;
+    splitterDebug->Visible  = cbLog->Checked;
 }
 
 void TfrmReferred::init() {
@@ -397,25 +398,34 @@ void TfrmReferred::loadBoxes() {
     qc.open();
     while (!qc.eof()) {
         BoxArrivalRecord * box = new BoxArrivalRecord(
+            qc.readString("box_name"),
+            qc.readInt("project_cid"),
+            qc.readString("first_barcode"), qc.readInt("first_position"),
+            qc.readString("last_barcode"),  qc.readInt("last_position"),
+
             qc.readInt("record_no"),
             qc.readInt("laptop_cid"),
             qc.readInt("process_cid"),
             qc.readInt("box_arrival_id"),
-            qc.readInt("project_cid"),
-            qc.readDateTime("swipe_time"),
-            qc.readString("box_name"),
             qc.readInt("status"), // 5 = allocated, 6 = slot confirmed, 7 = referred
-            qc.readString("first_barcode"), qc.readInt("first_position"),
-            qc.readString("last_barcode"),  qc.readInt("last_position"),
+
             qc.readInt("tank_cid"),
+            "", // tank_name???
+            0,  // rack_cid???
             qc.readString("rack_number"),
             qc.readInt("slot_position"),
-            qc.readDateTime("time_stamp"));
+            "", // slot_name???
+            0,  // box_store_status???
+            qc.readDateTime("time_stamp"),
+            qc.readDateTime("swipe_time"),
+            NULL // removed???
+        );
         totalReferred.push_back(box);
         qc.next();
     }
 
     // c_box_name + c_slot_allocation
+
     qc.setSQL(
         "SELECT bn.process_cid, sa.project_cid, bn.time_stamp AS bn_stamp, bn.external_name AS box_name,"
         " bn.status AS bn_status,"
@@ -429,22 +439,31 @@ void TfrmReferred::loadBoxes() {
     qc.open();
     while (!qc.eof()) {
         BoxArrivalRecord * box = new BoxArrivalRecord(
-            0, //qc.readInt(""), // record_no
-            0, //qc.readInt(""), // laptop_cid
-            qc.readInt("process_cid"), // c_box_name
-            0, //qc.readInt(""), // box_arrival_id
-            qc.readInt("project_cid"), // c_slot_allocation
-            qc.readDateTime("sa_stamp"), // swipe_time - c_box_name.time_stamp or c_slot_allocation.time_stamp
-            qc.readString("box_name"), // box_name - c_box_name.external_name
-            qc.readInt("bn_status"), // c_box_name.status or c_slot_allocation.status
+            qc.readString("box_name"),      // c_box_name.external_name
+            qc.readInt("project_cid"),      // c_slot_allocation.project_cid
             "unknown", //qc.readString(""), // first_barcode
-            0, //qc.readInt(""), // first_position
+            0, //qc.readInt(""),            // first_position
             "unknown", //qc.readString(""), // last_barcode
-            0, //qc.readInt(""), // last_position
-            0, //fixme qc.readInt(""), // tank_cid - c_object_name.object_cid where object_type = 16?
-            0, //fixme qc.readString(""), // rack_number
-            qc.readInt("slot_position"), // c_slot_allocation.slot_position
-            qc.readDateTime("bn_stamp")); // c_box_name.time_stamp or c_slot_allocation.time_stamp
+            0, //qc.readInt(""),            // last_position
+
+            0, //qc.readInt(""),            // record_no
+            0, //qc.readInt(""),            // laptop_cid
+            qc.readInt("process_cid"),      // c_box_name.process_cid
+            0, //qc.readInt(""),            // box_arrival_id
+            qc.readInt("bn_status"),        // c_box_name.status or c_slot_allocation.status
+
+            0, //fixme qc.readInt(""),      // tank_cid - c_object_name.object_cid where object_type = 16?
+            "", // tank_name???
+            0, //fixme qc.readString(""),   // rack_cid
+            "", //fixme qc.readString(""),   // rack_number
+            qc.readInt("slot_position"),    // c_slot_allocation.slot_position
+            "",                             // slot_name???
+            0,                              // box_store_status???
+
+            qc.readDateTime("bn_stamp"),     // c_box_name.time_stamp or c_slot_allocation.time_stamp
+            qc.readDateTime("sa_stamp"),    // swipe_time - c_box_name.time_stamp or c_slot_allocation.time_stamp
+            NULL                            // removed???
+        );
         totalReferred.push_back(box);
         qc.next();
     }
@@ -646,9 +665,14 @@ void __fastcall FindMatchesWorkerThread::Execute() {
         box_id  = qp.readInt("box_cid");
         pos_min = qp.readInt("minpos"); // first_position
         pos_max = qp.readInt("maxpos"); // last_position
+
         BoxArrivalRecord * box = new BoxArrivalRecord( // just using this as a similar data structure
+            "", // box_name
+            project, "", pos_min, "", pos_max,
             0, 0, 0, box_id, // actually project box id, not box_arrival_id
-            project, Now(), "", 0,  "", pos_min, "", pos_max, 0, "", 0, Now());
+            0, 0, "", 0, "", 0, "", 0,
+            Now(), Now(), Now()
+        );
         frmReferred->matchingBoxes1.push_back(box);
         qp.next();
     }
@@ -659,7 +683,9 @@ void __fastcall FindMatchesWorkerThread::Execute() {
     for (it = frmReferred->matchingBoxes1.begin(); it != frmReferred->matchingBoxes1.end(); it++) {
         BoxArrivalRecord * box = *it;
         qp.setSQL( // Join includes rack and slot, which we can use with central db to find tank
-            "SELECT b.box_cid, b.external_name, b.status, bs.status AS storestatus, bs.slot_position AS slot,"
+            "SELECT b.box_cid, b.external_name, b.status, "
+            " bs.status AS storestatus, bs.slot_position AS slot,"
+            " bs.rack_cid,"
 			" s1.cryovial_position AS pos1, c1.cryovial_barcode AS barc1,"
 			" s2.cryovial_position AS pos2, c2.cryovial_barcode AS barc2"
             " FROM box_name b LEFT JOIN box_store bs"
@@ -678,11 +704,21 @@ void __fastcall FindMatchesWorkerThread::Execute() {
         if (!qp.open()) return; // no results
 
         BoxArrivalRecord * box2 = new BoxArrivalRecord(
-            0, 0, 0, box->box_arrival_id, box->project_cid, Now(), // actually project box id, not box_arrival_id
-            qp.readString("external_name"), qp.readInt("status"),
+            qp.readString("external_name"), box->project_cid,
             qp.readString("barc1"), qp.readInt("pos1"),
             qp.readString("barc2"), qp.readInt("pos2"),
-            0, "", qp.fieldExists("slot") ? 1 : 0, Now());
+
+            0, 0, 0, box->box_arrival_id,  // actually project box id, not box_arrival_id
+            qp.readInt("status"),
+
+            0, "unknown",
+            0, "unknown",
+            //qp.fieldExists("tank") ? , // get tank from rack
+            //qp.fieldExists("rack_cid") ? , // but need string; no ctor for rack_cid
+            qp.fieldExists("slot") ? 1 : 0, "unknown",
+            0,
+            Now(), Now(), Now()
+        );
         box2->box_store_status = qp.readInt("storestatus");
             //xxx make slot_position non-zero to mark existence of box_store record(s)???
         frmReferred->matchingBoxes2.push_back(box2);
@@ -737,12 +773,23 @@ void __fastcall FindStorageWorkerThread::Execute() {
         return;
     }
     while (!qp.eof()) {
+
         BoxArrivalRecord * box = new BoxArrivalRecord(
-            0, 0, 0, box_cid, project, Now(), // actually project box id, not box_arrival_id
-            "", qp.readInt("status"), "", 0, "", 0,
-            0, "", qp.readInt("slot_position"), qp.readDateTime("time_stamp")); // Now()); // tank_cid, rack_name, slot_position, time_stamp
-        box->rack_cid   = qp.readInt("rack_cid");
-        box->removed    = qp.readDateTime("removed");
+            "", project, "", 0, "", 0,
+
+            0, 0, 0, box_cid,                   // actually project box id, not box_arrival_id
+            qp.readInt("status"),
+
+            0, "",                              // tank_cid, tank_name
+            qp.readInt("rack_cid"), "",         // rack_cid, rack_name
+            qp.readInt("slot_position"), "",    // slot_position, slot_name
+            0,                                  // box_store_status???
+
+            qp.readDateTime("time_stamp"),
+            NULL, //???
+            qp.readDateTime("removed")
+        );
+
         frmReferred->storageHistory.push_back(box);
         qp.next();
     }
@@ -1212,3 +1259,26 @@ void __fastcall TfrmReferred::comboRackDropDown(TObject *Sender) {
 */
 
 //editSlot->Text = n2s(box->slot_position).c_str();
+
+    /*  c_box_name
+        project_cid                      integer                 4   no     yes           1980.1
+        box_cid                          integer                 4   no      no     1     unique
+        barcode                          varchar                24   no      no
+        box_type_cid                     integer                 4   no      no            232.2
+        box_capacity                     integer                 2   no   value
+        external_name                    varchar                36   no      no
+        process_cid                      integer                 4   no     yes
+        status                           integer                 2   no     yes
+        time_stamp                       ingresdate                  no   value
+
+        c_slot_allocation
+
+        slot_cid                         integer                 4   no      no     1     unique
+        rack_cid                         integer                 4   no      no             11.6
+        slot_position                    integer                 2   no      no
+        status                           integer                 2   no      no           6394.4
+        project_cid                      integer                 4   no     yes
+        box_cid                          integer                 4   no     yes
+        time_stamp                       ingresdate                  no   value
+        retrieval_cid                    integer                 4   no     yes
+        */

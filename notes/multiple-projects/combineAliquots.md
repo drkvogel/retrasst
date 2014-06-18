@@ -177,3 +177,7 @@ try earlier commits? e.g.
 84af27cefeeeaac499ce3e210db2be8cf9961756 [84af27c] before cvs pull
 
 ## fixme    
+
+## need synchro'd msgbox method-
+
+tried to put in RetrAsstMain.h, but had circular dependency problem

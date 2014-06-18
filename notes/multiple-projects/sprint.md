@@ -32,9 +32,7 @@ I changed it recently and buggered it up: why did I change it?
          } else { // last row
              if (chunk->getSection() < (int)chunks.size()) {
 
-## need synchro'd msgbox method-
 
-tried to put in RetrAsstMain.h, but had circular dependency problem
 
 
 isJobComplete()
@@ -48,6 +46,6 @@ discardBoxes()
 
 
 
-xe4 on laptop
+xe4 on laptop-
 reply to thread
 solve the problems
