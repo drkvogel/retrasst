@@ -5,6 +5,7 @@
 #include "BuddyRun.h"
 #include "DBUpdateTask.h"
 #include <iterator>
+#include "SampleRuns.h"
 #include <vector>
 
 namespace valc
@@ -13,20 +14,24 @@ namespace valc
 class DBUpdateTaskSyncBuddyDatabaseAndSampleRun : public DBUpdateTask
 {
 public:
-    template<typename BuddyRunIter>
-    DBUpdateTaskSyncBuddyDatabaseAndSampleRun( BuddyRunIter begin, BuddyRunIter end )
+    template<typename BuddyRunIter, typename SampleRunIter>
+    DBUpdateTaskSyncBuddyDatabaseAndSampleRun( 
+        BuddyRunIter buddyRunBegin, BuddyRunIter buddyRunEnd,
+        SampleRunIter sampleRunBegin, SampleRunIter sampleRunEnd )
     {
-        std::copy( begin, end, std::back_inserter( m_newBuddyRuns ) );
+        std::copy(  buddyRunBegin,  buddyRunEnd, std::back_inserter( m_newBuddyRuns ) );
+        std::copy( sampleRunBegin, sampleRunEnd, std::back_inserter( m_newSampleRuns ) );
     }
 
 protected:
     std::string describeUpdate() const;
     void        updateDatabase();
 private:
-    std::vector< BuddyRun > m_newBuddyRuns;
+    std::vector<BuddyRun>   m_newBuddyRuns;
+    SampleRuns              m_newSampleRuns;
 
-    int insertNewSampleRunEntry( const BuddyRun& br );
-    void updateBuddyDataseEntry( int buddySampleID, int sampleRunID  );
+    int insertNewSampleRunEntry( const SampleRun& sr );
+    void updateBuddyDatabaseEntry( int buddySampleID, int sampleRunID  );
 };
 
 }

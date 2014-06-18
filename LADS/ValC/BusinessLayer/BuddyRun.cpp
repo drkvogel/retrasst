@@ -3,7 +3,7 @@
 namespace valc
 {
 
-BuddyRun::BuddyRun( int bsid, const std::string& runID )
+BuddyRun::BuddyRun( int bsid, const IDToken& runID )
     :
     buddySampleID( bsid ),
     sampleRunID( runID )

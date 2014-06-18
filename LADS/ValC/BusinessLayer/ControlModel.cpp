@@ -1,7 +1,7 @@
 #include "AcquireCriticalSection.h"
 #include "ControlModel.h"
+#include "IDTokenSequence.h"
 #include "Require.h"
-#include "RunIDC14n.h"
 #include "SampleRunGroupModel.h"
 
 namespace valc
@@ -32,15 +32,14 @@ ControlModel::RuleEngineQueueListenerAdapter::RuleEngineQueueListenerAdapter( Co
 {
 }
 
-void ControlModel::RuleEngineQueueListenerAdapter::notifyQueued( const UncontrolledResult& r )
+void ControlModel::RuleEngineQueueListenerAdapter::notifyQueued( const UncontrolledResult& r, const IDToken& runID )
 {
-    m_model->notifyQCEvaluationStarted( r );
+    m_model->notifyQCEvaluationStarted( r, runID );
 }
 
 ControlModelImpl::ControlModelImpl()
     :
-    m_sampleRunGroupModel(0),
-    m_runIDC14n(0)
+    m_sampleRunGroupModel(0)
 {
 }
 
@@ -49,35 +48,31 @@ void ControlModelImpl::clear()
     m_sampleRunGroupModel = 0;
     m_pending.clear();
     m_cache.clear();
-    m_runIDC14n = 0;
 }
 
-ControlStatus ControlModelImpl::getControlStatus( int testID, const std::string& runID ) const
+ControlStatus ControlModelImpl::getControlStatus( int testID, const IDToken& sampleRunID ) const
 {
-    typedef std::vector< std::string > RunIDs;
-    RunIDs runIDs;
+    IDTokenSequence runIDs;
     std::vector< QCControl > preceding, following;
 
-    const std::string runIDCanonicalForm = m_runIDC14n->toCanonicalForm(runID);
-
-    m_sampleRunGroupModel->listPrecedingQCRuns( runIDCanonicalForm, runIDs );
+    m_sampleRunGroupModel->listPrecedingQCRuns( sampleRunID, runIDs );
 
     m_cache.searchForMatchingQCControls( runIDs, testID, preceding );
 
     runIDs.clear();
 
-    m_sampleRunGroupModel->listFollowingQCRuns( runIDCanonicalForm, runIDs );
+    m_sampleRunGroupModel->listFollowingQCRuns( sampleRunID, runIDs );
 
     m_cache.searchForMatchingQCControls( runIDs, testID, following );
 
     return ControlStatus( preceding, following );
 }
 
-void ControlModelImpl::notifyQCEvaluationStarted( const UncontrolledResult& r )
+void ControlModelImpl::notifyQCEvaluationStarted( const UncontrolledResult& r, const IDToken& runID )
 {
     paulst::AcquireCriticalSection a(m_cs);
 
-    m_pending.insert( std::make_pair(r.resultID, r) );
+    m_pending.insert( std::make_pair(r.resultID, std::make_pair(r,runID) ) );
 }
 
 void ControlModelImpl::notifyQCEvaluationCompleted( const RuleResults& rr, int forResult )
@@ -86,19 +81,14 @@ void ControlModelImpl::notifyQCEvaluationCompleted( const RuleResults& rr, int f
 
     require( m_pending.count( forResult ) );
 
-    std::map< int, UncontrolledResult >::iterator i = m_pending.find( forResult );
+    auto i = m_pending.find( forResult );
 
-    UncontrolledResult r = i->second;
+    UncontrolledResult r = i->second.first;
+    IDToken runID = i->second.second;
 
     m_pending.erase( i );
 
-    m_cache.add( r, rr );
-}
-
-void ControlModelImpl::setRunIDC14n( RunIDC14n* r )
-{
-    m_runIDC14n = r;
-    m_cache.setRunIDC14n(r);
+    m_cache.add( r, runID, rr );
 }
 
 void ControlModelImpl::setSampleRunGroupModel( SampleRunGroupModel* m )

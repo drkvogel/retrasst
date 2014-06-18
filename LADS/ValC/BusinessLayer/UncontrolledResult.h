@@ -20,7 +20,6 @@ struct UncontrolledResult
     int         projectID;          /* default: 0 */
     TDateTime   dateAnalysed;       /* default: 1977 */
     char        actionFlag;         /* default: '?' */
-    std::string runID;              /* default: '' */
 
     UncontrolledResult();
 };

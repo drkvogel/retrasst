@@ -5,6 +5,7 @@ namespace valc
 {
 
 class AnalysisActivitySnapshotImpl;
+class IDToken;
 class WorklistEntry;
 
 class SnapshotUpdateHandle
@@ -15,13 +16,11 @@ public:
     SnapshotUpdateHandle& operator=( const SnapshotUpdateHandle& );
     operator bool() const { return m_snapshot; }
     void                 appendToQueue   ( const std::string& sampleDesriptor );
-    void                 closeOff        ( const std::string& sampleRunID );
-    int                  getDatabaseIDForSampleRun( const std::string& sampleRunID ) const;
-    int                  getGroupIDForSampleRun( const std::string& candidateSampleRunID ) const;
+    void                 closeOff        ( const IDToken& sampleRunID );
+    int                  getGroupIDForSampleRun( const IDToken& sampleRunID ) const;
     const WorklistEntry* getWorklistEntry( int id ) const;
     void                 insertRerun     ( int existingWorklistID, int newWorklistID );
-    bool                 knownDatabaseIDForCandidateSampleRun( const std::string& candidateSampleRunID ) const;
-    void                 updateWithDatabaseIDForSampleRun( const std::string& candidateSampleRunID, int dbID );
+    void                 updateSampleRunIDValue( const IDToken& from, const std::string& to );
 
 private:
     AnalysisActivitySnapshotImpl* m_snapshot;

@@ -1,6 +1,7 @@
 #ifndef SAMPLERUNH
 #define SAMPLERUNH
 
+#include "API.h"
 #include "Nullable.h"
 #include <string>
 #include <System.hpp>
@@ -22,17 +23,24 @@ public:
     SampleRun();
     SampleRun( const SampleRun& );
 	// Note that 'closed' will be garbage if isOpen.
-    SampleRun( const std::string& runID, const std::string& sampleDescriptor, bool isOpen, const TDateTime& created, const TDateTime& closed, 
-        float sequencePosition, const paulst::Nullable<int>& groupID, bool isQC );
+    SampleRun( 
+        const IDToken& runID, 
+        const std::string& sampleDescriptor, 
+        bool isOpen, 
+        const TDateTime& created, 
+        const TDateTime& closed, 
+        float sequencePosition, 
+        const paulst::Nullable<int>& groupID, 
+        bool isQC );
     SampleRun&              operator=( const SampleRun& o );
     paulst::Nullable<int>   getGroupID() const;
-    std::string             getID() const;
+    IDToken                 getID() const;
     std::string             getSampleDescriptor() const;
     float                   getSequencePosition() const;
     bool                    isOpen() const;
     bool                    isQC() const;
 private:
-    std::string             m_runID;
+    IDToken                 m_runID;
     std::string             m_sampleDescriptor;
     bool                    m_isOpen;
     TDateTime               m_created;

@@ -18,6 +18,7 @@
 #include "xexec.h"
 #include "LCDbProject.h"
 #include "LDbCacheBase.h"
+#include "LIMSParams.h"
 
 #pragma hdrstop
 #pragma package(smart_init)
@@ -26,6 +27,34 @@
 
 LIMSDatabase::DbSystem LIMSDatabase::current = LIMSDatabase::UNKNOWN;
 std::vector< std::string >LIMSDatabase::errors;
+
+//---------------------------------------------------------------------------
+
+LIMSDatabase::DbSystem LIMSDatabase::getCurrentSystem() {
+	if( current == LIMSDatabase::UNKNOWN ) {
+		current = LIMSParams::instance().getDbSystem();
+	}
+	return current;
+}
+
+//---------------------------------------------------------------------------
+
+std::string LIMSDatabase::getDescription( DbSystem system ) {
+	switch( system ) {
+		case VLAB_LIVE:
+			return "Live data (vlab::ldb*)";
+		case VLAB_TEST:
+			return "Test data for software testing (vlab::test_ldb*)";
+		case LABDEV_MIRROR:
+			return "Mirror system for database testing (vlabdev::ldb*)";
+		case LABDEV_DEV:
+			return "Software development (vlabdev::t_ldb*)";
+		case LABDEV_TEST:
+			return "Database development testing (vlabdev::test_ldb*)";
+		default:
+			return "Database system not selected";
+	}
+}
 
 //---------------------------------------------------------------------------
 //	find or create an entry for central, distributed or project database

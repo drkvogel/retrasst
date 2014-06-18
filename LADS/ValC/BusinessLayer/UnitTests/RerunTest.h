@@ -14,7 +14,7 @@ public:
     MockSnapshotObserver() : updateFailures(0)                              {}
     void notifyWorklistEntryChanged ( const valc::WorklistEntry* we )       {}
     void notifyNewWorklistEntry     ( const valc::WorklistEntry* we )       {}
-    void notifySampleRunClosedOff   ( const std::string& runID )            {}
+    void notifySampleRunClosedOff   ( const valc::IDToken& runID )          {}
     void notifySampleAddedToQueue   ( const std::string& sampleDescriptor ) {}
     void notifyUpdateFailed         ( const char* errorMsg )                { ++updateFailures; }
     };

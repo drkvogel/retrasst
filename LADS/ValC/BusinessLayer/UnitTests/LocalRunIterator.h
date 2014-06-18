@@ -32,7 +32,7 @@ public:
 
 };
 
-std::string getRunID( const LocalEntryIterator& i )
+valc::IDToken getRunID( const LocalEntryIterator& i )
 {
     const LocalRun& lr = boost::get<LocalRun>(*i);
     return lr.getRunID();

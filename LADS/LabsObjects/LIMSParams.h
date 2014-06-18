@@ -5,6 +5,7 @@
 #include <registry.hpp>
 #include <FileCtrl.hpp>
 #include <string>
+#include "LIMSDatabase.h"
 
 //==============================================================================
 
@@ -52,14 +53,16 @@ public:
 //	int getClusterID() const { return clusterID; }
 //	void setClusterID( int newID );
 
-	bool useLocalWorklist();
-	void setLocalWorklist( bool useBoth );
-
 	bool checkMachine();
 	bool checkUnique();
 
 	std::string getLogFolder() const;
 	std::string getProgVersion() const;
+
+	bool useLocalWorklist();
+	void setLocalWorklist( bool useBoth );
+	LIMSDatabase::DbSystem getDbSystem();
+	void setDbSystem( LIMSDatabase::DbSystem dbs );
 };
 
 //==============================================================================

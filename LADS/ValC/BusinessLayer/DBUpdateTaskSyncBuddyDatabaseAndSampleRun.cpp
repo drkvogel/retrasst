@@ -25,20 +25,15 @@ void DBUpdateTaskSyncBuddyDatabaseAndSampleRun::updateDatabase()
 
     try
     {
-        for ( const BuddyRun& br : m_newBuddyRuns )
+        for ( const SampleRun& sr : m_newSampleRuns )
         {
-            if ( ! snapshotUpdateHandle.knownDatabaseIDForCandidateSampleRun( br.sampleRunID )  )
-            {
-                int newSampleRunID = insertNewSampleRunEntry( br );
-                snapshotUpdateHandle.updateWithDatabaseIDForSampleRun( br.sampleRunID, newSampleRunID );
-            }
+                int newSampleRunID = insertNewSampleRunEntry( sr );
+                snapshotUpdateHandle.updateSampleRunIDValue( sr.getID(), paulst::toString(newSampleRunID) );
         }
 
         for ( const BuddyRun& br : m_newBuddyRuns )
         {
-            require( snapshotUpdateHandle.knownDatabaseIDForCandidateSampleRun( br.sampleRunID )  );
-
-            updateBuddyDataseEntry( br.buddySampleID, snapshotUpdateHandle.getDatabaseIDForSampleRun( br.sampleRunID ) );
+            updateBuddyDatabaseEntry( br.buddySampleID, paulst::toInt( br.sampleRunID.value() ) );
         }
 
         commit( connection );
@@ -56,7 +51,7 @@ void DBUpdateTaskSyncBuddyDatabaseAndSampleRun::updateDatabase()
 }
 
 
-int DBUpdateTaskSyncBuddyDatabaseAndSampleRun::insertNewSampleRunEntry( const BuddyRun& br )
+int DBUpdateTaskSyncBuddyDatabaseAndSampleRun::insertNewSampleRunEntry( const SampleRun& sr )
 {
     std::auto_ptr<paulstdb::Cursor> c( connection->executeQuery( config->get("SampleRunIDQueryString") ) );
 
@@ -69,15 +64,15 @@ int DBUpdateTaskSyncBuddyDatabaseAndSampleRun::insertNewSampleRunEntry( const Bu
     c->read( 0, newID );
     c->close();
 
-    std::string sql = paulst::format( config->get("SampleRunInsertSQL").c_str(), newID, br.buddySampleID, 
-        snapshotUpdateHandle.getGroupIDForSampleRun( br.sampleRunID ) );
+    std::string sql = paulst::format( config->get("SampleRunInsertSQL").c_str(), newID, sr.getSequencePosition(), 
+        snapshotUpdateHandle.getGroupIDForSampleRun( sr.getID() ) );
 
     connection->executeStmt( sql );
 
     return newID;
 }
 
-void DBUpdateTaskSyncBuddyDatabaseAndSampleRun::updateBuddyDataseEntry( int buddySampleID, int sampleRunID  )
+void DBUpdateTaskSyncBuddyDatabaseAndSampleRun::updateBuddyDatabaseEntry( int buddySampleID, int sampleRunID  )
 {
     const std::string sql = paulst::format( 
         config->get("BuddyDatabaseSampleRunIDUpdateSQL").c_str(), sampleRunID, buddySampleID );

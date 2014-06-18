@@ -31,10 +31,11 @@ public:
 	LIMSDatabase( const LIMSDatabase & other );
 	~LIMSDatabase();
 
-	enum DbSystem { VLAB_LIVE, VLAB_TEST, LABDEV_DEV, LABDEV_MIRROR, LABDEV_TEST, UNKNOWN = 99 };
+	enum DbSystem { VLAB_LIVE, VLAB_TEST, LABDEV_MIRROR, LABDEV_DEV, LABDEV_TEST, SYSTEM_COUNT, UNKNOWN = -1 };
 
-	static DbSystem getCurrentSystem() { return current; }
+	static DbSystem getCurrentSystem();
 	static void setCurrentSystem( DbSystem system );
+	static std::string getDescription( DbSystem system );
 	static bool includes( const std::string & dbName );
 
 	static LIMSDatabase getCentralDb();

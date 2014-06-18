@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cwchar>
 #include "CSVIterator.h"
+#include <functional>
 #include <iterator>
 #include "LocalRunIterator.h"
 #include <map>
@@ -22,11 +23,7 @@
 #include <tut.h>
 #include <vector>
 
-
-bool sameRun( valc::SnapshotPtr s, const std::string& runA, const std::string& runB )
-{
-    return s->compareSampleRunIDs( runA, runB );
-}
+#define ENSURE(exp)  ensure( #exp, exp )
 
 void pipeSeparatedFieldValues( const std::string& record, paulstdb::RowValues& out )
 {
@@ -34,12 +31,12 @@ void pipeSeparatedFieldValues( const std::string& record, paulstdb::RowValues& o
 	std::copy( CSVIter(record), CSVIter(), std::back_inserter( out ) );
 }
 
-bool runIDEquals( const std::string& runID, const valc::TestResult* result )
+bool runIDEquals( const valc::IDToken& runID, const valc::TestResult* result )
 {
     return runID == result->getSampleRunID();
 }
 
-bool hasResultWithRunID( const std::string& runID, const valc::WorklistEntry* wle )
+bool hasResultWithRunID( const valc::IDToken& runID, const valc::WorklistEntry* wle )
 {
     using namespace valc;
     Range<TestResultIterator> resultRange = wle->getTestResults();
@@ -175,7 +172,7 @@ namespace tut
 
         s->runPendingDatabaseUpdates( blockTillNoPendingUpdates );
 
-        ensure( "Expected 1 new sample-run", 1 == MockConnection::totalNewSampleRuns() );
+        ensure_equals( MockConnection::totalNewSampleRuns(), 1 );
         const int actualUpdatesOfSampleRunID = MockConnection::totalUpdatesForSampleRunIDOnBuddyDatabase();
         ensure_equals( actualUpdatesOfSampleRunID, 1 );
 
@@ -341,13 +338,13 @@ namespace tut
         
             for ( int iteration = 0; iteration < 2; ++iteration )
             {
-                ensure(     testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID() == lr.getRunID() );
-                ensure_not( testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID() == lr.getRunID() );
-                ensure(     testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID() == 
-                                           worklistEntry( wles, -36846 )  ->getSampleDescriptor()    ); 
-                ensure(     testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID() == "12" );
-                ensure    ( s->compareSampleRunIDs( testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID(), lr.getRunID() ) );
-                ensure    ( s->compareSampleRunIDs( testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID(), lr.getRunID() ) );
+                ENSURE(     testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID() == lr.getRunID() );
+                ENSURE(     testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID() == lr.getRunID() );
+                ENSURE(     testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID() == 
+                            testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID() );
+                ENSURE(     testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID().token() == "12" );
+                ENSURE    ( testResultFor( worklistEntry( wles, -36845 ) )->getSampleRunID() == lr.getRunID() );
+                ENSURE    ( testResultFor( worklistEntry( wles, -36846 ) )->getSampleRunID() == lr.getRunID() );
 
                 const bool blockTillNoPendingUpdates = true;
 
@@ -480,11 +477,6 @@ namespace tut
             LocalRunIterator begin( s->localBegin(), s->localEnd() ), end;
 
             ensure_equals( std::distance( begin, end ), 1U );
-            BuddyDatabaseEntries buddyDatabaseEntries = s->listBuddyDatabaseEntriesFor( "12" );
-            ensure( 2 == buddyDatabaseEntries.size() );
-            std::sort( buddyDatabaseEntries.begin(), buddyDatabaseEntries.end(), sortOnBuddySampleID );
-            ensure( 882290 == buddyDatabaseEntries.at(0).buddy_sample_id );
-            ensure( 882291 == buddyDatabaseEntries.at(1).buddy_sample_id );
 
 	    }
 		catch( const Exception& e )
@@ -595,8 +587,8 @@ namespace tut
             const TestResult* nonLocalResult = testResultFor( worklistEntry( worklistEntries, -36847 ) );
             ensure( -1019349 == localResult   ->getMachineID() );
             ensure( -1019329 == nonLocalResult->getMachineID() );
-            ensure    ( s->compareSampleRunIDs( localRun.getRunID(), localResult   ->getSampleRunID() ) );
-            ensure_not( s->compareSampleRunIDs( localRun.getRunID(), nonLocalResult->getSampleRunID() ) );
+            ensure    ( localRun.getRunID() == localResult   ->getSampleRunID() );
+            ensure_not( localRun.getRunID() == nonLocalResult->getSampleRunID() );
         }
         catch( const Exception& e )
         {
@@ -860,7 +852,7 @@ namespace tut
 
         Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
-        ensure_equals( std::distance( wles.first, wles.second ), 4U );
+        ensure_equals( "4 worklist entries expected", std::distance( wles.first, wles.second ), 4U );
 
         for ( WorklistEntryIterator i = wles.first; i != wles.second; ++i )
         {
@@ -870,7 +862,7 @@ namespace tut
 
             ensure( s->hasRuleResults( resultID ) );
             RuleResults rr = s->getRuleResults( resultID );
-            ensure_equals( rr.getSummaryResultCode(), tr->getTestID() + 2 );
+            ensure_equals( "Summary result code expected to be testID + 2", rr.getSummaryResultCode(), tr->getTestID() + 2 );
         }
     }
 
@@ -1073,13 +1065,13 @@ namespace tut
 
         int counter = 0;
 
-        std::set< std::string > localRunIDs;
+        std::vector< valc::IDToken > localRunIDs;
 
         for ( LocalRunIterator localRuns( s->localBegin(), s->localEnd() ), end; localRuns != end; ++localRuns )
         {
             LocalRun lr = *localRuns;
 
-            localRunIDs.insert( lr.getRunID() );
+            localRunIDs.push_back( lr.getRunID() );
 
             Range<WorklistEntryIterator> wles = s->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -1095,7 +1087,7 @@ namespace tut
             ensure_equals( wle->getID(), expectedWorklistID );
 
             ensure( "The test result for worklist entry should be local to this run",
-                s->compareSampleRunIDs( testResultFor( wle )->getSampleRunID(), lr.getRunID() ) );
+                testResultFor( wle )->getSampleRunID() == lr.getRunID() );
 
             ++counter;
         }
@@ -1104,9 +1096,10 @@ namespace tut
         ensure_equals( localRunIDs.size(), expectedNumLocalRuns );
 
         // Each runID should be unique
-        BOOST_FOREACH( std::string runID, localRunIDs )
+        BOOST_FOREACH( valc::IDToken runID, localRunIDs )
         {
-            ensure_equals( 1, std::count_if( localRunIDs.begin(), localRunIDs.end(), boost::bind(sameRun, s.get(), runID, _1) ) );
+            ensure_equals( 1, std::count_if( localRunIDs.begin(), localRunIDs.end(), 
+                boost::bind(std::equal_to<valc::IDToken>(), runID, _1) ) );
         } 
     }
 
@@ -1148,7 +1141,7 @@ namespace tut
         {
             const WorklistEntry* wle = *i;
             ensure( "The test result for the worklist entry should be local to this run",
-                s->compareSampleRunIDs( testResultFor( wle )->getSampleRunID(), lr.getRunID() ) );
+                testResultFor( wle )->getSampleRunID() == lr.getRunID() );
         }
     }
 
@@ -1201,7 +1194,7 @@ namespace tut
         {
             const WorklistEntry* wle = *i;
             ensure( "The test result for the worklist entry should be local to this run",
-                s->compareSampleRunIDs( testResultFor( wle )->getSampleRunID(), lr.getRunID() ) );
+                testResultFor( wle )->getSampleRunID() == lr.getRunID() );
         }
 		
 		ensure_equals( std::distance( s->queueBegin(), s->queueEnd() ), 0 );

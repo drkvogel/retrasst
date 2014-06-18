@@ -13,7 +13,15 @@ SampleRun::SampleRun()
 {
 }
 
-SampleRun::SampleRun( const std::string& runID, const std::string& sampleDescriptor, bool isOpen, const TDateTime& created, const TDateTime& closed, float sequencePosition, const paulst::Nullable<int>& groupID, bool isQC )
+SampleRun::SampleRun( 
+    const IDToken& runID, 
+    const std::string& sampleDescriptor, 
+    bool isOpen, 
+    const TDateTime& created, 
+    const TDateTime& closed, 
+    float sequencePosition, 
+    const paulst::Nullable<int>& groupID, 
+    bool isQC )
     :
     m_runID( runID ),
     m_sampleDescriptor( sampleDescriptor ),
@@ -57,7 +65,7 @@ paulst::Nullable<int> SampleRun::getGroupID() const
     return m_groupID;
 }
 
-std::string SampleRun::getID() const
+IDToken SampleRun::getID() const
 {
     return m_runID;
 }

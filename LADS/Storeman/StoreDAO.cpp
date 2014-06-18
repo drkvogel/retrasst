@@ -66,16 +66,18 @@ void StoreDAO::loadTanks( int location_id, std::vector<ROSETTA>& results )
 					  " FROM c_object_name"
 					  " WHERE object_type = :typ AND status <> :del AND object_cid not in"
 					  " (SELECT storage_cid FROM c_tank_map WHERE status not in (:off, :del))" );
+		cQuery.setParam( "off", LCDbTankMap::OFFLINE );
 		cQuery.setParam( "typ", LCDbObject::STORAGE_VESSEL );
 	} else {
 		cQuery.setSQL( "SELECT distinct storage_cid, location_cid, position,"
 					  " external_name as serial_number, external_full as friendly_name"
 					  " FROM c_tank_map m, c_object_name v"
 					  " WHERE m.storage_cid = v.object_cid"
-					  " AND  m.status not in (:off, :del) AND m.location_cid = :locid" );
+					  " AND m.status <> :del AND m.location_cid = :locid" );
+//					  " AND m.status not in (:off, :del) AND m.location_cid = :locid" );
 		cQuery.setParam( "locid", location_id );
+//		cQuery.setParam( "off", LCDbTankMap::OFFLINE );
 	}
-	cQuery.setParam( "off", LCDbTankMap::OFFLINE );
 	cQuery.setParam( "del", LCDbTankMap::DELETED );
 	results.clear();
 	for( cQuery.open(); !cQuery.eof(); cQuery.next() ) {
@@ -97,6 +99,8 @@ void StoreDAO::loadTankDetails( int storage_cid, std::vector<ROSETTA>& results )
 		results.push_back( cQuery.getRecord() );
 	}
 }
+
+//---------------------------------------------------------------------------
 
 bool StoreDAO::saveTankObject( ROSETTA& data )
 {

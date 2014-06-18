@@ -137,7 +137,7 @@ class RuleEngineQueueListener
 {
 public:
     virtual ~RuleEngineQueueListener();
-    virtual void notifyQueued( const UncontrolledResult& r ) = 0;
+    virtual void notifyQueued( const UncontrolledResult& r, const IDToken& runID ) = 0;
 };
 
 class RuleEngine
@@ -146,7 +146,7 @@ public:
     RuleEngine( int maxThreads = 10 );
     ~RuleEngine();
     void clearRulesCache();
-    void queue( const UncontrolledResult& r );
+    void queue( const UncontrolledResult& r, const IDToken& sampleRunID );
     void setConfig( const paulst::Config* c );
     /*
         This connection factory is used when a rule script wants a connection.

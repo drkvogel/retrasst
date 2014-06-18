@@ -131,10 +131,6 @@
             <DependentOn>BuddyRun.h</DependentOn>
             <BuildOrder>70</BuildOrder>
         </CppCompile>
-        <CppCompile Include="BuddySampleIDKeyedOnSampleRunID.cpp">
-            <DependentOn>BuddySampleIDKeyedOnSampleRunID.h</DependentOn>
-            <BuildOrder>9</BuildOrder>
-        </CppCompile>
         <CppCompile Include="CompositeRuleEngineQueueListener.cpp">
             <DependentOn>CompositeRuleEngineQueueListener.h</DependentOn>
             <BuildOrder>10</BuildOrder>
@@ -189,6 +185,10 @@
         <CppCompile Include="Gates.cpp">
             <DependentOn>Gates.h</DependentOn>
             <BuildOrder>25</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="IDTokenSequence.cpp">
+            <DependentOn>IDTokenSequence.h</DependentOn>
+            <BuildOrder>67</BuildOrder>
         </CppCompile>
         <CppCompile Include="InclusionRule.cpp">
             <DependentOn>InclusionRule.h</DependentOn>
@@ -283,10 +283,6 @@
         <CppCompile Include="RulesConfigUsingMap.cpp">
             <DependentOn>RulesConfigUsingMap.h</DependentOn>
             <BuildOrder>49</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="RunIDC14n.cpp">
-            <DependentOn>RunIDC14n.h</DependentOn>
-            <BuildOrder>50</BuildOrder>
         </CppCompile>
         <CppCompile Include="SampleRun.cpp">
             <DependentOn>SampleRun.h</DependentOn>

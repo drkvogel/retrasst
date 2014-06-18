@@ -13,6 +13,8 @@
  *  7 Apr 09, NG:	Show user name, not "NULL", if they cannot log in!
  *  23 Mar 11, NG:	Warn user before switching between databases
  *  21 May 14, NG:	Include vlab and vlabdev in system selection
+ *	17 June 14, NG:	Moved database selection to a separate screen
+ *
  *--------------------------------------------------------------------------*/
 
 #include <vcl.h>
@@ -28,6 +30,7 @@
 #include "TfrmPassword.h"
 #include "TfrmAboutBox.h"
 #include "LIMSDatabase.h"
+#include "TfrmSelectDbS.h"
 
 #pragma hdrstop
 
@@ -42,18 +45,18 @@ TfrmLoginBase *frmLoginBase;
 
 __fastcall TfrmLoginBase::TfrmLoginBase(TComponent* Owner) : TForm(Owner)
 {
-	std::string ver = LIMSParams::instance().getProgVersion();
-	String app = Application -> Title + " " + ver.c_str();
+	std::string vs = LIMSParams::instance().getProgVersion();
+	String app = Application -> Title + " " + vs.c_str();
 #ifdef _DEBUG
-	rgDatabase -> ItemIndex = LIMSDatabase::LABDEV_DEV;
 	version -> Font -> Color = clRed;
 	version -> Caption = app + " **DEBUG**";
 #else
-	rgDatabase -> ItemIndex = LIMSDatabase::VLAB_LIVE;
 	version -> Font -> Color = clBlack;
 	version -> Caption = app + " **FINAL**";
 #endif
 	Application -> OnException = AppException;
+	std::string system = LIMSDatabase::getDescription( LIMSDatabase::getCurrentSystem() );
+	lblSystem -> Caption = system.c_str();
 }
 
 //---------------------------------------------------------------------------
@@ -80,20 +83,8 @@ void __fastcall TfrmLoginBase::AppException(TObject *, Exception *E)
 
 void __fastcall TfrmLoginBase::initialise(TObject *)
 {
-	timer -> Enabled = false;
-
-	// select live, test or mirror databases
-	LIMSDatabase::DbSystem system = LIMSDatabase::getCurrentSystem();
-	LIMSDatabase::DbSystem selected = LIMSDatabase::DbSystem(rgDatabase -> ItemIndex);
-	if( system != selected ) {
-		if( system == LIMSDatabase::UNKNOWN || Application -> MessageBox(
-			 L"Are you sure you want to switch database?", L"Warning", MB_YESNO ) == ID_YES ) {
-			LIMSDatabase::setCurrentSystem( selected );
-		}
-		else rgDatabase -> ItemIndex = system;
-	}
-
 	// stop if the machine is not configured correctly
+	timer -> Enabled = false;
 	LIMSParams & config = LIMSParams::instance();
 	if( !config.checkUnique() || !config.checkMachine() ) {
 		Application -> Terminate();
@@ -110,6 +101,15 @@ void __fastcall TfrmLoginBase::initialise(TObject *)
 	userList -> Enabled = (userList -> Items -> Count != 0);
 	ebPassword -> Clear();
 	ebPassword -> Enabled = userList -> Enabled;
+	/*
+	for (int i=0; i < userList->Items->Count; i++) {
+		if (0 == userList->Items->Strings[i].CompareIC("Chris Bird")) {
+			userList->ItemIndex = i;
+			ebPassword->Text = "albatross";
+		}
+	}
+	userList->ItemIndex = 4;
+	*/
 	auditTrail.start();
     for (int i=0; i < userList->Items->Count; i++) {
         if (0 == userList->Items->Strings[i].CompareIC("Chris Bird")) {
@@ -118,7 +118,7 @@ void __fastcall TfrmLoginBase::initialise(TObject *)
             //ebPassword->Text = "hunter";
         }
     }
-    //userList->ItemIndex = 4;
+
 }
 
 //---------------------------------------------------------------------------
@@ -257,13 +257,13 @@ void __fastcall TfrmLoginBase::FormCanResize(TObject *, int &, int &, bool &Resi
 //	Version label is a hyperlink - show about box when it's clicked on
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmLoginBase::versionMouseEnter(TObject *)
+void __fastcall TfrmLoginBase::hyperlinkEnter(TObject *)
 {
 	Screen -> Cursor = crHandPoint;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmLoginBase::versionMouseLeave(TObject *)
+void __fastcall TfrmLoginBase::hyperlinkLeave(TObject *)
 {
 	Screen -> Cursor = crDefault;
 }
@@ -273,6 +273,15 @@ void __fastcall TfrmLoginBase::versionMouseLeave(TObject *)
 void __fastcall TfrmLoginBase::versionClick(TObject *)
 {
 	frmAboutBox -> ShowModal();
+}
+
+//---------------------------------------------------------------------------
+
+void __fastcall TfrmLoginBase::lblSystemClick(TObject *Sender)
+{
+	frmSelectDbSystem -> ShowModal();
+	std::string system = LIMSDatabase::getDescription( LIMSDatabase::getCurrentSystem() );
+	lblSystem -> Caption = system.c_str();
 }
 
 //---------------------------------------------------------------------------
@@ -288,6 +297,4 @@ void TfrmLoginBase::runProgram( const std::string & title )
 }
 
 //---------------------------------------------------------------------------
-
-
 

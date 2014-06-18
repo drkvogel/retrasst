@@ -40,7 +40,7 @@ public:
         Gates* gates,
         stef::TaskExceptionHandler* defaultTaskExceptionHandler );
 	void clearRulesCache();
-    bool queue( const UncontrolledResult& r );
+    bool queue( const UncontrolledResult& r, const IDToken& runID );
     bool waitForQueued(long millis);
 private:
     RuleEngine              m_ruleEngine;

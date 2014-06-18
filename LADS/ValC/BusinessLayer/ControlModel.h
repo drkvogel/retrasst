@@ -10,7 +10,6 @@
 namespace valc
 {
 
-class RunIDC14n;
 class SampleRunGroupModel;
 
 class ControlModel
@@ -20,10 +19,9 @@ public:
     virtual ~ControlModel();
 
     virtual void            clear                      ()                                                     = 0;
-    virtual ControlStatus   getControlStatus           ( int testID, const std::string& sampleRunID )   const = 0;
-    virtual void            notifyQCEvaluationStarted  ( const UncontrolledResult& qcResult )                 = 0;
+    virtual ControlStatus   getControlStatus           ( int testID, const IDToken& sampleRunID ) const       = 0;
+    virtual void            notifyQCEvaluationStarted  ( const UncontrolledResult& qcResult, const IDToken& runID ) = 0;
     virtual void            notifyQCEvaluationCompleted( const RuleResults& evaluation, int QCResultID )      = 0;
-    virtual void            setRunIDC14n               ( RunIDC14n* r )                                       = 0;
     virtual void            setSampleRunGroupModel     ( SampleRunGroupModel* m )                             = 0;
 
     class RuleResultPublisherAdapter : public RuleResultPublisher
@@ -39,7 +37,7 @@ public:
     {
     public:
         RuleEngineQueueListenerAdapter( ControlModel* cm );
-        void notifyQueued( const UncontrolledResult& r );
+        void notifyQueued( const UncontrolledResult& r, const IDToken& runID );
     private:
         ControlModel* m_model;
     };
@@ -55,17 +53,15 @@ public:
 
     ControlModelImpl();
     void            clear                       ();
-    ControlStatus   getControlStatus            ( int testID, const std::string& sampleRunID ) const;
-    void            notifyQCEvaluationStarted   ( const UncontrolledResult& qcResult );
+    ControlStatus   getControlStatus            ( int testID, const IDToken& sampleRunID ) const;
+    void            notifyQCEvaluationStarted   ( const UncontrolledResult& qcResult, const IDToken& runID );
     void            notifyQCEvaluationCompleted ( const RuleResults& evaluation, int QCResultID );
-    void            setRunIDC14n                ( RunIDC14n* r );
     void            setSampleRunGroupModel      ( SampleRunGroupModel* m );
 private:
-    paulst::CritSec                         m_cs;
-    SampleRunGroupModel*                    m_sampleRunGroupModel;
-    std::map< int, UncontrolledResult >     m_pending;
-    QCControlCache                          m_cache;
-    RunIDC14n*                              m_runIDC14n;
+    paulst::CritSec                                         m_cs;
+    SampleRunGroupModel*                                    m_sampleRunGroupModel;
+    std::map< int, std::pair<UncontrolledResult,IDToken> >  m_pending;
+    QCControlCache                                          m_cache;
 };
 
 }

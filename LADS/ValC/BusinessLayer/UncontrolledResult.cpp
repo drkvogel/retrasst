@@ -30,7 +30,6 @@ UncontrolledResult popUncontrolledResult( lua_State* L, int stackPosition )
     r.resultValue   = retrieveTableValue<double>      ( L, stackPosition, "resultValue", lua_isnumber, lua_toNumber  );
     r.resultText    = retrieveTableValue<std::string> ( L, stackPosition, "resultText" , lua_isstring, lua_toString  ); 
     r.barcode       = retrieveTableValue<std::string> ( L, stackPosition, "barcode"    , lua_isstring, lua_toString  ); 
-    r.runID         = retrieveTableValue<std::string> ( L, stackPosition, "runID"      , lua_isstring, lua_toString  ); 
 
     lua_getfield( L, stackPosition, "actionFlag" );
     require( lua_isstring( L, -1 ) );
@@ -80,8 +79,6 @@ void lua_pushUncontrolledResult( lua_State* L, const UncontrolledResult& r )
     lua_setfield   ( L, -2, "resultText" );
     lua_pushstring ( L,    r.barcode.c_str() );
     lua_setfield   ( L, -2, "barcode" );
-    lua_pushstring ( L,    r.runID.c_str() );
-    lua_setfield   ( L, -2, "runID" );
     lua_pushstring ( L,    actionFlag );
     lua_setfield   ( L, -2, "actionFlag" );
     

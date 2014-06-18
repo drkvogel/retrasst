@@ -39,7 +39,7 @@ TForm * TfrmLoginBase::mainForm = NULL;
 
 const char * TfrmAboutBox::author = "Core Programming";
 const char * TfrmAboutBox::extension = "x3532";
-const char * TfrmAboutBox::compiled = "__date__time__";
+const char * TfrmAboutBox::when_compiled = __DATE__ ;
 
 const char * LCDbAuditTrail::default_email = "Nicholas.Goodwin@ctsu.ox.ac.uk";
 

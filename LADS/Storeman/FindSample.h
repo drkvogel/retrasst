@@ -26,14 +26,14 @@ __published:	// IDE-managed Components
 	TComboBox *cbType;
 	TEdit *txtName;
 	TComboBox *cbProject;
-	TBitBtn *BitBtn1;
-	TBitBtn *BitBtn2;
+	TBitBtn *btnOK;
+	TBitBtn *btnCancel;
 	TLabel *Label3;
 	void __fastcall cbTypeDropDown(TObject *Sender);
 	void __fastcall cbProjectChange(TObject *Sender);
-	void __fastcall BitBtn1Click(TObject *Sender);
+	void __fastcall btnOKClick(TObject *Sender);
 	void __fastcall FormShow(TObject *Sender);
-	void __fastcall cbTypeChange(TObject *Sender);
+	void __fastcall detailChange(TObject *Sender);
 	void __fastcall rgTypesClick(TObject *Sender);
 
 private:	// User declarations

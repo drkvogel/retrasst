@@ -13,7 +13,7 @@ TestResultImpl::TestResultImpl(
         const TDateTime& dateAnalysed,
         int machineID,
         int resultID,
-        const std::string& sampleRunID,
+        const IDToken& sampleRunID,
         int testID,
         float resultValue,
         const std::string& resultText,
@@ -76,7 +76,7 @@ std::string TestResultImpl::getSampleDescriptor() const
     return m_sampleDescriptor;
 }
 
-std::string TestResultImpl::getSampleRunID() const
+IDToken TestResultImpl::getSampleRunID() const
 {
     return m_sampleRunID;
 }

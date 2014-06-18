@@ -24,7 +24,7 @@ public:
 
     typedef DBUpdateTaskWithCallback<SnapshotUpdateTaskQRerun, DBTransactionRerun> DBUpdateTaskRerun;
 
-    SnapshotUpdateTaskQRerun( int worklistID, const std::string& sampleRunID, const std::string& sampleDescriptor, int user )
+    SnapshotUpdateTaskQRerun( int worklistID, const IDToken& sampleRunID, const std::string& sampleDescriptor, int user )
         :
         m_worklistID( worklistID ),
         m_dbUpdateCallbackEvent( 0 ),
@@ -65,7 +65,7 @@ protected:
         DBTransactionRerun dbt;
         dbt.worklistID = m_worklistID;
         dbt.userID = m_user;
-        dbt.sampleRunID = snapshot.getDatabaseIDForSampleRun(m_sampleRunID);
+        dbt.sampleRunID = m_sampleRunID;
 
         m_meetingPlace = new paulst::MeetingPlace< SnapshotUpdateTaskQRerun, DBUpdateTaskRerun, int, DBTransactionRerun >();
 
@@ -115,7 +115,7 @@ private:
     const    int         m_worklistID;
     const    int         m_user;
     HANDLE               m_dbUpdateCallbackEvent;
-    const    std::string m_sampleRunID;
+    const    IDToken     m_sampleRunID;
     const    std::string m_sampleDescriptor;
     paulst::MeetingPlace< SnapshotUpdateTaskQRerun, DBUpdateTaskRerun, int, DBTransactionRerun >* m_meetingPlace;
     std::string          m_transactionError;

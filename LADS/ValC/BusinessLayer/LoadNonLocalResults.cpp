@@ -87,12 +87,8 @@ bool LoadNonLocalResults::loadResult( paulstdb::Cursor& c )
             sampleDescriptor = std::string() << alphaSampleID << "/" << cbwProjectID;
         }
 
-        // Not a real sampleRunID. Distinct enough, in form, from local sample-run IDs that 
-        // a non-local result will never look like it originates from a local run.
-        std::string sampleRunID = std::string("NonLocalResult") << buddyResultID; 
-
         m_resultIndex->addIndexEntryForResult( 
-            new TestResultImpl( actionFlag, sampleDescriptor, dateAnalysed, machineID, buddyResultID, sampleRunID, testID, resValue, resText,0));
+            new TestResultImpl( actionFlag, sampleDescriptor, dateAnalysed, machineID, buddyResultID, IDToken() , testID, resValue, resText,0));
 
         m_resultIndex->allocateResultToWorklistEntry( buddyResultID, cbwRecordNo );
 

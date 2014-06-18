@@ -3,9 +3,9 @@
 
 #include "API.h"
 #include "ControlModel.h"
+#include "IDTokenSequence.h"
 #include "MockSampleRunGroupIDGenerator.h"
 #include "Nullable.h"
-#include "RunIDC14n.h"
 #include "SampleRunGroupModel.h"
 #include "SampleRunIDResolutionService.h"
 #include <set>
@@ -21,10 +21,9 @@ namespace tut
         valc::ControlModelImpl                  controlModel;
         MockSampleRunGroupIDGenerator*          mockIDGenerator;
         valc::SampleRunGroupModel*              sampleRunGroupModel;
-        valc::RunIDC14n*                        runIDC14n;
         int                                     resultIDSequence;
         valc::RuleDescriptor                    ruleDescriptor;
-        std::set< std::string >                 runIDsAssignedToGroup;
+        valc::IDTokenSequence                   runIDsAssignedToGroup;
 
     public:
 
@@ -38,7 +37,6 @@ namespace tut
             mockIDGenerator             ( new MockSampleRunGroupIDGenerator() ),
             sampleRunGroupModel         ( new valc::SampleRunGroupModel(mockIDGenerator) ),
             sampleRunIDResolutionService( new valc::SampleRunIDResolutionService() ),
-            runIDC14n                   ( 0 ),
             resultIDSequence            ( 0 ),
             ruleDescriptor              ( 1, 1, "1:2s", "1:2s" )
         {
@@ -52,7 +50,6 @@ namespace tut
         {
             delete sampleRunGroupModel;
             delete sampleRunIDResolutionService;
-            delete runIDC14n;
         }
 
         void primeQC( const std::string& runID, int testID, valc::ResultCode outcome, int resultID = -1 )
@@ -61,40 +58,42 @@ namespace tut
             {
                 resultID = ++resultIDSequence;
             }
-            controlModel.notifyQCEvaluationStarted  ( buildUncontrolledResult( resultID, testID, runID ) );
+
+            const valc::IDToken sampleRunID( runID, sampleRunIDResolutionService );
+
+            controlModel.notifyQCEvaluationStarted  ( buildUncontrolledResult( resultID, testID ), sampleRunID );
             controlModel.notifyQCEvaluationCompleted( buildRuleResults( outcome ), resultID );
-            if ( ! runIDsAssignedToGroup.count( runID ) )
+            if ( ! runIDsAssignedToGroup.contains( sampleRunID ) )
             {
-                sampleRunGroupModel->assignToGroup( runID, true, paulst::Nullable<int>() );
-                runIDsAssignedToGroup.insert( runID );
+                sampleRunGroupModel->assignToGroup( sampleRunID, true, paulst::Nullable<int>() );
+                runIDsAssignedToGroup.push_back( sampleRunID );
             }
         }
 
         void primeUnk( const std::string& runID )
         {
-            sampleRunGroupModel->assignToGroup( runID, false, paulst::Nullable<int>() );
+            const valc::IDToken sampleRunID( runID, sampleRunIDResolutionService );
+            sampleRunGroupModel->assignToGroup( sampleRunID, false, paulst::Nullable<int>() );
         }
 
         void run()
         {
-            runIDC14n = new valc::RunIDC14n( *sampleRunIDResolutionService );
-            controlModel.setRunIDC14n( runIDC14n );
             controlModel.setSampleRunGroupModel( sampleRunGroupModel );
         }
 
         valc::ControlStatus getControlStatus( int testID, const std::string& runID )
         {
-            return controlModel.getControlStatus( testID, runID );
+            const valc::IDToken sampleRunID( runID, sampleRunIDResolutionService );
+            return controlModel.getControlStatus( testID, sampleRunID );
         }
 
     private:
 
-        valc::UncontrolledResult buildUncontrolledResult( int resultID, int testID, const std::string& runID )
+        valc::UncontrolledResult buildUncontrolledResult( int resultID, int testID )
         {
             valc::UncontrolledResult r;
             r.testID = testID;
             r.resultID = resultID;
-            r.runID = runID;
             return r;
         }
 
@@ -134,13 +133,13 @@ namespace tut
         ensure_equals( "Status of preceding QC should be PASS"  , cs.precedingQCs()[0].status()     , RESULT_CODE_PASS );
         ensure_equals( "Should be 1 following QC"               , cs.followingQCs().size()          , 1 );
         ensure_equals( "ID of following QC should be 4"         , cs.followingQCs()[0].resultID()   , 4 );
-        ensure_equals(                                            cs.followingQCs()[0].status()     , RESULT_CODE_PASS );
+        ensure_equals( "status of following QC should be RESULT_CODE_PASS", cs.followingQCs()[0].status()     , RESULT_CODE_PASS );
 
         cs = getControlStatus( TEST_B, runID );
 
-        ensure_equals(                                             cs.summaryCode()                 , CONTROL_STATUS_UNCONTROLLED );
-        ensure_equals(                                             cs.precedingQCs().size()         , 0 );
-        ensure_equals(                                             cs.followingQCs().size()         , 0 );
+        ensure_equals( "summary code should be CONTROL_STATUS_UNCONTROLLED", cs.summaryCode()                 , CONTROL_STATUS_UNCONTROLLED );
+        ensure_equals( "There should be no preceding QCs"                  , cs.precedingQCs().size()         , 0 );
+        ensure_equals( "There should be no following QCs"                  , cs.followingQCs().size()         , 0 );
 
         bool exceptionThrown = false;
 
@@ -153,7 +152,7 @@ namespace tut
             exceptionThrown = true;
         }
 
-        ensure( exceptionThrown );
+        ensure( "An exception should have been thrown", exceptionThrown );
 
         exceptionThrown = false;
 
@@ -166,7 +165,7 @@ namespace tut
             exceptionThrown = true;
         }
 
-        ensure( exceptionThrown );
+        ensure( "An exception should have been thrown", exceptionThrown );
 
         exceptionThrown = false;
 
@@ -179,7 +178,7 @@ namespace tut
             exceptionThrown = true;
         }
 
-        ensure( exceptionThrown );
+        ensure( "An exception should have been thrown", exceptionThrown );
     }
 
 	template<>

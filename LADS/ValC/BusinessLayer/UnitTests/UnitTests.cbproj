@@ -118,6 +118,7 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <Debugger_DebugSourcePath>J:\cvs\paulst\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <UsePackages>false</UsePackages>
         <LinkPackageStatics>rtl.lib;vcl.lib</LinkPackageStatics>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -155,8 +156,8 @@
         <None Include="RuleEngineTest.h">
             <BuildOrder>75</BuildOrder>
         </None>
-        <None Include="SampleRunIDResolutionServiceTest.h">
-            <BuildOrder>62</BuildOrder>
+        <None Include="RuleLoaderTest.h">
+            <BuildOrder>9</BuildOrder>
         </None>
         <LibFiles Include="..\Win64\Debug\business_layer_lib.a" Condition="'$(Platform)'=='Win64'">
             <BuildOrder>8</BuildOrder>

@@ -60,10 +60,9 @@ object frmFind: TfrmFind
     Width = 160
     Height = 21
     Anchors = [akLeft, akTop, akRight]
-    Enabled = False
     Sorted = True
     TabOrder = 1
-    OnChange = cbTypeChange
+    OnChange = detailChange
     OnDropDown = cbTypeDropDown
   end
   object txtName: TEdit
@@ -72,10 +71,10 @@ object frmFind: TfrmFind
     Width = 160
     Height = 21
     Anchors = [akLeft, akTop, akRight]
-    Enabled = False
     TabOrder = 2
+    OnChange = detailChange
   end
-  object BitBtn1: TBitBtn
+  object btnOK: TBitBtn
     Left = 108
     Top = 159
     Width = 92
@@ -83,6 +82,7 @@ object frmFind: TfrmFind
     Anchors = []
     Caption = 'OK'
     Default = True
+    Enabled = False
     Glyph.Data = {
       DE010000424DDE01000000000000760000002800000024000000120000000100
       0400000000006801000000000000000000001000000000000000000000000000
@@ -102,9 +102,9 @@ object frmFind: TfrmFind
       0000}
     NumGlyphs = 2
     TabOrder = 3
-    OnClick = BitBtn1Click
+    OnClick = btnOKClick
   end
-  object BitBtn2: TBitBtn
+  object btnCancel: TBitBtn
     Left = 237
     Top = 159
     Width = 92

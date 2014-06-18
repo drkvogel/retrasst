@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <iterator>
 #include "Require.h"
 #include "SampleRunGroup.h"
 
@@ -22,17 +24,25 @@ int  SampleRunGroup::getID() const
     return m_id;
 }
 
+bool SampleRunGroup::includes( const IDToken& sampleRunID ) const
+{
+    return m_members.contains( sampleRunID );
+}
+
 bool SampleRunGroup::isQC() const
 {
     return m_isQC;
 }
 
-void SampleRunGroup::listRunIDs( std::vector< std::string >& out ) const
+void SampleRunGroup::listRunIDs( IDTokenSequence& out ) const
 {
-    out.insert( out.end(), m_members.begin(), m_members.end() );
+    for ( const IDToken& t : m_members )
+    {
+        out.push_back( t );
+    }
 }
 
-void SampleRunGroup::push_back( const std::string& sampleRunID )
+void SampleRunGroup::push_back( const IDToken& sampleRunID )
 {
     m_members.push_back( sampleRunID );
 }

@@ -4,6 +4,7 @@
 #include "BuddyRun.h"
 #include "CritSec.h"
 #include <deque>
+#include "SampleRuns.h"
 #include <string>
 #include <vector>
 
@@ -19,13 +20,15 @@ class DBUpdateSchedule
 public:
     DBUpdateSchedule();
     ~DBUpdateSchedule();
-    void queueScheduledUpdates( DBTransactionHandler* th );
-    void scheduleUpdate( int forBuddySampleID, const std::string& candidateNewSampleRunID );
+    void queueBuddyDatabaseUpdate( int forBuddySampleID, const IDToken& sampleRunID );
+    void queueSampleRunInsertions( SampleRuns::const_iterator from, SampleRuns::const_iterator to );
+    void runQueuedUpdates( DBTransactionHandler* th );
     void scheduleUpdateLinkingResultToWorklistEntry( int resultID, int worklistEntry );
 private:
     std::deque< DBUpdateTask* > m_updates;
     paulst::CritSec             m_cs;
     std::vector< BuddyRun >     m_newBuddyRuns;
+    SampleRuns                  m_newSampleRuns;
 };
 
 }

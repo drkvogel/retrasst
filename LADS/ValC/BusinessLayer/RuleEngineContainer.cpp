@@ -61,7 +61,7 @@ void RuleEngineContainer::clearRulesCache()
     m_ruleEngine.clearRulesCache();
 }
 
-bool RuleEngineContainer::queue( const UncontrolledResult& r )
+bool RuleEngineContainer::queue( const UncontrolledResult& r, const IDToken& runID )
 {
     bool queued = false;
 
@@ -72,7 +72,7 @@ bool RuleEngineContainer::queue( const UncontrolledResult& r )
             break;
         }
 
-        m_ruleEngine.queue( r );
+        m_ruleEngine.queue( r, runID );
 
         queued = true;
     }

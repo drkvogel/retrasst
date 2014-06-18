@@ -35,27 +35,14 @@ void SnapshotUpdateHandle::appendToQueue( const std::string& sampleDescriptor )
     m_snapshot->m_queuedSamples.push_back( QueuedSample( sampleDescriptor ) );
 }
 
-void SnapshotUpdateHandle::closeOff( const std::string& sampleRunID )
+void SnapshotUpdateHandle::closeOff( const IDToken& sampleRunID )
 {
     m_snapshot->m_localRunImpl.closeOff( sampleRunID );
 }
 
-int SnapshotUpdateHandle::getDatabaseIDForSampleRun( const std::string& sampleRunID ) const
+int SnapshotUpdateHandle::getGroupIDForSampleRun( const IDToken& runID ) const
 {
-    try
-    {
-        return paulst::toInt( m_snapshot->m_sampleRunIDResolutionService->getMappingFor( sampleRunID, sampleRunID ) );
-    }
-    catch( const Exception& e )
-    {
-        paulst::exception( "Failed to obtain database ID for sample-run %s. Likely cause is that it has yet to be saved "
-            "to the database. Use 'runPendingDatabaseUpdates' to flush new sample-runs to the database.", sampleRunID.c_str() );
-    }
-}
-
-int SnapshotUpdateHandle::getGroupIDForSampleRun( const std::string& candidateSampleRunID ) const
-{
-    return m_snapshot->m_sampleRunGroupModel.getGroupID( candidateSampleRunID );
+    return m_snapshot->m_sampleRunGroupModel.getGroupID( runID );
 }
 
 const WorklistEntry* SnapshotUpdateHandle::getWorklistEntry( int id ) const
@@ -93,14 +80,9 @@ void SnapshotUpdateHandle::insertRerun( int existingWorklistID, int newWorklistI
     m_snapshot->m_worklistLinks->addLink( existingWorklistID, newWorklistID, 'r' );
 }
 
-bool SnapshotUpdateHandle::knownDatabaseIDForCandidateSampleRun( const std::string& candidateSampleRunID ) const
+void SnapshotUpdateHandle::updateSampleRunIDValue( const IDToken& runID, const std::string& newValue )
 {
-    return m_snapshot->m_sampleRunIDResolutionService->hasMappingFor( candidateSampleRunID );
-}
-
-void SnapshotUpdateHandle::updateWithDatabaseIDForSampleRun( const std::string& candidateSampleRunID, int dbID )
-{
-    m_snapshot->m_sampleRunIDResolutionService->addMapping( candidateSampleRunID, paulst::toString(dbID) );
+    m_snapshot->m_sampleRunIDResolutionService->addMapping( runID.token(), newValue );
 }
 
 }

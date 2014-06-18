@@ -1,9 +1,11 @@
 #include "AcquireCriticalSection.h"
+#include <algorithm>
 #include <boost/foreach.hpp>
 #include "DBTransactionHandler.h"
 #include "DBUpdateSchedule.h"
 #include "DBUpdateTaskSyncBuddyDatabaseAndSampleRun.h"
 #include "DBUpdateTaskLinkResultToWorklistEntry.h"
+#include <iterator>
 
 namespace valc
 {
@@ -38,17 +40,21 @@ DBUpdateSchedule::~DBUpdateSchedule()
     }
 }
 
-void DBUpdateSchedule::queueScheduledUpdates( DBTransactionHandler* th )
+void DBUpdateSchedule::runQueuedUpdates( DBTransactionHandler* th )
 {
     paulst::AcquireCriticalSection a(m_cs);
 
     {
-        if ( ! m_newBuddyRuns.empty() )
+        if ( ! m_newBuddyRuns.empty() || ! m_newSampleRuns.empty() )
         {
-            th->queue( new DBUpdateTaskSyncBuddyDatabaseAndSampleRun( m_newBuddyRuns.begin(), m_newBuddyRuns.end() ) );
+            th->queue( 
+                new DBUpdateTaskSyncBuddyDatabaseAndSampleRun( 
+                    m_newBuddyRuns.begin(), m_newBuddyRuns.end(),
+                    m_newSampleRuns.begin(), m_newSampleRuns.end() ) );
         }
 
         m_newBuddyRuns.clear();
+        m_newSampleRuns.clear();
 
         while (  m_updates.size() )
         {
@@ -60,16 +66,22 @@ void DBUpdateSchedule::queueScheduledUpdates( DBTransactionHandler* th )
 }
 
 
-void DBUpdateSchedule::scheduleUpdate( int forBuddySampleID, const std::string& candidateNewSampleRunID )
+void DBUpdateSchedule::queueBuddyDatabaseUpdate( int forBuddySampleID, const IDToken& sampleRunID )
 {
     paulst::AcquireCriticalSection a(m_cs);
 
     {
         if ( 0 == std::count_if( m_newBuddyRuns.begin(), m_newBuddyRuns.end(), SameBuddyID( forBuddySampleID ) ) )
         {
-            m_newBuddyRuns.push_back( BuddyRun( forBuddySampleID, candidateNewSampleRunID ) );
+            m_newBuddyRuns.push_back( BuddyRun( forBuddySampleID, sampleRunID ) );
         }
     }
+}
+
+void DBUpdateSchedule::queueSampleRunInsertions( SampleRuns::const_iterator begin, SampleRuns::const_iterator end )
+{
+    m_newSampleRuns.clear();
+    std::copy( begin, end, std::back_inserter( m_newSampleRuns ) );
 }
 
 void DBUpdateSchedule::scheduleUpdateLinkingResultToWorklistEntry( int resultID, int worklistEntry )

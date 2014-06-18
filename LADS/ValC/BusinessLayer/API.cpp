@@ -90,6 +90,50 @@ void addWorklistRelation( paulstdb::Cursor* c, WorklistLinks* wl )
     wl->addLink( from, to, relation );
 }
 
+
+IDToken::IDToken( const std::string& t, const SampleRunIDResolutionService* r )
+    :
+    m_token(t),
+    m_resolver(r)
+{
+}
+
+IDToken::IDToken( const IDToken& other )
+    :
+    m_token(other.m_token),
+    m_resolver(other.m_resolver)
+{
+}
+
+IDToken& IDToken::operator=( const IDToken& other )
+{
+    m_token = other.m_token;
+    m_resolver = other.m_resolver;
+    return *this;
+}
+
+bool IDToken::operator==( const IDToken& other ) const
+{
+    require( m_resolver );
+    return m_resolver->resolve( m_token ) == m_resolver->resolve( other.m_token );
+}
+
+bool IDToken::operator!=( const IDToken& other ) const
+{
+    return ! ( *this == other );
+}
+
+bool IDToken::isNull() const
+{
+    return m_token.empty();
+}
+
+std::string IDToken::value() const
+{
+    require( m_resolver );
+    return m_resolver->resolve( m_token );
+}
+
 ApplicationContext* applicationContext = NULL;
 
 void InitialiseApplicationContext( int localMachineID, int user, const std::string& config, paulst::LoggingService* log,
@@ -403,15 +447,15 @@ LocalRun::LocalRun()
 
 LocalRun::LocalRun( const LocalRun& o )
     :
-    m_id                ( o.m_id ),
+    m_runID             ( o.m_runID ),
     m_sampleDescriptor  ( o.m_sampleDescriptor ),
     m_impl              ( o.m_impl )
 {
 }
 
-LocalRun::LocalRun( const std::string& sampleDescriptor, const std::string& id )
+LocalRun::LocalRun( const std::string& sampleDescriptor, const IDToken& runID )
     :
-    m_id                ( id ),
+    m_runID             ( runID ),
     m_sampleDescriptor  ( sampleDescriptor ),
     m_impl              ( 0 )
 {
@@ -419,7 +463,7 @@ LocalRun::LocalRun( const std::string& sampleDescriptor, const std::string& id )
 
 LocalRun& LocalRun::operator=( const LocalRun& o )
 {
-    m_id                = o.m_id;
+    m_runID             = o.m_runID;
     m_sampleDescriptor  = o.m_sampleDescriptor;
     m_impl              = o.m_impl;
     return *this;
@@ -428,12 +472,12 @@ LocalRun& LocalRun::operator=( const LocalRun& o )
 int LocalRun::getGroupID() const
 {
     require( m_impl );
-    return m_impl->getGroupID( m_id );
+    return m_impl->getGroupID( m_runID );
 }
 
-std::string LocalRun::getRunID() const
+IDToken LocalRun::getRunID() const
 {
-    return m_id;
+    return m_runID;
 }
 
 std::string LocalRun::getSampleDescriptor() const
@@ -444,7 +488,7 @@ std::string LocalRun::getSampleDescriptor() const
 bool LocalRun::isOpen() const
 {
     require( m_impl );
-    return m_impl->isOpen( m_id );
+    return m_impl->isOpen( m_runID );
 }
 
 QueuedSample::QueuedSample()

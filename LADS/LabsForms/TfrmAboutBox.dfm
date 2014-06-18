@@ -4,7 +4,7 @@ object frmAboutBox: TfrmAboutBox
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'About the Labs System'
-  ClientHeight = 209
+  ClientHeight = 200
   ClientWidth = 319
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
@@ -22,7 +22,7 @@ object frmAboutBox: TfrmAboutBox
     Left = 5
     Top = 8
     Width = 308
-    Height = 145
+    Height = 129
     BevelInner = bvRaised
     BevelOuter = bvLowered
     ParentColor = True
@@ -87,17 +87,10 @@ object frmAboutBox: TfrmAboutBox
       Height = 13
       Caption = 'Produced by...'
     end
-    object Memory: TLabel
-      Left = 16
-      Top = 118
-      Width = 23
-      Height = 13
-      Caption = '[ram]'
-    end
   end
   object okButton: TBitBtn
     Left = 120
-    Top = 169
+    Top = 153
     Width = 80
     Height = 32
     Kind = bkOK

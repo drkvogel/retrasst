@@ -1,10 +1,9 @@
-#include "BuddyDatabaseBuilder.h"
 #include <algorithm>
 #include "API.h"
 #include <boost/lexical_cast.hpp>
 #include "BuddyDatabase.h"
+#include "BuddyDatabaseBuilder.h"
 #include "BuddyDatabaseEntryIndex.h"
-#include "BuddySampleIDKeyedOnSampleRunID.h"
 #include "Cursor.h"
 #include "DBUpdateSchedule.h"
 #include "ExceptionalDataHandler.h"
@@ -28,20 +27,25 @@ namespace valc
 
 struct SameRunID
 {
-    std::string targetRunID;
+    IDToken m_targetID;
 
-    SameRunID( const std::string& runID )
+    SameRunID( const IDToken& target )
         :
-        targetRunID( runID )
+        m_targetID( target )
     {
     }
 
-    bool operator()( const SampleRun& sr ) const
+    bool operator()( const SampleRun& sr )
     {
-        return targetRunID == sr.getID();
+        return sr.getID() == m_targetID;
     }
 };
 
+bool contains( const SampleRuns* sampleRunCollection, const IDToken& sampleRunID )
+{
+    return sampleRunCollection->end() != 
+        std::find_if( sampleRunCollection->begin(), sampleRunCollection->end(), SameRunID( sampleRunID ) );
+}
 
 BuddyDatabaseBuilder::BuddyDatabaseBuilder( 
     const Projects*                     p, 
@@ -50,7 +54,6 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     SampleRuns*                         candidateSampleRuns,
     const SampleRunIDResolutionService* s, 
     DBUpdateSchedule*                   dbUpdateSchedule,
-    BuddySampleIDKeyedOnSampleRunID*    buddySampleIDKeyedOnSampleRunID,
     BuddyDatabaseEntryIndex*            buddyDatabaseEntryIndex,
     const std::string&                  inclusionRule,
     ExceptionalDataHandler*             exceptionalDataHandler,
@@ -66,7 +69,6 @@ BuddyDatabaseBuilder::BuddyDatabaseBuilder(
     m_candidateSampleRuns               ( candidateSampleRuns ),
     m_sampleRunIDResolutionService      ( s ),
     m_dbUpdateSchedule                  ( dbUpdateSchedule ),
-    m_buddySampleIDKeyedOnSampleRunID   ( buddySampleIDKeyedOnSampleRunID ),
     m_buddyDatabaseEntryIndex           ( buddyDatabaseEntryIndex ),
     m_inclusionRule                     ( inclusionRule ),
     m_exceptionalDataHandler            ( exceptionalDataHandler ),
@@ -190,34 +192,38 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
             sampleDescriptor = paulst::format( "\%d/\%d", alphaSampleID, projectID );
         }
 
-        std::string sampleRunID      = hasSampleRun ? paulst::toString(srID) : sampleDescriptor;
-        SampleRun   sampleRun( sampleRunID, sampleDescriptor, srIsOpen != 0, srCreatedWhen, srClosedWhen, srSequencePosition, srGroupID, isQC() );
-
         m_buddyDatabaseEntryIndex->add( buddySampleID, alphaSampleID, barcode, databaseName, dateAnalysed );
 
-        if ( hasSampleRun )
-        {
-            m_sampleRuns->push_back( sampleRun );
-        }
-        else
-        {
-            // Implicit in this code is that, when earlier SampleRun instances are preferred to later, if they 
-            // are otherwise equivalent in respect of their ID.  Because, the order of candidates is driven by buddy_sample_id,
-            // this means that the lowest value for buddy_sample_id wins out. This value becomes the sequence_position for 
-            // the sample run.
-            // There is a dependency between this code and the behaviour of DBUpdateSchedule::scheduleUpdate, which also
-            // prefers the earliest candidate when there are duplicates.
-            if ( 0 == std::count_if( m_candidateSampleRuns->begin(), m_candidateSampleRuns->end(), SameRunID( sampleRunID ) ) )
-            {
-                m_candidateSampleRuns->push_back( sampleRun );
-            }
-        }
+        IDToken sampleRunID( hasSampleRun ? paulst::toString(srID) : sampleDescriptor, m_sampleRunIDResolutionService );
 
-        m_buddySampleIDKeyedOnSampleRunID->addEntry( sampleRunID, buddySampleID );
+        SampleRuns* targetSampleRunCollection = hasSampleRun ? m_sampleRuns : m_candidateSampleRuns;
+
+        // Only add a sample-run if the collection doesn't already include it.
+        // As regards additions to the collection of candidate sample-runs, note that:
+        //     a) the identifier used for the sample-run is simply the sample-descriptor
+        //     b) the order of the query result-set is by buddy_sample_id (ascending).
+        //     c) buddy_sample_id values get used as sequence_position values in sample-run instances. 
+        // Consequently, given a scenario in which there are multiple rows which refer 
+        // to the same sample and which are not associated with an existing sample-run,
+        // then the sample-run instance constructed will be based on the first of 
+        // these rows, i.e. the one with the lowest value for buddy_sample_id.
+        if ( ! contains( targetSampleRunCollection, sampleRunID ) )
+        {
+            targetSampleRunCollection->push_back( 
+                SampleRun(
+                    sampleRunID,
+                    sampleDescriptor, 
+                    srIsOpen != 0, 
+                    srCreatedWhen, 
+                    srClosedWhen, 
+                    srSequencePosition, 
+                    srGroupID, 
+                    isQC() ) );
+        }
 
         if ( ! hasSampleRun )
         {
-            m_dbUpdateSchedule->scheduleUpdate( buddySampleID, sampleRunID );
+            m_dbUpdateSchedule->queueBuddyDatabaseUpdate( buddySampleID, sampleRunID );
         }
 
         if ( hasResult )
@@ -243,9 +249,8 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
             r.projectID     = projectID;
             r.dateAnalysed  = resDateAnalysed;
             r.actionFlag    = resActionFlag;
-            r.runID         = sampleRunID;
 
-            if ( m_ruleEngine->queue( r ) )
+            if ( m_ruleEngine->queue( r, sampleRunID ) )
             {
                 m_log->logFormatted( "Queued result \%d with Rule Engine.", r.resultID );
             }

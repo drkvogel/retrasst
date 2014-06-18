@@ -16,7 +16,7 @@
  *		20 January 2009:	Don't terminate application (caller should)
  *      21 May 2009, NG:	Removed support for .ini file; added copyValues()
  *      12 Oct 09, NG:	    Add local/central worklist migration switch
- *
+ *      17 June 2014, NG:	Added methods to select the current database
  *--------------------------------------------------------------------------*/
 
 
@@ -350,6 +350,29 @@ void LIMSParams::setLocalWorklist( bool useBoth )
 {
 	openSection( "worklist", true );
 	setValue( "local", useBoth );
+}
+
+//==============================================================================
+
+LIMSDatabase::DbSystem LIMSParams::getDbSystem() {
+	if( openSection( "dbsystem", false ) ) {
+		int found = findValue( "current", -1 );
+		if( found >= 0 && found < LIMSDatabase::SYSTEM_COUNT ) {
+			return LIMSDatabase::DbSystem( found );
+		}
+	}
+#ifdef _DEBUG
+	return LIMSDatabase::LABDEV_DEV;
+#else
+	return LIMSDatabase::VLAB_LIVE;
+#endif
+}
+
+//==============================================================================
+
+void LIMSParams::setDbSystem( LIMSDatabase::DbSystem dbs ) {
+	openSection( "dbsystem", true );
+	setValue( "current", int( dbs ) );
 }
 
 //==============================================================================

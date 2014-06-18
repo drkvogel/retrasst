@@ -18,6 +18,16 @@ RuleLoader::~RuleLoader()
     }
 }
 
+bool sameRuleName( const std::string& name, const RuleScript* script )
+{
+    return script->ruleDescriptor.getUniqueName() == name;
+}
+
+bool sameRuleID( int ruleID, const RuleScript* script )
+{
+    return script->ruleDescriptor.getRuleID() == ruleID;
+}
+
 void RuleLoader::add( const RuleDescriptor& rd, const std::string& script )
 {
     if ( find( rd.getRuleID() ) != m_scripts.end() )  
@@ -34,16 +44,6 @@ void RuleLoader::add( const RuleDescriptor& rd, const std::string& script )
     l->ruleDescriptor = rd;
     l->script = script;
     m_scripts.push_back( l );
-}
-
-bool sameRuleName( const std::string& name, const RuleScript* script )
-{
-    return script->ruleDescriptor.getUniqueName() == name;
-}
-
-bool sameRuleID( int ruleID, const RuleScript* script )
-{
-    return script->ruleDescriptor.getRuleID() == ruleID;
 }
 
 

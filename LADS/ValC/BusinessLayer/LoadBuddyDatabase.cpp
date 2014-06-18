@@ -5,7 +5,6 @@
 #include <boost/lexical_cast.hpp>
 #include "BuddyDatabase.h"
 #include "BuddyDatabaseBuilder.h"
-#include "BuddySampleIDKeyedOnSampleRunID.h"
 #include "DBConnection.h"
 #include "DBUpdateSchedule.h"
 #include <iterator>
@@ -17,6 +16,11 @@
 
 namespace valc
 {
+
+int compareOnSequencePosition( const SampleRun& a, const SampleRun& b )
+{
+    return a.getSequencePosition() < b.getSequencePosition();
+}
 
 LoadBuddyDatabase::LoadBuddyDatabase( 
     int                                     localMachineID, 
@@ -68,11 +72,11 @@ public:
 
     bool operator()(const SampleRun& candidate ) 
     {
-        BOOST_FOREACH( const SampleRun& existing, m_existing )
+        for ( const SampleRun& existing : m_existing )
         {
             if  (   ( existing.getSampleDescriptor() == candidate.getSampleDescriptor() ) && existing.isOpen()    )
             {
-                m_sampleRunIDResolutionService.addMapping( candidate.getID(), existing.getID() );
+                m_sampleRunIDResolutionService.addMapping( candidate.getID().token(), existing.getID().token() );
                 return true;
             }
         }
@@ -80,56 +84,29 @@ public:
     }
 };
 
-int compareRuns( const SampleRun& a, const SampleRun& b )
-{
-    return a.getID() < b.getID();
-}
-
-int compareOnSequencePosition( const SampleRun& a, const SampleRun& b )
-{
-    return a.getSequencePosition() < b.getSequencePosition();
-}
-
-bool equivalentRuns( const SampleRun& a, const SampleRun& b )
-{
-    return  ( ! compareRuns( a, b ) ) && 
-            ( ! compareRuns( b, a ) );
-}
 
 void LoadBuddyDatabase::doStuff()
 {
     /*  sampleRuns:             a list of SampleRun instances each of which represents a row in the sample_run table
         candidateSampleRuns:    these do NOT exist in the sample_run table, but buddy_database activity suggests they are needed
-
-        Note that both are LISTS. There is nothing to stop them including duplicates.
     */
     std::auto_ptr<SampleRuns>                      sampleRuns             ( new SampleRuns()), 
                                                    candidateSampleRuns    ( new SampleRuns());
-    std::auto_ptr<BuddySampleIDKeyedOnSampleRunID> buddySampleIDKeyedOnSampleRunID
-                                                                          ( new BuddySampleIDKeyedOnSampleRunID(m_sampleRunIDResolutionService));
 
     BuddyDatabaseBuilder builder(m_projects, m_resultIndex, sampleRuns.get(), candidateSampleRuns.get(), m_sampleRunIDResolutionService,
-        m_dbUpdateSchedule, buddySampleIDKeyedOnSampleRunID.get(), m_buddyDatabaseEntryIndex, m_inclusionRule, m_exceptionalDataHandler,
+        m_dbUpdateSchedule, m_buddyDatabaseEntryIndex, m_inclusionRule, m_exceptionalDataHandler,
         m_ruleEngine, m_log, m_QCSampleDescriptorDerivationStrategy, m_controlModel );
 
     for ( std::auto_ptr<paulstdb::Cursor> cursor( m_con->executeQuery( m_sql ) ); 
             ( ! cursor->endOfRecordSet() ) && builder.accept( cursor.get() ); cursor->next() );
    
-    // Remove duplicates from sampleRuns
-	std::sort( sampleRuns->begin(), sampleRuns->end(), compareRuns );
-	LOG( std::string("Number of sample-runs before deduplication: ") << sampleRuns->size() );
-	SampleRuns::iterator sampleRunsEnd = std::unique( sampleRuns->begin(), sampleRuns->end(), equivalentRuns );
-	sampleRuns->resize( std::distance( sampleRuns->begin(), sampleRunsEnd ) );
-	LOG( std::string("Number of sample-runs after deduplication: ") << sampleRuns->size() );
-    
-	// candidateSampleRuns should not have any duplicates. BuddyDatabaseBuilder only adds candidates to the list
-    // if there isn't already an entry with the same ID
-
     // Remove candidates for which there already exists an open sample-run for the same sample.
     // Note that a side-effect of this procedure is that sampleRunIDResolutionService may gain 
     // mappings, in order to avoid TestResult instances having dangling references to removed candidate-sample runs.
     SampleRuns::iterator candidatesEnd = std::remove_if( candidateSampleRuns->begin(), candidateSampleRuns->end(), 
         ExistsAnOpenSampleRunMatchingOnSampleDescriptor( *sampleRuns, *m_sampleRunIDResolutionService ) );
+
+    m_dbUpdateSchedule->queueSampleRunInsertions( candidateSampleRuns->begin(), candidatesEnd );
 
     // Remaining candidates represent genuine sample-runs that don't yet exist in the sample_run table. Add them to sampleRuns.
     std::copy( candidateSampleRuns->begin(), candidatesEnd, std::back_inserter( *sampleRuns ) );
@@ -139,8 +116,7 @@ void LoadBuddyDatabase::doStuff()
 
     LOG( std::string("Number of sample-runs: ") << sampleRuns->size() );
 
-	*m_buddyDatabase = new BuddyDatabase( m_localMachineID, sampleRuns.release(), buddySampleIDKeyedOnSampleRunID.release(),
-        m_buddyDatabaseEntryIndex );
+	*m_buddyDatabase = new BuddyDatabase( m_localMachineID, sampleRuns.release(), m_buddyDatabaseEntryIndex );
 }
 
 }

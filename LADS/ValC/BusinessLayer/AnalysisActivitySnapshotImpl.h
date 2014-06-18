@@ -7,7 +7,6 @@
 #include "LocalRunImpl.h"
 #include "LoggingService.h"
 #include <memory>
-#include "RunIDC14n.h"
 #include "SampleRunGroupModel.h"
 #include "SnapshotUpdateHandle.h"
 #include "SnapshotUpdateThread.h"
@@ -47,7 +46,6 @@ public:
         SampleRunGroupIDGenerator* sampleRunGroupIDGenerator,
         ControlModel* controlModel );
     ~AnalysisActivitySnapshotImpl();
-    bool                            compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID )    const;
     RuleResults                     getRuleResults( int forResultID ) const;
     bool                            hasRuleResults( int forResultID ) const;
     LocalEntryIterator              localBegin() const;
@@ -56,8 +54,8 @@ public:
     QueuedSampleIterator            queueEnd()   const;
     std::string                     getTestName( int testID ) const;
     Range<WorklistEntryIterator>    getWorklistEntries( const std::string& sampleDescriptor ) const;
-    BuddyDatabaseEntries            listBuddyDatabaseEntriesFor( const std::string& sampleRunID )   const;
-    HANDLE                          queueForRerun( int worklistID, const std::string& sampleRunID, const std::string& sampleDescriptor );
+    BuddyDatabaseEntries            listBuddyDatabaseEntriesFor( const IDToken& sampleRunID )   const;
+    HANDLE                          queueForRerun( int worklistID, const IDToken& sampleRunID, const std::string& sampleDescriptor );
     void                            runPendingDatabaseUpdates( bool block );
     void                            setObserver( SnapshotObserver* obs );
     WorklistRelative                viewRelatively( const WorklistEntry* e ) const;
@@ -84,7 +82,6 @@ private:
     WorklistRelative::Impl          m_worklistRelativeImpl;
     LocalRun::Impl                  m_localRunImpl;
     SampleRunGroupModel             m_sampleRunGroupModel;
-    RunIDC14n                       m_runIDC14n;
     ControlModel*                   m_controlModel;
 };
 

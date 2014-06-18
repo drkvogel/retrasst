@@ -13,7 +13,6 @@
 #include <cstdio>
 
 #include "BuddyDatabaseEntryIndexTest.h"
-#include "BuddySampleIDKeyedOnSampleRunIDTest.h"
 #include "ControlModelTest.h"
 #include "ForceReloadTest.h"
 #include "QueuedSamplesFactoryTest.h"
@@ -21,7 +20,6 @@
 #include "RuleEngineTest.h"
 #include "RuleLoaderTest.h"
 #include "SampleRunGroupModelTest.h"
-#include "SampleRunIDResolutionServiceTest.h"
 #include "WorklistRelativeTest.h"
 
 #include "Thread.h"

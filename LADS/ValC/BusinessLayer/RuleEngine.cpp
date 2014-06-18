@@ -576,12 +576,12 @@ void RuleEngine::clearRulesCache()
     m_rulesCache.clear();
 }
     
-void RuleEngine::queue( const UncontrolledResult& r )
+void RuleEngine::queue( const UncontrolledResult& r, const IDToken& runID )
 {
     // Notify BEFORE queueing.  Don't want any risk of notification of result to precede notification of being queued.
     if ( m_queueListener )
     {
-        m_queueListener->notifyQueued( r );
+        m_queueListener->notifyQueued( r, runID );
     }
 
     m_resultAssessor->addTask( new ResultAssessmentTask( r, &m_rulesCache, m_publisher, m_log ) );

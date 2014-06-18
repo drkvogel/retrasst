@@ -244,6 +244,12 @@ namespace tut
             }
         }
 
+        void queue( const valc::UncontrolledResult& r )
+        {
+            const valc::IDToken runID;
+            ruleEngine.queue( r, runID );
+        }
+
         void setConnectionCounter( int* opened, int* closed )
         {
             connectionFactory.setConnectionCounter( opened, closed );
@@ -300,7 +306,7 @@ namespace tut
 
         try
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
             
             ensure_equals( testFixture.countResults(), 1U );
@@ -385,7 +391,7 @@ namespace tut
                 {
                     result.resultID = resultID;
 
-                    testFixture.ruleEngine.queue( result );
+                    testFixture.queue( result );
                 }
 
                 waitForQueued(testFixture.ruleEngine);
@@ -451,7 +457,7 @@ namespace tut
 
         try
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
             
             ensure_equals( testFixture.countResults(), 1U );
@@ -480,7 +486,7 @@ namespace tut
 
         try
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
             
             ensure_equals( testFixture.countResults(), 1U );
@@ -546,7 +552,7 @@ namespace tut
 
         try
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
             
             ensure_equals( testFixture.countResults(), 1U );
@@ -610,7 +616,7 @@ namespace tut
         for ( int testID = 1; testID <= NUM_RESULTS; ++testID )
         {
             result.testID = result.resultID = testID;
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
         }
 
         testFixture.log.log( "Waiting till all done..." );
@@ -672,7 +678,7 @@ namespace tut
 
         for ( int i = 0; i < 20; ++i )
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
         }
 
@@ -680,7 +686,7 @@ namespace tut
 
         testFixture.ruleEngine.clearRulesCache();
 
-        testFixture.ruleEngine.queue( result );
+        testFixture.queue( result );
         waitForQueued(testFixture.ruleEngine);
 
         ensure_equals( ruleLoaderOverride.totalLoadRequests, 4 ); // having cleared cache, had to reload configScript and myRule
@@ -736,7 +742,7 @@ namespace tut
         
         try
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
             
             ensure_equals( testFixture.countResults(), 1U );
@@ -807,7 +813,7 @@ namespace tut
 
         try
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
             
             ensure_equals( testFixture.countResults(), 1U );
@@ -890,7 +896,7 @@ namespace tut
 
         try
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
             
             ensure_equals( testFixture.countResults(), 1U );
@@ -975,7 +981,7 @@ namespace tut
 
         try
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
             
             ensure_equals( testFixture.countResults(), 1U );
@@ -1020,7 +1026,7 @@ namespace tut
 
         try
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
             
             ensure_equals( testFixture.countResults(), 1U );
@@ -1071,7 +1077,7 @@ namespace tut
 
         try
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
             
             ensure_equals( testFixture.countResults(), 1U );
@@ -1121,7 +1127,7 @@ namespace tut
 
         try
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
             
             ensure_equals( testFixture.countResults(), 1U );
@@ -1171,7 +1177,7 @@ namespace tut
 
         try
         {
-            testFixture.ruleEngine.queue( result );
+            testFixture.queue( result );
             waitForQueued(testFixture.ruleEngine);
             
             ensure_equals( testFixture.countResults(), 1U );

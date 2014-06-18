@@ -41,10 +41,9 @@ void __fastcall TfrmFind::FormShow(TObject *Sender)
 	}
 	cbProject->Text = current.c_str();
 	cbType->Clear();
-	cbType->Enabled = !current.empty();
 	txtName->Text = "";
-	txtName->Enabled = false;
 	boxSearch = (rgTypes -> ItemIndex == 0);
+	btnOK->Enabled = false;
 }
 
 //---------------------------------------------------------------------------
@@ -65,21 +64,21 @@ void __fastcall TfrmFind::cbProjectChange(TObject *Sender)
 	if( !cbProject->Text.IsEmpty() ) {
 		proj = pl.findByName( AnsiString( cbProject->Text ).c_str() );
 	}
-	if( proj == NULL ) {
-		cbType->Enabled = false;
-		txtName->Enabled = false;
-	} else {
+	if( proj != NULL && proj->isInCurrentSystem() && proj->isActive() && !proj->isCentral() ) {
 		pl.setCurrent( proj );
-		cbType->Enabled = true;
-		txtName->Enabled = boxSearch;
+		btnOK->Enabled = (!cbType->Text.IsEmpty() && !txtName->Text.IsEmpty());
+	} else {
+		pl.clearCurrentID();
+		btnOK->Enabled = false;
 	}
 }
 
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmFind::cbTypeChange(TObject *Sender)
+void __fastcall TfrmFind::detailChange(TObject *Sender)
 {
-	txtName -> Enabled = (cbType -> ItemIndex >= 0);
+	btnOK->Enabled = LCDbProjects::getCurrentID() != LCDbProject::NONE_SELECTED
+				  && cbType->ItemIndex >= 0 && !txtName->Text.IsEmpty();
 }
 
 //---------------------------------------------------------------------------
@@ -92,9 +91,17 @@ void __fastcall TfrmFind::cbTypeDropDown(TObject *Sender)
 	if( boxSearch ) {
 		for( const LPDbBoxType & bt : LPDbBoxTypes::records() ) {
 			if( bt.isActive() ) {
-				if( bt.getProjectCID() == 0 || bt.getProjectCID() == LCDbProjects::getCurrentID() ) {
+				if( LCDbProjects::getCurrentID() == LCDbProject::NONE_SELECTED
+				 || bt.getProjectCID() == 0
+				 || bt.getProjectCID() == LCDbProjects::getCurrentID() ) {
 					cbType->Items->Add( bt.getName().c_str() );
 				}
+			}
+		}
+	} else if( LCDbProjects::getCurrentID() == LCDbProject::NONE_SELECTED ) {
+		for( const LCDbObject & at : LCDbObjects::records() ) {
+			if( at.getObjectType() == LCDbObject::ALIQUOT_TYPE ) {
+				cbType->Items->Add( at.getName().c_str() );
 			}
 		}
 	} else {
@@ -111,7 +118,7 @@ void __fastcall TfrmFind::cbTypeDropDown(TObject *Sender)
 //	search for selected item; return mrOk from ShowModal() if found
 //---------------------------------------------------------------------------
 
-void __fastcall TfrmFind::BitBtn1Click(TObject *Sender)
+void __fastcall TfrmFind::btnOKClick(TObject *Sender)
 {
 	boxDetails.clear();
 	const char * missing = NULL;

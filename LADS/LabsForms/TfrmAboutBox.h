@@ -29,18 +29,14 @@ __published:
 	TLabel *Version;
 	TLabel *Copyright;
 	TLabel *Comments;
-	TLabel *Memory;
 	TBitBtn *okButton;
 	
     void __fastcall FormShow(TObject *Sender);
 
 private:
-
-	static const char *author, *extension, *compiled;		// defined elsewhere
-
+	static const char *author, *extension, *when_compiled;	// defined in main module
 
 public:
-
 	virtual __fastcall TfrmAboutBox(TComponent* AOwner);
 };
 

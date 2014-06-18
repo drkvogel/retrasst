@@ -1,12 +1,14 @@
 #ifndef SAMPLERUNGROUPMODELTESTH
 #define SAMPLERUNGROUPMODELTESTH
 
+#include "API.h"
 #include <boost/foreach.hpp>
 #include <deque>
 #include "MockSampleRunGroupIDGenerator.h"
 #include "Nullable.h"
 #include "Require.h"
 #include "SampleRunGroupModel.h"
+#include "SampleRunIDResolutionService.h"
 #include "SampleRuns.h"
 #include <tut.h>
 
@@ -22,6 +24,7 @@ namespace tut
         int                             sequencePos;
         MockSampleRunGroupIDGenerator*  mockIDGenerator;
         int                             lastBuilt;
+        std::unique_ptr<valc::SampleRunIDResolutionService> sampleRunIDResolutionService;
     public:
         valc::SampleRuns            sampleRuns;
         valc::SampleRunGroupModel   model;
@@ -31,7 +34,8 @@ namespace tut
             sequencePos(0),
             mockIDGenerator( new MockSampleRunGroupIDGenerator() ),
             model(mockIDGenerator),
-            lastBuilt(0)
+            lastBuilt(0),
+            sampleRunIDResolutionService( new valc::SampleRunIDResolutionService() )
         {
         }
 
@@ -45,6 +49,12 @@ namespace tut
             }
         }
 
+        int getGroupID( const std::string& runID )
+        {
+            const valc::IDToken sampleRunID( runID, sampleRunIDResolutionService.get() );
+            return model.getGroupID( sampleRunID );
+        }
+
         void primeIDGen( int id )
         {
             mockIDGenerator->prime( id );
@@ -52,7 +62,8 @@ namespace tut
 
         void primeSample( const std::string& runID, SampleRunType rt, int grpID = 0 )
         {
-            valc::SampleRun sampleRun( runID, runID, true, Now(), 0.0, ++sequencePos, grpID ? GroupID(grpID) : GroupID(), rt == SRT_QC );
+            const valc::IDToken sampleRunID( runID, sampleRunIDResolutionService.get() );
+            valc::SampleRun sampleRun( sampleRunID, runID, true, Now(), 0.0, ++sequencePos, grpID ? GroupID(grpID) : GroupID(), rt == SRT_QC );
             sampleRuns.push_back( sampleRun );
         }
     };
@@ -75,8 +86,8 @@ namespace tut
 
         build();
 
-        ensure_equals( model.getGroupID("a"), 29 );
-        ensure_equals( model.getGroupID("b"), 29 );
+        ensure_equals( getGroupID("a"), 29 );
+        ensure_equals( getGroupID("b"), 29 );
         ensure_equals( model.countGroups()  , 1  );
     }
 
@@ -93,8 +104,8 @@ namespace tut
 
         build();
 
-        ensure_equals( model.getGroupID("a"), 34 );
-        ensure_equals( model.getGroupID("b"), 34 );
+        ensure_equals( getGroupID("a"), 34 );
+        ensure_equals( getGroupID("b"), 34 );
         ensure_equals( model.countGroups()  , 1  );
     }
 
@@ -112,8 +123,8 @@ namespace tut
 
         build();
 
-        ensure_equals( model.getGroupID("a"), 38 );
-        ensure_equals( model.getGroupID("b"), 38 );
+        ensure_equals( getGroupID("a"), 38 );
+        ensure_equals( getGroupID("b"), 38 );
         ensure_equals( model.countGroups()  , 1  );
     }
 
@@ -130,8 +141,8 @@ namespace tut
 
         build();
 
-        ensure_equals( model.getGroupID("a"), 39 );
-        ensure_equals( model.getGroupID("b"), 39 );
+        ensure_equals( getGroupID("a"), 39 );
+        ensure_equals( getGroupID("b"), 39 );
         ensure_equals( model.countGroups()  , 1  );
     }
 
@@ -176,8 +187,8 @@ namespace tut
 
         build();
 
-        ensure_equals( model.getGroupID("a"), 51 );
-        ensure_equals( model.getGroupID("b"), 52 );
+        ensure_equals( getGroupID("a"), 51 );
+        ensure_equals( getGroupID("b"), 52 );
         ensure_equals( model.countGroups()  , 2  );
     }
 
@@ -195,8 +206,8 @@ namespace tut
 
         build();
 
-        ensure_equals( model.getGroupID("a"), 51 );
-        ensure_equals( model.getGroupID("b"), 51 );
+        ensure_equals( getGroupID("a"), 51 );
+        ensure_equals( getGroupID("b"), 51 );
         ensure_equals( model.countGroups()  , 1  );
     }
 
@@ -213,8 +224,8 @@ namespace tut
 
         build();
 
-        ensure_equals( model.getGroupID("a"), 72 );
-        ensure_equals( model.getGroupID("b"), 72 );
+        ensure_equals( getGroupID("a"), 72 );
+        ensure_equals( getGroupID("b"), 72 );
         ensure_equals( model.countGroups()  , 1  );
     }
 
@@ -231,8 +242,8 @@ namespace tut
 
         build();
 
-        ensure_equals( model.getGroupID("a"), 72 );
-        ensure_equals( model.getGroupID("b"), 74 );
+        ensure_equals( getGroupID("a"), 72 );
+        ensure_equals( getGroupID("b"), 74 );
         ensure_equals( model.countGroups()  , 2  );
     }
 
@@ -251,8 +262,8 @@ namespace tut
 
         build();
 
-        ensure_equals( model.getGroupID("a"), 52 );
-        ensure_equals( model.getGroupID("b"), 53 );
+        ensure_equals( getGroupID("a"), 52 );
+        ensure_equals( getGroupID("b"), 53 );
         ensure_equals( model.countGroups()  , 2  );
     }
 
@@ -287,8 +298,8 @@ namespace tut
         build();
 
         ensure_equals( model.countGroups()  , 10  );
-        ensure_equals( model.getGroupID("i"), 1   );
-        ensure_equals( model.getGroupID("n"), 4   );
+        ensure_equals( getGroupID("i"), 1   );
+        ensure_equals( getGroupID("n"), 4   );
     }
 
     template<>
@@ -330,12 +341,12 @@ namespace tut
         primeSample( "a", SRT_UNK );
         build();
 
-        ensure_equals( model.getGroupID("a"), 29 );
+        ensure_equals( getGroupID("a"), 29 );
 
         primeSample( "b", SRT_UNK, 62 );
         build();
 
-        ensure_equals( model.getGroupID("a"), 62 );
+        ensure_equals( getGroupID("a"), 62 );
     }
 
 }

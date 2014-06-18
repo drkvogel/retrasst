@@ -5,6 +5,7 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/variant.hpp>
 #include "IntList.h"
+#include <iostream>
 #include <map>
 #include <string>
 #include "StringBuilder.h"
@@ -19,6 +20,26 @@ namespace paulst
 
 namespace valc
 {
+
+class SampleRunIDResolutionService;
+
+class IDToken
+{
+public:
+    explicit IDToken( const std::string& token = "", const SampleRunIDResolutionService* r = NULL );
+    IDToken( const IDToken& other );
+    IDToken& operator=( const IDToken& other );
+    bool operator==( const IDToken& other ) const;
+    bool operator!=( const IDToken& other ) const;
+    bool isNull() const;
+    std::string token() const { return m_token; }
+    std::string value() const;
+    friend std::ostream&  operator<<( std::ostream& os, const IDToken& idt ) { return os << idt.m_token; }
+private:
+    std::string m_token;
+    const SampleRunIDResolutionService* m_resolver;
+};
+
 
 // Forward declarations
 class AnalysisActivitySnapshot;
@@ -183,7 +204,7 @@ public:
 
     LocalRun();
     LocalRun( const LocalRun& );
-    LocalRun( const std::string& sampleDescriptor, const std::string& id );
+    LocalRun( const std::string& sampleDescriptor, const IDToken& sampleRunID );
     LocalRun& operator=( const LocalRun& r );
     /*
         Returns the ID of the group/batch with which this run is associated.
@@ -199,14 +220,15 @@ public:
     /*
         Returns an identifier for this sample-run.
     */
-    std::string getRunID() const;
+    IDToken getRunID() const;
 
     /*
         Is this run open, or has it been closed off?
     */
     bool isOpen() const;
 private:
-    std::string m_id, m_sampleDescriptor;
+    std::string m_sampleDescriptor;
+    IDToken m_runID;
     Impl* m_impl;
 };
 
@@ -498,13 +520,6 @@ public:
                 updates to continue in the background
     */
     virtual void runPendingDatabaseUpdates( bool block ) = 0;
-    /*
-        How to test that a TestResult is associated with a particular LocalRun? 
-        The only way to find out is to use this method, supplying the runID of the LocalRun
-        and the sampleRunID of the TestResult. ie
-            compareSampleRunIDs( myTestResult.getSampleRunID(), myLocalRun.getRunID() );
-    */
-    virtual bool compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID )        const = 0;
     virtual LocalEntryIterator              localBegin()                                                    const = 0;
     virtual LocalEntryIterator              localEnd()                                                      const = 0;
     virtual QueuedSampleIterator            queueBegin()                                                    const = 0;
@@ -536,16 +551,6 @@ public:
     
     /* Returns true if Rules have been applied to the specified result.  */
     virtual bool                            hasRuleResults( int resultID )                                  const = 0;
-    
-    /*
-        A diagnostic method for identifying the rows in buddy_database that are associated with 
-        the specified sample-run.
-
-        The original motivation for this method was that sometimes a LocalRun has no worklist entries 
-        associated with it.  In such cases, the interface can only show a blank entry for the LocalRun.
-        In such cases, it would be useful to know more.
-    */
-    virtual BuddyDatabaseEntries            listBuddyDatabaseEntriesFor( const std::string& sampleRunID )   const = 0;
 
     /*
         Initiate a rerun of the specified worklist entry.
@@ -554,7 +559,7 @@ public:
 
         Changes made to the snaphost object model are broadcast via SnapshotObserver.
     */
-    virtual HANDLE                       queueForRerun( int worklistID, const std::string& sampleRunID, const std::string& sampleDescriptor ) = 0;
+    virtual HANDLE                       queueForRerun( int worklistID, const IDToken& sampleRunID, const std::string& sampleDescriptor ) = 0;
 
     /*
         Use this method to specifiy a callback interface on which to receive notifications of updates to the snapshot.
@@ -824,8 +829,11 @@ public:
     /*
         Returns an identifier for the sample-run on which this 
         result was obtained.
+
+        Returns a Null IDToken if the test does not belong to any of the 
+        sample-runs described by the sequence [localBegin,localEnd).
     */
-    virtual std::string getSampleRunID      () const = 0;
+    virtual IDToken getSampleRunID      () const = 0;
     /*
         buddy_result_float.test_id
     */
@@ -848,11 +856,12 @@ public:
     virtual void notifyWorklistEntryChanged ( const WorklistEntry* we ) = 0;
     virtual void notifyNewWorklistEntry     ( const WorklistEntry* we ) = 0;
     virtual void notifySampleAddedToQueue   ( const std::string& sampleDescriptor ) = 0;
-    virtual void notifySampleRunClosedOff   ( const std::string& runID ) = 0;
+    virtual void notifySampleRunClosedOff   ( const IDToken& runID ) = 0;
     virtual void notifyUpdateFailed         ( const char* errorMsg ) = 0;
 };
 
 
 }
+
 #endif
 

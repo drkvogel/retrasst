@@ -30,9 +30,9 @@ __published:	// IDE-managed Components
     TComboBox *userList;
     TLabel *version;
     TTimer *timer;
-	TRadioGroup *rgDatabase;
 	TLabel *Label3;
 	TEdit *ebPassword;
+	TLabel *lblSystem;
 
     void __fastcall exitButtonClick(TObject *Sender);
     void __fastcall okButtonClick(TObject *Sender);
@@ -41,10 +41,11 @@ __published:	// IDE-managed Components
 	void __fastcall rgDatabaseClick(TObject *Sender);
 	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 	void __fastcall versionClick(TObject *Sender);
-	void __fastcall versionMouseEnter(TObject *Sender);
-	void __fastcall versionMouseLeave(TObject *Sender);
+	void __fastcall hyperlinkEnter(TObject *Sender);
+	void __fastcall hyperlinkLeave(TObject *Sender);
 	void __fastcall FormCanResize(TObject *Sender, int &NewWidth, int &NewHeight,
           bool &Resize);
+	void __fastcall lblSystemClick(TObject *Sender);
 
 private:	// User declarations
 

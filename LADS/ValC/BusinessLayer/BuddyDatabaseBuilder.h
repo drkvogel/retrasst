@@ -23,7 +23,6 @@ namespace valc
 class AnalysisActivity;
 class BuddyDatabase;
 class BuddyDatabaseEntryIndex;
-class BuddySampleIDKeyedOnSampleRunID;
 class ControlModel;
 class DBUpdateSchedule;
 class ExceptionalDataHandler;
@@ -59,7 +58,6 @@ public:
         SampleRuns*                         candidateSampleRuns,    // output parameter
         const SampleRunIDResolutionService* s,                      // input parameter. Used but not changed. 
         DBUpdateSchedule*                   dbUpdateSchedule,
-        BuddySampleIDKeyedOnSampleRunID*    buddySampleIDKeyedOnSampleRunID,
         BuddyDatabaseEntryIndex*            buddyDatabaseEntryIndex,
         const std::string&                  inclusionRule,
         ExceptionalDataHandler*             exceptionalDataHandler,
@@ -84,7 +82,6 @@ private:
     SampleRuns*                         m_candidateSampleRuns;
     const SampleRunIDResolutionService* m_sampleRunIDResolutionService;
     DBUpdateSchedule*                   m_dbUpdateSchedule;
-    BuddySampleIDKeyedOnSampleRunID*    m_buddySampleIDKeyedOnSampleRunID;
     BuddyDatabaseEntryIndex*            m_buddyDatabaseEntryIndex;
     InclusionRule                       m_inclusionRule;
     ExceptionalDataHandler*             m_exceptionalDataHandler;

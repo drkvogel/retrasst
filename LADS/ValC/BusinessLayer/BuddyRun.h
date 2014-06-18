@@ -1,6 +1,7 @@
 #ifndef BUDDYRUNH
 #define BUDDYRUNH
 
+#include "API.h"
 #include <string>
 
 namespace valc
@@ -9,14 +10,13 @@ namespace valc
 struct BuddyRun
 {
     int buddySampleID{};
-    std::string sampleRunID;
+    IDToken sampleRunID;
 
-    BuddyRun( int bsid, const std::string& runID );
+    BuddyRun( int bsid, const IDToken& runID );
     BuddyRun();
     BuddyRun( const BuddyRun& other );
     BuddyRun& operator=( const BuddyRun& other );
 };
-
 
 }
 

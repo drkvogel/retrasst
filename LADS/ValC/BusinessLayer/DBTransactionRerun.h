@@ -19,7 +19,7 @@ class DBTransactionRerun
 public:
     int worklistID;
     volatile int newWorklistID;
-    int sampleRunID;
+    IDToken sampleRunID;
     int userID;
     std::string errorMsg;
 
@@ -27,8 +27,8 @@ public:
     std::string describe() const
     {
         return paulst::format("Rerun-insertion on behalf of user %d.  "
-            "Involves a) closing-off sample-run %d; b) inserting new worklist entry as a chid of entry %d.",
-            userID, sampleRunID, worklistID );
+            "Involves a) closing-off sample-run %s; b) inserting new worklist entry as a chid of entry %d.",
+            userID, sampleRunID.value().c_str(), worklistID );
     }
 
     void execute( paulstdb::DBConnection* c, const paulst::Config* config )
@@ -41,7 +41,8 @@ public:
         {
             reserveIDValueForNewWorklistEntry( c, config );
             confirmOKToCloseSampleRun( c, config );
-            c->executeStmt( paulst::format( config->get( "SQLStmtCloseSampleRun"         ).c_str(), userID, sampleRunID       ) );
+            const int intSampleRunID = paulst::toInt( sampleRunID.value() );
+            c->executeStmt( paulst::format( config->get( "SQLStmtCloseSampleRun"         ).c_str(), userID, intSampleRunID    ) );
             c->executeStmt( paulst::format( config->get( "SQLStmtInsertRerun"            ).c_str(), newWorklistID, worklistID ) );
             c->executeStmt( paulst::format( config->get( "SQLStmtInsertWorklistRelation" ).c_str(), newWorklistID, worklistID ) );
             commit( c );
@@ -64,7 +65,8 @@ private:
 
     void confirmOKToCloseSampleRun( paulstdb::DBConnection* c, const paulst::Config* config )
     {
-        std::auto_ptr<paulstdb::Cursor> cursor( c->executeQuery( paulst::format( config->get( "QueryForSampleRun" ).c_str(), sampleRunID ) ) );
+        const int intSampleRunID = paulst::toInt( sampleRunID.value() );
+        std::auto_ptr<paulstdb::Cursor> cursor( c->executeQuery( paulst::format( config->get( "QueryForSampleRun" ).c_str(), intSampleRunID ) ) );
 
         require( *cursor );
 
@@ -74,7 +76,7 @@ private:
 
         if ( ! sampleRunEntryFound )
         {
-            paulst::exception( "Failed to find entry %d in buddy_sample_run", sampleRunID );
+            paulst::exception( "Failed to find entry %d in buddy_sample_run", intSampleRunID );
         }
     }
 

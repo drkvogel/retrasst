@@ -27,9 +27,10 @@ void __fastcall TfrmAboutBox::FormShow(TObject *)
 	const LIMSParams & params = LIMSParams::instance();
 	Version -> Caption = String("Version ") + params.getProgVersion().c_str();
 	ProgramIcon -> Picture -> Icon = Application -> Icon;
-	String mmm = AnsiLeftStr( compiled, 3 );
-	String dd = AnsiMidStr( compiled, 5, 2 );
-	String yyyy = AnsiRightStr( compiled, 4 );
+	AnsiString compiled = when_compiled;
+	String mmm = compiled.SubString( 1, 3 );
+	String dd = compiled.SubString( 5, 2 );
+	String yyyy = compiled.SubString( 8, 4 );
 	Copyright -> Caption = "Copyright © CTSU, " + dd + ' ' + mmm + ' ' + yyyy;
 	Comments -> Caption = "Produced by " + String( author )
 						+ ", Core Programming, " + String( extension );

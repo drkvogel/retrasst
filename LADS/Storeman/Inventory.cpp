@@ -1291,14 +1291,20 @@ void Box::showProperties( TStringGrid *grdProps ) const {
 		case LCDbBoxStore::MOVE_EXPECTED:
 			strStat = "Move expected";
 			break;
+		case LCDbBoxStore::UNCONFIRMED:
+			strStat = "Historic data";
+			break;
+		case LCDbBoxStore::REMOVED:
+			strStat = "Removed";
+			break;
 		case LCDbBoxStore::SLOT_ALLOCATED:
 			strStat = "Allocated";
 			break;
 		case LCDbBoxStore::SLOT_CONFIRMED:
 			strStat = "Confirmed";
 			break;
-		case LCDbBoxStore::REMOVED:
-			strStat = "Removed";
+		case LCDbBoxStore::REFERRED:
+			strStat = "Referred";
 			break;
 		case LPDbBoxName::DESTROYED:
 			strStat = "Destroyed";
@@ -1393,11 +1399,13 @@ void Box::populate( ) {
 }
 
 bool Box::canMove( ) const {
-	return ( status == LCDbBoxStore::SLOT_CONFIRMED );
+	return (status == LCDbBoxStore::SLOT_CONFIRMED);
 }
 
 IPart::Availability Box::availability( ) const {
-	if( status != LCDbBoxStore::SLOT_CONFIRMED || retrieval_cid != 0 ) {
+	if( status != LCDbBoxStore::UNCONFIRMED && status != LCDbBoxStore::SLOT_ALLOCATED && status != LCDbBoxStore::SLOT_CONFIRMED  ) {
+		return UNAVAILABLE;
+	} else if( retrieval_cid != 0 ) {
 		return UNAVAILABLE;
 	} else if( emptySlots < 1 ) {
 		return IS_FULL;

@@ -56,7 +56,6 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
     m_snapshotUpdateThread          ( &m_dbTransactionHandler, m_updateHandle, appContext->log, appContext->taskExceptionUserAdvisor ),
     m_worklistRelativeImpl          ( wl ),
     m_sampleRunGroupModel           ( sampleRunGroupIDGenerator ),
-    m_runIDC14n                     ( *sampleRunIDResolutionService ),
     m_controlModel                  ( controlModel )
 {
     m_localRunImpl.setSampleRunGroupModel( &m_sampleRunGroupModel );
@@ -86,7 +85,6 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
         m_localEntries.push_back( lr );
     }
 
-    controlModel->setRunIDC14n( &m_runIDC14n );
     controlModel->setSampleRunGroupModel( &m_sampleRunGroupModel );
 
     QueuedSamplesBuilderFunction buildQueue( new QueueBuilderParams( bdb, wd, m_appContext->clusterIDs ) );
@@ -102,11 +100,6 @@ AnalysisActivitySnapshotImpl::~AnalysisActivitySnapshotImpl()
     delete m_dbUpdateSchedule;
 }
 
-bool AnalysisActivitySnapshotImpl::compareSampleRunIDs( const std::string& oneRunID, const std::string& anotherRunID )    const
-{
-    return m_sampleRunIDResolutionService->compareSampleRunIDs( oneRunID, anotherRunID );
-}
-
 RuleResults AnalysisActivitySnapshotImpl::getRuleResults( int forResultID ) const
 {
     return m_resultAttributes->getRuleResults( forResultID );
@@ -117,14 +110,9 @@ bool AnalysisActivitySnapshotImpl::hasRuleResults( int forResultID ) const
     return m_resultAttributes->hasRuleResults( forResultID );
 }
 
-BuddyDatabaseEntries AnalysisActivitySnapshotImpl::listBuddyDatabaseEntriesFor( const std::string& sampleRunID )   const
-{
-    return m_buddyDatabase->listBuddyDatabaseEntriesFor( sampleRunID );
-}
-
 void AnalysisActivitySnapshotImpl::runPendingDatabaseUpdates( bool block )
 {
-    m_dbUpdateSchedule->queueScheduledUpdates( &m_dbTransactionHandler );
+    m_dbUpdateSchedule->runQueuedUpdates( &m_dbTransactionHandler );
 
     if ( block && ! m_dbTransactionHandler.waitForQueued( m_pendingUpdateWaitTimeoutSecs * 1000 ) )
     {
@@ -163,7 +151,7 @@ Range<WorklistEntryIterator> AnalysisActivitySnapshotImpl::getWorklistEntries( c
     return m_worklistEntries->equal_range( sampleDescriptor );
 }
 
-HANDLE AnalysisActivitySnapshotImpl::queueForRerun( int worklistID, const std::string& sampleRunID, const std::string& sampleDescriptor )
+HANDLE AnalysisActivitySnapshotImpl::queueForRerun( int worklistID, const IDToken& sampleRunID, const std::string& sampleDescriptor )
 {
     SnapshotUpdateTask* sut = new SnapshotUpdateTaskQRerun( worklistID, sampleRunID, sampleDescriptor, m_appContext->user );
     

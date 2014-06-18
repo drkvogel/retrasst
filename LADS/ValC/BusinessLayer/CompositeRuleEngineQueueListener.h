@@ -15,7 +15,7 @@ class CompositeRuleEngineQueueListener : public RuleEngineQueueListener
 public:
     CompositeRuleEngineQueueListener();
     void add( RuleEngineQueueListener* l );
-    void notifyQueued( const UncontrolledResult& r );
+    void notifyQueued( const UncontrolledResult& r, const IDToken& runID );
 private:
     typedef std::list< RuleEngineQueueListener* > Listeners;
     Listeners m_listeners;

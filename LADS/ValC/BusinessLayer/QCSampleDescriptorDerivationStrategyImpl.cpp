@@ -26,6 +26,8 @@ public:
 
     void visit( const BuddyDatabaseEntry* bde, const BuddyDatabaseEntryIndex::TestIDs& testsForWhichResults )
     {
+        // Find the latest entry (i.e. highest value for buddy_sample_id) which matches on barcode and
+        // doesn't already have a result for the specified test.
         if (    ( bde->barcode == m_barcode                         ) &&
                 ( bde->buddy_sample_id > m_candidateBuddySampleID   ) && 
                 ( 0U == testsForWhichResults.count( m_testID )      )        )
