@@ -973,8 +973,8 @@ void TfrmReferred::okOrDiscard(int status) {
         if (!rackData.findRack(qc)) {
             ostringstream oss;
             // tank_name not initialised?
-            oss <<"Rack not found.\n\ntank: '"<<editedBox.tank_name<<"'\nrack: '"<<editedBox.rack_name<<"'";
-            oss <<"\n(Is tank correct?)";
+            oss <<"Structure not found.\n\nVessel: '"<<editedBox.tank_name<<"'\nStructure: '"<<editedBox.rack_name<<"'";
+            oss <<"\nIs vessel correct?)";
             if (REFBOXESDEBUG) {
                 oss<<"\n\n[tank_cid:"<<editedBox.tank_cid<<"]";
             }

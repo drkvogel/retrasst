@@ -12,8 +12,8 @@ could cache tank name
 
 does query get tank and rack or rack and slot as comment says?
 
-no, but rack_cid and slot_position could be got from box_store, which is LEFT JOINed - and sometimes returns no results, so rack_cid and slot_position would be null
-because there is no box_store record because it is referred?
+no, but `rack_cid` and `slot_position` could be got from `box_store`, which is LEFT JOINed - and sometimes returns no results, so `rack_cid` and `slot_position` would be null
+because there is no `box_store` record because it is referred?
 
 `/testing/refboxes/matching-boxes.sql`
 

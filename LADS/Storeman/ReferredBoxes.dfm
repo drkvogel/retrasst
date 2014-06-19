@@ -80,9 +80,6 @@ object frmReferred: TfrmReferred
         MultiSelect = True
         TabOrder = 0
         OnClick = listboxProjectsClick
-        ExplicitLeft = 3
-        ExplicitTop = 19
-        ExplicitHeight = 352
       end
     end
     object groupboxBoxTypes: TGroupBox
@@ -118,7 +115,6 @@ object frmReferred: TfrmReferred
         Sorted = True
         TabOrder = 0
         OnClick = listboxBoxTypesClick
-        ExplicitHeight = 11
       end
     end
     object panelBottom: TPanel
@@ -520,8 +516,6 @@ object frmReferred: TfrmReferred
         ScrollBars = ssBoth
         TabOrder = 1
         Visible = False
-        ExplicitLeft = 3
-        ExplicitTop = 54
       end
     end
   end
