@@ -76,7 +76,7 @@ struct Rerun
 {
     valc::SnapshotPtr snapshot;
     int worklistID;
-    std::string sampleRunID;
+    valc::IDToken sampleRunID;
     std::string sampleDescriptor;
     
 
@@ -148,7 +148,7 @@ bool BusinessLayer::close()
 
 void BusinessLayer::rerun(
     int worklistID, 
-    const std::string& sampleRunID, 
+    const valc::IDToken& sampleRunID, 
     const std::string& sampleDescriptor,
     const std::string& barcode,
     const std::string& testName )

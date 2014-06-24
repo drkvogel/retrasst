@@ -151,7 +151,7 @@ void __fastcall WorklistItemViewController::familyTreeClickHandler( TObject* sen
 	}
 }
 
-void WorklistItemViewController::notify( int modelEvent, const std::string& eventData )
+void WorklistItemViewController::notify( int modelEvent, const EventData& eventData )
 {
     switch( modelEvent )
     {

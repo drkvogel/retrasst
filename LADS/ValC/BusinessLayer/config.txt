@@ -8,7 +8,7 @@ SampleRunIDQueryString:
     select sample_run_id.nextval
 
 SampleRunInsertSQL:
-    insert into sample_run ( run_id, sequence_position, group_id ) values ( %d, %d, %d )
+    insert into sample_run ( run_id, sequence_position, group_id ) values ( %d, %f, %d )
 
 SampleRunGroupIDConnectionString:
     dsn=paulst_brat_64;db=paulst_test4

@@ -85,7 +85,7 @@ public:
     */
     void doRerun( 
         int worklistID, 
-        const std::string& sampleRunID, 
+        const valc::IDToken& sampleRunID, 
         const std::string& sampleDescriptor,
         const std::string& barcode,
         const std::string& testName );

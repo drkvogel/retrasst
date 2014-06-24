@@ -8,7 +8,7 @@
 namespace valcui
 {
 
-std::string getRunID( const valc::LocalEntryIterator& i );
+valc::IDToken getRunID( const valc::LocalEntryIterator& i );
 
 /*
 An iterator over a sequence of LocalEntry instances, just picking out those that are LocalRuns.

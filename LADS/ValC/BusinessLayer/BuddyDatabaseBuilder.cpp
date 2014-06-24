@@ -216,7 +216,7 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
                     srIsOpen != 0, 
                     srCreatedWhen, 
                     srClosedWhen, 
-                    srSequencePosition, 
+                    hasSampleRun ? srSequencePosition : buddySampleID,
                     srGroupID, 
                     isQC() ) );
         }

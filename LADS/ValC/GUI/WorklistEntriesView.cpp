@@ -172,7 +172,7 @@ void WorklistEntriesView::assignAttributes(TSampleRunPanel *runPanel,
 										   valc::SnapshotPtr sn,
 										   const valc::WorklistEntry *entry,
 										   const valc::TestResult *tr,
-										   const std::string &runId)
+										   const valc::IDToken &runId)
 {
 	assignAttributes(t,entry,QUEUED); // set attributes in common with queued entries
 	std::string res = Utils::float2str(tr->getResultValue());
@@ -184,11 +184,9 @@ void WorklistEntriesView::assignAttributes(TSampleRunPanel *runPanel,
 	t->setAttribute("Time Analysed",ti);
 	int resultId = tr->getID();
 	t->setAttribute("Result Id",resultId);
-	std::string resultSampleRunId = tr->getSampleRunID();
-	t->setAttribute("Sample Run Id",resultSampleRunId);
 
 	// is it a test performed locally on this analyser?
-	bool local = sn->compareSampleRunIDs(resultSampleRunId,runId);
+	bool local = tr->getSampleRunID() == runId;
 	if (!local) {
         t->setUpNonLocal();
     }
@@ -250,7 +248,8 @@ int WorklistEntriesView::addWorklistEntries(valc::SnapshotPtr sn,
 											 int & maxRunSize,
 											 int & maxTestWidth,
 											 int & maxResultWidth,
-											 bool queued)
+											 bool queued,
+                                             const valc::IDToken& runID )
 {
 	std::string barcode;      // for this particular sample
 
@@ -289,8 +288,7 @@ int WorklistEntriesView::addWorklistEntries(valc::SnapshotPtr sn,
 					TTestPanel *t = new TTestPanel(this,runPanel->testsPanel,testName,
 												   Utils::float2str(tr->getResultValue()),
 										           "Level:test result",observer,SENT_TO_ANALYSER);
-					std::string srId = runPanel->barcodePanel->getAttribute("Run Id");
-					assignAttributes(runPanel,t,sn,entry,tr,srId);
+					assignAttributes(runPanel,t,sn,entry,tr,runID);
 					runPanel->testPanels->push_back(t);
 					maxTestWidth = std::max(t->findPanelLeftWidth(),maxTestWidth);
 					maxResultWidth = std::max(t->findResultDisplayWidth(),maxResultWidth);
@@ -565,15 +563,13 @@ bool WorklistEntriesView::createResultsEntries(valc::SnapshotPtr snapshot,
 				TSampleRunPanel *runPanel
 					= createSampleRunPanel(viewFrame->ResultsInnerPanel,y,SENT_TO_ANALYSER);
 				std::string descriptor = r.getSampleDescriptor();
-				std::string runId = r.getRunID();
-				runPanel->barcodePanel->setAttribute("Run Id",runId);
 				int numWorklistEntries = addWorklistEntries(snapshot,descriptor,runPanel,
 								   maxRunSize,maxTestLeftWidth,maxResultWidth,
-								   SENT_TO_ANALYSER);
+								   SENT_TO_ANALYSER, r.getRunID() );
 
                 if ( 0 == numWorklistEntries )
                 {
-                    logManager->log( paulst::format( "No worklist entries for sample-run %s", runId.c_str() ).c_str() );
+                    logManager->log( paulst::format( "No worklist entries for sample-run %s", r.getRunID().token().c_str() ).c_str() );
                 }
 
 				resultsComponents->push_back(runPanel);

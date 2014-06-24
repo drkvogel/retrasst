@@ -1,10 +1,14 @@
 #ifndef MODELEVENTLISTENERH
 #define MODELEVENTLISTENERH
 
+#include "API.h"
+#include <boost/variant.hpp>
 #include <string>
 
 namespace valcui
 {
+
+typedef boost::variant< int, std::string, valc::IDToken > EventData;
 
 /** An interface by means of which a UI component can keep informed of
   * changes made to the BusinessLayer.
@@ -17,7 +21,7 @@ class ModelEventListener
 public:
     ModelEventListener();
     virtual ~ModelEventListener();
-    virtual void notify( int eventID, const std::string& eventData ) = 0;
+    virtual void notify( int eventID, const EventData& eventData ) = 0;
 };
 
 }

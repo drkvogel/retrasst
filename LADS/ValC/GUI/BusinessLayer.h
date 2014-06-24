@@ -3,7 +3,9 @@
 
 #include "API.h"
 #include "ExceptionHandler.h"
+#include <FMX.Dialogs.hpp>
 #include <memory>
+#include "Require.h"
 #include <sstream>
 #include <string>
 #include <System.Classes.hpp>
@@ -49,7 +51,7 @@ public:
     valc::SnapshotPtr& getSnapshot();
     void rerun(
         int worklistID, 
-        const std::string& sampleRunID, 
+        const valc::IDToken& sampleRunID, 
         const std::string& sampleDescriptor,
         const std::string& barcode,
         const std::string& testName );
@@ -98,8 +100,8 @@ void waitForAsyncTask( AsyncTask& t, const std::string& taskName, bool showDialo
     assertion( t.completed(), "Task should have completed, given that it didn't timeout." );
 
     if ( t.error().size() )
-    {
-        throw Exception( t.error().c_str() );
+	{
+        throwException( t.error() );
     }
 
     if ( t.cancelled() )

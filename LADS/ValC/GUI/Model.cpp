@@ -72,7 +72,7 @@ void Model::doForceReload()
 
 void Model::doRerun(
         int worklistID, 
-        const std::string& sampleRunID, 
+        const valc::IDToken& sampleRunID, 
         const std::string& sampleDescriptor,
         const std::string& barcode,
         const std::string& testName )
@@ -87,7 +87,7 @@ void Model::doRerun(
 
         m_snapshotObserver.checkForErrors();
 
-        m_listeners.notify( MODEL_EVENT::RERUN_QUEUED, paulst::toString( worklistID ) );
+        m_listeners.notify( MODEL_EVENT::RERUN_QUEUED, worklistID );
     }
     catch( const Exception& e )
     {
@@ -141,7 +141,7 @@ void Model::setSelectedWorklistEntry( int worklistEntryID )
     {
         m_selectedWorklistEntry = worklistEntryID;
 
-        m_listeners.notify( MODEL_EVENT::WORKLIST_ENTRY_SELECTION_CHANGE );
+        m_listeners.notify( MODEL_EVENT::WORKLIST_ENTRY_SELECTION_CHANGE, worklistEntryID );
     }
 }
 

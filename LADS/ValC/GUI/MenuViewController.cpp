@@ -93,7 +93,7 @@ void __fastcall MenuViewController::actionRunPendingUpdates( TObject* sender )
 	m_model->doRunPendingUpdates();
 }
 
-void MenuViewController::notify( int eventID, const std::string& eventData )
+void MenuViewController::notify( int eventID, const EventData& eventData )
 {
 	if ( eventID == MODEL_EVENT::FORCE_RELOAD )
 	{

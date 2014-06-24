@@ -17,12 +17,12 @@ public:
     SnapshotObserverAdapter( ModelEventListeners* l, Model* m );
     void checkForErrors();
     void clearErrors();
-    void notify( int modelEvent, const std::string& eventData );
+    void notify( int modelEvent, const EventData& eventData );
     // SnapshotObserver interface implementation:
     void notifyWorklistEntryChanged ( const valc::WorklistEntry* we );
     void notifyNewWorklistEntry     ( const valc::WorklistEntry* we );
     void notifySampleAddedToQueue   ( const std::string& sampleDescriptor );
-    void notifySampleRunClosedOff   ( const std::string& runID );
+    void notifySampleRunClosedOff   ( const valc::IDToken& runID );
     void notifyUpdateFailed         ( const char* errorMsg );
     
     void __fastcall startObserving();

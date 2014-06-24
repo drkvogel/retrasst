@@ -29,7 +29,7 @@ void SnapshotObserverAdapter::clearErrors()
     m_errors.clear();
 }
 
-void SnapshotObserverAdapter::notify( int modelEvent, const std::string& eventData )
+void SnapshotObserverAdapter::notify( int modelEvent, const EventData& eventData )
 {
     if ( modelEvent == MODEL_EVENT::FORCE_RELOAD )
     {
@@ -40,12 +40,12 @@ void SnapshotObserverAdapter::notify( int modelEvent, const std::string& eventDa
 // SnapshotObserver interface implementation:
 void SnapshotObserverAdapter::notifyWorklistEntryChanged( const valc::WorklistEntry* we )
 {
-    m_eventSink->notify( MODEL_EVENT::WORKLIST_ENTRY_CHANGED, paulst::toString( we->getID() ) );
+    m_eventSink->notify( MODEL_EVENT::WORKLIST_ENTRY_CHANGED, we->getID() );
 }
 
 void SnapshotObserverAdapter::notifyNewWorklistEntry( const valc::WorklistEntry* we )
 {
-    m_eventSink->notify( MODEL_EVENT::NEW_WORKLIST_ENTRY, paulst::toString( we->getID() ) );
+    m_eventSink->notify( MODEL_EVENT::NEW_WORKLIST_ENTRY, we->getID() );
 }
 
 void SnapshotObserverAdapter::notifySampleAddedToQueue( const std::string& sampleDescriptor )
@@ -53,7 +53,7 @@ void SnapshotObserverAdapter::notifySampleAddedToQueue( const std::string& sampl
     m_eventSink->notify( MODEL_EVENT::SAMPLE_ADDED_TO_QUEUE, sampleDescriptor );
 }
 
-void SnapshotObserverAdapter::notifySampleRunClosedOff( const std::string& runID )
+void SnapshotObserverAdapter::notifySampleRunClosedOff( const valc::IDToken& runID )
 {
     m_eventSink->notify( MODEL_EVENT::SAMPLE_RUN_CLOSED_OFF, runID );
 }
@@ -61,7 +61,7 @@ void SnapshotObserverAdapter::notifySampleRunClosedOff( const std::string& runID
 void SnapshotObserverAdapter::notifyUpdateFailed( const char* errorMsg )
 {
     m_errors.push_back( errorMsg );
-    m_eventSink->notify( MODEL_EVENT::UPDATE_FAILED, errorMsg );
+    m_eventSink->notify( MODEL_EVENT::UPDATE_FAILED, std::string(errorMsg) );
 }
 
 void __fastcall SnapshotObserverAdapter::startObserving()

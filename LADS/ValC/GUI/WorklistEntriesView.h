@@ -98,7 +98,7 @@ private:
 	                      bool queued);
 	void assignAttributes(TSampleRunPanel *runPanel, TTestPanel *t,
 						  valc::SnapshotPtr sn, const valc::WorklistEntry *entry,
-						  const valc::TestResult *tr, const std::string &sampleRunId);
+						  const valc::TestResult *tr, const valc::IDToken &sampleRunId);
 
 	TSampleRunPanel* createSampleRunPanel(TPanel *parentPanel, int y, bool queued);
     void finaliseTestPanel(TTestPanel *t, TPanel *parent, int x, bool queued);
@@ -108,7 +108,8 @@ private:
 							int & maxRunWidth,
 							int & maxTestWidth,
 							int & maxResultWidth,
-							bool queued);
+							bool queued,
+                            const valc::IDToken& sampleRunID = valc::IDToken() );
 	void postProcessEntries(bool queued);
 
 	bool createQueuedEntries(valc::SnapshotPtr snapshot, int & numberOfRuns,

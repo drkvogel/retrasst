@@ -2,6 +2,18 @@
 
 ## Storeman meeting 2014-06-17 - configure, browse and move
 
+Laptop setup:
+* DHCP was not enabled for 'Local Area Connection'
+* Shortcut to 'Storeman on K' - 'Storeman has stopped working'
+* 64-bit Windows
+* Both 32 and 64-bit Ingres:
+    * C:\Program Files\Ingres\IngresIJ
+* C:\Program Files (x86)\Ingres\IngresII
+* IJ instance started by default
+* But has no vnodes set up
+* Set up vnode_labdev_64 and vnode_vlabreal_64, tested connection, OK
+* Ingres 10.0.0 
+
 Login screen change
 
 ## Storeman meeting 2014-06-19 - analyse, transfer, refer

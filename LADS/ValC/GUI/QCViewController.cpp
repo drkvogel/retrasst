@@ -167,7 +167,7 @@ std::string QCViewController::describeWorklistEntry( const QCViewData& data, con
 	return label.str();
 }
 
-void QCViewController::notify( int modelEvent, const std::string& eventData )
+void QCViewController::notify( int modelEvent, const EventData& eventData )
 {
     if (  modelEvent == MODEL_EVENT::WORKLIST_ENTRY_SELECTION_CHANGE )
     {
