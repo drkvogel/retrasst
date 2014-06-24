@@ -20,7 +20,7 @@
 #include "DirUtil.h"
 #include <FMX.Menus.hpp>
 #include <memory>
-
+#include "ModelEventListenerAdapter.h"
 
 class LogManager;
 class TLogFrame;
@@ -28,6 +28,7 @@ class TLogFrame;
 
 namespace valcui
 {
+    class IdleService;
 	class MenuViewController;
 	class Model;
 	class QCViewController;
@@ -66,9 +67,11 @@ __published:	// IDE-managed Components
 	TMenuItem *menuItemRunPendingUpdates;
 	TMenuItem *menuItemApplication;
 	TMenuItem *menuItemClose;
+	TTimer *idleTimer;
 	void __fastcall onCreate(TObject *Sender);
 	void __fastcall onResize(TObject *Sender);
 	void __fastcall onClose(TObject *Sender, TCloseAction &Action);
+	void __fastcall idleTime(TObject *Sender);
 
 private:	// User declarations
 
@@ -82,9 +85,13 @@ private:	// User declarations
 	std::unique_ptr<valcui::WorklistItemViewController> m_worklistItemViewController;
 	std::unique_ptr<valcui::SampleRunViewController> m_sampleRunViewController;
     std::unique_ptr<valcui::MenuViewController>      m_menuViewController;
+    std::unique_ptr<valcui::IdleService>            m_idleService;
+    valcui::ModelEventListenerAdapter<TMainForm> m_modelEventListener;
+    bool                                            m_okToClose;
 public:		// User declarations
 
 	__fastcall TMainForm(TComponent* Owner);
+    void notify( int modelEventID, const valcui::EventData& ed );
 	void __fastcall warningAlarmOn();
 	void __fastcall warningAlarmOff();
 

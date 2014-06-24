@@ -1,24 +1,30 @@
 #include <FMX.Dialogs.hpp>
 #include <memory>
-#include "TWaitDlg.h"
 #include "ValCDialogs.h"
 
 namespace valcui
 {
 
+void showMsg( const std::string& msg, TMsgDlgType t )
+{
+    const UnicodeString uMsg( msg.c_str() );
+
+    MessageDlg( uMsg, t, TMsgDlgButtons() << TMsgDlgBtn::mbOK, 0 );
+}
 
 void reportException( const Exception& e )
 {
-    MessageDlg( e.Message, TMsgDlgType::mtError, TMsgDlgButtons() << TMsgDlgBtn::mbOK, 0 );
+    showMsg( AnsiString( e.Message.c_str() ).c_str(), TMsgDlgType::mtError );
 }
 
-unsigned long showWaitDialog( HANDLE signal, const std::string& msg, unsigned long waitMillis )
+void showErrorMsg( const std::string& msg )
 {
-    std::unique_ptr<TWaitDlg> dlg( new TWaitDlg(NULL, signal, 2000, waitMillis, msg ) );
+    showMsg( msg, TMsgDlgType::mtError );
+}
 
-    dlg->ShowModal();
-    
-    return dlg->getWaitResult();
+void showWarningMsg( const std::string& msg )
+{
+    showMsg( msg, TMsgDlgType::mtWarning );
 }
 
 }

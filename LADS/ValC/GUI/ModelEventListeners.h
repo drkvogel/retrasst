@@ -12,7 +12,7 @@ namespace valcui
 /*
 Does not OWN the listeners.  Does not delete them.
 */
-class ModelEventListeners
+class ModelEventListeners : public ModelEventListener
 {
 public:
     ModelEventListeners();

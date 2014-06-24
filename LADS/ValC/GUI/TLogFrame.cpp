@@ -16,47 +16,10 @@ TLogFrame *LogFrame;
 int LabelledMessage::PURPOSE_BUSINESS_LAYER = 0;
 int LabelledMessage::PURPOSE_GUI = 1;
 
-/** Sets up an empty queue. */
-LogMessageQueue::LogMessageQueue()
-{
-}
-
-LogMessageQueue::~LogMessageQueue()
-{
-}
-
-/** Adds the given message to the queue of messages waiting to be
-  * put onto the logging window.
-  *
-  * @param lmsg   a message, consisting of a string accompanied by
-  *               characteristics as to how it will be displayed
-  */
-void LogMessageQueue::addMsgToQ(const LabelledMessage & lmsg)
-{
-	paulst::AcquireCriticalSection a(queueLock);
-	q.push_back(lmsg);
-}
-
-/** Removes the message at the front of the message queue.  Invoked in order
-  * to put a message onto one of the lists of the logging window.
-  *
-  * @return    the message at the front of the queue, labelled with its
-  *            intended display characteristics
-  */
-LabelledMessage LogMessageQueue::removeMsgFromQ()
-{
-	paulst::AcquireCriticalSection a(queueLock);
-	LabelledMessage lmsg = q.front();
-	q.pop_front();
-	return lmsg;
-}
-
-//---------------------------------------------------------------------------
-
-
 //---------------------------------------------------------------------------
 __fastcall TLogFrame::TLogFrame(TComponent* Owner)
-	: TFrame(Owner)
+	: TFrame(Owner),
+    m_idleServiceUser(this)
 {
 }
 //---------------------------------------------------------------------------
@@ -184,26 +147,20 @@ void TLogFrame::appendMessageToLogWindow(const LabelledMessage & lmsg)
     }
 }
 
-/** Removes the next log message from the message queue of log messages waiting
-  * to be added, and displays the log message by appending it to the correct
-  * list within the logging window. Note that the queue should not be empty,
-  * as this method is only invoked (by the GUIandLogWriter) one-time only,
-  * after adding a message to the queue.
-  */
-void __fastcall TLogFrame::processNextMessage()
-{
-	LabelledMessage lmsg = msgQueue.removeMsgFromQ();
-	appendMessageToLogWindow(lmsg);
-}
-
 void TLogFrame::queueMessage( const LabelledMessage& lm )
 {
-    msgQueue.addMsgToQ( lm );
-    TThread::Queue(NULL,processNextMessage);
+	paulst::AcquireCriticalSection a(m_queueLock);
+
+	m_messageQueue.push_back( lm );
 }
 
 
 //---------------------------------------------------------------------------
+
+void TLogFrame::onIdle()
+{
+    processQueuedMessages();
+}
 
 /** This handles resizing, keeping a 50:50 width between the two halves of
   * the logging window.
@@ -215,5 +172,22 @@ void TLogFrame::onResize()
 	BLlistbox->Width = w/2;
 	BLlistbox->EndUpdate();
 	DualPane->Repaint();
+}
+
+void TLogFrame::processQueuedMessages()
+{
+	paulst::AcquireCriticalSection a(m_queueLock);
+
+	for ( const LabelledMessage& lm : m_messageQueue )
+	{
+		appendMessageToLogWindow(lm);
+	}
+
+	m_messageQueue.clear();
+}
+//---------------------------------------------------------------------------
+void TLogFrame::registerWithIdleService( valcui::IdleService* is )
+{
+    is->registerUser( &m_idleServiceUser );
 }
 

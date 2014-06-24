@@ -85,7 +85,7 @@ void MenuViewController::assignActionToMenuItem( TNotifyEvent action, const char
 
 void __fastcall MenuViewController::actionClose( TObject* sender )
 {
-	m_mainForm->Close();
+    m_mainForm->Close();
 }
 
 void __fastcall MenuViewController::actionRunPendingUpdates( TObject* sender )
@@ -99,6 +99,11 @@ void MenuViewController::notify( int eventID, const EventData& eventData )
 	{
 		find( m_menu, "Run pending updates...")->Enabled = true;
 	}
+
+    if ( eventID == MODEL_EVENT::PROCESSED_PENDING_UPDATES )
+    {
+        ShowMessage( "Successfully processed pending updates." );
+    }
 }
 
 }

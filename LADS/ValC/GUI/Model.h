@@ -16,15 +16,25 @@ namespace valcui
 {
 
 class BusinessLayer;
+class IdleService;
 class ModelEventListener;
 
 /** This encapsulates the BusinessLayer, and supports the registration
   * of ModelEventListeners.
+  *
+  * The following methods must be invoked on the main UI thread:
+  *  - doClose
+  *  - doForceReload
+  *  - doRerun
+  *  - doRunPendingUpdates
+  *  - setSelectedWorklistEntry
+  *  - warningAlarmOn
+  *  - warningAlarmOff
   */
 class Model
 {
 public:
-    Model();
+    Model(IdleService* idleService);
 
 	/**
     Call this method to queue a request to borrow the snapshot (see 'getSnapshot' below).
@@ -40,11 +50,8 @@ public:
     unresponsive.
 
     Note that, for the duration of the callback, the single BusinessLayer thread is suspended in a wait state. 
-    Therefore callback code must not call methods on the Model that depend on this thread for their execution 
-    and are blocking methods.  Deadlock will result. Blocking methods that depend on the BusinessLayer thread for 
-    their execution have the prefix 'do' - e.g. doForceReload
 
-    borrowSnapshot exists for READING / QUERYING the model.  To UPDATE the model, use the (blocking) doXYZ methods.
+    borrowSnapshot exists for READING / QUERYING the model.  To UPDATE the model, use the doXYZ methods.
 
     Because borrowSnapshot is only queueing a request and because the callback happens asynchronously,
     'borrowSnapshot' consumes negligible processing resources.
@@ -69,19 +76,11 @@ public:
     Performs a 'force reload'.
     
     Those wanting to call this method should call it on the main UI thread.
-
-    The method effectively blocks until the force reload has been completed, at which 
-    point registered listeners are notified.
     */
     void doForceReload();
 
     /*
     Queues a rerun of the specified worklist entry.
-
-    Those wanting to call this method should call it on the main UI thread.
-
-    The method effectively blocks until the rerun has been queued, at which 
-    point registered listeners are notified.
     */
     void doRerun( 
         int worklistID, 
@@ -91,6 +90,8 @@ public:
         const std::string& testName );
 
 	void doRunPendingUpdates();
+
+    ModelEventListener* getEventListenerInterface();
 
 	/**
     Via getSelectedWorklistEntry and setSelectedWorklistEntry, the Model offers the opportunity
@@ -143,7 +144,7 @@ public:
 
     Model notifies registered listeners (see 'registerModelEventListener' above).
     */
-    void __fastcall warningAlarmOn();
+    void warningAlarmOn();
 
     /**
     Method by means of which UserAdvisorPanel notifies the Model 
@@ -151,7 +152,7 @@ public:
 
     Model notifies registered listeners (see 'registerModelEventListener' above).
     */
-    void __fastcall warningAlarmOff();
+    void warningAlarmOff();
 
 private:
     ModelEventListeners m_listeners;

@@ -10,15 +10,12 @@
 namespace valcui
 {
 
-template<class Observer>
 class UserAdvisorAdapter : public valc::UserAdvisor
 {
 public:
     typedef std::vector< std::string > Cache;
 
     UserAdvisorAdapter()
-        :
-        m_observer(0)
     {
     }
 
@@ -26,10 +23,6 @@ public:
     {
         paulst::AcquireCriticalSection a(m_cs);
         m_cache.push_back( warning );
-        if ( m_observer )
-        {
-            m_observer->notifyNewMessage();
-        }
     }
 
     template<class OutputIterator>
@@ -40,20 +33,9 @@ public:
         m_cache.clear();
     }
 
-    void setObserver( Observer* o )
-    {
-        paulst::AcquireCriticalSection a(m_cs);
-        m_observer = o;
-        if ( m_observer && m_cache.size() )
-        {
-            m_observer->notifyNewMessage();
-        }
-    }
-        
 private:
     paulst::CritSec m_cs;
     Cache m_cache;
-    Observer* m_observer;
 };
 
 }
