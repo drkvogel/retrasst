@@ -640,3 +640,17 @@ Nick
     it chunks one too late
     fixed
 
+# current-issues2
+
+current-issues.md has been changed or just moved? changed
+copy big collect query sql from crashed vdba window
+
+right hash of it
+
+###  978243 "Retrieval_978243", "Reveal boxes of three types"
+
+Contains secondaries, but not as backups (not same destination position) of primaries
+
+### 978243 ("Reveal boxes of three types")
+
+Primaries with secondaries (?) as backups

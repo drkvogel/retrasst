@@ -1,7 +1,4 @@
-# current-issues2
 
-current-issues.md has been changed or just moved? changed
-copy big collect query sql from crashed vdba window
 
 ## referred boxes
 
