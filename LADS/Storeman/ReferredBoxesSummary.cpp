@@ -42,7 +42,7 @@ void __fastcall TfrmReferredBoxesSummary::FormCreate(TObject *Sender) {
     sgBoxes->Cells[8] [0] = "Tank";
     sgBoxes->Cells[9] [0] = "Rack";
     sgBoxes->Cells[10][0] = "Slot";
-    dummyRun = true;
+    dummyRun = REFBOXESDEBUG;
 }
 
 void __fastcall TfrmReferredBoxesSummary::FormShow(TObject *Sender) {
