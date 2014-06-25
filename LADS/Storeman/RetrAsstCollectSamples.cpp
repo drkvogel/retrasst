@@ -623,13 +623,18 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
             if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) return;
     }
     if (barcode == aliquot->cryovial_barcode.c_str()) { // save
-        aliquot->lcr_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
-        if (aliquot == primary && primary->backup != NULL) { // has backup
-            primary->backup->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); //???
-            TfrmRetrievalAssistant::msgbox("setting secondary status");
-        } else { // else, it was the secondary - primary should already have been set NOT_FOUND, but make sure
-            primary->lcr_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND); //???
+        if (aliquot == primary) {
+            if (primary->backup != NULL) { // has backup
+                primary->backup->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED);
+                //TfrmRetrievalAssistant::msgbox("setting secondary status");
+            }
+        } else { // it was the secondary - primary should already have been set NOT_FOUND, but make sure
+            if (primary->lcr_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
+                //primary->lcr_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND); //???
+                throw runtime_error("primary not set NOT_FOUND");
+            }
         }
+        aliquot->lcr_record->setStatus(LCDbCryovialRetrieval::COLLECTED); // set COLLECTED, primary or secondary
         debugLog("Save accepted row");
         nextRow();
     } else {

@@ -1,6 +1,35 @@
-# mad dash
+## accept() 
 
-get rid of primaries, secondaries.
+does NOT_FOUND instead of COLLECTED!
+SourceTree:
+ log selected
+ open selected (opens tmp file in builder)
+
+happened here:
+
+    Commit: 6ae6ad1eb98156c19812cc05581ed001a4cd4609 [6ae6ad1]
+    Parents: 3be80aed5e
+    Author: Chris Bird <chris.bird@ctsu.ox.ac.uk>
+    Date: 06 June 2014 17:15:43
+
+It was just plain wrong. 
+Thing is, there are several points where an action has to be carried out on a row, which might be: 
+
+ * primary with no backup
+ * primary with backup
+ * secondary backup
+
+and no common code to distinguish which with. currentAliquot() sort of does this, but how to send it different actions to apply? Sounds like a closure or a lambda type of thing (what's [the difference](http://scottmeyers.blogspot.co.uk/2013/05/lambdas-vs-closures.html)? "Closures are to lambdas as objects are to classes").
+
+C++11 has [closures named lambdas](http://stackoverflow.com/questions/12635184/do-we-have-closures-in-c).
+
+A [lambda function](http://www.cprogramming.com/c++11/c++11-lambda-closures.html) is a function that you can write inline in your source code, usually to pass in to another function, similar to the idea of a functor or function pointer.
+
+(should be allowed time to learn about this - what's that about a commitment to training again? Ask for it).
+
+But for now, handling primaries and secondaries can be done separately at each point.
+
+
 
 ## nextRow()
 
@@ -41,6 +70,3 @@ SaveProgressThread::Execute()
 
 discardBoxes() 
 
-xe4 on laptop-
-reply to thread
-solve the problems
