@@ -1,3 +1,12 @@
+isJobComplete()
+
+chunkCompleted()
+
+SaveProgressThread::Execute()
+
+discardBoxes() 
+
+
  * load in collected/not found/ignored samples as well to return to in progress chunk
     * what about secondaries?
 
