@@ -1,6 +1,18 @@
-﻿## exit via close button doesn't check exit
+﻿## exit via window close button doesn't check exit
 
 or save anything?
+
+Exit button
+
+    "There are unactioned samples in this retrieval plan; not closing job"
+    "Handle disposal of empty boxes"
+    "There are empty boxes. Would you like to mark these as discarded?"
+        Yes
+            exception in collectEmpties(): throw runtime_error("box not found")
+
+window close button
+
+    just exits
 
 
 ### destination box types
