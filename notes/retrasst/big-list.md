@@ -1,34 +1,31 @@
-﻿1086765 ("Use primaries, keep secondaries in reserve")
-1086654 ("Primary and secondary in alternate slots")
+﻿## exit via window close button doesn't check exit
 
-### collect primary/secondary code no longer adequate
+or save anything?
 
-doesn't allow for loose secondaries?
-use combineAliquots() for consistency
+Exit button
+
+    "There are unactioned samples in this retrieval plan; not closing job"
+    "Handle disposal of empty boxes"
+    "There are empty boxes. Would you like to mark these as discarded?"
+        Yes
+            exception in collectEmpties(): throw runtime_error("box not found")
+
+window close button
+
+    just exits
+
 
 ### destination box types
 
 See [box-types](./box-types/box-types.md).
 
-### primaries, secondaries, and other animals
 
-Sometimes, for example in a disposal job, many (more than 2) aliquots will be required, each in separate destination positions. "extra" aliquots should not throw an error.
 
-### 1086654 ("Primary and secondary in alternate slots") crash
 
-chunk 4? next sample, sim accept, if barcode == aliquot->cryovial_barcode
-        aliquot->retrieval_record->setStatus(LCDbCryovialRetrieval::COLLECTED);
-        if aliquot == primary
-            primary->backup->
-this is a mess - assumed secondaries were always backups for primaries - not so - sometimes you want the secondary on it's own
 
 SaveProgressThread::storeSample()?
 
-### row colours
 
-secondary (expected) should perhaps be green - ie. stronger version of primary colour
-
-colours should be consistent between plan and retrieve
 
 ### completing last row doesn't finish chunk
 
@@ -224,33 +221,7 @@ So we proposed adding invalid boxes from Retrieval Assistant to `c_box_name` and
         * `status=1` (unconfirmed), `rack_cid=0`, `slot_position=0`
         * StoreDAO::findBox() will still return false because it looks for the `rack_cid` in `c_rack_number`
 
-## Misc
 
- * select for process samples in testing/q2.sql
- * use DEBUGSTREAM
- * Usual sort order before chunking: dest box, pos
- * Usual sort order/chunk: vess pos, shelf, structure, slot, curr pos
-
-## Deferred
-
- * crashes on release build?
- * boxes form doesn't work properly - turn the handle (but not for demo)
- * put lookAhead into chunk class
- * factor out chunk logic?
- * Note: a sample retrieval can include boxes that do not have their current locations recorded in the database.
-why can't I inspect chunk?
-look for ??? /newrow
- * port [Plan|Process]Samples to [Plan|Process]Boxes
- * something to bear in mind for processing when it eventually goes live is that the database might not reflect reality perfectly - vials might be missing or swapped etc.
-   won't come up till live testing, but worth thinking about at this stage of development
- * demo possible; email martin. make sure there are sufficient example jobs - e.g. "1743 THRIVE boxes - few (EDTA1 & EDTA2)"- 
- * Retrieval Assistant
-    * save changes with the option of going back to re-order if necessary.
-    * Cryogenics staff can reject a retrieval list if it does not have a retrieval plan
- * up/down arrows to show column sort
- * Only read currently selected chunk/aliquot from db when selected?
- * canned searches - save, delete e.g. site name, vessel pos, structure pos, slot, source box pos
- * define behaviour for manual chunk split in landlocked chunk-
 
 ## ???
 
@@ -267,10 +238,4 @@ look for ??? /newrow
 
 in <done.md>
 
-#### Error inspecting <symbol>
 
-In `LCDbCryoJob::saveRecord()`, couldn't inspect `central`.
-
-Similar to [this](http://qc.embarcadero.com/wc/qcmain.aspx?d=68452)?
-
-Project settings ("Debug configuration - 64-bit Windows platform") say "Disable all optimizations" is true, though.
