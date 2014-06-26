@@ -132,7 +132,7 @@ void QCViewData::listLocalResultsForWorklistEntry( const valc::SnapshotPtr& snap
                 for ( valc::TestResultIterator tri = testResults.first; tri != testResults.second; ++tri )
                 {
                     const valc::TestResult* tr = *tri;
-                    if ( snapshot->compareSampleRunIDs( localRun->getRunID(), tr->getSampleRunID() ) )
+                    if ( localRun->getRunID() == tr->getSampleRunID() )
                     {
                         m_localResults.push_back( tr );
                     }

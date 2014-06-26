@@ -7,15 +7,17 @@
 #include <FMX.Memo.hpp>
 #include <FMX.StdCtrls.hpp>
 #include <FMX.Types.hpp>
+#include "IdleServiceUserAdapter.h"
 #include <string>
 #include "UserAdvisorAdapter.h"
 
 namespace valcui
 {
 
+class Model;
+
 /*
-	With the exception of 'notifyNewMessage', the design assumption is
-	that all the public methods are called on the UI thread.
+	The design assumption is that all the public methods are called on the UI thread.
 */
 class UserAdvisorPanel
 {
@@ -26,15 +28,13 @@ public:
 
     UserAdvisorPanel( 
         TControl* owner, 
-        TThreadMethod soundAlarm, 
-        TThreadMethod silenceAlarm, 
+        Model* model,
         const std::string& title,
-        UserAdvisorAdapter<UserAdvisorPanel>* msgCache );
+        UserAdvisorAdapter* msgCache,
+        IdleService* idleService );
 
-    __fastcall ~UserAdvisorPanel();
 	void __fastcall acknowledgeSelected( TObject* sender );
-    void __fastcall addPendingMessagesToListView();
-    void            notifyNewMessage();
+    void            onIdle();
 	void __fastcall onChange	( TObject *Sender );
 	void __fastcall onKeyDown	( TObject *Sender, WORD &Key, System::WideChar &KeyChar, TShiftState Shift);
 	void __fastcall selectAll	( TObject *Sender );
@@ -42,12 +42,14 @@ public:
 private:
     TListView* listView;
     TMemo*     messageViewer;
-    TThreadMethod m_soundAlarm, m_silenceAlarm;
+    Model*      m_model;
     bool m_alarmOn;
-    UserAdvisorAdapter<UserAdvisorPanel>* m_msgCache;
+    UserAdvisorAdapter* m_msgCache;
+    IdleServiceUserAdapter<UserAdvisorPanel> m_idleServiceUser;
 
     UserAdvisorPanel( const UserAdvisorPanel& );
     UserAdvisorPanel& operator=( const UserAdvisorPanel& );
+    void addPendingMessagesToListView();
 	int deleteNextChecked( int startIndex );
     void updateMessageViewer();
 };

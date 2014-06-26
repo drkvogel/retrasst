@@ -14,20 +14,10 @@ class TWaitDlg : public TForm
 {
 __published:	// IDE-managed Components
 	TLabel *message;
-	TTimer *delayBeforeWait;
-	void __fastcall waitForSignal(TObject *Sender);
 private:	// User declarations
-	HANDLE m_signal;
-	unsigned long m_millis;
-    unsigned long m_waitResult;
 public:		// User declarations
-	__fastcall TWaitDlg(
-		TComponent* Owner,
-		HANDLE signal,
-		unsigned long beforeWaitMillis,
-		unsigned long waitMillis,
-		const std::string& msg );
-        unsigned long getWaitResult() const;
+	__fastcall TWaitDlg( TComponent* Owner );
+	void __fastcall show( const std::string& msg );
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TWaitDlg *WaitDlg;

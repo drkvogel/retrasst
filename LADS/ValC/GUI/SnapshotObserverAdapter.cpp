@@ -1,67 +1,96 @@
+#include "AcquireCriticalSection.h"
+#include <boost/variant.hpp>
 #include "Model.h"
 #include "ModelEventConstants.h"
 #include "ModelEventListeners.h"
 #include "SnapshotObserverAdapter.h"
 #include "StrUtil.h"
+#include "ValCDialogs.h"
 
 namespace valcui
 {
 
-SnapshotObserverAdapter::SnapshotObserverAdapter( ModelEventListeners* l, Model* m )
+SnapshotObserverAdapter::SnapshotObserverAdapter( ModelEventListeners* l, Model* m, IdleService* is )
     :
     m_modelEventListenerInterface(this),
+    m_idleServiceUserInterface(this),
     m_eventSink(l),
     m_model(m)
 {
     m_eventSink->registerListener( &m_modelEventListenerInterface );
+    is->registerUser( &m_idleServiceUserInterface );
 }
 
-void SnapshotObserverAdapter::checkForErrors()
-{
-    if ( m_errors.size() )
-    {
-        throw Exception( m_errors.begin()->c_str() );
-    }
-}
-
-void SnapshotObserverAdapter::clearErrors()
-{
-    m_errors.clear();
-}
-
-void SnapshotObserverAdapter::notify( int modelEvent, const std::string& eventData )
+void SnapshotObserverAdapter::notify( int modelEvent, const EventData& eventData )
 {
     if ( modelEvent == MODEL_EVENT::FORCE_RELOAD )
     {
         m_model->borrowSnapshot( startObserving );
+    }
+
+    if ( modelEvent == MODEL_EVENT::ASYNC_TASK_ERROR )
+    {
+        const std::string* errorMsg = boost::get<std::string>(&eventData);
+        std::ostringstream msg;
+        msg << "AsyncTask Error. ";
+
+        if ( errorMsg )
+        {
+            msg << errorMsg;
+        }
+
+        showErrorMsg( msg.str() );
     }
 }
 
 // SnapshotObserver interface implementation:
 void SnapshotObserverAdapter::notifyWorklistEntryChanged( const valc::WorklistEntry* we )
 {
-    m_eventSink->notify( MODEL_EVENT::WORKLIST_ENTRY_CHANGED, paulst::toString( we->getID() ) );
+    queueEvent( MODEL_EVENT::WORKLIST_ENTRY_CHANGED, we->getID() );
 }
 
 void SnapshotObserverAdapter::notifyNewWorklistEntry( const valc::WorklistEntry* we )
 {
-    m_eventSink->notify( MODEL_EVENT::NEW_WORKLIST_ENTRY, paulst::toString( we->getID() ) );
+    queueEvent( MODEL_EVENT::NEW_WORKLIST_ENTRY, we->getID() );
 }
 
 void SnapshotObserverAdapter::notifySampleAddedToQueue( const std::string& sampleDescriptor )
 {
-    m_eventSink->notify( MODEL_EVENT::SAMPLE_ADDED_TO_QUEUE, sampleDescriptor );
+    queueEvent( MODEL_EVENT::SAMPLE_ADDED_TO_QUEUE, sampleDescriptor );
 }
 
-void SnapshotObserverAdapter::notifySampleRunClosedOff( const std::string& runID )
+void SnapshotObserverAdapter::notifySampleRunClosedOff( const valc::IDToken& runID )
 {
-    m_eventSink->notify( MODEL_EVENT::SAMPLE_RUN_CLOSED_OFF, runID );
+    queueEvent( MODEL_EVENT::SAMPLE_RUN_CLOSED_OFF, runID );
 }
 
 void SnapshotObserverAdapter::notifyUpdateFailed( const char* errorMsg )
 {
-    m_errors.push_back( errorMsg );
-    m_eventSink->notify( MODEL_EVENT::UPDATE_FAILED, errorMsg );
+    queueEvent( MODEL_EVENT::UPDATE_FAILED, std::string(errorMsg) );
+}
+
+void SnapshotObserverAdapter::onIdle()
+{
+    flushQueuedEvents();
+}
+
+void SnapshotObserverAdapter::flushQueuedEvents()
+{
+    paulst::AcquireCriticalSection a(m_critSec);
+
+    for ( auto event : m_eventQueue )
+    {
+        m_eventSink->notify( event.first, event.second );
+    }
+    
+    m_eventQueue.clear();
+}
+
+void SnapshotObserverAdapter::queueEvent( int eventID, const EventData& eventData )
+{
+    paulst::AcquireCriticalSection a(m_critSec);
+
+    m_eventQueue.push_back( std::make_pair( eventID, eventData ) );
 }
 
 void __fastcall SnapshotObserverAdapter::startObserving()

@@ -20,7 +20,7 @@ public:
 		TMainForm* mainForm );
 	void __fastcall actionClose( TObject* sender );
 	void __fastcall actionRunPendingUpdates( TObject* sender );
-	void notify( int eventID, const std::string& eventData );
+	void notify( int eventID, const EventData& eventData );
 private:
     TMainForm* m_mainForm;
     Model* m_model;

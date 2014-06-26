@@ -1,6 +1,7 @@
 #include <deque>
 #include <iterator>
 #include <memory>
+#include "Model.h"
 #include "UserAdvisorPanel.h"
 
 namespace valcui
@@ -15,17 +16,18 @@ void load( const UnicodeString& uContent, TMemo* dest )
 
 UserAdvisorPanel::UserAdvisorPanel(
         TControl* owner, 
-        TThreadMethod soundAlarm, 
-        TThreadMethod silenceAlarm, 
+        Model* model, 
         const std::string& title,
-        UserAdvisorAdapter<UserAdvisorPanel>* msgCache )
+        UserAdvisorAdapter* msgCache,
+        IdleService* idleService )
     :
     listView(0),
-    m_soundAlarm( soundAlarm ),
-    m_silenceAlarm( silenceAlarm ),
     m_alarmOn( false ),
-    m_msgCache( msgCache )
+    m_msgCache( msgCache ),
+    m_idleServiceUser(this),
+    m_model( model )
 {
+    idleService->registerUser( &m_idleServiceUser );
 	panel = new TPanel( owner );
     owner->AddObject( panel );
 	panel->Align = TAlignLayout::alClient;
@@ -84,13 +86,6 @@ UserAdvisorPanel::UserAdvisorPanel(
 	layout->AddObject(selectAllButton);
 	layout->AddObject(selectNoneButton);
 	layout->AddObject(ackButton);
-
-    m_msgCache->setObserver( this );
-}
-
-UserAdvisorPanel::~UserAdvisorPanel()
-{
-    m_msgCache->setObserver( NULL );
 }
 
 void __fastcall UserAdvisorPanel::acknowledgeSelected( TObject* sender )
@@ -108,16 +103,11 @@ void __fastcall UserAdvisorPanel::acknowledgeSelected( TObject* sender )
     if ( 0 == listView->ItemCount )
     {
         m_alarmOn = false;
-		TThread::Queue( NULL, m_silenceAlarm );
+		m_model->warningAlarmOff();
     }
 }
 
-void UserAdvisorPanel::notifyNewMessage()
-{
-    TThread::Queue( NULL, addPendingMessagesToListView );
-}
-
-void __fastcall UserAdvisorPanel::addPendingMessagesToListView()
+void UserAdvisorPanel::addPendingMessagesToListView()
 {
     std::deque< std::string > pendingMessages;
 
@@ -142,7 +132,7 @@ void __fastcall UserAdvisorPanel::addPendingMessagesToListView()
     if ( listView->ItemCount && ! m_alarmOn )
     {
         m_alarmOn = true;
-		TThread::Queue( NULL, m_soundAlarm );
+		m_model->warningAlarmOn();
     }
 }
 
@@ -166,6 +156,11 @@ void __fastcall UserAdvisorPanel::onChange(TObject *Sender)
 	updateMessageViewer();
 }
 //---------------------------------------------------------------------------
+
+void UserAdvisorPanel::onIdle()
+{
+    addPendingMessagesToListView();
+}
 
 void __fastcall UserAdvisorPanel::onKeyDown(TObject *Sender, WORD &Key, System::WideChar &KeyChar, TShiftState Shift)
 {

@@ -141,6 +141,30 @@
         <LibFiles Include="..\BusinessLayer\Win64\Debug\business_layer_lib.a" Condition="'$(Platform)'=='Win64' Or '$(Platform)'=='OSX32'">
             <BuildOrder>11</BuildOrder>
         </LibFiles>
+        <CppCompile Include="AsyncTask.cpp">
+            <DependentOn>AsyncTask.h</DependentOn>
+            <BuildOrder>39</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="AsyncTaskClose.cpp">
+            <DependentOn>AsyncTaskClose.h</DependentOn>
+            <BuildOrder>40</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="AsyncTaskForceReload.cpp">
+            <DependentOn>AsyncTaskForceReload.h</DependentOn>
+            <BuildOrder>41</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="AsyncTaskInitBusinessLayer.cpp">
+            <DependentOn>AsyncTaskInitBusinessLayer.h</DependentOn>
+            <BuildOrder>42</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="AsyncTaskRerun.cpp">
+            <DependentOn>AsyncTaskRerun.h</DependentOn>
+            <BuildOrder>43</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="AsyncTaskRunPendingUpdates.cpp">
+            <DependentOn>AsyncTaskRunPendingUpdates.h</DependentOn>
+            <BuildOrder>44</BuildOrder>
+        </CppCompile>
         <CppCompile Include="BusinessLayer.cpp">
             <DependentOn>BusinessLayer.h</DependentOn>
             <BuildOrder>13</BuildOrder>
@@ -156,6 +180,10 @@
         <CppCompile Include="GUIpositioning.cpp">
             <DependentOn>GUIpositioning.h</DependentOn>
             <BuildOrder>21</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="IdleService.cpp">
+            <DependentOn>IdleService.h</DependentOn>
+            <BuildOrder>45</BuildOrder>
         </CppCompile>
         <CppCompile Include="InfoPanels.cpp">
             <DependentOn>InfoPanels.h</DependentOn>
@@ -303,13 +331,13 @@
         <LibFiles Include="..\..\..\paulst\lib64\Win64\Debug\paulst_lib.a" Condition="'$(Platform)'=='Win64' Or '$(Platform)'=='OSX32'">
             <BuildOrder>7</BuildOrder>
         </LibFiles>
-        <FormResources Include="TSnapshotFrame.fmx"/>
-        <FormResources Include="TSampleRunFrame.fmx"/>
-        <FormResources Include="TWorklistItemViewFrame.fmx"/>
-        <FormResources Include="TWaitDlg.fmx"/>
         <FormResources Include="TQCViewFrame.fmx"/>
         <FormResources Include="TMainForm.fmx"/>
+        <FormResources Include="TSampleRunFrame.fmx"/>
+        <FormResources Include="TWaitDlg.fmx"/>
+        <FormResources Include="TSnapshotFrame.fmx"/>
         <FormResources Include="TLogFrame.fmx"/>
+        <FormResources Include="TWorklistItemViewFrame.fmx"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

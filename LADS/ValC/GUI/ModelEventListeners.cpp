@@ -16,7 +16,7 @@ void ModelEventListeners::registerListener( ModelEventListener* mel )
     m_listeners.push_back( mel );
 }
 
-void ModelEventListeners::notify( int modelEvent, const std::string& eventData )
+void ModelEventListeners::notify( int modelEvent, const EventData& eventData )
 {
     paulst::AcquireCriticalSection a(m_critSec);
 

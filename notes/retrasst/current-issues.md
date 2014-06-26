@@ -1,10 +1,3 @@
-###  978243 "Retrieval_978243", "Reveal boxes of three types"
-
-Contains secondaries, but not as backups (not same destination position) of primaries
-
-### 978243 ("Reveal boxes of three types")
-
-Primaries with secondaries (?) as backups
 
 
 ## confusing methods?
@@ -15,8 +8,6 @@ chunk->currentObject()
 fillRow()
 
 ---
-
-right hash of it
 
 nextRow()
     if DONE == chunk->getStatus()

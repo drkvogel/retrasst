@@ -13,7 +13,7 @@ namespace valcui
 {
 
 
-RunAssociation::RunAssociation( const std::string& run, bool open )
+RunAssociation::RunAssociation( const valc::IDToken& run, bool open )
     :
     runID( run ),
     isOpen( open )
@@ -38,15 +38,15 @@ std::string WorklistEntryContext::getSampleDescriptor()   const { return m_sampl
 int         WorklistEntryContext::getSampleID()           const { return m_sampleID; }
 int         WorklistEntryContext::getTestID()             const { return m_testID; }
 std::string WorklistEntryContext::getTestName()           const { return m_testName; }
-bool        WorklistEntryContext::hasRunAssociation()     const { return ! m_runAssociation.isNull; }
+bool        WorklistEntryContext::hasRunAssociation()     const { return ! m_runAssociation.isNull(); }
 void        WorklistEntryContext::setNumPendingForSample( int num ) { m_numPendingForSample = num; }
 
-void WorklistEntryContext::setRunAssociation( const std::string& runID, bool isRunOpen )
+void WorklistEntryContext::setRunAssociation( const valc::IDToken& runID, bool isRunOpen )
 {
     m_runAssociation = RunAssociation( runID, isRunOpen );
 }
 
-void WorklistEntryContext::updateFallbackRunAssociation( const std::string& runID, bool isRunOpen )
+void WorklistEntryContext::updateFallbackRunAssociation( const valc::IDToken& runID, bool isRunOpen )
 {
     m_fallbackRunAssociation = RunAssociation( runID, isRunOpen );
 }
@@ -88,7 +88,7 @@ void SampleRunViewController::addResultBox(
     TFlowLayout* toLayout,
     const valc::WorklistEntry* worklistEntry,
     const valc::TestResult* result = NULL,
-    const std::string& runID = "" )
+    const valc::IDToken& runID = valc::IDToken() )
 {
     TPanel* p = new TPanel(toLayout);
     p->Parent = toLayout;
@@ -176,7 +176,7 @@ void SampleRunViewController::describeLocalRun( const valc::LocalRun& lr, valc::
 {
 	TFlowLayout* fl = createRow(
 		paulst::format( "Batch: %d     Run: %s       Closed-off: %s",
-			lr.getGroupID, lr.getRunID().c_str(), lr.isOpen() ? "false" : "true" ) );
+			lr.getGroupID, lr.getRunID().value().c_str(), lr.isOpen() ? "false" : "true" ) );
 
     auto worklistRange = snapshot->getWorklistEntries( lr.getSampleDescriptor() );
 
@@ -196,7 +196,7 @@ void SampleRunViewController::describeLocalRun( const valc::LocalRun& lr, valc::
         {
             const valc::TestResult* result = *resultIter;
 
-            if ( snapshot->compareSampleRunIDs( lr.getRunID(), result->getSampleRunID() ) )
+            if ( lr.getRunID() == result->getSampleRunID() )
 			{
 				// Local results
 				addResultBox( snapshot, fl, worklistEntry, result, lr.getRunID() );
@@ -228,7 +228,7 @@ void SampleRunViewController::describePending( const WorklistEntrySet& pending, 
     }
 }
 
-void SampleRunViewController::notify( int modelEvent, const std::string& eventData )
+void SampleRunViewController::notify( int modelEvent, const EventData& eventData )
 {
     switch( modelEvent )
     {

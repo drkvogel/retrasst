@@ -307,4 +307,10 @@ object MainForm: TMainForm
       end
     end
   end
+  object idleTimer: TTimer
+    Interval = 200
+    OnTimer = idleTime
+    Left = 344
+    Top = 119
+  end
 end

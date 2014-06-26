@@ -23,7 +23,7 @@ class WorklistItemViewController
 public:
 	WorklistItemViewController( TWorklistItemViewFrame* widgetContainer, Model* m );
     void __fastcall familyTreeClickHandler( TObject* sender );
-	void notify( int modelEvent, const std::string& eventData );
+	void notify( int modelEvent, const EventData& eventData );
     void __fastcall update();
 private:
 	TWorklistItemViewFrame* const                           m_widgetContainer;

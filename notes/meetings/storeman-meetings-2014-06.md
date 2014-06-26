@@ -2,6 +2,18 @@
 
 ## Storeman meeting 2014-06-17 - configure, browse and move
 
+Laptop setup:
+* DHCP was not enabled for 'Local Area Connection'
+* Shortcut to 'Storeman on K' - 'Storeman has stopped working'
+* 64-bit Windows
+* Both 32 and 64-bit Ingres:
+    * C:\Program Files\Ingres\IngresIJ
+* C:\Program Files (x86)\Ingres\IngresII
+* IJ instance started by default
+* But has no vnodes set up
+* Set up vnode_labdev_64 and vnode_vlabreal_64, tested connection, OK
+* Ingres 10.0.0 
+
 Login screen change
 
 ## Storeman meeting 2014-06-19 - analyse, transfer, refer
@@ -12,13 +24,13 @@ need way of recreating test cases, probably
 
 reset button
 
-## records too dark grey
+## records too dark grey-
 
-`SLOT_CONFIRMED` records (`vlab::test_ldbc`, THRIVE and Kadoorie) too dark grey - because not a status I expected.
+`SLOT_CONFIRMED` records (`vlab::test_ldbc`, THRIVE and Kadoorie) too dark grey - because not a status I expected. Actually these are valid cases, which occur when storage sync encounters boxes with negative ids, and refers them [check]
 
-Actually these are valid cases, which occur when storage sync encounters boxes with negative ids, and refers them [check]
+clLtGray looks the same as clSilver
 
-## kadoorie boxes have no `c_box_name` records
+## kadoorie boxes have no `c_box_name` records-
 
 Thus, can only be discarded. The data needs to be imported from the Kadoorie project database, which is a bit of a political wrangle, but should happen, so not something my program has to worry about.
 
@@ -82,6 +94,3 @@ might be better to retain sense of chronology
 ## discard boxes
 
 I reformatted code and fixed a bug, Nick made some minor changes, it now doesn't crash and works with current database - possibly nothing to do.
-
----
-

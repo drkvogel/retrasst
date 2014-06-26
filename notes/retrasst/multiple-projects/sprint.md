@@ -33,18 +33,13 @@ I changed it recently and buggered it up: why did I change it?
              if (chunk->getSection() < (int)chunks.size()) {
 
 
-
-
 isJobComplete()
 
 chunkCompleted()
 
 SaveProgressThread::Execute()
 
-
 discardBoxes() 
-
-
 
 xe4 on laptop-
 reply to thread

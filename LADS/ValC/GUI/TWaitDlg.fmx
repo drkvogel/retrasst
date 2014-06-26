@@ -22,11 +22,4 @@ object WaitDlg: TWaitDlg
     Text = 'message'
     Width = 281.000000000000000000
   end
-  object delayBeforeWait: TTimer
-    Enabled = False
-    Interval = 2000
-    OnTimer = waitForSignal
-    Left = 304
-    Top = 56
-  end
 end

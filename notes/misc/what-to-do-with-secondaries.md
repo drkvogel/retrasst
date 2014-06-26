@@ -73,7 +73,7 @@ sortList
 
 also... samples might come from more than 1 project... which I haven't catered for so far. 
 
-how to load them in at
+how to load them in at collect?
 
 temp table
 

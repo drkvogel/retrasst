@@ -1,17 +1,30 @@
+#include "AcquireCriticalSection.h"
 #include "API.h"
+#include "AsyncTask.h"
+#include "AsyncTaskClose.h"
+#include "AsyncTaskForceReload.h"
+#include "AsyncTaskInitBusinessLayer.h"
+#include "AsyncTaskRerun.h"
+#include "AsyncTaskRunPendingUpdates.h"
 #include <boost/shared_ptr.hpp>
 #include "BusinessLayer.h"
+#include "FileTimeUtil.h"
 #include <FMX.Dialogs.hpp>
 #include <iostream>
-#include "TaskWithCallback.h"
 #include "ThreadPool.h"
+#include "ValCDialogs.h"
 
 namespace valcui
 {
 
-void closeHandle( HANDLE h )
+VOID CALLBACK WaitCallback(
+    PTP_CALLBACK_INSTANCE Instance,
+    PVOID                   Context,
+    PTP_WAIT                Wait,
+    TP_WAIT_RESULT          WaitResult )
 {
-    CloseHandle( h );
+    BusinessLayer* bl = (BusinessLayer*)Context;
+    bl->marshallCallback();
 }
 
 class UIThreadCallback : public stef::Task
@@ -31,86 +44,56 @@ private:
     TThreadMethod m_callback;
 };
 
-struct ForceReload
-{
-    void operator()( valc::SnapshotPtr& sp )
-    {
-        sp = valc::Load();
-    }
-};
-
-struct InitialiseBusinessLayer
-{
-	int machineID;
-	int userID;
-	std::string config;
-	paulst::LoggingService* log;
-	valc::UserAdvisor* warningsListener;
-
-    void operator()( int& i )
-    {
-        valc::InitialiseApplicationContext( machineID, userID, config, log, warningsListener );
-    }
-};
-
-struct ReleaseBusinessLayerResources
-{
-    void operator()(int& i )
-    {
-        valc::DeleteApplicationContext();
-    }
-};
-
-struct RunPendingUpdates
-{
-    valc::SnapshotPtr snapshot;
-
-    void operator()(int& i)
-    {
-        assertion( snapshot, "Snapshot cannot be NULL" );
-        snapshot->runPendingDatabaseUpdates( true );
-    }
-};
-
-struct Rerun
-{
-    valc::SnapshotPtr snapshot;
-    int worklistID;
-    std::string sampleRunID;
-    std::string sampleDescriptor;
-    
-
-    void operator()( HANDLE& h )
-    {
-        h = snapshot->queueForRerun( worklistID, sampleRunID, sampleDescriptor );
-    }
-};
-
 BusinessLayer::BusinessLayer(
 	int machineID,
 	int userID,
 	const std::string& config,
 	paulst::LoggingService* log,
-	valc::UserAdvisor* warningsListener
+	valc::UserAdvisor* warningsListener,
+    ModelEventListener* eventSink
 	)
 	:
 	m_threadPool( new stef::ThreadPool() ),
-    m_warningsListener( warningsListener )
+    m_warningsListener( warningsListener ),
+    m_ptpWait( CreateThreadpoolWait( &WaitCallback, this, NULL ) ),
+    m_currentlyExecutingTask( NULL ),
+    m_currentlyExecutingTaskHandle( NULL ),
+    m_eventSink( eventSink ),
+    m_busyDialog( new TWaitDlg(NULL) )
 {
-
-    InitialiseBusinessLayer init;
-    init.machineID          = machineID;
-    init.userID             = userID;
-    init.config             = config;
-    init.log                = log;
-    init.warningsListener   = warningsListener;
-
-    stef::Submission<int, InitialiseBusinessLayer> runAsync( init, m_threadPool );
+    require( m_ptpWait );
+    execute( new AsyncTaskInitBusinessLayer( machineID, userID, config, log, warningsListener ) );
 }
 
 BusinessLayer::~BusinessLayer()
 {
 	m_threadPool->shutdown( THREAD_POOL_SHUTDOWN_WAIT_MILLIS, true );
+    CloseThreadpoolWait( m_ptpWait );
+}
+
+void __fastcall BusinessLayer::asyncTaskCompletionCallback()
+{
+    paulst::AcquireCriticalSection a(m_critSec);
+
+    try
+    {
+        require( m_currentlyExecutingTask );
+        require( m_currentlyExecutingTaskHandle );
+        m_currentlyExecutingTask->callback( m_eventSink );
+        hideMessage();
+        delete m_currentlyExecutingTask;
+    }
+    catch( const Exception& e )
+    {
+        showErrorMsg( AnsiString( e.Message.c_str() ).c_str() );
+    }
+    catch( ... )
+    {
+        showErrorMsg( "Unspecified exception in BusinessLayer::asyncTaskCompletionCallback." );
+    }
+
+    m_currentlyExecutingTask = NULL;
+    m_currentlyExecutingTaskHandle = NULL;
 }
 
 void BusinessLayer::borrowSnapshot( TThreadMethod callback )
@@ -118,14 +101,57 @@ void BusinessLayer::borrowSnapshot( TThreadMethod callback )
     m_threadPool->addTask( new UIThreadCallback( callback ) );
 }
 
+void BusinessLayer::execute( AsyncTask* t )
+{
+    paulst::AcquireCriticalSection a(m_critSec);
+
+    if (  m_currentlyExecutingTask ) 
+    {
+        showWarningMsg( "Cannot start requested task. Already busy with a different task." );
+    }
+    else
+    {
+        m_currentlyExecutingTask = t;
+
+        std::string error, taskDesc;
+
+        try
+        {
+            taskDesc = t->getDesc();
+
+            m_currentlyExecutingTaskHandle = t->queue( m_threadPool );
+        }
+        catch( const Exception& e )
+        {
+            error = AnsiString( e.Message.c_str() ).c_str();
+        }
+        catch( ... )
+        {
+            error = "Unspecified exception while attempting to queue requested task.";
+        }
+
+        if ( error.empty() )
+        {
+            FILETIME timeout;
+            SecureZeroMemory( &timeout, sizeof(timeout) );
+            paulst::InitFileTimeWithMs( &timeout, ASYNC_TASK_TIMEOUT_MILLIS );
+
+            SetThreadpoolWait( m_ptpWait, m_currentlyExecutingTaskHandle, &timeout );
+
+            showMessage( taskDesc );
+        }
+        else
+        {
+            m_currentlyExecutingTask = NULL;
+            m_currentlyExecutingTaskHandle = NULL;
+            showErrorMsg( error );
+        }
+    }
+}
+
 void BusinessLayer::forceReload()
 {
-    ForceReload func;
-    stef::Submission<valc::SnapshotPtr, ForceReload> runAsync( func, m_threadPool );
-
-    waitForAsyncTask( runAsync, "Force Reload" );
-
-    m_snapshot = runAsync.returnValue();
+    execute( new AsyncTaskForceReload(m_snapshot) );
 }
 
 valc::SnapshotPtr& BusinessLayer::getSnapshot()
@@ -133,58 +159,39 @@ valc::SnapshotPtr& BusinessLayer::getSnapshot()
     return m_snapshot;
 }
 
-bool BusinessLayer::close()
+void BusinessLayer::close()
 {
-    ReleaseBusinessLayerResources func;
-    stef::Submission<int, ReleaseBusinessLayerResources> runAsync( func, m_threadPool );
+    execute( new AsyncTaskClose() );
+}
 
-    return 
-        ( WAIT_OBJECT_0 == showWaitDialog( runAsync.completionSignal(), "Closing...", 5000 ) ) 
-        &&
-        runAsync.completed() 
-        && 
-        runAsync.error().empty();
+void BusinessLayer::hideMessage()
+{
+    m_busyDialog->Hide();
+}
+
+void BusinessLayer::marshallCallback()
+{
+    TThread::Synchronize( NULL, asyncTaskCompletionCallback );
 }
 
 void BusinessLayer::rerun(
     int worklistID, 
-    const std::string& sampleRunID, 
+    const valc::IDToken& sampleRunID, 
     const std::string& sampleDescriptor,
     const std::string& barcode,
     const std::string& testName )
 {
-    Rerun func;
-    func.worklistID = worklistID;
-    func.sampleRunID = sampleRunID;
-    func.sampleDescriptor = sampleDescriptor;
-    func.snapshot = m_snapshot;
-
-    stef::Submission<HANDLE, Rerun> runAsync( func, m_threadPool );
-
-    waitForAsyncTask( runAsync, "Rerun", false );
-
-    HANDLE h = runAsync.returnValue();
-
-    boost::shared_ptr<void> onBlockExit( h, closeHandle );
-
-    std::ostringstream msg;
-
-    msg << "Queueing rerun of test '" << testName << "' for barcode '" << barcode << "' (Worklist ID:" << worklistID << ")";
-
-    unsigned long waitResult = showWaitDialog( h, msg.str(), 20 * 1000 );
-
-    if ( waitResult != WAIT_OBJECT_0 )
-    {
-        throwWaitException( waitResult, "Rerun" );
-    }
+    execute( new AsyncTaskRerun( m_snapshot, worklistID, sampleRunID, sampleDescriptor, barcode, testName, MAX_WAIT_MILLIS ) );
 }
 
 void BusinessLayer::runPendingUpdates()
 {
-    RunPendingUpdates func;
-    func.snapshot = m_snapshot;
-    stef::Submission<int, RunPendingUpdates> runAsync( func, m_threadPool );
-    waitForAsyncTask( runAsync, "Run Pending Updates" );
+    execute( new AsyncTaskRunPendingUpdates( m_snapshot ) );
+}
+
+void BusinessLayer::showMessage( const std::string& msg )
+{
+    m_busyDialog->show( msg );
 }
 
 }

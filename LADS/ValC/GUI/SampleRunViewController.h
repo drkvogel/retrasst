@@ -27,10 +27,10 @@ typedef std::set< const valc::WorklistEntry*, CompareWorklistEntries > WorklistE
 
 struct RunAssociation
 {
-    std::string runID{};
+    valc::IDToken runID;
     bool isOpen{};
 
-    RunAssociation( const std::string& run = "", bool open = false );
+    RunAssociation( const valc::IDToken& run = valc::IDToken(), bool open = false );
 };
 
 class WorklistEntryContext
@@ -63,13 +63,13 @@ public:
         Might be set multiple times, if a worklist entry has multiple results and these results
         have ended up in different sample-runs. In this case, this method overwrites any previous value.
     */
-    void setRunAssociation( const std::string& runID, bool isRunOpen );
+    void setRunAssociation( const valc::IDToken& runID, bool isRunOpen );
 
     /*
         The run with which the worklist entry will be associated unless any other is explicitly set
         via 'setRunAssociation'.
     */
-    void updateFallbackRunAssociation( const std::string& runID, bool isRunOpen );
+    void updateFallbackRunAssociation( const valc::IDToken& runID, bool isRunOpen );
 
 private:
     const int           m_id{};
@@ -91,7 +91,7 @@ class SampleRunViewController
 {
 public:
 	SampleRunViewController( TSampleRunFrame* widgetContainer, Model* m );
-	void notify( int modelEvent, const std::string& eventData );
+	void notify( int modelEvent, const EventData& eventData );
 	void __fastcall selectWorklistEntry(TObject* sender);
 	void __fastcall rerun(TObject* sender);
     void __fastcall update();
@@ -102,7 +102,7 @@ private:
     std::vector< TFmxObject* >                          m_runContainerAdditions;
 	std::unique_ptr<WorklistEntryContext>               m_selectedWorklistEntry;
 
-	void addResultBox( valc::SnapshotPtr s, TFlowLayout* l, const valc::WorklistEntry* w, const valc::TestResult* r, const std::string& runID );
+	void addResultBox( valc::SnapshotPtr s, TFlowLayout* l, const valc::WorklistEntry* w, const valc::TestResult* r, const valc::IDToken& runID );
     TFlowLayout* createRow( const std::string& labelText );
 	void describeLocalRun( const valc::LocalRun& lr, valc::SnapshotPtr snapshot, WorklistEntrySet& outPending );
 	void describePending( const WorklistEntrySet& worklistEntries, valc::SnapshotPtr s );

@@ -5,7 +5,7 @@
 namespace valcui
 {
 
-std::string getRunID( const valc::LocalEntryIterator& i )
+valc::IDToken getRunID( const valc::LocalEntryIterator& i )
 {
     const valc::LocalRun& lr = boost::get<valc::LocalRun>(*i);
     return lr.getRunID();

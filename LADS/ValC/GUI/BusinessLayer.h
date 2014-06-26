@@ -2,12 +2,15 @@
 #define BusinessLayerH
 
 #include "API.h"
+#include "CritSec.h"
 #include "ExceptionHandler.h"
+#include <FMX.Dialogs.hpp>
 #include <memory>
+#include "Require.h"
 #include <sstream>
 #include <string>
 #include <System.Classes.hpp>
-#include "ValCDialogs.h"
+#include "TWaitDlg.h"
 
 namespace paulst
 {
@@ -24,6 +27,15 @@ namespace stef
 namespace valcui
 {
 
+class AsyncTask;
+class ModelEventListener;
+
+VOID CALLBACK WaitCallback(
+    PTP_CALLBACK_INSTANCE Instance,
+    PVOID                   Context,
+    PTP_WAIT                Wait,
+    TP_WAIT_RESULT          WaitResult );
+
 /** Encapsulates any non-trivial interaction with the business layer.
   * It presents a synchronous interface to operations that might,
   * in fact, be asynchronous (eg queuing a rerun).
@@ -35,78 +47,64 @@ namespace valcui
 class BusinessLayer
 {
 public:
+
+    friend VOID CALLBACK WaitCallback( PTP_CALLBACK_INSTANCE , PVOID, PTP_WAIT, TP_WAIT_RESULT ); 
+
+
 	BusinessLayer(
 		int machineID,
 		int userID,
 		const std::string& config,
 		paulst::LoggingService* log,
-		valc::UserAdvisor* warningsListener
+		valc::UserAdvisor* warningsListener,
+        ModelEventListener* eventSink
 		);
 	~BusinessLayer();
+    /*
+    The only method on the BusinessLayer interface that 
+    may be called on a thread other than the UI thread.
+    */
     void borrowSnapshot( TThreadMethod callback );
-    bool close();
+    /* UI thread */
+    void __fastcall asyncTaskCompletionCallback();
+    /* UI thread */
+    void close();
+    /* UI thread */
     void forceReload();
+    /* UI thread */
     valc::SnapshotPtr& getSnapshot();
+    /* UI thread */
     void rerun(
         int worklistID, 
-        const std::string& sampleRunID, 
+        const valc::IDToken& sampleRunID, 
         const std::string& sampleDescriptor,
         const std::string& barcode,
         const std::string& testName );
+    /* UI thread */
     void runPendingUpdates();
 
 private:
 	stef::ThreadPool* m_threadPool;
 	valc::SnapshotPtr m_snapshot;
     std::unique_ptr<valc::UserAdvisor> m_warningsListener;
+    PTP_WAIT            m_ptpWait;
+    AsyncTask*          m_currentlyExecutingTask;
+    HANDLE              m_currentlyExecutingTaskHandle;
+    ModelEventListener* m_eventSink;
+    std::unique_ptr<TWaitDlg> m_busyDialog;
+    paulst::CritSec     m_critSec;
 
 	BusinessLayer( const BusinessLayer& );
 	BusinessLayer& operator=( const BusinessLayer& );
+    void execute( AsyncTask* t );
+    void hideMessage();
+    void marshallCallback();
+    void showMessage( const std::string& msg );
 
 	static const int THREAD_POOL_SHUTDOWN_WAIT_MILLIS = 1000;
+    static const unsigned long MAX_WAIT_MILLIS = 20 * 1000;
+    static const unsigned long ASYNC_TASK_TIMEOUT_MILLIS = 30 * 1000;
 };
-
-
-/*
-    Designed to work with types built using stef::Submission, defined in
-    paulst/stef/TaskWithCallback.h
-*/
-template<typename AsyncTask>
-void waitForAsyncTask( AsyncTask& t, const std::string& taskName, bool showDialog = true )
-{
-    unsigned long waitResult{};
-    const unsigned long MAX_WAIT_MILLIS = 60 * 1000;
-
-    if ( showDialog )
-    {
-        std::ostringstream waitDlgText;
-
-        waitDlgText << "Executing task '" << taskName << "'...";
-
-        waitResult = showWaitDialog( t.completionSignal(), waitDlgText.str(), MAX_WAIT_MILLIS );
-    }
-    else
-    {
-        waitResult = WaitForSingleObject( t.completionSignal(), MAX_WAIT_MILLIS );
-    }
-
-    if ( waitResult != WAIT_OBJECT_0 )
-    {
-        throwWaitException( waitResult, taskName );
-    }
-
-    assertion( t.completed(), "Task should have completed, given that it didn't timeout." );
-
-    if ( t.error().size() )
-    {
-        throw Exception( t.error().c_str() );
-    }
-
-    if ( t.cancelled() )
-    {
-        throw Exception( "Task got cancelled." );
-    }
-}
 
 }
 #endif
