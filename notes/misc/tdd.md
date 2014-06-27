@@ -1,28 +1,25 @@
 
-# tdd
+# TDD
 
 Or [BDD](http://programmers.stackexchange.com/questions/135218/what-is-the-difference-between-bdd-and-tdd)? Behavior Driven Development is an extension/revision of Test Driven Development.
 
 [Intro](http://www.agiledata.org/essays/tdd.html)
 
+The [Three Rules of TDD](http://butunclebob.com/ArticleS.UncleBob.TheThreeRulesOfTdd)
 
+[TDD Is Dead](http://david.heinemeierhansson.com/2014/tdd-is-dead-long-live-testing.html)
 
-http://butunclebob.com/ArticleS.UncleBob.TheThreeRulesOfTdd
+### TDD in C/C++
 
-http://david.heinemeierhansson.com/2014/tdd-is-dead-long-live-testing.html
+<http://stackoverflow.com/questions/5307627/test-driven-development-with-c>
 
-## tdd in c/c++
+* CppUnit
 
-http://stackoverflow.com/questions/5307627/test-driven-development-with-c
+* [boost::test](http://www.boost.org/doc/libs/1_50_0/libs/test/doc/html/index.html)
 
-CppUnit
+* [Google Test](https://code.google.com/p/googletest/) and [Google Mock](https://code.google.com/p/googlemock/)
 
-[boost::test](http://www.boost.org/doc/libs/1_50_0/libs/test/doc/html/index.html)
-
-[Google Test](https://code.google.com/p/googletest/) and [Google Mock](https://code.google.com/p/googlemock/)
-
-[UnitTest++](http://unittest-cpp.sourceforge.net/)
-
+* [UnitTest++](http://unittest-cpp.sourceforge.net/)
 
 ## boost test library
 
@@ -35,4 +32,4 @@ Boost Version 1.50.0 is used only for the 64-bit Windows target platform.
 
 ---
 
-http://code.tutsplus.com/tutorials/refactoring-legacy-code-part-1-the-golden-master--cms-20331
+<http://code.tutsplus.com/tutorials/refactoring-legacy-code-part-1-the-golden-master--cms-20331>
