@@ -232,8 +232,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitLeft = -5
-        ExplicitTop = 6
       end
       object Panel1: TPanel
         Left = 654
@@ -252,7 +250,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
           Caption = 'Reset Job'
           TabOrder = 0
           OnClick = btnResetJobsClick
-          ExplicitWidth = 185
         end
       end
     end

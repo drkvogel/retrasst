@@ -91,6 +91,9 @@ __published:
     void __fastcall timerCalculateTimer(TObject *Sender);
     void __fastcall FormResize(TObject *Sender);
 private:
+	vector<string> 								info;
+	vector<string> 								warnings;
+	vector<string> 								errors;
     LoadVialsJobThread *                        loadVialsJobThread;
     void __fastcall                             loadVialsJobThreadTerminated(TObject *Sender);
     SavePlanThread *                            savePlanThread;

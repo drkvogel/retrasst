@@ -1,3 +1,7 @@
+## method to compile error messages into one
+
+when there is a string vector of errors, format them into one string for display
+
 ## handling of primaries and secondaries/backups
 
 Thing is, there are several points where an action has to be carried out on a row, which might be: 

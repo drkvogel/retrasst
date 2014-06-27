@@ -94,6 +94,7 @@ void __fastcall TfrmRetrAsstPlanSamples::FormDestroy(TObject *Sender) {
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::FormShow(TObject *Sender) {
+    errors.clear();
     Enabled = false;
     ostringstream oss; oss<<job->getName()<<" : "<<job->getDescription()<<" [id: "<<job->getID()<<"]";
     Caption = oss.str().c_str();
@@ -110,6 +111,7 @@ void __fastcall TfrmRetrAsstPlanSamples::FormShow(TObject *Sender) {
 
 void __fastcall TfrmRetrAsstPlanSamples::FormClose(TObject *Sender, TCloseAction &Action) {
     combined.clear();
+    int sec = secondaries.size(), prim = primaries.size();
     delete_referenced< vector <SampleRow * > >(secondaries);
     delete_referenced< vector <SampleRow * > >(primaries);      // primaries may reference secondaries, so delete them last
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
@@ -780,8 +782,8 @@ __fastcall SavePlanThread::SavePlanThread() : TThread(false) {
 }
 
 void __fastcall SavePlanThread::updateStatus() { // can't use args for synced method, don't know why
-    frmRetrAsstPlanSamples->panelLoading->Caption = loadingMessage.c_str();
-    frmRetrAsstPlanSamples->panelLoading->Repaint();
+    plan->panelLoading->Caption = loadingMessage.c_str();
+    plan->panelLoading->Repaint();
 }
 
 void __fastcall SavePlanThread::Execute() {
@@ -789,9 +791,12 @@ void __fastcall SavePlanThread::Execute() {
 and a record into l_cryovial_retrieval for each cryovial, recording its position in the list. */
     try {
         save();
-        frmRetrAsstPlanSamples->ModalResult = mrOk; // save and close here rather than OnTerminate in case of exception
+        //frmRetrAsstPlanSamples->ModalResult = mrOk; // save and close here rather than OnTerminate in case of exception
+            // why ??? surely not good behaviour?
     } catch (std::exception & e) {
-        debugMessage = e.what(); Synchronize((TThreadMethod)&debugLog);
+        debugMessage = e.what();
+        plan->errors.push_back(debugMessage);
+        //Synchronize((TThreadMethod)&debugLog);
     }
 }
 
@@ -865,7 +870,21 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
 
 void __fastcall TfrmRetrAsstPlanSamples::savePlanThreadTerminated(TObject *Sender) {
     debugLog("finished save plan");
+    progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false;
     Screen->Cursor = crDefault; btnSave->Enabled = false; Enabled = true;
+    if (errors.size() == 0) { // OK to close window
+        ModalResult = mrOk;
+    } else {
+        ostringstream oss;
+
+        for (auto &err: errors) {
+            oss<<err<<endl;
+            //Synchronize((TThreadMethod)&debugLog);
+        }
+        debugLog(oss.str().c_str());
+        // void TfrmRetrievalAssistant::msgbox(string main, string title)
+        TfrmRetrievalAssistant::msgbox(oss.str(), "Errors");
+    }
 }
 
 //                { // must go out of scope otherwise read locks db with "no mst..."

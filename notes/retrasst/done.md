@@ -746,3 +746,7 @@ do we need notes _and_ testing? no
 separation of refboxes, retrasst, discard notes
 useful sql queries could all live in one file
 
+## retrieval job str() doesn't give much detail on main screen
+
+e.g "loading vials for job:" gives more details inc db name
+

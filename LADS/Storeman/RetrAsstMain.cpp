@@ -146,7 +146,8 @@ void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
     ostringstream oss;
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
     if (NULL == job) return;
-    oss<<job->getName();
+    //oss<<job->getName();
+    oss<<job->str();
     debugLog(oss.str().c_str());
 }
 
