@@ -61,5 +61,19 @@ So perhaps it is something different about this job -
 check size of sec and prim on close
 130 and 130 
 ???
+perhaps the clue is in the name: "Primary and secondary, no location"
+does destroying a sample with no location cause a crash?
 
+    ~SampleRow() {
+        if (store_record) delete store_record;
+        if (cryo_record) delete cryo_record;
+        if (backup) delete backup;
+        if (lcr_record) delete lcr_record;
+    }
 
+can't inspect any of these, e.g. "Error inspecting 'store_record':" - why?
+but can inspect 'c' in delete_referenced(Container& c). no variable names makes it pretty difficult...
+a lot delete ok before the error so difficult to find and no backtrace.
+put OutputDebugStrings on delete_referenced... (try/catch?)
+is an exception type being ignored?
+disabled ignore for all exceptions I could find, still no info. time to go home.
