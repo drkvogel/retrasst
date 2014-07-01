@@ -10,33 +10,27 @@ SavePlanThread::Execute()
         debugMessage = e.what(); Synchronize((TThreadMethod)&debugLog);
     }    
 
-crashes on 
-
-    ModalResult = mrCancel;
-
-wherever called (in worker thread or not)
-
-here:
+crashes on `ModalResult = mrCancel;` wherever called (in worker thread or not), here:
 
     void __fastcall TfrmRetrAsstPlanSamples::FormClose(...) {
         combined.clear();
         delete_referenced< vector <SampleRow * > >(secondaries);
         delete_referenced< vector <SampleRow * > >(primaries); <-- crash
 
-delete_references(primaries) already done in LoadVialsJobThread::load()
+`delete_references(primaries)` already done in `LoadVialsJobThread::load()`
 
 deletes secondaries, then primaries - but after combineAliquots, secondaries might be linked to primaries - does this cause a problem?
 
-delete_references(primaries) seems to go through deleting things merrily until a delete cause the freeze
+`delete_references(primaries)` seems to go through deleting things merrily until a delete cause the freeze
 
-commented out all delete_references calls in FormClose(). Freeze avoided. 
+commented out all `delete_references` calls in `FormClose()`. Freeze avoided. 
 But will that cause problems when form is loaded next time?
 
 Try opening form again:
-Loading samples, please wait...
-and gets stuck there.
 
-BUT IT WAS WORKING BEFORE!!
+> Loading samples, please wait...
+
+and gets stuck there. BUT IT WAS WORKING BEFORE!!
 
 No changes (SourceTree: File status, log selected) that look like they could have caused this since 03/06 (today is 27/06).
 
@@ -58,9 +52,7 @@ After uncommenting delete_referenced from FormClose() (back to previous behaviou
 
 So perhaps it is something different about this job - 
 
-check size of sec and prim on close
-130 and 130 
-???
+check size of sec and prim on close: 130 and 130 ???
 perhaps the clue is in the name: "Primary and secondary, no location"
 does destroying a sample with no location cause a crash?
 

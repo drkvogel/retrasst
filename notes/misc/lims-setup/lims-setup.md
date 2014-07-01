@@ -12,3 +12,10 @@
 
 	insert into c_permission (permission_cid, operator_cid, program_cid, project_cid, page_number, status, machine_cid)
 	values ((select next_cid from c_next_cid), -31438, 100, 0, 0, 0, -1108607)
+
+## LIMS setup for cbird@L21
+
+    update c_machine set status = 2, valid_to = date('now') + date('1 year') where external_name = 'L21'
+
+    insert into c_permission (permission_cid, operator_cid, program_cid, project_cid, page_number, status, machine_cid)
+    values ((select next_cid from c_next_cid), -31438, 100, 0, 0, 0, -13776)
