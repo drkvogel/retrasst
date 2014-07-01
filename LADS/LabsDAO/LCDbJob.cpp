@@ -334,9 +334,9 @@ const LCDbCryoJob * LCDbCryoJobs::findByName( const std::string & name ) const {
 
 std::string LCDbCryoJob::str() {
     std::ostringstream oss; oss<<
-    "id: "<<getID()<<
-    ", name: \""<<getName()<<"\""<<
-    ", desc: \""<<getDescription()<<"\""<<
+    "\""<<getName()<<"\""<<
+    ", \""<<getDescription()<<"\""<<
+    ", id: "<<getID()<<
     ", type: "<<getJobType()<<
     ", status: "<<getStatus()<<
     ", project: "<<getProjectID()<<

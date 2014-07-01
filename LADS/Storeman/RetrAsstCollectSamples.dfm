@@ -108,12 +108,13 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
-        Font.Name = 'Courier New'
+        Font.Name = 'Consolas'
         Font.Style = []
         ParentDoubleBuffered = False
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
+        ExplicitLeft = -2
       end
       object btnSimAccept: TButton
         Left = 868

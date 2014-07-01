@@ -75,5 +75,5 @@ can't inspect any of these, e.g. "Error inspecting 'store_record':" - why?
 but can inspect 'c' in delete_referenced(Container& c). no variable names makes it pretty difficult...
 a lot delete ok before the error so difficult to find and no backtrace.
 put OutputDebugStrings on delete_referenced... (try/catch?)
-is an exception type being ignored?
-disabled ignore for all exceptions I could find, still no info. time to go home.
+is an exception type being ignored? disabled ignore for all exceptions I could find, still no info. 
+time to go home.

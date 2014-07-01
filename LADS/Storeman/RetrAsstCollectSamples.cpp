@@ -330,7 +330,10 @@ void __fastcall TfrmRetrAsstCollectSamples::FormShow(TObject *Sender) {
 }
 
 void TfrmRetrAsstCollectSamples::showChunks() {
-    if (0 == chunks.size()) { throw runtime_error("No chunks"); } // must always have one chunk anyway
+    if (0 == chunks.size()) {
+        //return; // e.g. for "cannot handle multiple projects"
+        throw runtime_error("No chunks"); // must always have one chunk?
+    }
     else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
     int row = 1;
     for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
@@ -569,6 +572,7 @@ void __fastcall TfrmRetrAsstCollectSamples::loadPlanThreadTerminated(TObject *Se
         showChunks();
     } catch (std::exception & e) {
         TfrmRetrievalAssistant::msgbox(e.what());
+        ModalResult = mrCancel;
     }
     DEBUGSTREAM(__FUNC__<<"loadRows for job "<<job->getID()<<" finished")
 }

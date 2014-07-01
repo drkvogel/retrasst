@@ -66,7 +66,7 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'Courier New'
+      Font.Name = 'Consolas'
       Font.Style = []
       ParentFont = False
       ScrollBars = ssVertical
