@@ -90,6 +90,7 @@ __published:
     void __fastcall btnAddAllChunksClick(TObject *Sender);
     void __fastcall timerCalculateTimer(TObject *Sender);
     void __fastcall FormResize(TObject *Sender);
+    void __fastcall FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
 private:
 	vector<string> 								info;
 	vector<string> 								warnings;
@@ -121,6 +122,7 @@ private:
     int                                         section_size;
     int                                         box_size;
     void                                        showProgressMessage(const char * loadingMessage);
+    void                                        toggleLog();
 public:
     __fastcall                                  TfrmRetrAsstPlanSamples(TComponent* Owner);
     void                                        debugLog(String s);

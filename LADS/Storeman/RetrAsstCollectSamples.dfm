@@ -40,19 +40,18 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     TabOrder = 0
     object splitterDebug: TSplitter
       Left = 2
-      Top = 83
+      Top = 80
       Width = 944
-      Height = 5
+      Height = 8
       Cursor = crVSplit
       Align = alBottom
-      ExplicitLeft = 3
-      ExplicitTop = 99
+      ExplicitTop = 78
     end
     object sgVials: TStringGrid
       Left = 2
       Top = 15
       Width = 944
-      Height = 68
+      Height = 65
       Align = alClient
       DefaultDrawing = False
       DoubleBuffered = True
@@ -63,6 +62,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       TabOrder = 0
       OnClick = sgVialsClick
       OnDrawCell = sgVialsDrawCell
+      ExplicitHeight = 68
     end
     object panelLoading: TPanel
       Left = 248

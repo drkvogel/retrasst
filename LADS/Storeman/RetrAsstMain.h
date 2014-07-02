@@ -262,7 +262,7 @@ public:
         Col(string n, string t, int w, bool (*f)(const T *, const T *)=NULL, string d="")
             : name(n), title(t), width(w), sort_func_asc(f), descrip(d), sortAsc(true) {}
         string  sortDescription() {
-            ostringstream oss; oss<<(descrip.length() > 0 ? descrip : title)<<" ascending"; return oss.str();
+            ostringstream oss; oss<<(descrip.length() > 0 ? descrip : title); return oss.str();
         }
         bool    (*sort_func_asc)(const T *, const T *); // ascending sort function
         bool    (*sort_func_dsc)(const T *, const T *); //{ return (!sort_func_asc()); } // descending sort function

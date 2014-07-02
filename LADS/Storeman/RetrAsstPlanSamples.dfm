@@ -16,6 +16,7 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnKeyUp = FormKeyUp
   OnResize = FormResize
   OnShow = FormShow
   PixelsPerInch = 96

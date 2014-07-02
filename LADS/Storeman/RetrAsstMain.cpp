@@ -140,6 +140,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     default:
         msgbox("Cannot process a job with this status"); return;
     }
+    loadJobs();
 }
 
 void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
@@ -206,9 +207,6 @@ void TfrmRetrievalAssistant::loadJobs() {
 	delete_referenced<tdvecpJob>(vecJobs);
     for (Range< LCDbCryoJob > jr = jobs; jr.isValid(); ++jr) {
         if (!jr->isAvailable()) continue;
-//        ostringstream oss;
-//        oss<<__FUNC__<<", type: "<<jr->getJobType()<<": desc: "<<jr->getDescription().c_str();
-//        debugLog(oss.str().c_str());
         if (jr->getStatus() == LCDbCryoJob::Status::NEW_JOB             && !cbNewJob->Checked) continue;
         if (jr->getStatus() == LCDbCryoJob::Status::INPROGRESS          && !cbInProgress->Checked) continue;
         if (jr->getStatus() == LCDbCryoJob::Status::DONE                && !cbDone->Checked) continue;

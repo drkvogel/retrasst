@@ -95,7 +95,7 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
     sgwVials->addCol("item",     "Item",             30);
     sgwVials->addCol("barcode",  "Barcode",          91);
     sgwVials->addCol("site",     "Site",             90);
-    sgwVials->addCol("vesspos",  "Pos",              28);
+    sgwVials->addCol("vesspos",  "Loc",              28);
     sgwVials->addCol("vessel",   "Vessel",           107);
     sgwVials->addCol("shelf",    "Shelf",            31);
     sgwVials->addCol("structpos","Pos",              27);
@@ -630,7 +630,6 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
         if (aliquot == primary) {
             if (primary->backup != NULL) { // has backup
                 primary->backup->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED);
-                //TfrmRetrievalAssistant::msgbox("setting secondary status");
             }
         } else { // it was the secondary - primary should already have been set NOT_FOUND, but make sure
             if (primary->lcr_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
@@ -658,7 +657,7 @@ void TfrmRetrAsstCollectSamples::notFound() {
     if (sample->lcr_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
         sample->lcr_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
         if (sample->backup) {
-            TfrmRetrievalAssistant::msgbox("Secondary aliquot found");
+            TfrmRetrievalAssistant::msgbox("Backup aliquot found");
             if (sample->backup->lcr_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) { // backup already marked not found
                 fillRow(sample, rowRel + 1); // refresh sg row - now keeps pointer to row
                 showCurrentRow();
@@ -677,7 +676,7 @@ void TfrmRetrAsstCollectSamples::notFound() {
             sample->backup->lcr_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND);
             nextRow();
         } else {
-            throw runtime_error("no secondary for not found primary, should have moved on to next row");
+            throw runtime_error("no backup for NOT_FOUND primary, should have moved on to next row");
         }
     }
 }
@@ -704,7 +703,7 @@ void TfrmRetrAsstCollectSamples::nextRow() {
 * accept(): if primary aliquot !collected # expected, ignored, not found (now found?)
 * save secondary as `IGNORED` if not required? primary was */
     Chunk< SampleRow > * chunk = currentChunk();
-    SampleRow * sample = chunk->currentObject(); // which may be the secondary aliquot
+    SampleRow * sample = chunk->currentObject(); // which may be the backup aliquot
 
     // save changes both primary and secondary in l_cryovial_retrieval (not cryovial/_store at this point)
     if (!sample->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed"); }
@@ -870,7 +869,7 @@ check at save and exit if all vials in a box have been saved and if so update bo
         }
         msgbox(oss.str());
     } else if (collect->unactionedSamples) {
-        msgbox("There are unactioned samples in this retrieval plan; not closing job"); // fixme
+        msgbox("There are unactioned samples in this retrieval job; will not be marked as finished"); // fixme
         return;
     } else if (!collect->unactionedSamples) { // job finished
 		jobFinished();

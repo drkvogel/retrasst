@@ -33,7 +33,7 @@ __fastcall TfrmRetrAsstPlanSamples::TfrmRetrAsstPlanSamples(TComponent* Owner) :
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &combined);
     sgwVials->addCol("barcode",  "Barcode",          91,    SampleRow::sort_asc_barcode,    "barcode");
     sgwVials->addCol("site",     "Site",             120,   SampleRow::sort_asc_site,       "site name");
-    sgwVials->addCol("vesspos",  "Pos",              28,    SampleRow::sort_asc_vesspos,    "vessel position");
+    sgwVials->addCol("vesspos",  "Loc",              28,    SampleRow::sort_asc_vesspos,    "vessel location");
     sgwVials->addCol("vessel",   "Vessel",           107,   SampleRow::sort_asc_vessel,     "vessel name");
     sgwVials->addCol("shelf",    "Shelf",            31,    SampleRow::sort_asc_shelf,      "shelf number");
     sgwVials->addCol("structpos","Pos",              27,    SampleRow::sort_asc_structpos,  "structure position");
@@ -127,6 +127,15 @@ void __fastcall TfrmRetrAsstPlanSamples::btnCancelClick(TObject *Sender) {
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::cbLogClick(TObject *Sender) {
+    panelDebug->Visible = cbLog->Checked;
+    splitterDebug->Visible  = cbLog->Checked;
+}
+
+
+
+void TfrmRetrAsstPlanSamples::toggleLog() {
+    cbLog->Checked = !(cbLog->Checked);
+    //panelDebug->Visible = splitterDebug->Visible =
     panelDebug->Visible = cbLog->Checked;
     splitterDebug->Visible  = cbLog->Checked;
 }
@@ -428,7 +437,7 @@ void TfrmRetrAsstPlanSamples::addSorter() {
     ostringstream oss; oss << __FUNC__ << groupSort->ControlCount; debugLog(oss.str().c_str());
     TComboBox * combo = new TComboBox(this);
     combo->Parent = groupSort;      // new combo is last created, aligned to left. put in right order: take them all out, sort and put back in in reverse order?
-    combo->Width = 170;             //
+    combo->Width = 130;             //
     combo->Align = alRight;         // bodge
     combo->Align = alLeft;          // now the new combo is last (rightmost) in the list, rather than first (leftmost)
     combo->Style = csDropDownList;  // csDropDownList
@@ -856,7 +865,7 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
             rj_box_cid = s.saveBox(chunk, boxes, sampleRow->dest_box_id); // crash here
             s.saveSample(chunk, sampleRow, rj_box_cid);
             ostringstream oss; oss<<"Saving chunk "<<chunk->getSection()
-            <<" - Primary: '"<<sampleRow->cryovial_barcode<<"'";
+            <<" - preferred: '"<<sampleRow->cryovial_barcode<<"'";
             if (NULL != sampleRow->backup) {
                 rj_box_cid = s.saveBox(chunk, boxes, sampleRow->backup->dest_box_id);
                 s.saveSample(chunk, sampleRow->backup, rj_box_cid);
@@ -1002,4 +1011,9 @@ void __fastcall TfrmRetrAsstPlanSamples::savePlanThreadTerminated(TObject *Sende
 //RETRIEVAL_ASSISTANT_ERROR_COLOUR???
                 //if (hasVialsInJob(pr->getID())) { // check each project for job
                     //projects.insert(pr->getID());
+
+void __fastcall TfrmRetrAsstPlanSamples::FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
+    if (Key == ' ') toggleLog();
+}
+
 

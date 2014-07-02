@@ -77,3 +77,7 @@ time to go home.
 use auto_ptr or something similar (C++11?) or...
 dtor checks for not null, but who said ptr is set null in the first place?
 
+2014-07-02
+
+freeze only happens on desktop??? freezing version I did yesterday and put onto laptop for demo didn't freeze in demo... oh yes it did
+
