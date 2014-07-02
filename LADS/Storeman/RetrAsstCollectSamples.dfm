@@ -10,11 +10,13 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  KeyPreview = True
   Menu = mainMenuMain
   OldCreateOrder = False
   WindowState = wsMaximized
   OnClose = FormClose
   OnCreate = FormCreate
+  OnKeyUp = FormKeyUp
   OnResize = FormResize
   OnShow = FormShow
   PixelsPerInch = 96

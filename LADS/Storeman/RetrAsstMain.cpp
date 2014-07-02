@@ -298,7 +298,7 @@ void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
                     sample->vessel_name += " (UNKNOWN STATUS)";
             }
         } else {
-            sample->setLocation("No records found", 0, "", 0, 0, "", 0);
+            sample->setLocation("Unconfirmed", 0, "", 0, 0, "", 0);
         }
         storageCache[sample->store_record->getBoxID()] = sample; // cache result
     }

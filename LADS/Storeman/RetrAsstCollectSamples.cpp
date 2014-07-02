@@ -282,6 +282,17 @@ void __fastcall TfrmRetrAsstCollectSamples::FormResize(TObject *Sender) { // get
 
 void __fastcall TfrmRetrAsstCollectSamples::cbLogClick(TObject *Sender) { panelDebug->Visible = cbLog->Checked; }
 
+void __fastcall TfrmRetrAsstCollectSamples::FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
+/** form's KeyPreview property needs to be set to see this */
+    if (Key == ' ') toggleLog();
+}
+
+void TfrmRetrAsstCollectSamples::toggleLog() {
+    cbLog->Checked = !(cbLog->Checked);
+    panelDebug->Visible = cbLog->Checked;
+    splitterDebug->Visible  = cbLog->Checked;
+}
+
 void __fastcall TfrmRetrAsstCollectSamples::menuItemExitClick(TObject *Sender) { checkExit(); }
 
 void __fastcall TfrmRetrAsstCollectSamples::btnExitClick(TObject *Sender) { checkExit(); } //exit(); }
@@ -1170,3 +1181,5 @@ Chunk< SampleRow >::DONE:       RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
 
 // not needed in debug
 //int row = sgVials->Row; sgVials->Row = row; // how to put these before and after to save row clicked on?
+
+

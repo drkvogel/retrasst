@@ -83,6 +83,7 @@ __published:
     void __fastcall editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
     void __fastcall FormResize(TObject *Sender);
     void __fastcall sgVialsClick(TObject *Sender);
+    void __fastcall FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
 private:
 	vector<string> 								info;
 	vector<string> 								warnings;
@@ -124,6 +125,7 @@ private:
 	void 										storeSample(SampleRow * sample);
 	void										jobFinished();
     bool                                        destroying;  // for FormResize
+    void                                        toggleLog();
 public:
     void                                        setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmRetrAsstCollectSamples(TComponent* Owner);

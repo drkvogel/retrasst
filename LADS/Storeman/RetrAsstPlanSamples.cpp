@@ -131,11 +131,13 @@ void __fastcall TfrmRetrAsstPlanSamples::cbLogClick(TObject *Sender) {
     splitterDebug->Visible  = cbLog->Checked;
 }
 
-
+void __fastcall TfrmRetrAsstPlanSamples::FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
+/** form's KeyPreview property needs to be set to see this */
+    if (Key == ' ') toggleLog();
+}
 
 void TfrmRetrAsstPlanSamples::toggleLog() {
     cbLog->Checked = !(cbLog->Checked);
-    //panelDebug->Visible = splitterDebug->Visible =
     panelDebug->Visible = cbLog->Checked;
     splitterDebug->Visible  = cbLog->Checked;
 }
@@ -1012,8 +1014,6 @@ void __fastcall TfrmRetrAsstPlanSamples::savePlanThreadTerminated(TObject *Sende
                 //if (hasVialsInJob(pr->getID())) { // check each project for job
                     //projects.insert(pr->getID());
 
-void __fastcall TfrmRetrAsstPlanSamples::FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
-    if (Key == ' ') toggleLog();
-}
+
 
 
