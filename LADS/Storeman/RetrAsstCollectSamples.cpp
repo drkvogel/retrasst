@@ -331,8 +331,8 @@ void __fastcall TfrmRetrAsstCollectSamples::FormShow(TObject *Sender) {
     frmRetrievalAssistant->clearStorageCache();
     labelSampleID->Caption  = "loading...";
     labelStorage->Caption   = "loading...";
-    labelDestbox->Caption   = "loading...";
-    labelDestype->Caption   = "loading...";
+    //labelDestbox->Caption   = "loading...";
+    //labelDestype->Caption   = "loading...";
     labelPrimary->Caption   = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str();
     labelSecondary->Caption = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str();
     labelPrimary->Enabled   = true;
@@ -615,13 +615,13 @@ void TfrmRetrAsstCollectSamples::showDetails(SampleRow * sample) {
     if (NULL == sample) {
         labelSampleID->Caption  = "";
         labelStorage->Caption   = "Chunk completed";
-        labelDestbox->Caption   = "";
-        labelDestype->Caption   = "";
+        //labelDestbox->Caption   = "";
+        //labelDestype->Caption   = "";
     } else {
         labelSampleID->Caption  = sample->cryovial_barcode.c_str();
         labelStorage->Caption   = sample->storage_str().c_str();
         labelDestbox->Caption   = sample->dest_str().c_str();
-        labelDestype->Caption   = sample->dest_type_name.c_str();
+        //labelDestype->Caption   = sample->dest_type_name.c_str();
     }
 }
 

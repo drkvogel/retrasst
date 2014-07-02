@@ -1,13 +1,4 @@
-﻿[cbLog]
-Coordinates=247,132,95,51
-
-[labelSecondary]
-Coordinates=10,10,90,51
-
-[Label2]
-Coordinates=110,10,46,51
-
-[groupSignOff]
+﻿[groupSignOff]
 Coordinates=10,132,80,51
 
 [panelDebug]
@@ -19,17 +10,11 @@ Coordinates=350,193,50,51
 [Splitter1]
 Coordinates=326,315,55,33
 
-[groupSecondary]
-Coordinates=10,71,96,51
-
 [btnSkip]
 Coordinates=335,10,52,51
 
 [Splitter2]
 Coordinates=261,315,55,33
-
-[groupPrimary]
-Coordinates=156,132,81,51
 
 [btnSimAccept]
 Coordinates=440,132,83,51
@@ -37,17 +22,8 @@ Coordinates=440,132,83,51
 [memoDebug]
 Coordinates=249,10,76,51
 
-[Panel2]
-Coordinates=429,71,47,51
-
-[labelStorage]
-Coordinates=397,10,76,51
-
 [menuItemExit]
 Coordinates=587,333,81,33
-
-[Panel1]
-Coordinates=10,193,47,51
 
 [timerLoadPlan]
 Coordinates=568,370,85,33
@@ -55,26 +31,14 @@ Coordinates=568,370,85,33
 [groupDetails]
 Coordinates=66,254,77,51
 
-[btnExit]
-Coordinates=360,254,49,51
-
 [groupRetrievalList]
 Coordinates=245,254,105,51
 
 [mainMenuMain]
 Coordinates=188,370,88,33
 
-[Label1]
-Coordinates=285,71,46,51
-
 [btnAccept]
 Coordinates=220,193,64,51
-
-[panelAliquots]
-Coordinates=153,254,82,51
-
-[labelSampleID]
-Coordinates=419,254,84,51
 
 [progressBottom]
 Coordinates=410,193,94,51
@@ -88,60 +52,18 @@ Coordinates=171,315,80,33
 [panelLoading]
 Coordinates=129,193,81,51
 
-[labelPrimary]
-Coordinates=199,71,76,51
-
-[Label3]
-Coordinates=10,254,46,51
-
-[Label6]
-Coordinates=294,193,46,51
-
-[labelDestype]
-Coordinates=10,315,77,51
-
-[Label4]
-Coordinates=100,132,46,51
-
 [Chunks]
 Coordinates=67,193,52,51
 
 [sgChunks]
 Coordinates=97,315,64,51
 
-[labelDestbox]
-Coordinates=352,132,78,51
-
 [btnNotFound]
 Coordinates=341,71,78,51
 
-[labelInProgress]
-Coordinates=511,202,91,51
+[]
+Coordinates=247,132,95,51
 
-[groupChunkKey]
-Coordinates=511,71,94,51
-
-[labelDone]
-Coordinates=561,1,63,51
-
-[labelNew]
-Coordinates=561,141,58,51
-
-[groupVialKey]
-Coordinates=643,71,80,51
-
-[labelVialKeyExpectedPrimary]
-Coordinates=561,272,159,51
-
-[labelVialKeyIgnored]
-Coordinates=761,71,112,51
-
-[labelVialKeyCollected]
-Coordinates=712,1,121,51
-
-[labelVialKeyNotFound]
-Coordinates=542,342,123,51
-
-[labelVialKeyExpectedBackup]
-Coordinates=761,141,158,51
+[panelBarcode]
+Coordinates=429,71,47,51
 

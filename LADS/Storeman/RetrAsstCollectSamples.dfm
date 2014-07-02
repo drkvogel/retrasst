@@ -138,26 +138,9 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     Align = alBottom
     Caption = 'Sign Off'
     TabOrder = 1
-    DesignSize = (
-      948
-      77)
-    object Label1: TLabel
-      Left = 2
-      Top = 15
-      Width = 139
-      Height = 60
-      Align = alLeft
-      Caption = 'Enter barcode:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -21
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-      ExplicitHeight = 25
-    end
+    ExplicitTop = 540
     object btnAccept: TButton
-      Left = 391
+      Left = 622
       Top = 15
       Width = 75
       Height = 60
@@ -165,9 +148,10 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Accept'
       TabOrder = 0
       OnClick = btnAcceptClick
+      ExplicitLeft = 391
     end
     object btnSkip: TButton
-      Left = 541
+      Left = 772
       Top = 15
       Width = 75
       Height = 60
@@ -175,9 +159,10 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Defer'
       TabOrder = 1
       OnClick = btnSkipClick
+      ExplicitLeft = 541
     end
     object editBarcode: TEdit
-      Left = 141
+      Left = 372
       Top = 15
       Width = 250
       Height = 60
@@ -190,37 +175,91 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 2
       OnKeyUp = editBarcodeKeyUp
+      ExplicitLeft = 141
       ExplicitHeight = 53
     end
-    object cbLog: TCheckBox
-      Left = 801
-      Top = 17
-      Width = 64
-      Height = 17
-      Anchors = [akRight, akBottom]
-      Caption = 'Show Log'
-      TabOrder = 3
-      OnClick = cbLogClick
-    end
-    object btnExit: TButton
-      Left = 871
-      Top = 15
-      Width = 75
-      Height = 60
-      Align = alRight
-      Caption = 'Exit'
-      TabOrder = 4
-      OnClick = btnExitClick
-    end
     object btnNotFound: TButton
-      Left = 466
+      Left = 697
       Top = 15
       Width = 75
       Height = 60
       Align = alLeft
       Caption = 'Not Found'
-      TabOrder = 5
+      TabOrder = 3
       OnClick = btnNotFoundClick
+      ExplicitLeft = 466
+    end
+    object Panel1: TPanel
+      Left = 2
+      Top = 15
+      Width = 185
+      Height = 60
+      Align = alLeft
+      BevelOuter = bvNone
+      TabOrder = 4
+      ExplicitLeft = -50
+      DesignSize = (
+        185
+        60)
+      object btnExit: TButton
+        Left = 0
+        Top = 0
+        Width = 75
+        Height = 60
+        Align = alLeft
+        Caption = 'Exit'
+        TabOrder = 0
+        OnClick = btnExitClick
+        ExplicitLeft = 871
+        ExplicitTop = 15
+      end
+      object cbLog: TCheckBox
+        Left = 121
+        Top = 17
+        Width = 64
+        Height = 17
+        Anchors = [akRight, akBottom]
+        Caption = 'Show Log'
+        TabOrder = 1
+        OnClick = cbLogClick
+      end
+    end
+    object Panel2: TPanel
+      Left = 187
+      Top = 15
+      Width = 185
+      Height = 60
+      Align = alLeft
+      BevelOuter = bvNone
+      TabOrder = 5
+      ExplicitLeft = 97
+      ExplicitTop = -9
+      object Label1: TLabel
+        Left = 40
+        Top = 0
+        Width = 50
+        Height = 25
+        Caption = 'Enter'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -21
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Label2: TLabel
+        Left = 32
+        Top = 31
+        Width = 89
+        Height = 25
+        Caption = ' barcode:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -21
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
     end
   end
   object Chunks: TGroupBox
@@ -234,7 +273,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     object sgChunks: TStringGrid
       Left = 2
       Top = 15
-      Width = 874
+      Width = 880
       Height = 156
       Align = alClient
       DefaultDrawing = False
@@ -245,48 +284,128 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       OnClick = sgChunksClick
       OnDrawCell = sgChunksDrawCell
       OnFixedCellClick = sgChunksFixedCellClick
+      ExplicitWidth = 874
     end
-    object groupChunkKey: TGroupBox
-      Left = 876
+    object panelLegends: TPanel
+      Left = 882
       Top = 15
-      Width = 70
+      Width = 64
       Height = 156
       Align = alRight
-      Caption = 'Key'
+      BevelOuter = bvNone
       TabOrder = 1
-      object labelNew: TLabel
-        Left = 2
-        Top = 15
-        Width = 66
-        Height = 13
+      object groupChunkKey: TGroupBox
+        Left = 0
+        Top = 0
+        Width = 64
+        Height = 57
         Align = alTop
-        Caption = 'New'
-        Color = clSkyBlue
-        ParentColor = False
-        Transparent = False
-        ExplicitWidth = 21
+        Caption = 'Chunk'
+        TabOrder = 0
+        ExplicitWidth = 114
+        object labelNew: TLabel
+          Left = 2
+          Top = 15
+          Width = 60
+          Height = 13
+          Align = alTop
+          Caption = 'New'
+          Color = clSkyBlue
+          ParentColor = False
+          Transparent = False
+          ExplicitWidth = 21
+        end
+        object labelInProgress: TLabel
+          Left = 2
+          Top = 28
+          Width = 60
+          Height = 13
+          Align = alTop
+          Caption = 'In Progress'
+          Color = clMoneyGreen
+          ParentColor = False
+          Transparent = False
+          ExplicitWidth = 55
+        end
+        object labelDone: TLabel
+          Left = 2
+          Top = 41
+          Width = 60
+          Height = 13
+          Align = alTop
+          Caption = 'Completed'
+          Transparent = False
+          ExplicitWidth = 51
+        end
       end
-      object labelInProgress: TLabel
-        Left = 2
-        Top = 28
-        Width = 66
-        Height = 13
-        Align = alTop
-        Caption = 'In Progress'
-        Color = clMoneyGreen
-        ParentColor = False
-        Transparent = False
-        ExplicitWidth = 55
-      end
-      object labelDone: TLabel
-        Left = 2
-        Top = 41
-        Width = 66
-        Height = 13
-        Align = alTop
-        Caption = 'Completed'
-        Transparent = False
-        ExplicitWidth = 51
+      object groupVialKey: TGroupBox
+        Left = 0
+        Top = 72
+        Width = 64
+        Height = 84
+        Align = alBottom
+        Caption = 'Tube'
+        TabOrder = 1
+        object labelVialKeyCollected: TLabel
+          Left = 2
+          Top = 41
+          Width = 60
+          Height = 13
+          Align = alTop
+          Caption = 'Retrieved'
+          Color = clAqua
+          ParentColor = False
+          Transparent = False
+          ExplicitWidth = 47
+        end
+        object labelVialKeyExpectedBackup: TLabel
+          Left = 2
+          Top = 28
+          Width = 60
+          Height = 13
+          Align = alTop
+          Caption = 'Backup'
+          Color = clYellow
+          ParentColor = False
+          Transparent = False
+          ExplicitWidth = 34
+        end
+        object labelVialKeyExpectedPrimary: TLabel
+          Left = 2
+          Top = 15
+          Width = 60
+          Height = 13
+          Align = alTop
+          Caption = 'Preferred'
+          Color = clHighlight
+          ParentColor = False
+          Transparent = False
+          ExplicitWidth = 46
+        end
+        object labelVialKeyIgnored: TLabel
+          Left = 2
+          Top = 67
+          Width = 60
+          Height = 13
+          Align = alTop
+          Caption = 'Ignored'
+          Color = clLime
+          ParentColor = False
+          Transparent = False
+          ExplicitWidth = 38
+        end
+        object labelVialKeyNotFound: TLabel
+          Left = 2
+          Top = 54
+          Width = 60
+          Height = 13
+          Align = alTop
+          Caption = 'Not Found'
+          Color = clFuchsia
+          ParentColor = False
+          Transparent = False
+          ExplicitWidth = 50
+        end
       end
     end
   end
@@ -298,191 +417,27 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     Align = alBottom
     Caption = 'Details'
     TabOrder = 3
-    object panelAliquots: TPanel
-      Left = 2
-      Top = 15
-      Width = 157
+    object panelBarcode: TPanel
+      Left = 165
+      Top = 26
+      Width = 236
       Height = 113
-      Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      object groupPrimary: TGroupBox
-        Left = 0
-        Top = 0
-        Width = 157
-        Height = 55
-        Margins.Bottom = 9
-        Align = alTop
-        Caption = 'Primary Aliquot'
-        Padding.Left = 5
-        Padding.Top = 5
-        Padding.Right = 5
-        Padding.Bottom = 5
-        TabOrder = 0
-        object labelPrimary: TLabel
-          Left = 7
-          Top = 20
-          Width = 143
-          Height = 28
-          Align = alClient
-          Caption = 'labelPrimary'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-          Layout = tlCenter
-          ExplicitWidth = 80
-          ExplicitHeight = 16
-        end
-      end
-      object groupSecondary: TGroupBox
-        Left = 0
-        Top = 55
-        Width = 157
-        Height = 58
-        Align = alClient
-        Caption = 'Secondary Aliquot'
-        Padding.Left = 5
-        Padding.Top = 5
-        Padding.Right = 5
-        Padding.Bottom = 5
-        TabOrder = 1
-        object labelSecondary: TLabel
-          Left = 7
-          Top = 20
-          Width = 143
-          Height = 31
-          Margins.Left = 5
-          Margins.Top = 5
-          Margins.Right = 5
-          Margins.Bottom = 5
-          Align = alClient
-          Caption = 'labelSecondary'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Tahoma'
-          Font.Style = [fsBold]
-          ParentFont = False
-          Layout = tlCenter
-          ExplicitWidth = 99
-          ExplicitHeight = 16
-        end
-      end
     end
-    object Panel1: TPanel
-      Left = 425
+    object groupSampleID: TGroupBox
+      Left = 372
       Top = 15
-      Width = 453
+      Width = 292
       Height = 113
       Align = alClient
-      BevelOuter = bvNone
+      Caption = 'Sample ID'
       TabOrder = 1
-      object Label2: TLabel
-        Left = 17
-        Top = 10
-        Width = 24
-        Height = 16
-        Caption = 'Loc:'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-      end
-      object labelStorage: TLabel
-        Left = 51
-        Top = -1
-        Width = 167
-        Height = 37
-        Caption = 'labelStorage'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -31
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-      end
-      object labelDestbox: TLabel
-        Left = 51
-        Top = 35
-        Width = 173
-        Height = 37
-        Caption = 'labelDestbox'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -31
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-      end
-      object Label4: TLabel
-        Left = 17
-        Top = 49
-        Width = 30
-        Height = 16
-        Caption = 'Dest:'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-      end
-      object labelDestype: TLabel
-        Left = 51
-        Top = 72
-        Width = 172
-        Height = 37
-        Caption = 'labelDestype'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -31
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-      end
-      object Label6: TLabel
-        Left = 17
-        Top = 87
-        Width = 33
-        Height = 16
-        Caption = 'Type:'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-      end
-    end
-    object Panel2: TPanel
-      Left = 159
-      Top = 15
-      Width = 266
-      Height = 113
-      Align = alLeft
-      BevelOuter = bvNone
-      TabOrder = 2
-      object Label3: TLabel
-        Left = 9
-        Top = 12
-        Width = 17
-        Height = 16
-        Caption = 'ID:'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-      end
+      ExplicitLeft = 265
+      ExplicitWidth = 383
       object labelSampleID: TLabel
-        Left = 6
-        Top = 34
+        Left = 17
+        Top = 13
         Width = 231
         Height = 45
         Caption = 'labelSampleID'
@@ -493,74 +448,181 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Font.Style = []
         ParentFont = False
       end
+      object panelAliquots: TPanel
+        Left = 2
+        Top = 64
+        Width = 288
+        Height = 47
+        Align = alBottom
+        BevelOuter = bvNone
+        TabOrder = 0
+        ExplicitWidth = 379
+        object groupPrimary: TGroupBox
+          Left = 0
+          Top = 0
+          Width = 161
+          Height = 47
+          Margins.Bottom = 9
+          Align = alLeft
+          Caption = 'Primary Aliquot'
+          Padding.Left = 5
+          Padding.Top = 5
+          Padding.Right = 5
+          Padding.Bottom = 5
+          TabOrder = 0
+          object labelPrimary: TLabel
+            Left = 7
+            Top = 20
+            Width = 147
+            Height = 20
+            Align = alClient
+            Caption = 'labelPrimary'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+            Layout = tlCenter
+            ExplicitTop = 8
+            ExplicitHeight = 32
+          end
+        end
+        object groupSecondary: TGroupBox
+          Left = 142
+          Top = 0
+          Width = 146
+          Height = 47
+          Align = alRight
+          Caption = 'Secondary Aliquot'
+          Padding.Left = 5
+          Padding.Top = 5
+          Padding.Right = 5
+          Padding.Bottom = 5
+          TabOrder = 1
+          ExplicitLeft = 160
+          ExplicitHeight = 39
+          object labelSecondary: TLabel
+            Left = 7
+            Top = 20
+            Width = 132
+            Height = 20
+            Margins.Left = 5
+            Margins.Top = 5
+            Margins.Right = 5
+            Margins.Bottom = 5
+            Align = alClient
+            Caption = 'labelSecondary'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+            Layout = tlCenter
+            ExplicitLeft = 8
+            ExplicitWidth = 107
+            ExplicitHeight = 12
+          end
+        end
+      end
     end
-    object groupVialKey: TGroupBox
-      Left = 878
+    object groupSource: TGroupBox
+      Left = 2
       Top = 15
-      Width = 68
+      Width = 370
+      Height = 113
+      Align = alLeft
+      Caption = 'Source'
+      TabOrder = 2
+      object labelStorage: TLabel
+        Left = 2
+        Top = 92
+        Width = 366
+        Height = 19
+        Align = alBottom
+        Caption = 'labelStorage'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        ExplicitTop = 15
+        ExplicitWidth = 87
+      end
+      object labelSite: TLabel
+        Left = 24
+        Top = 72
+        Width = 40
+        Height = 13
+        Caption = 'labelSite'
+      end
+      object labelVessel: TLabel
+        Left = 16
+        Top = 48
+        Width = 52
+        Height = 13
+        Caption = 'labelVessel'
+      end
+      object labelStructure: TLabel
+        Left = 16
+        Top = 24
+        Width = 67
+        Height = 13
+        Caption = 'labelStructure'
+      end
+      object labelSlot: TLabel
+        Left = 64
+        Top = 16
+        Width = 40
+        Height = 13
+        Caption = 'labelSlot'
+      end
+      object labelPosInBox: TLabel
+        Left = 128
+        Top = 16
+        Width = 67
+        Height = 13
+        Caption = 'labelPosInBox'
+      end
+    end
+    object groupDest: TGroupBox
+      Left = 664
+      Top = 15
+      Width = 282
       Height = 113
       Align = alRight
-      Caption = 'Key'
+      Caption = 'Destination'
       TabOrder = 3
-      object labelVialKeyCollected: TLabel
+      object labelDestString: TLabel
         Left = 2
-        Top = 41
-        Width = 64
-        Height = 13
-        Align = alTop
-        Caption = 'Collected'
-        Color = clAqua
-        ParentColor = False
-        Transparent = False
-        ExplicitWidth = 44
+        Top = 92
+        Width = 278
+        Height = 19
+        Align = alBottom
+        Caption = 'labelDestString'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        ExplicitWidth = 106
       end
-      object labelVialKeyExpectedBackup: TLabel
-        Left = 2
-        Top = 28
-        Width = 64
+      object labelDestPos: TLabel
+        Left = 32
+        Top = 24
+        Width = 61
         Height = 13
-        Align = alTop
-        Caption = 'Backup'
-        Color = clYellow
-        ParentColor = False
-        Transparent = False
-        ExplicitWidth = 34
+        Caption = 'labelDestPos'
       end
-      object labelVialKeyExpectedPrimary: TLabel
-        Left = 2
-        Top = 15
-        Width = 64
+      object labelDestBox: TLabel
+        Left = 32
+        Top = 56
+        Width = 62
         Height = 13
-        Align = alTop
-        Caption = 'Preferred'
-        Color = clHighlight
-        ParentColor = False
-        Transparent = False
-        ExplicitWidth = 46
-      end
-      object labelVialKeyIgnored: TLabel
-        Left = 2
-        Top = 67
-        Width = 64
-        Height = 13
-        Align = alTop
-        Caption = 'Ignored'
-        Color = clLime
-        ParentColor = False
-        Transparent = False
-        ExplicitWidth = 38
-      end
-      object labelVialKeyNotFound: TLabel
-        Left = 2
-        Top = 54
-        Width = 64
-        Height = 13
-        Align = alTop
-        Caption = 'Not Found'
-        Color = clFuchsia
-        ParentColor = False
-        Transparent = False
-        ExplicitWidth = 50
+        Caption = 'labelDestBox'
       end
     end
   end
