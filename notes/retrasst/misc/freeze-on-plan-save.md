@@ -48,6 +48,10 @@ Is there something different about it?
 Reset 979187 "Reveal cyovials - use EDTA4 if 3 not found"
 After uncommenting delete_referenced from FormClose() (back to previous behaviour), this job seems to save OK (apart from that I'd removed ModalResult = mrOk, which is needed to cause the main form to save the status of the job as INPROGRESS).
 
+I don't know why I haven't seen this problem before or why it doesn't happen to other jobs - it should happen to any job with combined aliquots. 
+because secondaries are deleted first - and the ->backup ptr in the primaries will still point to the old memory
+perhaps only primaries or loose other aliquots should be deleted, and if they have a backup, the dtor should delete that as well
+
 ## conclusion
 
 So perhaps it is something different about this job - 
@@ -69,3 +73,7 @@ a lot delete ok before the error so difficult to find and no backtrace.
 put OutputDebugStrings on delete_referenced... (try/catch?)
 is an exception type being ignored? disabled ignore for all exceptions I could find, still no info. 
 time to go home.
+
+use auto_ptr or something similar (C++11?) or...
+dtor checks for not null, but who said ptr is set null in the first place?
+
