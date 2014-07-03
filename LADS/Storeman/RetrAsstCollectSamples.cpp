@@ -625,6 +625,24 @@ void TfrmRetrAsstCollectSamples::showDetails(SampleRow * sample) {
     }
 }
 
+void TfrmRetrAsstCollectSamples::flash(TGroupBox *box, TColor other) { // TControl::Color is protected
+    TColor orig = box->Color;
+    //TColor red  = clRed;
+    //TColor blue = clBlue;
+    // ParentBackground propery of component must be set to false to see change in colour
+    for (int i = 0; i < 10; i++) {
+        if (i % 2) {
+            box->Color = orig;//red; //other;
+            //Panel2->Color = orig;//red; //other;
+        } else {
+            box->Color = other;
+            //Panel2->Color = blue;
+        }
+        Sleep(10); // ms
+        Repaint();
+    }
+}
+
 void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct vial; could be missing, swapped etc
     SampleRow * primary = currentSample();  // could be primary, primary w/backup, or secondary
     SampleRow * aliquot = currentAliquot(); // primary or secondary - this is a bit confusing
@@ -654,6 +672,8 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
     } else {
         Application->MessageBox(L"Barcode not matched", L"Info", MB_OK);
     }
+    flash(groupDest,    clRed);
+    flash(groupSource,  clBlue);
 }
 
 void TfrmRetrAsstCollectSamples::skip() { // defer

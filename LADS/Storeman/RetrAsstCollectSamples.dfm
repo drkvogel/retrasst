@@ -64,7 +64,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       TabOrder = 0
       OnClick = sgVialsClick
       OnDrawCell = sgVialsDrawCell
-      ExplicitHeight = 68
     end
     object panelLoading: TPanel
       Left = 248
@@ -116,7 +115,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitLeft = -2
       end
       object btnSimAccept: TButton
         Left = 868
@@ -138,7 +136,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     Align = alBottom
     Caption = 'Sign Off'
     TabOrder = 1
-    ExplicitTop = 540
     object btnAccept: TButton
       Left = 622
       Top = 15
@@ -148,7 +145,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Accept'
       TabOrder = 0
       OnClick = btnAcceptClick
-      ExplicitLeft = 391
     end
     object btnSkip: TButton
       Left = 772
@@ -159,7 +155,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Defer'
       TabOrder = 1
       OnClick = btnSkipClick
-      ExplicitLeft = 541
     end
     object editBarcode: TEdit
       Left = 372
@@ -175,7 +170,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 2
       OnKeyUp = editBarcodeKeyUp
-      ExplicitLeft = 141
       ExplicitHeight = 53
     end
     object btnNotFound: TButton
@@ -187,7 +181,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Not Found'
       TabOrder = 3
       OnClick = btnNotFoundClick
-      ExplicitLeft = 466
     end
     object Panel1: TPanel
       Left = 2
@@ -197,7 +190,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 4
-      ExplicitLeft = -50
       DesignSize = (
         185
         60)
@@ -210,8 +202,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Caption = 'Exit'
         TabOrder = 0
         OnClick = btnExitClick
-        ExplicitLeft = 871
-        ExplicitTop = 15
       end
       object cbLog: TCheckBox
         Left = 121
@@ -231,9 +221,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Height = 60
       Align = alLeft
       BevelOuter = bvNone
+      ParentBackground = False
       TabOrder = 5
-      ExplicitLeft = 97
-      ExplicitTop = -9
       object Label1: TLabel
         Left = 40
         Top = 0
@@ -284,7 +273,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       OnClick = sgChunksClick
       OnDrawCell = sgChunksDrawCell
       OnFixedCellClick = sgChunksFixedCellClick
-      ExplicitWidth = 874
     end
     object panelLegends: TPanel
       Left = 882
@@ -302,37 +290,39 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Align = alTop
         Caption = 'Chunk'
         TabOrder = 0
-        ExplicitWidth = 114
         object labelNew: TLabel
           Left = 2
           Top = 15
-          Width = 21
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'New'
           Color = clSkyBlue
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 21
         end
         object labelInProgress: TLabel
           Left = 2
           Top = 28
-          Width = 55
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'In Progress'
           Color = clMoneyGreen
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 55
         end
         object labelDone: TLabel
           Left = 2
           Top = 41
-          Width = 51
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'Completed'
           Transparent = False
+          ExplicitWidth = 51
         end
       end
       object groupVialKey: TGroupBox
@@ -346,57 +336,62 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         object labelVialKeyCollected: TLabel
           Left = 2
           Top = 41
-          Width = 47
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'Retrieved'
           Color = clAqua
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 47
         end
         object labelVialKeyExpectedBackup: TLabel
           Left = 2
           Top = 28
-          Width = 34
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'Backup'
           Color = clYellow
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 34
         end
         object labelVialKeyExpectedPrimary: TLabel
           Left = 2
           Top = 15
-          Width = 46
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'Preferred'
           Color = clHighlight
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 46
         end
         object labelVialKeyIgnored: TLabel
           Left = 2
           Top = 67
-          Width = 38
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'Ignored'
           Color = clLime
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 38
         end
         object labelVialKeyNotFound: TLabel
           Left = 2
           Top = 54
-          Width = 50
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'Not Found'
           Color = clFuchsia
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 50
         end
       end
     end
@@ -425,8 +420,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Align = alClient
       Caption = 'Sample ID'
       TabOrder = 1
-      ExplicitLeft = 265
-      ExplicitWidth = 383
       object labelSampleID: TLabel
         Left = 17
         Top = 13
@@ -448,7 +441,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitWidth = 379
         object groupPrimary: TGroupBox
           Left = 0
           Top = 0
@@ -465,8 +457,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           object labelPrimary: TLabel
             Left = 7
             Top = 20
-            Width = 80
-            Height = 16
+            Width = 147
+            Height = 20
             Align = alClient
             Caption = 'labelPrimary'
             Font.Charset = DEFAULT_CHARSET
@@ -476,6 +468,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
+            ExplicitWidth = 80
+            ExplicitHeight = 16
           end
         end
         object groupSecondary: TGroupBox
@@ -490,13 +484,11 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           Padding.Right = 5
           Padding.Bottom = 5
           TabOrder = 1
-          ExplicitLeft = 160
-          ExplicitHeight = 39
           object labelSecondary: TLabel
             Left = 7
             Top = 20
-            Width = 99
-            Height = 16
+            Width = 132
+            Height = 20
             Margins.Left = 5
             Margins.Top = 5
             Margins.Right = 5
@@ -510,6 +502,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
+            ExplicitWidth = 99
+            ExplicitHeight = 16
           end
         end
       end
@@ -521,11 +515,14 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Height = 113
       Align = alLeft
       Caption = 'Source'
+      ParentBackground = False
       TabOrder = 2
+      ExplicitLeft = 5
+      ExplicitTop = 11
       object labelStorage: TLabel
         Left = 2
         Top = 92
-        Width = 87
+        Width = 366
         Height = 19
         Align = alBottom
         Caption = 'labelStorage'
@@ -535,6 +532,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
+        ExplicitWidth = 87
       end
       object labelSite: TLabel
         Left = 24
@@ -579,11 +577,14 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Height = 113
       Align = alRight
       Caption = 'Destination'
+      ParentBackground = False
       TabOrder = 3
+      ExplicitLeft = 663
+      ExplicitTop = 11
       object labelDestString: TLabel
         Left = 2
         Top = 92
-        Width = 106
+        Width = 278
         Height = 19
         Align = alBottom
         Caption = 'labelDestString'
@@ -593,6 +594,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
+        ExplicitWidth = 106
       end
       object labelDestPos: TLabel
         Left = 32

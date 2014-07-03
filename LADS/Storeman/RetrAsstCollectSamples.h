@@ -134,6 +134,7 @@ private:
 	void										jobFinished();
     bool                                        destroying;  // for FormResize
     void                                        toggleLog();
+    void                                        flash(TGroupBox *box, TColor other);
 public:
     void                                        setJob(LCDbCryoJob * ajob) { job = ajob; }
     __fastcall TfrmRetrAsstCollectSamples(TComponent* Owner);
