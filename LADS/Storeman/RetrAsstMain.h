@@ -467,7 +467,8 @@ public:
     string progressString() {
         ostringstream oss;
         float percent = getProgress()*100;
-        oss<<processed<<"/"<<getSize()<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
+        //oss<<processed<<"/"<<getSize()<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
+        oss<<rowRel<<"("<<processed<<")/"<<getSize();//<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
         return oss.str();
     }
     int getStatus() { // return DONE|NOT_STARTED|INPROGRESS

@@ -627,14 +627,12 @@ void TfrmRetrAsstCollectSamples::showCurrentRow() {
     }
     showDetails(sample);
 
-    static int lastSrcBox = 0;
-    static int lastDstBox = 0;
-
+    // flash src and/or dest box if they are different to previous
+    static int lastSrcBox = 0, lastDstBox = 0;
     if (sample->store_record->getBoxID() != lastSrcBox) {
         flash(groupSource, clRed);
         lastSrcBox = sample->store_record->getBoxID();
     }
-
     if (sample->dest_box_id != lastDstBox) {
         flash(groupDest, clBlue);
         lastDstBox = sample->dest_box_id;
