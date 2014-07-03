@@ -689,23 +689,17 @@ void TfrmRetrAsstCollectSamples::showDetails(SampleRow * sample) {
 
 void TfrmRetrAsstCollectSamples::flash(TGroupBox *box, TColor other) { // TControl::Color is protected
     TColor orig = box->Color;
-    //TColor red  = clRed;
-    //TColor blue = clBlue;
-    // ParentBackground propery of component must be set to false to see change in colour
     for (int i = 0; i < 4; i++) {
         if (i % 2) {
-            box->Color = orig;//red; //other;
-            //Panel2->Color = orig;//red; //other;
+            box->Color = orig;
         } else {
             box->Color = other;
-            //Panel2->Color = blue;
         }
         Sleep(250); // ms
         /* In the UK, the flash rate of strobe lights is restricted to a maximum of
         four flashes a second by the Health and Safety Executive. This rate is considered to be safe for most people.
         http://www.nhs.uk/ipgmedia/national/epilepsy%20action/assets/photosensitiveepilepsy.pdf */
-
-        Repaint();
+        Repaint(); // ParentBackground propery of component must be set to false to see change in colour
     }
 }
 
@@ -717,7 +711,7 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
         case LCDbCryovialRetrieval::IGNORED:
             break; // ok, carry on
         case LCDbCryovialRetrieval::COLLECTED:
-			TfrmRetrievalAssistant::msgbox("Already collected"); return;
+			TfrmRetrievalAssistant::msgbox("Already retrieved"); return;
         case LCDbCryovialRetrieval::NOT_FOUND:
             if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) return;
     }
@@ -728,8 +722,7 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
             }
         } else { // it was the secondary - primary should already have been set NOT_FOUND, but make sure
             if (primary->lcr_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
-                //primary->lcr_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND); //???
-                throw runtime_error("primary not set NOT_FOUND");
+                throw runtime_error("primary not set NOT_FOUND"); //primary->lcr_record->setStatus(LCDbCryovialRetrieval::NOT_FOUND); //???
             }
         }
         aliquot->lcr_record->setStatus(LCDbCryovialRetrieval::COLLECTED); // set COLLECTED, primary or secondary
@@ -814,11 +807,6 @@ void TfrmRetrAsstCollectSamples::nextRow() {
             sgChunks->Row = sgChunks->Row+1; // next chunk
         }
     }
-
-
-
-    //flash(groupDest,    clRed);
-    //flash(groupSource,  clBlue);
 
     labelPrimary->Enabled = true; labelSecondary->Enabled = false; editBarcode->Clear(); ActiveControl = editBarcode; // focus for next barcode
 

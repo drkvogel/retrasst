@@ -569,21 +569,21 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         ParentFont = False
       end
       object labelSrcPos: TLabel
-        Left = 8
+        Left = 3
         Top = 24
-        Width = 174
-        Height = 42
+        Width = 198
+        Height = 48
         Caption = 'labelSrcPos'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -35
+        Font.Height = -40
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
       end
       object labelSrcBox: TLabel
-        Left = 74
-        Top = 24
+        Left = 70
+        Top = 29
         Width = 108
         Height = 25
         Caption = 'labelSrcBox'
@@ -625,19 +625,19 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       object labelDestPos: TLabel
         Left = 6
         Top = 24
-        Width = 195
-        Height = 42
+        Width = 223
+        Height = 48
         Caption = 'labelDestPos'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -35
+        Font.Height = -40
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
       end
       object labelDestBox: TLabel
-        Left = 70
-        Top = 24
+        Left = 72
+        Top = 29
         Width = 119
         Height = 25
         Caption = 'labelDestBox'
