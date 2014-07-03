@@ -620,7 +620,7 @@ void TfrmRetrAsstCollectSamples::showDetails(SampleRow * sample) {
     } else {
         labelSampleID->Caption  = sample->cryovial_barcode.c_str();
         labelStorage->Caption   = sample->storage_str().c_str();
-        labelDestbox->Caption   = sample->dest_str().c_str();
+        //labelDestbox->Caption   = sample->dest_str().c_str();
         //labelDestype->Caption   = sample->dest_type_name.c_str();
     }
 }
