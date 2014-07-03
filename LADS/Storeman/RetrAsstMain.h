@@ -426,20 +426,39 @@ public:
                 throw runtime_error("unknown status");
         }
     }
+    //bool isProcessed()
     float getProgress() {
         processed = 0; int size = getSize(); if (0 == size) return 0;
         for (int i=0; i<size; i++) { // there could be gaps (previously deferred vials). Gotta count 'em.
-            int status = objectAtRel(i)->lcr_record->getStatus();
-            switch (status) { // EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND
+            SampleRow * sample = objectAtRel(i);
+            switch (sample->lcr_record->getStatus()) { // EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND
                 case LCDbCryovialRetrieval::EXPECTED:
                 case LCDbCryovialRetrieval::IGNORED:
                     break;
                 case LCDbCryovialRetrieval::COLLECTED:
-                case LCDbCryovialRetrieval::NOT_FOUND:
                 case LCDbCryovialRetrieval::DISPOSED:
                     processed++; break;
+                case LCDbCryovialRetrieval::NOT_FOUND:
+                    if (sample->backup) {
+                        switch (sample->backup->lcr_record->getStatus()) {
+                            case LCDbCryovialRetrieval::EXPECTED:
+                            case LCDbCryovialRetrieval::IGNORED:
+                                break;
+                            case LCDbCryovialRetrieval::COLLECTED:
+                            case LCDbCryovialRetrieval::DISPOSED:
+                            case LCDbCryovialRetrieval::NOT_FOUND:
+                                processed++; break;
+                            default:
+                                int backupStatus = sample->backup->lcr_record->getStatus();
+                                throw runtime_error("unexpected LCDbCryovialRetrieval status"+to_string((long long)backupStatus));
+                        }
+                    } else {
+                        processed++;
+                    }
+                    break;
                 default:
-                    throw runtime_error("unexpected LCDbCryovialRetrieval status");
+                    int status = sample->lcr_record->getStatus();
+                    throw runtime_error("unexpected LCDbCryovialRetrieval status: "+to_string((long long)status));
                         // e.g. if status enum in LCDbCryovialRetrieval changed and plan using old scheme loaded
             }
         }
