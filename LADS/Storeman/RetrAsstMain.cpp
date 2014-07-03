@@ -180,7 +180,7 @@ string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { // c_o
 void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
 
 void TfrmRetrievalAssistant::init() {
-    cbLog->Checked      = RETRASSTDEBUG;
+    cbLog->Checked      = false;//RETRASSTDEBUG;
     cbLog->Visible      = true;//= RETRASSTDEBUG;
 	panelDebug->Visible = cbLog->Checked;
 

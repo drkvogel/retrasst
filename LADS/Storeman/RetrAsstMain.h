@@ -239,6 +239,7 @@ public:
         ostringstream oss;
         oss<<site_name<<"["<<vessel_pos<<"]: "
             <<vessel_name<<":"<<shelf_number<<"["<<structure_pos<<"]/"<<structure_name<<"["<<box_pos<<"]";
+        // fixme doesn't include box name and cryo position!
         return oss.str();
     }
     string dest_str() { // for public consumption

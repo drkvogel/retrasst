@@ -125,7 +125,7 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
 
 void __fastcall TfrmRetrAsstCollectSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
-    cbLog->Checked      = RETRASSTDEBUG;
+    cbLog->Checked      = false;//RETRASSTDEBUG;
     sgVials->Enabled    = RETRASSTDEBUG;
     panelDebug->Visible = cbLog->Checked;
     job                 = NULL;
@@ -329,8 +329,25 @@ void __fastcall TfrmRetrAsstCollectSamples::FormShow(TObject *Sender) {
     sgwChunks->clear();
     sgwVials->clear();
     frmRetrievalAssistant->clearStorageCache();
+
+    // sample ID
     labelSampleID->Caption  = "loading...";
+
+    // source
+    labelSrcPos->Caption    = "";
+    labelSrcBox->Caption    = "loading...";
+    labelSite->Caption      = "";
+    labelVessel->Caption    = "";
+    labelStructure->Caption = "";
+    labelSlot->Caption      = "";
+
+    // debug
     labelStorage->Caption   = "loading...";
+
+    // destination
+    labelDestPos->Caption   = "";
+    labelDestBox->Caption   = "loading...";
+
     //labelDestbox->Caption   = "loading...";
     //labelDestype->Caption   = "loading...";
     labelPrimary->Caption   = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str();
@@ -535,7 +552,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     rowCount = 0;
     for (auto &row: collect->combined) {
         if (0 == ++rowCount % 10) {
-            ostringstream oss; oss<<"Adding storage details ["<<rowCount<<"/"<<combinedCount<<"]";
+            ostringstream oss; oss<<"Finding storage details ["<<rowCount<<"/"<<combinedCount<<"]";
             updateStatus(oss.str());
         }
         addSampleDetails(row); // adds storage details and box tube type name, good for combined aliquots
@@ -609,18 +626,63 @@ void TfrmRetrAsstCollectSamples::showCurrentRow() {
         sgVials->Row = rowRel + 1;    // allow for header row
     }
     showDetails(sample);
+
+    static int lastSrcBox = 0;
+    static int lastDstBox = 0;
+
+    if (sample->store_record->getBoxID() != lastSrcBox) {
+        flash(groupSource, clRed);
+        lastSrcBox = sample->store_record->getBoxID();
+    }
+
+    if (sample->dest_box_id != lastDstBox) {
+        flash(groupDest, clBlue);
+        lastDstBox = sample->dest_box_id;
+    }
 }
 
 void TfrmRetrAsstCollectSamples::showDetails(SampleRow * sample) {
     if (NULL == sample) {
+        // sample ID
         labelSampleID->Caption  = "";
-        labelStorage->Caption   = "Chunk completed";
+
+        // source
+        labelSrcPos->Caption    = "";
+        labelSrcBox->Caption    = "";
+        labelSite->Caption      = "";
+        labelVessel->Caption    = "";
+        labelStructure->Caption = "";
+        labelSlot->Caption      = "";
+
+        // debug
+        labelStorage->Caption   = "";//???"Chunk completed";
+
+        // destination
+        labelDestPos->Caption   = "";
+        labelDestBox->Caption   = "";
         //labelDestbox->Caption   = "";
         //labelDestype->Caption   = "";
     } else {
+        // sample ID
         labelSampleID->Caption  = sample->cryovial_barcode.c_str();
+
+        // source
+        labelSrcPos->Caption    = sample->store_record->getPosition();
+        labelSrcBox->Caption    = sample->src_box_name.c_str();
+        labelSite->Caption      = sample->site_name.c_str();
+        labelVessel->Caption    = sample->vessel_name.c_str();
+        labelStructure->Caption = sample->structure_name.c_str();
+        labelSlot->Caption      = sample->box_pos;
+
+        // debug
         labelStorage->Caption   = sample->storage_str().c_str();
-        //labelDestbox->Caption   = sample->dest_str().c_str();
+        //<<site_name<<"["<<vessel_pos<<"]: "
+        //<<vessel_name<<":"<<shelf_number<<"["<<structure_pos<<"]/"<<structure_name<<"["<<box_pos<<"]";
+
+        // destination
+        labelDestPos->Caption   = sample->dest_cryo_pos;
+        labelDestBox->Caption   = sample->dest_box_name.c_str();
+        labelDestString->Caption   = sample->dest_str().c_str();
         //labelDestype->Caption   = sample->dest_type_name.c_str();
     }
 }
@@ -630,7 +692,7 @@ void TfrmRetrAsstCollectSamples::flash(TGroupBox *box, TColor other) { // TContr
     //TColor red  = clRed;
     //TColor blue = clBlue;
     // ParentBackground propery of component must be set to false to see change in colour
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 4; i++) {
         if (i % 2) {
             box->Color = orig;//red; //other;
             //Panel2->Color = orig;//red; //other;
@@ -638,7 +700,11 @@ void TfrmRetrAsstCollectSamples::flash(TGroupBox *box, TColor other) { // TContr
             box->Color = other;
             //Panel2->Color = blue;
         }
-        Sleep(10); // ms
+        Sleep(250); // ms
+        /* In the UK, the flash rate of strobe lights is restricted to a maximum of
+        four flashes a second by the Health and Safety Executive. This rate is considered to be safe for most people.
+        http://www.nhs.uk/ipgmedia/national/epilepsy%20action/assets/photosensitiveepilepsy.pdf */
+
         Repaint();
     }
 }
@@ -672,8 +738,6 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
     } else {
         Application->MessageBox(L"Barcode not matched", L"Info", MB_OK);
     }
-    flash(groupDest,    clRed);
-    flash(groupSource,  clBlue);
 }
 
 void TfrmRetrAsstCollectSamples::skip() { // defer
@@ -750,6 +814,12 @@ void TfrmRetrAsstCollectSamples::nextRow() {
             sgChunks->Row = sgChunks->Row+1; // next chunk
         }
     }
+
+
+
+    //flash(groupDest,    clRed);
+    //flash(groupSource,  clBlue);
+
     labelPrimary->Enabled = true; labelSecondary->Enabled = false; editBarcode->Clear(); ActiveControl = editBarcode; // focus for next barcode
 
     showChunks();

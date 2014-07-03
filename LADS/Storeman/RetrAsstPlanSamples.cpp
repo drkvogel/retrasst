@@ -79,7 +79,7 @@ void __fastcall SavePlanThread::debugLog() {
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::FormCreate(TObject *Sender) {
-    cbLog->Checked      = RETRASSTDEBUG;
+    cbLog->Checked      = false;//RETRASSTDEBUG;
     cbLog->Visible      = RETRASSTDEBUG;
     panelDebug->Visible = cbLog->Checked;
     box_size            = DEFAULT_BOX_SIZE;

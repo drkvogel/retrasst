@@ -137,7 +137,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     Caption = 'Sign Off'
     TabOrder = 1
     object btnAccept: TButton
-      Left = 622
+      Left = 730
       Top = 15
       Width = 75
       Height = 60
@@ -145,9 +145,10 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Accept'
       TabOrder = 0
       OnClick = btnAcceptClick
+      ExplicitLeft = 622
     end
     object btnSkip: TButton
-      Left = 772
+      Left = 880
       Top = 15
       Width = 75
       Height = 60
@@ -155,11 +156,12 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Defer'
       TabOrder = 1
       OnClick = btnSkipClick
+      ExplicitLeft = 772
     end
     object editBarcode: TEdit
-      Left = 372
+      Left = 433
       Top = 15
-      Width = 250
+      Width = 297
       Height = 60
       Align = alLeft
       Font.Charset = DEFAULT_CHARSET
@@ -170,10 +172,10 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 2
       OnKeyUp = editBarcodeKeyUp
-      ExplicitHeight = 53
+      ExplicitLeft = 393
     end
     object btnNotFound: TButton
-      Left = 697
+      Left = 805
       Top = 15
       Width = 75
       Height = 60
@@ -181,17 +183,18 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Not Found'
       TabOrder = 3
       OnClick = btnNotFoundClick
+      ExplicitLeft = 697
     end
     object Panel1: TPanel
       Left = 2
       Top = 15
-      Width = 185
+      Width = 263
       Height = 60
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 4
       DesignSize = (
-        185
+        263
         60)
       object btnExit: TButton
         Left = 0
@@ -204,8 +207,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         OnClick = btnExitClick
       end
       object cbLog: TCheckBox
-        Left = 121
-        Top = 17
+        Left = 81
+        Top = 1
         Width = 64
         Height = 17
         Anchors = [akRight, akBottom]
@@ -215,9 +218,9 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       end
     end
     object Panel2: TPanel
-      Left = 187
+      Left = 265
       Top = 15
-      Width = 185
+      Width = 168
       Height = 60
       Align = alLeft
       BevelOuter = bvNone
@@ -404,22 +407,15 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     Align = alBottom
     Caption = 'Details'
     TabOrder = 3
-    object panelBarcode: TPanel
-      Left = 165
-      Top = 26
-      Width = 236
-      Height = 113
-      BevelOuter = bvNone
-      TabOrder = 0
-    end
     object groupSampleID: TGroupBox
-      Left = 372
+      Left = 433
       Top = 15
-      Width = 292
+      Width = 297
       Height = 113
-      Align = alClient
+      Align = alLeft
       Caption = 'Sample ID'
-      TabOrder = 1
+      TabOrder = 0
+      ExplicitLeft = 392
       object labelSampleID: TLabel
         Left = 17
         Top = 13
@@ -436,11 +432,13 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       object panelAliquots: TPanel
         Left = 2
         Top = 64
-        Width = 288
+        Width = 293
         Height = 47
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 4
+        ExplicitWidth = 570
         object groupPrimary: TGroupBox
           Left = 0
           Top = 0
@@ -473,7 +471,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           end
         end
         object groupSecondary: TGroupBox
-          Left = 142
+          Left = 147
           Top = 0
           Width = 146
           Height = 47
@@ -484,6 +482,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           Padding.Right = 5
           Padding.Bottom = 5
           TabOrder = 1
+          ExplicitLeft = 142
           object labelSecondary: TLabel
             Left = 7
             Top = 20
@@ -511,104 +510,159 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     object groupSource: TGroupBox
       Left = 2
       Top = 15
-      Width = 370
+      Width = 431
       Height = 113
       Align = alLeft
       Caption = 'Source'
       ParentBackground = False
-      TabOrder = 2
-      ExplicitLeft = 5
-      ExplicitTop = 11
-      object labelStorage: TLabel
-        Left = 2
-        Top = 92
-        Width = 366
-        Height = 19
-        Align = alBottom
-        Caption = 'labelStorage'
+      TabOrder = 1
+      object labelSite: TLabel
+        Left = 361
+        Top = 82
+        Width = 35
+        Height = 11
+        Caption = 'labelSite'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -16
+        Font.Height = -9
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
-        ExplicitWidth = 87
-      end
-      object labelSite: TLabel
-        Left = 24
-        Top = 72
-        Width = 40
-        Height = 13
-        Caption = 'labelSite'
       end
       object labelVessel: TLabel
-        Left = 16
-        Top = 48
-        Width = 52
-        Height = 13
+        Left = 233
+        Top = 72
+        Width = 102
+        Height = 25
         Caption = 'labelVessel'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -21
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
       end
       object labelStructure: TLabel
-        Left = 16
-        Top = 24
-        Width = 67
-        Height = 13
+        Left = 41
+        Top = 72
+        Width = 131
+        Height = 25
         Caption = 'labelStructure'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -21
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
       end
       object labelSlot: TLabel
-        Left = 64
-        Top = 16
-        Width = 40
-        Height = 13
+        Left = 16
+        Top = 74
+        Width = 70
+        Height = 23
         Caption = 'labelSlot'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -19
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
       end
-      object labelPosInBox: TLabel
-        Left = 128
-        Top = 16
-        Width = 67
-        Height = 13
-        Caption = 'labelPosInBox'
+      object labelSrcPos: TLabel
+        Left = 8
+        Top = 24
+        Width = 174
+        Height = 42
+        Caption = 'labelSrcPos'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -35
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object labelSrcBox: TLabel
+        Left = 74
+        Top = 24
+        Width = 108
+        Height = 25
+        Caption = 'labelSrcBox'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -21
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
       end
     end
     object groupDest: TGroupBox
-      Left = 664
+      Left = 730
       Top = 15
-      Width = 282
+      Width = 216
       Height = 113
-      Align = alRight
+      Align = alClient
       Caption = 'Destination'
       ParentBackground = False
-      TabOrder = 3
-      ExplicitLeft = 663
-      ExplicitTop = 11
+      TabOrder = 2
+      ExplicitLeft = 753
+      ExplicitWidth = 193
       object labelDestString: TLabel
         Left = 2
-        Top = 92
-        Width = 278
-        Height = 19
+        Top = 98
+        Width = 212
+        Height = 13
         Align = alBottom
         Caption = 'labelDestString'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -16
+        Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
-        ExplicitWidth = 106
+        ExplicitTop = 92
+        ExplicitWidth = 72
       end
       object labelDestPos: TLabel
-        Left = 32
+        Left = 6
         Top = 24
-        Width = 61
-        Height = 13
+        Width = 195
+        Height = 42
         Caption = 'labelDestPos'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -35
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
       end
       object labelDestBox: TLabel
-        Left = 32
-        Top = 56
-        Width = 62
-        Height = 13
+        Left = 70
+        Top = 24
+        Width = 119
+        Height = 25
         Caption = 'labelDestBox'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -21
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object labelStorage: TLabel
+        Left = 2
+        Top = 85
+        Width = 212
+        Height = 13
+        Align = alBottom
+        Caption = 'labelStorage'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        ExplicitTop = 79
+        ExplicitWidth = 60
       end
     end
   end

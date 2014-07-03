@@ -35,7 +35,6 @@ __published:
     TMemo *memoDebug;
     TButton *btnSimAccept;
     TButton *btnNotFound;
-    TPanel *panelBarcode;
     TSplitter *Splitter2;
     TSplitter *splitterDebug;
     TPanel *panelLegends;
@@ -59,7 +58,6 @@ __published:
     TGroupBox *groupSource;
     TGroupBox *groupDest;
     TLabel *labelDestString;
-    TLabel *labelStorage;
     TPanel *Panel1;
     TPanel *Panel2;
     TLabel *Label1;
@@ -72,7 +70,9 @@ __published:
     TLabel *labelVessel;
     TLabel *labelStructure;
     TLabel *labelSlot;
-    TLabel *labelPosInBox;
+    TLabel *labelSrcPos;
+    TLabel *labelStorage;
+    TLabel *labelSrcBox;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
