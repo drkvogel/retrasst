@@ -81,7 +81,7 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  60);
     sgwChunks->addCol("status",   "Status",   91);
-    //sgwChunks->addCol("item",     "Item",     50);
+    sgwChunks->addCol("item",     "Item",     50);
     sgwChunks->addCol("progress", "Progress", 91);
     sgwChunks->addCol("start",    "Start",    70);
     sgwChunks->addCol("startbox", "Box",      250);
@@ -369,6 +369,7 @@ void TfrmRetrAsstCollectSamples::showChunks() {
         Chunk< SampleRow > * chunk = *it;
         sgChunks->Cells[sgwChunks->colNameToInt("section")]   [row] = chunk->getSection();
         sgChunks->Cells[sgwChunks->colNameToInt("status")]    [row] = chunk->statusString().c_str();
+        sgChunks->Cells[sgwChunks->colNameToInt("item")]      [row] = chunk->getRowRel()+1;
         sgChunks->Cells[sgwChunks->colNameToInt("progress")]  [row] = chunk->progressString().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("start")]     [row] = chunk->getStartAbs() + 1;
         sgChunks->Cells[sgwChunks->colNameToInt("startbox")]  [row] = chunk->getStartBox().c_str();
@@ -417,9 +418,10 @@ void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) { // defa
     showCurrentRow();
 
     // progress including current item is only known once vials are displayed and next unactioned sample is found
-    int row = sgChunks->Row;
+    int currentChunkRow = sgChunks->Row;
     string temp  = chunk->progressString().c_str();
-    sgChunks->Cells[sgwChunks->colNameToInt("progress")]  [sgChunks->Row] = chunk->progressString().c_str();
+    sgChunks->Cells[sgwChunks->colNameToInt("item")]      [currentChunkRow] = chunk->getRowRel()+1;
+    sgChunks->Cells[sgwChunks->colNameToInt("progress")]  [currentChunkRow] = chunk->progressString().c_str();
 
     Screen->Cursor = crDefault; Enabled = true;
 }
