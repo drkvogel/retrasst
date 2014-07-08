@@ -81,6 +81,7 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
     sgwChunks = new StringGridWrapper< Chunk< SampleRow > >(sgChunks, &chunks);
     sgwChunks->addCol("section",  "Section",  60);
     sgwChunks->addCol("status",   "Status",   91);
+    //sgwChunks->addCol("item",     "Item",     50);
     sgwChunks->addCol("progress", "Progress", 91);
     sgwChunks->addCol("start",    "Start",    70);
     sgwChunks->addCol("startbox", "Box",      250);
@@ -348,8 +349,6 @@ void __fastcall TfrmRetrAsstCollectSamples::FormShow(TObject *Sender) {
     labelDestPos->Caption   = "";
     labelDestBox->Caption   = "loading...";
 
-    //labelDestbox->Caption   = "loading...";
-    //labelDestype->Caption   = "loading...";
     labelPrimary->Caption   = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str();
     labelSecondary->Caption = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str();
     labelPrimary->Enabled   = true;
@@ -361,8 +360,10 @@ void TfrmRetrAsstCollectSamples::showChunks() {
     if (0 == chunks.size()) {
         //return; // e.g. for "cannot handle multiple projects"
         throw runtime_error("No chunks"); // must always have one chunk?
-    }
-    else { sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1; } // "Fixed row count must be LESS than row count"
+    } else {
+        sgChunks->RowCount = chunks.size() + 1; sgChunks->FixedRows = 1;
+    } // "Fixed row count must be LESS than row count"
+
     int row = 1;
     for (vector< Chunk< SampleRow > * >::const_iterator it = chunks.begin(); it != chunks.end(); it++, row++) {
         Chunk< SampleRow > * chunk = *it;
@@ -388,7 +389,7 @@ Chunk< SampleRow > * TfrmRetrAsstCollectSamples::currentChunk() {
     return chunk;
 }
 
-void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) {
+void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) { // default: NULL
     Screen->Cursor = crSQLWait; Enabled = false;
     if (NULL == chunk) { // default
         chunk = currentChunk();
@@ -400,7 +401,7 @@ void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) {
         sgVials->FixedRows = 1;
     }
     for (int row=0; row < chunk->getSize(); row++) {
-        SampleRow *         sampleRow = chunk->objectAtRel(row);
+        SampleRow * sampleRow = chunk->objectAtRel(row);
         fillRow(sampleRow, row+1); // row+1 for stringgrid
     }
     if (1.0 == chunk->getProgress()) { // completed
@@ -412,7 +413,14 @@ void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) {
         btnSkip->Enabled     = true;
         btnNotFound->Enabled = true;
     }
+
     showCurrentRow();
+
+    // progress including current item is only known once vials are displayed and next unactioned sample is found
+    int row = sgChunks->Row;
+    string temp  = chunk->progressString().c_str();
+    sgChunks->Cells[sgwChunks->colNameToInt("progress")]  [sgChunks->Row] = chunk->progressString().c_str();
+
     Screen->Cursor = crDefault; Enabled = true;
 }
 
@@ -682,13 +690,14 @@ void TfrmRetrAsstCollectSamples::showDetails(SampleRow * sample) {
 
 void TfrmRetrAsstCollectSamples::flash(TGroupBox *box, TColor other) { // TControl::Color is protected
     TColor orig = box->Color;
+    int sleepms = RETRASSTDEBUG ? 10 : 250; // get on with it : HSE-approved
     for (int i = 0; i < 4; i++) {
         if (i % 2) {
             box->Color = orig;
         } else {
             box->Color = other;
         }
-        Sleep(250); // ms
+        Sleep(sleepms); // ms
         /* In the UK, the flash rate of strobe lights is restricted to a maximum of
         four flashes a second by the Health and Safety Executive. This rate is considered to be safe for most people.
         http://www.nhs.uk/ipgmedia/national/epilepsy%20action/assets/photosensitiveepilepsy.pdf */

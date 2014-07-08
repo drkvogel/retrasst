@@ -750,3 +750,20 @@ useful sql queries could all live in one file
 
 e.g "loading vials for job:" gives more details inc db name
 
+# meeting 2014-07-02 MR, NG, CB
+
+* refresh job list after save plan
+* what I call 'pos' for vessel should be 'loc'/location in site, pos, vessel
+* some location info not required (in brackets: site, loc, vessel, [shelf,] [pos,] structure, slot
+* idea of 'secondary' may be spurious, refer to 'backup' instead
+* prefer 'retrieve' to 'collect'
+* lose box type in collect screen (it was required for plan screen though?)
+* prefer 'pos 1 in box 1' to 'box 1 [1]'
+* lose percentage in chunk progress
+* chunk progress should show position in list as well as items dealt with (in a separate column?) 
+    * get thesaurus out: "completed", "dealt with"
+* reorganise info at bottom of retrieve screen: 3 panels: src, barcode, dest; with barcode entry input underneath barcode
+* prompts for new src box and new dest box - flash different colours for each? beep? sample?
+* bug: don't count combined(/compound?) sample where primary is not found, but backup is not actioned/deferred as 'done' (ie. shouldn't count in chunk progress, but does) 
+* narrower sorters - almost went off screen.
+    - prefer 'asc' to 'ascending' and reduce width of widgets

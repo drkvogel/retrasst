@@ -119,10 +119,14 @@
         <LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib</LinkPackageStatics>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-        <VerInfo_Build>16</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.12.16;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <Debugger_DebugSourcePath>..\Storeman\RationaliseTanks\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
-        <LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib</LinkPackageStatics>
+        <Debugger_IncludeSystemVars>true</Debugger_IncludeSystemVars>
+        <UsePackages>true</UsePackages>
+        <LinkPackageImports>vcl.bpi;rtl.bpi;vclimg.bpi;vclx.bpi</LinkPackageImports>
+        <Debugger_SymbolSourcePath>C:\Users\cbird\Projects\retrieval-assistant\LADS\Storeman;C:\Users\cbird\Projects\retrieval-assistant\LADS\Storeman\Win64\Debug;$(Debugger_SymbolSourcePath)</Debugger_SymbolSourcePath>
+        <VerInfo_Build>17</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.12.17;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <Debugger_DebugSourcePath>.;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
+        <LinkPackageStatics>IndyCore.lib;IndySystem.lib;IndyProtocols.lib</LinkPackageStatics>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <UsePackages>false</UsePackages>
@@ -748,59 +752,59 @@
             <DependentOn>..\..\paulst\WorkerThread.h</DependentOn>
             <BuildOrder>120</BuildOrder>
         </CppCompile>
-        <FormResources Include="RationaliseTanks\RatTanksdbSelection.dfm"/>
         <FormResources Include="RationaliseTanks\RatTanksMainDialog.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksdbSelection.dfm"/>
         <FormResources Include="RationaliseTanks\RatTanksBoxType.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksCreateExercise.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksCreateRetrievalJob.dfm"/>
-        <FormResources Include="RetrAsstCollectBoxes.dfm"/>
-        <FormResources Include="RetrAsstCollectEmpties.dfm"/>
-        <FormResources Include="RetrAsstCollectSamples.dfm"/>
-        <FormResources Include="ReferredBoxesSummary.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksPleaseWait.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksSignIn.dfm"/>
-        <FormResources Include="ReferredBoxes.dfm"/>
         <FormResources Include="RationaliseTanks\RatTanksBoxSelection.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksCreateRetrievalJob.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksCreateExercise.dfm"/>
+        <FormResources Include="RetrAsstCollectBoxes.dfm"/>
+        <FormResources Include="ReferredBoxesSummary.dfm"/>
+        <FormResources Include="RetrAsstCollectSamples.dfm"/>
+        <FormResources Include="RetrAsstCollectEmpties.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksPleaseWait.dfm"/>
+        <FormResources Include="ReferredBoxes.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksSignIn.dfm"/>
         <FormResources Include="FindSample.dfm"/>
         <FormResources Include="DiscardPrologue.dfm"/>
-        <FormResources Include="DiscardSamples.dfm"/>
+        <FormResources Include="DiscardNote.dfm"/>
         <FormResources Include="DiscardSearch.dfm"/>
-        <FormResources Include="MoveJobs.dfm"/>
+        <FormResources Include="DiscardSamples.dfm"/>
         <FormResources Include="NewSite.dfm"/>
-        <FormResources Include="NewTank.dfm"/>
-        <FormResources Include="NewType.dfm"/>
         <FormResources Include="NewSection.dfm"/>
+        <FormResources Include="NewType.dfm"/>
+        <FormResources Include="NewTank.dfm"/>
         <FormResources Include="NewBoxType.dfm"/>
-        <FormResources Include="NewExercise.dfm"/>
+        <FormResources Include="MoveJobs.dfm"/>
         <FormResources Include="NewJob.dfm"/>
-        <FormResources Include="RetrAsstMain.dfm"/>
+        <FormResources Include="NewExercise.dfm"/>
         <FormResources Include="SMLogin.dfm"/>
-        <FormResources Include="Storemain.dfm"/>
         <FormResources Include="showsamples.dfm"/>
+        <FormResources Include="Storemain.dfm"/>
         <FormResources Include="RetrievalLists\retrievalListMainDialog.dfm"/>
         <FormResources Include="RetrAsstPlanBoxes.dfm"/>
-        <FormResources Include="RetrAsstPlanSamples.dfm"/>
+        <FormResources Include="RetrAsstMain.dfm"/>
         <FormResources Include="RetrievalLists\RetrievalListCryovialHistoryDialog.dfm"/>
-        <FormResources Include="RetrievalLists\RetrievalListMainListDialog.dfm"/>
-        <FormResources Include="SampleMove.dfm"/>
-        <FormResources Include="SelectSamples.dfm"/>
+        <FormResources Include="RetrAsstPlanSamples.dfm"/>
         <FormResources Include="SampleEntry.dfm"/>
+        <FormResources Include="SelectSamples.dfm"/>
+        <FormResources Include="SampleMove.dfm"/>
         <FormResources Include="RetrievalLists\RetrievalListResultNotesDialog.dfm"/>
-        <FormResources Include="RetrievalLists\RetrievalListResultsDialog.dfm"/>
+        <FormResources Include="RetrievalLists\RetrievalListMainListDialog.dfm"/>
         <FormResources Include="RetrieveSamples.dfm"/>
-        <FormResources Include="DiscardNote.dfm"/>
-        <FormResources Include="AddSpecimens.dfm"/>
+        <FormResources Include="RetrievalLists\RetrievalListResultsDialog.dfm"/>
         <FormResources Include="AnalyseSamples.dfm"/>
+        <FormResources Include="AddSpecimens.dfm"/>
         <FormResources Include="DiscardMethod.dfm"/>
         <FormResources Include="BoxTransfer.dfm"/>
-        <FormResources Include="BrowseSample.dfm"/>
         <FormResources Include="Configure.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
+        <FormResources Include="BrowseSample.dfm"/>
         <FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmSelectDbS.dfm"/>
         <FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
         <FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
         <FormResources Include="..\LabsForms\dvSelector.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmSelectDbS.dfm"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -868,11 +872,11 @@
                     <ProjectProperties Name="VerifyPackages">True</ProjectProperties>
                 </ProjectProperties>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclDBXDrivers180.bpl">Embarcadero Driver Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclDBXDriversInt180.bpl">Embarcadero Intro Driver Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\DataExplorerDBXPlugin180.bpl">DBExpress Data Explorer Integration</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
                 </Excluded_Packages>
             </CPlusPlusBuilder.Personality>
             <Deployment/>

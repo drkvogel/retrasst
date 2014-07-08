@@ -40,7 +40,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
-    ExplicitHeight = 225
     object splitterDebug: TSplitter
       Left = 2
       Top = 96
@@ -65,7 +64,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       TabOrder = 0
       OnClick = sgVialsClick
       OnDrawCell = sgVialsDrawCell
-      ExplicitHeight = 65
     end
     object panelLoading: TPanel
       Left = 248
@@ -93,7 +91,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       BevelEdges = []
       Caption = 'panelDebug'
       TabOrder = 2
-      ExplicitTop = 88
       object Splitter2: TSplitter
         Left = 1
         Top = 1
@@ -148,7 +145,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Accept'
       TabOrder = 0
       OnClick = btnAcceptClick
-      ExplicitLeft = 622
     end
     object btnSkip: TButton
       Left = 880
@@ -159,7 +155,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Defer'
       TabOrder = 1
       OnClick = btnSkipClick
-      ExplicitLeft = 772
     end
     object editBarcode: TEdit
       Left = 433
@@ -175,7 +170,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 2
       OnKeyUp = editBarcodeKeyUp
-      ExplicitLeft = 393
+      ExplicitHeight = 53
     end
     object btnNotFound: TButton
       Left = 805
@@ -186,7 +181,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Not Found'
       TabOrder = 3
       OnClick = btnNotFoundClick
-      ExplicitLeft = 697
     end
     object Panel1: TPanel
       Left = 2
@@ -411,9 +405,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Source'
       ParentBackground = False
       TabOrder = 0
-      ExplicitLeft = 4
-      ExplicitTop = 3
-      ExplicitHeight = 39
       object labelSite: TLabel
         Left = 361
         Top = 78
@@ -515,9 +506,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Align = alLeft
       Caption = 'Sample ID'
       TabOrder = 1
-      ExplicitLeft = 392
-      ExplicitTop = 15
-      ExplicitHeight = 113
       object labelSampleID: TLabel
         Left = 17
         Top = 13
@@ -539,7 +527,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitTop = -10
         object groupPrimary: TGroupBox
           Left = 0
           Top = 0
@@ -612,10 +599,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Destination'
       ParentBackground = False
       TabOrder = 2
-      ExplicitLeft = 753
-      ExplicitTop = 15
-      ExplicitWidth = 193
-      ExplicitHeight = 113
       object labelDestString: TLabel
         Left = 2
         Top = 99
