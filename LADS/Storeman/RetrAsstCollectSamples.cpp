@@ -641,48 +641,43 @@ void TfrmRetrAsstCollectSamples::showCurrentRow() {
 
 void TfrmRetrAsstCollectSamples::showDetails(SampleRow * sample) {
     if (NULL == sample) {
-        // sample ID
-        labelSampleID->Caption  = "";
-
-        // source
+		// source
         labelSrcPos->Caption    = "";
         labelSrcBox->Caption    = "";
         labelSite->Caption      = "";
         labelVessel->Caption    = "";
         labelStructure->Caption = "";
-        labelSlot->Caption      = "";
+		labelSlot->Caption      = "";
 
-        // debug
-        labelStorage->Caption   = "";//???"Chunk completed";
-
-        // destination
-        labelDestPos->Caption   = "";
-        labelDestBox->Caption   = "";
-        //labelDestbox->Caption   = "";
-        //labelDestype->Caption   = "";
-    } else {
         // sample ID
-        labelSampleID->Caption  = sample->cryovial_barcode.c_str();
+		labelSampleID->Caption  = "";
 
-        // source
-        labelSrcPos->Caption    = sample->store_record->getPosition();
-        labelSrcBox->Caption    = sample->src_box_name.c_str();
-        labelSite->Caption      = sample->site_name.c_str();
-        labelVessel->Caption    = sample->vessel_name.c_str();
-        labelStructure->Caption = sample->structure_name.c_str();
-        labelSlot->Caption      = sample->box_pos;
+		// destination
+		labelDestPos->Caption   = "";
+		labelDestBox->Caption   = "";
 
-        // debug
-        labelStorage->Caption   = sample->storage_str().c_str();
-        //<<site_name<<"["<<vessel_pos<<"]: "
-        //<<vessel_name<<":"<<shelf_number<<"["<<structure_pos<<"]/"<<structure_name<<"["<<box_pos<<"]";
+		// debug
+		labelStorage->Caption   = "";//???"Chunk completed";
+	} else {
+		// source
+		labelSrcPos->Caption    = sample->store_record->getPosition();
+		labelSrcBox->Caption    = sample->src_box_name.c_str();
+		labelSite->Caption      = sample->site_name.c_str();
+		labelVessel->Caption    = sample->vessel_name.c_str();
+		labelStructure->Caption = sample->structure_name.c_str();
+		labelSlot->Caption      = sample->box_pos;
+
+		// sample ID
+		labelSampleID->Caption  = sample->cryovial_barcode.c_str();
 
         // destination
         labelDestPos->Caption   = sample->dest_cryo_pos;
         labelDestBox->Caption   = sample->dest_box_name.c_str();
-        labelDestString->Caption   = sample->dest_str().c_str();
-        //labelDestype->Caption   = sample->dest_type_name.c_str();
-    }
+		labelDestString->Caption   = sample->dest_str().c_str();
+
+		// debug
+		labelStorage->Caption   = sample->storage_str().c_str();
+	}
 }
 
 void TfrmRetrAsstCollectSamples::flash(TGroupBox *box, TColor other) { // TControl::Color is protected
