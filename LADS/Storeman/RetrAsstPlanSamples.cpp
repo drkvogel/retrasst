@@ -297,7 +297,7 @@ bool TfrmRetrAsstPlanSamples::addChunk(unsigned int offset) {
         }
         curchunk = chunks[chunks.size()-1];
         int currentchunksize = curchunk->getSize(); // no chunks until first added
-        if (curchunk->getStartAbs()+offset > combined.size()) { // current last chunk is too small to be split at this offset
+        if (curchunk->getStartAbs()+offset >= combined.size()) { // current last chunk is too small to be split at this offset
             return false; // e.g. for auto-chunk to stop chunking
         }
         curchunk->setEndAbs(curchunk->getStartAbs()+offset-1); // row above start of new chunk - oldrowscheme

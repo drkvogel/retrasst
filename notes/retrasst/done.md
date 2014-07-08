@@ -767,3 +767,65 @@ e.g "loading vials for job:" gives more details inc db name
 * bug: don't count combined(/compound?) sample where primary is not found, but backup is not actioned/deferred as 'done' (ie. shouldn't count in chunk progress, but does) 
 * narrower sorters - almost went off screen.
     - prefer 'asc' to 'ascending' and reduce width of widgets
+
+also there was an ingres error at one point:
+
+    XDB error: IIAPI_ST_ERRORInfo: ERROR '22008' 4304: 21 is not a valid month for a date/time column.
+     svr_id_error     = 34078728
+     svr_local error  = 4304
+     svr_id_server    = 2137
+     svr_server_type  = 0
+     svr_severity     = IIAPI_SVR_DEFAULT ( 0x0 )
+        : 'Wed Jul  2 14:12:28 2014 E_US10D0_4304   21 is not a valid month for a date/time column.'
+
+on L21:
+
+    C:\Users\cbird>ingprenv
+    ...
+    II_DATE_FORMAT=US
+
+on Q108:
+
+    2014-07-02 16:31:57 cbird@Q108 /cygdrive/e
+    $ ingprenv
+    ...
+    II_DATE_FORMAT=multinational4
+
+on L21 (as administrator):
+
+    C:\Users\cbird>ingsetenv II_DATE_FORMAT
+    Value : multinational4
+
+## small chunk sizes cause autochunk to crash
+
+job with secondaries: "Retrieval_3", "Primary and secondary, no location", id: 979369, type: 4, status: 0, project: -1212564, primary: -31781, secondary: -31782, reason: "order 66"
+
+20, 15, 14 ok, 13, 10 not ok
+
+out of range at `Chunk::getStartBox()`:
+
+    return sgw->rows->at(startAbs)->dest_box_name;
+
+btnAddAllChunksClick
+ addChunk
+  showChunk
+   showChunks()
+    getStartBox() 
+     sgw->rows->at(startAbs)
+
+chunks.push_back(newchunk)
+    newchunk.section = 11
+    newchunk.endAbs = 130
+    newchunk.startAbs = 129 <-- wrong? 
+
+### solution
+
+classic fencepost bug: there are 130 vials in this job; 13 and 10 go into 130
+
+    if (curchunk->getStartAbs()+offset > combined.size())
+
+should have been
+
+    if (curchunk->getStartAbs()+offset >= combined.size())
+
+so that a last attempted chunk at an offset equal to the size of the current last chunk returns false and causes the loop in btnAddAllChunksClick() to finish. `numChunks = ceil(result)` is calculated wrongly, so it shouldn't have gone through that extra iteration, I think it was a belt-and-braces attempt at making sure the right amount of chunks were added, that worked until edge cases like this. I could or probably should replace that for with a while or similar.
