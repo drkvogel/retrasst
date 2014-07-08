@@ -89,7 +89,7 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
     sgwChunks->addCol("end",      "End",      66);
     sgwChunks->addCol("endbox",   "Box",      242);
     sgwChunks->addCol("endvial",  "Vial",     150);
-    sgwChunks->addCol("size",     "Size",     87);
+    //sgwChunks->addCol("size",     "Size",     87);
     sgwChunks->init();
 
     sgwVials = new StringGridWrapper<SampleRow>(sgVials, &combined);
@@ -289,9 +289,11 @@ void __fastcall TfrmRetrAsstCollectSamples::FormKeyUp(TObject *Sender, WORD &Key
 }
 
 void TfrmRetrAsstCollectSamples::toggleLog() {
-    cbLog->Checked = !(cbLog->Checked);
-    panelDebug->Visible = cbLog->Checked;
-    splitterDebug->Visible  = cbLog->Checked;
+    cbLog->Checked           = !(cbLog->Checked);
+    panelDebug->Visible      = cbLog->Checked;
+    splitterDebug->Visible   = cbLog->Checked;
+    labelStorage->Visible    = cbLog->Checked;
+    labelDestString->Visible = cbLog->Checked;
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::menuItemExitClick(TObject *Sender) { checkExit(); }
@@ -343,7 +345,10 @@ void __fastcall TfrmRetrAsstCollectSamples::FormShow(TObject *Sender) {
     labelSlot->Caption      = "";
 
     // debug
-    labelStorage->Caption   = "loading...";
+    labelStorage->Caption    = "loading...";
+    labelDestString->Caption = "loading...";
+    labelStorage->Visible    = cbLog->Checked;
+    labelDestString->Visible = cbLog->Checked;
 
     // destination
     labelDestPos->Caption   = "";
@@ -377,7 +382,7 @@ void TfrmRetrAsstCollectSamples::showChunks() {
         sgChunks->Cells[sgwChunks->colNameToInt("end")]       [row] = chunk->getEndAbs() + 1;
         sgChunks->Cells[sgwChunks->colNameToInt("endbox")]    [row] = chunk->getEndBox().c_str();
         sgChunks->Cells[sgwChunks->colNameToInt("endvial")]   [row] = chunk->getEndVial().c_str();
-        sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();
+        //sgChunks->Cells[sgwChunks->colNameToInt("size")]      [row] = chunk->getSize();
         sgChunks->Objects[0][row] = (TObject *)chunk;
     }
     showChunk();
