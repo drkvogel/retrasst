@@ -8,10 +8,16 @@
 'handle close'?? 
 fencepost bug?
 
+now work on `chunkCompleted()`
+
+
 ## finish last chunk
 
 should `chunk->nextUnresolvedAbs()` be called in `showCurrentRow()`?
 
+    chunk->setRowAbs(chunk->nextUnresolvedAbs());
+
+but nextUnresolvedAbs() now returns NONE_FOUND (-1?) if chunk complete
 
 ## confusing methods?
 

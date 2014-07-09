@@ -287,7 +287,7 @@ void __fastcall TfrmRetrAsstCollectSamples::cbLogClick(TObject *Sender) { panelD
 void __fastcall TfrmRetrAsstCollectSamples::FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
 /** form's KeyPreview property needs to be set to see this */
     if (Key == ' ') toggleLog();
-    if (Key == 'd') skip();
+    if (Key == 68)  skip();     // 'd'
 }
 
 void TfrmRetrAsstCollectSamples::toggleLog() {
@@ -633,7 +633,7 @@ void TfrmRetrAsstCollectSamples::showCurrentRow() {
     //if (rowRel == chunk->getSize()) {   // ie. past the end, chunk completed
     if (Chunk< SampleRow >::NextUnresolvedStatus::NONE_FOUND == next) {
         sample = NULL;                  // no details to show
-        sgVials->Row = 0; //fixme         // just show the last row
+        sgVials->Row = 1; //fixme         // just show the last row
         return;
     } else {
         chunk->setRowAbs(next); // fast-forward to first non-dealt-with row
@@ -816,13 +816,9 @@ void TfrmRetrAsstCollectSamples::nextRow() {
         if (!sample->backup->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed for backup"); }
     } // deferred (IGNORED) vials are not actually saved to the database, they remain EXPECTED
 
-
-    int next = chunk->nextUnresolvedAbs(); // fast-forward to first non-dealt-with row
-//    if (chunk->getRowRel() < chunk->getSize()-1) {
-//        chunk->setRowAbs(nextUnresolvedAbs());
-
-    if (next != Chunk< SampleRow >::NextUnresolvedStatus::NONE_FOUND) { //if (next < chunk->getStartAbs() + chunk->getSize()-1) { // within current chunk
-        chunk->setRowAbs(next);
+    int nextAbs = chunk->nextUnresolvedAbs(); // fast-forward to first non-dealt-with row
+    if (nextAbs != Chunk< SampleRow >::NextUnresolvedStatus::NONE_FOUND) {
+        chunk->setRowAbs(nextAbs);
     } else { // past last row
         if (chunk->getSection() < (int)chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk
@@ -847,7 +843,7 @@ void TfrmRetrAsstCollectSamples::nextRow() {
     * if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation` */
 void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
 
-    // Require user to sign off
+    // Require user to sign off, skip in debug
 	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
 	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
 		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
@@ -856,7 +852,8 @@ void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
 
     // update cryo store records
     for (int row=0; row < chunk->getSize(); row++) {
-        SampleRow *         sampleRow = chunk->objectAtRel(row);
+        SampleRow * sampleRow = chunk->objectAtRel(row);
+        //???
     }
 
     // calculate if there are any empty boxes
