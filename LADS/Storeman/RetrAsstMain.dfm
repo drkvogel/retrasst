@@ -11,10 +11,12 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  KeyPreview = True
   OldCreateOrder = False
   Position = poScreenCenter
   WindowState = wsMaximized
   OnClose = FormClose
+  OnKeyUp = FormKeyUp
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
@@ -26,11 +28,22 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
     Align = alClient
     Caption = 'Jobs'
     TabOrder = 0
+    object splitterDebug: TSplitter
+      Left = 2
+      Top = 400
+      Width = 767
+      Height = 3
+      Cursor = crVSplit
+      Align = alBottom
+      Visible = False
+      ExplicitTop = 15
+      ExplicitWidth = 388
+    end
     object sgJobs: TStringGrid
       Left = 2
       Top = 15
       Width = 654
-      Height = 388
+      Height = 385
       Margins.Bottom = 10
       Align = alClient
       BevelInner = bvNone
@@ -43,6 +56,7 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       OnClick = sgJobsClick
       OnDblClick = sgJobsDblClick
       OnDrawCell = sgJobsDrawCell
+      ExplicitHeight = 388
       ColWidths = (
         196
         64
@@ -56,10 +70,11 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Left = 656
       Top = 15
       Width = 113
-      Height = 388
+      Height = 385
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitHeight = 388
       object groupStatusCheck: TGroupBox
         Left = 0
         Top = 0
@@ -192,23 +207,25 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       end
       object btnExit: TButton
         Left = 0
-        Top = 347
+        Top = 344
         Width = 113
         Height = 41
         Align = alBottom
         Caption = 'Exit'
         TabOrder = 2
         OnClick = btnExitClick
+        ExplicitTop = 347
       end
       object cbLog: TCheckBox
         Left = 0
-        Top = 330
+        Top = 327
         Width = 113
         Height = 17
         Align = alBottom
         Caption = 'Show Log'
         TabOrder = 3
         OnClick = cbLogClick
+        ExplicitTop = 330
       end
     end
     object panelDebug: TPanel

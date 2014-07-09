@@ -267,6 +267,7 @@ void __fastcall TfrmRetrAsstCollectSamples::sgVialsClick(TObject *Sender) { // s
     SampleRow * sample = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     ostringstream oss; oss<<"(prefer): "<<sample->debug_str(); debugLog(oss.str().c_str());
     SampleRow * backup = sample->backup;
+    //shared_ptr< SampleRow > backup = sample->backup;
     if (!backup) { debugLog("(no backup)"); return; }
     oss.str(""); oss<<"(backup): "<<backup->debug_str(); debugLog(oss.str().c_str());
 }
@@ -432,7 +433,9 @@ void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) { // defa
 }
 
 void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) {
+//void TfrmRetrAsstCollectSamples::fillRow(shared_ptr < SampleRow > row, int rw) {
     SampleRow * sample;
+    //shared_ptr < SampleRow > sample;
     if (row->lcr_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && row->backup != NULL)
         sample = row->backup;
     else
@@ -550,6 +553,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         if (    aliquotType         == secondary_aliquot
             &&  row->dest_box_id    == previous->dest_box_id
             &&  row->dest_cryo_pos  == previous->dest_cryo_pos) { // backup for previous
+            //previous->backup = (shared_ptr < SampleRow > )sample;row;
             previous->backup = row;
         } else { // everything else, even if not explicitly primary
             collect->combined.push_back(row);

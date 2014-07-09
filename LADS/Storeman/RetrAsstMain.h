@@ -182,11 +182,13 @@ public:
     string                  cryovial_barcode;
     int                     dest_cryo_pos;      // cryovial_position/tube_position
     SampleRow *             backup;
+    //unique_ptr< SampleRow > backup;
+    //shared_ptr< SampleRow > backup;
     ~SampleRow() {
         if (store_record) delete store_record;
         if (cryo_record) delete cryo_record;
-        if (backup) delete backup;
         if (lcr_record) delete lcr_record;
+        if (backup) delete backup; // make sure this is NULLed before deleting object
     }
     SampleRow(  int proj, LCDbBoxRetrieval * cbr_rec, LPDbCryovial * cryo_rec, LPDbCryovialStore * store_rec, LCDbCryovialRetrieval * lcr_rec,
                 string barc, string srcnm, int dstid, string dstnm, int dstyp, int dstps,
@@ -195,7 +197,8 @@ public:
                 cryo_record(cryo_rec),
                 store_record(store_rec),
                 lcr_record(lcr_rec),
-                cryovial_barcode(barc), dest_cryo_pos(dstps), backup(NULL) {}
+                //cryovial_barcode(barc), dest_cryo_pos(dstps), backup(NULL) {}
+                cryovial_barcode(barc), dest_cryo_pos(dstps), backup() {}
     static bool sort_asc_barcode(const SampleRow *a, const SampleRow *b)    { return a->cryovial_barcode.compare(b->cryovial_barcode) < 0; }
     static bool sort_asc_srcbox(const SampleRow *a, const SampleRow *b)     { return Util::numericCompare(a->src_box_name, b->src_box_name); }
     static bool sort_asc_srcpos(const SampleRow *a, const SampleRow *b)     { return a->store_record->getPosition() < b->store_record->getPosition(); }
@@ -534,6 +537,7 @@ __published:
     TMemo *memoDebug;
     TPanel *Panel1;
     TButton *btnResetJobs;
+    TSplitter *splitterDebug;
     void __fastcall sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall cbNewJobClick(TObject *Sender);
     void __fastcall cbInProgressClick(TObject *Sender);
@@ -552,6 +556,7 @@ __published:
     void __fastcall cbRejectedClick(TObject *Sender);
     void __fastcall btnResetJobsClick(TObject *Sender);
     void __fastcall FormResize(TObject *Sender);
+    void __fastcall FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
 private:
     StringGridWrapper<LCDbCryoJob> *  sgwJobs;
     void                loadJobs();
@@ -562,6 +567,7 @@ private:
     string             getAliquotDescription(int primary_aliquot);
     string             getAuditInfo(int process_cid);
     void               debugLog(String s);
+    void               toggleLog();
     map<int, const SampleRow *> storageCache;
 protected:
 

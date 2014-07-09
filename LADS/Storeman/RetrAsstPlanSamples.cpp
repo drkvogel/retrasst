@@ -112,9 +112,32 @@ void __fastcall TfrmRetrAsstPlanSamples::FormShow(TObject *Sender) {
 void __fastcall TfrmRetrAsstPlanSamples::FormClose(TObject *Sender, TCloseAction &Action) {
     combined.clear();
     int sec = secondaries.size(), prim = primaries.size();
+
+    //debugDeleteReferenced(secondaries);
+    //debugDeleteReferenced(primaries);
+
     delete_referenced< vector <SampleRow * > >(secondaries);
+    for (auto & sample : primaries) {
+        sample->backup = NULL; // cause we just deleted them - else causes crash
+    }
     delete_referenced< vector <SampleRow * > >(primaries);      // primaries may reference secondaries, so delete them last
     delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
+}
+
+void TfrmRetrAsstPlanSamples::debugDeleteReferenced(vector <SampleRow * > c) {
+    OutputDebugString(L"debugDeleteReferenced");
+    while (!c.empty()) {
+        if (NULL != c.back()) {
+            SampleRow * sample = c.back();
+            wstringstream oss; oss<<"deleting: "<<(sample->debug_str().c_str());
+            OutputDebugString(oss.str().c_str());
+            delete sample;
+        }
+        c.pop_back();
+    }
+    OutputDebugString(L"finished");
+    //ostringstream oss; oss<<
+    //OutputDebugString(oss.str().c_str());
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::FormResize(TObject *Sender) {
@@ -497,6 +520,11 @@ void TfrmRetrAsstPlanSamples::showProgressMessage(const char * loadingMessage) {
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
 }
 
+void TfrmRetrAsstPlanSamples::hideProgressMessage() {
+    progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false;
+    //Screen->Cursor = crDefault;
+}
+
 __fastcall LoadVialsJobThread::LoadVialsJobThread() : TThread(false) {
     main = frmRetrievalAssistant;
     plan = frmRetrAsstPlanSamples;
@@ -688,7 +716,7 @@ void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *S
     <<" finished loading job id: "<<job->getID()<<" \""<<job->getName()<<"\", \""<<job->getDescription().c_str()<<"\""; debugLog(oss.str().c_str());
     oss.str(""); oss <<" primary: ["  <<job->getPrimaryAliquot()<<"] "<<Util::getAliquotDescription(job->getPrimaryAliquot())<<" secondary: ["<<job->getSecondaryAliquot()<<"] "<<Util::getAliquotDescription(job->getSecondaryAliquot()); debugLog(oss.str().c_str());
 
-    progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false;
+    hideProgressMessage();
     Screen->Cursor = crDefault; Enabled = true;
     chunks.clear(); sgwChunks->clear();
 
@@ -883,7 +911,7 @@ and a record into l_cryovial_retrieval for each cryovial, recording its position
 
 void __fastcall TfrmRetrAsstPlanSamples::savePlanThreadTerminated(TObject *Sender) {
     debugLog("finished save plan");
-    progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false;
+    hideProgressMessage();
     Screen->Cursor = crDefault; btnSave->Enabled = false; Enabled = true;
     if (errors.size() == 0) { // OK to close window
         ModalResult = mrOk;

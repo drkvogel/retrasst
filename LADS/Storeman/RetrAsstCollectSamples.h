@@ -112,6 +112,7 @@ private:
     SampleRow *                                 currentAliquot();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
     void                                        fillRow(SampleRow * sampleRow, int rw);
+    //void                                        fillRow(shared_ptr < SampleRow > row, int rw);
     void                                        loadRows();
     void                                        addChunk(int number, int row);
     void                                        showCurrentRow();

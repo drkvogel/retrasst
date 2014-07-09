@@ -27,6 +27,17 @@ void __fastcall TfrmRetrievalAssistant::FormResize(TObject *Sender) { sgwJobs->r
 
 void __fastcall TfrmRetrievalAssistant::cbLogClick(TObject *Sender) { panelDebug->Visible = cbLog->Checked; }
 
+void __fastcall TfrmRetrievalAssistant::FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
+/** form's KeyPreview property needs to be set to see this */
+    if (Key == ' ') toggleLog();
+}
+
+void TfrmRetrievalAssistant::toggleLog() {
+    cbLog->Checked          = !(cbLog->Checked);
+    panelDebug->Visible     = cbLog->Checked;
+    splitterDebug->Visible  = cbLog->Checked;
+}
+
 void __fastcall TfrmRetrievalAssistant::btnExitClick(TObject *Sender) { Close(); }
 
 void __fastcall TfrmRetrievalAssistant::cbNewJobClick(TObject *Sender) { loadJobs(); }
@@ -392,3 +403,5 @@ void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, co
         //SampleRow * row = *it;
     //for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
         //SampleRow * row = *it;
+
+

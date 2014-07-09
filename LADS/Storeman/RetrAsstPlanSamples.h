@@ -122,7 +122,9 @@ private:
     int                                         section_size;
     int                                         box_size;
     void                                        showProgressMessage(const char * loadingMessage);
+    void                                        hideProgressMessage();
     void                                        toggleLog();
+    void                                        debugDeleteReferenced(vector <SampleRow * > c);
 public:
     __fastcall                                  TfrmRetrAsstPlanSamples(TComponent* Owner);
     void                                        debugLog(String s);
