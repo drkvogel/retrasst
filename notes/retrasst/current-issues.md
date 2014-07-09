@@ -3,7 +3,7 @@
 * sometimes current storage info will not be available (box has not been through box reception and storage sync, hence status will be CONFIRMED [2] rather than IN_TANK [4]), but box name and tube pos will be
 * finish chunk embarrasment - 'handle close'?? fencepost bug?
 
-
+* freeze on plan 979369 save still happens
 
 ## confusing methods?
 
@@ -39,8 +39,6 @@ SaveProgressThread::Execute()
             unactionedSamples = true
         if backup
             storeSample(sample->backup)
-
-
 
 SaveProgressThread::storeSample()
 

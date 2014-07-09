@@ -829,3 +829,9 @@ should have been
     if (curchunk->getStartAbs()+offset >= combined.size())
 
 so that a last attempted chunk at an offset equal to the size of the current last chunk returns false and causes the loop in btnAddAllChunksClick() to finish. `numChunks = ceil(result)` is calculated wrongly, so it shouldn't have gone through that extra iteration, I think it was a belt-and-braces attempt at making sure the right amount of chunks were added, that worked until edge cases like this. I could or probably should replace that for with a while or similar.
+
+## freeze on change auto chunk dest box size
+
+empty box creates 0 box size which creates infinite loop in calcSizes()
+return if box size is 0
+

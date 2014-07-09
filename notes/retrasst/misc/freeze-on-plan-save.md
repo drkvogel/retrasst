@@ -81,3 +81,11 @@ dtor checks for not null, but who said ptr is set null in the first place?
 
 freeze only happens on desktop??? freezing version I did yesterday and put onto laptop for demo didn't freeze in demo... oh yes it did
 
+2014-07-09
+
+appears to happen on last sample of last chunk...
+
+use unique_ptr?
+
+secondaries.size():
+prim = primaries.size():

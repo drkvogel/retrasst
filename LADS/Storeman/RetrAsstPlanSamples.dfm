@@ -502,7 +502,7 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
   end
   object timerCalculate: TTimer
     Enabled = False
-    Interval = 200
+    Interval = 600
     OnTimer = timerCalculateTimer
     Left = 560
     Top = 48

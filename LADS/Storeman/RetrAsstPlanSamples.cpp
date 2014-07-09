@@ -727,6 +727,7 @@ void __fastcall TfrmRetrAsstPlanSamples::btnDelChunkClick(TObject *Sender) {
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::editDestBoxSizeChange(TObject *Sender) {
+    timerCalculate->Enabled = false;
     timerCalculate->Enabled = true;
 }
 
@@ -748,6 +749,7 @@ void __fastcall TfrmRetrAsstPlanSamples::btnAddAllChunksClick(TObject *Sender) {
 void __fastcall TfrmRetrAsstPlanSamples::timerCalculateTimer(TObject *Sender) {
     timerCalculate->Enabled = false;
     box_size = editDestBoxSize->Text.ToIntDef(0);
+    if (box_size == 0) return;
     calcSizes();
 }
 
