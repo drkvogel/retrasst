@@ -287,6 +287,7 @@ void __fastcall TfrmRetrAsstCollectSamples::cbLogClick(TObject *Sender) { panelD
 void __fastcall TfrmRetrAsstCollectSamples::FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
 /** form's KeyPreview property needs to be set to see this */
     if (Key == ' ') toggleLog();
+    if (Key == 'd') skip();
 }
 
 void TfrmRetrAsstCollectSamples::toggleLog() {
@@ -627,13 +628,16 @@ void __fastcall TfrmRetrAsstCollectSamples::loadPlanThreadTerminated(TObject *Se
 void TfrmRetrAsstCollectSamples::showCurrentRow() {
     SampleRow * sample;
     Chunk<SampleRow> * chunk = currentChunk();
-    chunk->setRowAbs(chunk->nextUnresolvedAbs()); // fast-forward to first non-dealt-with row
-    int rowRel = chunk->getRowRel();
+    int next = chunk->nextUnresolvedAbs();
 
-    if (rowRel == chunk->getSize()) {   // ie. past the end, chunk completed
+    //if (rowRel == chunk->getSize()) {   // ie. past the end, chunk completed
+    if (Chunk< SampleRow >::NextUnresolvedStatus::NONE_FOUND == next) {
         sample = NULL;                  // no details to show
-        sgVials->Row = rowRel;          // just show the last row
+        sgVials->Row = 0; //fixme         // just show the last row
+        return;
     } else {
+        chunk->setRowAbs(next); // fast-forward to first non-dealt-with row
+        int rowRel = chunk->getRowRel();
         int lookAhead = sgVials->VisibleRowCount / 2;
         if (rowRel + lookAhead < chunk->getSize() - 1) {
             sgVials->Row = 1;
@@ -812,21 +816,25 @@ void TfrmRetrAsstCollectSamples::nextRow() {
         if (!sample->backup->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed for backup"); }
     } // deferred (IGNORED) vials are not actually saved to the database, they remain EXPECTED
 
-    // don't need to save chunk - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
-    if (chunk->getRowRel() < chunk->getSize()-1) {
-        chunk->setRowAbs(chunk->nextUnresolvedAbs()); // fast-forward to first non-dealt-with row
-    } else { // last row
+
+    int next = chunk->nextUnresolvedAbs(); // fast-forward to first non-dealt-with row
+//    if (chunk->getRowRel() < chunk->getSize()-1) {
+//        chunk->setRowAbs(nextUnresolvedAbs());
+
+    if (next != Chunk< SampleRow >::NextUnresolvedStatus::NONE_FOUND) { //if (next < chunk->getStartAbs() + chunk->getSize()-1) { // within current chunk
+        chunk->setRowAbs(next);
+    } else { // past last row
         if (chunk->getSection() < (int)chunks.size()) {
             sgChunks->Row = sgChunks->Row+1; // next chunk
+        } else { // fixme what now??
+            TfrmRetrievalAssistant::msgbox("End of last chunk");
         }
     }
+    showChunks(); // don't need to save chunk - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
 
     labelPrimary->Enabled = true; labelSecondary->Enabled = false; editBarcode->Clear(); ActiveControl = editBarcode; // focus for next barcode
 
-    showChunks();
-
-    // At the end of chunk, check if the chunk is actually finished (no REFERRED vials)
-    if (Chunk< SampleRow >::Status::DONE == chunk->getStatus()) { // chunk is complete (no EXPECTED or REFERRED vials)
+    if (Chunk< SampleRow >::Status::DONE == chunk->getStatus()) { // check if chunk is complete (no EXPECTED or IGNORED vials)
         chunkCompleted(chunk);
     }
 }

@@ -1,9 +1,17 @@
 
+## move RetrAsstThread into RetrAsstMain.h
 
-* sometimes current storage info will not be available (box has not been through box reception and storage sync, hence status will be CONFIRMED [2] rather than IN_TANK [4]), but box name and tube pos will be
-* finish chunk embarrasment - 'handle close'?? fencepost bug?
 
-* freeze on plan 979369 save still happens
+
+## finish chunk embarrasment
+
+'handle close'?? 
+fencepost bug?
+
+## finish last chunk
+
+should `chunk->nextUnresolvedAbs()` be called in `showCurrentRow()`?
+
 
 ## confusing methods?
 

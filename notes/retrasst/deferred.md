@@ -2,6 +2,10 @@
 
 when there is a string vector of errors, format them into one string for display
 
+## subclass runtime_exception
+
+provide override for int to long long
+
 ## handling of primaries and secondaries/backups
 
 Thing is, there are several points where an action has to be carried out on a row, which might be: 
@@ -84,3 +88,5 @@ look for ??? /newrow
  * Only read currently selected chunk/aliquot from db when selected?
  * canned searches - save, delete e.g. site name, vessel pos, structure pos, slot, source box pos
  * define behaviour for manual chunk split in landlocked chunk-
+
+* sometimes current storage info will not be available (box has not been through box reception and storage sync, hence status will be CONFIRMED [2] rather than IN_TANK [4]), but box name and tube pos will be (just a note)

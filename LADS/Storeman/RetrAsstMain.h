@@ -181,9 +181,7 @@ public:
     LCDbCryovialRetrieval * lcr_record;
     string                  cryovial_barcode;
     int                     dest_cryo_pos;      // cryovial_position/tube_position
-    SampleRow *             backup;
-    //unique_ptr< SampleRow > backup;
-    //shared_ptr< SampleRow > backup;
+    SampleRow *             backup; //unique_ptr< SampleRow > backup; //shared_ptr< SampleRow > backup;
     ~SampleRow() {
         if (store_record) delete store_record;
         if (cryo_record) delete cryo_record;
@@ -401,21 +399,22 @@ public:
     void    sort_dsc(string colName) { sgw->sort_dsc(colName, startAbs, endAbs); }
     void    sortToggle(int col) { sgw->sort_toggle(col, startAbs, endAbs); }
     void    sortToggle(string colName) { sgw->sort_toggle(colName, startAbs, endAbs); } // n.b. uninstantiated code in templates is not compiled
+    enum NextUnresolvedStatus { NONE_FOUND = -1 };
     int     nextUnresolvedAbs() {
         int rowAbs;
         SampleRow * sample;
-        for (rowAbs = startAbs; rowAbs < endAbs; rowAbs++) {
+        for (rowAbs = startAbs; rowAbs <= endAbs; rowAbs++) {
             sample = objectAtAbs(rowAbs);
             if (sample->lcr_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
-                break;
+                return rowAbs;
             } else if (
                     sample->lcr_record->getStatus() == LCDbCryovialRetrieval::Status::NOT_FOUND &&
                     sample->backup != NULL &&
                     sample->backup->lcr_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
-                break;
+                return rowAbs; // fixme oo-err
             } // else carry on
         }
-        return rowAbs;
+        return NONE_FOUND;
     }
     string statusString() {
         switch (getStatus()) {

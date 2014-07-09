@@ -42,7 +42,7 @@ __fastcall TfrmRetrAsstPlanSamples::TfrmRetrAsstPlanSamples(TComponent* Owner) :
     sgwVials->addCol("srcbox",   "Source box",       257,   SampleRow::sort_asc_srcbox,     "source box name");
     sgwVials->addCol("srcpos",   "Pos",              31,    SampleRow::sort_asc_srcpos,     "source box position");
     sgwVials->addCol("destbox",  "Destination box",  267,   SampleRow::sort_asc_destbox,    "dest. box name");
-    sgwVials->addCol("destype",  "Type",             67,    SampleRow::sort_asc_destype,    "dest. box type");
+    sgwVials->addCol("destype",  "Box Type",         67,    SampleRow::sort_asc_destype,    "dest. box type");
     sgwVials->addCol("destpos",  "Pos",              25,    SampleRow::sort_asc_destpos,    "dest. box position");
     sgwVials->addCol("aliquot",  "Aliquot",          90,    SampleRow::sort_asc_aliquot,    "aliquot type");
     sgwVials->init();

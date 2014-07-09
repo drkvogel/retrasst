@@ -835,3 +835,7 @@ so that a last attempted chunk at an offset equal to the size of the current las
 empty box creates 0 box size which creates infinite loop in calcSizes()
 return if box size is 0
 
+## freeze on plan 979369 save/close
+
+see <misc/freeze-on-plan-save.md>
+
