@@ -412,7 +412,7 @@ public:
                     sample->backup != NULL &&
                     sample->backup->lcr_record->getStatus() == LCDbCryovialRetrieval::Status::EXPECTED) {
                 return rowAbs; // fixme oo-err
-            } // else carry on
+            }
         }
         return NONE_FOUND;
     }

@@ -1,15 +1,9 @@
 
-## move RetrAsstThread into RetrAsstMain.h
-
-
-
-## finish chunk embarrasment
-
-'handle close'?? 
-fencepost bug?
-
 now work on `chunkCompleted()`
 
+## move RetrAsstThread into RetrAsstMain.h
+
+.
 
 ## finish last chunk
 

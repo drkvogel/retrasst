@@ -132,6 +132,7 @@ private:
     void                                        checkExit();
 	void                                        exit();
 	void 										storeSample(SampleRow * sample);
+    void                                        updateStorage(SampleRow * aliquot, LQuery & q);
 	void										jobFinished();
     bool                                        destroying;  // for FormResize
     void                                        toggleLog();

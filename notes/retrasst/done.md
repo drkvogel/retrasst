@@ -653,8 +653,6 @@ inside or out of the main loops seems to cause `LoadPlanThread` to terminate ear
 current-issues.md has been changed or just moved? changed
 copy big collect query sql from crashed vdba window
 
-right hash of it
-
 ###  978243 "Retrieval_978243", "Reveal boxes of three types"
 
 Contains secondaries, but not as backups (not same destination position) of primaries
@@ -675,7 +673,6 @@ use combineAliquots() for consistency
 
 Sometimes, for example in a disposal job, many (more than 2) aliquots will be required, each in separate destination positions. "extra" aliquots should not throw an error.
 
-xe4 on laptop-
 reply to thread-?
 solve the problems-x
 
@@ -839,3 +836,11 @@ return if box size is 0
 
 see <misc/freeze-on-plan-save.md>
 
+### destination box types
+
+See [box-types](./box-types/box-types.md).
+
+## finish chunk error
+
+'handle close'?? 
+fencepost bug?

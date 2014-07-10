@@ -15,10 +15,6 @@ window close button
     just exits
 
 
-### destination box types
-
-See [box-types](./box-types/box-types.md).
-
 
 
 
@@ -37,8 +33,6 @@ Check completeness or otherwise of chunk with `Chunk::getStatus()`
     
     nextRow()    
     completeChunk()
-
-
 
 ### "is chunk finished" routine not correct
 
@@ -220,8 +214,6 @@ So we proposed adding invalid boxes from Retrieval Assistant to `c_box_name` and
     * dummy `box_store` records
         * `status=1` (unconfirmed), `rack_cid=0`, `slot_position=0`
         * StoreDAO::findBox() will still return false because it looks for the `rack_cid` in `c_rack_number`
-
-
 
 ## ???
 
