@@ -520,21 +520,23 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       object labelSampleID: TLabel
         Left = 17
         Top = 13
-        Width = 231
-        Height = 45
+        Width = 275
+        Height = 52
         Caption = 'labelSampleID'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -37
+        Font.Height = -43
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
       end
       object panelAliquots: TPanel
         Left = 2
-        Top = 65
+        Top = 72
         Width = 293
-        Height = 47
+        Height = 40
+        Margins.Top = 1
+        Margins.Bottom = 1
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 0
@@ -542,20 +544,22 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           Left = 0
           Top = 0
           Width = 161
-          Height = 47
-          Margins.Bottom = 9
+          Height = 40
           Align = alLeft
           Caption = 'Primary Aliquot'
           Padding.Left = 5
-          Padding.Top = 5
+          Padding.Top = 1
           Padding.Right = 5
-          Padding.Bottom = 5
+          Padding.Bottom = 1
           TabOrder = 0
+          ExplicitHeight = 47
           object labelPrimary: TLabel
             Left = 7
-            Top = 20
+            Top = 16
             Width = 147
-            Height = 20
+            Height = 21
+            Margins.Top = 1
+            Margins.Bottom = 1
             Align = alClient
             Caption = 'labelPrimary'
             Font.Charset = DEFAULT_CHARSET
@@ -565,27 +569,29 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
-            ExplicitWidth = 80
-            ExplicitHeight = 16
+            ExplicitLeft = 8
+            ExplicitTop = 20
+            ExplicitHeight = 10
           end
         end
         object groupSecondary: TGroupBox
           Left = 147
           Top = 0
           Width = 146
-          Height = 47
+          Height = 40
           Align = alRight
           Caption = 'Secondary Aliquot'
           Padding.Left = 5
-          Padding.Top = 5
+          Padding.Top = 1
           Padding.Right = 5
-          Padding.Bottom = 5
+          Padding.Bottom = 1
           TabOrder = 1
+          ExplicitHeight = 47
           object labelSecondary: TLabel
             Left = 7
-            Top = 20
+            Top = 16
             Width = 132
-            Height = 20
+            Height = 21
             Margins.Left = 5
             Margins.Top = 5
             Margins.Right = 5
@@ -599,6 +605,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
+            ExplicitTop = 20
             ExplicitWidth = 99
             ExplicitHeight = 16
           end
