@@ -17,6 +17,19 @@ updateStorage()
     LPDbCryovialStore * current->saveRecord()
     LPDbBoxName boxName = *(pBoxName) ?? # BoxName method to update cryovials?
 
+FormClose()
+    //exit()
+
+menuItemExitClick()
+    checkExit()
+
+btnExitClick() 
+    checkExit()    
+
+checkExit()
+    if IDYES == "Are you sure?
+        exit()
+
 exit()
     frmConfirm->ShowModal()
     saveProgress()
@@ -59,7 +72,7 @@ SaveProgressThread::storeSample()
     ? nyi
 
 SaveProgressThread::jobFinished()
-    foreach in c_box_retrieval WHERE retrieval_cid = job->getID()
+    foreach in `c_box_retrieval WHERE retrieval_cid = job->getID()`
     LCDbBoxRetrieval cbr.setStatus(LCDbBoxRetrieval::COLLECTED)
     cbr.saveRecord()
 

@@ -19,10 +19,10 @@
  * Work through list or sub-section by giving the storage location and sample ID of each sample on the list in the order saved above (REQ 8.3.8);
  * As each sample is retrieved its barcode should be scanned, if the scanned barcode matches that on the list
 the destination location should be displayed and the next ID/location should be displayed (REQ 8.3.9)
- * if the ID’s do not match a warning should be displayed and re-entry of the barcode required (REQ 8.3.10).
+ * if the IDs do not match a warning should be displayed and re-entry of the barcode required (REQ 8.3.10).
      what if it's the wrong sample, or it's missing? handle this
- * When working through the list the previous five successfully entered ID’s should always be visible (REQ 8.3.11).
- * The option to exit the process saving progress should be offered, with an “are you sure?” message in case of accidental selection (REQ 8.3.12).
+ * When working through the list the previous five successfully entered IDs should always be visible (REQ 8.3.11).
+ * The option to exit the process saving progress should be offered, with an "are you sure?" message in case of accidental selection (REQ 8.3.12).
 
 extra:
  * if, at the end of processing a chunk, there are any source boxes which have become empty, the user may want to discard them instead of replacing them.
@@ -133,7 +133,7 @@ void __fastcall TfrmRetrAsstCollectSamples::FormCreate(TObject *Sender) {
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::FormClose(TObject *Sender, TCloseAction &Action) {
-    //exit(); //???
+    exit(); //???
 }
 
 __fastcall TfrmRetrAsstCollectSamples::~TfrmRetrAsstCollectSamples() {
@@ -321,10 +321,24 @@ void TfrmRetrAsstCollectSamples::showProgressMessage(const char * loadingMessage
     progressBottom->Style = pbstMarquee; progressBottom->Visible = true;
 }
 
+void TfrmRetrAsstCollectSamples::hideProgressMessage() {
+    progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false; //Screen->Cursor = crDefault;
+}
+
 void TfrmRetrAsstCollectSamples::checkExit() {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
         exit();
     }
+}
+
+void TfrmRetrAsstCollectSamples::exit() { // definitely exiting
+	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
+	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
+		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
+		return; // fixme what now?
+	}
+    saveProgress();//???
+	//showProgressMessage(progressMessage); Screen->Cursor = crSQLWait; Enabled = false; DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::FormShow(TObject *Sender) {
@@ -531,10 +545,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
     SampleRow * previous;
     debugLog("foreach row");
     while (!qd.eof()) {
-        if (0 == rowCount % 10) {
-            ostringstream oss; oss<<"Found "<<rowCount<<" vials";
-            updateStatus(oss.str());
-        }
+        if (0 == rowCount % 10) { ostringstream oss; oss<<"Found "<<rowCount<<" vials"; updateStatus(oss.str()); }
 
         SampleRow * row = new SampleRow(
             qd.readInt(     "project_cid"),
@@ -554,7 +565,6 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
         if (    aliquotType         == secondary_aliquot
             &&  row->dest_box_id    == previous->dest_box_id
             &&  row->dest_cryo_pos  == previous->dest_cryo_pos) { // backup for previous
-            //previous->backup = (shared_ptr < SampleRow > )sample;row;
             previous->backup = row;
         } else { // everything else, even if not explicitly primary
             collect->combined.push_back(row);
@@ -595,7 +605,7 @@ Select * from c_box_retrieval b, l_cryovial_retrieval c where b.rj_box_cid = c.r
 
 void TfrmRetrAsstCollectSamples::addChunk(int number, int endRowAbs) { // don't assume chunk/section numbers instead of assuming it's the next number?
 /** add chunk with section = number, start row = end of previous chunk + 1, end row = endRowAbs */
-    Chunk< SampleRow > * newchunk; // Chunk(sgw, section, startAbs, endAbs, rowRel(0))
+    Chunk< SampleRow > * newchunk;
     if (chunks.size() == 0) { // first chunk
         newchunk = new Chunk< SampleRow >(sgwVials, number, 0, endRowAbs);
     } else {
@@ -626,14 +636,12 @@ void __fastcall TfrmRetrAsstCollectSamples::loadPlanThreadTerminated(TObject *Se
 }
 
 void TfrmRetrAsstCollectSamples::showCurrentRow() {
-    SampleRow * sample;
-    Chunk<SampleRow> * chunk = currentChunk();
-    int next = chunk->nextUnresolvedAbs();
+    SampleRow * sample; Chunk<SampleRow> * chunk = currentChunk();
 
-    //if (rowRel == chunk->getSize()) {   // ie. past the end, chunk completed
-    if (Chunk< SampleRow >::NextUnresolvedStatus::NONE_FOUND == next) {
+    int next = chunk->nextUnresolvedAbs();
+    if (Chunk< SampleRow >::NextUnresolvedStatus::NONE_FOUND == next) { // ie. past the end, chunk completed/deferred
         sample = NULL;                  // no details to show
-        sgVials->Row = 1; //fixme         // just show the last row
+        sgVials->Row = 1; //fixme       // just show the last row
         return;
     } else {
         chunk->setRowAbs(next); // fast-forward to first non-dealt-with row
@@ -804,14 +812,12 @@ SampleRow * TfrmRetrAsstCollectSamples::currentAliquot() {
 }
 
 void TfrmRetrAsstCollectSamples::nextRow() {
-/** save both primary and secondary if present */
+/** save primary (and backup) in l_cryovial_retrieval, but not cryovial/_store at this point, move to next */
     Chunk< SampleRow > * chunk = currentChunk();
     SampleRow * sample = chunk->currentObject(); // which may be the backup aliquot
 
-    // save changes both primary and secondary in l_cryovial_retrieval (not cryovial/_store at this point)
     if (!sample->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed"); }
-    if (sample->backup) {
-        // fixme what is being saved if backup was not needed?
+    if (sample->backup) { // fixme what is being saved if backup was not needed?
         if (!sample->backup->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed for backup"); }
     } // deferred (IGNORED) vials are not actually saved to the database, they remain EXPECTED
 
@@ -833,13 +839,13 @@ void TfrmRetrAsstCollectSamples::nextRow() {
     }
 }
 
+void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
 /* * Require user to sign off
     * update cryo store records
     * calculate if there are any empty boxes
-    * create tick list or switch list of boxes, empty/otherwise
-    * ask user to comfirm that empty boxes are in fact empty
+        * create tick list or switch list of boxes, empty/otherwise
+        * ask user to comfirm that empty boxes are in fact empty
     * if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation` */
-void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
 
     // Require user to sign off, skip in debug
 	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
@@ -847,36 +853,116 @@ void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
 		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
 		return; // fixme what now?
 	}
+    saveProgress();
+}
 
-    for (int row=0; row < chunk->getSize(); row++) { // update cryo store records
-        SampleRow * sample = chunk->objectAtRel(row);
+void TfrmRetrAsstCollectSamples::saveProgress() {
+    info.clear(); warnings.clear(); errors.clear();
+    saveProgressThread = new SaveProgressThread();
+    saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
+}
+
+/** check cryo/store old/new params correct for `LCDbCryovialRetrieval`
+`c_box_retrieval`: set `time_stamp`, `status` = 1 (PART_FILLED)
+`box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
+`c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
+check at save and exit if all vials in a box have been saved and if so update box */
+void __fastcall SaveProgressThread::Execute() {
+
+    try {
+    updateStorage();
+    } catch (...) {
+
+    }
+
+	typedef std::set< SampleRow * > SetOfVials;
+	typedef std::map< int, SetOfVials > VialsInBoxesMap;
+	VialsInBoxesMap boxes;
+	VialsInBoxesMap::iterator found;
+
+    for (auto& sample : collect->combined) {
+        int sourceBox = sample->store_record->getBoxID(); // should get id of secondary box as well and add it to map, we are checking for all empty boxes
+
+        // build a map of source box ID to a set of vials contained in that box
+        found = boxes.find(sourceBox);
+        if (found == boxes.end()) { // not added yet
+            SetOfVials setOfVials;
+            setOfVials.insert(sample);
+            boxes[sourceBox] = setOfVials;
+        } else { // already in map
+            found->second.insert(sample);
+        } ostringstream oss; oss<<sample->cryovial_barcode<<" "<<sample->aliquotName<<" in box with id "<<sourceBox; updateStatus(oss.str());
+    }
+
+    collect->emptyBoxes.clear();
+
+    // check for completed boxes
+    for (auto &found : boxes) { // for each source box
+        bool vialRemains = false;
+        SetOfVials & setOfVials = found.second;
+        SetOfVials::const_iterator it;
+        for (auto &sample : setOfVials) { // for each vial in the box
+            switch (sample->lcr_record->getStatus()) { // what about secondaries?
+            case LCDbCryovialRetrieval::EXPECTED:
+                vialRemains = true;
+            default:
+                ;
+            }
+        }
+        if (!vialRemains) { // empty/completed box, mark for discard
+            collect->emptyBoxes.insert(found.first); // set of int box_cids, used in collectEmpties()
+        }
+    }
+}
+
+void SaveProgressThread::updateStorage() {
+    for (auto& sample : collect->combined) {
+    //for (int row=0; row < chunk->getSize(); row++) { // update cryo store records
+        //SampleRow * sample = chunk->objectAtRel(row);
         LQuery pq(LIMSDatabase::getProjectDb(sample->project_cid));
         updateStorage(sample, pq);
         if (sample->backup) {
             updateStorage(sample->backup, pq); //??? could be different for backup?
         }
     }
-
-    // calculate if there are any empty boxes
-    collectEmpties();
-    saveProgress();
-    // create tick list or switch list of boxes, empty/otherwise
-    // ask user to comfirm that empty boxes are in fact empty
-    // if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
-    // `c_box_name` and `c_slot_allocation` fields together == `l_box_arrival`
-    if (isJobComplete()) { // job is complete
-        if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
-        //jobFinished();//??
-        ModalResult = mrOk;
-    }
 }
 
-bool TfrmRetrAsstCollectSamples::isJobComplete() { /** are all chunks complete? */
-    for (auto &chunk : chunks) { if (Chunk< SampleRow >::Status::DONE != chunk->getStatus()) return false; }
-    return true;
-}
+void SaveProgressThread::updateStorage(SampleRow * aliquot, LQuery & q) {
 
-void TfrmRetrAsstCollectSamples::updateStorage(SampleRow * aliquot, LQuery & q) {
+/* * should be 4 cryovial_store recs/sample: src + dest * primary + secondary
+	* new `NOT_FOUND` status (ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, NOT_FOUND, DELETED = 99) (no IGNORED status?)
+	* NOT_FOUND will be 6, not 7 - unless there is supposed to be another new status?
+
+    // handle backups
+    // deal with ignored, expected
+
+	* if primary aliquot found:
+		- primary src TRANSFERRED?
+		- primary dest CONFIRMED?
+		- secondary src CONFIRMED?
+		- secondary dest DELETED?
+		- l_cryo
+	* if secondary aliquot found:
+        - primary src NOT_FOUND?
+        - primary dest DELETED?
+        - secondary src TRANSFERRED?
+		- secondary dest CONFIRMED?
+	* `cryovial_store` (source and dest, primary and secondary)
+		* Primary, source:
+			* if found: update `removed`, `status=5` (TRANSFERRED)
+			* else `status=7` (NOT_FOUND??)
+        * Primary, dest:
+			* if found: update `time_stamp`, `status=1` (STORED)
+            * else `status=99`
+        * Secondary, src:
+            * if primary found: clear `retrieval_cid`, `status=1`
+            * else if secondary found update `removed`, `status=5`,
+			* else `status=7` (NOT_FOUND)
+        * Secondary, dest:
+            * if primary found: `status=99`
+            * else if secondary found: update `time_stamp`, `status=1`,
+			* else `status=99` */
+
 /** update cryovial_store (old and new, primary and secondary) when they enter their password to confirm */
 /* LPDbCryovialStore
 enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, ALIQUOTS_TAKEN, NOT_FOUND, TRANSFERRED, DELETED = 99 };
@@ -889,8 +975,7 @@ enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, ALIQUOTS
 
     LPDbCryovialStore * current = aliquot->store_record;
     if (NULL != current) {
-        //break; //???
-        //throw runtime_error("NULL store_record");
+
         switch (aliquot->lcr_record->getStatus()) {
             case LCDbCryovialRetrieval::EXPECTED:
             case LCDbCryovialRetrieval::IGNORED:
@@ -903,13 +988,10 @@ enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, ALIQUOTS
                 throw runtime_error("unexpected status");
         }
         current->saveRecord(q);
-    }
-/*  int id, int cryovial, int box, short pos )
- : LPDbID( id ), LDbNoteCount( 0 ), status( ALLOCATED ), volume( -1 ),
-   cryovialID( cryovial ), retrievalID( 0 ), boxID( box ), position( pos ) */
+    } // else //throw runtime_error("NULL store_record");
 
+    /* LPDbCryovialStore(int id, int cryovial, int box, short pos) */
     // add to box and use LPDbBoxName methods?
-
     LPDbBoxNames boxNames;
     boxNames.readFilled(q); // reads CONFIRMED [2], ANALYSED [3]. boxes.readCurrent(qp) reads EMPTY [0], IN_USE [1]
     const LPDbBoxName * pBoxName;
@@ -953,150 +1035,37 @@ enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, ALIQUOTS
     }*/
 }
 
-void TfrmRetrAsstCollectSamples::exit() { // definitely exiting
-	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
-	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
-		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
-		return; // fixme what now?
-	}
-    saveProgress();//???
-	//showProgressMessage(progressMessage); Screen->Cursor = crSQLWait; Enabled = false; DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
-}
+// `cryovial_store`: as above (dealt with already?)
 
-void TfrmRetrAsstCollectSamples::saveProgress() {
-    saveProgressThread = new SaveProgressThread();
-    saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
-}
+void __fastcall TfrmRetrAsstCollectSamples::saveProgressThreadTerminated(TObject *Sender) {
+    DEBUGSTREAM(__FUNC__<<"save plan for job "<<job->getID()<<" finished")
+    hideProgressMessage(); //progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false;
+	Screen->Cursor = crDefault; Enabled = true;
 
-void __fastcall SaveProgressThread::Execute() {
-/** check cryo/store old/new params correct for `LCDbCryovialRetrieval`
-`c_box_retrieval`: set `time_stamp`, `status` = 1 (PART_FILLED)
-`box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
-`c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
-check at save and exit if all vials in a box have been saved and if so update box */
-	typedef std::set< SampleRow * > SetOfVials;
-	typedef std::map< int, SetOfVials > VialsInBoxesMap;
-	VialsInBoxesMap boxes;
-	VialsInBoxesMap::iterator found;
+    collectEmpties(); // were we exiting or just finished a chunk? does it matter?
+                      // yes, because you don't want to close the form if just finishing a chunk
 
-	collect->unactionedSamples = false; collect->info.clear(); collect->warnings.clear(); collect->errors.clear();
-	try {
-        for (auto& sample : collect->combined) {
-
-			int sourceBox = sample->store_record->getBoxID(); // should get id of secondary box as well and add it to map, we are checking for all empty boxes
-
-            // build a map of source box ID to a set of vials contained in that box
-			found = boxes.find(sourceBox);
-			if (found == boxes.end()) { // not added yet
-				SetOfVials setOfVials;
-				setOfVials.insert(sample);
-				boxes[sourceBox] = setOfVials;
-			} else { // already in map
-				found->second.insert(sample);
-			}
-
-            ostringstream oss; oss<<sample->cryovial_barcode<<" "<<sample->aliquotName<<" in box with id "<<sourceBox;
-            updateStatus(oss.str());
-
-			int status  = sample->lcr_record->getStatus();
-            switch (status) {
-                case LCDbCryovialRetrieval::EXPECTED:
-                case LCDbCryovialRetrieval::IGNORED:
-                    if (NULL != sample->backup) {
-                        switch (sample->backup->lcr_record->getStatus()) {
-                            case LCDbCryovialRetrieval::EXPECTED:
-                            case LCDbCryovialRetrieval::IGNORED:
-                                collect->unactionedSamples = true;
-                        }
-                    } else {
-                        collect->unactionedSamples = true;
-                    }
-            }
-            storeSample(sample); // always 'store' even if ignored
-		}
-
-        collect->emptyBoxes.clear();
-
-		// check for completed boxes
-        for (auto &found : boxes) { // for each source box
-			bool vialRemains = false;
-			SetOfVials & setOfVials = found.second;
-			SetOfVials::const_iterator it;
-            for (auto &sample : setOfVials) { // for each vial in the box
-				switch (sample->lcr_record->getStatus()) { // what about secondaries?
-				case LCDbCryovialRetrieval::EXPECTED:
-					vialRemains = true;
-                default:
-                    ;
-				}
-			}
-			if (!vialRemains) { // empty/completed box, mark for discard
-                collect->emptyBoxes.insert(found.first); // set of int box_cids, used in discardBoxes()
-			}
-		}
-    } catch (std::exception & e) {
-        msgbox(e.what());
+    if (isJobComplete()) { // job is complete
+        if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
+        jobFinished();
+        ModalResult = mrOk;
+    } else {
+        TfrmRetrievalAssistant::msgbox("There are unactioned samples in this retrieval job; will not be marked as finished"); // fixme
     }
-
-    if (collect->errors.size() != 0) {
-        ostringstream oss;
-        oss<<"There were errors:\n\n";
-        for (auto &error: collect->errors) {
-            oss<<error<<"\n";
-        }
-        msgbox(oss.str());
-    } else if (collect->unactionedSamples) {
-        msgbox("There are unactioned samples in this retrieval job; will not be marked as finished"); // fixme
-        return;
-    } else if (!collect->unactionedSamples) { // job finished
-		jobFinished();
-	}
 }
 
-void SaveProgressThread::storeSample(SampleRow * sample) {
-/* * should be 4 cryovial_store recs/sample: src + dest * primary + secondary
-	* new `NOT_FOUND` status (ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, NOT_FOUND, DELETED = 99) (no IGNORED status?)
-	* NOT_FOUND will be 6, not 7 - unless there is supposed to be another new status?
-
-    // handle backups
-    // deal with ignored, expected
-
-	* if primary aliquot found:
-		- primary src TRANSFERRED?
-		- primary dest CONFIRMED?
-		- secondary src CONFIRMED?
-		- secondary dest DELETED?
-		- l_cryo
-	* if secondary aliquot found:
-        - primary src NOT_FOUND?
-        - primary dest DELETED?
-        - secondary src TRANSFERRED?
-		- secondary dest CONFIRMED?
-	* `cryovial_store` (source and dest, primary and secondary)
-		* Primary, source:
-			* if found: update `removed`, `status=5` (TRANSFERRED)
-			* else `status=7` (NOT_FOUND??)
-        * Primary, dest:
-			* if found: update `time_stamp`, `status=1` (STORED)
-            * else `status=99`
-        * Secondary, src:
-            * if primary found: clear `retrieval_cid`, `status=1`
-            * else if secondary found update `removed`, `status=5`,
-			* else `status=7` (NOT_FOUND)
-        * Secondary, dest:
-            * if primary found: `status=99`
-            * else if secondary found: update `time_stamp`, `status=1`,
-			* else `status=99` */
+bool TfrmRetrAsstCollectSamples::isJobComplete() { /** are all chunks complete? */
+    for (auto &chunk : chunks) { if (Chunk< SampleRow >::Status::DONE != chunk->getStatus()) return false; }
+    return true;
 }
 
-void SaveProgressThread::jobFinished() {
-    LQuery qp(Util::projectQuery(collect->job->getProjectID(), false));
+void TfrmRetrAsstCollectSamples::jobFinished() {
+    LQuery qp(Util::projectQuery(job->getProjectID(), false));
     LQuery qc(LIMSDatabase::getCentralDb());
 
-    // all boxes must be finished if here (ie. all samples are finished)
-    // is this necessary?
+    // all boxes must be finished if here (ie. all samples are finished) // is this necessary???
     qc.setSQL("SELECT * FROM c_box_retrieval WHERE retrieval_cid = :rtid");
-    qc.setParam("rtid", collect->job->getID());
+    qc.setParam("rtid", job->getID());
     qc.open();
     while (!qc.eof()) {
         // `c_box_retrieval`: set `time_stamp`, `status=2` (collected)
@@ -1105,43 +1074,22 @@ void SaveProgressThread::jobFinished() {
         cbr.saveRecord(LIMSDatabase::getCentralDb()); // time_stamp set by default - should be in 2.7.2
 
         // `box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2` (CONFIRMED)
-
         // `c_box_name`: (if record): update `time_stamp`, `box_capacity`, `status=2` (CONFIRMED)
     }
 
     // `c_retrieval_job`: update `finish_date`, `status` = 2
-    collect->job->setStatus(LCDbCryoJob::DONE);
-    collect->job->saveRecord(qc); // finish date is updated by this method
-}
-// `cryovial_store`: as above (dealt with already?)
-
-void __fastcall TfrmRetrAsstCollectSamples::saveProgressThreadTerminated(TObject *Sender) {
-	progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false; Screen->Cursor = crDefault;
-    Enabled = true; DEBUGSTREAM(__FUNC__<<"save plan for job "<<job->getID()<<" finished")
-
-    // were we exiting or just finished a chunk?
-
-    try {
-        collectEmpties();
-        // anything more to do?
-    } catch (std::exception & e) {
-        TfrmRetrievalAssistant::msgbox(e.what());
-    }
-
-    vector<string>::const_iterator strIt;
-    if (errors.size() > 0) {
-        ostringstream out;
-        for (strIt = errors.begin(); strIt != errors.end(); strIt++) { out<<*strIt<<endl; }
-        Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
-        return;
-	} else {
-        delete_referenced< vector <SampleRow * > >(combined);
-        delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
-        Close();
-    }
+    job->setStatus(LCDbCryoJob::DONE);
+    job->saveRecord(qc); // finish date is updated by this method
 }
 
 void TfrmRetrAsstCollectSamples::collectEmpties() {
+
+    // create tick list or switch list of boxes, empty/otherwise
+    // ask user to comfirm that empty boxes are in fact empty
+    // if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
+    // `c_box_name` and `c_slot_allocation` fields together == `l_box_arrival`
+    // calculate if there are any empty boxes
+
 /** if, at the end of processing a chunk, there are any source boxes which have become empty,
     the user may want to discard them instead of replacing them.
     if so, provide an option to discard these empty boxes, recording it in the database */
@@ -1190,7 +1138,62 @@ void TfrmRetrAsstCollectSamples::collectEmpties() {
         //boxName.setStatus(LPDbBoxName::Status::IN_TANK);
         //LQuery cq(LIMSDatabase::getCentralDb()); // for extra param to LPDbBoxName::saveRecord()
         //boxName.saveRecord(qp, cq);
-        frmCollectEmpties->ShowModal();
+
     //}
+    if (!(boxes.empty())) {
+        frmCollectEmpties->ShowModal();
+    }
 }
 
+// cruft
+       /*
+    vector<string>::const_iterator strIt;
+    if (errors.size() > 0) {
+        ostringstream out;
+        for (strIt = errors.begin(); strIt != errors.end(); strIt++) { out<<*strIt<<endl; }
+        Application->MessageBox(String(out.str().c_str()).c_str(), L"Error", MB_OK);
+        return;
+	} else {
+        delete_referenced< vector <SampleRow * > >(combined);
+        delete_referenced< vector< Chunk< SampleRow > * > >(chunks); // chunk objects, not contents of chunks
+        Close();
+    }*/
+
+//    } catch (std::exception & e) {
+//        TfrmRetrievalAssistant::msgbox(e.what());
+//    }
+
+            // seems to be repeating job of isJobComplete()
+//			int status = sample->lcr_record->getStatus();
+//            switch (status) {
+//                case LCDbCryovialRetrieval::EXPECTED:
+//                case LCDbCryovialRetrieval::IGNORED:
+//                    if (NULL != sample->backup) {
+//                        switch (sample->backup->lcr_record->getStatus()) {
+//                            case LCDbCryovialRetrieval::EXPECTED:
+//                            case LCDbCryovialRetrieval::IGNORED:
+//                                collect->unactionedSamples = true;
+//                        }
+//                    } else {
+//                        collect->unactionedSamples = true;
+//                    }
+//            }
+            //storeSample(sample); // always 'store' even if ignored
+/*
+catch (std::exception & e) {
+        msgbox(e.what());
+    }
+
+    if (collect->errors.size() != 0) {
+        ostringstream oss;
+        oss<<"There were errors:\n\n";
+        for (auto &error: collect->errors) {
+            oss<<error<<"\n";
+        }
+        msgbox(oss.str());
+    } else if (collect->unactionedSamples) {
+        msgbox("There are unactioned samples in this retrieval job; will not be marked as finished"); // fixme
+        return;
+    } else if (!collect->unactionedSamples) { // job finished
+		jobFinished();
+	} */

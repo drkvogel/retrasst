@@ -521,8 +521,7 @@ void TfrmRetrAsstPlanSamples::showProgressMessage(const char * loadingMessage) {
 }
 
 void TfrmRetrAsstPlanSamples::hideProgressMessage() {
-    progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false;
-    //Screen->Cursor = crDefault;
+    progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false; //Screen->Cursor = crDefault;
 }
 
 __fastcall LoadVialsJobThread::LoadVialsJobThread() : TThread(false) {

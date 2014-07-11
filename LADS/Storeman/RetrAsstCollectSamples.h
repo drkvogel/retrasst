@@ -123,6 +123,7 @@ private:
     void                                        nextRow();
     void                                        saveProgress();
     void                                        showProgressMessage(const char * loadingMessage);
+    void                                        hideProgressMessage();
     void                                        debugLog(String s);
     void                                        chunkCompleted(Chunk< SampleRow > * chunk);
     bool                                        isJobComplete();
@@ -131,8 +132,6 @@ private:
     bool                                        unactionedSamples;
     void                                        checkExit();
 	void                                        exit();
-	void 										storeSample(SampleRow * sample);
-    void                                        updateStorage(SampleRow * aliquot, LQuery & q);
 	void										jobFinished();
     bool                                        destroying;  // for FormResize
     void                                        toggleLog();
@@ -171,7 +170,8 @@ public:
 class SaveProgressThread : public RetrAsstThread {
     void __fastcall Execute();
     void            storeSample(SampleRow * sample);
-    void            jobFinished();
+    void            updateStorage();
+    void            updateStorage(SampleRow * aliquot, LQuery & q);
 };
 
 extern PACKAGE TfrmRetrAsstCollectSamples *frmRetrAsstCollectSamples;
