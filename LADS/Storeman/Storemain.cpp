@@ -329,3 +329,4 @@ void __fastcall TfrmStoremain::BtnDiscardClick(TObject *Sender)
 }
 
 //---------------------------------------------------------------------------
+
