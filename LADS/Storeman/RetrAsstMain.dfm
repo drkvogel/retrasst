@@ -1,4 +1,4 @@
-object frmRetrievalAssistant: TfrmRetrievalAssistant
+object frmRetrievalJobList: TfrmRetrievalJobList
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu, biMaximize]
@@ -56,7 +56,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       OnClick = sgJobsClick
       OnDblClick = sgJobsDblClick
       OnDrawCell = sgJobsDrawCell
-      ExplicitHeight = 388
       ColWidths = (
         196
         64
@@ -74,7 +73,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitHeight = 388
       object groupStatusCheck: TGroupBox
         Left = 0
         Top = 0
@@ -214,7 +212,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Caption = 'Exit'
         TabOrder = 2
         OnClick = btnExitClick
-        ExplicitTop = 347
       end
       object cbLog: TCheckBox
         Left = 0
@@ -225,7 +222,6 @@ object frmRetrievalAssistant: TfrmRetrievalAssistant
         Caption = 'Show Log'
         TabOrder = 3
         OnClick = cbLogClick
-        ExplicitTop = 330
       end
     end
     object panelDebug: TPanel

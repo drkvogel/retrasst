@@ -241,6 +241,7 @@ object frmStoremain: TfrmStoremain
       Caption = 'Manage Lists'
       TabOrder = 3
       WordWrap = True
+      OnClick = btnManageClick
     end
   end
   object Panel4: TPanel

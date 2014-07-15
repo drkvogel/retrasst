@@ -15,52 +15,56 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
+TfrmRetrievalJobList *frmRetrievalJobList;
 TfrmRetrievalAssistant *frmRetrievalAssistant;
-__fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TForm(Owner) { }
+
+__fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TfrmRetrievalJobList(Owner) { }
+
+__fastcall TfrmRetrievalJobList::TfrmRetrievalJobList(TComponent* Owner) : TForm(Owner) { }
 
 // moved from header file: linker error under 64-bit XE4
-void TfrmRetrievalAssistant::msgbox(string main, string title) {
+void TfrmRetrievalJobList::msgbox(string main, string title) {
 	Application->MessageBoxW(String(main.c_str()).c_str(), String(title.c_str()).c_str(), MB_OK);
 }
 
-void __fastcall TfrmRetrievalAssistant::FormResize(TObject *Sender) { sgwJobs->resize(); }
+void __fastcall TfrmRetrievalJobList::FormResize(TObject *Sender) { sgwJobs->resize(); }
 
-void __fastcall TfrmRetrievalAssistant::cbLogClick(TObject *Sender) { panelDebug->Visible = cbLog->Checked; }
+void __fastcall TfrmRetrievalJobList::cbLogClick(TObject *Sender) { panelDebug->Visible = cbLog->Checked; }
 
-void __fastcall TfrmRetrievalAssistant::FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
+void __fastcall TfrmRetrievalJobList::FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
 /** form's KeyPreview property needs to be set to see this */
     if (Key == ' ') toggleLog();
 }
 
-void TfrmRetrievalAssistant::toggleLog() {
+void TfrmRetrievalJobList::toggleLog() {
     cbLog->Checked          = !(cbLog->Checked);
     panelDebug->Visible     = cbLog->Checked;
     splitterDebug->Visible  = cbLog->Checked;
 }
 
-void __fastcall TfrmRetrievalAssistant::btnExitClick(TObject *Sender) { Close(); }
+void __fastcall TfrmRetrievalJobList::btnExitClick(TObject *Sender) { Close(); }
 
-void __fastcall TfrmRetrievalAssistant::cbNewJobClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalJobList::cbNewJobClick(TObject *Sender) { loadJobs(); }
 
-void __fastcall TfrmRetrievalAssistant::cbInProgressClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalJobList::cbInProgressClick(TObject *Sender) { loadJobs(); }
 
-void __fastcall TfrmRetrievalAssistant::cbDoneClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalJobList::cbDoneClick(TObject *Sender) { loadJobs(); }
 
-void __fastcall TfrmRetrievalAssistant::cbDeletedClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalJobList::cbDeletedClick(TObject *Sender) { loadJobs(); }
 
-void __fastcall TfrmRetrievalAssistant::cbRejectedClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalJobList::cbRejectedClick(TObject *Sender) { loadJobs(); }
 
-void __fastcall TfrmRetrievalAssistant::cbBoxRetrievalClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalJobList::cbBoxRetrievalClick(TObject *Sender) { loadJobs(); }
 
-void __fastcall TfrmRetrievalAssistant::cbSampleRetrievalClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalJobList::cbSampleRetrievalClick(TObject *Sender) { loadJobs(); }
 
-void __fastcall TfrmRetrievalAssistant::cbBoxMoveClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalJobList::cbBoxMoveClick(TObject *Sender) { loadJobs(); }
 
-void __fastcall TfrmRetrievalAssistant::cbBoxDiscardClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalJobList::cbBoxDiscardClick(TObject *Sender) { loadJobs(); }
 
-void __fastcall TfrmRetrievalAssistant::cbSampleDiscardClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalJobList::cbSampleDiscardClick(TObject *Sender) { loadJobs(); }
 
-void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
+void __fastcall TfrmRetrievalJobList::sgJobsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State) {
     LCDbCryoJob * job;
     TColor background = clWindow;
     if (0 == ARow)
@@ -104,7 +108,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDrawCell(TObject *Sender, int ACol
     }
 }
 
-void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
+void __fastcall TfrmRetrievalJobList::sgJobsDblClick(TObject *Sender) {
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
     if (NULL == job) return;
     switch (job->getStatus()) {
@@ -154,7 +158,7 @@ void __fastcall TfrmRetrievalAssistant::sgJobsDblClick(TObject *Sender) {
     loadJobs();
 }
 
-void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
+void __fastcall TfrmRetrievalJobList::sgJobsClick(TObject *Sender) {
     ostringstream oss;
     LCDbCryoJob * job = ((LCDbCryoJob *)(sgJobs->Objects[0][sgJobs->Row]));
     if (NULL == job) return;
@@ -162,12 +166,12 @@ void __fastcall TfrmRetrievalAssistant::sgJobsClick(TObject *Sender) {
     debugLog(oss.str().c_str());
 }
 
-void __fastcall TfrmRetrievalAssistant::FormClose(TObject *Sender, TCloseAction &Action) {
+void __fastcall TfrmRetrievalJobList::FormClose(TObject *Sender, TCloseAction &Action) {
     delete_referenced<tdvecpJob>(vecJobs);
     delete sgwJobs;
 }
 
-string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
+string TfrmRetrievalJobList::getProjectDescription(int project_cid) {
     if (0 == project_cid) return "Project not specified";
     try {
         return LCDbProjects::records().get(project_cid).getName().c_str();
@@ -176,21 +180,21 @@ string TfrmRetrievalAssistant::getProjectDescription(int project_cid) {
     }
 }
 
-string TfrmRetrievalAssistant::getAuditInfo(int process_cid) {
+string TfrmRetrievalJobList::getAuditInfo(int process_cid) {
     // c_audit_trail
     //fixmeLCDbCryoJob::getUserID();
     return "";
 }
 
-string TfrmRetrievalAssistant::getExerciseDescription(int exercise_cid) { // c_object_name: 20: storage exercise
+string TfrmRetrievalJobList::getExerciseDescription(int exercise_cid) { // c_object_name: 20: storage exercise
     ostringstream oss;
     const LCDbObject * exercise = LCDbObjects::records().findByID(exercise_cid);
     oss << exercise->getName().c_str(); return oss.str();
 }
 
-void TfrmRetrievalAssistant::debugLog(String s) { memoDebug->Lines->Add(s); }
+void TfrmRetrievalJobList::debugLog(String s) { memoDebug->Lines->Add(s); }
 
-void TfrmRetrievalAssistant::init() {
+void TfrmRetrievalJobList::init() {
     cbLog->Checked      = false;//RETRASSTDEBUG;
     cbLog->Visible      = true;//= RETRASSTDEBUG;
 	panelDebug->Visible = cbLog->Checked;
@@ -210,7 +214,7 @@ void TfrmRetrievalAssistant::init() {
     loadJobs();
 }
 
-void TfrmRetrievalAssistant::loadJobs() {
+void TfrmRetrievalJobList::loadJobs() {
     Screen->Cursor = crSQLWait;
     LQuery qc(LIMSDatabase::getCentralDb());
     jobs = LCDbCryoJobs::records();
@@ -251,7 +255,7 @@ void TfrmRetrievalAssistant::loadJobs() {
     }
 }
 
-void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
+void __fastcall TfrmRetrievalJobList::btnResetJobsClick(TObject *Sender) {
 /** for debugging: set all retrieval jobs back to their initial states */
     ostringstream oss; oss<<__FUNC__<<": reset jobs"; debugLog(oss.str().c_str());
 
@@ -281,11 +285,11 @@ void __fastcall TfrmRetrievalAssistant::btnResetJobsClick(TObject *Sender) {
     loadJobs();
 }
 
-void TfrmRetrievalAssistant::clearStorageCache() {
+void TfrmRetrievalJobList::clearStorageCache() {
     storageCache.clear();
 }
 
-void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
+void TfrmRetrievalJobList::getStorage(SampleRow * sample) {
 /** fill in SampleRow structure with storage details of sample */
     ROSETTA result; StoreDAO dao;
     map<int, const SampleRow *>::iterator found = storageCache.find(sample->store_record->getBoxID());
@@ -315,7 +319,7 @@ void TfrmRetrievalAssistant::getStorage(SampleRow * sample) {
     }
 }
 
-void TfrmRetrievalAssistant::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
+void TfrmRetrievalJobList::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
 
     struct PosKey {
     /** compound of box and position used for index into map of box + pos -> sample */

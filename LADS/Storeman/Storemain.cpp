@@ -330,3 +330,11 @@ void __fastcall TfrmStoremain::BtnDiscardClick(TObject *Sender)
 
 //---------------------------------------------------------------------------
 
+void __fastcall TfrmStoremain::btnManageClick(TObject *Sender)
+{
+    //
+    //frmRetrievalAssistant->init();
+	//frmRetrievalAssistant->ShowModal();
+}
+//---------------------------------------------------------------------------
+

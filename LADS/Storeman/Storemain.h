@@ -55,6 +55,7 @@ __published:	// IDE-managed Components
     void __fastcall BtnRetrieveClick(TObject *Sender);
 	void __fastcall btnViewListsClick(TObject *Sender);
 	void __fastcall BtnRationalyseClick(TObject *Sender);
+    void __fastcall btnManageClick(TObject *Sender);
 
 private:	// User declarations
 

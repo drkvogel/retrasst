@@ -512,7 +512,10 @@ static const char * jobTypeString(short status) {
 
 typedef std::vector<LCDbCryoJob *> tdvecpJob;
 
-class TfrmRetrievalAssistant : public TForm {
+
+
+//class TfrmRetrievalAssistant : public TForm {
+class TfrmRetrievalJobList : public TForm {
 __published:
     TGroupBox *GroupBox1;
     TStringGrid *sgJobs;
@@ -559,26 +562,31 @@ __published:
 private:
     StringGridWrapper<LCDbCryoJob> *  sgwJobs;
     void                loadJobs();
-    tdvecpJob          vecJobs;
-    LCDbCryoJobs       jobs;
-    string             getExerciseDescription(int exercise_cid);
-    string             getProjectDescription(int project_cid);
-    string             getAliquotDescription(int primary_aliquot);
-    string             getAuditInfo(int process_cid);
-    void               debugLog(String s);
-    void               toggleLog();
+    tdvecpJob           vecJobs;
+    LCDbCryoJobs        jobs;
+    string              getExerciseDescription(int exercise_cid);
+    string              getProjectDescription(int project_cid);
+    string              getAliquotDescription(int primary_aliquot);
+    string              getAuditInfo(int process_cid);
+    void                debugLog(String s);
+    void                toggleLog();
     map<int, const SampleRow *> storageCache;
 protected:
 
 public:
-    __fastcall TfrmRetrievalAssistant(TComponent* Owner);
-    void init();
-    void               clearStorageCache();
-	void               getStorage(SampleRow * sample);
-    void               combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
+    __fastcall TfrmRetrievalJobList(TComponent* Owner);
+    void                init();
+    void                clearStorageCache();
+	void                getStorage(SampleRow * sample);
+    void                combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
 
 	// made into class methods, NG, 17/3/14, to avoid linker error
 	static void msgbox(string main, string title="Info");
+};
+
+class TfrmRetrievalAssistant : public TfrmRetrievalJobList {
+public:
+    __fastcall TfrmRetrievalAssistant(TComponent* Owner);
 };
 
 //class TfrmRetrAsstCollectSamples : public TForm;
