@@ -22,6 +22,11 @@ void showErrorMsg( const std::string& msg )
     showMsg( msg, TMsgDlgType::mtError );
 }
 
+void showInfoMsg( const std::string& msg )
+{
+	showMsg( msg, TMsgDlgType::mtInformation );
+}
+
 void showWarningMsg( const std::string& msg )
 {
     showMsg( msg, TMsgDlgType::mtWarning );

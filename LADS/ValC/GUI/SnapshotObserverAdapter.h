@@ -17,6 +17,7 @@ class SnapshotObserverAdapter : public valc::SnapshotObserver
 {
 public:
     SnapshotObserverAdapter( ModelEventListeners* l, Model* m, IdleService* idleService );
+    bool isSnapshotLoaded() const;
     void notify( int modelEvent, const EventData& eventData );
     // SnapshotObserver interface implementation:
     void notifyWorklistEntryChanged ( const valc::WorklistEntry* we );
@@ -34,6 +35,7 @@ private:
     Model* m_model;
     std::vector< std::pair< int, EventData > > m_eventQueue;
     paulst::CritSec m_critSec;
+    bool m_isSnapshotLoaded;
 
     SnapshotObserverAdapter( const SnapshotObserverAdapter& );
     SnapshotObserverAdapter& operator=( const SnapshotObserverAdapter& );

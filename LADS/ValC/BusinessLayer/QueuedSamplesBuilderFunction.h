@@ -5,6 +5,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <string>
 #include <System.hpp>
+#include <tuple>
 #include "WorklistDirectory.h"
 
 namespace valc
@@ -69,10 +70,13 @@ public:
         ProcessState();
         virtual ~ProcessState();
         virtual QueueTicket     getQueueTicket()                                        = 0;
-        virtual std::string     getSampleDescriptor()                                   = 0;
-        virtual void            init( Params* p, const std::string& sampleDescriptor )  = 0;
+        std::string             getSampleDescriptor() const;
+        std::string             getBarcode()          const;
+        virtual void            init( Params* p, const std::string& sampleDescriptor, const std::string& barcode );
         virtual bool            isInclusionJustifiedForSample()                         = 0;
         virtual void            process( const WorklistEntry* sampleWorklistEntry )     = 0;
+    protected:
+        std::string m_sampleDescriptor, m_barcode;
     private:
         ProcessState( const ProcessState& );
         ProcessState& operator=( const ProcessState& );
@@ -80,13 +84,17 @@ public:
 
 private:
 
-	typedef std::pair< std::string, QueueTicket > SampleDescriptorWithQueueTicket;
+	typedef std::tuple< 
+        std::string, // sample descriptor
+        std::string, // barcode
+        QueueTicket 
+        > 
+        SampleDescriptorWithQueueTicket;
 
     ProcessState*                                   m_state;
     const boost::scoped_ptr< Params >               m_params;
     std::vector< SampleDescriptorWithQueueTicket >  m_queue;
-    const boost::scoped_ptr<ProcessState>           m_stateBegin, 
-                                                    m_stateIgnoring, 
+    const boost::scoped_ptr<ProcessState>           m_stateIgnoring, 
                                                     m_stateConsidering;
 
     void flushState();

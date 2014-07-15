@@ -1,0 +1,10 @@
+object BatchNavFrame: TBatchNavFrame
+  Height = 208.000000000000000000
+  Width = 271.000000000000000000
+  object scrollBox: TScrollBox
+    Align = alClient
+    Height = 208.000000000000000000
+    TabOrder = 0
+    Width = 271.000000000000000000
+  end
+end

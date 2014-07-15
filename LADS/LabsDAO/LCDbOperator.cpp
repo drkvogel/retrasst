@@ -76,8 +76,8 @@ LCDbOperator::Priv::Priv( const LQuery & cQuery )
  : program( cQuery.readInt( "program_cid" ) ),
    project( cQuery.readInt( "project_cid" ) ),
    machine( cQuery.readInt( "machine_cid" ) ),
-   page( cQuery.readInt( "page_number" ) ),
-   status( cQuery.readInt( "status" ) )
+   page( (short) cQuery.readInt( "page_number" ) ),
+   status( (short) cQuery.readInt( "status" ) )
 {}
 
 //---------------------------------------------------------------------------
@@ -113,7 +113,7 @@ std::string LCDbOperator::encrypt( const std::string & pass )
 	char * lc = new char[ pass.length() + 2 ];
 	unsigned n;
 	for( n = 0; n < pass.length(); n ++ ) {
-		lc[ n ] = tolower( pass[ n ] );
+		lc[ n ] = (char) tolower( pass[ n ] );
 	}
 	lc[ n ] = '\0';
 

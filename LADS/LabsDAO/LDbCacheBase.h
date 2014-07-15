@@ -78,9 +78,9 @@ protected:
 	template< typename O > const T * findMatch( const O & matcher ) const {
 		const T * found = NULL;
 		short n = 0;
-		for( auto &x : data ) {
-			if( matcher( x ) ) {
-				found = &(x);
+		for( ConstIter x = begin(); x != end(); x ++ ) {
+			if( matcher( *x ) ) {
+				found = &(*x);
 				n ++;
 			}
 		}

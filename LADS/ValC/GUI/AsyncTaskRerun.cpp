@@ -14,7 +14,7 @@ void closeHandle( HANDLE h )
 
 void RerunFunc::operator()( int& )
 {
-    HANDLE h = snapshot->queueForRerun( worklistID, sampleRunID, sampleDescriptor );
+    HANDLE h = snapshot->queueForRerun( worklistID, sampleRunID, sampleDescriptor, barcode );
 
     boost::shared_ptr<void> onBlockExit( h, closeHandle );
 
@@ -42,6 +42,7 @@ AsyncTaskRerun::AsyncTaskRerun(
     m_rerunFunc.worklistID          = worklistID;
     m_rerunFunc.sampleRunID         = sampleRunID;
     m_rerunFunc.sampleDescriptor    = sampleDescriptor;
+    m_rerunFunc.barcode             = barcode;
     m_rerunFunc.snapshot            = snapshot;
     m_rerunFunc.maxWaitMillis       = maxWaitMillis;
 }

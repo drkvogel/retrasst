@@ -14,6 +14,7 @@ struct RerunFunc
     unsigned long       maxWaitMillis;
     valc::IDToken       sampleRunID;
     std::string         sampleDescriptor;
+    std::string         barcode;
     valc::SnapshotPtr   snapshot;
     int                 worklistID;
 

@@ -15,6 +15,7 @@ namespace valcui
 
 void reportException( const Exception& e );
 void showErrorMsg( const std::string& msg );
+void showInfoMsg( const std::string& msg );
 void showWarningMsg( const std::string& msg );
 
 }

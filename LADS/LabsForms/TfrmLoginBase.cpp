@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
  *
  *	LIMS Security and Auditting login screen - use as is or extend
  *
@@ -13,9 +13,9 @@
  *  7 Apr 09, NG:	Show user name, not "NULL", if they cannot log in!
  *  23 Mar 11, NG:	Warn user before switching between databases
  *  21 May 14, NG:	Include vlab and vlabdev in system selection
- *	17 June 14, NG:	Moved database selection to a separate screen
+ *	17 Jun 14, NG:	Moved database selection to a separate screen
  *
- *--------------------------------------------------------------------------*/
+ *-------------------------------------------------------------------------- */
 
 #include <vcl.h>
 #include <inifiles.hpp>
@@ -39,262 +39,232 @@
 
 TfrmLoginBase *frmLoginBase;
 
-//---------------------------------------------------------------------------
-//  Warn about multiple instances; select live or mirror system
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Warn about multiple instances; select live or mirror system
+// ---------------------------------------------------------------------------
 
-__fastcall TfrmLoginBase::TfrmLoginBase(TComponent* Owner) : TForm(Owner)
-{
-	std::string vs = LIMSParams::instance().getProgVersion();
-	String app = Application -> Title + " " + vs.c_str();
+__fastcall TfrmLoginBase::TfrmLoginBase( TComponent* Owner ) : TForm( Owner ) {
+	Application->OnException = AppException;
+	std::string vs = LIMSParams::instance( ).getProgVersion( );
+	String app = Application->Title + " " + vs.c_str( );
 #ifdef _DEBUG
-	version -> Font -> Color = clRed;
-	version -> Caption = app + " **DEBUG**";
+	version->Font->Color = clRed;
+	version->Caption = app + " **DEBUG**";
 #else
-	version -> Font -> Color = clBlack;
-	version -> Caption = app + " **FINAL**";
+	version->Font->Color = clBlack;
+	version->Caption = app + " **FINAL**";
 #endif
-	Application -> OnException = AppException;
-	std::string system = LIMSDatabase::getDescription( LIMSDatabase::getCurrentSystem() );
-	lblSystem -> Caption = system.c_str();
+	std::string system = LIMSDatabase::getDescription( LIMSDatabase::getCurrentSystem( ) );
+	lblSystem->Caption = system.c_str( );
 }
 
-//---------------------------------------------------------------------------
-//  Display exceptions and add them to the audit trail; re-initialise
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Display exceptions and add them to the audit trail; re-initialise
+// ---------------------------------------------------------------------------
 
-void __fastcall TfrmLoginBase::AppException(TObject *, Exception *E)
-{
+void __fastcall TfrmLoginBase::AppException( TObject *, Exception *E ) {
 	try {
-		std::string error = AnsiString( E -> Message ).c_str();
+		std::string error = AnsiString( E->Message ).c_str( );
 		auditTrail.addRecord( error, LCDbAuditTrail::MAJOR_ERROR );
+	} catch( ... ) {
 	}
-	catch( ... ) {
-	}
-	Screen -> Cursor = crDefault;
-	String title = Application -> Title + " Error";
-	Application -> MessageBox( E -> Message.c_str(), title.c_str(), MB_ICONWARNING );
-	timer -> Enabled = true;
+	Screen->Cursor = crDefault;
+	String title = Application->Title + " Error";
+	Application->MessageBox( E->Message.c_str( ), title.c_str( ), MB_ICONWARNING );
+	timer->Enabled = true;
 }
 
-//---------------------------------------------------------------------------
-//  Update shared data from the database and populate user list
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Update shared data from the database and populate user list
+// ---------------------------------------------------------------------------
 
-void __fastcall TfrmLoginBase::initialise(TObject *)
-{
+void __fastcall TfrmLoginBase::initialise( TObject * ) {
+	timer->Enabled = false;
+	LIMSParams & config = LIMSParams::instance( );
+	if( !config.checkUnique( ) || !config.checkMachine( ) ) {
 	// stop if the machine is not configured correctly
-	timer -> Enabled = false;
-	LIMSParams & config = LIMSParams::instance();
-	if( !config.checkUnique() || !config.checkMachine() ) {
-		Application -> Terminate();
+		Application->Terminate( );
 		return;
 	}
-
-	//	list active users; don't assume one has been set up
-	userList -> Clear();
-	for( Range< LCDbOperator > ul = LCDbOperators::records(); ul.isValid(); ++ ul ) {
-		if( ul -> isActive() ) {
-			userList -> Items -> Add( ul -> getDescription().c_str() );
-		}
-	}
-	userList -> Enabled = (userList -> Items -> Count != 0);
-	ebPassword -> Clear();
-	ebPassword -> Enabled = userList -> Enabled;
-	/*
-	for (int i=0; i < userList->Items->Count; i++) {
-		if (0 == userList->Items->Strings[i].CompareIC("Chris Bird")) {
-			userList->ItemIndex = i;
-			ebPassword->Text = "albatross";
-		}
-	}
-	userList->ItemIndex = 4;
-	*/
-	auditTrail.start();
-    for (int i=0; i < userList->Items->Count; i++) {
-        if (0 == userList->Items->Strings[i].CompareIC("Chris Bird")) {
-            userList->ItemIndex = i;
-            ebPassword->Text = "albatross";
-            //ebPassword->Text = "hunter";
-        }
-    }
-
+	auditTrail.start( );
 }
 
-//---------------------------------------------------------------------------
-//  Run program if user can log in (project selection can be overridden)
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Run program if user can log in (project selection can be overridden)
+// ---------------------------------------------------------------------------
 
-void __fastcall TfrmLoginBase::okButtonClick(TObject *Sender)
-{
-	if( logUserIn() != NULL )
+void __fastcall TfrmLoginBase::okButtonClick( TObject *Sender ) {
+	if( logUserIn( ) != NULL ) {
 		startProgram( Sender );
+	}
 }
 
-//---------------------------------------------------------------------------
-//  Start the audit trail and load the main program
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Start the audit trail and load the main program
+// ---------------------------------------------------------------------------
 
-void TfrmLoginBase::startProgram( TObject * )
-{
-	AnsiString title = Application -> Title + ": ";
-	int projID = LCDbProjects::getCurrentID();
+void TfrmLoginBase::startProgram( TObject * ) {
+	AnsiString title = Application->Title + ": ";
+	int projID = LCDbProjects::getCurrentID( );
 	if( projID != LCDbProject::NONE_SELECTED ) {
-		const LCDbProject * proj = LCDbProjects::records().findByID( projID );
-		if( proj != NULL )
-			title = title + proj -> getName().c_str() + ", ";
+		const LCDbProject * proj = LCDbProjects::records( ).findByID( projID );
+		if( proj != NULL ) {
+			title = title + proj->getName( ).c_str( ) + ", ";
+		}
 	}
-	int userID = LCDbOperators::getCurrentID();
-	const LCDbOperator * user = LCDbOperators::records().findByID( userID );
+	int userID = LCDbOperators::getCurrentID( );
+	const LCDbOperator * user = LCDbOperators::records( ).findByID( userID );
 	if( user != NULL ) {
-		title = title + user -> getDescription().c_str();
-    }
-	auditTrail.login();
+		title = title + user->getDescription( ).c_str( );
+	}
+	auditTrail.login( );
 	WindowState = wsMinimized;
-	title = title + " (" + auditTrail.getProcessID() + ")";
-	runProgram( title.c_str() );
+	title = title + " (" + auditTrail.getProcessID( ) + ")";
+	runProgram( title.c_str( ) );
 	WindowState = wsNormal;
 }
 
-//---------------------------------------------------------------------------
-//  Switch to the given user if valid; force new password if necessary
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Switch to the given user if valid; force new password if necessary
+// ---------------------------------------------------------------------------
 
-const LCDbOperator * TfrmLoginBase::logUserIn()
-{
+const LCDbOperator * TfrmLoginBase::logUserIn( ) {
 	bool locked, matched;
-	LCDbOperators & users = LCDbOperators::records();
-	std::string userName = AnsiString( userList -> Text ).c_str();
+	LCDbOperators & users = LCDbOperators::records( );
+	std::string userName = AnsiString( userList->Text ).c_str( );
 	const LCDbOperator * user = users.findByName( userName );
-	if( user == NULL )
+	if( user == NULL ) {
 		matched = locked = false;
-	else
-	{	locked = user -> hasLockedAccount();
-		std::string pwd = AnsiString( ebPassword -> Text ).c_str();
-		matched = user -> matchPassword( pwd );
+	} else {
+		locked = user->hasLockedAccount( );
+		std::string pwd = AnsiString( ebPassword->Text ).c_str( );
+		matched = user->matchPassword( pwd );
 	}
-	ebPassword -> Clear();
+	ebPassword->Clear( );
 
 	static short failCount = 0;
-	if( user != NULL && !matched && !locked && ++ failCount >= 3 )
-	{
+	if( user != NULL && !matched && !locked && ++failCount >= 3 ) {
 		LCDbOperator record( *user );
-		record.lockAccount();
-		record.saveRecord( LIMSDatabase::getCentralDb() );
+		record.lockAccount( );
+		record.saveRecord( LIMSDatabase::getCentralDb( ) );
 		locked = true;
 	}
 
-	if( locked )
-	{
-		auditTrail.sendEMail( user -> getDescription() + "'s account is locked" );
-		Application -> MessageBox( L"Too many login attempts; account locked.", NULL, MB_ICONWARNING );
+	if( locked ) {
+		auditTrail.sendEMail( user->getDescription( ) + "'s account is locked" );
+		Application->MessageBox( L"Too many login attempts; account locked.", NULL,
+			MB_ICONWARNING );
 		return NULL;
 	}
 
-	if( !matched )
-	{
+	if( !matched ) {
 		std::string email = userName + " failed to log in";
 		auditTrail.sendEMail( email );
-		Application -> MessageBox( L"Please check name and password.", NULL, MB_ICONWARNING );
+		Application->MessageBox( L"Please check name and password.", NULL, MB_ICONWARNING );
 		return NULL;
 	}
 
 	users.setCurrent( *user );
-	if( user -> needsPassword() && frmPassword -> ShowModal() != mrOk )
+	if( user->needsPassword( ) && frmPassword->ShowModal( ) != mrOk ) {
 		return NULL;
-	else
-	{	failCount = 0;
+	} else {
+		failCount = 0;
 		return user;
 	}
 }
 
-//---------------------------------------------------------------------------
-//  Allow the user to try logging in once they've filled the boxes
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Allow the user to try logging in once they've filled the boxes
+// ---------------------------------------------------------------------------
 
-void __fastcall TfrmLoginBase::textChange(TObject *)
-{
-	okButton -> Enabled = !userList -> Text.IsEmpty() && !ebPassword -> Text.IsEmpty();
+void __fastcall TfrmLoginBase::textChange( TObject * ) {
+	okButton->Enabled = !userList->Text.IsEmpty( ) && !ebPassword->Text.IsEmpty( );
 }
 
-//---------------------------------------------------------------------------
-//	Reinitialise when the user switches between live, test and mirror
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Reinitialise when the user switches between live, test and mirror
+// ---------------------------------------------------------------------------
 
-void __fastcall TfrmLoginBase::rgDatabaseClick(TObject *)
-{
-	timer -> Enabled = true;
-	okButton -> Enabled = false;
+void __fastcall TfrmLoginBase::rgDatabaseClick( TObject * ) {
+	timer->Enabled = true;
+	okButton->Enabled = false;
 }
 
-//---------------------------------------------------------------------------
-//  Close program when the user requests it (not from the main form)
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Close program when the user requests it (not from the main form)
+// ---------------------------------------------------------------------------
 
-void __fastcall TfrmLoginBase::exitButtonClick(TObject *)
-{
-	Close();
+void __fastcall TfrmLoginBase::exitButtonClick( TObject * ) {
+	Close( );
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
-void __fastcall TfrmLoginBase::FormClose(TObject *, TCloseAction &)
-{
-	timer -> Enabled = false;
-	if( auditTrail.hasStarted() )
-		auditTrail.stop();
-//	LCDbProjects::records().releaseDatabases();
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmLoginBase::FormCanResize(TObject *, int &, int &, bool &Resize)
-{
-	Resize = false;
-}
-
-//---------------------------------------------------------------------------
-//	Version label is a hyperlink - show about box when it's clicked on
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmLoginBase::hyperlinkEnter(TObject *)
-{
-	Screen -> Cursor = crHandPoint;
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmLoginBase::hyperlinkLeave(TObject *)
-{
-	Screen -> Cursor = crDefault;
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmLoginBase::versionClick(TObject *)
-{
-	frmAboutBox -> ShowModal();
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TfrmLoginBase::lblSystemClick(TObject *Sender)
-{
-	frmSelectDbSystem -> ShowModal();
-	std::string system = LIMSDatabase::getDescription( LIMSDatabase::getCurrentSystem() );
-	lblSystem -> Caption = system.c_str();
-}
-
-//---------------------------------------------------------------------------
-//	open the main form (if set): can be overridden by sub-classes
-//---------------------------------------------------------------------------
-
-void TfrmLoginBase::runProgram( const std::string & title )
-{
-	if( mainForm != NULL ) {
-		mainForm -> Caption = title.c_str();
-		mainForm -> ShowModal();
+void __fastcall TfrmLoginBase::FormClose( TObject *, TCloseAction & ) {
+	timer->Enabled = false;
+	if( auditTrail.hasStarted( ) ) {
+		auditTrail.stop( );
 	}
 }
 
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 
+void __fastcall TfrmLoginBase::FormCanResize( TObject *, int &, int &, bool &Resize ) {
+	Resize = false;
+}
+
+// ---------------------------------------------------------------------------
+// Version label is a hyperlink - show about box when it's clicked on
+// ---------------------------------------------------------------------------
+
+void __fastcall TfrmLoginBase::hyperlinkEnter( TObject * ) {
+	Screen->Cursor = crHandPoint;
+}
+// ---------------------------------------------------------------------------
+
+void __fastcall TfrmLoginBase::hyperlinkLeave( TObject * ) {
+	Screen->Cursor = crDefault;
+}
+
+// ---------------------------------------------------------------------------
+
+void __fastcall TfrmLoginBase::versionClick( TObject * ) {
+	frmAboutBox->ShowModal( );
+}
+
+// ---------------------------------------------------------------------------
+
+void __fastcall TfrmLoginBase::lblSystemClick( TObject *Sender ) {
+	frmSelectDbSystem->ShowModal( );
+	std::string system = LIMSDatabase::getDescription( LIMSDatabase::getCurrentSystem( ) );
+	lblSystem->Caption = system.c_str( );
+}
+
+// ---------------------------------------------------------------------------
+//	reload list of operators each time, in case system has changed
+// ---------------------------------------------------------------------------
+
+void __fastcall TfrmLoginBase::userListDropDown( TObject *Sender ) {
+	userList->Clear( );
+	for( const LCDbOperator & ul : LCDbOperators::records( ) ) {
+		if( ul.isActive( ) ) {
+			userList->Items->Add( ul.getDescription( ).c_str( ) );
+		}
+	}
+	userList->Enabled = ( userList->Items->Count != 0 );
+	ebPassword->Clear( );
+	ebPassword->Enabled = userList->Enabled;
+}
+
+// ---------------------------------------------------------------------------
+//  open the main form (if set): can be overridden by sub-classes
+// ---------------------------------------------------------------------------
+
+void TfrmLoginBase::runProgram( const std::string & title ) {
+	if( mainForm != NULL ) {
+		mainForm->Caption = title.c_str( );
+		mainForm->ShowModal( );
+	}
+}
+
+// ---------------------------------------------------------------------------

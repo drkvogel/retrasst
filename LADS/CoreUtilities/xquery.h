@@ -19,6 +19,7 @@ private:
 	bool	accept_null;
 	bool	read_only;
 	bool	fetching_blobs;
+	bool	mode_select_cursor;
 	int	batch_nrows, buffered_rows, buffer_curow;
 	virtual	std::string	getClass( void );
 #if X_BDE
@@ -34,11 +35,13 @@ private:
 	IIAPI_DATAVALUE		*ing_val;
 	IIAPI_GETCOLPARM  	getColParm;
 	IIAPI_GETDESCRPARM 	getDescrParm;
-	bool	ingOpen( void );
+	bool	ingOpenCursor( void );
+	bool	ingOpenSelect( void );
 	bool	ingBufInit( void );
 	void	ingBufRemove( void );
 	bool 	ingFetchRepackKey( const char *name, const IIAPI_DATAVALUE *v );
 	bool 	ingFetchRepackInt( const char *name, const IIAPI_DATAVALUE *v );
+	bool 	ingFetchRepackBool( const char *name, const IIAPI_DATAVALUE *v );
 	bool 	ingFetchRepackReal( const char *name, const IIAPI_DATAVALUE *v  );
 	bool 	ingFetchRepackBlob( const IIAPI_DATAVALUE *v, int *total, char **buf );
 	bool 	ingFetchRepackLVarchar( const char *name, const IIAPI_DATAVALUE *v );
@@ -74,7 +77,7 @@ public:
 	void	setReadOnly( const bool ro );
 	bool	setBatch( const int bat );
 					// ACCESS FUNCTIONS
-	bool	open( void );
+	bool	open( const bool mode_cursor = true );
 	bool	fetchingBlobs( void ) const;
 	bool 	fetch( void );
 	bool 	fetch( ROSETTA *output );

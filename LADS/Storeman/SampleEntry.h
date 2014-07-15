@@ -76,7 +76,7 @@ __published:	// IDE-managed Components
 private:	// User declarations
 
 	enum Cols { SAMPLE, CRYOVIAL, ALIQUOT, SITE, LOCATION, VESSEL, SHELF,
-			STRUCTURE, SLOT_POS, OLD_BOX, OLD_POS, NEW_POS, COL_COUNT };
+			STRUCTURE, SLOT_POS, OLD_BOX, OLD_POS, NEW_BOX, NEW_POS, COL_COUNT };
 	enum ItemType { SAMPLES, CRYOVIALS, BOXES };
 	enum DestOrder { FIXED, SORTED, FROM_FILE };
 

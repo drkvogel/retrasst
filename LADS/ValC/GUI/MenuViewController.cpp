@@ -2,7 +2,9 @@
 #include "Model.h"
 #include "ModelEventConstants.h"
 #include "StrUtil.h"
+
 #include "TMainForm.h"
+
 
 namespace valcui
 {
@@ -57,6 +59,9 @@ MenuViewController::MenuViewController(
 {
 	assignActionToMenuItem( actionClose, "Close" );
 	assignActionToMenuItem( actionRunPendingUpdates, "Run pending updates..." );
+	assignActionToMenuItem( actionView, "Batch Nav" );
+	assignActionToMenuItem( actionView, "QC Control" );
+	assignActionToMenuItem( actionView, "Worklist Item" );
 
 	find( menu, "Run pending updates...")->Enabled = false;
 
@@ -80,6 +85,22 @@ void MenuViewController::assignActionToMenuItem( TNotifyEvent action, const char
 				).c_str()
 			);
 
+	}
+}
+
+void __fastcall MenuViewController::actionView( TObject* sender )
+{
+	TMenuItem* mi = (TMenuItem*)sender;
+	mi->IsChecked = ! mi->IsChecked;
+	const std::string toolName = AnsiString( mi->Text.c_str() ).c_str();
+
+	if ( mi->IsChecked )
+	{
+		m_mainForm->addTool( toolName );
+	}
+	else
+	{
+		m_mainForm->removeTool( toolName );
 	}
 }
 

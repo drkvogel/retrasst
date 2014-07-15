@@ -4,6 +4,7 @@
 #include "AsyncTaskClose.h"
 #include "AsyncTaskForceReload.h"
 #include "AsyncTaskInitBusinessLayer.h"
+#include "AsyncTaskLoadRule.h"
 #include "AsyncTaskRerun.h"
 #include "AsyncTaskRunPendingUpdates.h"
 #include <boost/shared_ptr.hpp>
@@ -59,10 +60,10 @@ BusinessLayer::BusinessLayer(
     m_currentlyExecutingTask( NULL ),
     m_currentlyExecutingTaskHandle( NULL ),
     m_eventSink( eventSink ),
-    m_busyDialog( new TWaitDlg(NULL) )
+    m_busyDialog( new TWaitDlg(NULL) ),
+    m_initialisationTask( new AsyncTaskInitBusinessLayer( machineID, userID, config, log, warningsListener ) )
 {
     require( m_ptpWait );
-    execute( new AsyncTaskInitBusinessLayer( machineID, userID, config, log, warningsListener ) );
 }
 
 BusinessLayer::~BusinessLayer()
@@ -167,6 +168,19 @@ void BusinessLayer::close()
 void BusinessLayer::hideMessage()
 {
     m_busyDialog->Hide();
+}
+
+void BusinessLayer::init()
+{
+    require( m_initialisationTask );
+    AsyncTask* t = m_initialisationTask;
+    m_initialisationTask = NULL;
+    execute( t );
+}
+
+void BusinessLayer::loadRule( int test, int machine, int project )
+{
+    execute( new AsyncTaskLoadRule( test, machine, project ) );
 }
 
 void BusinessLayer::marshallCallback()

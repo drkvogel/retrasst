@@ -68,7 +68,7 @@ private:
 template< typename Values > struct LCDbSingleton
 {
 	static Values & records() {
-		static Values cdb[ 5 ];
+		static Values cdb[ LIMSDatabase::SYSTEM_COUNT ];
 		Values & cache = cdb[ LIMSDatabase::getCurrentSystem() ];
 		if( cache.empty() ) {
 			cache.read( LIMSDatabase::getCentralDb() );

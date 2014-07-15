@@ -27,7 +27,7 @@ SgController::~SgController()
 {
 		delete GCGBase;
 }
-bool SgController::statusToShow( const RowItem& ss )
+bool SgController::statusToShow( const RowItem&  )
 {
 		return false;
 }
@@ -45,14 +45,14 @@ void SgController::blankRow( void )
 {
     String Sstatus;
     Sstatus="";
-    for ( unsigned int i=0; i< columnDisplayOrder.size();i++)
+	for ( unsigned  i=0; i< columnDisplayOrder.size();i++)
     {
         if( columnDisplayOrder[i].title!="Status")
         {
-                sg->Cells[i][sgRow]      = "";
+				sg->Cells[i][sgRow]      = "";
         }else
         {
-                sg->Cells[i][sgRow]       = "";
+				sg->Cells[i][sgRow]       = "";
         }
     }
 
@@ -150,7 +150,7 @@ void SgController::DrawCell_event_handler(int ACol,int ARow,TRect &Rect)
 void SgController::drawRow(const RowItem& ri, const int pRow)
 {
     String Sstatus;
-    int colValueNumber;
+	int colValueNumber;
     int ageOfSpecimen;
     TDateTime* specimenTaken;
         int colOffset;
@@ -202,7 +202,7 @@ void SgController::heading( void )
         for( unsigned i=0;i<columnDisplayOrder.size();i++)
         {
 
-                sg->ColWidths[i]=columnDisplayOrder[i].fieldPixelWidth;
+				sg->ColWidths[i]=columnDisplayOrder[i].fieldPixelWidth;
 				sg->Cells[i][0]=columnDisplayOrder[i].title;
 
         }
@@ -214,7 +214,7 @@ void SgController::getCell(const int col,const int row,std::string & pValue)
 {
         if( row != -1 )
         {
-				pValue=bcsToStd(sg->Cells[col][row]);
+				pValue=AnsiString(sg->Cells[col][row]).c_str();
         }else
 		{
                 pValue="";
@@ -254,7 +254,7 @@ void SgController::setCell(const int col,const int row, const std::string & pVal
 
 void SgController::getCurrentCell(const int col, std::string & pValue )
 {
-		pValue=bcsToStd(sg->Cells[col][sg->Row]);
+		pValue=AnsiString(sg->Cells[col][sg->Row]).c_str();
 }
 int  SgController::getHighLightedRow( void )
 {

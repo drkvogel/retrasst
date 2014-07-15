@@ -53,7 +53,7 @@ class UserAdvisor;
 class SnapshotPtr
 {
 public:
-    SnapshotPtr( AnalysisActivitySnapshot* p = NULL )
+    explicit SnapshotPtr( AnalysisActivitySnapshot* p = NULL )
         : m_ptr(p)
     {
     }
@@ -204,8 +204,11 @@ public:
 
     LocalRun();
     LocalRun( const LocalRun& );
-    LocalRun( const std::string& sampleDescriptor, const IDToken& sampleRunID );
+    LocalRun( const std::string& sampleDescriptor, const std::string& barcode, const IDToken& sampleRunID );
     LocalRun& operator=( const LocalRun& r );
+
+    std::string getBarcode() const;
+
     /*
         Returns the ID of the group/batch with which this run is associated.
     */
@@ -228,6 +231,7 @@ public:
     bool isOpen() const;
 private:
     std::string m_sampleDescriptor;
+    std::string m_barcode;
     IDToken m_runID;
     Impl* m_impl;
 };
@@ -266,8 +270,10 @@ class QueuedSample
 public:
     QueuedSample();
     QueuedSample( const QueuedSample& );
-    QueuedSample( const std::string& sampleDescriptor );
+    QueuedSample( const std::string& sampleDescriptor, const std::string& barcode );
     QueuedSample& operator=( const QueuedSample& q );
+
+    std::string getBarcode() const;
     /*
         Returns an identifier for the sample that is queued.
 
@@ -277,6 +283,7 @@ public:
     std::string getSampleDescriptor() const;
 private:
     std::string m_sampleDescriptor;
+    std::string m_barcode;
 };
 
 typedef std::vector< QueuedSample >     QueuedSamples;
@@ -449,7 +456,7 @@ public:
     struct Impl;
     friend Impl;
 
-    WorklistRelative( int id = 0, const WorklistEntry* entry = 0, char howCreated = '\0' );
+    explicit WorklistRelative( int id = 0, const WorklistEntry* entry = 0, char howCreated = '\0' );
     WorklistRelative( const WorklistRelative& );
     WorklistRelative&               operator=( const WorklistRelative& );
     bool                            isBoundToWorklistEntryInstance()    const;
@@ -559,7 +566,7 @@ public:
 
         Changes made to the snaphost object model are broadcast via SnapshotObserver.
     */
-    virtual HANDLE                       queueForRerun( int worklistID, const IDToken& sampleRunID, const std::string& sampleDescriptor ) = 0;
+    virtual HANDLE                       queueForRerun( int worklistID, const IDToken& sampleRunID, const std::string& sampleDescriptor, const std::string& barcode ) = 0;
 
     /*
         Use this method to specifiy a callback interface on which to receive notifications of updates to the snapshot.
@@ -723,7 +730,7 @@ class QCControl
 {
 public:
 
-    QCControl( int resultID = 0, ResultCode status = RESULT_CODE_NULL );
+    explicit QCControl( int resultID = 0, ResultCode status = RESULT_CODE_NULL );
     QCControl( const QCControl& );
     QCControl& operator=( const QCControl& );
 
@@ -742,7 +749,7 @@ private:
 class QCControls
 {
 public:
-    QCControls( const std::vector< QCControl >& controls = std::vector< QCControl >() );
+    explicit QCControls( const std::vector< QCControl >& controls = std::vector< QCControl >() );
     QCControls( const QCControls& );
     QCControls& operator=( const QCControls& );
     bool empty() const;
@@ -761,7 +768,7 @@ private:
 class ControlStatus
 {
 public:
-    ControlStatus( const QCControls& preceding = QCControls(), const QCControls& following = QCControls() );
+    explicit ControlStatus( const QCControls& preceding = QCControls(), const QCControls& following = QCControls() );
     ControlStatus( const ControlStatus& );
     ControlStatus& operator=( const ControlStatus& );
     /*

@@ -13,13 +13,13 @@
 LCDbSectionDef::LCDbSectionDef( const LQuery & query )
  : LCDbID( query.readInt( "rack_type_cid" ) )
 	,tankLayoutCID( query.readInt( "rack_layout_cid" ) )
-	,fillOrder( query.readInt( "fill_order" ) )
+	,fillOrder( (short)query.readInt( "fill_order" ) )
 	,sectionPrefix( query.readString( "section_prefix" ) )
-	,firstRack( query.readInt( "first_rack" ) )
-	,lastRack( query.readInt( "last_rack" ) )
-	,rackCapacity( query.readInt( "rack_Capacity" ))
-	,status( query.readInt( "status" ))
-	,confirmRack( query.readInt("confirm_rack" ))
+	,firstRack( (short)query.readInt( "first_rack" ) )
+	,lastRack( (short)query.readInt( "last_rack" ) )
+	,rackCapacity( (short)query.readInt( "rack_Capacity" ))
+	,status( (short)query.readInt( "status" ))
+	,confirmRack( (short)query.readInt("confirm_rack" ))
 {}
 
 //---------------------------------------------------------------------------

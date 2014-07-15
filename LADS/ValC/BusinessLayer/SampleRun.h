@@ -26,6 +26,7 @@ public:
     SampleRun( 
         const IDToken& runID, 
         const std::string& sampleDescriptor, 
+        const std::string& barcode, 
         bool isOpen, 
         const TDateTime& created, 
         const TDateTime& closed, 
@@ -33,6 +34,7 @@ public:
         const paulst::Nullable<int>& groupID, 
         bool isQC );
     SampleRun&              operator=( const SampleRun& o );
+    std::string             getBarcode() const;
     paulst::Nullable<int>   getGroupID() const;
     IDToken                 getID() const;
     std::string             getSampleDescriptor() const;
@@ -42,6 +44,7 @@ public:
 private:
     IDToken                 m_runID;
     std::string             m_sampleDescriptor;
+    std::string             m_barcode;
     bool                    m_isOpen;
     TDateTime               m_created;
     TDateTime               m_closed;

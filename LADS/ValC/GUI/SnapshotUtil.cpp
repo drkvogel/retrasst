@@ -1,4 +1,5 @@
 #include "LocalRunIterator.h"
+#include "Require.h"
 #include <set>
 #include "SnapshotUtil.h"
 
@@ -72,10 +73,34 @@ bool hasRerun( const valc::WorklistEntry* wle, valc::SnapshotPtr snapshot )
     return false;
 }
 
-bool isQC( const valc::WorklistEntry* wle )
+bool isQC( const std::string& barcode )
 {
-    return 0 == wle->getBarcode().find( "QC" );
+    return 0U == barcode.find( "QC" );
 }
 
+bool isQC( const valc::WorklistEntry* wle )
+{
+    return isQC( wle->getBarcode() );
+}
+
+TestNames::TestNames()
+{
+}
+
+TestNames::~TestNames()
+{
+}
+
+TestNamesAdapter::TestNamesAdapter( valc::SnapshotPtr s )
+    :
+    m_snapshot( s )
+{
+    require( m_snapshot );
+}
+
+std::string TestNamesAdapter::getNameFor( int testID )
+{
+    return m_snapshot->getTestName( testID );
+}
 }
 

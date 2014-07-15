@@ -65,7 +65,7 @@ ControlStatus ControlModelImpl::getControlStatus( int testID, const IDToken& sam
 
     m_cache.searchForMatchingQCControls( runIDs, testID, following );
 
-    return ControlStatus( preceding, following );
+    return ControlStatus( QCControls(preceding), QCControls(following) );
 }
 
 void ControlModelImpl::notifyQCEvaluationStarted( const UncontrolledResult& r, const IDToken& runID )

@@ -8,7 +8,7 @@
 #include "LDbCacheBase.h"
 #include "LCDbObject.h"
 
-class RIJNDAEL;
+// class RIJNDAEL;
 class LQuery;
 
 enum ArrivalStatus {MATCHED,  MATCH_DUPLICATE,MATCH_REFERRED, UNEXPECTED, UNKNOWN };
@@ -90,6 +90,7 @@ class LDbBoxExpecteds : public LDbCache< LDbBoxExpected >, public LPDbCacheMap< 
 		void updateRecords( LQuery central );
 };
 
+/*
 class LPDbBoxEvent : public LSDbBoxEvent
 {
 	protected:
@@ -124,7 +125,7 @@ class LDbBoxArrivalEvent : public LPDbBoxEvent
 
 		bool saveRecord( LQuery bQuery );
 };
-
+*/
 
 // ***************************************************
 // Class to handle LCDbBoxArrival
@@ -176,7 +177,7 @@ class LDbBoxArrival : public LSDbBoxCourier , public LCDbID
 				void createId( LQuery project );
 				void addLinkedEvent( LQuery central, const String & eventCID );
 
-				Range< LDbBoxArrivalEvent > readBoxHistory( LQuery lQuery );
+		  //		Range< LDbBoxArrivalEvent > readBoxHistory( LQuery lQuery );
 
 	   protected:
 				int laptop_cid;

@@ -1,6 +1,6 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{8ACE822C-0984-45CB-98DE-88CAE7B2E7E2}</ProjectGuid>
+        <ProjectGuid>{5F8FB42C-2B2A-4A12-A150-B08C495F3352}</ProjectGuid>
         <ProjectVersion>14.6</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <AppType>Application</AppType>
@@ -202,6 +202,10 @@
         <CppCompile Include="..\LabsDAO\LCDbAuditTrail.cpp">
             <DependentOn>..\LabsDAO\LCDbAuditTrail.h</DependentOn>
             <BuildOrder>64</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\LabsDAO\LCDbCanned.cpp">
+            <DependentOn>..\LabsDAO\LCDbCanned.h</DependentOn>
+            <BuildOrder>128</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\LabsDAO\LCDbJob.cpp">
             <DependentOn>..\LabsDAO\LCDbJob.h</DependentOn>
@@ -481,6 +485,12 @@
             <FormType>dfm</FormType>
             <DependentOn>NewJob.h</DependentOn>
             <BuildOrder>36</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="NewReason.cpp">
+            <Form>frmNewReason</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>NewReason.h</DependentOn>
+            <BuildOrder>129</BuildOrder>
         </CppCompile>
         <CppCompile Include="NewSection.cpp">
             <Form>frmNewSection</Form>
@@ -793,18 +803,19 @@
         <FormResources Include="RetrievalLists\RetrievalListMainListDialog.dfm"/>
         <FormResources Include="RetrieveSamples.dfm"/>
         <FormResources Include="RetrievalLists\RetrievalListResultsDialog.dfm"/>
-        <FormResources Include="AnalyseSamples.dfm"/>
-        <FormResources Include="AddSpecimens.dfm"/>
         <FormResources Include="DiscardMethod.dfm"/>
-        <FormResources Include="BoxTransfer.dfm"/>
-        <FormResources Include="Configure.dfm"/>
-        <FormResources Include="BrowseSample.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
+        <FormResources Include="AddSpecimens.dfm"/>
         <FormResources Include="..\LabsForms\TfrmSelectDbS.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
+        <FormResources Include="Configure.dfm"/>
+        <FormResources Include="AnalyseSamples.dfm"/>
+        <FormResources Include="BrowseSample.dfm"/>
+        <FormResources Include="BoxTransfer.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
         <FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
         <FormResources Include="..\LabsForms\dvSelector.dfm"/>
+        <FormResources Include="NewReason.dfm"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -822,9 +833,6 @@
         <Borland.ProjectType>CppVCLApplication</Borland.ProjectType>
         <BorlandProject>
             <CPlusPlusBuilder.Personality>
-                <Source>
-                    <Source Name="MainSource">StoreMan.cpp</Source>
-                </Source>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
                     <VersionInfo Name="AutoIncBuild">False</VersionInfo>
@@ -871,6 +879,9 @@
                     <ProjectProperties Name="ManagePaths">True</ProjectProperties>
                     <ProjectProperties Name="VerifyPackages">True</ProjectProperties>
                 </ProjectProperties>
+                <Source>
+                    <Source Name="MainSource">StoreMan.cpp</Source>
+                </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclDBXDrivers180.bpl">Embarcadero Driver Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclDBXDriversInt180.bpl">Embarcadero Intro Driver Components</Excluded_Packages>

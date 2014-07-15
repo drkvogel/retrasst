@@ -6,11 +6,18 @@
 #include <fmx.h>
 
 #include "ConsoleWriter.h"
+#include "IdleServiceUserAdapter.h"
 #include "LoggingService.h"
+#include "ModelEventListenerAdapter.h"
 
 //
 					// forward declarations
 					class TLogFrame;
+namespace valcui
+{
+    class Model;
+}
+
 //---------------------------------------------------------------------------
 
 /** There is a singleton instance of LogManager in the ValC program, and
@@ -62,17 +69,28 @@ public:
 
 // For comments on methods, please see implementation.
 
-	LogManager(TLogFrame *m, const std::string& logFilePath);
+	LogManager( const std::string& logFilePath );
 	~LogManager();
 
-
+    valcui::IdleServiceUser*    getIdleServiceUserInterface();
+    valcui::ModelEventListener* getModelEventListenerInterface();
+    void init();
 	void log(const std::string & msg);
 	void logException(const std::string & msg);
 	void logException(const Exception& e);
+    void notify( int eventID, const valcui::EventData& );
+    void onIdle();
+    void onResize();
+    void setModel( valcui::Model* model );
+    void setView( TLogFrame* view );
 
 private:
-
+    valcui::ModelEventListenerAdapter<LogManager> m_modelEventListener;
+    valcui::IdleServiceUserAdapter   <LogManager> m_idleServiceUser;
 	std::string logTimestamp;  // to timestamp this ValC run
+    const std::string m_logFilePath;
+    TLogFrame* m_view;
+    valcui::Model* m_model;
 
 	void timestampLog();
 };

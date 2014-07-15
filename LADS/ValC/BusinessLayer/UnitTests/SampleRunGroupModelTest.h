@@ -63,7 +63,7 @@ namespace tut
         void primeSample( const std::string& runID, SampleRunType rt, int grpID = 0 )
         {
             const valc::IDToken sampleRunID( runID, sampleRunIDResolutionService.get() );
-            valc::SampleRun sampleRun( sampleRunID, runID, true, Now(), 0.0, ++sequencePos, grpID ? GroupID(grpID) : GroupID(), rt == SRT_QC );
+            valc::SampleRun sampleRun( sampleRunID, runID, runID, true, Now(), 0.0, ++sequencePos, grpID ? GroupID(grpID) : GroupID(), rt == SRT_QC );
             sampleRuns.push_back( sampleRun );
         }
     };

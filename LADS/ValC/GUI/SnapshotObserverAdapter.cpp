@@ -15,16 +15,23 @@ SnapshotObserverAdapter::SnapshotObserverAdapter( ModelEventListeners* l, Model*
     m_modelEventListenerInterface(this),
     m_idleServiceUserInterface(this),
     m_eventSink(l),
-    m_model(m)
+    m_model(m),
+    m_isSnapshotLoaded(false)
 {
     m_eventSink->registerListener( &m_modelEventListenerInterface );
     is->registerUser( &m_idleServiceUserInterface );
+}
+
+bool SnapshotObserverAdapter::isSnapshotLoaded() const
+{
+    return m_isSnapshotLoaded;
 }
 
 void SnapshotObserverAdapter::notify( int modelEvent, const EventData& eventData )
 {
     if ( modelEvent == MODEL_EVENT::FORCE_RELOAD )
     {
+        m_isSnapshotLoaded = true;
         m_model->borrowSnapshot( startObserving );
     }
 

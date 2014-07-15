@@ -50,8 +50,8 @@ public:
 			bool (*callback)(const long lp) );
 	void	setCallbackRemove( const unsigned int device_type,
 			bool (*callback)(const long lp) );
-	static	const char DEVICE_NOTIFY::getDriveLetter( const long hdr );
-	static	const int  DEVICE_NOTIFY::getDriveNumber( const long hdr );
+	static	char getDriveLetter( const long hdr );
+	static	int  getDriveNumber( const long hdr );
 };
 //---------------------------------------------------------------------------
 #endif

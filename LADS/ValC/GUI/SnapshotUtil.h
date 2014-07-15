@@ -48,8 +48,27 @@ bool hasRerun( const valc::WorklistEntry* wle, valc::SnapshotPtr snapshot );
     Returns 'true' if the worklist entry has a barcode which starts with 'QC'.
 */
 bool isQC( const valc::WorklistEntry* wle );
+bool isQC( const std::string& barcode     );
 
+class TestNames
+{
+public:
+    TestNames();
+    virtual ~TestNames();
+    virtual std::string getNameFor( int testID ) = 0;
 };
+
+
+class TestNamesAdapter : public TestNames
+{
+public:
+    TestNamesAdapter( valc::SnapshotPtr s );
+    std::string getNameFor( int testID );
+private:
+    valc::SnapshotPtr m_snapshot;
+};
+
+}
 
 #endif
 

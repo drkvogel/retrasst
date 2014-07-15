@@ -6,7 +6,7 @@
 	DEV_BROADCAST_VOLUME* AND USE THIS TO DETERMINE DRIVE
 */
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const char DEVICE_NOTIFY::getDriveLetter( const long hdr )
+ char DEVICE_NOTIFY::getDriveLetter( const long hdr )
 {
 	int	n = getDriveNumber( hdr );
 	return( ( n >= 0 && n < 26 )
@@ -14,7 +14,7 @@ const char DEVICE_NOTIFY::getDriveLetter( const long hdr )
 		: (const char) 0 );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int DEVICE_NOTIFY::getDriveNumber( const long hdr )
+ int DEVICE_NOTIFY::getDriveNumber( const long hdr )
 {
 	const 	DEV_BROADCAST_VOLUME* dbv =
 			reinterpret_cast<const DEV_BROADCAST_VOLUME*>(hdr);

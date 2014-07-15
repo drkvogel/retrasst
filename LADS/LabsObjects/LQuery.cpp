@@ -152,11 +152,11 @@ bool LQuery::open( ) {
 //---------------------------------------------------------------------------
 
 bool LQuery::doOpen( ) {
+	rows = 0;
 	cursor = new XQUERY( db.connect( ), sql );
 	cursor -> setAcceptNull( true );
 	cursor -> setParamSource( &parameters );
-	rows = 0;
-	db.confirm( cursor -> open( ) );
+	db.confirm( cursor -> open( false ) ); 		// may be more efficient
 	return doNext( );
 }
 

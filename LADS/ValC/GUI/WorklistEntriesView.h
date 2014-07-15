@@ -13,6 +13,7 @@
 #include "Config.h"
 #include "StrUtil.h"
 #include "Utils.h"
+#include "WorklistEntriesPositioning.h"
 
 /** @file docs-WorklistEntriesView.h
   * This file contains an overview of the GUI components used in ValC.
@@ -46,24 +47,18 @@ public:
 	/** For carrying out tasks such as positioning and sizing of components. */
 	Positioning *positioner;
 
-	/** Records the height of the panel containing the test results.
-		Useful for when the window is resized and the same panel proportions are to be kept. */
-	float recordResultsHeight;
 
-	/** Records the height of the panel containing the queued worklist entries.
-		Useful for when the window is resized and the same panel proportions are to be kept. */
-	float recordWorkHeight;
 
-	static bool QUEUED;
-	static bool SENT_TO_ANALYSER;
+	static const bool QUEUED;
+	static const bool SENT_TO_ANALYSER;
 
 // For comments on methods, please see their implementations.
 
 	WorklistEntriesView(TSnapshotFrame *m, LogManager* lm,
-	                    const std::string & configFilename);
+	                    const paulst::Config* config);
 	~WorklistEntriesView();
 
-	void initialiseGUIconfigValues(const std::string & configFilename);
+	void initialiseGUIconfigValues(const paulst::Config* config);
 	void clearAll();
 
 	int param(const std::string & name);
@@ -71,9 +66,6 @@ public:
 	void setUpGUIcomponents();
 	void setUpVisualComponents(valc::SnapshotPtr sn);
 
-
-	void recordPanelHeights();
-	void adjustPanelHeights();
 
 	TControl* findInnerPanelAncestor(TControl *comp); // the ancestor just inside the scrollpane
 	Coordinates findTestPanelPosition(const TTestPanel *t); // relative to inner panel ancestor
@@ -94,36 +86,37 @@ private:
 	/** a tag used to identify panels just inside the scroll views. */
 	const UnicodeString innerLevel = "Level: inner panel";
 
-	void assignAttributes(TTestPanel *t, const valc::WorklistEntry *entry,
-	                      bool queued);
+	void assignAttributes(TTestPanel *t, const valc::WorklistEntry *entry);
 	void assignAttributes(TSampleRunPanel *runPanel, TTestPanel *t,
 						  valc::SnapshotPtr sn, const valc::WorklistEntry *entry,
 						  const valc::TestResult *tr, const valc::IDToken &sampleRunId);
 
-	TSampleRunPanel* createSampleRunPanel(TPanel *parentPanel, int y, bool queued);
+	TSampleRunPanel* createSampleRunPanel(TPanel *parentPanel, int y,
+										  bool queued,
+										  bool closed = false);
     void finaliseTestPanel(TTestPanel *t, TPanel *parent, int x, bool queued);
-	int addWorklistEntries(valc::SnapshotPtr sn,
-							const std::string & sampleDescriptor,
-							TSampleRunPanel *runPanel,
-							int & maxRunWidth,
-							int & maxTestWidth,
-							int & maxResultWidth,
-							bool queued,
-                            const valc::IDToken& sampleRunID = valc::IDToken() );
+
 	void postProcessEntries(bool queued);
 
-	bool createQueuedEntries(valc::SnapshotPtr snapshot, int & numberOfRuns,
-							 int & maxRunSize, int & maxTestWidth);
-	bool displayWorklistQueue(valc::SnapshotPtr snapshot);
+	void addQueuedWorklistEntries(valc::SnapshotPtr sn,
+								 const std::string & sampleDescriptor,
+								 const std::string & barcode,
+								 TSampleRunPanel *runPanel,
+								 DisplayProperties &props);
+	bool createQueuedEntries(valc::SnapshotPtr snapshot,
+							 DisplayProperties &props);
+	void displayWorklistQueue(valc::SnapshotPtr snapshot);
 
-	bool createResultsEntries(valc::SnapshotPtr snapshot, int & numberOfRuns,
-							  int & maxRunSize, int & maxTestWidth,
-							  int & maxResultWidth);
-
-	bool displayWorklistResults(valc::SnapshotPtr snapshot);
+	void addNonQueuedWorklistEntries(valc::SnapshotPtr sn,
+									 const valc::LocalRun &r,
+									 TSampleRunPanel *runPanel,
+									 DisplayProperties &props);
+	bool createResultsEntries(valc::SnapshotPtr snapshot,
+							  DisplayProperties &props);
+	void displayWorklistResults(valc::SnapshotPtr snapshot);
 
 	void setUpWorklistEntryPanels(DSampleRun *d, TPanel *panel, bool q, int *mx);
-	void positionView();
+
 
 	std::map <std::string,int> guiConfig; // contains config values
 

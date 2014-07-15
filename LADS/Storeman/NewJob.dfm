@@ -5,7 +5,7 @@ object frmNewJob: TfrmNewJob
   BorderStyle = bsDialog
   Caption = 'Create New Job'
   ClientHeight = 245
-  ClientWidth = 426
+  ClientWidth = 425
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,7 +16,7 @@ object frmNewJob: TfrmNewJob
   Position = poOwnerFormCenter
   Scaled = False
   DesignSize = (
-    426
+    425
     245)
   PixelsPerInch = 96
   TextHeight = 13
@@ -29,17 +29,10 @@ object frmNewJob: TfrmNewJob
   end
   object LblName: TLabel
     Left = 12
-    Top = 29
+    Top = 71
     Width = 50
     Height = 13
     Caption = 'Job name:'
-  end
-  object LblWhy: TLabel
-    Left = 12
-    Top = 72
-    Width = 47
-    Height = 13
-    Caption = 'Retrieval:'
   end
   object LblReason: TLabel
     Left = 12
@@ -49,89 +42,95 @@ object frmNewJob: TfrmNewJob
     Caption = 'Reason:'
   end
   object Label1: TLabel
-    Left = 297
-    Top = 29
+    Left = 296
+    Top = 71
     Width = 40
     Height = 13
     Anchors = [akTop, akRight]
     Caption = 'Box set:'
-    ExplicitLeft = 319
+    ExplicitLeft = 297
+  end
+  object Label2: TLabel
+    Left = 12
+    Top = 29
+    Width = 44
+    Height = 13
+    Caption = 'Exercise:'
+  end
+  object lblExercise: TLabel
+    Left = 80
+    Top = 29
+    Width = 16
+    Height = 13
+    Anchors = [akLeft, akTop, akRight]
+    Caption = 'n/a'
   end
   object TxtFull: TEdit
     Left = 80
     Top = 112
-    Width = 327
+    Width = 330
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     MaxLength = 120
-    TabOrder = 4
-    ExplicitWidth = 350
+    TabOrder = 2
   end
   object TxtName: TEdit
     Left = 80
-    Top = 26
+    Top = 68
     Width = 178
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     MaxLength = 30
     TabOrder = 0
-    ExplicitWidth = 201
-  end
-  object CbExercise: TComboBox
-    Left = 80
-    Top = 69
-    Width = 219
-    Height = 21
-    Anchors = [akLeft, akTop, akRight]
-    TabOrder = 2
-    Text = '(none)'
-  end
-  object BtnNewEx: TButton
-    Left = 320
-    Top = 64
-    Width = 90
-    Height = 32
-    Anchors = [akTop, akRight]
-    Caption = 'New Retrieval'
-    TabOrder = 3
-    OnClick = BtnNewExClick
-    ExplicitLeft = 342
   end
   object cmbReason: TComboBox
     Left = 80
     Top = 156
-    Width = 327
+    Width = 233
     Height = 21
     Anchors = [akLeft, akTop, akRight]
-    TabOrder = 5
+    DropDownCount = 12
+    TabOrder = 3
   end
   object txtBoxSet: TEdit
-    Left = 350
-    Top = 26
+    Left = 353
+    Top = 68
     Width = 57
     Height = 21
     Anchors = [akTop, akRight]
     MaxLength = 30
     TabOrder = 1
-    ExplicitLeft = 372
   end
   object BitBtn1: TBitBtn
-    Left = 97
+    Left = 80
     Top = 196
     Width = 92
     Height = 34
+    Anchors = [akLeft, akBottom]
     Kind = bkOK
     NumGlyphs = 2
-    TabOrder = 6
+    TabOrder = 4
     OnClick = BitBtn1Click
   end
   object BitBtn2: TBitBtn
-    Left = 237
+    Left = 221
     Top = 196
     Width = 92
     Height = 34
+    Anchors = [akLeft, akBottom]
     Kind = bkCancel
     NumGlyphs = 2
-    TabOrder = 7
+    TabOrder = 5
+  end
+  object btnAddReason: TButton
+    Left = 332
+    Top = 153
+    Width = 78
+    Height = 28
+    Anchors = [akTop, akRight]
+    Caption = 'Add Reason'
+    Enabled = False
+    TabOrder = 6
+    OnClick = btnAddReasonClick
   end
 end

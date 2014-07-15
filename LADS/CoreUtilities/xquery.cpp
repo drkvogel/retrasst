@@ -130,11 +130,12 @@ const char *XQUERY::ingPlaceholder( void )
 	return( " ~V " );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool XQUERY::ingOpen( void )
+bool XQUERY::ingOpenCursor( void )
 {
 	bool	ok = true;
 	IIAPI_SETDESCRPARM 	setDescrParm;
 	IIAPI_PUTPARMPARM 	putParmParm;
+	IIAPI_WAITPARM	waitParm = { -1 };
 	queryParm.qy_genParm.gp_callback = NULL;
 	queryParm.qy_genParm.gp_closure = NULL;
 	queryParm.qy_connHandle = database->getConnHandle();
@@ -147,7 +148,11 @@ bool XQUERY::ingOpen( void )
 	queryParm.qy_parameters = TRUE;
 	queryParm.qy_tranHandle = database->getTranHandle();
 	queryParm.qy_stmtHandle = NULL;
+	queryParm.qy_flags = 0; 		// FORWARD-PASS-CURSOR
 	IIapi_query( &queryParm );		// INVOKE OPENAPI
+	while( FALSE == queryParm.qy_genParm.gp_completed )
+		{IIapi_wait( &waitParm );
+		}
 	database->setTranHandle( queryParm.qy_tranHandle );
 	if ( ! ingGetResult( &queryParm.qy_genParm ) )
 		{return( false );
@@ -227,6 +232,96 @@ bool XQUERY::ingOpen( void )
 	is_open = true;
 	return( true );
 }
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool XQUERY::ingOpenSelect( void )
+{
+	bool	ok = true;
+	IIAPI_SETDESCRPARM 	setDescrParm;
+	IIAPI_PUTPARMPARM 	putParmParm;
+	IIAPI_WAITPARM	waitParm = { -1 };
+	queryParm.qy_genParm.gp_callback = NULL;
+	queryParm.qy_genParm.gp_closure = NULL;
+	queryParm.qy_connHandle = database->getConnHandle();
+	queryParm.qy_queryType  = IIAPI_QT_QUERY;
+	queryParm.qy_queryText  = (char *) malloc( query_text.size() + 20 );
+	strcpy( queryParm.qy_queryText, query_text.c_str() );
+	queryParm.qy_parameters = ( nparam > 0 ) ? TRUE : FALSE;
+	queryParm.qy_tranHandle = database->getTranHandle();
+	queryParm.qy_stmtHandle = NULL;
+	queryParm.qy_flags = 0;
+	IIapi_query( &queryParm );		// INVOKE OPENAPI
+	while( FALSE == queryParm.qy_genParm.gp_completed )
+		{IIapi_wait( &waitParm );
+		}
+	if ( nparam > 0 )
+		{
+		database->setTranHandle( queryParm.qy_tranHandle );
+		if ( ! ingGetResult( &queryParm.qy_genParm ) )
+			{return( false );
+			}
+		free( queryParm.qy_queryText );
+		setDescrParm.sd_genParm.gp_callback = NULL;
+		setDescrParm.sd_genParm.gp_closure = NULL;
+		setDescrParm.sd_stmtHandle = queryParm.qy_stmtHandle;
+		setDescrParm.sd_descriptorCount = (II_INT2) nparam;
+		setDescrParm.sd_descriptor = (IIAPI_DESCRIPTOR *) malloc(
+			( setDescrParm.sd_descriptorCount
+			* sizeof(IIAPI_DESCRIPTOR) ));
+		if ( NULL == setDescrParm.sd_descriptor )
+			{return( false );
+			}
+		ok = ingDescribeUserParameters( setDescrParm.sd_descriptor );
+		if ( ! ok )
+			{ingClose();
+			return( false );
+			}
+		IIapi_setDescriptor( &setDescrParm );		// INVOKE API
+		if ( ! ingGetResult( &setDescrParm.sd_genParm ) )
+			{ingClose();
+			return( false );
+			}
+		free( setDescrParm.sd_descriptor );
+		setDescrParm.sd_descriptor = NULL;    	// TRAP FOR MEMORY PROBLEMS
+		putParmParm.pp_genParm.gp_closure = NULL;
+		putParmParm.pp_genParm.gp_callback = NULL;
+		putParmParm.pp_stmtHandle = queryParm.qy_stmtHandle;
+		IIAPI_DATAVALUE		data;
+		putParmParm.pp_parmData = ( IIAPI_DATAVALUE * ) &data;
+		putParmParm.pp_parmCount = 0;  	// TO BE OVER-WRITTEN
+		if ( ok )
+			{ok = ingPutUserParameters( &putParmParm );
+			}
+		if ( ! ok )
+			{return( false );
+			}
+		}
+	if ( ! ingGetDescr( &getDescrParm, queryParm.qy_stmtHandle ) )
+		{ingClose();
+		return( false );
+		}
+	int	i;
+	fetching_blobs = false;
+	for ( i = 0; i < getDescrParm.gd_descriptorCount; i++ )
+		{switch( getDescrParm.gd_descriptor[i].ds_dataType )
+			{
+			case IIAPI_LVCH_TYPE:
+			case IIAPI_LBYTE_TYPE:
+				fetching_blobs = true;
+				break;
+			default:
+				break;
+			}
+		}
+	if ( ! ingBufInit() )
+		{ingClose();
+		return( false );
+		}
+	buffered_rows = 0;
+	buffer_curow = 0;
+	is_open = true;
+	return( true );
+}
+
 #endif
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool XQUERY::fetchingBlobs( void ) const
@@ -234,7 +329,7 @@ bool XQUERY::fetchingBlobs( void ) const
 	return( fetching_blobs );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool XQUERY::open( void )
+bool XQUERY::open( const bool mode_cursor )
 {
 	if ( isOpen() )
 		{return( false );
@@ -247,11 +342,12 @@ bool XQUERY::open( void )
 		{singletonEnd();
 		return( false );
 		}
+	mode_select_cursor = mode_cursor;
 	nrows_fetched = 0;
 #if X_BDE
 	bool	ok = bdeOpen();
 #elif X_ING
-	bool	ok = ingOpen();
+	bool	ok = mode_cursor ? ingOpenCursor() : ingOpenSelect();
 #endif
 	if ( ! ok )
 		{singletonEnd();
@@ -396,6 +492,18 @@ bool XQUERY::ingFetchRepackInt( const char *name, const IIAPI_DATAVALUE *v )
 		break;
 		}
 	return( ok );
+}
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool XQUERY::ingFetchRepackBool( const char *name, const IIAPI_DATAVALUE *v )
+{
+//	II_BOOL	*b = (II_BOOL *) v->dv_value;
+	if ( v->dv_length != 1 )	// sizeof(II_BOOL) = 4, duh!
+		{error( 0, "ingFetchRepackBool, unexpected v->dv_length" );
+		return( false );
+		}
+	unsigned char *b = (unsigned char *) v->dv_value;
+	res_ptr->setBool( name, ( 0 != *b ) );
+	return( true );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool XQUERY::ingFetchRepackReal( const char *name, const IIAPI_DATAVALUE *v  )
@@ -650,6 +758,9 @@ bool XQUERY::ingFetchSetNull( const char *nam, const int typ )
 		case IIAPI_INT_TYPE:
 			res_ptr->setInt( nam, ROSETTA::errorInt );
 			break;
+		case IIAPI_BOOL_TYPE:
+			res_ptr->setBool( nam, ROSETTA::errorBool );
+			break;
 		case IIAPI_LVCH_TYPE:
 			res_ptr->setString( nam, ROSETTA::errorString );
 			break;
@@ -735,6 +846,9 @@ bool XQUERY::ingFetchRepack( IIAPI_DESCRIPTOR *d, const IIAPI_DATAVALUE *v )
 			break;
 		case IIAPI_CHA_TYPE:
 			ok = ingFetchRepackChar( nam, v );
+			break;
+		case IIAPI_BOOL_TYPE:
+			ok = ingFetchRepackBool( nam, v );
 			break;
 		case IIAPI_CHR_TYPE:
 		case IIAPI_DEC_TYPE:

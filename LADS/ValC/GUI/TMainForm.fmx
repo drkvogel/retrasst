@@ -3,7 +3,7 @@ object MainForm: TMainForm
   Top = 0
   Caption = 'ValC'
   ClientHeight = 718
-  ClientWidth = 750
+  ClientWidth = 950
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [dkDesktop, dkiPhone, dkiPad]
@@ -18,32 +18,32 @@ object MainForm: TMainForm
   object rootContainer: TPanel
     Align = alClient
     Height = 718.000000000000000000
-    Width = 750.000000000000000000
+    Width = 950.000000000000000000
     TabOrder = 0
     object topPanel: TPanel
       Align = alTop
-      Height = 449.000000000000000000
-      Width = 750.000000000000000000
+      Height = 350.000000000000000000
+      Width = 950.000000000000000000
       TabOrder = 0
       object topTabCtrl: TTabControl
         Align = alClient
-        Height = 449.000000000000000000
-        TabIndex = 0
+        Height = 350.000000000000000000
+        TabIndex = 4
         TabOrder = 0
-        Width = 750.000000000000000000
+        Width = 950.000000000000000000
         object snapshotTab: TTabItem
           Align = alClient
           WordWrap = False
           Height = 23.000000000000000000
-          IsSelected = True
+          IsSelected = False
           TabOrder = 0
           Text = 'Snapshot'
           Width = 65.000000000000000000
           object snapshotFrameContainer: TPanel
             Align = alClient
-            Height = 426.000000000000000000
+            Height = 327.000000000000000000
             StyleLookup = 'Panel1Style1'
-            Width = 750.000000000000000000
+            Width = 950.000000000000000000
             TabOrder = 0
           end
         end
@@ -57,8 +57,8 @@ object MainForm: TMainForm
           Width = 38.000000000000000000
           object logFrameContainer: TPanel
             Align = alClient
-            Height = 426.000000000000000000
-            Width = 750.000000000000000000
+            Height = 327.000000000000000000
+            Width = 950.000000000000000000
             TabOrder = 0
           end
         end
@@ -72,8 +72,38 @@ object MainForm: TMainForm
           Width = 66.000000000000000000
           object warningFrameContainer: TPanel
             Align = alClient
-            Height = 426.000000000000000000
-            Width = 750.000000000000000000
+            Height = 327.000000000000000000
+            Width = 950.000000000000000000
+            TabOrder = 0
+          end
+        end
+        object batch: TTabItem
+          WordWrap = False
+          Height = 23.000000000000000000
+          IsSelected = False
+          Position.X = 170.000000000000000000
+          TabOrder = 3
+          Text = 'Batch'
+          Width = 47.000000000000000000
+          object batchViewContainer: TPanel
+            Align = alClient
+            Height = 327.000000000000000000
+            Width = 950.000000000000000000
+            TabOrder = 0
+          end
+        end
+        object ruleTab: TTabItem
+          WordWrap = False
+          Height = 23.000000000000000000
+          IsSelected = True
+          Position.X = 217.000000000000000000
+          TabOrder = 4
+          Text = 'Rule'
+          Width = 41.000000000000000000
+          object ruleViewContainer: TPanel
+            Align = alClient
+            Height = 327.000000000000000000
+            Width = 950.000000000000000000
             TabOrder = 0
           end
         end
@@ -84,40 +114,28 @@ object MainForm: TMainForm
       Cursor = crVSplit
       Height = 16.000000000000000000
       MinSize = 20.000000000000000000
-      Position.Y = 449.000000000000000000
-      Width = 750.000000000000000000
+      Position.Y = 350.000000000000000000
+      Width = 950.000000000000000000
     end
     object bottomPanel: TPanel
       Align = alClient
-      Height = 146.000000000000000000
-      Width = 750.000000000000000000
+      Height = 245.000000000000000000
+      Width = 950.000000000000000000
       TabOrder = 2
-      object bottomPanelLeft: TPanel
-        Align = alLeft
-        Height = 146.000000000000000000
-        Width = 369.000000000000000000
-        TabOrder = 0
-      end
-      object Splitter2: TSplitter
-        Align = alLeft
-        Cursor = crHSplit
-        Height = 146.000000000000000000
-        MinSize = 20.000000000000000000
-        Position.X = 369.000000000000000000
-        Width = 10.000000000000000000
-      end
-      object bottomPanelRight: TPanel
+      object toolBox: TFlowLayout
         Align = alClient
-        Height = 146.000000000000000000
-        Width = 371.000000000000000000
-        TabOrder = 2
+        Height = 245.000000000000000000
+        Width = 950.000000000000000000
+        Justify = fjLeft
+        JustifyLastLine = fjLeft
+        FlowDirection = fdLeftToRight
       end
     end
     object midPanel: TPanel
       Align = alTop
       Height = 96.000000000000000000
-      Position.Y = 465.000000000000000000
-      Width = 750.000000000000000000
+      Position.Y = 366.000000000000000000
+      Width = 950.000000000000000000
       TabOrder = 3
     end
     object Splitter3: TSplitter
@@ -125,8 +143,8 @@ object MainForm: TMainForm
       Cursor = crVSplit
       Height = 11.000000000000000000
       MinSize = 20.000000000000000000
-      Position.Y = 561.000000000000000000
-      Width = 750.000000000000000000
+      Position.Y = 462.000000000000000000
+      Width = 950.000000000000000000
     end
   end
   object StyleBook1: TStyleBook
@@ -306,11 +324,54 @@ object MainForm: TMainForm
         Text = 'Run pending updates...'
       end
     end
+    object menuItemView: TMenuItem
+      Text = 'View'
+      object menuItemBatchNav: TMenuItem
+        Locked = True
+        Text = 'Batch Nav'
+      end
+      object menuItemQCControl: TMenuItem
+        Locked = True
+        Text = 'QC Control'
+      end
+      object menuItemWorklistItem: TMenuItem
+        Locked = True
+        Text = 'Worklist Item'
+      end
+    end
   end
   object idleTimer: TTimer
     Interval = 200
     OnTimer = idleTime
     Left = 344
     Top = 119
+  end
+  object BatchView: TStyleBook
+    Left = 136
+    Top = 231
+    ResourcesBin = {
+      464D585F5354594C4520322E3501060A62765F64656661756C74037801061162
+      765F77686974655F6F6E5F626C61636B03200100545046300A5452656374616E
+      676C6500095374796C654E616D65060A62765F64656661756C740D4465736967
+      6E56697369626C65080A46696C6C2E436F6C6F72070978464645394532453206
+      4865696768740500000000000000C803400748697454657374080A506F736974
+      696F6E2E580500000000000000AE07400A506F736974696F6E2E590500000000
+      000000C807400C5374726F6B652E436F6C6F7207097846463937393739370557
+      6964746805000000000000009605400005545465787400095374796C654E616D
+      6506047465787405416C69676E0708616C436C69656E7405436F6C6F72070863
+      6C61426C61636B064865696768740500000000000000C803400D486F727A5465
+      7874416C69676E070974614C656164696E670C4D617267696E732E4C65667405
+      000000000000008001400454657874060744656661756C74085472696D6D696E
+      67070B747443686172616374657205576964746805000000000000008E054008
+      576F72645772617008000000545046300A5452656374616E676C650009537479
+      6C654E616D65061162765F77686974655F6F6E5F626C61636B0A46696C6C2E43
+      6F6C6F720708636C61426C61636B064865696768740500000000000000C80340
+      0A506F736974696F6E2E580500000000000000AE07400A506F736974696F6E2E
+      590500000000000000C807400557696474680500000000000000960540000554
+      5465787400095374796C654E616D6506047465787405416C69676E0708616C43
+      6C69656E7405436F6C6F720708636C6157686974650648656967687405000000
+      00000000C803400D486F727A54657874416C69676E070974614C656164696E67
+      0C4D617267696E732E4C65667405000000000000008001400557696474680500
+      0000000000008E0540000000}
   end
 end

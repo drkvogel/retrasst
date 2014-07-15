@@ -18,6 +18,7 @@ public:
     ModelEventListeners();
     void registerListener( ModelEventListener* mel );
     void notify( int modelEvent, const EventData& eventData = EventData() );
+    void unregisterListener( ModelEventListener* mel );
 private:
     std::vector< ModelEventListener* > m_listeners;
     paulst::CritSec m_critSec;

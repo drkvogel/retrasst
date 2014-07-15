@@ -1,6 +1,6 @@
+#include "AcquireCriticalSection.h"
 #include "DBConnection.h"
 #include "DBTransactionHandler.h"
-#include "DBUpdateTask.h"
 #include <SysUtils.hpp>
 #include "ThreadPool.h"
 
@@ -19,36 +19,61 @@ DBTransactionHandler::DBTransactionHandler(
     m_connection                    ( c ),
     m_log                           ( log ),
     m_snapshotUpdateHandle          ( snapshotUpdateHandle ),
-    m_threadPool                    ( new stef::ThreadPool(0, 1) ),
+    workerThread                    ( new stef::ThreadPool(0, 1) ),
     m_shutdownTimeoutSecs           ( shutdownTimeoutSecs ),
     m_cancelPendingUpdatesOnShutdown( cancelPendingUpdatesOnShutdown ),
     m_config                        ( config )
 {
-    m_threadPool->addDefaultTaskExceptionHandler( defaultTaskExceptionHandler );
+    workerThread->addDefaultTaskExceptionHandler( defaultTaskExceptionHandler );
 }
 
 DBTransactionHandler::~DBTransactionHandler()
 {
     m_connection->close();
-    m_threadPool->shutdown( 1000 * m_shutdownTimeoutSecs, m_cancelPendingUpdatesOnShutdown );
+    workerThread->shutdown( 1000 * m_shutdownTimeoutSecs, m_cancelPendingUpdatesOnShutdown );
 }
 
-void DBTransactionHandler::queue( DBUpdateTask* t )
+const paulst::Config* DBTransactionHandler::getConfig() const
 {
-    t->setConfig                        ( m_config );
-    t->setConnection                    ( m_connection );
-    t->setLog                           ( m_log );
-    t->setSnapshotUpdateHandle          ( m_snapshotUpdateHandle );
+    return m_config;
+}
 
-    if ( ! m_threadPool->addTask( t ) )
+paulstdb::DBConnection* DBTransactionHandler::getConnection() const
+{
+    return m_connection;
+}
+
+paulst::LoggingService* DBTransactionHandler::getLog() const
+{
+    return m_log;
+}
+
+SnapshotUpdateHandle DBTransactionHandler::getSnapshotUpdateHandle() const
+{
+    paulst::AcquireCriticalSection a(m_critSec);
+
+    return m_snapshotUpdateHandle;
+}
+
+
+void DBTransactionHandler::queue( stef::Task* t )
+{
+    if ( ! workerThread->addTask( t ) )
     {
         throw Exception( L"ThreadPool refused to accept new DBUpdateTask" );
     }
 }
 
+void DBTransactionHandler::setSnapshotUpdateHandle( const SnapshotUpdateHandle& h )
+{
+    paulst::AcquireCriticalSection a(m_critSec);
+
+    m_snapshotUpdateHandle = h;
+}
+
 bool DBTransactionHandler::waitForQueued( long millis )
 {
-    return m_threadPool->waitTillQuiet( millis );
+    return workerThread->waitTillQuiet( millis );
 }
 
 }

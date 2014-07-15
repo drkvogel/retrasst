@@ -9,21 +9,24 @@
 #include "ConsoleWriter.h"
 
 #include "ExceptionHandler.h"
+#include "API.h"
+#include "Nullable.h"
 #include "WorklistEntriesView.h"
-#include "GUIpositioning.h"
 #include "LogManager.h"
 #include "InfoPanels.h"
 #include "StrUtil.h"
+#include "SnapshotUtil.h"
 #include "TActionPanel.h"
 #include "TSnapshotFrame.h"
+
 #include "VisualComponents.h"
 
 #pragma package(smart_init)
 
 //---------------------------------------------------------------------------
 
-bool WorklistEntriesView::QUEUED = true;
-bool WorklistEntriesView::SENT_TO_ANALYSER = false;
+const bool WorklistEntriesView::QUEUED = true;
+const bool WorklistEntriesView::SENT_TO_ANALYSER = false;
 
 /** Initialises the object for presenting a view of worklist entries.
   * This includes setting up links to related controller objects,
@@ -36,13 +39,13 @@ bool WorklistEntriesView::SENT_TO_ANALYSER = false;
   */
 WorklistEntriesView::WorklistEntriesView(TSnapshotFrame *sf,
 										 LogManager* lm,
-										 const std::string & configFilename)
+										 const paulst::Config* config)
     :
 	viewFrame(sf),
     logManager(lm),
     observer(NULL)
 {
-	initialiseGUIconfigValues(configFilename);
+	initialiseGUIconfigValues(config);
 	positioner = new Positioning(this);  // uses a GUI config setting to initialise
 	queuedComponents = new ComponentsList();
 	resultsComponents = new ComponentsList();
@@ -65,21 +68,21 @@ WorklistEntriesView::WorklistEntriesView(TSnapshotFrame *sf,
   *
   * @param configFilename   the name of the config file for the GUI parameters
   */
-void WorklistEntriesView::initialiseGUIconfigValues(const std::string & configFilename)
+void WorklistEntriesView::initialiseGUIconfigValues(const paulst::Config* config)
 {
-	paulst::Config config(paulst::loadContentsOf(configFilename));
-
 	// now to extract all the strings from the config, and convert to ints
-	paulst::Config::const_iterator iter = config.begin();
-	while (iter!=config.end()) {
+	paulst::Config::const_iterator iter = config->begin();
+	while (iter!=config->end()) {
 		  std::string key = iter->first;
-		  guiConfig[key] = paulst::toInt(iter->second);
+          try
+          {
+		      guiConfig[key] = paulst::toInt(iter->second);
+          }
+          catch( ... )
+          {
+          }
 		  iter++;
 	}
-
-	// some variables used for calculation of pane heights ratio for split pane
-	recordResultsHeight = guiConfig["initialResultsHeight"];
-	recordWorkHeight = guiConfig["initialWorkHeight"];
 
 
 	// some calculations from existing values
@@ -139,15 +142,15 @@ int WorklistEntriesView::param(const std::string & name)
 }
 
 
-/*---------------------- begin Main GUI setting up -------------------*/
+/*-------------- beginning of populating snapshot view -----------------*/
 
-/** Sets attributes of the given test panel, from the data it needs to represent
-  * of the worklist entry that it depicts.  These attributes are common to both
-  * queued entries and entries sent to the analyser.
+/** Sets certain attributes of the given test panel (which represents an
+  * instance of a test being carried out on a sample), corresponding to
+  * attributes of the worklist entry that it depicts. The attributes set
+  * here are common to both queued entries and analysed/ing entries.
   */
 void WorklistEntriesView::assignAttributes(TTestPanel *t,
-										   const valc::WorklistEntry *entry,
-										   bool queued)
+										   const valc::WorklistEntry *entry)
 {
 	t->setAttribute("Worklist Id",entry->getID());
 	t->setAttribute("Test Id",entry->getTestID());
@@ -159,9 +162,6 @@ void WorklistEntriesView::assignAttributes(TTestPanel *t,
 	std::string status = "";
 	status += st;
 	t->setAttribute("Status ",status);
-	// if (!queued) {  // must be pending
-
-	// }
 }
 
 /** Sets attributes of the given test panel, from the data it needs to represent
@@ -172,9 +172,10 @@ void WorklistEntriesView::assignAttributes(TSampleRunPanel *runPanel,
 										   valc::SnapshotPtr sn,
 										   const valc::WorklistEntry *entry,
 										   const valc::TestResult *tr,
-										   const valc::IDToken &runId)
+										   const valc::IDToken & runId)
 {
-	assignAttributes(t,entry,QUEUED); // set attributes in common with queued entries
+	assignAttributes(t,entry); // set attributes in common
+							   // with queued worklist entries
 	std::string res = Utils::float2str(tr->getResultValue());
 	t->setAttribute("Result",res);
 	TDateTime dt = tr->getDateAnalysed();
@@ -230,106 +231,6 @@ void WorklistEntriesView::assignAttributes(TSampleRunPanel *runPanel,
 
 
 
-/** Adds the panels for the individual tests on a sample run.
-  *
-  * @param snapshot          the pointer that refers to the business layer data
-  * @param sampleDescriptor  the string that identifies the sample run
-  * @param runPanel          the panel for the sample run, on which the panel for
-  *                          the tests will be put
-  * @param maxRunSize        to hold the max # of tests in a sample run
-  * @param maxTestWidth      to hold the max width of a TTestPanel
-  * @param queued            will be true if this is a queued sample run
-
-  * @return the number of worklist entries added
-  */
-int WorklistEntriesView::addWorklistEntries(valc::SnapshotPtr sn,
-											 const std::string & sampleDescriptor,
-											 TSampleRunPanel *runPanel,
-											 int & maxRunSize,
-											 int & maxTestWidth,
-											 int & maxResultWidth,
-											 bool queued,
-                                             const valc::IDToken& runID )
-{
-	std::string barcode;      // for this particular sample
-
-	int count = 0;  // this will be a count of worklist entries found
-	valc::Range<valc::WorklistEntryIterator> iterPair
-			= sn->getWorklistEntries(sampleDescriptor);
-	valc::WorklistEntryIterator iter = iterPair.first; //start
-	while (iter!=iterPair.second) {
-
-		const valc::WorklistEntry *entry = *iter;
-		count++;
-		std::string testName = sn->getTestName(entry->getTestID());
-
-		// now to set the barcode
-		if (count==1) {    // only bother for the first entry for this sample
-			barcode = entry->getBarcode();
-			runPanel->barcodePanel->updateBarcode(barcode);
-		}
-
-		if (queued) {
-			TTestPanel *t = new TTestPanel(this,runPanel->testsPanel,testName,"",
-										   "Level:test result",observer,QUEUED);
-			assignAttributes(t,entry,QUEUED);
-			runPanel->testPanels->push_back(t);
-
-			maxTestWidth = std::max(t->findPanelLeftWidth(),maxTestWidth);
-			// parent of t must be set later on
-		}
-		else { // will create a TTestPanel from each result of this worklist entry
-			int countR = 0;  // to count the test results
-			valc::Range<valc::TestResultIterator> iterPair =  entry->getTestResults();
-			valc::TestResultIterator iterR = iterPair.first;
-			while (iterR!=iterPair.second) { // going through the results
-				const valc::TestResult *tr = *iterR;
-				if (tr!=NULL) {
-					TTestPanel *t = new TTestPanel(this,runPanel->testsPanel,testName,
-												   Utils::float2str(tr->getResultValue()),
-										           "Level:test result",observer,SENT_TO_ANALYSER);
-					assignAttributes(runPanel,t,sn,entry,tr,runID);
-					runPanel->testPanels->push_back(t);
-					maxTestWidth = std::max(t->findPanelLeftWidth(),maxTestWidth);
-					maxResultWidth = std::max(t->findResultDisplayWidth(),maxResultWidth);
-					countR++;
-				}
-				iterR++;
-			}
-			if (countR==0) {   // looks like the result is pending
-				// set up a TTestPanel anyway
-				TTestPanel *t = new TTestPanel(this,runPanel->testsPanel,testName,"",
-											   "Level:test result",observer,SENT_TO_ANALYSER);
-				assignAttributes(t,entry,SENT_TO_ANALYSER);
-				runPanel->testPanels->push_back(t);
-				maxTestWidth = std::max(t->findPanelLeftWidth(),maxTestWidth);
-
-			}
-		}
-		iter++;
-	}
-
-	// an alternative way of getting the barcode, if no worklist entries found
-	if (!queued && count==0) {
-		/*
-		std::string sampleRunId =
-		if (sampleRunId.length()>0) {
-			valc::BuddyDatabaseEntries bdes
-				= sn->listBuddyDatabaseEntriesFor(sampleRunId);
-			if (bdes.size()>0) {
-				barcode = bdes.at(0).barcode;
-				runPanel->barcodePanel->updateBarcode(barcode);
-			}
-		}
-		*/
-	}
-	if (count>maxRunSize) {
-		maxRunSize = count;
-    }
-
-    return count;
-}
-
 /** Sets the width, position and parent of the given TTestPanel.
   * (These parameters are calculated earlier, so can't simply be set from
   * a style.)
@@ -380,6 +281,20 @@ void WorklistEntriesView::postProcessEntries(bool queued)
 
 		runPanel->testPanels->sort(TTestPanel::goCompare);
 		int posX = separation * runPanel->testPanels->size();
+		if (runPanel->barcodePanel->closed)  {
+			if (runPanel->barcodePanel->needingAttention()) {
+				runPanel->testsPanel->StyleLookup = "ClosureAlertPanelStyle";
+			}
+			else {
+                runPanel->testsPanel->StyleLookup = "ClosurePanelStyle";
+			}
+			runPanel->testsPanel->Width = posX + 3*param("cornerWidth");
+			runPanel->testsPanel->Height = param("testResultHeight");
+		}
+		else {
+			runPanel->testsPanel->Width = 10;    // hack for now
+			runPanel->testsPanel->Height = 10;   // hack for now
+        }
 		EntryPanelsReverseIterator riter = runPanel->testPanels->rbegin();
 		while (riter!= runPanel->testPanels->rend()) {
 			TTestPanel *t = *riter;
@@ -387,10 +302,6 @@ void WorklistEntriesView::postProcessEntries(bool queued)
 			finaliseTestPanel(t,runPanel->testsPanel,posX,queued);
 			riter++;
 		}
-		runPanel->testsPanel->Parent = runPanel;
-		runPanel->barcodePanel->Parent = runPanel;  // now can add
-													// the barcode panel
-									                // so it'll be on top
 		iter++;
     }
 
@@ -399,51 +310,97 @@ void WorklistEntriesView::postProcessEntries(bool queued)
 /** Sets up an empty sample run panel, with the given owner panel. */
 TSampleRunPanel* WorklistEntriesView::createSampleRunPanel(TPanel *parentPanel,
 														   int y,
-														   bool queued)
+														   bool queued,
+														   bool closed)
 {
-	TSampleRunPanel *srPanel = new TSampleRunPanel(viewFrame->ResultsInnerPanel);
-	srPanel->StyleLookup = "InvisiblePanelStyle";
+	TSampleRunPanel *srPanel = new TSampleRunPanel(parentPanel);
+	// srPanel->StyleLookup = "InvisiblePanelStyle";  // it ignores this
 	srPanel->Position->X = 0;
 	srPanel->Position->Y = y;
-	srPanel->Visible = true;
-	srPanel->Opacity = 1;
-	srPanel->TagString = "Level:sample run";
+	srPanel->Width = 10;    // these two lines are hacky, but for now, they
+	srPanel->Height = 10;   // shrink & hide these panels that refuse to be invisible
+	srPanel->Parent = parentPanel;
 
 	// now for the sub panels for this sample run
 
-	TBarcodePanel *barcodePanel = new TBarcodePanel(this,srPanel,queued);
+	// first the panel holding the barcode
+	TBarcodePanel *barcodePanel = new TBarcodePanel(this,srPanel,closed,queued);
 	srPanel->barcodePanel = barcodePanel;
 
-
-	// now to set up the invisible panel to hold the individual test panels
+	// setting up the invisible panel to hold the individual test panels
 	TPanel *testsPanel = new TPanel(srPanel);
-	testsPanel->StyleLookup = "TestResultsContainerStyle";
-	testsPanel->Height = param("testResultHeight");
+	testsPanel->Parent = srPanel;
+	// testsPanel->StyleLookup = "TestResultsContainerStyle"; // red, but visible=false
 	testsPanel->Position->X = barcodePanel->Width
 							  - 2*param("cornerWidth");
 	testsPanel->Position->Y = 0;
 	testsPanel->TagString = "Level:sample run test results";
 	srPanel->testsPanel = testsPanel;
 
+	barcodePanel->Parent = srPanel; // needs to be a later-added child to srPanel
+									// in order to display it on top
+
 	return srPanel;
+}
+
+
+
+
+
+/** Creates the panels for the individual tests queued for a given sample.
+  *
+  * @param snapshot          the pointer that refers to the business layer data
+  * @param sampleDescriptor  the string that identifies the sample run
+  * @param runPanel          the panel for the sample run, on which the panel for
+  *                          the tests will be put
+  * @param maxRunSize        to hold the max # of tests in a sample run
+  * @param maxTestWidth      to hold the max width of a TTestPanel
+  *
+  * @return the number of worklist entries added
+  */
+void WorklistEntriesView::addQueuedWorklistEntries(valc::SnapshotPtr sn,
+												  const std::string &sampleDescriptor,
+												  const std::string &barcode,
+												  TSampleRunPanel *runPanel,
+												  DisplayProperties &props)
+{
+    runPanel->barcodePanel->updateBarcode(barcode);
+	valc::Range<valc::WorklistEntryIterator> iterPair
+			= sn->getWorklistEntries(sampleDescriptor);
+	valc::WorklistEntryIterator iter = iterPair.first; //start
+	int count = 0;  // for counting the number of relevant worklist entries
+	while (iter!=iterPair.second) {  // iterating through the worklist entries
+
+		const valc::WorklistEntry *entry = *iter;
+		std::string testName = sn->getTestName(entry->getTestID());
+		valc::Range<valc::TestResultIterator> entryResult = entry->getTestResults();
+		if (valcui::empty(entryResult)) {
+			TTestPanel *t = new TTestPanel(this,runPanel->testsPanel,testName,"",
+										   "Level:test result",observer,QUEUED);
+			assignAttributes(t,entry);
+			runPanel->testPanels->push_back(t);
+			count++;
+			props.elementSize = std::max(t->findPanelLeftWidth(),props.elementSize);
+			// parent of t will be set later on
+		}
+		// else if it has results, it must be a worklist entry for a non-queued result
+		iter++;
+	}
+	props.rowSize = std::max(count,props.rowSize);
 }
 
 /** Goes through all queued sample runs and gets the worklist entries.
   *
   * @param snapshot      the pointer that refers to the business layer data
-  * @param numberOfRuns  to hold the total number of queued sample runs
-  * @param maxRunSize        to hold the max # of tests in a sample run
-  * @param maxTestWidth  to hold the max width of a test result panel
+  * @param props         for holding found characteristics of the dataset,
+  *                      such as number of sample runs, max size of a worklist entry
   */
 bool WorklistEntriesView::createQueuedEntries(valc::SnapshotPtr snapshot,
-											  int & numberOfRuns,
-											  int & maxRunSize,
-											  int & maxTestWidth)
+											  DisplayProperties &props)
 {
-	numberOfRuns = 0;
-	maxRunSize = 0;  // default minimum
-	maxTestWidth = 60;  // default minimum bubble width
-	int maxResultWidth = 0; // dummy
+	props.numberOfRows = 0;
+	props.rowSize = 0;       // for counting max # of entries in a row
+	props.elementSize = 60;  // default minimum width
 
 	int y = param("runsPanelverticalMargin");  // starting just below the top
 
@@ -451,21 +408,21 @@ bool WorklistEntriesView::createQueuedEntries(valc::SnapshotPtr snapshot,
 		valc::QueuedSampleIterator qi = snapshot->queueBegin();   // -> overloaded
 		while (qi!=snapshot->queueEnd()) {
 			valc::QueuedSample qs = *qi;
-			std::string descriptor = qs.getSampleDescriptor();
 
 			// now construct the panel for the info for this sample run
 			TSampleRunPanel *runPanel
 				= createSampleRunPanel(viewFrame->WorkInnerPanel,y,QUEUED);
 
-
-
-			addWorklistEntries(snapshot,descriptor,runPanel,
-							   maxRunSize,maxTestWidth,maxResultWidth,QUEUED);
+			addQueuedWorklistEntries(snapshot,
+									 qs.getSampleDescriptor(),
+									 qs.getBarcode(),
+									 runPanel,
+									 props);
 
 			queuedComponents->push_back(runPanel);
-			runPanel->Parent = viewFrame->WorkInnerPanel;
 
-			numberOfRuns++;
+
+			props.numberOfRows++;
 			y += param("verticalRunSeparation");  // go up for this next panel
 			qi++;
 		}
@@ -489,41 +446,106 @@ bool WorklistEntriesView::createQueuedEntries(valc::SnapshotPtr snapshot,
   *
   * @param snapshot    the pointer that refers to the business layer data
   */
-bool WorklistEntriesView::displayWorklistQueue(valc::SnapshotPtr snapshot) {
+void WorklistEntriesView::displayWorklistQueue(valc::SnapshotPtr snapshot) {
 
 	viewFrame->WorkInnerPanel->BeginUpdate();
 	viewFrame->WorkInnerPanel->TagString = innerLevel;
 
-	int numberOfSampleRuns;   // will hold # of sample runs in total
-	int maxSampleRunSize;     // will hold max # of tests in a sample run
-	int maxQueuedTestWidth;   // will hold max bubble width
-	int maxSampleRunWidth;
-
-	bool success = createQueuedEntries(snapshot,
-									  numberOfSampleRuns,
-									  maxSampleRunSize,
-									  maxQueuedTestWidth);
-	if (success) {
-		guiConfig["queuedTestWidth"] = maxQueuedTestWidth;
-		int separation = maxQueuedTestWidth - 2*guiConfig["cornerWidth"];
+	DisplayProperties queueProperties;
+	if (createQueuedEntries(snapshot,queueProperties)) {
+		guiConfig["queuedTestWidth"] = queueProperties.elementSize; // maxQueuedTestWidth;
+		int separation = queueProperties.elementSize - 2*guiConfig["cornerWidth"];
 		guiConfig["horizontalQueuedTestSeparation"] = separation;
-		maxSampleRunWidth = (numberOfSampleRuns + 1) * maxQueuedTestWidth
-							- separation;
+		int maxSampleRunWidth = (queueProperties.rowSize + 1)
+								 * queueProperties.elementSize
+							     - separation;
 
 		postProcessEntries(QUEUED);
 
 		viewFrame->WorkInnerPanel->Height
-					= numberOfSampleRuns*param("verticalRunSeparation")
+					= queueProperties.numberOfRows*param("verticalRunSeparation")
 					  - param("sampleRunGap") + 2*param("runsPanelverticalMargin");
 		viewFrame->WorkInnerPanel->Width
 					= maxSampleRunWidth + param("runsPanelrightMargin");
 	}
-
-
 	viewFrame->WorkInnerPanel->EndUpdate();
 	viewFrame->WorkInnerPanel->Repaint();
+}
 
-	return success;
+
+
+/** Create the panels for the individual tests on a active/closed-off sample run.
+  *
+  * @param snapshot          the pointer that refers to the business layer data
+  * @param sampleDescriptor  the string that identifies the sample run
+  * @param runPanel          the panel for the sample run, on which the panel for
+  *                          the tests will be put
+  * @param props             for holding found characteristics of the dataset,
+  *                          such as number of sample runs, max size of a worklist entry
+  * @param open              if this is not called for a queued sample,
+  *                          the open/closed status of the local run
+  * @param runID             the token holding the run id of the sample run,
+  *                          or an empty token if no run id (e.g. because queued)
+  *
+  * @return the number of worklist entries added
+  */
+void WorklistEntriesView::addNonQueuedWorklistEntries(valc::SnapshotPtr sn,
+													  const valc::LocalRun &r,
+													  TSampleRunPanel *runPanel,
+													  DisplayProperties &props)
+											 /* r.getSampleDescriptor(),
+											r.getBarcode(),
+											r.isOpen(),r.getRunID()
+											*/
+{
+	runPanel->barcodePanel->updateBarcode(r.getBarcode());
+	int count = 0;  // # relevant worklist entries found for this sample run
+	valc::Range<valc::WorklistEntryIterator> iterPair
+			= sn->getWorklistEntries(r.getSampleDescriptor());
+	valc::WorklistEntryIterator iter = iterPair.first; // start
+	while (iter!=iterPair.second) {  // iterating through the worklist entries
+		const valc::WorklistEntry *entry = *iter;
+		std::string testName = sn->getTestName(entry->getTestID());
+		valc::Range<valc::TestResultIterator> entryResult = entry->getTestResults();
+		if (valcui::empty(entryResult)) {
+			if (r.isOpen()) {  // this result must be pending
+				count++;
+				TTestPanel *t = new TTestPanel(this,runPanel->testsPanel,testName,"",
+											   "Level:test result",observer,SENT_TO_ANALYSER);
+				assignAttributes(t,entry);
+				runPanel->testPanels->push_back(t);
+				// parent of t is set later on
+				props.leftSize = std::max(t->findPanelLeftWidth(),props.leftSize);
+			}
+			// no test results, therefore queued entry, therefore ignore
+		}
+		else { // test result(s) exist for this worklist entry
+			valc::Range<valc::TestResultIterator> iterPair =  entry->getTestResults();
+			valc::TestResultIterator iterR = iterPair.first;
+			while (iterR!=iterPair.second) { // going through the results
+				const valc::TestResult *tr = *iterR;
+				if (tr!=NULL && r.getRunID()==tr->getSampleRunID()) {
+					count++;
+					TTestPanel *t = new TTestPanel(this,runPanel->testsPanel,testName,
+												   Utils::float2str(tr->getResultValue()),
+										           "Level:test result",observer,SENT_TO_ANALYSER);
+					assignAttributes(runPanel,t,sn,entry,tr,r.getRunID());
+					runPanel->testPanels->push_back(t);
+					props.leftSize = std::max(t->findPanelLeftWidth(),
+											  props.leftSize);
+					props.rightSize = std::max(t->findResultDisplayWidth(),
+											   props.rightSize);
+				}
+				iterR++;
+			}
+		}
+		iter++;
+	}
+	props.rowSize = std::max(count,props.rowSize);
+	if (count==0) {
+		logManager->log(paulst::format("No worklist entries for sample-run %s",
+		                               r.getRunID().token().c_str() ).c_str() );
+    }
 }
 
 
@@ -531,20 +553,16 @@ bool WorklistEntriesView::displayWorklistQueue(valc::SnapshotPtr snapshot) {
   * relevant worklist entries and results.
   *
   * @param snapshot      the pointer that refers to the business layer data
-  * @param numberOfRuns  to hold the total number of queued sample runs
-  * @param maxRunSize    to hold the max # of tests in a sample run
-  * @param maxTestWidth  to hold the max width of a test result panel
+  * @param props         for holding found characteristics of the dataset,
+  *                      such as number of sample runs, max size of a worklist entry
   */
 bool WorklistEntriesView::createResultsEntries(valc::SnapshotPtr snapshot,
-											   int & numberOfRuns,
-											   int & maxRunSize,
-											   int & maxTestLeftWidth,
-											   int & maxResultWidth)
+											   DisplayProperties &props)
 {
-	numberOfRuns = 0;
-	maxRunSize = 0;  // default minimum
-	maxTestLeftWidth = 40;  // default minimum bubble width
-	maxResultWidth = param("defaultResultWidth");
+	props.numberOfRows = 0;
+	props.rowSize = 0;
+	props.leftSize = 40;  // default minimum bubble width
+	props.rightSize = param("defaultResultWidth");
 
 	int y = param("runsPanelverticalMargin");  // starting just below the top
 	try {
@@ -561,21 +579,11 @@ bool WorklistEntriesView::createResultsEntries(valc::SnapshotPtr snapshot,
 
 
 				TSampleRunPanel *runPanel
-					= createSampleRunPanel(viewFrame->ResultsInnerPanel,y,SENT_TO_ANALYSER);
-				std::string descriptor = r.getSampleDescriptor();
-				int numWorklistEntries = addWorklistEntries(snapshot,descriptor,runPanel,
-								   maxRunSize,maxTestLeftWidth,maxResultWidth,
-								   SENT_TO_ANALYSER, r.getRunID() );
-
-                if ( 0 == numWorklistEntries )
-                {
-                    logManager->log( paulst::format( "No worklist entries for sample-run %s", r.getRunID().token().c_str() ).c_str() );
-                }
-
+					= createSampleRunPanel(viewFrame->ResultsInnerPanel,y,
+										   SENT_TO_ANALYSER,!r.isOpen());
+				addNonQueuedWorklistEntries(snapshot,r,runPanel,props);
 				resultsComponents->push_back(runPanel);
-				runPanel->Parent = viewFrame->ResultsInnerPanel;
-
-				numberOfRuns++;
+				props.numberOfRows++;
 				y += param("verticalRunSeparation");  // go up for this next panel
 			}
 			ri++;
@@ -595,144 +603,59 @@ bool WorklistEntriesView::createResultsEntries(valc::SnapshotPtr snapshot,
 }
 
 
-
 /** Constructs and displays the GUI components for the queued sample tests
   * in the bottom half of the screen. Assumes that any previous GUI components
   * have been cleared already.
   *
   * @param snapshot    the pointer that refers to the business layer data
   */
-bool WorklistEntriesView::displayWorklistResults(valc::SnapshotPtr snapshot)
+void WorklistEntriesView::displayWorklistResults(valc::SnapshotPtr snapshot)
 {
 	viewFrame->ResultsInnerPanel->BeginUpdate();
 	viewFrame->ResultsInnerPanel->TagString = innerLevel;
 
-	int numberOfSampleRuns;   // will hold # of sample runs in total
-	int maxSampleRunSize;     // will hold max # of tests in a sample run
-	int maxResultWidth;
-	int maxResultLeftWidth;   // will hold max width of rest of the bubble
-
-	bool success = createResultsEntries(snapshot,
-										numberOfSampleRuns,
-										maxSampleRunSize,
-										maxResultLeftWidth,
-										maxResultWidth);
-
-
-	if (success) {
-		guiConfig["testResultWidth"] = maxResultLeftWidth + maxResultWidth;;
+	DisplayProperties queueProperties;
+	if (createResultsEntries(snapshot,queueProperties)) {
+		guiConfig["testResultWidth"] = queueProperties.leftSize
+									   + queueProperties.rightSize;
 		int separation = guiConfig["testResultWidth"] - 2*guiConfig["cornerWidth"];
 		guiConfig["horizontalTestResultSeparation"] = separation;
-		guiConfig["resultWidth"] = maxResultWidth;
+		guiConfig["resultWidth"] = queueProperties.rightSize;
 
 		postProcessEntries(SENT_TO_ANALYSER);
 
 		viewFrame->ResultsInnerPanel->Height
-			= numberOfSampleRuns*param("verticalRunSeparation")
+			= queueProperties.numberOfRows*param("verticalRunSeparation")
 			  - param("sampleRunGap") + 2*param("runsPanelverticalMargin");
 
-		int maxSampleRunWidth = (numberOfSampleRuns + 1) * guiConfig["testResultWidth"]
-								- separation;
+		int maxSampleRunWidth = (queueProperties.rowSize + 1)
+								 * guiConfig["testResultWidth"]  - separation;
 		viewFrame->ResultsInnerPanel->Width
 			= maxSampleRunWidth + param("runsPanelrightMargin");
 	}
 
 	viewFrame->ResultsInnerPanel->EndUpdate();
 	viewFrame->ResultsInnerPanel->Repaint();
-
-	return success;
-
 }
 
-void WorklistEntriesView::positionView()
-{   // sets the user's view to a suitable position
-
-	// the default for the bottom panel (queued entries) is fine (at the top),
-	// so we set the viewport position of the results to something suitable,
-	// currently at the bottom of the scrollbox
-	viewFrame->ResultsScrollBox->BeginUpdate();
-	TPointF pos;
-	pos.x = 0.0;
-	pos.y = viewFrame->ResultsInnerPanel->Height; // this position right at the end
-												 // of the panel being viewed makes
-												 // it go down to the bottom
-
-	// was viewFrame->ResultsInnerPanel->Height - viewFrame->ResultsPanel->Height;
-	viewFrame->ResultsScrollBox->ViewportPosition = pos;
-	viewFrame->ResultsScrollBox->EndUpdate();
-	viewFrame->ResultsScrollBox->Repaint();
-
-}
-
-
+/** Populates the two views (for queued worklist entries, and worklist
+  * entries for samples sent to the analyser) from the given snapshot.
+  *
+  * @param sn   the snapshot supplied by the business layer
+  */
 void WorklistEntriesView::setUpVisualComponents(valc::SnapshotPtr sn)
 {
-	bool ok = displayWorklistQueue(sn);
-	ok = displayWorklistResults(sn) && ok;
+	displayWorklistQueue(sn);
+	displayWorklistResults(sn);
 
 
-	positionView(); // set the user's view to a suitable position
-	recordPanelHeights();
+	positioner->positionViews();
+	positioner->recordViewsHeights();
 }
 
 
-/*---------------------- end Main GUI setting up -------------------*/
+/*-------------- end of populating snapshot view -----------------*/
 
-
-/*------------------- begin Split Pane manoeuvrings ----------------*/
-
-/** Records the current heights of the panels affected by the main
-  * split pane. This is so that later on, if the window is resized, the
-  * proportions of the splitting can be maintained.
-  */
-void WorklistEntriesView::recordPanelHeights()
-{
-		recordResultsHeight = viewFrame->ResultsPanel->Height;
-		recordWorkHeight = viewFrame->WorkPanel->Height;
-}
-
-/** This keeps the ratio of top:bottom pane heights, and is called when
-  * the main window gets resized. (Without this, the resizing would
-  * just affect the top pane, in a non-intuitive fashion.)
-  *
-  * @todo   when adjusting, make it look like the splitter is sticky to the
-  *         top of the worklist and the bottom of the active/results list,
-  *         like anchors
-  */
-void WorklistEntriesView::adjustPanelHeights()
-{
-	// Was having problems when the split pane was adjusted in too
-	// extreme a ratio. Turns out that when you make the top pane
-	// pretty large compared to the bottom pane, then resize to a smaller
-	// size, the height of the bottom pane has already got set to zero
-	// by the time that this method sees it.
-	// So have to work things out based on other things, not
-	// viewFrame->WorkPanel->Height
-
-
-	float oldTotalHeight = recordResultsHeight + recordWorkHeight;
-
-	float newResultsHeight =  viewFrame->ResultsPanel->Height;
-	float newWorkHeight =  viewFrame->WorkPanel->Height;
-	float totalHeight = newResultsHeight+newWorkHeight;
-
-
-	if (totalHeight>0) {
-		float improvedResultsHeight = recordResultsHeight * totalHeight
-									  / oldTotalHeight;
-		if (improvedResultsHeight<param("minPanelHeight")) {
-			 improvedResultsHeight = (float)param("minPanelHeight");
-		}
-
-		viewFrame->ResultsPanel->Height = improvedResultsHeight;
-		viewFrame->WorkPanel->Height = totalHeight - improvedResultsHeight;
-
-		recordPanelHeights();
-	}
-
-}
-
-/*------------------- end Split Pane manoeuvrings ----------------*/
 
 /*------- begin Component information retrieval utilities --------*/
 

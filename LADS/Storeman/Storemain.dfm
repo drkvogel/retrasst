@@ -52,7 +52,7 @@ object frmStoremain: TfrmStoremain
     end
     object BtnConfigure: TButton
       Left = 30
-      Top = 169
+      Top = 170
       Width = 116
       Height = 35
       Anchors = []
@@ -63,7 +63,7 @@ object frmStoremain: TfrmStoremain
     end
     object BtnBrowse: TButton
       Left = 30
-      Top = 71
+      Top = 70
       Width = 116
       Height = 35
       Anchors = []
@@ -85,7 +85,7 @@ object frmStoremain: TfrmStoremain
     end
     object BtnRationalyse: TButton
       Left = 30
-      Top = 219
+      Top = 220
       Width = 116
       Height = 35
       Anchors = []
@@ -127,7 +127,7 @@ object frmStoremain: TfrmStoremain
     end
     object BtnXfer: TButton
       Left = 35
-      Top = 71
+      Top = 70
       Width = 116
       Height = 35
       Anchors = []
@@ -149,7 +149,7 @@ object frmStoremain: TfrmStoremain
     end
     object BtnAnalyse: TButton
       Left = 35
-      Top = 169
+      Top = 170
       Width = 116
       Height = 35
       Anchors = []
@@ -160,7 +160,7 @@ object frmStoremain: TfrmStoremain
     end
     object BtnReferred: TButton
       Left = 35
-      Top = 219
+      Top = 220
       Width = 116
       Height = 35
       Anchors = []
@@ -201,36 +201,46 @@ object frmStoremain: TfrmStoremain
     end
     object BtnCreate: TButton
       Left = 30
-      Top = 120
+      Top = 70
       Width = 116
       Height = 35
       Anchors = []
       Caption = 'Create List'
-      TabOrder = 1
+      TabOrder = 0
       WordWrap = True
       OnClick = OnCreateList
     end
     object btnViewLists: TButton
       Left = 30
-      Top = 71
+      Top = 170
       Width = 116
       Height = 35
       Anchors = []
       Caption = 'View Lists'
-      TabOrder = 0
+      TabOrder = 2
       WordWrap = True
       OnClick = btnViewListsClick
     end
     object BtnRetrieve: TButton
       Left = 30
-      Top = 169
+      Top = 120
       Width = 116
       Height = 35
       Anchors = []
       Caption = 'Retrieval Assistant'
-      TabOrder = 2
+      TabOrder = 1
       WordWrap = True
       OnClick = BtnRetrieveClick
+    end
+    object btnManage: TButton
+      Left = 30
+      Top = 220
+      Width = 116
+      Height = 35
+      Anchors = []
+      Caption = 'Manage Lists'
+      TabOrder = 3
+      WordWrap = True
     end
   end
   object Panel4: TPanel

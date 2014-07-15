@@ -2,6 +2,7 @@
 #define QCViewControllerH
 
 #include "API.h"
+#include "IdleServiceUserAdapter.h"
 #include "ModelEventListenerAdapter.h"
 #include <stack>
 #include "TQCViewFrame.h"
@@ -11,31 +12,45 @@ namespace valcui
 {
 
 class Model;
-class QCViewData;
 
 
 class QCViewController
 {
 public:
-	QCViewController( TQCViewFrame* widgetContainer, Model* m );
+	QCViewController();
+    IdleServiceUser*    getIdleServiceUserInterface();
+    ModelEventListener* getModelEventListenerInterface();
+    void init();
 	void notify( int modelEvent, const EventData& eventData );
+    void onIdle();
+    void onResize();
+    void setModel( Model* m );
+    void setView( TQCViewFrame* view );
     void __fastcall update();
+
+    class QCVDisplayMode
+    {
+    public:
+        QCVDisplayMode();
+        virtual ~QCVDisplayMode();
+        virtual void doUpdate() = 0;
+    };
+
+    friend class QCVDisplayModeQC;
+    friend class QCVDisplayModeUnknown;
+
 private:
-	TQCViewFrame* const                         m_widgetContainer;
+	TQCViewFrame*                               m_view;
 	ModelEventListenerAdapter<QCViewController> m_eventListener;
-    Model* const                                m_model;
+    IdleServiceUserAdapter<QCViewController>    m_idleServiceUser;
+    Model*                                      m_model;
 	std::stack< TTreeViewItem* >                m_nodeStack;
 	std::vector< TTreeViewItem* >               m_expandList;
 
-	void        addNodesForControllingQCs   ( const QCViewData& d, const valc::SnapshotPtr& s, const valc::QCControls& controls );
-	void        addNodesForRules            ( const valc::SnapshotPtr& s, int controlResultID );
-    std::string describe                    ( valc::ResultCode rc ) const;
-	std::string describeControl             ( const QCViewData& d, const valc::QCControl& c ) const;
-    std::string describeControlResult       ( const QCViewData& d, const valc::QCControl& c ) const;
-	std::string describeTestResult          ( const valc::TestResult* r ) const;
-	std::string describeWorklistEntry       ( const QCViewData& d, const valc::SnapshotPtr& s ) const;
-	void        popNode                     ();
-	void        pushNode                    ( const std::string& label, bool expand );
+    std::string describe( valc::ResultCode rc ) const;
+    std::string describeWorklistEntry( const valc::WorklistEntry* wle, valc::SnapshotPtr snapshot ) const;
+	void popNode();
+	void pushNode( const std::string& label, bool expand );
 };
 
 }

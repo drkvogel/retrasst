@@ -58,17 +58,21 @@ QueuedSamplesBuilderFunction::ProcessState::~ProcessState()
 {
 }
 
-
-class ProcessStateBegin : public QueuedSamplesBuilderFunction::ProcessState
+std::string QueuedSamplesBuilderFunction::ProcessState::getBarcode() const
 {
-public:
-    ProcessStateBegin()                                                                 {}
-    QueueTicket     getQueueTicket()                                                    { return QueueTicket(); }
-    std::string     getSampleDescriptor()                                               { return "";            }
-    void            init( QueuedSamplesBuilderFunction::Params*, const std::string& )   {}
-    bool            isInclusionJustifiedForSample()                                     { return false;         }
-    void            process( const WorklistEntry* )                                     {}
-};
+    return m_barcode;
+}
+
+void QueuedSamplesBuilderFunction::ProcessState::init( Params* p, const std::string& sampleDescriptor, const std::string& barcode )
+{
+    m_sampleDescriptor = sampleDescriptor;
+    m_barcode = barcode;
+}
+
+std::string QueuedSamplesBuilderFunction::ProcessState::getSampleDescriptor() const
+{
+    return m_sampleDescriptor;
+}
 
 
 class ProcessStateIgnoring : public QueuedSamplesBuilderFunction::ProcessState
@@ -76,13 +80,8 @@ class ProcessStateIgnoring : public QueuedSamplesBuilderFunction::ProcessState
 public:
     ProcessStateIgnoring()                                                               {}
     QueueTicket     getQueueTicket()                                                     { return QueueTicket();      }
-    std::string     getSampleDescriptor()                                                { return m_sampleDescriptor; }
-    void            init( QueuedSamplesBuilderFunction::Params*, const std::string& sd ) { m_sampleDescriptor = sd;   }
     bool            isInclusionJustifiedForSample()                                      { return false;              }
     void            process( const WorklistEntry* )                                      {}
-
-private:
-    std::string m_sampleDescriptor;
 };
 
 
@@ -117,14 +116,10 @@ public:
         return qp;
     }
 
-    std::string getSampleDescriptor()
-    {
-        return m_sampleDescriptor;
-    }
-
-    void init( QueuedSamplesBuilderFunction::Params* p, const std::string& sampleDescriptor ) 
+    void init( QueuedSamplesBuilderFunction::Params* p, const std::string& sampleDescriptor, const std::string& barcode ) 
     { 
         m_sampleDescriptor = sampleDescriptor;  
+        m_barcode = barcode;
         m_params = p;
         m_somethingQueuedForLocalMachineOrCluster = false;
         m_statusValues.clear();
@@ -150,7 +145,6 @@ public:
     }
 
 private:
-    std::string                             m_sampleDescriptor;
     bool                                    m_somethingQueuedForLocalMachineOrCluster;
     QueuedSamplesBuilderFunction::Params*   m_params;
     std::vector< char      >                m_statusValues;
@@ -168,10 +162,9 @@ QueuedSamplesBuilderFunction::Params::~Params()
 QueuedSamplesBuilderFunction::QueuedSamplesBuilderFunction( Params* p )
     : 
     m_params(p),
-    m_stateBegin        ( new ProcessStateBegin()       ),
     m_stateIgnoring     ( new ProcessStateIgnoring()    ),
     m_stateConsidering  ( new ProcessStateConsidering() ),
-    m_state             ( m_stateBegin.get()            )
+    m_state             ( m_stateIgnoring.get()            )
 {
 }
 
@@ -179,14 +172,14 @@ bool compareOnQueueTicket(
     const QueuedSamplesBuilderFunction::SampleDescriptorWithQueueTicket& q1, 
     const QueuedSamplesBuilderFunction::SampleDescriptorWithQueueTicket& q2 ) 
 {
-    const QueueTicket& qt1 = q1.second;
-    const QueueTicket& qt2 = q2.second;
+    const QueueTicket& qt1 = std::get<2>(q1);
+    const QueueTicket& qt2 = std::get<2>(q2);
     return qt1 < qt2;
 }
 
 void QueuedSamplesBuilderFunction::operator()( QueuedSamples* out )
 {
-    m_state = m_stateBegin.get();
+    m_state = m_stateIgnoring.get();
     m_queue.clear();
 
     m_params->forEachWorklistEntry( this );
@@ -197,7 +190,7 @@ void QueuedSamplesBuilderFunction::operator()( QueuedSamples* out )
 
     BOOST_FOREACH( SampleDescriptorWithQueueTicket sd, m_queue )
     {
-        out->push_back( QueuedSample( sd.first ) );
+        out->push_back( QueuedSample( std::get<0>(sd) /* sample descriptor */, std::get<1>(sd) /* barcode */ ) );
     }
 }
 
@@ -213,7 +206,7 @@ void QueuedSamplesBuilderFunction::process( const WorklistEntry* wle )
             (ProcessState*) (m_stateIgnoring   .get()):
             (ProcessState*) (m_stateConsidering.get());
 
-        m_state->init( m_params.get(), sampleDescriptor );
+        m_state->init( m_params.get(), sampleDescriptor, wle->getBarcode() );
     }
 
     m_state->process(wle);
@@ -223,7 +216,7 @@ void QueuedSamplesBuilderFunction::flushState()
 {
     if ( m_state->isInclusionJustifiedForSample() )
     {
-        m_queue.push_back( std::make_pair( m_state->getSampleDescriptor(), m_state->getQueueTicket() ) );
+        m_queue.push_back( std::make_tuple( m_state->getSampleDescriptor(), m_state->getBarcode(), m_state->getQueueTicket() ) );
     }
 }
 

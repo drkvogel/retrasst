@@ -8,7 +8,7 @@
 #include "InfoPanels.h"
 #include "VisualComponents.h"
 #include "WorklistEntriesView.h"
-#include "GUIpositioning.h"
+#include "WorklistEntriesPositioning.h"
 
 #pragma package(smart_init)
 

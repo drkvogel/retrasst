@@ -2,21 +2,32 @@
 #include "Model.h"
 #include "ModelEventConstants.h"
 #include "SnapshotFrameController.h"
+#include "WorklistEntriesPositioning.h"
 
 namespace valcui
 {
 
-SnapshotFrameController::SnapshotFrameController(TSnapshotFrame* tsf,
-												 Model* model,
-												 LogManager* log,
-												 const std::string& guiConfig)
-  : m_model(model),
+SnapshotFrameController::SnapshotFrameController( LogManager* log, const paulst::Config* guiConfig)
+    : 
     m_eventListener(this),
-	// m_dataManager(new DataManager(log)),
-	m_entriesView(new WorklistEntriesView(tsf,log,guiConfig))
+    m_idleServiceUser(this),
+	m_log( log ),
+    m_guiConfig( guiConfig )
 {
-	m_model->registerModelEventListener(&m_eventListener);
-	tsf->setObserver(this);
+}
+
+IdleServiceUser* SnapshotFrameController::getIdleServiceUserInterface()
+{
+    return &m_idleServiceUser;
+}
+
+ModelEventListener* SnapshotFrameController::getModelEventListenerInterface()
+{
+    return &m_eventListener;
+}
+
+void SnapshotFrameController::init()
+{
 	m_entriesView->setObserver(this);
 }
 
@@ -37,7 +48,7 @@ void SnapshotFrameController::notifyForceReloadButtonClick( TSnapshotFrame* tsf 
 
 void SnapshotFrameController::notifyMainSplitterMouseUp( TSnapshotFrame* tsf )
 {
-    m_entriesView->recordPanelHeights();
+	m_entriesView->positioner->recordViewsHeights();
 }
 
 void SnapshotFrameController::notifySelected( int worklistEntryID )
@@ -66,9 +77,24 @@ void SnapshotFrameController::notify( int modelEvent, const EventData& eventData
     }
 }
 
-void SnapshotFrameController::resize()
+void SnapshotFrameController::onIdle()
 {
-    m_entriesView->adjustPanelHeights();
+}
+
+void SnapshotFrameController::onResize()
+{
+    m_entriesView->positioner->adjustViewsHeights();
+}
+
+void SnapshotFrameController::setModel( Model* model )
+{
+    m_model = model;
+}
+
+void SnapshotFrameController::setView( TSnapshotFrame* tsf )
+{
+    tsf->setObserver(this);
+    m_entriesView.reset( new WorklistEntriesView( tsf, m_log, m_guiConfig ) );
 }
 
 }

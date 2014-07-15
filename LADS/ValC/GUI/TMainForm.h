@@ -19,11 +19,12 @@
 #include "Config.h"
 #include "DirUtil.h"
 #include <FMX.Menus.hpp>
+#include <FMX.Layouts.hpp>
+#include <map>
 #include <memory>
 #include "ModelEventListenerAdapter.h"
-
-class LogManager;
-class TLogFrame;
+#include <string>
+#include "ToolTemplate.h"
 
 
 namespace valcui
@@ -31,10 +32,6 @@ namespace valcui
     class IdleService;
 	class MenuViewController;
 	class Model;
-	class QCViewController;
-    class SampleRunViewController;
-    class SnapshotFrameController;
-    class WorklistItemViewController;
 }
 
 
@@ -55,9 +52,6 @@ __published:	// IDE-managed Components
 	TTabItem *warnTab;
 	TPanel *logFrameContainer;
 	TPanel *warningFrameContainer;
-	TPanel *bottomPanelLeft;
-	TSplitter *Splitter2;
-	TPanel *bottomPanelRight;
 	TStyleBook *StyleBook1;
 	TPanel *midPanel;
 	TSplitter *Splitter3;
@@ -68,32 +62,58 @@ __published:	// IDE-managed Components
 	TMenuItem *menuItemApplication;
 	TMenuItem *menuItemClose;
 	TTimer *idleTimer;
+	TMenuItem *menuItemView;
+	TMenuItem *menuItemBatchNav;
+	TFlowLayout *toolBox;
+	TMenuItem *menuItemQCControl;
+	TMenuItem *menuItemWorklistItem;
+	TTabItem *batch;
+	TPanel *batchViewContainer;
+	TStyleBook *BatchView;
+	TTabItem *ruleTab;
+	TPanel *ruleViewContainer;
 	void __fastcall onCreate(TObject *Sender);
 	void __fastcall onResize(TObject *Sender);
 	void __fastcall onClose(TObject *Sender, TCloseAction &Action);
 	void __fastcall idleTime(TObject *Sender);
 
-private:	// User declarations
+private:
 
-	paulst::Dir m_appDataDir;
-	paulst::Config m_config;
-	TLogFrame* m_logFrame;
-	std::unique_ptr<LogManager> m_logManager;
-	std::unique_ptr<valcui::Model> m_model;
-	std::unique_ptr<valcui::SnapshotFrameController> m_snapshotFrameController;
-	std::unique_ptr<valcui::QCViewController> m_qcViewController;
-	std::unique_ptr<valcui::WorklistItemViewController> m_worklistItemViewController;
-	std::unique_ptr<valcui::SampleRunViewController> m_sampleRunViewController;
-    std::unique_ptr<valcui::MenuViewController>      m_menuViewController;
-    std::unique_ptr<valcui::IdleService>            m_idleService;
-    valcui::ModelEventListenerAdapter<TMainForm> m_modelEventListener;
-    bool                                            m_okToClose;
+	paulst::Dir                                         m_appDataDir;
+	paulst::Config                                      m_config;
+    paulst::Config                                      m_guiConfig;
+	std::unique_ptr<valcui::Model>                      m_model;
+    std::unique_ptr<valcui::IdleService>                m_idleService;
+    valcui::ModelEventListenerAdapter<TMainForm>        m_modelEventListener;
+    std::unique_ptr<valcui::MenuViewController>         m_menuViewController;
+	bool                                                m_okToClose;
+	std::vector<valcui::Tool*>                          m_tools;
+
+    template<typename Controller, typename View, typename Container>
+    void addTool( 
+        const std::string& name,
+        Controller* controller,
+        Container* container,
+        TAlignLayout alignment = TAlignLayout::alClient )
+    {
+        m_tools.push_back(
+            new valcui::ToolTemplate< Controller, View, Container >(
+                name,
+                controller,
+                container,
+                m_model.get(),
+                m_idleService.get(),
+                alignment ) );
+    }
+
 public:		// User declarations
 
 	__fastcall TMainForm(TComponent* Owner);
-    void notify( int modelEventID, const valcui::EventData& ed );
-	void __fastcall warningAlarmOn();
-	void __fastcall warningAlarmOff();
+	__fastcall ~TMainForm();
+	void addTool( const std::string& toolName );
+	void notify( int modelEventID, const valcui::EventData& ed );
+	void removeTool( const std::string& toolName );
+	
 
 };
 

@@ -31,10 +31,10 @@ public:
 	LCDbObject( const LQuery & query );
 
 	Category getObjectType() const { return Category( objType ); }
+	TDateTime getTimeStamp() const { return when; }
 
 	bool isActive() const { return status != LDbValid::DELETED; }
-	void setActive( bool live )
-	{
+	void setActive( bool live ) {
 		status = live ? LDbValid::RECORD_IN_USE : LDbValid::DELETED;
 	}
 
@@ -43,8 +43,7 @@ public:
 
 	static std::string findDescription( Category type );
 	static Category findObjectType( const std::string & description );
-	static Category findObjectType( int type )
-	{
+	static Category findObjectType( int type ) {
 		return (type <= UNKNOWN || type >= NUM_TYPES) ? UNKNOWN : Category( type );
 	}
 };

@@ -12,7 +12,7 @@
 #include <string>
 #include <list>
 
-#include "GUIpositioning.h"
+#include "WorklistEntriesPositioning.h"
 
 							// some forward declarations
 							class TTestPanel;

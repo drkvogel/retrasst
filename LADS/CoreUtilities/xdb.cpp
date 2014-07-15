@@ -14,10 +14,10 @@ XDB_ERROR::XDB_ERROR( const std::string owner, XDB *db )
 	:
 	owner_object( owner ),
 	database( db ),
+	is_valid( true ),
 	error_count( 0 ),
 	last_error_code( -1 ),
-	last_error_text( "" ),
-	is_valid( true )
+	last_error_text( "" )
 {
 	object_instance = getNextInstance();
 }
@@ -57,7 +57,8 @@ std::string XDB_ERROR::ingExpandError( II_PTR handle )
 				txt += "USER MESSAGE";
 				break;
 			default:
-				sprintf( buf, "Unknown error type=%ld", gete.ge_type );
+				sprintf( buf, "Unknown error type=%d",
+					(int) gete.ge_type );
 				txt += buf;
 				break;
 			}
@@ -117,7 +118,7 @@ std::string XDB_ERROR::ingExpandError( II_PTR handle )
 					if ( len < 300 )
 						{
 						sprintf( buf, "'%*.*s'", len, len,
-							gete.ge_serverInfo->svr_parmValue[i].dv_value );
+							(char*)(gete.ge_serverInfo->svr_parmValue[i].dv_value) );
 						txt += buf;
 						}
 					else
@@ -217,15 +218,16 @@ const	char	*XDB::os =
 bool	XDB::ingInitialised = false;
 bool	XDB::blob_chunk_defined = false;
 int	XDB::blob_chunk_size = 2000;
+int	XDB::iiapi_version = IIAPI_VERSION_7;
 #endif
 //---------------------------------------------------------------------------
 XDB::XDB( const std::string target )
 	:
-	errorCallBack( NULL ),
+	XDB_ERROR( "XDB", this ),
 	username(""),
-	password(""),
 	connection_timeout( -1 ),	// UNLIMITED
-	XDB_ERROR( "XDB", this )
+	password(""),
+	errorCallBack( NULL )
 {
 	object_instance = getNextInstance();
 	error_count = 0;
@@ -280,11 +282,20 @@ void XDB::bdeDelete( void )
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #if X_ING
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool XDB::setIIApiVersion( const int iav )
+{
+	if ( ingInitialised )		// CAN ONLY SET ONCE AT BEGINNING
+		{return( false );
+		}
+	iiapi_version = iav;
+	return( true );
+}
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool XDB::ingInitAPI( void )
 {
 	IIAPI_INITPARM  initParm;
 	initParm.in_timeout = -1;
-	initParm.in_version = IIAPI_VERSION_5;
+	initParm.in_version = iiapi_version;
 	IIapi_initialize( &initParm );
 	envHandle = initParm.in_envHandle;
 	if ( initParm.in_status != IIAPI_ST_SUCCESS )
@@ -299,7 +310,7 @@ bool XDB::ingInitAPI( void )
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void XDB::ingWait( IIAPI_GENPARM *genParm )
 {					// WAIT TILL API FUNCTION COMPLETES
-	IIAPI_WAITPARM waitParm = { -1 };
+	IIAPI_WAITPARM waitParm = { -1, 0 };
 	while( FALSE == genParm->gp_completed )
 		{IIapi_wait( &waitParm );
 		}

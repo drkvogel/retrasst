@@ -1,0 +1,127 @@
+object RuleFrame: TRuleFrame
+  Height = 423.000000000000000000
+  Width = 603.000000000000000000
+  object controlPanel: TPanel
+    Align = alLeft
+    Height = 423.000000000000000000
+    Width = 201.000000000000000000
+    TabOrder = 0
+    object controlPanelTabs: TTabControl
+      Align = alClient
+      Height = 423.000000000000000000
+      TabIndex = 0
+      TabOrder = 0
+      TabPosition = tpNone
+      Width = 201.000000000000000000
+      object tabStart: TTabItem
+        WordWrap = False
+        Height = 8.000000000000000000
+        IsSelected = True
+        Position.X = 96.500000000000000000
+        Position.Y = 404.000000000000000000
+        Text = 'tabStart'
+        Width = 8.000000000000000000
+        object tabStartFlow: TFlowLayout
+          Align = alClient
+          Height = 413.000000000000000000
+          Margins.Left = 4.000000000000000000
+          Margins.Top = 10.000000000000000000
+          Margins.Right = 4.000000000000000000
+          Width = 193.000000000000000000
+          Justify = fjCenter
+          JustifyLastLine = fjCenter
+          FlowDirection = fdLeftToRight
+          HorizontalGap = 15.000000000000000000
+          VerticalGap = 10.000000000000000000
+          object Text1: TText
+            Color = claBlack
+            Height = 22.000000000000000000
+            HorzTextAlign = taLeading
+            Position.X = 12.000000000000000000
+            Position.Y = 10.000000000000000000
+            Text = 'Test:'
+            Width = 50.000000000000000000
+          end
+          object tabStartTest: TEdit
+            TabOrder = 1
+            Position.X = 77.000000000000000000
+            Position.Y = 10.000000000000000000
+            Width = 100.000000000000000000
+            Height = 22.000000000000000000
+            KillFocusByReturn = False
+          end
+          object FlowLayoutBreak1: TFlowLayoutBreak
+            ChangesRules = False
+            Justify = fjLeft
+            JustifyLastLine = fjLeft
+            FlowDirection = fdLeftToRight
+            DesignVisible = True
+          end
+          object Text2: TText
+            Color = claBlack
+            Height = 22.000000000000000000
+            HorzTextAlign = taLeading
+            Position.X = 12.000000000000000000
+            Position.Y = 42.000000000000000000
+            Text = 'Machine:'
+            Width = 50.000000000000000000
+          end
+          object tabStartMachine: TEdit
+            TabOrder = 4
+            Position.X = 77.000000000000000000
+            Position.Y = 42.000000000000000000
+            Width = 100.000000000000000000
+            Height = 22.000000000000000000
+            KillFocusByReturn = False
+          end
+          object FlowLayoutBreak2: TFlowLayoutBreak
+            ChangesRules = False
+            Justify = fjLeft
+            JustifyLastLine = fjLeft
+            FlowDirection = fdLeftToRight
+            DesignVisible = True
+          end
+          object Text3: TText
+            Color = claBlack
+            Height = 22.000000000000000000
+            HorzTextAlign = taLeading
+            Position.X = 12.000000000000000000
+            Position.Y = 74.000000000000000000
+            Text = 'Project:'
+            Width = 50.000000000000000000
+          end
+          object tabStartProject: TEdit
+            TabOrder = 7
+            Position.X = 77.000000000000000000
+            Position.Y = 74.000000000000000000
+            Width = 100.000000000000000000
+            Height = 22.000000000000000000
+            KillFocusByReturn = False
+          end
+          object FlowLayoutBreak3: TFlowLayoutBreak
+            ChangesRules = False
+            Justify = fjLeft
+            JustifyLastLine = fjLeft
+            FlowDirection = fdLeftToRight
+            DesignVisible = True
+          end
+          object viewConfiguredRuleButton: TButton
+            Height = 22.000000000000000000
+            Position.X = 11.500000000000000000
+            Position.Y = 106.000000000000000000
+            TabOrder = 9
+            Text = 'View Configured Rule'
+            Width = 120.000000000000000000
+          end
+        end
+      end
+    end
+  end
+  object editor: TMemo
+    Align = alClient
+    Enabled = False
+    Height = 423.000000000000000000
+    TabOrder = 1
+    Width = 402.000000000000000000
+  end
+end

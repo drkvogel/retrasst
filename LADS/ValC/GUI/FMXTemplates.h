@@ -11,6 +11,7 @@
 #include <FMX.TreeView.hpp>
 #include "Require.h"
 #include <string>
+#include <vector>
 
 /*
     Methods for working with FireMonkey components.
@@ -19,11 +20,15 @@ namespace valcui
 {
 
 template<typename SubComponentClass>
-SubComponentClass* addSubComponent( TFmxObject* container )
+SubComponentClass* addSubComponent( TFmxObject* container,
+	TAlignLayout alignment = TAlignLayout::alClient )
 {
 	SubComponentClass* subComponent = new SubComponentClass( container );
 	subComponent->Parent = container;
-	subComponent->Align = TAlignLayout::alClient;
+	if ( alignment != TAlignLayout::alNone )
+	{
+		subComponent->Align = alignment;
+	}
 	container->AddObject( subComponent );
 	return subComponent;
 }
@@ -50,6 +55,54 @@ T* findStyleResource( TStyledControl* control, const char* styleName )
     throwUnless( t );
     return t;
 }
+
+/*
+Manages the addition and removal of subcomponents.
+*/
+template<typename Container, typename Component>
+class FMXContainer
+{
+private:
+
+	Container* 					m_container;
+	std::vector< Component* > 	m_components;
+
+	FMXContainer( const FMXContainer& );
+	FMXContainer& operator=( const FMXContainer& );
+
+public:
+	FMXContainer()
+		:
+		m_container(NULL)
+	{
+	}
+
+	Component* addComponent()
+	{
+		require( m_container );
+		Component* c = new Component( m_container );
+		m_container->AddObject( c );
+		m_components.push_back( c );
+		return c;
+	}
+
+	void clear()
+	{
+		while ( m_components.size() )
+		{
+			auto i = m_components.begin();
+			Component* c = *i;
+			m_components.erase(i);
+			m_container->RemoveComponent( c );
+			delete c;
+		}
+	}
+
+	void setContainer( Container* c )
+	{
+		m_container = c;
+	}
+};
 
 /*
     Looks for a TText subcomponent of control with the style name specified by 'textSubcomponentName' and

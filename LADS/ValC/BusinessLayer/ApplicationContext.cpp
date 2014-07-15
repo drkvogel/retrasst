@@ -4,6 +4,7 @@
 #include "CompositeRuleResultPublisher.h"
 #include "Config.h"
 #include "ControlModel.h"
+#include "DBTransactionHandler.h"
 #include "Projects.h"
 #include "QCGates.h"
 #include "ResultAttributes.h"
@@ -36,7 +37,8 @@ ApplicationContext::ApplicationContext()
     controlModel(0),
     compositeRuleEngineQueueListener(0),
     controlModelQueueListenerAdapter(0),
-    controlModelResultPublisherAdapter(0)
+    controlModelResultPublisherAdapter(0),
+    dbTransactionHandler(0)
 {
 }
 
@@ -63,6 +65,7 @@ ApplicationContext::~ApplicationContext()
     delete controlModel;
     delete controlModelQueueListenerAdapter;
     delete controlModelResultPublisherAdapter;
+    delete dbTransactionHandler;
 }
 
 std::string ApplicationContext::getProperty( const std::string& name) const

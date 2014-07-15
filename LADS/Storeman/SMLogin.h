@@ -13,6 +13,14 @@
 #include <ExtCtrls.hpp>
 #include <Vcl.Imaging.PngLang.hpp>
 #include "TfrmLoginBase.h"
+#include <IdBaseComponent.hpp>
+#include <IdComponent.hpp>
+#include <IdExplicitTLSClientServerBase.hpp>
+#include <IdMessageClient.hpp>
+#include <IdSMTP.hpp>
+#include <IdSMTPBase.hpp>
+#include <IdTCPClient.hpp>
+#include <IdTCPConnection.hpp>
 
 //---------------------------------------------------------------------------
 

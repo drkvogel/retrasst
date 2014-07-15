@@ -5,6 +5,8 @@
 # which means that application-wide parameters can be changed with a single edit,
 # rather than change a whole bunch of styles that use that parameter.
 # (2) provide parameters for things that don't appear in styles
+#
+#define VALC_CONFIG_DIR C:\\Users\paulst\\AppData\\Local\\ValC
 
 # the initial height of the upper panel showing samples and results (should match .fmx file)
 initialResultsHeight:
@@ -147,7 +149,22 @@ alertTinyIconSize:
 logEntryLineHeight:
 19
 
+# Batch Element Profile Styles
+# ----------------------------
+#
+# Maps a profile to a style.
+# Syntax is PROFILE=STYLE, with a comma between mappings and 
+# a trailing comma after the last mapping.
+#
+# e.g.
+#
+#    QCGroup=black_on_white ,
+#    UnkGroup=white_on_black
+#
+BatchElementProfileStyles:
+    QCGroup  = bv_q_batch,
+    UnkGroup = bv_u_batch,
 
-
-
+BatchViewStyles:
+C:\\Users\\paulst\\AppData\\Local\\ValC\\BatchView.style
 

@@ -8,24 +8,30 @@
 #include <string>
 #include <vector>
 
+namespace stef
+{
+    class Task;
+}
+
 namespace valc
 {
 
 class DBTransactionHandler;
-class DBUpdateTask;
+class DBTransactionResources;
 
 
 class DBUpdateSchedule 
 {
 public:
-    DBUpdateSchedule();
+    DBUpdateSchedule( const DBTransactionResources* m_dbTransactionResources );
     ~DBUpdateSchedule();
     void queueBuddyDatabaseUpdate( int forBuddySampleID, const IDToken& sampleRunID );
     void queueSampleRunInsertions( SampleRuns::const_iterator from, SampleRuns::const_iterator to );
     void runQueuedUpdates( DBTransactionHandler* th );
     void scheduleUpdateLinkingResultToWorklistEntry( int resultID, int worklistEntry );
 private:
-    std::deque< DBUpdateTask* > m_updates;
+    const DBTransactionResources* const m_dbTransactionResources;
+    std::deque< stef::Task* >   m_updates;
     paulst::CritSec             m_cs;
     std::vector< BuddyRun >     m_newBuddyRuns;
     SampleRuns                  m_newSampleRuns;

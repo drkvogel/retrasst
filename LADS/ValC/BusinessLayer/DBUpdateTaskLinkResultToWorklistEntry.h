@@ -1,20 +1,24 @@
 #ifndef DBUPDATETASKLINKRESULTTOWORKLISTENTRYH
 #define DBUPDATETASKLINKRESULTTOWORKLISTENTRYH
 
-#include "DBUpdateTask.h"
+#include "Task.h"
 
 namespace valc
 {
 
-class DBUpdateTaskLinkResultToWorklistEntry : public DBUpdateTask
+class DBTransactionResources;
+
+class DBUpdateTaskLinkResultToWorklistEntry : public stef::Task
 {
 public:
-    DBUpdateTaskLinkResultToWorklistEntry( int resultID, int worklistEntry );
+    DBUpdateTaskLinkResultToWorklistEntry(  int resultID, 
+                                            int worklistEntry,
+                                            const DBTransactionResources* dbtr  );
 protected:
-    std::string describeUpdate() const;
-    void        updateDatabase();
+    void doStuff();
 private:
-    int m_resultID, m_worklistEntryID;
+    const int m_resultID, m_worklistEntryID;
+    const DBTransactionResources* const m_dbTransactionResources;
 };
 
 };

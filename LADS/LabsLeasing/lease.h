@@ -4,7 +4,6 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
 #include <Classes.hpp>
-//#include <DBTables.hpp>
 #include <string>
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #define	DATE_REVERSAL	1	// IF TRUE, SWAP DAY-MONTH ORDER IN DATES
@@ -50,7 +49,7 @@ class LQuery;
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class TLeaseManager
 {
-friend	TLease;
+friend class	TLease;
 private:
 	static	int	instances;	// CAN ONLY HAVE ONE LEASE MANAGER PER PROCESS
 	std::string  task_descript;
@@ -90,7 +89,7 @@ public:
 
 class TLease
 {
-friend	TLeaseManager;
+friend class	TLeaseManager;
 private:
 	int	length_minutes;		// LENGTH OF LEASE
 	int	proj_id;		// PROJECT ON WHICH LEASE IS TAKEN

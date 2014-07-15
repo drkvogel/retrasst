@@ -13,6 +13,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include "LDbCacheBase.h"
 
 //---------------------------------------------------------------------------
 //	Wraps a slice from a container [first,last), similar to boost::Range

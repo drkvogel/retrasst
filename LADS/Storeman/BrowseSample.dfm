@@ -46,7 +46,6 @@ object frmBrowse: TfrmBrowse
     Items.NodeData = {
       0301000000340000000100000001000000FFFFFFFFFFFFFFFFFFFFFFFF000000
       0000000000010B530061006D0070006C006500200052006F006F007400}
-    ExplicitWidth = 363
   end
   object grdProps: TStringGrid
     Left = 8
@@ -59,7 +58,6 @@ object frmBrowse: TfrmBrowse
     FixedCols = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing]
     TabOrder = 1
-    ExplicitWidth = 469
     ColWidths = (
       124
       218)
@@ -73,7 +71,6 @@ object frmBrowse: TfrmBrowse
     Caption = 'Move'
     TabOrder = 2
     OnClick = MoveClick
-    ExplicitLeft = 385
   end
   object Panel2: TPanel
     Left = 419
@@ -84,7 +81,6 @@ object frmBrowse: TfrmBrowse
     Color = clSkyBlue
     ParentBackground = False
     TabOrder = 3
-    ExplicitLeft = 380
     object LblLegend: TLabel
       Left = 10
       Top = 9
@@ -361,13 +357,12 @@ object frmBrowse: TfrmBrowse
     Caption = 'Search'
     TabOrder = 4
     OnClick = BtnFindClick
-    ExplicitLeft = 385
   end
   object ImageList1: TImageList
     Left = 456
     Top = 128
     Bitmap = {
-      494C010109008001CC0110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010109008001D00110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

@@ -48,12 +48,6 @@ void ColourStatus::getColours( ArrivalStatus pMs,String & pTextStatus, TColor& p
 		}
 		break;
 		case UNKNOWN:
-		{
-			pTextStatus="Unknown";
-			pC=clBlack;
-			pTc=clWhite;
-		}
-		break;
 		default:
 		{
 			pTextStatus="Unknown";
@@ -65,8 +59,8 @@ void ColourStatus::getColours( ArrivalStatus pMs,String & pTextStatus, TColor& p
 
 LSDbBoxCourier::LSDbBoxCourier( const LQuery & query )
 		: LSDbBox( query.readString( "box_name" )
-				 , query.readInt( "first_position")
-				 , query.readInt( "last_position"))
+				 , (short)query.readInt( "first_position")
+				 , (short)query.readInt( "last_position"))
 		, first_barcode( query.readString("first_barcode"))
 		, last_barcode ( query.readString("last_barcode" ))
 		, project_cid ( query.readInt("project_cid" ))
@@ -83,7 +77,7 @@ LDbBoxExpected::LDbBoxExpected( const LQuery & query )
 
 // read from c_box_expected in laptopCentral
 
-void LDbBoxExpecteds::readAll( LQuery central )
+void LDbBoxExpecteds::readAll( LQuery )
 {
 	LCDbProjects & pList = LCDbProjects::records();
 	for( Range< LCDbProject > p = pList; p.isValid(); ++ p ) {
@@ -93,7 +87,7 @@ void LDbBoxExpecteds::readAll( LQuery central )
 	}
 }
 
-void LDbBoxExpecteds::read( LQuery project, bool all )
+void LDbBoxExpecteds::read( LQuery, bool )
 {
 	// l_box_expected is no longer used
 }
@@ -180,12 +174,12 @@ bool LDbBoxArrival::saveRecord( LQuery pQuery )
 	{
 		// Indexed/find by box_arrival_id
 		pQuery.setSQL( "Update l_box_arrival set"
-						  "  laptop_cid = :lapid "
-						  "	,process_cid = :prid"
+						  " laptop_cid = :lapid"
+						  " ,process_cid = :prid"
 						  " ,swipe_time = :swtm"
 						  " ,box_name = :bn"
 						  " ,status = :sta"
-						  " ,first_position = :fpo"
+						  " ,first_position = :fpos"
 						  " ,first_barcode = :fbc"
 						  " ,last_position = :lpos"
 						  " ,last_barcode = :lbc"
@@ -206,8 +200,8 @@ bool LDbBoxArrival::saveRecord( LQuery pQuery )
 						  " ,box_name"
 						  " ,status"
 						  " ,first_position"
-						  " ,first_barcode"
 						  " ,last_position"
+						  " ,first_barcode"
 						  " ,last_barcode"
 						  " ,tank_cid"
 						  " ,rack_number"
@@ -221,8 +215,8 @@ bool LDbBoxArrival::saveRecord( LQuery pQuery )
 						  " ,:bn"
 						  " ,:sta"
 						  " ,:fpos"
-						  " ,:fbc"
 						  " ,:lpos"
+						  " ,:fbc"
 						  " ,:lbc"
 						  " ,:tcid"
 						  " ,:rknm"
@@ -244,7 +238,7 @@ bool LDbBoxArrival::saveRecord( LQuery pQuery )
 	pQuery.setParam( "tcid", getTankCid());
 	pQuery.setParam( "rknm", getRackNumber());
 	pQuery.setParam( "slpos", getSlotPosition());
-	if( pQuery.execSQL() == 1 )
+	if( pQuery.execSQL() )
 	{
 		saved = true;
 		LDbBoxArrivals::records().insert( *this );
@@ -435,7 +429,6 @@ const LCDbBoxArrival * LCDbBoxAllocs::find( const int pProjectCid,	const String 
 {
 	return findMatch( 	Matcher( pProjectCid, pBoxName, pCryo1, pCryo2, pCryoPos1, pCryoPos2 )  );
 }
-*/
 
 //---------------------------------------------------------------------------
 //	read the box arrival history for a particular box : NEEDS MORE WORK!
@@ -450,17 +443,17 @@ LDbBoxArrivalEvent::LDbBoxArrivalEvent( const LQuery & query )
 
 //---------------------------------------------------------------------------
 
-Range< LDbBoxArrivalEvent > LDbBoxArrival::readBoxHistory( LQuery lQuery )
+Range< LDbBoxArrivalEvent > LDbBoxArrival::readBoxHistory( LQuery )
 {
 	static std::vector< LDbBoxArrivalEvent > recent;
-/*	recent.clear();
+	recent.clear();
 	lQuery.setSQL( "select * from l_box_arrival_event_history"
 			" where project_cid = :pid and box_arrival_id = :bid" );
 	lQuery.setParam( "pid", LCDbProjects::getCurrentID() );
 	lQuery.setParam( "bid", getID() );
 	for( lQuery.open(); !lQuery.eof(); lQuery.next() )
 		recent.push_back( LDbBoxArrivalEvent( lQuery ) );
-*/	return recent;
+	return recent;
 }
 
 //---------------------------------------------------------------------------
@@ -480,4 +473,5 @@ bool LPDbBoxEvent::saveRecord( LQuery query )
 }
 
 //---------------------------------------------------------------------------
+*/
 

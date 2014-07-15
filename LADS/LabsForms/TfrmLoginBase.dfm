@@ -4,11 +4,11 @@ object frmLoginBase: TfrmLoginBase
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'Labs System Login'
-  ClientHeight = 299
+  ClientHeight = 300
   ClientWidth = 330
   Color = 12316364
-  Constraints.MaxHeight = 400
-  Constraints.MaxWidth = 400
+  Constraints.MaxHeight = 450
+  Constraints.MaxWidth = 420
   Constraints.MinHeight = 300
   Constraints.MinWidth = 300
   Font.Charset = DEFAULT_CHARSET
@@ -21,13 +21,6 @@ object frmLoginBase: TfrmLoginBase
   OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 13
-  object Label2: TLabel
-    Left = 47
-    Top = 123
-    Width = 55
-    Height = 13
-    Caption = 'User name:'
-  end
   object version: TLabel
     Left = 14
     Top = 20
@@ -44,13 +37,6 @@ object frmLoginBase: TfrmLoginBase
     OnMouseEnter = hyperlinkEnter
     OnMouseLeave = hyperlinkLeave
   end
-  object Label3: TLabel
-    Left = 47
-    Top = 170
-    Width = 50
-    Height = 13
-    Caption = 'Password:'
-  end
   object lblSystem: TLabel
     Left = 15
     Top = 51
@@ -60,6 +46,20 @@ object frmLoginBase: TfrmLoginBase
     OnClick = lblSystemClick
     OnMouseEnter = hyperlinkEnter
     OnMouseLeave = hyperlinkLeave
+  end
+  object Label2: TLabel
+    Left = 48
+    Top = 110
+    Width = 55
+    Height = 13
+    Caption = 'User name:'
+  end
+  object Label3: TLabel
+    Left = 48
+    Top = 157
+    Width = 50
+    Height = 13
+    Caption = 'Password:'
   end
   object exitButton: TBitBtn
     Left = 175
@@ -85,22 +85,21 @@ object frmLoginBase: TfrmLoginBase
     OnClick = okButtonClick
   end
   object userList: TComboBox
-    Left = 120
-    Top = 120
+    Left = 123
+    Top = 107
     Width = 160
     Height = 21
     DropDownCount = 20
-    Enabled = False
     Sorted = True
     TabOrder = 0
     OnChange = textChange
+    OnDropDown = userListDropDown
   end
   object ebPassword: TEdit
-    Left = 120
-    Top = 167
+    Left = 123
+    Top = 154
     Width = 160
     Height = 21
-    Enabled = False
     PasswordChar = '*'
     TabOrder = 1
     OnChange = textChange
@@ -108,7 +107,12 @@ object frmLoginBase: TfrmLoginBase
   object timer: TTimer
     Interval = 1200
     OnTimer = initialise
-    Left = 280
-    Top = 16
+    Left = 208
+    Top = 24
+  end
+  object IdSMTP1: TIdSMTP
+    SASLMechanisms = <>
+    Left = 256
+    Top = 24
   end
 end

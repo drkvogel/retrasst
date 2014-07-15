@@ -12,7 +12,6 @@
 #include <FMX.Types.hpp>
 //---------------------------------------------------------------------------
 #include "CritSec.h"
-#include "IdleServiceUserAdapter.h"
 #include <string>
 #include <vector>
 
@@ -51,14 +50,12 @@ __published:	// IDE-managed Components
 private:	// User declarations
 	paulst::CritSec m_queueLock;
 	std::vector<LabelledMessage> m_messageQueue;
-    valcui::IdleServiceUserAdapter<TLogFrame> m_idleServiceUser;    
 public:		// User declarations
 	__fastcall TLogFrame(TComponent* Owner);
 
-    void onIdle();
     void onResize();
+	void processQueuedMessages();
     void queueMessage( const LabelledMessage& lm );
-    void registerWithIdleService( valcui::IdleService* is );
 
 private:
 	int maxLineLength = 65;  // quick and dirty hack, for implementing line
@@ -67,7 +64,6 @@ private:
 
 	void addMsgToListBox(const std::string & msg, TListBox *box, bool highlighting);
 	void appendMessageToLogWindow(const LabelledMessage & msg);
-	void processQueuedMessages();
 	void scrollDown(TListBox *box);
 };
 //---------------------------------------------------------------------------

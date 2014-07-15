@@ -12,10 +12,11 @@
 #include "LCDbTankLayout.h"
 #include "LCDbTankMap.h"
 #include "LCDbStoreDetail.h"
+#include "LCDbRack.h"
 #include "fAllocations.h"
 #include <wia.h>
 
-#define LAST_TANK	50
+#define LAST_TANK	99
 
 //---------------------------------------------------------------------------
 //
@@ -31,9 +32,9 @@ SlotPositionsMap TankEngine::slotPositions;
 
 int    TankEngine::gCurrLocationCID;
 
-TankSectionRackSlot TankEngine::storedTSRS;
-TankSectionRackSlot TankEngine::workingTSRS;
-
+TSRSExt TankEngine::storedTSRS;
+//TankSectionRackSlot TankEngine::workingTSRS;
+TSRSExt TankEngine::workingTSRSExt;
 TankEngine::StoredLocationInfo TankEngine::sli;
 
 bool   TankEngine::dataBuilt;
@@ -48,7 +49,7 @@ const char * TankEngine::TrimZeroC( const char * leadZeroStr )
 		}
 
 		static char retVal[30];
-		unsigned int len0 = strlen(leadZeroStr);
+		std::size_t len0 = strlen(leadZeroStr);
 		unsigned int i = 0, last = len0 - 1;
 		while( i<last && leadZeroStr[i] == '0' ) {
 				i++;
@@ -143,7 +144,7 @@ double TankEngine::toPosDoubleDef( const std::string & sVal,double def)
 	if( sVal.empty() ) {return def;}
 	if( sVal.find_first_not_of( Fdigits )==std::string::npos )
 	{
-		unsigned pt = sVal.find_first_of(".");
+		std::size_t pt = sVal.find_first_of(".");
 		if( pt == std::string::npos )
 		{
 			return def;
@@ -155,7 +156,7 @@ double TankEngine::toPosDoubleDef( const std::string & sVal,double def)
 			if( wd == 0 )
 			{
 				// case of string like ".nnnn"
-				sprintf(fd,"%%%d.%df",sVal.length(),dd);
+				sprintf(fd,"%%%d.%df",(int)sVal.length(),dd);
 				sprintf(chk,fd,dVal);
 
 				char *p;
@@ -169,7 +170,7 @@ double TankEngine::toPosDoubleDef( const std::string & sVal,double def)
 				}
 			}   else
 			{
-				sprintf(fd,"%%0%d.%df",sVal.length(),dd);
+				sprintf(fd,"%%0%d.%df",(int)sVal.length(),dd);
 				sprintf(chk,fd,dVal);
 				if( strcmp(chk,sVal.c_str())==0 )
 				{
@@ -212,13 +213,14 @@ TankEngine *TankEngine::Initialize()
 //---------------------------------------------------------------------------
 
 
-const bool TankEngine::buildData( LQuery  dbase )
+bool TankEngine::buildData( LQuery  dbase )
 {
 	int tankExt,tankCID;
 	bool foundTank;
 
 // Pull out all the tanks
 	tankInfos.clear();
+	tankDisplays.clear();
 
 	for( Range <LCDbObject > o= LCDbObjects::records(); o.isValid(); ++o )
 	{
@@ -229,6 +231,7 @@ const bool TankEngine::buildData( LQuery  dbase )
 		if (  oType== LCDbObject::STORAGE_POPULATION   )
 		{
 			tankCID = o->getID();
+
 
 			itrTankInfoMap ti= tankInfos.find(tankCID);
 			if( ti!= tankInfos.end() )
@@ -250,9 +253,10 @@ const bool TankEngine::buildData( LQuery  dbase )
 // Get the related record using the tank_id
 				const std::string name = o->getName();
 				const std::string descript = o->getDescription();
-//				toPosIntDef( const std::string & sVal,int def )
-				int s=std::isdigit( name[ 1 ] );
+// 		toPosIntDef( const std::string & sVal,int def )
+//				int s=std::isdigit( name[ 1 ] );
 
+// The tank number A49 minus the single char prefix ie 49.
 				tankExt = (std::isdigit( name[ 0 ] )? toPosIntDef(name,0) : toPosIntDef(name.substr( 1, 9 ),0));
 
 // Look for details in c_tank_map
@@ -263,7 +267,7 @@ const bool TankEngine::buildData( LQuery  dbase )
 				int scid=	tm->getStorageCID() ;
 // Look for Store details
 				const LCDbObject* ot= LCDbObjects::records().findByID( scid );
-//				const LCDbStorageDetail* sd=LCDbStorageDetails::records().findByID( scid );
+
 				if( ot != NULL )
 				{
 // Pull out the location, and filter on this current location.
@@ -274,7 +278,7 @@ const bool TankEngine::buildData( LQuery  dbase )
 					int rackLayoutCID=tm->getLayoutCID();
 					int sectionCount,rackCount,slotCapacity;
 // Count the number of racks in this tank.
-					countRack(rackLayoutCID,sectionCount, rackCount, slotCapacity);
+					countRack(dbase,tankCID,rackLayoutCID,sectionCount, rackCount, slotCapacity);
 // Get the object Id should be the same as tank or r->getTankCid.
 
 					TankSumInfo tsi;
@@ -282,11 +286,11 @@ const bool TankEngine::buildData( LQuery  dbase )
 					tsi.descript 	= ot->getDescription();
 					tsi.position 	= tm->getPosition();
 					tsi.shelf 		= tm->getPopulation();
-					tsi.storageCID 	= scid;
+					tsi.storageCID 	= tm->getStorageCID();
 					tsi.rackLayoutCID = rackLayoutCID;
-					tsi.sectionCount= sectionCount;
-					tsi.rackCount 	= rackCount;
-					tsi.slotCapacity= slotCapacity;
+					tsi.sectionCount= sectionCount;  // number of sections in the tank
+					tsi.rackCount 	= rackCount;	// total number of racks in the tank regardless of population
+					tsi.slotCapacity= slotCapacity; // total number of slot in the tank.
 					tsi.rackCapacity= -1;
 
 					tankInfos.insert(TankInfoMap::value_type(tankCID,tsi));
@@ -300,13 +304,13 @@ const bool TankEngine::buildData( LQuery  dbase )
 // Copy across to a new display map to give an order by vessel and shelf
 
 	for(CitrTankInfoMap j= tankInfos.begin(); j!=tankInfos.end(); j++ )
-	{
-		PositionShelf ps;
-		TankSumInfo tsi;
-		ps.first=j->second.position;
-		ps.second=j->second.shelf;
-		tsi=j->second;
-		tankDisplays.insert(TankDisplayMap::value_type(ps,tsi));
+	{
+		PositionShelf ps;
+		TankSumInfo tsi;
+		ps.first=j->second.position;
+		ps.second=j->second.shelf;
+		tsi=j->second;
+		tankDisplays.insert(TankDisplayMap::value_type(ps,tsi));
 	}
 
 
@@ -315,65 +319,12 @@ const bool TankEngine::buildData( LQuery  dbase )
 	int rackLayoutCID;
 	rackLayoutCID=BRUNKNOWN_INT;
 	slotsMap.clear();
-
-
-/*	c_box_arrival no longer used in db 2.5, NG: 13/11/09
-
-	for( Range < LCDbBoxArrival > r= LCDbBoxAllocs::records(); r.isValid(); ++ r )
-	{
-
-		int rackNo ;
-		String rackSection, tmpRS;
-
-//-----------------------------------------
-// Retrieve the tank_cid from c_box_alloc to be used later to retrieve tank details
-//-----------------------------------------
-
-		rackLayoutCID=BRUNKNOWN_INT;
-		tankExt=BRUNKNOWN_INT;
-		itrTankInfoMap ti= tankInfos.find(r->getTankCid());
-		if( ti!= tankInfos.end() )
-		{
-			tankExt=ti->second.tankExt;
-			rackLayoutCID=ti->second.rackLayoutCID;
-		}
-		if( tankExt!=BRUNKNOWN_INT)
-		{
-
-// Pull out Sector and Rack number
-			tmpRS=r->getRackNumber();
-// Separate out into sector and rack number
-			int i;
-			for(  i = 1; i<= tmpRS.Length() ; i++ )
-			{
-				if( tmpRS[i]== ' ' )
-				{
-					rackSection=tmpRS.SubString(1,i-1);
-					rackNo=String(tmpRS.SubString(i+1,2)).ToIntDef(-1);
-					break;
-				}else if( isdigit(tmpRS[i]) )
-				{
-					rackSection=tmpRS[1];
-					rackNo=String(tmpRS[2]).ToIntDef(-1);
-					break;
-				}
-			}
-
-// Build up list of slots
-			tsrs.tank=tankExt ;
-			tsrs.fillOrder= getFillOrder(  rackLayoutCID, rackSection, rackNo );
-			tsrs.section=rackSection;
-			tsrs.rack=rackNo;
-			tsrs.slot=r->getSlotPosition();
-			slotsMap.insert(TankSectionRackSlotMap::value_type(tsrs,r->getBoxName()));
-		}
-	}
-    */
-
+// For each project
 	for( Range< LCDbProject > p = LCDbProjects::records(); p.isValid(); ++ p )
 	{
 		if( p->isInCurrentSystem() && !p->isCentral() ) {
 
+// pull out boxes which have arrived
 		for( Range< LDbBoxArrival > r= LDbBoxArrivals::records(p->getID()); r.isValid(); ++ r )
 		{
 
@@ -387,6 +338,7 @@ const bool TankEngine::buildData( LQuery  dbase )
 		tankExt=  BRUNKNOWN_INT;
 		rackLayoutCID= BRUNKNOWN_INT;
 		foundTank=false;
+// get information relaing to the tank
 		itrTankInfoMap ti= tankInfos.find(r->getTankCid());
 		if( ti!= tankInfos.end() )
 		{
@@ -420,9 +372,10 @@ const bool TankEngine::buildData( LQuery  dbase )
 			}
 
 // Build up list of slots
+// populate the tank number
 			tsrs.tank=tankExt ;
 			tsrs.fillOrder = getFillOrder(  rackLayoutCID, rackSection, rackNo );
-			tsrs.section=rackSection;
+//			tsrs.section=rackSection;
 			tsrs.rack=rackNo;
 			tsrs.slot=r->getSlotPosition();
 			slotsMap.insert(TankSectionRackSlotMap::value_type(tsrs,r->getBoxName()));
@@ -442,9 +395,8 @@ const bool TankEngine::buildData( LQuery  dbase )
 	for( int i = 1; i <= LAST_TANK; i++ )
 	{
 		int	count=0;
-		char tankNo[10];
-		itoa(i,tankNo,10);
-		CitrTankInfoMap ti=getTankInfoExt(std::string(tankNo));
+
+		CitrTankInfoMap ti=getTankInfoExt(i);
 		if( ti != tankInfos.end() )
 		{
 			int tankCID=ti->first;
@@ -471,7 +423,7 @@ const bool TankEngine::buildData( LQuery  dbase )
 	dataBuilt=true;
 	return true;
 }
-const bool TankEngine::rebuildTankData( void )
+bool TankEngine::rebuildTankData( void )
 {
 // Build up a list of how each tank is populated.
 
@@ -485,9 +437,8 @@ const bool TankEngine::rebuildTankData( void )
 	for( int i = 1; i <= LAST_TANK; i++ )
 	{
 		int	count=0;
-		char tankNo[10];
-		itoa(i,tankNo,10);
-		CitrTankInfoMap ti=getTankInfoExt(std::string (tankNo));
+
+		CitrTankInfoMap ti=getTankInfoExt(i);
 		if( ti != tankInfos.end() )
 		{
 			int tankCID=ti->first;
@@ -516,7 +467,7 @@ const bool TankEngine::rebuildTankData( void )
 // Add a box entry to the list of allocations in the tanks
 // normally used when recieving a box entry.
 //---------------------------------------------------------------------------
-const bool TankEngine::addBoxEntry(const TankSectionRackSlot & pTsrs, const std::string & pBoxName )
+bool TankEngine::addBoxEntry(const TankSectionRackSlot & pTsrs, const std::string & pBoxName )
 {
 
 	slotsMap.insert(TankSectionRackSlotMap::value_type(pTsrs,pBoxName));
@@ -538,7 +489,7 @@ const bool TankEngine::addBoxEntry(const TankSectionRackSlot & pTsrs, const std:
 // Used to expose value to code outside this module.
 //---------------------------------------------------------------------------
 
-const bool TankEngine::isDataBuilt(void) const
+bool TankEngine::isDataBuilt(void) const
 {
 	return dataBuilt;
 }
@@ -549,7 +500,7 @@ const bool TankEngine::isDataBuilt(void) const
 // Used to expose value to code outside this module.
 //---------------------------------------------------------------------------
 
-const int TankEngine::getMinTank(void)
+int TankEngine::getMinTank(void)
 {
 	return minTank;
 }
@@ -560,7 +511,7 @@ const int TankEngine::getMinTank(void)
 // Used to expose value to code outside this module.
 //---------------------------------------------------------------------------
 
-const int TankEngine::getMaxTank(void)
+int TankEngine::getMaxTank(void)
 {
 	return maxTank;
 }
@@ -571,7 +522,7 @@ const int TankEngine::getMaxTank(void)
 // tanks of interest.
 //---------------------------------------------------------------------------
 
-const bool TankEngine::setLocation( const int pLocation )
+bool TankEngine::setLocation( int pLocation )
 {
 
 	gCurrLocationCID=pLocation ;
@@ -584,7 +535,7 @@ const bool TankEngine::setLocation( const int pLocation )
 
 void TankEngine::resetCurrents(void)
 {
-	workingTSRS.initialize();
+	workingTSRSExt.initialize();
 }
 
 void TankEngine::StoredLocationInfo::initialize(void)
@@ -601,14 +552,12 @@ void TankEngine::StoredLocationInfo::initialize(void)
 // Check that the tank selected actually exists.
 //---------------------------------------------------------------------------
 
-const bool TankEngine::testTankCID( const TankSectionRackSlot& tsrs )
+bool TankEngine::testTankCID( const TankSectionRackSlot& tsrs )
 {
 	if(! dataBuilt ){return false; }
 	if( gCurrLocationCID == BRUNKNOWN_INT ) { return false; }
 
-			char tankNo[10];
-		itoa(tsrs.tank,tankNo,10);
-	CitrTankInfoMap cti=getTankInfoExt(std::string (tankNo));
+	CitrTankInfoMap cti=getTankInfoExt(tsrs.tank);
 
 	if ( cti  != tankInfos.end())
 	{
@@ -622,12 +571,13 @@ const bool TankEngine::testTankCID( const TankSectionRackSlot& tsrs )
 // Set tankCID so long as the tank exists. Retrieve the external tank name also.
 //---------------------------------------------------------------------------
 
-const bool TankEngine::setTankExt ( const std::string & pTankExt  )
+bool TankEngine::setTankExt ( const TSRSExt & pTSRSExt  )
 {
 	if(! dataBuilt ){return false; }
 
 	if( gCurrLocationCID == BRUNKNOWN_INT ) { return false; }
-
+	int pTankExt;
+	pTankExt=pTSRSExt.tank;
 	sli.initialize();
 
 
@@ -638,7 +588,8 @@ const bool TankEngine::setTankExt ( const std::string & pTankExt  )
 		sli.tankRacks	 = ti->second.rackCount;
 		sli.tankSections = ti->second.sectionCount;
 		sli.rackLayoutID = ti->second.rackLayoutCID;
-		workingTSRS.tank = ti->second.tankExt;
+		workingTSRSExt.tank = ti->second.tankExt;
+		workingTSRSExt.vessel = pTSRSExt.vessel;
 
 		return true;
 	}
@@ -650,16 +601,12 @@ const bool TankEngine::setTankExt ( const std::string & pTankExt  )
 //---------------------------------------------------------------------------
 
 
-const bool TankEngine::testFillOrderAndSection ( const TankSectionRackSlot&  pTsrs )
+bool TankEngine::testFillOrderAndSection ( const TankSectionRackSlot&  pTsrs )
 {
 	if(! dataBuilt ){return false; }
-	if( pTsrs.tank == BRUNKNOWN_INT || pTsrs.section== UNKNOWN_STRING ) { return false; }
+ //	if( pTsrs.tank == BRUNKNOWN_INT || pTsrs.section== UNKNOWN_STRING ) { return false; }
 
-    char tankNo[10];
-
-	itoa(pTsrs.tank,tankNo,10);
-
-	int rackLayoutID=	getRackLayoutID( std::string(tankNo) );
+	int rackLayoutID=	getRackLayoutID( pTsrs.tank );
 	if( rackLayoutID == BRUNKNOWN_INT) {return false; }
 
 //	String pSection;
@@ -685,16 +632,16 @@ const bool TankEngine::testFillOrderAndSection ( const TankSectionRackSlot&  pTs
 //  setting  a current section, given a tank
 //---------------------------------------------------------------------------
 
-const bool TankEngine::setFillOrderAndSection ( const int pFillOrder,const std::string & pSection )
+bool TankEngine::setFillOrderAndSection ( const TSRSExt & pTSRSExt )
 {
 
 	if(! dataBuilt ){return false; }
 	if( sli.tankCID == BRUNKNOWN_INT ) { return false; }
 
-	workingTSRS.section = UNKNOWN_STRING;
-	workingTSRS.fillOrder = BRUNKNOWN_INT;
-	workingTSRS.rack = BRUNKNOWN_INT;
-	workingTSRS.slot = BRUNKNOWN_INT;
+//	workingTSRS.section = UNKNOWN_STRING;
+	workingTSRSExt.fillOrder = BRUNKNOWN_INT;
+	workingTSRSExt.rack = BRUNKNOWN_INT;
+	workingTSRSExt.slot = BRUNKNOWN_INT;
 
 	sli.sectionRacks = BRUNKNOWN_INT;
 	sli.rackLayoutID= BRUNKNOWN_INT;
@@ -718,13 +665,13 @@ const bool TankEngine::setFillOrderAndSection ( const int pFillOrder,const std::
 		if( i->getTankLayoutCID()== rackLayoutID )
 		{
 // Drawing all the rack details for the tank
-			if( pFillOrder==i->getFillOrder() )
+			if( pTSRSExt.fillOrder==i->getFillOrder() )
 //			if(	pSection.Pos( i->getSectionPrefix())!=0 )
 			{
 				sli.rackLayoutID	  = rackLayoutID;
 				sli.sectionRacks      = i->getLastRack() - i->getFirstRack() + 1 ;
-				workingTSRS.fillOrder = pFillOrder;
-				workingTSRS.section   = pSection;
+				workingTSRSExt.fillOrder = pTSRSExt.fillOrder;
+				workingTSRSExt.section   = pTSRSExt.section;
 				return true;
 			}
 		}
@@ -737,21 +684,18 @@ const bool TankEngine::setFillOrderAndSection ( const int pFillOrder,const std::
 // test the selected rack given a tank, section and rack
 //---------------------------------------------------------------------------
 
-const bool TankEngine::testRack( const TankSectionRackSlot& pTsrs )
+bool TankEngine::testRack( const TankSectionRackSlot& pTsrs )
 {
 	if(! dataBuilt ){return false; }
-	if( pTsrs.section == UNKNOWN_STRING ) { return false; }
+	if( pTsrs.fillOrder == BRUNKNOWN_INT ) { return false; }
 
-	char tankNo[10];
-
-	itoa(pTsrs.tank,tankNo,10);
-
-	int rackLayoutID=	getRackLayoutID( std::string(tankNo) );
+	int rackLayoutID=	getRackLayoutID( pTsrs.tank );
 	if( rackLayoutID == BRUNKNOWN_INT) {return false; }
 
 	for( Range< LCDbSectionDef > i = LCDbSectionDefs::records(); i.isValid(); ++ i )
 	{
-		if( i->getTankLayoutCID()== rackLayoutID && i->getSectionPrefix()==pTsrs.section)
+//		if( i->getTankLayoutCID()== rackLayoutID && i->getSectionPrefix()==pTsrs.section)
+		if( i->getTankLayoutCID()== rackLayoutID && i->getFillOrder()==pTsrs.fillOrder)
 		{
 			if( pTsrs.rack >= i->getFirstRack() && pTsrs.rack <= i->getLastRack() )
 			{
@@ -766,13 +710,13 @@ const bool TankEngine::testRack( const TankSectionRackSlot& pTsrs )
 // set the current rack give a tank and section
 //---------------------------------------------------------------------------
 
-const bool TankEngine::setRack( const int pRack )
+bool TankEngine::setRack( int pRack )
 {
 	if(! dataBuilt ){return false; }
-	if( workingTSRS.section == UNKNOWN_STRING ) {return false; }
+	if( workingTSRSExt.fillOrder == BRUNKNOWN_INT ) {return false; }
 
-	workingTSRS.rack = BRUNKNOWN_INT;
-	workingTSRS.slot = BRUNKNOWN_INT;
+	workingTSRSExt.rack = BRUNKNOWN_INT;
+	workingTSRSExt.slot = BRUNKNOWN_INT;
 
 	sli.rackSlots= BRUNKNOWN_INT;
 
@@ -782,7 +726,7 @@ const bool TankEngine::setRack( const int pRack )
 		{
 			if( pRack >= i->getFirstRack() && pRack <= i->getLastRack() )
 			{
-				workingTSRS.rack = pRack;
+				workingTSRSExt.rack = pRack;
 				sli.rackSlots = i->getRackCapacity();
 				return true;
 			}
@@ -793,16 +737,12 @@ const bool TankEngine::setRack( const int pRack )
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-const bool TankEngine::testSlot( const TankSectionRackSlot&  pTsrs )
+bool TankEngine::testSlot( const TankSectionRackSlot&  pTsrs )
 {
 	if(! dataBuilt ){return false; }
 	if( pTsrs.rack == BRUNKNOWN_INT ) { return false; }
 
-	char tankNo[10];
-
-	itoa(pTsrs.tank,tankNo,10);
-
-	int rackLayoutID=	getRackLayoutID( std::string(tankNo) );
+	int rackLayoutID=	getRackLayoutID( pTsrs.tank );
 
 	if( rackLayoutID == BRUNKNOWN_INT) {return false; }
 
@@ -823,12 +763,12 @@ const bool TankEngine::testSlot( const TankSectionRackSlot&  pTsrs )
 //
 //---------------------------------------------------------------------------
 
-const bool TankEngine::setSlot( const int pSlot )
+bool TankEngine::setSlot( int pSlot )
 {
 	if(! dataBuilt ){return false; }
-	if( workingTSRS.rack == BRUNKNOWN_INT ) { return false; }
+	if( workingTSRSExt.rack == BRUNKNOWN_INT ) { return false; }
 
-	workingTSRS.slot	 = BRUNKNOWN_INT;
+	workingTSRSExt.slot	 = BRUNKNOWN_INT;
 
 	for( Range< LCDbSectionDef > i = LCDbSectionDefs::records(); i.isValid(); ++ i )
 	{
@@ -836,7 +776,7 @@ const bool TankEngine::setSlot( const int pSlot )
 		{
 			if( pSlot >= 1 && pSlot <= i->getRackCapacity() )
 			{
-				workingTSRS.slot = pSlot;
+				workingTSRSExt.slot = pSlot;
 				return true;
 			}
 		}
@@ -851,10 +791,10 @@ const bool TankEngine::setSlot( const int pSlot )
 //---------------------------------------------------------------------------
 
 
-const bool TankEngine::CheckConfirmEndOfTank(const TankSectionRackSlot&  pTsrs)
+bool TankEngine::CheckConfirmEndOfTank(const TankSectionRackSlot&  pTsrs)
 {
 	if(! dataBuilt ){return false; }
-	if( pTsrs.tank == BRUNKNOWN_INT || pTsrs.section== UNKNOWN_STRING ) { return false; }
+	if( pTsrs.tank == BRUNKNOWN_INT || pTsrs.fillOrder== BRUNKNOWN_INT ) { return false; }
 
 	int NoSections;
 	int rackLayoutID;
@@ -873,7 +813,8 @@ const bool TankEngine::CheckConfirmEndOfTank(const TankSectionRackSlot&  pTsrs)
 // Is this the last section in the tank
 	for( Range< LCDbSectionDef > i = LCDbSectionDefs::records(); i.isValid(); ++ i )
 	{
-		if( i->getTankLayoutCID()== rackLayoutID  && pTsrs.section.find( i->getSectionPrefix())!=std::string::npos )
+//		if( i->getTankLayoutCID()== rackLayoutID  && pTsrs.section.find( i->getSectionPrefix())!=std::string::npos )
+		if( i->getTankLayoutCID()== rackLayoutID  && pTsrs.fillOrder == i->getFillOrder())
 		{
 			if( i->getFillOrder() == NoSections)
 			{
@@ -895,10 +836,10 @@ const bool TankEngine::CheckConfirmEndOfTank(const TankSectionRackSlot&  pTsrs)
 // return false otherwise
 //---------------------------------------------------------------------------
 
-const bool TankEngine::checkConfirmSlot ( const TankSectionRackSlot&  pTsrs )
+bool TankEngine::checkConfirmSlot ( const TankSectionRackSlot&  pTsrs )
 {
 	if(! dataBuilt ){return false; }
-	if( pTsrs.tank == BRUNKNOWN_INT || pTsrs.section== UNKNOWN_STRING ) { return false; }
+	if( pTsrs.tank == BRUNKNOWN_INT || pTsrs.fillOrder== BRUNKNOWN_INT ) { return false; }
 
 	int NoSections;
 	int rackLayoutID;
@@ -934,8 +875,8 @@ const bool TankEngine::checkConfirmSlot ( const TankSectionRackSlot&  pTsrs )
 
 	if( rackLayoutID == BRUNKNOWN_INT) {return false; }
 
-	std::string pSection;
-	pSection=pTsrs.section;
+//	std::string pSection;
+//	pSection=pTsrs.section;
 
 // Search through the tank layout to find a section
 	for( Range< LCDbSectionDef > i = LCDbSectionDefs::records(); i.isValid(); ++ i )
@@ -972,14 +913,22 @@ const bool TankEngine::checkConfirmSlot ( const TankSectionRackSlot&  pTsrs )
 //
 //---------------------------------------------------------------------------
 
-const TankSectionRackSlot& TankEngine::getWorkingTSRS(void)
+/*const TSRSExt& TankEngine::getWorkingTSRS(void)
 {
-	return workingTSRS;
+	return workingTSRSExt;
+} */
+//---------------------------------------------------------------------------
+//
+//---------------------------------------------------------------------------
+
+const TSRSExt& TankEngine::getWorkingTSRSExt(void)
+{
+	return workingTSRSExt;
 }
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
-const TankSectionRackSlot& TankEngine::getStoredTSRS(void)
+const TSRSExt& TankEngine::getStoredTSRS(void)
 {
 	return storedTSRS;
 }
@@ -987,7 +936,8 @@ const TankSectionRackSlot& TankEngine::getStoredTSRS(void)
 //---------------------------------------------------------------------------
 // Storing
 //---------------------------------------------------------------------------
-const bool TankEngine::rawStoreTSRS(const TankSectionRackSlot & tsrs )
+
+bool TankEngine::rawStoreTSRS(const TSRSExt & tsrs )
 {
 	storedTSRS=tsrs;
 	return true;
@@ -997,18 +947,16 @@ const bool TankEngine::rawStoreTSRS(const TankSectionRackSlot & tsrs )
 //
 //---------------------------------------------------------------------------
 
-const bool TankEngine::storeTSRS ( const TankSectionRackSlot&  pTsrs  )
+bool TankEngine::storeTSRS ( const TSRSExt&  pTsrs  )
 {
 	if(testTankCID (  pTsrs )&& testFillOrderAndSection ( pTsrs )&& testRack(pTsrs ) && testSlot(pTsrs))
 	{
 	  sli.initialize();
-	  char tankNo[10];
 
-	  itoa(pTsrs.tank,tankNo,10);
-
-	  if( setTankExt(std::string(tankNo)) )
+	  if( setTankExt(pTsrs ) )
 	  {
-		if( setFillOrderAndSection( pTsrs.fillOrder, pTsrs.section ))
+//		if( setFillOrderAndSection( pTsrs.fillOrder, pTsrs.section ))
+		if( setFillOrderAndSection( pTsrs ))
 		{
 		  if( setRack(pTsrs.rack ))
 		  {
@@ -1046,13 +994,18 @@ const bool TankEngine::storeTSRS ( const TankSectionRackSlot&  pTsrs  )
 // and findout the number of slots in all the racks of that layout.
 //---------------------------------------------------------------------------
 
-void TankEngine::countRack(const int rackLayout
+void TankEngine::countRack(LQuery  dbase, int tankCID, int rackLayout
 							,int& sectionCount, int & rackCount,int& slotCapacity)
 {
 // Counting the number of Racks in the tank
 	rackCount=0;
+//	availableRacks=0;
 	slotCapacity=0;
 	sectionCount=0;
+
+	LCDbRacks r1;
+
+
 	for( Range< LCDbSectionDef > r = LCDbSectionDefs::records(); r.isValid(); ++ r )
 	{
 		if( r->getTankLayoutCID() == rackLayout)
@@ -1063,15 +1016,23 @@ void TankEngine::countRack(const int rackLayout
 			noOfRacks     = r->getLastRack() - r->getFirstRack() + 1 ;
 			rackCount    += noOfRacks;
 			slotCapacity += noOfRacks * r->getRackCapacity();
+
+	// c_rack_number
+			r1.read(dbase,tankCID,rackLayout);
+			for ( Range <LCDbRack > r= r1; r.isValid(); ++r )
+			{
+			}
 		}
 	}
+
+
 }
 
 //---------------------------------------------------------------------------
 // Check to find out if  a slot is already in use
 //---------------------------------------------------------------------------
 
-const bool TankEngine::isInUse(const TankSectionRackSlot & tsrs )
+bool TankEngine::isInUse(const TankSectionRackSlot & tsrs )
 {
 	CitrTankSectionRackSlotMap ti=slotsMap.find(tsrs);
 	return (ti != slotsMap.end() && !(ti->second.empty()));
@@ -1082,7 +1043,7 @@ const bool TankEngine::isInUse(const TankSectionRackSlot & tsrs )
 // remembered from one session to the next.
 //---------------------------------------------------------------------------
 
-const bool TankEngine::selectSlot(const TankSectionRackSlot & tsrs )
+bool TankEngine::selectSlot(const TSRSExt & tsrs )
 {
 	rawStoreTSRS(tsrs);
 	return true;
@@ -1094,7 +1055,7 @@ const bool TankEngine::selectSlot(const TankSectionRackSlot & tsrs )
 // session to session.
 //---------------------------------------------------------------------------
 
-const bool  TankEngine::lastSlot(  TankSectionRackSlot & tsrs )
+bool  TankEngine::lastSlot( const TSRSExt & tsrs )
 {
 	rawStoreTSRS(tsrs);
 	return true;
@@ -1109,7 +1070,7 @@ const bool  TankEngine::lastSlot(  TankSectionRackSlot & tsrs )
 //
 //---------------------------------------------------------------------------
 
-const bool  TankEngine::findNextSlot(  TankSectionRackSlot & tsrs )
+bool  TankEngine::findNextSlot(  TankSectionRackSlot & tsrs )
 {
 
 // Is there a currently selected tank to use
@@ -1150,7 +1111,7 @@ const bool  TankEngine::findNextSlot(  TankSectionRackSlot & tsrs )
 				return false;
 			}
 			t1.fillOrder= nextFillOrder;
-			t1.section=nextSection;
+//			t1.section=nextSection;
 		}
 		else t1.rack++;		// moved: NG, 19/5/09
 
@@ -1167,7 +1128,7 @@ const bool  TankEngine::findNextSlot(  TankSectionRackSlot & tsrs )
 	{
 		tsrs.tank    = t1.tank;
 		tsrs.fillOrder = t1.fillOrder;
-		tsrs.section = t1.section;
+//		tsrs.section = t1.section;
 		tsrs.rack    = t1.rack;
 		tsrs.slot	 = t1.slot;
 		return true;
@@ -1179,8 +1140,8 @@ const bool  TankEngine::findNextSlot(  TankSectionRackSlot & tsrs )
 // and then goes to the next record if it is valid it retrieves the record
 // and returns the section prefix.
 //---------------------------------------------------------------------------
-//const bool TankEngine::incSection(const String & pSection,String & pNextSection, const int pTankCID )
-const bool TankEngine::incSection(	const int pFillOrder,const int pTankCID
+//bool TankEngine::incSection(const String & pSection,String & pNextSection, int pTankCID )
+bool TankEngine::incSection(	int pFillOrder,int pTankCID
 									,int & pNextFillOrder,std::string & pNextSection
 									,int & pFirstRack )
 {
@@ -1232,14 +1193,13 @@ const bool TankEngine::incSection(	const int pFillOrder,const int pTankCID
 //  Given a tankName return an iterator to that tankn info record.
 //---------------------------------------------------------------------------
 
-CitrTankInfoMap TankEngine::getTankInfoExt(const std::string& pTankName)
+CitrTankInfoMap TankEngine::getTankInfoExt(int pTankNo)
 {
-	char tankNo[10];
+
 
 		for ( CitrTankInfoMap ti=tankInfos.begin(); ti != tankInfos.end();ti++)
 		{
-			itoa(ti->second.tankExt,tankNo,10);
-			if( pTankName.compare( std::string(tankNo) )==0)
+			if( ti->second.tankExt==pTankNo)
 			{
 				return ti;
 			}
@@ -1251,13 +1211,12 @@ CitrTankInfoMap TankEngine::getTankInfoExt(const std::string& pTankName)
 // Uses external name to retrieve rack layout CID.
 //---------------------------------------------------------------------------
 
-const int TankEngine::getRackLayoutID(const std::string& pTankName)
+int TankEngine::getRackLayoutID(const int& pTankName)
 {
-	char tankNo[10];
+
 	for ( CitrTankInfoMap ti=tankInfos.begin(); ti != tankInfos.end();ti++)
 	{
-		itoa(ti->second.tankExt,tankNo,10);
-		if( pTankName.compare( std::string(tankNo) )==0)
+		if( pTankName== ti->second.tankExt)
 		{
 			return ti->second.rackLayoutCID;
 		}
@@ -1269,7 +1228,7 @@ const int TankEngine::getRackLayoutID(const std::string& pTankName)
 // Uses the tank CID get the tank's external name eg 11,12 ,13...
 //---------------------------------------------------------------------------
 
-const int TankEngine::getTankExt(const int pTankCID)
+int TankEngine::getTankExt(int pTankCID)
 {
 	int tankExt;
 
@@ -1281,7 +1240,7 @@ const int TankEngine::getTankExt(const int pTankCID)
 	}
 	return tankExt;
 }
-const int TankEngine::getFillOrder(  const int pRackLayoutCID, const std::string & pSection, int pRack )
+int TankEngine::getFillOrder(  int pRackLayoutCID, const std::string & pSection, int pRack )
 {
 
 	for( Range< LCDbSectionDef > i = LCDbSectionDefs::records(); i.isValid(); ++ i )
@@ -1306,7 +1265,7 @@ const int TankEngine::getFillOrder(  const int pRackLayoutCID, const std::string
 //
 //---------------------------------------------------------------------------
 
-const bool TankEngine::isTankInfoEnd(const CitrTankInfoMap ti )
+bool TankEngine::isTankInfoEnd(const CitrTankInfoMap ti )
 {
 	return ti ==tankInfos.end();
 }
@@ -1329,25 +1288,25 @@ CitrTankInfoMap TankEngine::getTankInfoEnd(void)
 	return tankInfos.end();
 }
 
-const bool TankEngine::isTankDisplayEnd(const CitrTankDisplayMap ti )
+bool TankEngine::isTankDisplayEnd(const CitrTankDisplayMap ti )
 {
 	return ti ==tankDisplays.end();
 }
 
 CitrTankDisplayMap TankEngine::getTankDisplayMapBegin(void)
 {
-	return tankDisplays.begin();
+	return tankDisplays.begin();
 }
 CitrTankDisplayMap TankEngine::getTankDisplayMapEnd(void)
 {
-	return tankDisplays.end();
+	return tankDisplays.end();
 }
 
 //---------------------------------------------------------------------------
 //
 //---------------------------------------------------------------------------
 
-const bool TankEngine::getSectionCount(const std::string& pTankName)
+/*bool TankEngine::getSectionCount(const std::string& pTankName)
 {
 		int tankCID;
 		int rackLayoutID;
@@ -1402,6 +1361,66 @@ const bool TankEngine::getSectionCount(const std::string& pTankName)
 		}
 	}
 	return true;
+}*/
+//---------------------------------------------------------------------------
+//
+//---------------------------------------------------------------------------
+
+bool TankEngine::getSectionCount(int pTankCID)
+{
+		int tankCID;
+		int rackLayoutID;
+		SectionCount sc;
+		TSRLevelSummary ls;
+
+		tankCID=0;
+		rackLayoutID=0;
+
+		CitrTankInfoMap ti=getTankInfoExt(pTankCID);
+		tankCID=ti->first;
+		rackLayoutID=ti->second.rackLayoutCID;
+
+		sectionCounts.clear();
+		int count;
+
+		char tankNo[10];
+
+// Creating a tank filled with blank racks
+	for( Range< LCDbSectionDef > i = LCDbSectionDefs::records(); i.isValid(); ++ i )
+	{
+		if( i->getTankLayoutCID()== rackLayoutID )
+		{
+// Drawing all the rack details for the tank
+			count=0;
+
+// Count all the used slots in the current selected sector (indexed by fillOrder )
+			for(CitrTankSectionRackSlotMap sl=slotsMap.begin();sl!=slotsMap.end();sl++)
+			{
+
+				if( pTankCID==sl->first.tank &&
+				sl->first.fillOrder== i->getFillOrder() )
+				{
+					if (!sl->second.empty() )
+					{
+						count++;
+					}
+				}
+			}
+
+			sc.tankCID=tankCID;
+//			sc.section= i->getSectionPrefix();
+			sc.fillOrder= i->getFillOrder();
+
+			ls.section = i->getSectionPrefix();
+			ls.rackCapacity= i->getRackCapacity();
+			ls.rackCount= i->getLastRack() - i->getFirstRack() +1 ;
+			ls.slotCapacity= ls.rackCount * ls.rackCapacity;
+			ls.slotsUsed=count;
+
+			sectionCounts.insert(SectionCountMap::value_type(sc,ls));
+		}
+	}
+	return true;
 }
 
 //---------------------------------------------------------------------------
@@ -1430,7 +1449,7 @@ CitrSectionCountMap TankEngine::getSectionCountEnd(void)
 // Key: Tank_cid and section.
 //---------------------------------------------------------------------------
 
-/*const bool TankEngine::getRackCount(const String& pTankName,const String& pSectionName )
+/*bool TankEngine::getRackCount(const String& pTankName,const String& pSectionName )
 {
 	int rackLayoutID;
 	int sectionSize;
@@ -1485,7 +1504,7 @@ CitrSectionCountMap TankEngine::getSectionCountEnd(void)
 } */
 
 
-const bool TankEngine::getRackCount(const std::string& pTankName,const int pFillOrder )
+bool TankEngine::getRackCount(int pTankName,int pFillOrder )
 {
 	int rackLayoutID;
 	int sectionSize;
@@ -1495,7 +1514,7 @@ const bool TankEngine::getRackCount(const std::string& pTankName,const int pFill
 // Creating a tank filled with blank racks
 
 	rackLayoutID=0;
-	char tankNo[10];
+//	char tankNo[10];
 
 	CitrTankInfoMap ti=getTankInfoExt(pTankName);
 
@@ -1515,9 +1534,8 @@ const bool TankEngine::getRackCount(const std::string& pTankName,const int pFill
 				for(CitrTankSectionRackSlotMap sl=slotsMap.begin();sl!=slotsMap.end();sl++)
 				{
 
-					itoa(sl->first.tank,tankNo,10);
 
-					if( pTankName.compare( std::string(tankNo) )==0 &&
+					if( pTankName==sl->first.tank &&
 						sl->first.fillOrder == l->getFillOrder() &&
 						sl->first.rack == i )
 					{
@@ -1566,8 +1584,8 @@ CitrRackCountMap TankEngine::getRackCountEnd(void)
 // build up a list of boxes by boxname in a specific rack.
 //---------------------------------------------------------------------------
 
-const bool TankEngine::getSlotContent(
-	const std::string & pTankName,
+bool TankEngine::getSlotContent(
+	int pTankName,
 	const std::string & pSectionName,
 	const std::string & pRackName )
 {
@@ -1583,14 +1601,12 @@ const bool TankEngine::getSlotContent(
 	}
 
 	int slotNo;
-	char tankNo[10];
 	char rackNo[10];
 
 	for(CitrTankSectionRackSlotMap i=slotsMap.begin();i!=slotsMap.end();i++)
 	{
-	itoa(i->first.tank,tankNo,10);
 	itoa(i->first.rack,rackNo,10);
-		if( (pTankName.compare( std::string(tankNo) )==0) &&
+		if( (pTankName== i->first.tank) &&
 //			 pSectionName.compare(i->first.section)==0   &&
 			i->first.fillOrder == lFillOrder &&
 			pRackName.compare(std::string(rackNo)) ==0 )
@@ -1627,7 +1643,7 @@ CitrSlotPositionsMap TankEngine::getSlotPositionsEnd(void)
 //
 //---------------------------------------------------------------------------
 
-const int TankEngine::getRackSize(const std::string & pTankName, const std::string & pSectionName
+int TankEngine::getRackSize(int pTankName, const std::string & pSectionName
 								 ,const std::string & pRackName, int & pFillOrder)
 {
 	int rackLayoutID;

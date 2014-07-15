@@ -1,5 +1,6 @@
 #include "Config.h"
 #include "DBConnection.h"
+#include "DBTransactionResources.h"
 #include "DBUpdateTaskLinkResultToWorklistEntry.h"
 #include "StrUtil.h"
 
@@ -7,24 +8,25 @@
 namespace valc
 {
 
-DBUpdateTaskLinkResultToWorklistEntry::DBUpdateTaskLinkResultToWorklistEntry( int resultID, int worklistEntryID )
+DBUpdateTaskLinkResultToWorklistEntry::DBUpdateTaskLinkResultToWorklistEntry( 
+    int resultID, 
+    int worklistEntryID,
+    const DBTransactionResources* dbtr )
     :
     m_resultID( resultID ),
-    m_worklistEntryID( worklistEntryID )
+    m_worklistEntryID( worklistEntryID ),
+    m_dbTransactionResources( dbtr )
 {
 }
 
-std::string DBUpdateTaskLinkResultToWorklistEntry::describeUpdate() const
+void DBUpdateTaskLinkResultToWorklistEntry::doStuff()
 {
-    char buffer[1024];
-    std::sprintf( buffer, "Updating buddy_result_float.cbw_record_no to %d where buddy_result_id = %d", m_worklistEntryID, m_resultID );
-    return buffer;
-}
+    std::string sql = paulst::format( 
+                        m_dbTransactionResources->getConfig()->get("LinkResultToWorklistEntryUpdateSQL").c_str(), 
+                        m_worklistEntryID, 
+                        m_resultID );
 
-void DBUpdateTaskLinkResultToWorklistEntry::updateDatabase()
-{
-    std::string sql = paulst::format( config->get("LinkResultToWorklistEntryUpdateSQL").c_str(), m_worklistEntryID, m_resultID );
-    connection->executeStmt( sql );
+    m_dbTransactionResources->getConnection()->executeStmt( sql );
 }
 
 }

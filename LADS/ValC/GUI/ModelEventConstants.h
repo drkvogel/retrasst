@@ -21,6 +21,7 @@ namespace MODEL_EVENT
     static const int APPLICATION_CONTEXT_DELETED        = 12;
     static const int APPLICATION_INITIALISED            = 13;
     static const int ASYNC_TASK_ERROR                   = 14;
+    static const int RULE_LOADED                        = 15;
 }
 
 }

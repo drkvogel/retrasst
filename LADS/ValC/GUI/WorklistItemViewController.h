@@ -21,14 +21,22 @@ class Model;
 class WorklistItemViewController
 {
 public:
-	WorklistItemViewController( TWorklistItemViewFrame* widgetContainer, Model* m );
-    void __fastcall familyTreeClickHandler( TObject* sender );
-	void notify( int modelEvent, const EventData& eventData );
-    void __fastcall update();
+	WorklistItemViewController();
+    void __fastcall     familyTreeClickHandler( TObject* sender );
+    void                init();
+    IdleServiceUser*    getIdleServiceUserInterface();
+    ModelEventListener* getModelEventListenerInterface();
+	void                notify( int modelEvent, const EventData& eventData );
+    void                onIdle();
+    void                onResize();
+    void                setModel( Model* m );
+    void                setView( TWorklistItemViewFrame* view );
+    void __fastcall     update();
 private:
-	TWorklistItemViewFrame* const                           m_widgetContainer;
+	TWorklistItemViewFrame*                                 m_view;
+    IdleServiceUserAdapter<WorklistItemViewController>      m_idleServiceUser;
 	ModelEventListenerAdapter<WorklistItemViewController>   m_eventListener;
-    Model* const                                            m_model;
+    Model*                                                  m_model;
 
     void addTreeNodeForWorklistEntry( int idOfSelectedWorklistEntry, const valc::SnapshotPtr& s, const valc::WorklistRelative& wr, TTreeViewItem* parent = NULL );
     void clear();

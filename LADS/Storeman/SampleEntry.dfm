@@ -30,7 +30,7 @@ object frmRetrieveMain: TfrmRetrieveMain
     Caption = 'Primary aliquot:'
   end
   object LblAliquot2: TLabel
-    Left = 320
+    Left = 328
     Top = 73
     Width = 55
     Height = 13
@@ -96,9 +96,9 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnDropDown = CmbAliquot1DropDown
   end
   object rgItemType: TRadioGroup
-    Left = 320
+    Left = 352
     Top = 115
-    Width = 239
+    Width = 215
     Height = 52
     Caption = 'Source type'
     Columns = 3
@@ -111,7 +111,7 @@ object frmRetrieveMain: TfrmRetrieveMain
     OnClick = rgItemTypeClick
   end
   object CmbAliquot2: TComboBox
-    Left = 389
+    Left = 397
     Top = 70
     Width = 170
     Height = 21
@@ -190,15 +190,15 @@ object frmRetrieveMain: TfrmRetrieveMain
   object rgDestOrder: TRadioGroup
     Left = 12
     Top = 115
-    Width = 258
+    Width = 302
     Height = 52
     Caption = 'Destination order'
     Columns = 3
     ItemIndex = 1
     Items.Strings = (
-      'Original'
-      'Sorted'
-      'From file')
+      'Keep list order'
+      'Allow sorting'
+      'Included in file')
     TabOrder = 3
     OnClick = rgDestOrderClick
   end

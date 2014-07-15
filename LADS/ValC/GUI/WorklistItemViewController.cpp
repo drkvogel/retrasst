@@ -13,13 +13,13 @@
 namespace valcui
 {
 
-WorklistItemViewController::WorklistItemViewController( TWorklistItemViewFrame* widgetContainer, Model* m )
+WorklistItemViewController::WorklistItemViewController()
 	:
-	m_widgetContainer( widgetContainer ),
+	m_view( 0 ),
+    m_idleServiceUser(this),
 	m_eventListener(this),
-    m_model( m )
+    m_model( 0 )
 {
-	m->registerModelEventListener( &m_eventListener );
 }
 
 void addCellText( TListBoxItem* i, const UnicodeString& cell, const UnicodeString& text )
@@ -34,15 +34,15 @@ void addCellText( TListBoxItem* i, const UnicodeString& cell, const UnicodeStrin
 
 void WorklistItemViewController::clear()
 {
-	m_widgetContainer->ID       ->Text = L"";
-    m_widgetContainer->barcode  ->Text = L"";
-    m_widgetContainer->machineID->Text = L"";
-    m_widgetContainer->test     ->Text = L"";
-    m_widgetContainer->status   ->Text = L"";
-    m_widgetContainer->projectID->Text = L"";
-    m_widgetContainer->timestamp->Text = L"";
-	m_widgetContainer->resultListBox->Clear();
-	m_widgetContainer->familyTree->Clear();
+	m_view->ID       ->Text = L"";
+    m_view->barcode  ->Text = L"";
+    m_view->machineID->Text = L"";
+    m_view->test     ->Text = L"";
+    m_view->status   ->Text = L"";
+    m_view->projectID->Text = L"";
+    m_view->timestamp->Text = L"";
+	m_view->resultListBox->Clear();
+	m_view->familyTree->Clear();
 }
 
 void WorklistItemViewController::addTreeNodeForWorklistEntry(
@@ -59,7 +59,7 @@ void WorklistItemViewController::addTreeNodeForWorklistEntry(
     }
     else
     {
-        newNode = addNodeUnder( m_widgetContainer->familyTree, describe(snapshot,wr) );
+        newNode = addNodeUnder( m_view->familyTree, describe(snapshot,wr) );
     }
 
 	newNode->Tag     = wr.getID();
@@ -116,7 +116,7 @@ void WorklistItemViewController::describeFamilyTree( const valc::SnapshotPtr& sn
  
 void WorklistItemViewController::describeResult( const valc::TestResult* r )
 {
-	TListBox* b = m_widgetContainer->resultListBox;
+	TListBox* b = m_view->resultListBox;
 
 	TListBoxItem* i = new TListBoxItem(b);
 	i->Parent = b;
@@ -144,11 +144,29 @@ void __fastcall WorklistItemViewController::familyTreeClickHandler( TObject* sen
 	{
 		const UnicodeString clickedOn( i->Tag );
 
-		if ( m_widgetContainer->ID->Text != clickedOn )
+		if ( m_view->ID->Text != clickedOn )
 		{
 			m_model->setSelectedWorklistEntry( i->Tag );
 		}
 	}
+}
+
+IdleServiceUser* WorklistItemViewController::getIdleServiceUserInterface()
+{
+    return &m_idleServiceUser;
+}
+
+ModelEventListener* WorklistItemViewController::getModelEventListenerInterface()
+{
+    return &m_eventListener;
+}
+
+void WorklistItemViewController::init()
+{
+    if ( m_model->getSelectedWorklistEntry() )
+    {
+        m_model->borrowSnapshot( update );
+    }
 }
 
 void WorklistItemViewController::notify( int modelEvent, const EventData& eventData )
@@ -160,6 +178,14 @@ void WorklistItemViewController::notify( int modelEvent, const EventData& eventD
         m_model->borrowSnapshot( update );
         break;
     }
+}
+
+void WorklistItemViewController::onIdle()
+{
+}
+
+void WorklistItemViewController::onResize()
+{
 }
 
 const valc::WorklistEntry* WorklistItemViewController::searchLocalRunSequenceForWorklistEntry( 
@@ -199,40 +225,61 @@ const valc::WorklistEntry* WorklistItemViewController::searchQueueForWorklistEnt
     return NULL;
 }
 
+void WorklistItemViewController::setModel( Model* m )
+{
+    m_model = m;
+}
+
+void WorklistItemViewController::setView( TWorklistItemViewFrame* v )
+{
+    m_view = v;
+}
+
 void __fastcall WorklistItemViewController::update()
 {
-    clear();
-
-    const valc::SnapshotPtr snapshot( m_model->getSnapshot() );
-
-    const int worklistEntryID = m_model->getSelectedWorklistEntry();
-
-    const valc::WorklistEntry* worklistEntry = searchLocalRunSequenceForWorklistEntry( snapshot, worklistEntryID  );
-
-    if ( ! worklistEntry )
+    do
     {
-        worklistEntry = searchQueueForWorklistEntry( snapshot, worklistEntryID );
+        clear();
+
+        const valc::SnapshotPtr snapshot( m_model->getSnapshot() );
+
+        const int worklistEntryID = m_model->getSelectedWorklistEntry();
+
+        if ( ! worklistEntryID )
+        {
+            break;
+        }
+
+        const valc::WorklistEntry* worklistEntry = searchLocalRunSequenceForWorklistEntry( snapshot, worklistEntryID  );
+
+        if ( ! worklistEntry )
+        {
+            worklistEntry = searchQueueForWorklistEntry( snapshot, worklistEntryID );
+        }
+
+        if ( ! worklistEntry )
+        {
+            break;
+        }
+
+        m_view->ID       ->Text = worklistEntry->getID();
+        m_view->barcode  ->Text = worklistEntry->getBarcode().c_str();
+        m_view->machineID->Text = worklistEntry->getMachineID();
+        m_view->test     ->Text = describeTest( snapshot, worklistEntry->getTestID() );
+        m_view->status   ->Text = worklistEntry->getStatus();
+        m_view->projectID->Text = worklistEntry->getProjectID();
+        m_view->timestamp->Text = worklistEntry->getTimeStamp().FormatString(L"d mmm h:nn:ss");
+
+        valc::Range<valc::TestResultIterator> results = worklistEntry->getTestResults();
+
+        for( auto result = results.first; result != results.second; ++result )
+        {
+            describeResult( *result );
+        }
+
+        describeFamilyTree( snapshot, worklistEntry );
     }
-
-    if ( worklistEntry )
-    {
-		m_widgetContainer->ID       ->Text = worklistEntry->getID();
-        m_widgetContainer->barcode  ->Text = worklistEntry->getBarcode().c_str();
-        m_widgetContainer->machineID->Text = worklistEntry->getMachineID();
-        m_widgetContainer->test     ->Text = describeTest( snapshot, worklistEntry->getTestID() );
-        m_widgetContainer->status   ->Text = worklistEntry->getStatus();
-        m_widgetContainer->projectID->Text = worklistEntry->getProjectID();
-		m_widgetContainer->timestamp->Text = worklistEntry->getTimeStamp().FormatString(L"d mmm h:nn:ss");
-
-		valc::Range<valc::TestResultIterator> results = worklistEntry->getTestResults();
-
-		for( auto result = results.first; result != results.second; ++result )
-		{
-			describeResult( *result );
-		}
-
-		describeFamilyTree( snapshot, worklistEntry );
-	}
+    while( false );
 }
 
 }

@@ -32,6 +32,8 @@ __fastcall TSampleRunPanel::TSampleRunPanel(TComponent *owner)
 	  barcodePanel(NULL), testsPanel(NULL)
 {
 	testPanels = new EntryPanelsList();
+	StyleLookup = "InvisiblePanelStyle"; // this is getting ignored, for some reason, though other parts of the program can pick this style up ok
+	TagString = "Level:sample run";
 }
 
 __fastcall TSampleRunPanel::~TSampleRunPanel()
@@ -51,7 +53,7 @@ __fastcall TSampleRunPanel::~TSampleRunPanel()
   */
 static inline void ValidCtrCheck(TBarcodePanel *)
 {
-	new TBarcodePanel(NULL,NULL,true);
+	new TBarcodePanel(NULL,NULL,true,true);
 }
 
 
@@ -64,9 +66,10 @@ __fastcall TBarcodePanel::~TBarcodePanel()
 
 __fastcall TBarcodePanel::TBarcodePanel(WorklistEntriesView *g,
 										TComponent *Owner,
-										bool queued)
+										bool c, bool q)
 	: TPanel(Owner),
-	  gui(g)
+	  gui(g),
+	  closed(c), queued(q), attentionNeeded(false)
 {
 	attributes = new std::map <std::string,std::string>();
 	ids = new std::map <std::string,int>();
@@ -112,8 +115,13 @@ void TBarcodePanel::updateBarcode(const std::string & barcode)
 void TBarcodePanel::needsAttention()
 {
 	StyleLookup = "BarcodeAlertPanelStyle";
+	attentionNeeded = true;
 }
 
+bool TBarcodePanel::needingAttention()
+{
+	return attentionNeeded;
+}
 
 /** Returns the attribute labelled with the given key, or "" otherwise if
   * no such key exists.
@@ -306,8 +314,8 @@ void TTestPanel::initialiseResultsButton()
 		clockface = new TPanel(this);
 		clockface->StyleLookup = "PendingPanelStyle";
 		clockface->Position->X = notesButton->Position->X
-								 + gui->param("notesButtonWidth")
-								 - gui->param("notesOffsetRight");;
+								 + gui->param("notesButtonWidth");
+								 // - gui->param("notesOffsetRight");
 		clockface->Position->Y = yPos;
 		clockface->Width = 16;   // yes, these are in the style, but if I don't
 		clockface->Height = 16;  // put them in, weird things happen

@@ -29,6 +29,7 @@ class AnalysisActivitySnapshot;
 class CompositeRuleEngineQueueListener;
 class CompositeRuleResultPublisher;
 class ControlModel;
+class DBTransactionHandler;
 class Projects;
 class QCGates;
 class ResultAttributes;
@@ -62,6 +63,7 @@ struct ApplicationContext
     CompositeRuleEngineQueueListener*               compositeRuleEngineQueueListener;
     RuleEngineQueueListener*                        controlModelQueueListenerAdapter;
     RuleResultPublisher*                            controlModelResultPublisherAdapter;
+    DBTransactionHandler*                           dbTransactionHandler;
 
 
     ApplicationContext();

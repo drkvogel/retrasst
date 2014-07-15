@@ -16,6 +16,7 @@ SampleRun::SampleRun()
 SampleRun::SampleRun( 
     const IDToken& runID, 
     const std::string& sampleDescriptor, 
+    const std::string& barcode, 
     bool isOpen, 
     const TDateTime& created, 
     const TDateTime& closed, 
@@ -25,6 +26,7 @@ SampleRun::SampleRun(
     :
     m_runID( runID ),
     m_sampleDescriptor( sampleDescriptor ),
+    m_barcode( barcode ),
     m_isOpen( isOpen ),
     m_created( created ),
     m_closed( isOpen ? TDateTime() : closed ),
@@ -38,6 +40,7 @@ SampleRun::SampleRun( const SampleRun& o )
     :
     m_runID             (   o.m_runID           ),
     m_sampleDescriptor  (   o.m_sampleDescriptor),
+    m_barcode           (   o.m_barcode         ),
     m_isOpen            (   o.m_isOpen          ),
     m_created           (   o.m_created         ),
     m_closed            (   o.m_closed          ),
@@ -51,6 +54,7 @@ SampleRun& SampleRun::operator=( const SampleRun& o )
 {
     m_runID             = o.m_runID;
     m_sampleDescriptor  = o.m_sampleDescriptor;
+    m_barcode           = o.m_barcode;
     m_isOpen            = o.m_isOpen;
     m_created           = o.m_created;
     m_closed            = o.m_closed;
@@ -58,6 +62,11 @@ SampleRun& SampleRun::operator=( const SampleRun& o )
     m_groupID           = o.m_groupID;
     m_isQC              = o.m_isQC;
     return *this;
+}
+
+std::string SampleRun::getBarcode() const
+{
+    return m_barcode;
 }
 
 paulst::Nullable<int> SampleRun::getGroupID() const

@@ -44,7 +44,7 @@ std::string LIMSDatabase::getDescription( DbSystem system ) {
 		case VLAB_LIVE:
 			return "Live data (vlab::ldb*)";
 		case VLAB_TEST:
-			return "Test data for software testing (vlab::test_ldb*)";
+			return "Dummy data for software testing (vlab::test_ldb*)";
 		case LABDEV_MIRROR:
 			return "Mirror system for database testing (vlabdev::ldb*)";
 		case LABDEV_DEV:
@@ -156,13 +156,19 @@ std::string LIMSDatabase::getVNode( DbSystem system ) {
 	switch( system ) {
 		case VLAB_LIVE:
 		case VLAB_TEST:
+#if _WIN64
 			return "vnode_vlab_64";
-
+#else
+			return "vnode_vlab";
+#endif
 		case LABDEV_MIRROR:
 		case LABDEV_TEST:
 		case LABDEV_DEV:
+#if _WIN64
 			return "vnode_labdev_64";
-
+#else
+			return "labdev_lust"; // "vnode_labdev";
+#endif
 		default:
 			throw Exception( "Database system not selected" );
 	}

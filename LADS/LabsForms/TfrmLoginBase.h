@@ -17,6 +17,8 @@
 #include "LCDbOperator.h"
 #include "LCDbProject.h"
 #include "LCDbAuditTrail.h"
+#include <IdExplicitTLSClientServerBase.hpp>
+#include <IdSMTPBase.hpp>
 
 //---------------------------------------------------------------------------
 
@@ -33,6 +35,7 @@ __published:	// IDE-managed Components
 	TLabel *Label3;
 	TEdit *ebPassword;
 	TLabel *lblSystem;
+	TIdSMTP *IdSMTP1;
 
     void __fastcall exitButtonClick(TObject *Sender);
     void __fastcall okButtonClick(TObject *Sender);
@@ -46,6 +49,7 @@ __published:	// IDE-managed Components
 	void __fastcall FormCanResize(TObject *Sender, int &NewWidth, int &NewHeight,
           bool &Resize);
 	void __fastcall lblSystemClick(TObject *Sender);
+	void __fastcall userListDropDown(TObject *Sender);
 
 private:	// User declarations
 

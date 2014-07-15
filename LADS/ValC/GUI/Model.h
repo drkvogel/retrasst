@@ -79,6 +79,8 @@ public:
     */
     void doForceReload();
 
+    void doLoadRule( int test, int machine, int project );
+
     /*
     Queues a rerun of the specified worklist entry.
     */
@@ -92,6 +94,10 @@ public:
 	void doRunPendingUpdates();
 
     ModelEventListener* getEventListenerInterface();
+
+    void init();
+
+    bool isSnapshotLoaded() const;
 
 	/**
     Via getSelectedWorklistEntry and setSelectedWorklistEntry, the Model offers the opportunity
@@ -137,6 +143,8 @@ public:
     Refer to 'getSelectedWorklistEntry' (above).
     */
     void setSelectedWorklistEntry( int worklistEntryID );
+
+	void unregisterModelEventListener( ModelEventListener*  );
 
 	/**
     Method by means of which UserAdvisorPanel notifies the Model 

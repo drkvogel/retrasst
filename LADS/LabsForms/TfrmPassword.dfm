@@ -3,8 +3,8 @@ object frmPassword: TfrmPassword
   Top = 531
   BorderIcons = []
   Caption = 'Your password has expired'
-  ClientHeight = 283
-  ClientWidth = 299
+  ClientHeight = 290
+  ClientWidth = 306
   Color = 12316364
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,14 +18,14 @@ object frmPassword: TfrmPassword
   PixelsPerInch = 96
   TextHeight = 13
   object Label3: TLabel
-    Left = 26
+    Left = 28
     Top = 143
     Width = 73
     Height = 13
     Caption = 'New password:'
   end
   object Label1: TLabel
-    Left = 26
+    Left = 28
     Top = 180
     Width = 61
     Height = 13
@@ -45,23 +45,23 @@ object frmPassword: TfrmPassword
     ParentFont = False
   end
   object Label2: TLabel
-    Left = 26
+    Left = 28
     Top = 70
     Width = 54
     Height = 13
     Caption = 'User name:'
   end
   object Label4: TLabel
-    Left = 26
+    Left = 28
     Top = 106
     Width = 67
     Height = 13
     Caption = 'Old password:'
   end
   object ebNewPass: TEdit
-    Left = 136
+    Left = 130
     Top = 140
-    Width = 136
+    Width = 150
     Height = 21
     PasswordChar = '*'
     TabOrder = 2
@@ -90,26 +90,26 @@ object frmPassword: TfrmPassword
     TabOrder = 5
   end
   object ebConfirmed: TEdit
-    Left = 136
+    Left = 130
     Top = 177
-    Width = 136
+    Width = 150
     Height = 21
     PasswordChar = '*'
     TabOrder = 3
     OnChange = ebNewPassChange
   end
   object ebUserName: TEdit
-    Left = 136
+    Left = 130
     Top = 67
-    Width = 136
+    Width = 150
     Height = 21
     ReadOnly = True
     TabOrder = 0
   end
   object ebOldPass: TEdit
-    Left = 136
+    Left = 130
     Top = 103
-    Width = 136
+    Width = 150
     Height = 21
     PasswordChar = '*'
     TabOrder = 1

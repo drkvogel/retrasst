@@ -6,6 +6,7 @@
 #include "DBUpdateTaskSyncBuddyDatabaseAndSampleRun.h"
 #include "DBUpdateTaskLinkResultToWorklistEntry.h"
 #include <iterator>
+#include "Task.h"
 
 namespace valc
 {
@@ -24,7 +25,9 @@ struct SameBuddyID
     }
 };
 
-DBUpdateSchedule::DBUpdateSchedule()
+DBUpdateSchedule::DBUpdateSchedule( const DBTransactionResources* dbtr )
+    :
+    m_dbTransactionResources( dbtr )
 {
 }
 
@@ -33,7 +36,7 @@ DBUpdateSchedule::~DBUpdateSchedule()
     paulst::AcquireCriticalSection a(m_cs);
 
     {
-        BOOST_FOREACH( DBUpdateTask* t, m_updates )
+        BOOST_FOREACH( stef::Task* t, m_updates )
         {
             delete t;
         }
@@ -49,8 +52,11 @@ void DBUpdateSchedule::runQueuedUpdates( DBTransactionHandler* th )
         {
             th->queue( 
                 new DBUpdateTaskSyncBuddyDatabaseAndSampleRun( 
-                    m_newBuddyRuns.begin(), m_newBuddyRuns.end(),
-                    m_newSampleRuns.begin(), m_newSampleRuns.end() ) );
+                    m_newBuddyRuns.begin(), 
+                    m_newBuddyRuns.end(),
+                    m_newSampleRuns.begin(), 
+                    m_newSampleRuns.end(),
+                    m_dbTransactionResources ) );
         }
 
         m_newBuddyRuns.clear();
@@ -58,7 +64,7 @@ void DBUpdateSchedule::runQueuedUpdates( DBTransactionHandler* th )
 
         while (  m_updates.size() )
         {
-            DBUpdateTask* t = m_updates.front();
+            stef::Task* t = m_updates.front();
             m_updates.pop_front();
             th->queue( t );
         }
@@ -89,7 +95,8 @@ void DBUpdateSchedule::scheduleUpdateLinkingResultToWorklistEntry( int resultID,
     paulst::AcquireCriticalSection a(m_cs);
 
     {
-        m_updates.push_back ( new DBUpdateTaskLinkResultToWorklistEntry( resultID, worklistEntry ) );
+        m_updates.push_back ( new DBUpdateTaskLinkResultToWorklistEntry( 
+                                resultID, worklistEntry, m_dbTransactionResources ) );
     }
 }
 

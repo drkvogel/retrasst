@@ -35,7 +35,6 @@ object frmDiscardPrologue: TfrmDiscardPrologue
     Caption = 'OK'
     TabOrder = 0
     OnClick = btnOKClick
-    ExplicitTop = 192
   end
   object btnCancel: TButton
     Left = 159
@@ -46,24 +45,19 @@ object frmDiscardPrologue: TfrmDiscardPrologue
     Caption = 'Cancel'
     TabOrder = 1
     OnClick = btnCancelClick
-    ExplicitLeft = 149
-    ExplicitTop = 192
   end
   object rgCryovialStatus: TRadioGroup
-    Left = 75
+    Left = 70
     Top = 61
-    Width = 127
-    Height = 113
+    Width = 123
+    Height = 108
     Anchors = []
     Caption = 'Stage'
     Items.Strings = (
       'Select sample(s)'
-      'Confirm removal'
       'Confirm disposal')
     TabOrder = 2
     OnClick = rgCryovialStatusClick
-    ExplicitLeft = 70
-    ExplicitTop = 56
   end
   object cmbProject: TComboBox
     Left = 70

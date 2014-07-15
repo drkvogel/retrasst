@@ -40,6 +40,7 @@ __published:	// IDE-managed Components
 	TTimer *timer;
 	TLabel *Label4;
 	TButton *BtnRationalyse;
+	TButton *btnManage;
 
 	void __fastcall TreeBrowse(TObject *Sender);
 	void __fastcall OnCreateList(TObject *Sender);

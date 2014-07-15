@@ -1,17 +1,69 @@
+#include <algorithm>
 #include "ExceptionHandler.h"
 #include "FMXTemplates.h"
+#include <iterator>
 #include "LocalRunIterator.h"
 #include "Model.h"
 #include "ModelEventConstants.h"
 #include "Require.h"
 #include "SampleRunViewController.h"
+#include <set>
 #include "SnapshotUtil.h"
 #include "StrUtil.h"
 #include "TSampleRunFrame.h"
+#include <vector>
 
 namespace valcui
 {
 
+/*
+Comparison object for ordering a sequence of ResultCodes from worst to best.
+*/
+class WorstFirst
+{
+private:
+    std::vector< valc::ResultCode > m_orderedList;
+
+    int indexOf( const valc::ResultCode& r ) const
+    {
+        auto i = std::find( m_orderedList.begin(), m_orderedList.end(), r );
+        require( i != m_orderedList.end() );
+        return std::distance( m_orderedList.begin(), i );
+    }
+
+public:
+
+    WorstFirst()
+        :
+        m_orderedList( 
+            { 
+                valc::ResultCode::RESULT_CODE_FAIL, 
+                valc::ResultCode::RESULT_CODE_ERROR, 
+                valc::ResultCode::RESULT_CODE_NULL, 
+                valc::ResultCode::RESULT_CODE_NO_RULES_APPLIED,
+                valc::ResultCode::RESULT_CODE_BORDERLINE, 
+                valc::ResultCode::RESULT_CODE_PASS 
+            } )
+    {
+    }
+
+    WorstFirst( const WorstFirst& wf )
+        :
+        m_orderedList( wf.m_orderedList )
+    {
+    }
+
+    WorstFirst& operator=( const WorstFirst& wf )
+    {
+        m_orderedList = wf.m_orderedList;
+        return *this;
+    }
+
+    bool operator()( const valc::ResultCode& a, const valc::ResultCode& b ) const
+    {
+        return indexOf(a) < indexOf(b);
+    }
+};
 
 RunAssociation::RunAssociation( const valc::IDToken& run, bool open )
     :
@@ -67,21 +119,16 @@ bool CompareWorklistEntries::operator()( const valc::WorklistEntry* a, const val
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SampleRunViewController::SampleRunViewController( TSampleRunFrame* widgetContainer, Model* m )
+SampleRunViewController::SampleRunViewController()
     :
-    m_widgetContainer( widgetContainer ),
+    m_view( 0 ),
+    m_idleServiceUser( this ),
     m_eventListener( this ),
-	m_model( m )
+	m_model( 0 )
 {
-	m_model->registerModelEventListener( &m_eventListener );
-
-	TMenuItem* menuItem = new TMenuItem(m_widgetContainer->popupMenu);
-	menuItem->OnClick = rerun;
-	menuItem->Parent = m_widgetContainer->popupMenu;
-	menuItem->Text = "Rerun...";
-
-	m_widgetContainer->popupMenu->AddObject( menuItem );
 }
+
+
 
 void SampleRunViewController::addResultBox(
     valc::SnapshotPtr snapshot,
@@ -106,15 +153,47 @@ void SampleRunViewController::addResultBox(
         statusStyle = "status_pending";
     }
     else
-    {
-        switch( result->getControlStatus().summaryCode() )
+	{
+		// Status is differently determined for QCs than for Unknowns
+        if ( isQC( worklistEntry ) )
         {
-        case valc::CONTROL_STATUS_UNCONTROLLED: statusStyle = isQC(worklistEntry) ? "status_ok" : "status_warn"; break;
-        case valc::CONTROL_STATUS_CONFIG_ERROR_NO_RULES :
-        case valc::CONTROL_STATUS_ERROR                 :
-        case valc::CONTROL_STATUS_FAIL                  : statusStyle = "status_fail"; break;
-        case valc::CONTROL_STATUS_BORDERLINE            : statusStyle = "status_warn"; break;
-        case valc::CONTROL_STATUS_PASS                  : statusStyle = "status_ok"  ; break;
+            std::set< valc::ResultCode, WorstFirst > resultCodes;
+
+            listResultCodes( worklistEntry, snapshot, std::inserter(resultCodes, resultCodes.begin() ) );
+
+            if ( resultCodes.empty() )
+            {
+                statusStyle = "status_pending";
+            }
+            else
+            {
+                switch( *(resultCodes.begin()) ) // worst-case scenario
+                {
+                    case valc::ResultCode::RESULT_CODE_FAIL:             
+                    case valc::ResultCode::RESULT_CODE_ERROR:
+                    case valc::ResultCode::RESULT_CODE_NO_RULES_APPLIED:
+                    case valc::ResultCode::RESULT_CODE_NULL:
+                        statusStyle = "status_fail"; break;
+                    case valc::ResultCode::RESULT_CODE_BORDERLINE:
+                        statusStyle = "status_warn"; break;
+                    case valc::ResultCode::RESULT_CODE_PASS:
+						statusStyle = "status_ok"; break;
+					default:
+						throwException( "Unexpected value for ResultCode" );
+                }
+            }
+        }
+        else
+        {
+            switch( result->getControlStatus().summaryCode() )
+            {
+            case valc::CONTROL_STATUS_CONFIG_ERROR_NO_RULES :
+            case valc::CONTROL_STATUS_ERROR                 :
+            case valc::CONTROL_STATUS_FAIL                  : statusStyle = "status_fail"; break;
+            case valc::CONTROL_STATUS_UNCONTROLLED          : 
+            case valc::CONTROL_STATUS_BORDERLINE            : statusStyle = "status_warn"; break;
+            case valc::CONTROL_STATUS_PASS                  : statusStyle = "status_ok"  ; break;
+            }
         }
     }
 
@@ -136,14 +215,14 @@ void SampleRunViewController::addResultBox(
 
 		if ( ! isQC(worklistEntry) && ! hasRerun(worklistEntry, snapshot) )
 		{
-			p->PopupMenu = m_widgetContainer->popupMenu;
+			p->PopupMenu = m_view->popupMenu;
 		}
 	}
 }
 
 TFlowLayout* SampleRunViewController::createRow( const std::string& labelText )
 {
-    TScrollBox* sb = m_widgetContainer->runContainer;
+    TScrollBox* sb = m_view->runContainer;
 
     const int runBoxHeight = 85;
     const int spacing = 5;
@@ -228,6 +307,31 @@ void SampleRunViewController::describePending( const WorklistEntrySet& pending, 
     }
 }
 
+IdleServiceUser* SampleRunViewController::getIdleServiceUserInterface()
+{
+    return &m_idleServiceUser;
+}
+
+ModelEventListener* SampleRunViewController::getModelEventListenerInterface()
+{
+    return &m_eventListener;
+}
+
+void SampleRunViewController::init()
+{
+	TMenuItem* menuItem = new TMenuItem(m_view->popupMenu);
+	menuItem->OnClick = rerun;
+	menuItem->Parent = m_view->popupMenu;
+	menuItem->Text = "Rerun...";
+
+	m_view->popupMenu->AddObject( menuItem );
+
+    if ( m_model->getSelectedWorklistEntry() )
+    {
+        m_model->borrowSnapshot( update );
+    }
+}
+
 void SampleRunViewController::notify( int modelEvent, const EventData& eventData )
 {
     switch( modelEvent )
@@ -237,6 +341,14 @@ void SampleRunViewController::notify( int modelEvent, const EventData& eventData
         m_model->borrowSnapshot( update );
         break;
     }
+}
+
+void SampleRunViewController::onIdle()
+{
+}
+
+void SampleRunViewController::onResize()
+{
 }
 
 void __fastcall SampleRunViewController::selectWorklistEntry( TObject* sender )
@@ -278,13 +390,22 @@ void __fastcall SampleRunViewController::rerun(TObject* sender)
         m_selectedWorklistEntry->getTestName() );
 }
 
+void SampleRunViewController::setModel( Model* m )
+{
+    m_model = m;
+}
+
+void SampleRunViewController::setView( TSampleRunFrame* view )
+{
+    m_view = view;
+}
 void __fastcall SampleRunViewController::update()
 {
     try
     {
         for ( TFmxObject* o : m_runContainerAdditions )
         {
-            m_widgetContainer->runContainer->RemoveObject(o);
+            m_view->runContainer->RemoveObject(o);
         }
 
 		m_runContainerAdditions.clear();
@@ -310,8 +431,8 @@ void __fastcall SampleRunViewController::update()
             
             m_selectedWorklistEntry.reset( new WorklistEntryContext(worklistEntry, snapshot) );
 
-            m_widgetContainer->barcode ->Text   = m_selectedWorklistEntry->getBarcode().c_str();
-            m_widgetContainer->sampleID->Text   = m_selectedWorklistEntry->getSampleID();
+            m_view->barcode ->Text   = m_selectedWorklistEntry->getBarcode().c_str();
+            m_view->sampleID->Text   = m_selectedWorklistEntry->getSampleID();
 
             for ( LocalRunIterator localRun( snapshot->localBegin(), snapshot->localEnd() ), eof; localRun != eof; ++localRun )
             {

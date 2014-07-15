@@ -272,11 +272,11 @@ void Context::configCrstatus( const int index ) {
 		m_crstatus.setNextId(Cryovial::MARKED);
 		break;
     case 1:
-		m_crstatus.setCurrentId(Cryovial::MARKED);
+/*		m_crstatus.setCurrentId(Cryovial::MARKED);
 		m_crstatus.setNextId(Cryovial::REMOVED);
-        break;
-    case 2:
-        m_crstatus.setCurrentId(Cryovial::REMOVED);
+		break;
+	case 2:
+*/      m_crstatus.setCurrentId(Cryovial::REMOVED);
         m_crstatus.setNextId(Cryovial::DESTROYED);
         break;
     default:

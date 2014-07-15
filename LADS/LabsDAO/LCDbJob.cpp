@@ -70,6 +70,7 @@ void LCDbCryoJob::createName( LQuery central, const std::string & nameBase )
 		out << nameBase;
 	}
 
+	boxSet = 0;
 	switch( jobType ) {
 		case SAMPLE_RETRIEVAL:
 		case SAMPLE_DISCARD:
@@ -77,10 +78,7 @@ void LCDbCryoJob::createName( LQuery central, const std::string & nameBase )
 			central.setSQL( "select max(box_set)+1 as next_set from c_retrieval_job" );
 			if( central.open() ) {
 				boxSet = central.getRecord().getInt( 0 );
-				break;
 			}
-		default:
-			boxSet = 0;
 	}
 	if(	boxSet == 0 ) {
 		out << '_' << abs( claimNextID( central ) );

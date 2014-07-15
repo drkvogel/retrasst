@@ -3,7 +3,7 @@ object frmSelectJob: TfrmSelectJob
   Top = 0
   BorderIcons = [biMinimize]
   Caption = 'Select Cryogenics Task'
-  ClientHeight = 305
+  ClientHeight = 432
   ClientWidth = 715
   Color = 12316364
   Constraints.MinHeight = 150
@@ -17,52 +17,98 @@ object frmSelectJob: TfrmSelectJob
   OnShow = FormShow
   DesignSize = (
     715
-    305)
+    432)
   PixelsPerInch = 96
   TextHeight = 13
+  object LblWhy: TLabel
+    Left = 330
+    Top = 18
+    Width = 44
+    Height = 13
+    Caption = 'Exercise:'
+  end
+  object Label1: TLabel
+    Left = 10
+    Top = 18
+    Width = 38
+    Height = 13
+    Caption = 'Project:'
+  end
   object grdJobs: TStringGrid
     Left = 6
-    Top = 8
+    Top = 55
     Width = 702
-    Height = 248
+    Height = 323
     Anchors = [akLeft, akTop, akRight, akBottom]
     ColCount = 3
     DefaultColWidth = 160
     FixedCols = 0
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
-    TabOrder = 0
+    TabOrder = 3
     OnDblClick = grdJobsDblClick
-    ExplicitWidth = 570
-    ExplicitHeight = 234
   end
   object btnNewJob: TButton
     Left = 220
-    Top = 268
+    Top = 392
     Width = 82
     Height = 28
     Anchors = [akLeft, akBottom]
     Caption = 'New Job'
-    TabOrder = 2
+    TabOrder = 5
     OnClick = btnNewJobClick
   end
   object btnDone: TButton
     Left = 516
-    Top = 268
+    Top = 392
     Width = 82
     Height = 28
     Anchors = [akRight, akBottom]
     Caption = 'Close'
     ModalResult = 2
-    TabOrder = 3
+    TabOrder = 6
   end
   object btnOpenJob: TButton
     Left = 118
-    Top = 268
+    Top = 392
     Width = 82
     Height = 28
     Anchors = [akLeft, akBottom]
     Caption = 'Open Job'
-    TabOrder = 1
+    TabOrder = 4
     OnClick = btnOpenJobClick
+  end
+  object cbExercise: TComboBox
+    Left = 388
+    Top = 14
+    Width = 210
+    Height = 21
+    Anchors = [akLeft, akTop, akRight]
+    DropDownCount = 12
+    TabOrder = 1
+    Text = '(none)'
+    OnChange = cbExerciseChange
+    OnDropDown = cbExerciseDropDown
+  end
+  object btnNewEx: TButton
+    Left = 614
+    Top = 8
+    Width = 90
+    Height = 32
+    Anchors = [akTop, akRight]
+    Caption = 'New Exercise'
+    TabOrder = 2
+    OnClick = btnNewExClick
+  end
+  object cbProjects: TComboBox
+    Left = 63
+    Top = 14
+    Width = 210
+    Height = 21
+    DropDownCount = 12
+    Sorted = True
+    TabOrder = 0
+    Text = '(any)'
+    OnChange = cbProjectsChange
+    OnDropDown = cbProjectsDropDown
   end
 end

@@ -73,6 +73,12 @@ public:
     void forceReload();
     /* UI thread */
     valc::SnapshotPtr& getSnapshot();
+
+    void init();
+
+    /* UI thread */
+    void loadRule( int test, int machine, int project );
+
     /* UI thread */
     void rerun(
         int worklistID, 
@@ -93,6 +99,7 @@ private:
     ModelEventListener* m_eventSink;
     std::unique_ptr<TWaitDlg> m_busyDialog;
     paulst::CritSec     m_critSec;
+    AsyncTask*          m_initialisationTask;
 
 	BusinessLayer( const BusinessLayer& );
 	BusinessLayer& operator=( const BusinessLayer& );

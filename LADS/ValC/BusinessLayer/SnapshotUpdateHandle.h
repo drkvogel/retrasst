@@ -1,6 +1,8 @@
 #ifndef SNAPSHOTUPDATEHANDLEH
 #define SNAPSHOTUPDATEHANDLEH
 
+#include "API.h"
+
 namespace valc
 {
 
@@ -15,7 +17,7 @@ public:
     SnapshotUpdateHandle( const SnapshotUpdateHandle& );
     SnapshotUpdateHandle& operator=( const SnapshotUpdateHandle& );
     operator bool() const { return m_snapshot; }
-    void                 appendToQueue   ( const std::string& sampleDesriptor );
+    void                 appendToQueue   ( const QueuedSample& qs );
     void                 closeOff        ( const IDToken& sampleRunID );
     int                  getGroupIDForSampleRun( const IDToken& sampleRunID ) const;
     const WorklistEntry* getWorklistEntry( int id ) const;

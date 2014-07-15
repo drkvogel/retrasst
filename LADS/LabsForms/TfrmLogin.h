@@ -8,20 +8,18 @@
 #include <Classes.hpp>
 #include <Controls.hpp>
 #include <StdCtrls.hpp>
-#include <Forms.hpp>
-#include "IdExplicitTLSClientServerBase.hpp"
-#include "IdSMTPBase.hpp"
-#include "TfrmLoginBase.h"
 #include <Buttons.hpp>
-#include <DB.hpp>
-//#include <DBTables.hpp>
-#include <ExtCtrls.hpp>
+#include <Forms.hpp>
+#include "TfrmLoginBase.h"
 #include <IdBaseComponent.hpp>
 #include <IdComponent.hpp>
+#include <IdExplicitTLSClientServerBase.hpp>
 #include <IdMessageClient.hpp>
 #include <IdSMTP.hpp>
+#include <IdSMTPBase.hpp>
 #include <IdTCPClient.hpp>
 #include <IdTCPConnection.hpp>
+#include <Vcl.ExtCtrls.hpp>
 
 //---------------------------------------------------------------------------
 
@@ -31,8 +29,8 @@ __published:	// IDE-managed Components
 	TComboBox *projName;
 	TLabel *Label4;
 
-	void __fastcall initialise(TObject *Sender);
 	void __fastcall okButtonClick(TObject *Sender);
+	void __fastcall projNameDropDown(TObject *Sender);
 
 private:	// User declarations
 

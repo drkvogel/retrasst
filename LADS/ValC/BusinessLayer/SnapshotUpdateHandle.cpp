@@ -30,9 +30,9 @@ SnapshotUpdateHandle& SnapshotUpdateHandle::operator=( const SnapshotUpdateHandl
     return *this;
 }
 
-void SnapshotUpdateHandle::appendToQueue( const std::string& sampleDescriptor )
+void SnapshotUpdateHandle::appendToQueue( const QueuedSample& queuedSample )
 {
-    m_snapshot->m_queuedSamples.push_back( QueuedSample( sampleDescriptor ) );
+    m_snapshot->m_queuedSamples.push_back( queuedSample );
 }
 
 void SnapshotUpdateHandle::closeOff( const IDToken& sampleRunID )

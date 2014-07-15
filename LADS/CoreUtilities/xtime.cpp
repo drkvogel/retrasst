@@ -203,12 +203,12 @@ bool XDATE::setNow( void )
 	return(	set( tnow ) );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XDATE::getYear( void ) const
+ int XDATE::getYear( void ) const
 {
 	return( dateValid ? yr : XTIME::invalid );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XDATE::getMonth( void ) const
+ int XDATE::getMonth( void ) const
 {
 	return( dateValid ? mon : XTIME::invalid );
 }
@@ -227,7 +227,7 @@ const std::string XDATE::getMonthAbbrev( void ) const
 		: std::string("INVALID_MONTH") );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XDATE::getDay( void ) const
+ int XDATE::getDay( void ) const
 {
 	return( dateValid ? dy : XTIME::invalid );
 }
@@ -416,16 +416,33 @@ std::string XDATE::dmy( const int format ) const
 		{return( XTIME::invalid_serialization );
 		}
 	char	buf[50];
-	char const      *fmt = "%d/%d/%d";
 	switch( format )
 		{
 		case 1:
-			fmt = "%2.2d/%2.2d/%4.4d";
+			sprintf( buf, "%2.2d/%2.2d/%4.4d",
+				getDay(), getMonth(), getYear() );
+			break;
+		case 20:
+			sprintf( buf, "%d %s %d",
+				getDay(), getMonthAbbrev().c_str(), getYear() );
+			break;
+		case 21:
+			sprintf( buf, "%2.2d %s %4.4d",
+				getDay(), getMonthAbbrev().c_str(), getYear() );
+			break;
+		case 30:
+			sprintf( buf, "%d %s %d",
+				getDay(), getMonthName().c_str(), getYear() );
+			break;
+		case 31:
+			sprintf( buf, "%2.2d %s %4.4d",
+				getDay(), getMonthName().c_str(), getYear() );
 			break;
 		default:
+			sprintf( buf, "%d/%d/%d",
+				getDay(), getMonth(), getYear() );
 			break;
 		}
-	sprintf( buf, fmt, getDay(), getMonth(), getYear() );
 	return( std::string( buf ) );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -572,22 +589,22 @@ bool XCLOCK::setNow( void )
 	return(	set( tnow ) );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XCLOCK::getHour( void ) const
+ int XCLOCK::getHour( void ) const
 {
 	return( clockValid ? hr : XTIME::invalid );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XCLOCK::getMinute( void ) const
+ int XCLOCK::getMinute( void ) const
 {
 	return( clockValid ? min : XTIME::invalid );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XCLOCK::getSecond( void ) const
+ int XCLOCK::getSecond( void ) const
 {
 	return( clockValid ? sec : XTIME::invalid );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const int XCLOCK::getMilliSecond( void ) const
+ int XCLOCK::getMilliSecond( void ) const
 {
 	return( clockValid ? ms : XTIME::invalid );
 }

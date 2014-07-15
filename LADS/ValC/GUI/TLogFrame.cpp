@@ -18,8 +18,7 @@ int LabelledMessage::PURPOSE_GUI = 1;
 
 //---------------------------------------------------------------------------
 __fastcall TLogFrame::TLogFrame(TComponent* Owner)
-	: TFrame(Owner),
-    m_idleServiceUser(this)
+	: TFrame(Owner)
 {
 }
 //---------------------------------------------------------------------------
@@ -157,10 +156,6 @@ void TLogFrame::queueMessage( const LabelledMessage& lm )
 
 //---------------------------------------------------------------------------
 
-void TLogFrame::onIdle()
-{
-    processQueuedMessages();
-}
 
 /** This handles resizing, keeping a 50:50 width between the two halves of
   * the logging window.
@@ -184,10 +179,5 @@ void TLogFrame::processQueuedMessages()
 	}
 
 	m_messageQueue.clear();
-}
-//---------------------------------------------------------------------------
-void TLogFrame::registerWithIdleService( valcui::IdleService* is )
-{
-    is->registerUser( &m_idleServiceUser );
 }
 

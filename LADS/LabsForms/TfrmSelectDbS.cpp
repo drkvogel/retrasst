@@ -26,9 +26,11 @@ __fastcall TfrmSelectDbSystem::TfrmSelectDbSystem( TComponent* AOwner ) : TForm(
 void __fastcall TfrmSelectDbSystem::FormShow(TObject *Sender)
 {
 	rgDatabase->Items->Clear();
-	for( LIMSDatabase::DbSystem item = LIMSDatabase::VLAB_LIVE; item < LIMSDatabase::SYSTEM_COUNT; ++ item ) {
+	LIMSDatabase::DbSystem item = LIMSDatabase::VLAB_LIVE;
+	do {
 		rgDatabase->Items->Add( LIMSDatabase::getDescription( item ).c_str() );
-	}
+		item = LIMSDatabase::DbSystem( item + 1 );
+	} while( item < LIMSDatabase::SYSTEM_COUNT );
 	rgDatabase->ItemIndex = LIMSParams::instance().getDbSystem();
 }
 

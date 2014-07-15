@@ -298,7 +298,7 @@ bool XSQL::ingConstructParameters( void )
 void XSQL::ingConstructDisplay( void )
 {
 	printf( "\nXSQL::ingConstructDisplay\n%s\n%d parameters",
-		query_text.c_str(), int( param_name.size() ) );
+		query_text.c_str(), (int)param_name.size() );
 	std::vector<std::string>::iterator vit = param_name.begin();
 	int	count = 0;
 	while( vit != param_name.end() )
@@ -344,6 +344,10 @@ bool XSQL::ingDescribeUserParameters( IIAPI_DESCRIPTOR *desc )
 			case ROSETTA::typeInt:
 				pdes->ds_dataType = IIAPI_INT_TYPE;
 				pdes->ds_length = sizeof( II_INT4 );
+				break;
+			case ROSETTA::typeBool:
+				pdes->ds_dataType = IIAPI_BOOL_TYPE;
+				pdes->ds_length = 1; // sizeof(II_BOOL) is a bug
 				break;
 			case ROSETTA::typeLint:
 				pdes->ds_dataType = IIAPI_INT_TYPE;
@@ -441,6 +445,13 @@ bool XSQL::ingPutUserParam( IIAPI_PUTPARMPARM *putp, const int indx )
 		d->dv_length = sizeof(II_INT4);
 		d->dv_value = (II_INT4 *) malloc( sizeof(II_INT4) );
 		*((II_INT4*)d->dv_value) = (II_INT4) pars->getInt( param_name[indx] );
+		}
+	else if ( ROSETTA::typeBool == typ )
+		{	// II_BOOL size (=4) doesn't work for selects
+		d->dv_length = sizeof(unsigned char);
+		d->dv_value = (unsigned char *) malloc( sizeof(unsigned char) );
+		*((unsigned char *)d->dv_value) = (unsigned char)
+			( pars->getBool( param_name[indx] ) ? 1 : 0 );
 		}
 	else if ( ROSETTA::typeLint == typ )
 		{

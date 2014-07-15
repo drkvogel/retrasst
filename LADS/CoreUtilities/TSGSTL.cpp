@@ -4,7 +4,7 @@
 #pragma hdrstop
 
 #include "TSGSTL.h"
-#include "StringUtil.h"
+// #include "StringUtil.h"
 TColor  TSG_EXTRA2::defaultHighlight=clLime;
 TColor  TSG_EXTRA2::defaultNormal=clWhite;
 
@@ -219,7 +219,7 @@ void TSG_EXTRA2::row_textWrap_unset( int irow )
         row_textWrap_toggle( irow, false );
 }
 /* SET ROW TO BE HIGHLIGHTED AS IN SELECTED*/
-void TSG_EXTRA2::row_textWrap_toggle( int irow,bool pset )
+void TSG_EXTRA2::row_textWrap_toggle( int irow,bool  )
 {
         MapRowEntry::iterator mi=rowEntry.find(irow);
 
@@ -284,7 +284,7 @@ bool TSG_EXTRA2::is_row_textwrapped( int irow )
 {
         MapRowEntry::iterator mi=rowEntry.find(irow);
 
-        cellAttribute lca;
+        //cellAttribute lca;
         rowDetails rd;
         int rowEntryi;
         if( mi==rowEntry.end())
@@ -600,14 +600,12 @@ void TSG_EXTRA2::DrawCell_event_handler( int icol, int irow, TRect &rect )
         }else
         {
                 int noOfLines;
-				String textToWrap;
-				std::string strWrap;
 				char buff[256];
-				textToWrap=sg->Cells[icol][irow];
-				strWrap=bcsToStd( textToWrap);
+				AnsiString textToWrap=sg->Cells[icol][irow];
+				std::string strWrap= textToWrap.c_str();
 				strcpy(buff,strWrap.c_str());
                 noOfLines=rect.Height()/canv->Font->Height;
-                 textToWrap=String(strtok(buff," ,\r\n"));
+                 textToWrap= strtok(buff," ,\r\n");
                 for( int i=0; i<3; i++ )
                 {
 

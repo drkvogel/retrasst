@@ -24,6 +24,7 @@ public:
     IdleService();
     void onIdle();
     void registerUser( IdleServiceUser* u );
+    void unregisterUser( IdleServiceUser* u );
 private:
     paulst::CritSec m_critSec;
     std::vector< IdleServiceUser* > m_serviceUsers;

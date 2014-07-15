@@ -47,6 +47,11 @@ valc::SnapshotPtr Model::getSnapshot() const
     return m_businessLayer->getSnapshot();
 }
 
+bool Model::isSnapshotLoaded() const
+{
+    return m_snapshotObserver.isSnapshotLoaded();
+}
+
 void Model::registerModelEventListener( ModelEventListener* l )
 {
     m_listeners.registerListener( l );
@@ -55,6 +60,11 @@ void Model::registerModelEventListener( ModelEventListener* l )
 void Model::doForceReload()
 {
     m_businessLayer->forceReload();
+}
+
+void Model::doLoadRule( int test, int machine, int project )
+{
+    m_businessLayer->loadRule( test, machine, project );
 }
 
 void Model::doRerun(
@@ -70,6 +80,12 @@ void Model::doRerun(
 void Model::doRunPendingUpdates()
 {
     m_businessLayer->runPendingUpdates();
+}
+
+void Model::init()
+{
+    require( m_businessLayer );
+    m_businessLayer->init();
 }
 
 void Model::setLog( LogManager* l )
@@ -90,6 +106,11 @@ void Model::setSelectedWorklistEntry( int worklistEntryID )
 
         m_listeners.notify( MODEL_EVENT::WORKLIST_ENTRY_SELECTION_CHANGE, worklistEntryID );
     }
+}
+
+void Model::unregisterModelEventListener( ModelEventListener* l )
+{
+    m_listeners.unregisterListener( l );
 }
 
 void Model::warningAlarmOn()

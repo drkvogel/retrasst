@@ -95,8 +95,9 @@ void __fastcall TfrmBrowse::MoveClick(TObject *Sender)
 		p = p -> Parent;
 	}
 */
-	frmMove->init( p_part );
-	ModalResult = mrOk;
+	if( frmMove->init( p_part ) ) {
+		ModalResult = mrOk;
+    }
 }
 
 //---------------------------------------------------------------------------

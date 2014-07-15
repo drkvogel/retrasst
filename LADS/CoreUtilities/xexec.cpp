@@ -339,5 +339,4 @@ bool XEXEC::del( const std::string table, const ROSETTA *where )
 	return( exec() );
 }
 //===========================================================================
-#pragma package(smart_init)
 

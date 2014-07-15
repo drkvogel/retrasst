@@ -22,26 +22,28 @@ __published:	// IDE-managed Components
 	TLabel *LblFull;
 	TEdit *TxtName;
 	TLabel *LblName;
-	TLabel *LblWhy;
-	TComboBox *CbExercise;
-	TButton *BtnNewEx;
 	TLabel *LblReason;
 	TComboBox *cmbReason;
 	TLabel *Label1;
 	TEdit *txtBoxSet;
 	TBitBtn *BitBtn1;
 	TBitBtn *BitBtn2;
-	void __fastcall BtnNewExClick(TObject *Sender);
+	TLabel *Label2;
+	TLabel *lblExercise;
+	TButton *btnAddReason;
 	void __fastcall BitBtn1Click(TObject *Sender);
+	void __fastcall btnAddReasonClick(TObject *Sender);
 
 private:	// User declarations
 
 	LCDbCryoJob job;
+	int reasonGroup;
 
 public:		// User declarations
 
 	__fastcall TfrmNewJob( TComponent* Owner );
 	void init( LCDbCryoJob::JobKind kind );
+	void setExercise( int exID );
 	bool createJob( const std::vector<Box*> & boxes );
 	LCDbCryoJob * getDetails() { return &job; }
 };

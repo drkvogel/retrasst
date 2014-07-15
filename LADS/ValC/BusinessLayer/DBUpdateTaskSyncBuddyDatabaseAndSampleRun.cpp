@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "Cursor.h"
 #include "DBConnection.h"
+#include "DBTransactionResources.h"
 #include "DBTransactionUtil.h"
 #include "DBUpdateTaskSyncBuddyDatabaseAndSampleRun.h"
 #include <memory>
@@ -11,24 +12,28 @@
 namespace valc
 {
 
-std::string DBUpdateTaskSyncBuddyDatabaseAndSampleRun::describeUpdate() const
+const paulst::Config* DBUpdateTaskSyncBuddyDatabaseAndSampleRun::config() const
 {
-    return "Associating entries in buddy_database with entries in sample_run for instances when no such "
-        "association currently exists.  Creating entries in sample_run as required.";
+    return m_dbTransactionResources->getConfig();
 }
 
-void DBUpdateTaskSyncBuddyDatabaseAndSampleRun::updateDatabase()
+paulstdb::DBConnection* DBUpdateTaskSyncBuddyDatabaseAndSampleRun::connection() const
 {
-    setAutoCommit( connection, false );
+    return m_dbTransactionResources->getConnection();
+}
 
-    boost::shared_ptr<void> restoreAutoCommitOnBlockExit( connection, boost::bind( setAutoCommit, _1, true ) );
+void DBUpdateTaskSyncBuddyDatabaseAndSampleRun::doStuff()
+{
+    setAutoCommit( connection(), false );
+
+    boost::shared_ptr<void> restoreAutoCommitOnBlockExit( connection(), boost::bind( setAutoCommit, _1, true ) );
 
     try
     {
         for ( const SampleRun& sr : m_newSampleRuns )
         {
                 int newSampleRunID = insertNewSampleRunEntry( sr );
-                snapshotUpdateHandle.updateSampleRunIDValue( sr.getID(), paulst::toString(newSampleRunID) );
+                snapshotUpdateHandle().updateSampleRunIDValue( sr.getID(), paulst::toString(newSampleRunID) );
         }
 
         for ( const BuddyRun& br : m_newBuddyRuns )
@@ -36,16 +41,16 @@ void DBUpdateTaskSyncBuddyDatabaseAndSampleRun::updateDatabase()
             updateBuddyDatabaseEntry( br.buddySampleID, paulst::toInt( br.sampleRunID.value() ) );
         }
 
-        commit( connection );
+        commit( connection() );
     }
     catch( const Exception& e )
     {
-        rollback( connection );
+        rollback( connection() );
         throw;
     }
     catch( ... )
     {
-        rollback( connection );
+        rollback( connection() );
         throw;
     }
 }
@@ -53,7 +58,7 @@ void DBUpdateTaskSyncBuddyDatabaseAndSampleRun::updateDatabase()
 
 int DBUpdateTaskSyncBuddyDatabaseAndSampleRun::insertNewSampleRunEntry( const SampleRun& sr )
 {
-    std::auto_ptr<paulstdb::Cursor> c( connection->executeQuery( config->get("SampleRunIDQueryString") ) );
+    std::auto_ptr<paulstdb::Cursor> c( connection()->executeQuery( config()->get("SampleRunIDQueryString") ) );
 
     if ( c->endOfRecordSet() )
     {
@@ -64,20 +69,25 @@ int DBUpdateTaskSyncBuddyDatabaseAndSampleRun::insertNewSampleRunEntry( const Sa
     c->read( 0, newID );
     c->close();
 
-    std::string sql = paulst::format( config->get("SampleRunInsertSQL").c_str(), newID, sr.getSequencePosition(), 
-        snapshotUpdateHandle.getGroupIDForSampleRun( sr.getID() ) );
+    std::string sql = paulst::format( config()->get("SampleRunInsertSQL").c_str(), newID, sr.getSequencePosition(), 
+        snapshotUpdateHandle().getGroupIDForSampleRun( sr.getID() ) );
 
-    connection->executeStmt( sql );
+    connection()->executeStmt( sql );
 
     return newID;
+}
+
+SnapshotUpdateHandle DBUpdateTaskSyncBuddyDatabaseAndSampleRun::snapshotUpdateHandle() const
+{
+    return m_dbTransactionResources->getSnapshotUpdateHandle();
 }
 
 void DBUpdateTaskSyncBuddyDatabaseAndSampleRun::updateBuddyDatabaseEntry( int buddySampleID, int sampleRunID  )
 {
     const std::string sql = paulst::format( 
-        config->get("BuddyDatabaseSampleRunIDUpdateSQL").c_str(), sampleRunID, buddySampleID );
+        config()->get("BuddyDatabaseSampleRunIDUpdateSQL").c_str(), sampleRunID, buddySampleID );
 
-    connection->executeStmt( sql );
+    connection()->executeStmt( sql );
 }
 
 }

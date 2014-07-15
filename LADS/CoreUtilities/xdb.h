@@ -80,6 +80,7 @@ private:
 	static	bool	ingInitialised;
 	static	bool	blob_chunk_defined;
 	static	int	blob_chunk_size;
+	static	int	iiapi_version;
 	II_PTR 	connHandle;
 	II_PTR 	tranHandle;
 	II_PTR	envHandle;
@@ -124,6 +125,7 @@ public:
 	II_PTR	getConnHandle( void );
 	II_PTR	getTranHandle( void );
 	void	setTranHandle( II_PTR );
+	static	bool  	setIIApiVersion( const int iav );
 	static	void 	ingWait( IIAPI_GENPARM *genParm );
 #endif
 };

@@ -14,8 +14,8 @@
 
 /* This file contains some visual components:
        TSampleRunPanel
-	   TBarcodePanel           (displays a DSampleRun)
-	   TTestPanel              (displays a DSampleTest)
+	   TBarcodePanel
+	   TTestPanel
 */
 
 							// some forward declarations
@@ -41,8 +41,7 @@ class TSampleRunPanel : public TPanel
 public:
 	TBarcodePanel *barcodePanel;
 	TPanel *testsPanel;
-	EntryPanelsList *testPanels;  // list of the TTestPanels contained in testsPanel
-								  // (this is a separate list so I can get at it)
+	EntryPanelsList *testPanels;  // list of the TTestPanel children of testsPanel
 
 	__fastcall TSampleRunPanel(TComponent *owner);
 	__fastcall ~TSampleRunPanel();
@@ -56,20 +55,26 @@ class TBarcodePanel : public TPanel
 public:
 	// DSampleRun *sample; // the data associated with this barcode panel
 	__fastcall TBarcodePanel(WorklistEntriesView *g, TComponent *Owner,
-							 bool queued);
+							 bool c, bool q);
 	__fastcall ~TBarcodePanel();
 
 	void updateBarcode(const std::string & barcode);
 	void needsAttention();
+	bool needingAttention();
 
-	// quick & flexible get/set attribute stuff for prototyping purposes
+	const bool closed;
+	const bool queued;
+
+	// flexible get/set attributes for prototyping purposes
 	std::string getAttribute(const std::string & key);
 	int getIntAttribute(const std::string & key);
 	void setAttribute(const std::string & key, const std::string & value);
 	void setAttribute(const std::string & key, int value);
 
 private:
+
 	TLabel *barcodeLabel;
+	bool attentionNeeded;
 	WorklistEntriesView *gui;
 
 	std::map <std::string,int> *ids;     // later: figure how to get TBarcodePanel

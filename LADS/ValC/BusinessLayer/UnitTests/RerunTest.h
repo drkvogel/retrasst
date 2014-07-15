@@ -94,7 +94,7 @@ namespace tut
 
             s->setObserver( &snapshotObserver );
 
-            HANDLE h = s->queueForRerun( -36845, lr.getRunID(), lr.getSampleDescriptor() );
+            HANDLE h = s->queueForRerun( -36845, lr.getRunID(), lr.getSampleDescriptor(), "118507091" );
 
             DWORD waitResult = WaitForSingleObject( h, 1000 );
 
@@ -169,7 +169,7 @@ namespace tut
 
             s->setObserver( &snapshotObserver );
 
-            HANDLE h = s->queueForRerun( -36845, lr.getRunID(), lr.getSampleDescriptor() );
+            HANDLE h = s->queueForRerun( -36845, lr.getRunID(), lr.getSampleDescriptor(), "118507091" );
 
             DWORD waitResult = WaitForSingleObject( h, 1000 );
 

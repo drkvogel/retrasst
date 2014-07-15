@@ -1,3 +1,8 @@
+#define SESSION_READ_LOCK       set lockmode session where readlock = nolock
+#define DB                      paulst_test4
+#define DATA_SOURCE_NAME        paulst_brat_64
+#define DB_CONNECTION_STRING    dsn=[DATA_SOURCE_NAME];db=[DB]
+
 LinkResultToWorklistEntryUpdateSQL:
     update buddy_result_float set cbw_record_no = %d where buddy_result_id = %d
 
@@ -11,10 +16,10 @@ SampleRunInsertSQL:
     insert into sample_run ( run_id, sequence_position, group_id ) values ( %d, %f, %d )
 
 SampleRunGroupIDConnectionString:
-    dsn=paulst_brat_64;db=paulst_test4
+    [DB_CONNECTION_STRING]
 
 SampleRunGroupIDSessionReadLockSetting:
-    set lockmode session where readlock = nolock
+    [SESSION_READ_LOCK]
 
 SampleRunGroupIDQueryString:
     select valc_next_id.nextval
@@ -52,40 +57,40 @@ RuleEngineTimeoutSecs:
 10
 
 QCResultSequenceConnectionString:
-dsn=paulst_brat_64;db=paulst_test4
+[DB_CONNECTION_STRING]
 
 ProjectsConnectionString:
-dsn=paulst_brat_64;db=paulst_test4
+[DB_CONNECTION_STRING]
 
 ProjectsSessionReadLockSetting:
-set lockmode session where readlock = nolock
+[SESSION_READ_LOCK]
 
 ProjectsQuery:
 select project_cid, lower(external_name), lower(db_name) from c_project
 
 ClusterIDsConnectionString:
-dsn=paulst_brat_64;db=paulst_test4
+[DB_CONNECTION_STRING]
 
 ClusterIDsSessionReadLockSetting:
-set lockmode session where readlock = nolock
+[SESSION_READ_LOCK]
 
 ClusterIDsQuery:
 SELECT cluster_cid FROM c_cluster_machine WHERE machine_cid = -1019429
 
 TestNamesConnectionString:
-dsn=paulst_brat_64;db=paulst_test4
+[DB_CONNECTION_STRING]
 
 TestNamesSessionReadLockSetting:
-set lockmode session where readlock = nolock
+[SESSION_READ_LOCK]
 
 TestNamesQuery:
 select test_cid, external_name from c_test
 
 QCGatesConnectionString:
-dsn=paulst_brat_64;db=paulst_test4
+[DB_CONNECTION_STRING]
 
 QCGatesSessionReadLockSetting:
-set lockmode session where readlock = nolock
+[SESSION_READ_LOCK]
 
 QCGatesQuery:
     select barcode_pattern, mean, stddev, qc_gate.test_cid, qc_gate.record_cid as gate_id, qc_gate.source, qc_lot.qc_status
@@ -101,10 +106,10 @@ QCGatesQuery:
     qc_lot.qc_status in ( 0, 1, 2 )
 
 QCRuleConnectionString:
-dsn=paulst_brat_64;db=paulst_test4
+[DB_CONNECTION_STRING]
 
 QCRuleSessionReadLockSetting:
-set lockmode session where readlock = nolock
+[SESSION_READ_LOCK]
 
 QCRuleQuery:
     select qr.record_cid, qr.rule_cid, con.external_name, con.external_full, qr.script   
@@ -116,10 +121,10 @@ QCRuleQuery:
     and qr.valid_to   > date('now')
 
 QCRuleConfigConnectionString:
-dsn=paulst_brat_64;db=paulst_test4
+[DB_CONNECTION_STRING]
 
 QCRuleConfigSessionReadLockSetting:
-set lockmode session where readlock = nolock
+[SESSION_READ_LOCK]
 
 QCRuleConfigQuery:
     select test_cid, machine_cid, project_cid, rule_cid
@@ -136,13 +141,13 @@ ConnectionFactoryType:
 ADO
 
 ForceReloadConnectionString:
-dsn=paulst_brat_64;db=paulst_test4
+[DB_CONNECTION_STRING]
 
 ForceReloadSessionReadLockSetting:
-set lockmode session where readlock = nolock
+[SESSION_READ_LOCK]
 
 DBUpdateThreadConnectionString:
-dsn=paulst_brat_64;db=paulst_test4
+[DB_CONNECTION_STRING]
 
 DBUpdateThreadSessionReadLockSetting:
 
@@ -224,10 +229,10 @@ WorklistInclusionRule:
 
 
 WorklistRelationConnectionString:
-dsn=paulst_brat_64;db=paulst_test4
+[DB_CONNECTION_STRING]
 
 WorklistRelationSessionReadLockSetting:
-set lockmode session where readlock = nolock
+[SESSION_READ_LOCK]
 
 WorklistRelationQuery:
     SELECT wr.parent_id, wr.rerun_id, wr.motivation 

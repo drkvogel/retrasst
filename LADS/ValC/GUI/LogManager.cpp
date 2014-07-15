@@ -8,6 +8,7 @@
 
 #include "LogManager.h"
 #include "Utils.h"
+#include "Require.h"
 #include "TLogFrame.h"
 
 #pragma package(smart_init)
@@ -32,17 +33,14 @@ std::string LogManager::FLAG_EXCEPTION = "/!\\ ";
   * @param m            a reference back to the main form
   * @param logWin       specifies whether a logging window is required or not
   */
-LogManager::LogManager(TLogFrame *m, const std::string& logFilePath)
+LogManager::LogManager( const std::string& logFilePath )
+    :
+    m_logFilePath( logFilePath ),
+    m_modelEventListener(this),
+    m_idleServiceUser(this),
+    m_view(NULL),
+    m_model(NULL)
 {
-	// now setting up the writer for text log file (and maybe GUI) output
-	GUIandLogWriter *logWriter
-		= new GUIandLogWriter( m, logFilePath);
-
-	// now setting up the logging service used for writing log messages
-	// (logging service now owns logWriter and will delete it)
-	logService = new paulst::LoggingService(logWriter);
-
-	timestampLog();
 }
 
 
@@ -69,6 +67,29 @@ LogManager::~LogManager()
 	// as this is owned by the logging service,
 	// which has responsibility for deleting it
 	delete logService;
+}
+
+valcui::IdleServiceUser* LogManager::getIdleServiceUserInterface()
+{
+    return &m_idleServiceUser;
+}
+
+valcui::ModelEventListener* LogManager::getModelEventListenerInterface()
+{
+    return &m_modelEventListener;
+}
+
+void LogManager::init()
+{	
+    // now setting up the writer for text log file (and maybe GUI) output
+	GUIandLogWriter *logWriter
+		= new GUIandLogWriter( m_view, m_logFilePath);
+
+	// now setting up the logging service used for writing log messages
+	// (logging service now owns logWriter and will delete it)
+	logService = new paulst::LoggingService(logWriter);
+
+	timestampLog();
 }
 
 /** Sends the given message to the logging service (paulst::LoggingService),
@@ -103,6 +124,30 @@ void LogManager::logException(const Exception& e)
     logException(msg);
 }
 
+void LogManager::notify( int eventID, const valcui::EventData& )
+{
+}
+
+void LogManager::onIdle()
+{
+    require( m_view );
+    m_view->processQueuedMessages();
+}
+
+void LogManager::onResize()
+{
+    m_view->onResize();
+}
+
+void LogManager::setModel( valcui::Model* m )
+{
+    m_model = m;
+}
+
+void LogManager::setView( TLogFrame* view )
+{
+    m_view = view;
+}
 
 //--------------- end LogManager class --------------------------------------
 //--------------- begin GUIandLogWriter class ------------------------------------

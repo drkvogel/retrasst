@@ -19,61 +19,63 @@ class TankEngine
 // Tank Engine is a singleton used to hand out Next slots based on tank layouts
 	public:
 		static TankEngine *Initialize();
-		static const bool isTankEngine( void ){return instance!= 0; }
-		const bool buildData( LQuery  dbase );
-		const bool rebuildTankData( void );
-		const bool addBoxEntry(	const TankSectionRackSlot & tsrs,const std::string & boxName );
+		static bool isTankEngine( void ){return instance!= 0; }
+		 bool buildData( LQuery  dbase );
+		 bool rebuildTankData( void );
+		 bool addBoxEntry(	const TankSectionRackSlot & tsrs,const std::string & boxName );
 
-		const bool isDataBuilt(void) const;
+		 bool isDataBuilt(void) const;
 
-		const bool testTankCID (  const TankSectionRackSlot&  tsrs ) ;
-		const bool testFillOrderAndSection ( const TankSectionRackSlot&  tsrs );
-		const bool testRack( const TankSectionRackSlot&  tsrs );
-		const bool testSlot( const TankSectionRackSlot&  tsrs );
+		 bool testTankCID (  const TankSectionRackSlot&  tsrs ) ;
+		 bool testFillOrderAndSection ( const TankSectionRackSlot&  tsrs );
+		 bool testRack( const TankSectionRackSlot&  tsrs );
+		 bool testSlot( const TankSectionRackSlot&  tsrs );
 
 
 //==============================================================
 //   Setter functions
 //==============================================================
 		void resetCurrents(void);
-		const bool storeTSRS (  const TankSectionRackSlot& pTsrs  );
+		 bool storeTSRS (  const TSRSExt& pTsrs  );
 
-		const bool setLocation( const int pLocation );
-		const bool setTankExt ( const std::string & pTankCID  );
+		 bool setLocation( const int pLocation );
+		 bool setTankExt ( const TSRSExt & pTSRSExt  );
 //		const bool setFillOrder( const int pFillOrder );
-		const bool setFillOrderAndSection ( const int pFillOrder,const std::string & pSection );
+		 bool setFillOrderAndSection ( const TSRSExt & pTSRSExt );
 //		const bool setSection ( const String & pSection );
-		const bool setRack    ( const int pRack );
-		const bool setSlot    ( const int pSlot );
+		 bool setRack    ( const int pRack );
+		 bool setSlot    ( const int pSlot );
 
-		const TankSectionRackSlot& getWorkingTSRS(void);
-		const TankSectionRackSlot& getStoredTSRS(void);
+ //		const TankSectionRackSlot& getWorkingTSRS(void);
+		const TSRSExt& getWorkingTSRSExt(void);
+		const TSRSExt& getStoredTSRS(void);
 
 //==============================================================
 //   Getter functions
 //==============================================================
 //		int getTankSize( void ){return gCurrTankSize;}
-		const int getTankExt( const int pTankCID );
-		const int getFillOrder(  const int pRackLayoutCID, const std::string & pSection, int pRack );
+		 int getTankExt( const int pTankCID );
+		 int getFillOrder(  const int pRackLayoutCID, const std::string & pSection, int pRack );
 //==============================================================
 //
 //==============================================================
 		static int getCurrTankCID(void);
 
 
-		const int getMinTank(void);
-		const int getMaxTank(void);
-		const bool getSectionCount( const std::string& pTankName);
+		 int getMinTank(void);
+		 int getMaxTank(void);
+//		const bool getSectionCount( const std::string& pTankName);
+		 bool getSectionCount( const int pTankCID);
 //		const bool getRackCount( const String& pTankName, const String& pSectionName );
-		const bool getRackCount(const std::string& pTankName,const int pFillOrder );
-		const bool getSlotContent( const std::string& pTankName, const std::string& pSectionName, const std::string& pRackName );
+		 bool getRackCount(const int pTankName,const int pFillOrder );
+		 bool getSlotContent( const int pTankName, const std::string& pSectionName, const std::string& pRackName );
 
 		CitrTankInfoMap getTankInfoBegin(void);
 		CitrTankInfoMap getTankInfoEnd(void);
 
 		CitrTankDisplayMap getTankDisplayMapBegin(void);
 		CitrTankDisplayMap getTankDisplayMapEnd(void);
-		const bool isTankDisplayEnd(const CitrTankDisplayMap ti );
+		 bool isTankDisplayEnd(const CitrTankDisplayMap ti );
 
 		CitrSectionCountMap getSectionCountBegin(void);
 		CitrSectionCountMap getSectionCountEnd(void);
@@ -84,16 +86,16 @@ class TankEngine
 		CitrSlotPositionsMap getSlotPositionsBegin(void);
 		CitrSlotPositionsMap getSlotPositionsEnd(void);
 
-		CitrTankInfoMap getTankInfoExt(const std::string& pTankName);
-		const int getRackLayoutID(const std::string &pTankName);
-		const bool isTankInfoEnd(const CitrTankInfoMap ti );
+		CitrTankInfoMap getTankInfoExt(const int pTankNo);
+		 int getRackLayoutID(const int &pTankName);
+		 bool isTankInfoEnd(const CitrTankInfoMap ti );
 
-		const bool isInUse(const TankSectionRackSlot & tsrs ) ;
-		const bool selectSlot(const TankSectionRackSlot & tsrs );
-		const bool lastSlot(  TankSectionRackSlot & tsrs );
-		const bool findNextSlot(  TankSectionRackSlot & tsrs);
-		const bool checkConfirmSlot ( const TankSectionRackSlot&  pTsrs );
-		const bool CheckConfirmEndOfTank(const TankSectionRackSlot&  pTsrs);
+		 bool isInUse(const TankSectionRackSlot & tsrs ) ;
+		 bool selectSlot(const TSRSExt & tsrs );
+		 bool lastSlot(  const TSRSExt & tsrs );
+		 bool findNextSlot(  TankSectionRackSlot & tsrs);
+		 bool checkConfirmSlot ( const TankSectionRackSlot&  pTsrs );
+		 bool CheckConfirmEndOfTank(const TankSectionRackSlot&  pTsrs);
 
 //==============================================================
 //		General functions which can be used by users of tank engine.
@@ -105,8 +107,12 @@ class TankEngine
 	protected:
 		TankEngine();
 	private:
-		static TankSectionRackSlot storedTSRS;
-		static TankSectionRackSlot workingTSRS;
+// Stores the TSRS selected
+		static TSRSExt storedTSRS;
+// Stores detail as you go from Tank to Section to Rack to Slot.
+//		static TankSectionRackSlot workingTSRS;
+// Extended version
+		static TSRSExt workingTSRSExt;
 
 // StoredLocationInfo is a structure containing summary infomation on the
 // current selected tank/section/rack/slot. Used as quick reference in tank engine.
@@ -149,21 +155,21 @@ class TankEngine
 		static StoredLocationInfo sli;
 
 		static bool	  dataBuilt;
-																						static int minTank;
+		static int minTank;
 		static int maxTank;
 
 //==============================================================
 // Helper functions - private member functions
 //==============================================================
 
-		const bool rawStoreTSRS(const TankSectionRackSlot& tsrs );
+		 bool rawStoreTSRS(const TSRSExt& tsrs );
 
-		void countRack(const int rackLayout,int& sectionCount, int & rackCount,int& rackCapacity);
-		const int  getRackSize(const std::string & pTankName, const std::string & pSectionName
+		void countRack(LQuery  dbase,const int tankCID,const int rackLayout,int& sectionCount, int & rackCount,int& rackCapacity);
+		 int  getRackSize(const int pTankName, const std::string & pSectionName
 								, const std::string & pRackName, int & pFillOrder);
 
 //		const bool incSection(const String & pSection, String & pNextSection,const int pTankCID );
-		const bool incSection(	const int pFillOrder,const int pTankCID
+		 bool incSection(	const int pFillOrder,const int pTankCID
 								, int & pNextFillOrder,std::string & pNextSection
 								,int & pFirstRack );
 	  	const char * TrimZeroC( const char * leadZeroStr );

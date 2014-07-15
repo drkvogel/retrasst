@@ -41,6 +41,7 @@ void TfrmRetrieveMain::init( ) {
 	grdSamples->Cells[ SLOT_POS ][ 0 ] = "Slot";
 	grdSamples->Cells[ OLD_POS ][ 0 ] = "Old pos";
 	grdSamples->Cells[ OLD_BOX ][ 0 ] = "Old box";
+	grdSamples->Cells[ NEW_BOX ][ 0 ] = "New box";
 	grdSamples->Cells[ NEW_POS ][ 0 ] = "New pos";
 	rows.clear( );
 	sortList.clear( );

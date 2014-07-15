@@ -6,59 +6,66 @@ inherited frmLogin: TfrmLogin
   PixelsPerInch = 96
   TextHeight = 13
   inherited Label2: TLabel
-    Left = 50
-    Top = 128
-    ExplicitLeft = 50
-    ExplicitTop = 128
-  end
-  inherited Label3: TLabel
-    Left = 50
-    Top = 169
-    ExplicitLeft = 50
-    ExplicitTop = 169
+    Left = 40
+    Top = 109
+    ExplicitLeft = 40
+    ExplicitTop = 109
   end
   object Label4: TLabel [3]
-    Left = 50
-    Top = 211
+    Left = 40
+    Top = 197
     Width = 38
     Height = 13
     Caption = 'Project:'
   end
+  inherited Label3: TLabel
+    Left = 40
+    Top = 150
+    ExplicitLeft = 40
+    ExplicitTop = 150
+  end
   inherited exitButton: TBitBtn
     Left = 169
     Top = 256
-    TabOrder = 5
     ExplicitLeft = 169
     ExplicitTop = 256
   end
   inherited okButton: TBitBtn
     Left = 35
     Top = 256
-    TabOrder = 4
     ExplicitLeft = 35
     ExplicitTop = 256
   end
   inherited userList: TComboBox
-    Top = 125
-    ExplicitTop = 125
-  end
-  inherited rgDatabase: TRadioGroup
-    Left = 27
-    ExplicitLeft = 27
+    Left = 117
+    Top = 106
+    ExplicitLeft = 117
+    ExplicitTop = 106
   end
   inherited ebPassword: TEdit
-    Top = 166
-    ExplicitTop = 166
+    Left = 117
+    Top = 147
+    ExplicitLeft = 117
+    ExplicitTop = 147
   end
   object projName: TComboBox [9]
-    Left = 122
-    Top = 208
+    Left = 117
+    Top = 194
     Width = 160
     Height = 21
     DropDownCount = 20
     Enabled = False
     Sorted = True
-    TabOrder = 3
+    TabOrder = 4
     OnChange = textChange
+    OnDropDown = projNameDropDown
+  end
+  inherited timer: TTimer
+    Left = 248
+    Top = 32
+  end
+  inherited IdSMTP1: TIdSMTP
+    Left = 192
+    Top = 32
   end
 end

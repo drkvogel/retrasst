@@ -30,7 +30,7 @@ void xb36Code::fillMaps( char digit, unsigned value, char last )
 unsigned __int64 xb36Code::decode( const std::string & alpha ) const
 {
 	unsigned __int64 code = 0;
-	for( int pos = 0; pos < alpha.length(); pos++ )
+	for( std::size_t pos = 0; pos < alpha.length(); pos++ )
 	{
 		char ch = alpha[ pos ];
 		if( ch != ' ' && ch != '_' && ch != ',' )

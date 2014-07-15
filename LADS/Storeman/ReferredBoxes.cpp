@@ -86,7 +86,7 @@ void __fastcall TfrmReferred::cbLogClick(TObject *Sender) {
 
 void TfrmReferred::init() {
     // referred boxes: l_box_arrival
-    sgReferredBoxes->ColWidths[0]  = 290;  // Name
+	sgReferredBoxes->ColWidths[0]  = 290;  // Name
     sgReferredBoxes->ColWidths[1]  = 120;  // Status
     sgReferredBoxes->ColWidths[2]  = 30;   // 1stpos
     sgReferredBoxes->ColWidths[3]  = 70;   // 1stID

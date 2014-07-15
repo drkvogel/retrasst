@@ -115,7 +115,7 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <Icon_MainIcon>images\vs.ico</Icon_MainIcon>
-        <Debugger_DebugSourcePath>J:\cvs\paulst\db\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
+        <Debugger_DebugSourcePath>J:\cvs\paulst\db\;J:\cvs\paulst\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <BCC_PCHUsage>None</BCC_PCHUsage>
         <DynamicRTL>false</DynamicRTL>
         <LinkPackageStatics>rtl.lib;fmx.lib;fmxobj.lib;xmlrtl.lib</LinkPackageStatics>
@@ -157,6 +157,10 @@
             <DependentOn>AsyncTaskInitBusinessLayer.h</DependentOn>
             <BuildOrder>42</BuildOrder>
         </CppCompile>
+        <CppCompile Include="AsyncTaskLoadRule.cpp">
+            <DependentOn>AsyncTaskLoadRule.h</DependentOn>
+            <BuildOrder>63</BuildOrder>
+        </CppCompile>
         <CppCompile Include="AsyncTaskRerun.cpp">
             <DependentOn>AsyncTaskRerun.h</DependentOn>
             <BuildOrder>43</BuildOrder>
@@ -164,6 +168,30 @@
         <CppCompile Include="AsyncTaskRunPendingUpdates.cpp">
             <DependentOn>AsyncTaskRunPendingUpdates.h</DependentOn>
             <BuildOrder>44</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="BatchElementProfiler.cpp">
+            <DependentOn>BatchElementProfiler.h</DependentOn>
+            <BuildOrder>57</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="BatchElementProfilerSimpleImpl.cpp">
+            <DependentOn>BatchElementProfilerSimpleImpl.h</DependentOn>
+            <BuildOrder>58</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="BatchNavController.cpp">
+            <DependentOn>BatchNavController.h</DependentOn>
+            <BuildOrder>51</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="BatchNavViewRender.cpp">
+            <DependentOn>BatchNavViewRender.h</DependentOn>
+            <BuildOrder>52</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="BatchRenderFunc.cpp">
+            <DependentOn>BatchRenderFunc.h</DependentOn>
+            <BuildOrder>56</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="BatchViewController.cpp">
+            <DependentOn>BatchViewController.h</DependentOn>
+            <BuildOrder>54</BuildOrder>
         </CppCompile>
         <CppCompile Include="BusinessLayer.cpp">
             <DependentOn>BusinessLayer.h</DependentOn>
@@ -176,10 +204,6 @@
         <CppCompile Include="FMXTemplates.cpp">
             <DependentOn>FMXTemplates.h</DependentOn>
             <BuildOrder>37</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="GUIpositioning.cpp">
-            <DependentOn>GUIpositioning.h</DependentOn>
-            <BuildOrder>21</BuildOrder>
         </CppCompile>
         <CppCompile Include="IdleService.cpp">
             <DependentOn>IdleService.h</DependentOn>
@@ -219,6 +243,14 @@
             <DependentOn>ModelEventListeners.h</DependentOn>
             <BuildOrder>36</BuildOrder>
         </CppCompile>
+        <CppCompile Include="QCVDisplayModeQC.cpp">
+            <DependentOn>QCVDisplayModeQC.h</DependentOn>
+            <BuildOrder>47</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="QCVDisplayModeUnknown.cpp">
+            <DependentOn>QCVDisplayModeUnknown.h</DependentOn>
+            <BuildOrder>46</BuildOrder>
+        </CppCompile>
         <CppCompile Include="QCViewController.cpp">
             <DependentOn>QCViewController.h</DependentOn>
             <BuildOrder>27</BuildOrder>
@@ -226,6 +258,26 @@
         <CppCompile Include="QCViewData.cpp">
             <DependentOn>QCViewData.h</DependentOn>
             <BuildOrder>29</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RuleViewController.cpp">
+            <DependentOn>RuleViewController.h</DependentOn>
+            <BuildOrder>60</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RuleViewState.cpp">
+            <DependentOn>RuleViewState.h</DependentOn>
+            <BuildOrder>61</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="RuleViewStateStart.cpp">
+            <DependentOn>RuleViewStateStart.h</DependentOn>
+            <BuildOrder>62</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="SAB.cpp">
+            <DependentOn>SAB.h</DependentOn>
+            <BuildOrder>49</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="SABParser.cpp">
+            <DependentOn>SABParser.h</DependentOn>
+            <BuildOrder>50</BuildOrder>
         </CppCompile>
         <CppCompile Include="SampleRunViewController.cpp">
             <DependentOn>SampleRunViewController.h</DependentOn>
@@ -247,6 +299,20 @@
             <DependentOn>TActionPanel.h</DependentOn>
             <BuildOrder>22</BuildOrder>
         </CppCompile>
+        <CppCompile Include="TBatchNavFrame.cpp">
+            <Form>BatchNavFrame</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+            <DependentOn>TBatchNavFrame.h</DependentOn>
+            <BuildOrder>48</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="TBatchViewFrame.cpp">
+            <Form>BatchViewFrame</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+            <DependentOn>TBatchViewFrame.h</DependentOn>
+            <BuildOrder>53</BuildOrder>
+        </CppCompile>
         <CppCompile Include="TLogFrame.cpp">
             <Form>LogFrame</Form>
             <FormType>fmx</FormType>
@@ -266,6 +332,13 @@
             <DesignClass>TFrame</DesignClass>
             <DependentOn>TQCViewFrame.h</DependentOn>
             <BuildOrder>26</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="TRuleFrame.cpp">
+            <Form>RuleFrame</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+            <DependentOn>TRuleFrame.h</DependentOn>
+            <BuildOrder>59</BuildOrder>
         </CppCompile>
         <CppCompile Include="TSampleRunFrame.cpp">
             <Form>SampleRunFrame</Form>
@@ -320,9 +393,15 @@
             <DependentOn>VisualComponents.h</DependentOn>
             <BuildOrder>20</BuildOrder>
         </CppCompile>
+        <CppCompile Include="WorklistEntriesPositioning.cpp">
+            <BuildOrder>54</BuildOrder>
+        </CppCompile>
+        <None Include="WorklistEntriesPositioning.h">
+            <BuildOrder>55</BuildOrder>
+        </None>
         <CppCompile Include="WorklistEntriesView.cpp">
             <DependentOn>WorklistEntriesView.h</DependentOn>
-            <BuildOrder>37</BuildOrder>
+            <BuildOrder>54</BuildOrder>
         </CppCompile>
         <CppCompile Include="WorklistItemViewController.cpp">
             <DependentOn>WorklistItemViewController.h</DependentOn>
@@ -331,13 +410,16 @@
         <LibFiles Include="..\..\..\paulst\lib64\Win64\Debug\paulst_lib.a" Condition="'$(Platform)'=='Win64' Or '$(Platform)'=='OSX32'">
             <BuildOrder>7</BuildOrder>
         </LibFiles>
+        <FormResources Include="TBatchViewFrame.fmx"/>
+        <FormResources Include="TBatchNavFrame.fmx"/>
+        <FormResources Include="TLogFrame.fmx"/>
+        <FormResources Include="TRuleFrame.fmx"/>
         <FormResources Include="TQCViewFrame.fmx"/>
         <FormResources Include="TMainForm.fmx"/>
         <FormResources Include="TSampleRunFrame.fmx"/>
+        <FormResources Include="TWorklistItemViewFrame.fmx"/>
         <FormResources Include="TWaitDlg.fmx"/>
         <FormResources Include="TSnapshotFrame.fmx"/>
-        <FormResources Include="TLogFrame.fmx"/>
-        <FormResources Include="TWorklistItemViewFrame.fmx"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

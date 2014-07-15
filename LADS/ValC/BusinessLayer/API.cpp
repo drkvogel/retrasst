@@ -182,6 +182,16 @@ void InitialiseApplicationContext( int localMachineID, int user, const std::stri
         ac->sampleRunIDResolutionService        = new SampleRunIDResolutionService();
         ac->initialisationQueries               = new stef::ThreadPool(0, 1);
         ac->initialisationQueries->addDefaultTaskExceptionHandler( ac->taskExceptionUserAdvisor );
+        ac->dbTransactionHandler                = new DBTransactionHandler(
+                                                    ac->connectionFactory->createConnection( 
+                                                        ac->getProperty("DBUpdateThreadConnectionString"),
+                                                        ac->getProperty("DBUpdateThreadSessionReadLockSetting") ),
+                                                    ac->log,
+                                                    SnapshotUpdateHandle(),
+                                                    paulst::toInt(ac->getProperty("DBUpdateThreadShutdownTimeoutSecs")),
+                                                    std::string("true") == ac->getProperty("DBUpdateThreadCancelPendingUpdatesOnShutdown"),
+                                                    ac->taskExceptionUserAdvisor,
+                                                    ac->config );
         ac->resultAttributes                    = new ResultAttributes();
         ac->clusterIDs                          = new ClusterIDs();
         ac->projects                            = new Projects();
@@ -290,7 +300,7 @@ SnapshotPtr Load()
 	WorklistEntries*    worklistEntries    = new WorklistEntries();
     WorklistLinks*      worklistLinks      = new WorklistLinks(worklistEntries);
 	BuddyDatabase*      buddyDatabase      = NULL;
-    DBUpdateSchedule*   dbUpdateSchedule   = new DBUpdateSchedule();
+    DBUpdateSchedule*   dbUpdateSchedule   = new DBUpdateSchedule( applicationContext->dbTransactionHandler );
     ExceptionalDataHandlerImpl exceptionalDataHandler(
         applicationContext->getProperty("ExceptionalDataHandler"), applicationContext->userAdvisor, log);
     BuddyDatabaseEntryIndex* buddyDatabaseEntryIndex = new BuddyDatabaseEntryIndex();
@@ -449,14 +459,16 @@ LocalRun::LocalRun( const LocalRun& o )
     :
     m_runID             ( o.m_runID ),
     m_sampleDescriptor  ( o.m_sampleDescriptor ),
+    m_barcode           ( o.m_barcode ),
     m_impl              ( o.m_impl )
 {
 }
 
-LocalRun::LocalRun( const std::string& sampleDescriptor, const IDToken& runID )
+LocalRun::LocalRun( const std::string& sampleDescriptor, const std::string& barcode, const IDToken& runID )
     :
     m_runID             ( runID ),
     m_sampleDescriptor  ( sampleDescriptor ),
+    m_barcode           ( barcode ),
     m_impl              ( 0 )
 {
 }
@@ -465,8 +477,14 @@ LocalRun& LocalRun::operator=( const LocalRun& o )
 {
     m_runID             = o.m_runID;
     m_sampleDescriptor  = o.m_sampleDescriptor;
+    m_barcode           = o.m_barcode;
     m_impl              = o.m_impl;
     return *this;
+}
+
+std::string LocalRun::getBarcode() const
+{
+    return m_barcode;
 }
 
 int LocalRun::getGroupID() const
@@ -497,20 +515,28 @@ QueuedSample::QueuedSample()
 
 QueuedSample::QueuedSample( const QueuedSample& o )
     :
-    m_sampleDescriptor  ( o.m_sampleDescriptor )
+    m_sampleDescriptor  ( o.m_sampleDescriptor ),
+    m_barcode           ( o.m_barcode )
 {
 }
 
-QueuedSample::QueuedSample( const std::string& sampleDescriptor )
+QueuedSample::QueuedSample( const std::string& sampleDescriptor, const std::string& barcode )
     :
-    m_sampleDescriptor  ( sampleDescriptor )
+    m_sampleDescriptor  ( sampleDescriptor ),
+    m_barcode           ( barcode )
 {
 }
 
 QueuedSample& QueuedSample::operator=( const QueuedSample& o )
 {
     m_sampleDescriptor  = o.m_sampleDescriptor;
+    m_barcode           = o.m_barcode;
     return *this;
+}
+
+std::string QueuedSample::getBarcode() const
+{
+    return m_barcode;
 }
 
 std::string QueuedSample::getSampleDescriptor() const

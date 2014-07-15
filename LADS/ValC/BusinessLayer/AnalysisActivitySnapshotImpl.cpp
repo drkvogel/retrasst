@@ -4,6 +4,7 @@
 #include <boost/foreach.hpp>
 #include "BuddyDatabase.h"
 #include "ControlModel.h"
+#include "DBTransactionHandler.h"
 #include "DBUpdateSchedule.h"
 #include "ExceptionUtil.h"
 #include "Nullable.h"
@@ -41,23 +42,15 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
     m_appContext                    ( appContext ),
     m_resultAttributes              ( appContext->resultAttributes ),
     m_updateHandle                  ( this ),
-    m_dbTransactionHandler          (   
-                                        appContext->connectionFactory->createConnection( 
-                                            appContext->getProperty("DBUpdateThreadConnectionString"),
-                                            appContext->getProperty("DBUpdateThreadSessionReadLockSetting") ),
-                                        appContext->log,
-                                        m_updateHandle,
-                                        paulst::toInt(appContext->getProperty("DBUpdateThreadShutdownTimeoutSecs")),
-                                        std::string("true") == appContext->getProperty("DBUpdateThreadCancelPendingUpdatesOnShutdown"),
-                                        appContext->taskExceptionUserAdvisor,
-                                        appContext->config 
-                                     ),
+    m_dbTransactionHandler          ( appContext->dbTransactionHandler ),
     m_pendingUpdateWaitTimeoutSecs  ( pendingUpdateWaitTimeoutSecs ),
-    m_snapshotUpdateThread          ( &m_dbTransactionHandler, m_updateHandle, appContext->log, appContext->taskExceptionUserAdvisor ),
+    m_snapshotUpdateThread          ( m_dbTransactionHandler, m_updateHandle, appContext->log, appContext->taskExceptionUserAdvisor ),
     m_worklistRelativeImpl          ( wl ),
     m_sampleRunGroupModel           ( sampleRunGroupIDGenerator ),
     m_controlModel                  ( controlModel )
 {
+    m_dbTransactionHandler->setSnapshotUpdateHandle( SnapshotUpdateHandle(this) );
+
     m_localRunImpl.setSampleRunGroupModel( &m_sampleRunGroupModel );
 
     // Group IDs are unstable while assignments are on-going.  (This is 
@@ -80,7 +73,7 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
             previousGroupID = groupID;
         }
 
-        LocalRun lr( sr.getSampleDescriptor(), sr.getID() );
+        LocalRun lr( sr.getSampleDescriptor(), sr.getBarcode(), sr.getID() );
         m_localRunImpl.introduce( lr, sr.isOpen() );
         m_localEntries.push_back( lr );
     }
@@ -93,6 +86,7 @@ AnalysisActivitySnapshotImpl::AnalysisActivitySnapshotImpl(
 
 AnalysisActivitySnapshotImpl::~AnalysisActivitySnapshotImpl()
 {
+    m_dbTransactionHandler->setSnapshotUpdateHandle( SnapshotUpdateHandle(NULL) );
     delete m_buddyDatabase;
     delete m_resultDirectory;
     delete m_worklistEntries;
@@ -112,9 +106,9 @@ bool AnalysisActivitySnapshotImpl::hasRuleResults( int forResultID ) const
 
 void AnalysisActivitySnapshotImpl::runPendingDatabaseUpdates( bool block )
 {
-    m_dbUpdateSchedule->runQueuedUpdates( &m_dbTransactionHandler );
+    m_dbUpdateSchedule->runQueuedUpdates( m_dbTransactionHandler );
 
-    if ( block && ! m_dbTransactionHandler.waitForQueued( m_pendingUpdateWaitTimeoutSecs * 1000 ) )
+    if ( block && ! m_dbTransactionHandler->waitForQueued( m_pendingUpdateWaitTimeoutSecs * 1000 ) )
     {
         paulst::exception( "Pending updates failed to run within the timeout limit of %d secs", m_pendingUpdateWaitTimeoutSecs );
     }
@@ -151,9 +145,11 @@ Range<WorklistEntryIterator> AnalysisActivitySnapshotImpl::getWorklistEntries( c
     return m_worklistEntries->equal_range( sampleDescriptor );
 }
 
-HANDLE AnalysisActivitySnapshotImpl::queueForRerun( int worklistID, const IDToken& sampleRunID, const std::string& sampleDescriptor )
+HANDLE AnalysisActivitySnapshotImpl::queueForRerun( int worklistID, const IDToken& sampleRunID, const std::string& sampleDescriptor,
+    const std::string& barcode )
 {
-    SnapshotUpdateTask* sut = new SnapshotUpdateTaskQRerun( worklistID, sampleRunID, sampleDescriptor, m_appContext->user );
+    SnapshotUpdateTask* sut = new SnapshotUpdateTaskQRerun( 
+        worklistID, sampleRunID, sampleDescriptor, barcode, m_appContext->user, m_dbTransactionHandler );
     
     HANDLE h = sut->getDoneSignal();
 
@@ -174,7 +170,7 @@ WorklistRelative AnalysisActivitySnapshotImpl::viewRelatively( const WorklistEnt
 
 bool AnalysisActivitySnapshotImpl::waitForActionsPending( long millis )
 {
-    const bool noDBTransactionsInProgress = m_dbTransactionHandler.waitForQueued( millis );
+    const bool noDBTransactionsInProgress = m_dbTransactionHandler->waitForQueued( millis );
     const bool noUpdatesPending           = m_snapshotUpdateThread.waitTillQuiet( millis );
 
     return noDBTransactionsInProgress && noUpdatesPending;

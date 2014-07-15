@@ -150,6 +150,14 @@
         <CppCompile Include="DBTransactionHandler.cpp">
             <BuildOrder>15</BuildOrder>
         </CppCompile>
+        <CppCompile Include="DBTransactionRerun.cpp">
+            <DependentOn>DBTransactionRerun.h</DependentOn>
+            <BuildOrder>68</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="DBTransactionResources.cpp">
+            <DependentOn>DBTransactionResources.h</DependentOn>
+            <BuildOrder>68</BuildOrder>
+        </CppCompile>
         <CppCompile Include="DBTransactionUtil.cpp">
             <DependentOn>DBTransactionUtil.h</DependentOn>
             <BuildOrder>16</BuildOrder>
@@ -157,10 +165,6 @@
         <CppCompile Include="DBUpdateSchedule.cpp">
             <DependentOn>DBUpdateSchedule.h</DependentOn>
             <BuildOrder>17</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DBUpdateTask.cpp">
-            <DependentOn>DBUpdateTask.h</DependentOn>
-            <BuildOrder>18</BuildOrder>
         </CppCompile>
         <CppCompile Include="DBUpdateTaskLinkResultToWorklistEntry.cpp">
             <DependentOn>DBUpdateTaskLinkResultToWorklistEntry.h</DependentOn>
@@ -311,6 +315,10 @@
         <CppCompile Include="SnapshotUpdateTask.cpp">
             <DependentOn>SnapshotUpdateTask.h</DependentOn>
             <BuildOrder>57</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="SnapshotUpdateTaskQRerun.cpp">
+            <DependentOn>SnapshotUpdateTaskQRerun.h</DependentOn>
+            <BuildOrder>69</BuildOrder>
         </CppCompile>
         <CppCompile Include="SnapshotUpdateThread.cpp">
             <DependentOn>SnapshotUpdateThread.h</DependentOn>

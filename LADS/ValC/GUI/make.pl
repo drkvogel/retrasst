@@ -30,6 +30,7 @@ if ( $builtOK )
 {
     copyFile( "../BusinessLayer/config.txt", "$appDataLocal/config-businesslayer.txt" );
     copyFile( "./config-copies/config-gui.txt"          , "$appDataLocal/config-gui.txt" );
+    copyFile( "./config-copies/BatchView.style"          , "$appDataLocal/BatchView.style" );
     system("Win64/$config/$project.exe");
 }
  

@@ -213,6 +213,7 @@ bool BuddyDatabaseBuilder::accept( paulstdb::Cursor* c )
                 SampleRun(
                     sampleRunID,
                     sampleDescriptor, 
+                    barcode, 
                     srIsOpen != 0, 
                     srCreatedWhen, 
                     srClosedWhen, 

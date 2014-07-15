@@ -1,0 +1,43 @@
+object TStyleContainer
+  object TRectangle
+    StyleName = 'bv_default'
+    DesignVisible = False
+    Fill.Color = xFFE9E2E2
+    Height = 25.000000000000000000
+    HitTest = False
+    Position.X = 348.000000000000000000
+    Position.Y = 400.000000000000000000
+    Stroke.Color = xFF979797
+    Width = 75.000000000000000000
+    object TText
+      StyleName = 'text'
+      Align = alClient
+      Color = claBlack
+      Height = 25.000000000000000000
+      HorzTextAlign = taLeading
+      Margins.Left = 4.000000000000000000
+      Text = 'Default'
+      Trimming = ttCharacter
+      Width = 71.000000000000000000
+      WordWrap = False
+    end
+  end
+  object TRectangle
+    StyleName = 'bv_white_on_black'
+    DesignVisible = False
+    Fill.Color = claBlack
+    Height = 25.000000000000000000
+    Position.X = 348.000000000000000000
+    Position.Y = 400.000000000000000000
+    Width = 75.000000000000000000
+    object TText
+      StyleName = 'text'
+      Align = alClient
+      Color = claWhite
+      Height = 25.000000000000000000
+      HorzTextAlign = taLeading
+      Margins.Left = 4.000000000000000000
+      Width = 71.000000000000000000
+    end
+  end
+end

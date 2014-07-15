@@ -13,18 +13,18 @@ LCDbTankMap::LCDbTankMap( const LQuery & query )
  : LCDbID( query.readInt("record_cid") )
 		, LDbValid( query.readDateTime("valid_from")
 					,query.readDateTime("valid_to")
-					,query.readInt("status"))
+					, (short)query.readInt("status"))
 		,tankCID( query.readInt("tank_cid"))
 		,storageCID( query.readInt("storage_cid"))
 		,layoutCID( query.readInt("rack_layout_cid"))
 		,locationCID( query.readInt("location_cid"))
-		,position( query.readInt("position"))
+		,position( (short)query.readInt("position"))
 {
 	if( query.fieldExists( "storage_type" ) ) {
 		storeTypeCID = query.readInt( "storage_type" );
 	}
 	if( query.fieldExists( "shelf_number" ) ) {
-		shelf = query.readInt( "shelf_number" );
+		shelf = (short) query.readInt( "shelf_number" );
 	}
 }
 

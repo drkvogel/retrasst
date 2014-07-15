@@ -3,7 +3,6 @@
 
 #include "API.h"
 #include <boost/scoped_ptr.hpp>
-#include "DBTransactionHandler.h"
 #include "LocalRunImpl.h"
 #include "LoggingService.h"
 #include <memory>
@@ -18,6 +17,7 @@ namespace valc
 class ApplicationContext;
 class BuddyDatabase;
 class ControlModel;
+class DBTransactionHandler;
 class DBUpdateSchedule;
 class ResultAttributes;
 class ResultDirectory;
@@ -55,7 +55,7 @@ public:
     std::string                     getTestName( int testID ) const;
     Range<WorklistEntryIterator>    getWorklistEntries( const std::string& sampleDescriptor ) const;
     BuddyDatabaseEntries            listBuddyDatabaseEntriesFor( const IDToken& sampleRunID )   const;
-    HANDLE                          queueForRerun( int worklistID, const IDToken& sampleRunID, const std::string& sampleDescriptor );
+    HANDLE                          queueForRerun( int worklistID, const IDToken& sampleRunID, const std::string& sampleDescriptor, const std::string& barcode );
     void                            runPendingDatabaseUpdates( bool block );
     void                            setObserver( SnapshotObserver* obs );
     WorklistRelative                viewRelatively( const WorklistEntry* e ) const;
@@ -77,7 +77,7 @@ private:
     ResultAttributes*               m_resultAttributes;
     const int                       m_pendingUpdateWaitTimeoutSecs;
     SnapshotUpdateHandle            m_updateHandle;
-    DBTransactionHandler            m_dbTransactionHandler;
+    DBTransactionHandler*           m_dbTransactionHandler;
     SnapshotUpdateThread            m_snapshotUpdateThread;
     WorklistRelative::Impl          m_worklistRelativeImpl;
     LocalRun::Impl                  m_localRunImpl;
