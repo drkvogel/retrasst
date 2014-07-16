@@ -462,6 +462,12 @@
             <DependentOn>Inventory.h</DependentOn>
             <BuildOrder>34</BuildOrder>
         </CppCompile>
+        <CppCompile Include="ManageLists.cpp">
+            <Form>frmManageLists</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>ManageLists.h</DependentOn>
+            <BuildOrder>131</BuildOrder>
+        </CppCompile>
         <CppCompile Include="MoveJobs.cpp">
             <Form>frmSelectJob</Form>
             <FormType>dfm</FormType>
@@ -823,6 +829,7 @@
         <FormResources Include="..\LabsForms\dvSelector.dfm"/>
         <FormResources Include="RetrievalListBase.dfm"/>
         <FormResources Include="RetrAsstMain.dfm"/>
+        <FormResources Include="ManageLists.dfm"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

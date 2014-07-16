@@ -26,6 +26,7 @@
 #include "RetrievalListmainDialog.h"
 #include "RatTanksMainDialog.h"
 #include "TfrmLoginBase.h"
+#include "ManageLists.h"
 
 //---------------------------------------------------------------------------
 
@@ -332,9 +333,8 @@ void __fastcall TfrmStoremain::BtnDiscardClick(TObject *Sender)
 
 void __fastcall TfrmStoremain::btnManageClick(TObject *Sender)
 {
-    //
-    //frmRetrievalAssistant->init();
-	//frmRetrievalAssistant->ShowModal();
+    frmManageLists->init();
+	frmManageLists->ShowModal();
 }
 //---------------------------------------------------------------------------
 
