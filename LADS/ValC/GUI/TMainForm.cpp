@@ -122,8 +122,8 @@ void __fastcall TMainForm::onCreate(TObject *Sender)
     addTool<LogManager, TLogFrame, TPanel>( "Log", logManager, logFrameContainer );
     addTool<valcui::SnapshotFrameController, TSnapshotFrame, TPanel>( 
         "Snapshot", 
-        new valcui::SnapshotFrameController( logManager, &m_guiConfig ),
-        snapshotFrameContainer );
+		new valcui::SnapshotFrameController(logManager,&m_config,&m_guiConfig),
+		snapshotFrameContainer );
 
     addTool<valcui::BatchViewController, TBatchViewFrame, TPanel>(
         "Batch",

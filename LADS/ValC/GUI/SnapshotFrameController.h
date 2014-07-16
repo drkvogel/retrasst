@@ -22,7 +22,8 @@ namespace valcui
 class SnapshotFrameController : public SnapshotFrameObserver
 {
 public:
-	SnapshotFrameController( LogManager* log, const paulst::Config* guiConfig);
+	SnapshotFrameController(LogManager* log, const paulst::Config* topConfig,
+							const paulst::Config* guiConfig);
 
     IdleServiceUser*    getIdleServiceUserInterface();
     ModelEventListener* getModelEventListenerInterface();
@@ -43,8 +44,9 @@ public:
 
 private:
     valcui::Model*                                      m_model;
-    const paulst::Config*                               m_guiConfig;
-    LogManager* const                                   m_log;
+	const paulst::Config*                               m_topConfig;
+	const paulst::Config*                               m_guiConfig;
+	LogManager* const                                   m_log;
     ModelEventListenerAdapter<SnapshotFrameController>  m_eventListener;
     IdleServiceUserAdapter<SnapshotFrameController>     m_idleServiceUser;
     std::unique_ptr<WorklistEntriesView>                m_entriesView;

@@ -9,16 +9,18 @@
 
 //---------------------------------------------------------------------------
 
+USEFORM("TBatchNavFrame.cpp", BatchNavFrame); /* TFrame: File Type */
 USEFORM("TBatchViewFrame.cpp", BatchViewFrame); /* TFrame: File Type */
-USEFORM("TBatchNavFrame.cpp", BatchNavFrame); /* TFrame: File Type */
-USEFORM("TLogFrame.cpp", LogFrame); /* TFrame: File Type */
-USEFORM("TRuleFrame.cpp", RuleFrame); /* TFrame: File Type */
-USEFORM("TQCViewFrame.cpp", QCViewFrame); /* TFrame: File Type */
-USEFORM("TMainForm.cpp", MainForm);
-USEFORM("TSampleRunFrame.cpp", SampleRunFrame); /* TFrame: File Type */
-USEFORM("TWorklistItemViewFrame.cpp", WorklistItemViewFrame); /* TFrame: File Type */
-USEFORM("TWaitDlg.cpp", WaitDlg);
-USEFORM("TSnapshotFrame.cpp", SnapshotFrame); /* TFrame: File Type */
+USEFORM("TQCViewFrame.cpp", QCViewFrame); /* TFrame: File Type */
+USEFORM("TRuleFrame.cpp", RuleFrame); /* TFrame: File Type */
+USEFORM("TLogFrame.cpp", LogFrame); /* TFrame: File Type */
+USEFORM("TMainForm.cpp", MainForm);
+USEFORM("TWaitDlg.cpp", WaitDlg);
+USEFORM("TWorklistItemViewFrame.cpp", WorklistItemViewFrame); /* TFrame: File Type */
+USEFORM("TSampleRunFrame.cpp", SampleRunFrame); /* TFrame: File Type */
+USEFORM("TSnapshotFrame.cpp", SnapshotFrame); /* TFrame: File Type */
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 extern "C" int FMXmain()
 
 {

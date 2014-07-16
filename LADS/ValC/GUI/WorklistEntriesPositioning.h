@@ -7,7 +7,7 @@
 #include <fmx.h>
                             // some forward declarations
 							class TInfoPanel;
-							class TTestPanel;
+							class TTestInstancePanel;
 							class WorklistEntriesView;
 
 //---------------------------------------------------------------------------
@@ -40,13 +40,14 @@ struct Block {
 
 };
 
-/** Holds information pertinent to a display of worklist entries.
+/** Holds information pertinent to a grid-like display.
   * Useful for working out what sizes things should be.
   */
 struct DisplayProperties {
-	int elementSize;    /// size of a worklist entry
-	int rowSize;        /// size of a row of entries
 	int numberOfRows;   /// how many rows of entries
+	int rowSize;        /// size of a row of entries
+	int elementSize;    /// size of an entry
+	int firstSize;      /// size of the first entry
 	int leftSize;       /// size of the left portion of an entry
 	int rightSize;      /// size of the right portion of an entry
 };
@@ -127,6 +128,20 @@ public:
 	/** used to express a preference for lower positioning or alignment */
 	const static int BOTTOM = 2;
 
+	/** for overlapped elements */
+	const static bool OVERLAPPED = false;
+
+	/** for non-overlapped elements */
+	const static bool STANDALONE = true;
+
+	/** for positioning the the result of a test, on a bubble
+		(will ultimately get replaced with a calculation from the font size) */
+	const static int RESULT_Y = 3;
+
+	/** for the height of a worklist entry/test result panel (bubble)
+		(will ultimately get replaced with a calculation from the font size) */
+	const static int ENTRY_HEIGHT = 27;
+
 	Positioning(WorklistEntriesView *g);
 
 	void positionInfoPanel(TInfoPanel *panel);
@@ -173,7 +188,7 @@ private:
 	PopupPositioning smartPanelPosition(const Block & pointsAt,
 										TInfoPanel *p,
 										TPanel *pg);
-	Block areaToPointAt(TTestPanel *t,TInfoPanel *panel);
+	Block areaToPointAt(TTestInstancePanel *t,TInfoPanel *panel);
 
 
 };

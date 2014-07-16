@@ -26,11 +26,9 @@
 							class LogManager;
 							class Positioning;
 							struct Coordinates;
-							class DSampleRun;
-							class DSampleTest;
 							class SnapshotFrameObserver;
 							class TInfoPanel;
-							class TTestPanel;
+							class TTestInstancePanel;
 							class TSampleRunPanel;
 
 typedef std::list<TPanel *> ComponentsList;
@@ -55,10 +53,12 @@ public:
 // For comments on methods, please see their implementations.
 
 	WorklistEntriesView(TSnapshotFrame *m, LogManager* lm,
-	                    const paulst::Config* config);
+						const paulst::Config *topConfig,
+						const paulst::Config *guiConfig);
 	~WorklistEntriesView();
 
-	void initialiseGUIconfigValues(const paulst::Config* config);
+	void initialiseGUIconfigValues(const paulst::Config* tConfig,
+                                   const paulst::Config* gConfig);
 	void clearAll();
 
 	int param(const std::string & name);
@@ -68,14 +68,16 @@ public:
 
 
 	TControl* findInnerPanelAncestor(TControl *comp); // the ancestor just inside the scrollpane
-	Coordinates findTestPanelPosition(const TTestPanel *t); // relative to inner panel ancestor
+	Coordinates findTestPanelPosition(const TTestInstancePanel *t); // relative to inner panel ancestor
 
-	void popupInfoPanel(TTestPanel *t, int panel_type);
+	void popupInfoPanel(TTestInstancePanel *t, int panel_type);
 	void removeInfoPanel(TInfoPanel *p);
 
 	void setObserver(SnapshotFrameObserver *ob);
 
 private:
+
+	std::map <std::string,int> guiConfig; // contains config values
 
 	ComponentsList *queuedComponents;
 	ComponentsList *resultsComponents;
@@ -83,18 +85,46 @@ private:
 	LogManager *logManager;
     SnapshotFrameObserver *observer;
 
+	int machineId; // will be initialised from the top config file
+
 	/** a tag used to identify panels just inside the scroll views. */
 	const UnicodeString innerLevel = "Level: inner panel";
 
-	void assignAttributes(TTestPanel *t, const valc::WorklistEntry *entry);
-	void assignAttributes(TSampleRunPanel *runPanel, TTestPanel *t,
+	void displayWorklistQueue(valc::SnapshotPtr snapshot);
+	bool preprocessQueueEntries(valc::SnapshotPtr snapshot, DisplayProperties &props);
+	void createQueuedEntries(valc::SnapshotPtr snapshot,
+							 const DisplayProperties &props);
+	void addQueuedRuns(valc::SnapshotPtr snapshot,
+					   const DisplayProperties &props);
+	void addQueuedEntries(valc::SnapshotPtr snapshot, const DisplayProperties &props,
+						  const std::string &sampleDescriptor, TSampleRunPanel *runPanel);
+	void lineUpEntries(TSampleRunPanel *runPanel, int initX,
+					   int cWidth, int jump, int cJump);
+
+	void displayWorklistResults(valc::SnapshotPtr snapshot);
+	bool preprocessResultsEntries(valc::SnapshotPtr snapshot, DisplayProperties &props);
+	void createResultsEntries(valc::SnapshotPtr snapshot,
+							  const DisplayProperties &props);
+	void addResultsRuns(valc::SnapshotPtr snapshot,
+					   const DisplayProperties &props);
+	void addResultsEntries(valc::SnapshotPtr snapshot, const DisplayProperties &props,
+						   const valc::LocalRun &r, TSampleRunPanel *runPanel);
+	void findAttentionNeed(valc::SnapshotPtr snapshot, TSampleRunPanel *runPanel,
+						   TTestInstancePanel *t, int resultId);
+
+	void updateBarcodeWidth(const std::string &barcode,DisplayProperties &props);
+    int emptyRunWidth(int barcodeWidth);
+
+	void assignAttributes(TTestInstancePanel *t, const valc::WorklistEntry *entry);
+	void assignAttributes(TSampleRunPanel *runPanel, TTestInstancePanel *t,
 						  valc::SnapshotPtr sn, const valc::WorklistEntry *entry,
 						  const valc::TestResult *tr, const valc::IDToken &sampleRunId);
 
-	TSampleRunPanel* createSampleRunPanel(TPanel *parentPanel, int y,
-										  bool queued,
-										  bool closed = false);
-    void finaliseTestPanel(TTestPanel *t, TPanel *parent, int x, bool queued);
+
+	/*
+
+	void finaliseTestPanel(TTestInstancePanel *t, TSampleRunPanel *parent,
+						   int x, bool queued);
 
 	void postProcessEntries(bool queued);
 
@@ -103,22 +133,17 @@ private:
 								 const std::string & barcode,
 								 TSampleRunPanel *runPanel,
 								 DisplayProperties &props);
-	bool createQueuedEntries(valc::SnapshotPtr snapshot,
-							 DisplayProperties &props);
-	void displayWorklistQueue(valc::SnapshotPtr snapshot);
+   */
 
+	/*
 	void addNonQueuedWorklistEntries(valc::SnapshotPtr sn,
 									 const valc::LocalRun &r,
 									 TSampleRunPanel *runPanel,
 									 DisplayProperties &props);
 	bool createResultsEntries(valc::SnapshotPtr snapshot,
-							  DisplayProperties &props);
-	void displayWorklistResults(valc::SnapshotPtr snapshot);
-
-	void setUpWorklistEntryPanels(DSampleRun *d, TPanel *panel, bool q, int *mx);
+							  DisplayProperties &props);       */
 
 
-	std::map <std::string,int> guiConfig; // contains config values
 
 };
 

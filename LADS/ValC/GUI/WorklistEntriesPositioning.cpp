@@ -1,15 +1,16 @@
 //---------------------------------------------------------------------------
 #include "Utils.h"
 
+
 #pragma hdrstop
 //---------------------------------------------------------------------------
 
 #include "WorklistEntriesView.h"
 #include "WorklistEntriesPositioning.h"
-#include "InfoPanels.h"
 #include "TSnapshotFrame.h"
 #include "Utils.h"
 #include "VisualComponents.h"
+#include "TTestInstancePanel.h"
 
 #pragma package(smart_init)
 
@@ -553,7 +554,7 @@ PopupPositioning Positioning::smartPanelPosition(const Block & pointsAt,
   * @param panel   the pop-up panel to be positioned
   * @return        the rectangle bounding the area that the panel should point to
   */
-Block Positioning::areaToPointAt(TTestPanel *t, TInfoPanel *panel)
+Block Positioning::areaToPointAt(TTestInstancePanel *t, TInfoPanel *panel)
 {
 	Coordinates tPos = entriesView->findTestPanelPosition(t); // position of top-left corner
 												 // relative to its inner panel
@@ -601,7 +602,7 @@ void Positioning::positionInfoPanel(TInfoPanel *panel)
 
 	// first, find where this calloutpanel is going to need to point to
 
-	TTestPanel *t = panel->originator;   // the test result panel this info panel
+	TTestInstancePanel *t = panel->originator;   // the test result panel this info panel
 	                                     // visually points to
 	TPanel *ip = (TPanel *)(entriesView->findInnerPanelAncestor(t)); // e.g. ResultsInnerPanel
 

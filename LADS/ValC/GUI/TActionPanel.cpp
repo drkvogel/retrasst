@@ -7,6 +7,7 @@
 #include "API.h"
 
 #include "VisualComponents.h"
+#include "TTestInstancePanel.h"
 #include "WorklistEntriesView.h"
 #include "TActionPanel.h"
 
@@ -61,7 +62,7 @@ __fastcall TActionPanel::~TActionPanel()
   * @param owner   the component (if any, could be NULL) that will own this panel
   * @param t        the test panel from which the alert icon was clicked, in order to bring up this panel in the first place
   */
-__fastcall TActionPanel::TActionPanel(WorklistEntriesView *g, TComponent *owner, TTestPanel *t)
+__fastcall TActionPanel::TActionPanel(WorklistEntriesView *g, TComponent *owner, TTestInstancePanel *t)
 	: TInfoPanel(g,owner,t,panel_ACTION,
 				 Positioning::BOTTOM,Positioning::CENTRE)
 {
@@ -331,10 +332,10 @@ void TActionPanel::initialiseRightArea()
   * Uses a maximum size (the GUI config parameter "panelAlertItemHeight")
   * if the contents are too lengthy.
   *
-  * @param t     the TTestPanel which this alert panel will appear to point to
+  * @param t     the TTestInstancePanel which this alert panel will appear to point to
   * @return      the height that this panel is to have
   */
-int TActionPanel::calculateHeight(TTestPanel *t)
+int TActionPanel::calculateHeight(TTestInstancePanel *t)
 {
 
 // TODO  make for rectangleheight, not with the triangle  (that we know)

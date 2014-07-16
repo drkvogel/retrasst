@@ -3,10 +3,10 @@
 #ifndef TActionPanelH
 #define TActionPanelH
 
-#include "InfoPanels.h"
+#include "VisualComponents.h"
 
 							// some forward declarations
-							class TTestPanel;
+							class TTestInstancePanel;
 							class WorklistEntriesView;
 
 
@@ -32,7 +32,7 @@ private:
 
 // ---------------------------------------- //
 
-	int calculateHeight(TTestPanel *t);
+	int calculateHeight(TTestInstancePanel *t);
 
 	/** The main area to display information and action opportunities,
 	  * taking up all the space below the top of the panel. */
@@ -114,7 +114,7 @@ private:
 public:
 
 	__fastcall ~TActionPanel();
-	__fastcall TActionPanel(WorklistEntriesView *g, TComponent *owner, TTestPanel *t);
+	__fastcall TActionPanel(WorklistEntriesView *g, TComponent *owner, TTestInstancePanel *t);
 
 
 	void __fastcall removeClick(TObject *Sender);

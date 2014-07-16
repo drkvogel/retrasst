@@ -7,12 +7,15 @@
 namespace valcui
 {
 
-SnapshotFrameController::SnapshotFrameController( LogManager* log, const paulst::Config* guiConfig)
+SnapshotFrameController::SnapshotFrameController(LogManager* log,
+												 const paulst::Config* topConfig,
+												 const paulst::Config* guiConfig)
     : 
     m_eventListener(this),
     m_idleServiceUser(this),
-	m_log( log ),
-    m_guiConfig( guiConfig )
+	m_log(log),
+	m_topConfig(topConfig),
+	m_guiConfig(guiConfig)
 {
 }
 
@@ -94,7 +97,7 @@ void SnapshotFrameController::setModel( Model* model )
 void SnapshotFrameController::setView( TSnapshotFrame* tsf )
 {
     tsf->setObserver(this);
-    m_entriesView.reset( new WorklistEntriesView( tsf, m_log, m_guiConfig ) );
+	m_entriesView.reset(new WorklistEntriesView(tsf,m_log,m_topConfig,m_guiConfig));
 }
 
 }
