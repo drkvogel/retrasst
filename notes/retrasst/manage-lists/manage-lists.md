@@ -33,3 +33,20 @@ Rewound to just after I did the first subclass:
 
 
 TfrmRetrieveMain - is Create List
+
+## Subclass form using Inheritable Items dialog
+
+Subclassed
+    * RetrAsstMain from new RetrievalListBase
+    * ManageLists, from RetrievalListBase
+
+In the proper way (using File -> New -> Inheritable Items).
+
+i.e. created:
+
+    RetrievalListBase
+     |- RetrAsstMain
+     L- ManageLists
+
+Now to decide what methods to move into subclasses, and/or which to override, and what extra controls required.
+
