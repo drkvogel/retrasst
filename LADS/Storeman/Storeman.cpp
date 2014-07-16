@@ -60,6 +60,7 @@ USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
 USEFORM("RetrievalListBase.cpp", frmRetrievalJobList);
 USEFORM("RetrAsstMain.cpp", frmRetrievalAssistant);
 USEFORM("ManageLists.cpp", frmManageLists);
+USEFORM("ManageListsShowList.cpp", frmManListsShow);
 //---------------------------------------------------------------------------
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
@@ -118,6 +119,7 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmNewReason), &frmNewReason);
          Application->CreateForm(__classid(TfrmRetrievalAssistant), &frmRetrievalAssistant);
          Application->CreateForm(__classid(TfrmManageLists), &frmManageLists);
+         Application->CreateForm(__classid(TfrmManListsShow), &frmManListsShow);
          Application->Run();
 	}
 	catch (Exception &exception)

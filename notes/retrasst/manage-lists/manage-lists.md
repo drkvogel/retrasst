@@ -56,3 +56,7 @@ Now to decide what methods to move into subclasses, and/or which to override, an
 
 CVSROOT?
 
+## todo
+
+show all types and statuses of jobs by default, or maybe just completed ones, or save state.
+

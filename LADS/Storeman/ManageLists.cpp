@@ -2,6 +2,7 @@
 #pragma hdrstop
 
 #include "ManageLists.h"
+#include "ManageListsShowList.h"
 
 #pragma package(smart_init)
 #pragma link "RetrievalListBase"
@@ -12,5 +13,6 @@ __fastcall TfrmManageLists::TfrmManageLists(TComponent* Owner) : TfrmRetrievalJo
 
 void __fastcall TfrmManageLists::sgJobsDblClick(TObject *Sender) {
     // override
+    frmManListsShow->ShowModal();
 }
 
