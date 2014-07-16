@@ -98,6 +98,7 @@ public:
         static bool secondaryIndexExists(int project_cid, std::string indexName, bool exactMatch=true);
 
         static std::string boxTubeTypeName(int project_cid, int box_cid);
+
 };
 
 //---------------------------------------------------------------------------

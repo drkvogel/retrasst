@@ -581,7 +581,7 @@ void LoadVialsJobThread::load() {
     debugMessage = "finished retrieving samples, getting storage details"; Synchronize((TThreadMethod)&debugLog);
 
     // try to match secondaries with primaries on same destination position
-    main->combineAliquots(plan->primaries, plan->secondaries, plan->combined);
+    combineAliquots(plan->primaries, plan->secondaries, plan->combined);
 
     int size1 = plan->primaries.size(), size2 = plan->secondaries.size(), size3 = plan->combined.size();
 
@@ -642,7 +642,6 @@ void LoadVialsJobThread::loadVialsFromProject(const LCDbProject * pr) {
 
     oss.str(""); oss << // actual query now we know there are some rows
         "SELECT"
-        //"  b1.project_cid,"
 		"  s1.cryovial_id, s1.note_exists, s1.retrieval_cid, s1.box_cid, s1.status, s1.cryovial_position," // for LPDbCryovialStore
         "  s1.record_id, c.sample_id, c.aliquot_type_cid, " // for LPDbCryovial
         "  c.cryovial_barcode,"
@@ -663,9 +662,7 @@ void LoadVialsJobThread::loadVialsFromProject(const LCDbProject * pr) {
         "  s2.status = 0 AND" //"  b1.status != 99 AND b2.status != 99 AND"
         "  b2.box_cid = s2.box_cid AND" //"  aliquot_type_cid = :aliquotID AND"
         "  s1.retrieval_cid = :jobID"
-//        " ORDER BY"
-//        "  cryovial_barcode, aliquot_type_cid "
-//        << (primary_aliquot < secondary_aliquot ? "ASC" : "DESC")
+        //" ORDER BY cryovial_barcode, aliquot_type_cid "<<(primary_aliquot < secondary_aliquot ? "ASC" : "DESC")
         ;
 
     qd.setSQL(oss.str()); debugMessage = qd.getSQL(); Synchronize((TThreadMethod)&debugLog);
@@ -708,6 +705,52 @@ void LoadVialsJobThread::loadVialsFromProject(const LCDbProject * pr) {
     loadingMessage = oss.str().c_str(); Synchronize((TThreadMethod)&updateStatus);
 
     LCDbAuditTrail::getCurrent().sendEMail(oss.str(), "chris.bird@ctsu.ox.ac.uk", oss.str());
+}
+
+void LoadVialsJobThread::combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined) {
+
+    struct PosKey {
+    /** compound of box and position used for index into map of box + pos -> sample */
+        PosKey(int b, int p) : box(b), pos(p) { }
+        PosKey(SampleRow * s) : box(s->dest_box_id), pos(s->dest_cryo_pos) { }
+        int box, pos;
+        bool operator <(const PosKey &other) const {
+            if (box < other.box) {
+                return true;
+            } else if (box == other.box) {
+                return pos < other.pos;
+            } else {
+                return false;
+            }
+        }
+    };
+
+    typedef std::map< PosKey, SampleRow * > posCache;
+    posCache cache;
+
+    // store primaries and cache
+    combined.clear();
+    for (auto &row: primaries) {
+        PosKey key(row);
+        cache[key] = row; // cache combination of dest box and pos
+        combined.push_back(row);
+    }
+
+    int size1 = primaries.size(), size3 = combined.size();
+
+    // try to match secondaries based on same box/pos key
+    for (auto &row: secondaries) {
+        PosKey key(row);
+        posCache::iterator found = cache.find(key);
+        if (found != cache.end()) { // destination box and position already used (by primary)
+            if (NULL == row) throw runtime_error("null in cache");
+            found->second->backup = row; // add as backup to primary
+        } else {
+            combined.push_back(row);     // add to list in its own right
+        }
+    }
+
+    size1 = primaries.size(); int size2 = secondaries.size(); size3 = combined.size();
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::loadVialsJobThreadTerminated(TObject *Sender) {

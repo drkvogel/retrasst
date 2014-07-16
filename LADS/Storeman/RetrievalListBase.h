@@ -469,8 +469,6 @@ public:
     string progressString() {
         ostringstream oss;
         float percent = getProgress()*100;
-        //oss<<processed<<"/"<<getSize()<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
-        //oss<<rowRel<<"("<<processed<<")/"<<getSize();//<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
         oss<<processed<<"/"<<getSize();//<<" ("<<std::setprecision(0)<<std::fixed<<percent<<"%)";
         return oss.str();
     }
@@ -512,9 +510,6 @@ static const char * jobTypeString(short status) {
 
 typedef std::vector<LCDbCryoJob *> tdvecpJob;
 
-
-
-//class TfrmRetrievalAssistant : public TForm {
 class TfrmRetrievalJobList : public TForm {
 __published:
     TGroupBox *GroupBox1;
@@ -561,7 +556,6 @@ __published:
     void __fastcall FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
 private:
     StringGridWrapper<LCDbCryoJob> *  sgwJobs;
-    void                loadJobs();
     tdvecpJob           vecJobs;
     LCDbCryoJobs        jobs;
     string              getExerciseDescription(int exercise_cid);
@@ -572,13 +566,13 @@ private:
     void                toggleLog();
     map<int, const SampleRow *> storageCache;
 protected:
-
+    void                loadJobs();
 public:
     __fastcall TfrmRetrievalJobList(TComponent* Owner);
     void                init();
     void                clearStorageCache();
 	void                getStorage(SampleRow * sample);
-    void                combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
+    //void                combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
 
 	// made into class methods, NG, 17/3/14, to avoid linker error
 	static void msgbox(string main, string title="Info");

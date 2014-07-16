@@ -14,5 +14,6 @@ __fastcall TfrmManageLists::TfrmManageLists(TComponent* Owner) : TfrmRetrievalJo
 void __fastcall TfrmManageLists::sgJobsDblClick(TObject *Sender) {
     // override
     frmManListsShow->ShowModal();
+    loadJobs();
 }
 

@@ -1,3 +1,46 @@
+//template <class T>
+//int Chunk<T>::getStatus() {
+//    bool complete = true;
+//    bool not_started = true;
+//    for (int i=0; i<getSize(); i++) {
+//        int status = rowAt(i)->retrieval_record->getStatus();
+//        switch (status) {
+//            case LCDbCryovialRetrieval::EXPECTED:
+//                complete = false; break;
+//            case LCDbCryovialRetrieval::IGNORED:
+//            case LCDbCryovialRetrieval::COLLECTED:
+//            case LCDbCryovialRetrieval::NOT_FOUND:
+//                not_started = false; break;
+//            default:
+//                throw "unexpected LCDbCryovialRetrieval status";
+//        }
+//    }
+//    if (complete) {
+//        return DONE;
+//    } else if (not_started) {
+//        return NOT_STARTED;
+//    } else {
+//        return INPROGRESS;
+//    }
+//}
+//    using namespace boost::local_time;
+//    //local_date_time
+//
+//    time_t t(time(NULL)); // current time
+//    tm tm(*localtime(&t));
+//    std::locale loc("");
+//    const std::time_put<char> &tput = std::use_facet< std::time_put< char > >(loc);
+//    tput.put(oss.rdbuf(), oss, _T('\0'), &tm, _T('x'));
+
+// LCDbBoxRetrieval::Status::NEW|PART_FILLED|COLLECTED|NOT_FOUND|DELETED
+// LCDbCryovialRetrieval::Status::EXPECTED|IGNORED|COLLECTED|NOT_FOUND
+
+
+    //for (vecpSampleRow::const_iterator it = primaries.begin(); it != primaries.end(); it++) {
+        //SampleRow * row = *it;
+    //for (vecpSampleRow::const_iterator it = secondaries.begin(); it != secondaries.end(); it++) {
+        //SampleRow * row = *it;
+
 
 //* Ask the relevant question(s) from the URS when they’re ready to finish
 //    * only this: "). The option to exit the process saving progress should be offered, with an “are you sure?” message in case of accidental selection (REQ 8.3.12)."
