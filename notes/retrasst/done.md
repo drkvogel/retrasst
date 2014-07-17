@@ -844,3 +844,7 @@ See [box-types](./box-types/box-types.md).
 
 'handle close'?? 
 fencepost bug?
+
+## move combineAliquots
+
+What is now `TfrmRetrievalJobList::combineAliquots` can be moved (back) into `LoadVialsJobThread`

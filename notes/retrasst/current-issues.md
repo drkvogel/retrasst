@@ -1,11 +1,3 @@
-What is now `TfrmRetrievalJobList::combineAliquots` can be moved (back) into `LoadVialsJobThread`
-
-Utility methods (ones that are used by more than one class) should be put into StoreUtil.cpp
-
-e.g. getStorage()?
-
-Thing about `getStorage()` is that it's specific to Retrieval Assistant at the moment and references SampleRow
-
 
 ## chunk should be complete
 

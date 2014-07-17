@@ -90,3 +90,15 @@ look for ??? /newrow
  * define behaviour for manual chunk split in landlocked chunk-
 
 * sometimes current storage info will not be available (box has not been through box reception and storage sync, hence status will be CONFIRMED [2] rather than IN_TANK [4]), but box name and tube pos will be (just a note)
+
+## put utils in StoreUtil
+
+Utility methods (ones that are used by more than one class) should be put into `StoreUtil.cpp` e.g. getStorage()?
+
+Thing about `getStorage()` is that it's specific to Retrieval Assistant at the moment and references SampleRow... leave it
+
+## use command-line cvs command
+
+    /usr/bin/cvs
+
+CVSROOT?

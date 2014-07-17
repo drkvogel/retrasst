@@ -161,5 +161,6 @@ All of this is because I didn't do the right thing at the point of branching: kn
 
 Having made the mistake of staying on `master` for something I knew was an experiment, I should have done `checkout master` so that subsequent commits went onto master rather than an un-named 'no branch' - i.e. with a detached HEAD. It would be nice if git warned you when you were about to do this...
 
+Ah, it does: "You are in 'detached HEAD' state...".
 
 
