@@ -118,3 +118,48 @@ But we're still on temp, so checkout master:
 
 OK, so it's telling me that `unfuddle/master` (still on the old, aborted branch) is different to what is now the current local `master` - that's fine.
 
+Check in these notes:
+
+    $ git add -u
+    $ git commit -m "notes about branching and detached HEADs"
+    [master 57b1e91] notes about branching and detached HEADs
+     1 files changed, 34 insertions(+), 0 deletions(-)
+    $ git status
+    # On branch master
+    # Your branch and 'unfuddle/master' have diverged,
+    # and have 9 and 2 different commit(s) each, respectively.
+    #
+    nothing to commit (working directory clean)
+
+Attempt to push to unfuddle:
+
+    $ gpum
+    To git@drkvogel.unfuddle.com:drkvogel/retrieval-assistant.git
+     ! [rejected]        master -> master (non-fast-forward)
+    error: failed to push some refs to 'git@drkvogel.unfuddle.com:drkvogel/retrieval-assistant.git'
+    To prevent you from losing history, non-fast-forward updates were rejected
+    Merge the remote changes (e.g. 'git pull') before pushing again.  See the
+    'Note about fast-forwards' section of 'git push --help' for details.
+    $ git push --help
+
+Force push:
+
+    $ git push -f unfuddle master
+    Counting objects: 151, done.
+    Delta compression using up to 8 threads.
+    Compressing objects: 100% (114/114), done.
+    Writing objects: 100% (115/115), 60.89 KiB, done.
+    Total 115 (delta 86), reused 0 (delta 0)
+    To git@drkvogel.unfuddle.com:drkvogel/retrieval-assistant.git
+     + dcddcb6...57b1e91 master -> master (forced update)
+
+Ah, I've lost the abandoned branch, this way - locally and now remotely. Should perhaps have renamed `master` to something else to preserve it.
+
+## the proper workflow
+
+All of this is because I didn't do the right thing at the point of branching: knowing I was doing something experimental, I should have created a branch at that point and checked it out, committed on that, then when I realised I needed to go back, gone back to `master` and carried on.
+
+Having made the mistake of staying on `master` for something I knew was an experiment, I should have done `checkout master` so that subsequent commits went onto master rather than an un-named 'no branch' - i.e. with a detached HEAD. It would be nice if git warned you when you were about to do this...
+
+
+
