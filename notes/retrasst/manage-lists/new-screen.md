@@ -83,4 +83,38 @@ i.e. the current branch does not have a name, and `master` is back where we left
     $ git rev-parse HEAD
     f1e1b8c0e046e30eb6787cc5f5107fb4a1136cff # not same as master
 
+So:
+
+    $ git branch temp           # call the current branch 'temp'
+    $ git branch
+    * (no branch)               # still on 'no branch' as haven't checked out
+      master
+      temp
+      unfuddle
+    $ git checkout temp         # checkout temp
+    Switched to branch 'temp'
+    $ git status
+    # On branch temp            # now HEAD is on branch 'temp'
+    nothing to commit (working directory clean)
+
+Now force master to temp with `branch -f`:
+
+    $ git branch -f master temp
+    $ git status
+    # On branch temp
+    no changes added to commit (use "git add" and/or "git commit -a")
+
+But we're still on temp, so checkout master:
+
+    $ git checkout master
+    M       notes/retrasst/manage-lists/new-screen.md
+    Switched to branch 'master'
+    Your branch and 'unfuddle/master' have diverged,
+    and have 8 and 2 different commit(s) each, respectively.
+    $ git status
+    # On branch master
+    # Your branch and 'unfuddle/master' have diverged,
+    # and have 8 and 2 different commit(s) each, respectively.
+
+OK, so it's telling me that `unfuddle/master` (still on the old, aborted branch) is different to what is now the current local `master` - that's fine.
 
