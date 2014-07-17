@@ -870,7 +870,7 @@ check at save and exit if all vials in a box have been saved and if so update bo
 void __fastcall SaveProgressThread::Execute() {
 
     try {
-    updateStorage();
+        updateStorage();
     } catch (...) {
 
     }
