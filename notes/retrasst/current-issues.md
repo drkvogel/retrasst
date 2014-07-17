@@ -2,12 +2,21 @@ What is now `TfrmRetrievalJobList::combineAliquots` can be moved (back) into `Lo
 
 Utility methods (ones that are used by more than one class) should be put into StoreUtil.cpp
 
-e.g. getStorage()
+e.g. getStorage()?
+
+Thing about `getStorage()` is that it's specific to Retrieval Assistant at the moment and references SampleRow
 
 
 ## chunk should be complete
 
-now work on `chunkCompleted()`
+SaveProgressThread::updateStorage()
+    updateStorage(SampleRow * aliquot)
+        LPDbCryovialStore * current = aliquot->store_record
+        if (NULL != current)
+            switch (aliquot->lcr_record->getStatus()) {
+                case LCDbCryovialRetrieval::EXPECTED:
+                case LCDbCryovialRetrieval::IGNORED:
+                    throw runtime_error("chunk should be complete")
 
 ## move RetrAsstThread into RetrAsstMain.h
 
