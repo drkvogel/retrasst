@@ -132,7 +132,7 @@ private:
     bool                                        unactionedSamples;
     void                                        checkExit();
 	void                                        exit();
-	void										jobFinished();
+	void										closeJob();
     bool                                        destroying;  // for FormResize
     void                                        toggleLog();
     void                                        flash(TGroupBox *box, TColor other);
@@ -172,6 +172,7 @@ class SaveProgressThread : public RetrAsstThread {
     void            storeSample(SampleRow * sample);
     void            updateStorage();
     void            updateStorage(SampleRow * aliquot, LQuery & q);
+    void            findEmpties();
 };
 
 extern PACKAGE TfrmRetrAsstCollectSamples *frmRetrAsstCollectSamples;

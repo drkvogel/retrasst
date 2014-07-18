@@ -10,44 +10,30 @@ SaveProgressThread::updateStorage()
                 case LCDbCryovialRetrieval::IGNORED:
                     throw runtime_error("chunk should be complete")
 
-## Process ID not yet allocated
+No it shouldn't, necessarily. Use cases:
 
-LCDbAuditTrail::getProcessID()
-    if (hasStarted())
-        return current->getID()
-    throw Exception("Process ID not yet allocated")
+### 1. chunk finished
 
-Had made a checkbox ("Done") true on overriding ManageLists form, wondered if that commit [853c1cf] had caused it. Reverted using SourceTree File Status -> Log Selected -> Reset to Commit.
+The user got to the end of a chunk - it may not be complete because this includes ignored vials. 
 
-It does seem to cause it. 
+    save progress
+    if job complete # all vials processed, not ignored
+        close job
+        exit
 
-Changing checkboxes programmatically in TfrmManageLists::FormCreate seems to cause it as well. How strange. No-one's looking at Manage Lists at the moment anyway, so forget for now.
+### 2. user exits
 
-Then again...
+    save progress
+    if !current chunk finished
+        exit?
 
-Setting Checked triggers (e.g.) cbNewJobClick():
+i.e. if the current chunk is finished 
 
-cbNewJobClick()
-    loadJobs()
-        job->isAvailable()
-            processID == LCDbAuditTrail::getCurrent().getProcessID()
+## aside
 
-When normally would loadJobs() be called?
+I don't work spectacularly fast, I must admit.
 
-TfrmStoremain::BtnRetrieveClick()
-    frmRetrievalAssistant->init()
-    frmRetrievalAssistant->ShowModal()
-        TfrmRetrievalJobList::init()
-            loadJobs()
-
-i.e. perhaps init() needs to be overridden.   
-
-created 
-
-    virtual void TfrmRetrievalJobList::initCustom()
-
-which can be overridden in subclass to provide extra init() functionality at point where form is first shown, rather than OnCreate (i.e. after process ID has been assigned). Note `virtual` keyword, `__published` methods like `sgJobsDblClick()` don't seem to need it to be overridden - perhaps the `.dfm` provides that somehow? Was confusing as events don't need to be made `virtual` in order for the overridden method to be called, but normal methods do, or else the base implementation will always be called.
-
+But given that it's taken until recently to get some feedback from Martin, which led to some quite major changes, could it have been done any quicker? Martin being too busy was blocker, but I've used that time to iron out bugs which may save a lot of time after testing.
 
 ## move RetrAsstThread into RetrAsstMain.h
 

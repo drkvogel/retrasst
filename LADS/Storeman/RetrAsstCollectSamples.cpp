@@ -871,10 +871,13 @@ void __fastcall SaveProgressThread::Execute() {
 
     try {
         updateStorage();
+        findEmpties();
     } catch (...) {
 
     }
+}
 
+void SaveProgressThread::findEmpties() {
 	typedef std::set< SampleRow * > SetOfVials;
 	typedef std::map< int, SetOfVials > VialsInBoxesMap;
 	VialsInBoxesMap boxes;
@@ -975,11 +978,10 @@ enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, ALIQUOTS
 
     LPDbCryovialStore * current = aliquot->store_record;
     if (NULL != current) {
-
         switch (aliquot->lcr_record->getStatus()) {
             case LCDbCryovialRetrieval::EXPECTED:
             case LCDbCryovialRetrieval::IGNORED:
-                throw runtime_error("chunk should be complete");
+                return; //throw runtime_error("chunk should be complete");
             case LCDbCryovialRetrieval::COLLECTED:
                 current->setStatus(LPDbCryovialStore::TRANSFERRED); break; //???
             case LCDbCryovialRetrieval::NOT_FOUND:
@@ -988,7 +990,7 @@ enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, ALIQUOTS
                 throw runtime_error("unexpected status");
         }
         current->saveRecord(q);
-    } // else //throw runtime_error("NULL store_record");
+    } else throw runtime_error("NULL store_record"); // shouldn't be able to happen
 
     /* LPDbCryovialStore(int id, int cryovial, int box, short pos) */
     // add to box and use LPDbBoxName methods?
@@ -1042,12 +1044,21 @@ void __fastcall TfrmRetrAsstCollectSamples::saveProgressThreadTerminated(TObject
     hideProgressMessage(); //progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false;
 	Screen->Cursor = crDefault; Enabled = true;
 
-    collectEmpties(); // were we exiting or just finished a chunk? does it matter?
-                      // yes, because you don't want to close the form if just finishing a chunk
+    if (!emptyBoxes.empty()) {
+        if (IDYES != Application->MessageBox(L"There are empty boxes. Would you like to mark these as discarded?", L"Info", MB_YESNO)) {
+            throw runtime_error("user did not want to deal with empty boxes");
+            // then mark them REFERRED
+        } else {
+            collectEmpties();
+        }
+    }
+
+    // were we exiting or just finished a chunk? does it matter?
+    // yes, because you don't want to close the form if just finishing a chunk
 
     if (isJobComplete()) { // job is complete
         if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
-        jobFinished();
+        closeJob();
         ModalResult = mrOk;
     } else {
         TfrmRetrievalAssistant::msgbox("There are unactioned samples in this retrieval job; will not be marked as finished"); // fixme
@@ -1059,7 +1070,7 @@ bool TfrmRetrAsstCollectSamples::isJobComplete() { /** are all chunks complete? 
     return true;
 }
 
-void TfrmRetrAsstCollectSamples::jobFinished() {
+void TfrmRetrAsstCollectSamples::closeJob() {
     LQuery qp(Util::projectQuery(job->getProjectID(), false));
     LQuery qc(LIMSDatabase::getCentralDb());
 
@@ -1083,6 +1094,7 @@ void TfrmRetrAsstCollectSamples::jobFinished() {
 }
 
 void TfrmRetrAsstCollectSamples::collectEmpties() {
+    // does this duplicate findEmpties()?
 
     // create tick list or switch list of boxes, empty/otherwise
     // ask user to comfirm that empty boxes are in fact empty
