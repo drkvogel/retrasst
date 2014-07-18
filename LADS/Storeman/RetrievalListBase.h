@@ -567,6 +567,7 @@ private:
     map<int, const SampleRow *> storageCache;
 protected:
     void                loadJobs();
+    virtual void        initCustom(); // to override if necessary
 public:
     __fastcall TfrmRetrievalJobList(TComponent* Owner);
     void                init();

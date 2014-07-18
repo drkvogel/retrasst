@@ -8,6 +8,5 @@
 
 TfrmManListsShow *frmManListsShow;
 
-__fastcall TfrmManListsShow::TfrmManListsShow(TComponent* Owner) : TForm(Owner) {
-}
+__fastcall TfrmManListsShow::TfrmManListsShow(TComponent* Owner) : TForm(Owner) { }
 

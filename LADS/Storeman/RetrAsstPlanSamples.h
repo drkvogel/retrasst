@@ -138,9 +138,7 @@ protected:
     void __fastcall Execute();
     void load();
     bool hasVialsInJob(const LCDbProject * project);
-    //void loadVialsFromProject(int project_cid);
     void loadVialsFromProject(const LCDbProject * project);
-    //LCDbCryoJob *   job;
     int             rowCount;
     string          loadingMessage;
     void __fastcall updateStatus(); // synchronized methods can't have args
@@ -157,7 +155,6 @@ protected:
     TfrmRetrAsstPlanSamples  * plan;
     void __fastcall Execute();
     void save();
-    //LCDbCryoJob *   job;
     int             rowCount;
     string          loadingMessage;
     void __fastcall updateStatus();

@@ -2,7 +2,6 @@ inherited frmManageLists: TfrmManageLists
   Caption = 'Manage Lists'
   ClientHeight = 505
   ClientWidth = 776
-  OnCreate = FormCreate
   ExplicitWidth = 792
   ExplicitHeight = 543
   PixelsPerInch = 96

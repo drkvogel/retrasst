@@ -133,7 +133,8 @@ string TfrmRetrievalJobList::getProjectDescription(int project_cid) {
 
 string TfrmRetrievalJobList::getAuditInfo(int process_cid) {
     // c_audit_trail
-    //fixmeLCDbCryoJob::getUserID();
+    //jr->getUserID();
+    //LCDbCryoJob::getUserID();
     return "";
 }
 
@@ -162,7 +163,13 @@ void TfrmRetrievalJobList::init() {
     sgwJobs->addCol("finish",   "Finished",         74);
     sgwJobs->addCol("claimed",  "Claimed until",    74);
     sgwJobs->init();
+
+    initCustom();
     loadJobs();
+}
+
+void TfrmRetrievalJobList::initCustom() { // to override if necessary
+    //
 }
 
 void TfrmRetrievalJobList::loadJobs() {
