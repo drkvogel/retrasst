@@ -1,52 +1,55 @@
 inherited frmManageLists: TfrmManageLists
   Caption = 'Manage Lists'
-  ClientHeight = 592
-  ClientWidth = 837
-  ExplicitWidth = 853
-  ExplicitHeight = 630
+  ClientHeight = 505
+  ClientWidth = 776
+  OnCreate = FormCreate
+  ExplicitWidth = 792
+  ExplicitHeight = 543
   PixelsPerInch = 96
   TextHeight = 13
   inherited GroupBox1: TGroupBox
-    Width = 837
-    Height = 592
-    ExplicitWidth = 116
-    ExplicitHeight = 0
+    Width = 776
+    Height = 505
+    ExplicitWidth = 776
+    ExplicitHeight = 505
     inherited splitterDebug: TSplitter
-      Top = 488
-      Width = 833
+      Top = 401
+      Width = 772
+      ExplicitTop = 401
+      ExplicitWidth = 772
     end
     inherited sgJobs: TStringGrid
-      Width = 720
-      Height = 473
+      Width = 659
+      Height = 386
+      ExplicitWidth = 659
+      ExplicitHeight = 386
     end
     inherited Panel2: TPanel
-      Left = 722
-      Height = 473
-      ExplicitLeft = 1
-      inherited groupStatusCheck: TGroupBox
-        inherited cbDone: TCheckBox
-          Checked = True
-          State = cbChecked
-        end
-      end
+      Left = 661
+      Height = 386
+      ExplicitLeft = 661
+      ExplicitHeight = 386
       inherited btnExit: TButton
-        Top = 432
+        Top = 345
+        ExplicitTop = 345
       end
       inherited cbLog: TCheckBox
-        Top = 415
+        Top = 328
+        ExplicitTop = 328
       end
     end
     inherited panelDebug: TPanel
-      Top = 491
-      Width = 833
-      ExplicitTop = -101
-      ExplicitWidth = 112
+      Top = 404
+      Width = 772
+      ExplicitTop = 404
+      ExplicitWidth = 772
       inherited memoDebug: TMemo
-        Width = 719
+        Width = 658
+        ExplicitWidth = 658
       end
       inherited Panel1: TPanel
-        Left = 720
-        ExplicitLeft = -1
+        Left = 659
+        ExplicitLeft = 659
       end
     end
   end

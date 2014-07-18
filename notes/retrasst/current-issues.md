@@ -10,6 +10,22 @@ SaveProgressThread::updateStorage()
                 case LCDbCryovialRetrieval::IGNORED:
                     throw runtime_error("chunk should be complete")
 
+## Process ID not yet allocated
+
+LCDbAuditTrail::getProcessID()
+    if (hasStarted())
+        return current->getID()
+    throw Exception("Process ID not yet allocated")
+
+Had made a checkbox ("Done") true on overriding ManageLists form, wondered if that commit [853c1cf] had caused it. Reverted using SourceTree File Status -> Log Selected -> Reset to Commit.
+
+It does seem to cause it. 
+
+Changing checkboxes programmatically in TfrmManageLists::FormCreate seems to cause it as well. How strange. No-one's looking at Manage Lists at the moment anyway, so forget for now.
+
+
+
+
 ## move RetrAsstThread into RetrAsstMain.h
 
 .
