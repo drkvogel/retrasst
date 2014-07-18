@@ -16,9 +16,6 @@
 #pragma resource "*.dfm"
 
 TfrmRetrievalJobList *frmRetrievalJobList;
-//TfrmRetrievalAssistant *frmRetrievalAssistant;
-
-//__fastcall TfrmRetrievalAssistant::TfrmRetrievalAssistant(TComponent* Owner) : TfrmRetrievalJobList(Owner) { }
 
 __fastcall TfrmRetrievalJobList::TfrmRetrievalJobList(TComponent* Owner) : TForm(Owner) { }
 
