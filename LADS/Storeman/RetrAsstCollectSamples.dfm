@@ -180,7 +180,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Width = 75
         Height = 60
         Align = alLeft
-        Caption = 'Exit'
+        Caption = 'E&xit'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -16
@@ -230,7 +230,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Width = 111
       Height = 60
       Align = alLeft
-      Caption = 'Accept'
+      Caption = '&Accept'
       Default = True
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
