@@ -14,7 +14,7 @@ No it shouldn't, necessarily. Use cases:
 
 ### 1. chunk finished
 
-The user got to the end of a chunk - it may not be complete because this includes ignored vials. 
+The user got to the end of a chunk - it may not be complete because this includes ignored vials. But current state should be signed off.
 
     save progress
     if job complete # all vials processed, not ignored
@@ -23,11 +23,15 @@ The user got to the end of a chunk - it may not be complete because this include
 
 ### 2. user exits
 
+User quits voluntarily. Progress must be signed off and saved.
+
+need to differentiate between end of chunk reached and chunk completed
+
     save progress
-    if !current chunk finished
+    if !current chunk completed # including ignored
         exit?
 
-i.e. if the current chunk is finished 
+i.e. if the current chunk is not finished, the user must have pressed Exit in order for saveProgress to be initiated. But if the current chunk is finished, saveProgress was initiated by reaching the end of the chunk? 
 
 ## aside
 

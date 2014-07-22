@@ -311,7 +311,7 @@ void __fastcall TfrmRetrAsstCollectSamples::btnSimAcceptClick(TObject *Sender) {
 
 void __fastcall TfrmRetrAsstCollectSamples::btnNotFoundClick(TObject *Sender) { notFound(); }
 
-void __fastcall TfrmRetrAsstCollectSamples::btnSkipClick(TObject *Sender) { skip(); }
+void __fastcall TfrmRetrAsstCollectSamples::btnDeferClick(TObject *Sender) { skip(); }
 
 void TfrmRetrAsstCollectSamples::showProgressMessage(const char * loadingMessage) {
 	panelLoading->Caption = loadingMessage;
@@ -428,11 +428,11 @@ void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) { // defa
     }
     if (1.0 == chunk->getProgress()) { // completed
         btnAccept->Enabled   = false;
-        btnSkip->Enabled     = false;
+        btnDefer->Enabled     = false;
         btnNotFound->Enabled = false;
     } else {
         btnAccept->Enabled   = true;
-        btnSkip->Enabled     = true;
+        btnDefer->Enabled     = true;
         btnNotFound->Enabled = true;
     }
 
@@ -840,13 +840,6 @@ void TfrmRetrAsstCollectSamples::nextRow() {
 }
 
 void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
-/* * Require user to sign off
-    * update cryo store records
-    * calculate if there are any empty boxes
-        * create tick list or switch list of boxes, empty/otherwise
-        * ask user to comfirm that empty boxes are in fact empty
-    * if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation` */
-
     // Require user to sign off, skip in debug
 	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
 	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
@@ -857,6 +850,7 @@ void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
 }
 
 void TfrmRetrAsstCollectSamples::saveProgress() {
+/** initiate SaveProgressThread */
     info.clear(); warnings.clear(); errors.clear();
     saveProgressThread = new SaveProgressThread();
     saveProgressThread->OnTerminate = &saveProgressThreadTerminated;
@@ -868,7 +862,13 @@ void TfrmRetrAsstCollectSamples::saveProgress() {
 `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
 check at save and exit if all vials in a box have been saved and if so update box */
 void __fastcall SaveProgressThread::Execute() {
-
+/**
+    Require user to sign off
+    update cryo store records
+    calculate if there are any empty boxes
+        create tick list or switch list of boxes, empty/otherwise
+        ask user to comfirm that empty boxes are in fact empty
+        if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation` */
     try {
         updateStorage();
         findEmpties();
@@ -878,6 +878,7 @@ void __fastcall SaveProgressThread::Execute() {
 }
 
 void SaveProgressThread::findEmpties() {
+/** updates TfrmRetrAsstCollectSamples::emptyBoxes */
 	typedef std::set< SampleRow * > SetOfVials;
 	typedef std::map< int, SetOfVials > VialsInBoxesMap;
 	VialsInBoxesMap boxes;
@@ -1209,3 +1210,4 @@ catch (std::exception & e) {
     } else if (!collect->unactionedSamples) { // job finished
 		jobFinished();
 	} */
+

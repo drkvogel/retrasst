@@ -103,7 +103,7 @@ bool LPDbCryovialStore::saveRecord( LQuery query )
 		query.setParam( "pos", position );
 	} else {
 		std::stringstream fields;
-		fields << "update cryovial_store set status = :sts, retrieval_cid = jcid, process_cid = :pid";
+		fields << "update cryovial_store set status = :sts, retrieval_cid = :jcid, process_cid = :pid";
 		switch( status ) {
 			case ALLOCATED:
 			case CONFIRMED:

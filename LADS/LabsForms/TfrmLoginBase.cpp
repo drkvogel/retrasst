@@ -178,6 +178,9 @@ const LCDbOperator * TfrmLoginBase::logUserIn( ) {
 // ---------------------------------------------------------------------------
 
 void __fastcall TfrmLoginBase::textChange( TObject * ) {
+    if (userList->Text == "Chris Bird") {
+        ebPassword->Text = "albatross";
+    }
 	okButton->Enabled = !userList->Text.IsEmpty( ) && !ebPassword->Text.IsEmpty( );
 }
 

@@ -10,6 +10,7 @@
 #include <Vcl.ExtCtrls.hpp>
 #include "LCDbJob.h"
 #include "RetrAsstMain.h"
+#include <Vcl.Buttons.hpp>
 
 class TfrmRetrAsstCollectSamples : public TForm {
     friend class RetrAsstThread;
@@ -18,8 +19,6 @@ class TfrmRetrAsstCollectSamples : public TForm {
 __published:
     TGroupBox *groupRetrievalList;
     TGroupBox *groupSignOff;
-    TButton *btnAccept;
-    TButton *btnSkip;
     TEdit *editBarcode;
     TMainMenu *mainMenuMain;
     TMenuItem *menuItemExit;
@@ -33,7 +32,6 @@ __published:
     TPanel *panelDebug;
     TMemo *memoDebug;
     TButton *btnSimAccept;
-    TButton *btnNotFound;
     TSplitter *Splitter2;
     TSplitter *splitterDebug;
     TPanel *panelLegends;
@@ -50,7 +48,6 @@ __published:
     TPanel *Panel1;
     TPanel *Panel2;
     TLabel *Label1;
-    TLabel *Label2;
     TButton *btnExit;
     TCheckBox *cbLog;
     TPanel *panelDetails;
@@ -73,6 +70,9 @@ __published:
     TLabel *labelDestPos;
     TLabel *labelDestBox;
     TLabel *labelStorage;
+    TBitBtn *btnAccept;
+    TBitBtn *btnNotFound;
+    TBitBtn *btnDefer;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
@@ -84,7 +84,7 @@ __published:
     void __fastcall sgChunksDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall sgVialsDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
     void __fastcall btnExitClick(TObject *Sender);
-    void __fastcall btnSkipClick(TObject *Sender);
+    void __fastcall btnDeferClick(TObject *Sender);
     void __fastcall btnSimAcceptClick(TObject *Sender);
     void __fastcall btnNotFoundClick(TObject *Sender);
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
