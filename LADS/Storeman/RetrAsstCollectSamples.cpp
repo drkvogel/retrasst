@@ -126,7 +126,7 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
 
 void __fastcall TfrmRetrAsstCollectSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
-    cbLog->Checked      = false;//RETRASSTDEBUG;
+    cbLog->Checked      = false;
     sgVials->Enabled    = RETRASSTDEBUG;
     panelDebug->Visible = cbLog->Checked;
     job                 = NULL;
@@ -338,7 +338,6 @@ void TfrmRetrAsstCollectSamples::exit() { // definitely exiting
 		return; // fixme what now?
 	}
     saveProgress();//???
-	//showProgressMessage(progressMessage); Screen->Cursor = crSQLWait; Enabled = false; DEBUGSTREAM("save progress for job "<<job->getID()<<" started")
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::FormShow(TObject *Sender) {
@@ -447,10 +446,8 @@ void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) { // defa
     Screen->Cursor = crDefault; Enabled = true;
 }
 
-void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) {
-//void TfrmRetrAsstCollectSamples::fillRow(shared_ptr < SampleRow > row, int rw) {
-    SampleRow * sample;
-    //shared_ptr < SampleRow > sample;
+void TfrmRetrAsstCollectSamples::fillRow(SampleRow * row, int rw) { // shared_ptr < SampleRow > row
+    SampleRow * sample; //shared_ptr < SampleRow > sample;
     if (row->lcr_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && row->backup != NULL)
         sample = row->backup;
     else
@@ -672,42 +669,28 @@ void TfrmRetrAsstCollectSamples::showCurrentRow() {
 
 void TfrmRetrAsstCollectSamples::showDetails(SampleRow * sample) {
     if (NULL == sample) {
-		// source
         labelSrcPos->Caption    = "";
         labelSrcBox->Caption    = "";
         labelSite->Caption      = "";
         labelVessel->Caption    = "";
         labelStructure->Caption = "";
 		labelSlot->Caption      = "";
-
-        // sample ID
 		labelSampleID->Caption  = "";
-
-		// destination
 		labelDestPos->Caption   = "";
 		labelDestBox->Caption   = "";
-
-		// debug
 		labelStorage->Caption   = "";//???"Chunk completed";
 	} else {
-		// source
-		labelSrcPos->Caption    = sample->store_record->getPosition();
+		labelSrcPos->Caption    = sample->store_record->getPosition();  // source
 		labelSrcBox->Caption    = sample->src_box_name.c_str();
 		labelSite->Caption      = sample->site_name.c_str();
 		labelVessel->Caption    = sample->vessel_name.c_str();
 		labelStructure->Caption = sample->structure_name.c_str();
 		labelSlot->Caption      = sample->box_pos;
-
-		// sample ID
-		labelSampleID->Caption  = sample->cryovial_barcode.c_str();
-
-        // destination
-        labelDestPos->Caption   = sample->dest_cryo_pos;
+		labelSampleID->Caption  = sample->cryovial_barcode.c_str();     // sample ID
+        labelDestPos->Caption   = sample->dest_cryo_pos;                // destination
         labelDestBox->Caption   = sample->dest_box_name.c_str();
 		labelDestString->Caption   = sample->dest_str().c_str();
-
-		// debug
-		labelStorage->Caption   = sample->storage_str().c_str();
+		labelStorage->Caption   = sample->storage_str().c_str();        // debug
 	}
 }
 
@@ -841,10 +824,15 @@ void TfrmRetrAsstCollectSamples::nextRow() {
 
 void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
     // Require user to sign off, skip in debug
-	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
-	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
-		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
-		return; // fixme what now?
+    if (RETRASSTDEBUG) {
+        if (mrYes != Application->MessageBox(L"'Sign off' (debug)?", L"Info", MB_YESNO)) {
+		    Application->MessageBox(L"Signoff cancelled - what now?", L"Info", MB_OK); return;
+        }
+    } else {
+	    frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
+	    if (mrOk != frmConfirm->ShowModal()) {
+		    Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK); return; // fixme what now?
+        }
 	}
     saveProgress();
 }
@@ -862,16 +850,10 @@ void TfrmRetrAsstCollectSamples::saveProgress() {
 `c_box_name` (if record): update `time_stamp`, `box_capacity`, `status=1` (IN_USE)
 check at save and exit if all vials in a box have been saved and if so update box */
 void __fastcall SaveProgressThread::Execute() {
-/**
-    Require user to sign off
-    update cryo store records
-    calculate if there are any empty boxes
-        create tick list or switch list of boxes, empty/otherwise
-        ask user to comfirm that empty boxes are in fact empty
-        if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation` */
+/** */
     try {
-        updateStorage();
-        findEmpties();
+        updateStorage(); /** update cryo store records */
+        findEmpties();   /** calculate if there are any empty boxes */
     } catch (...) {
 
     }
@@ -1042,7 +1024,7 @@ enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, ALIQUOTS
 
 void __fastcall TfrmRetrAsstCollectSamples::saveProgressThreadTerminated(TObject *Sender) {
     DEBUGSTREAM(__FUNC__<<"save plan for job "<<job->getID()<<" finished")
-    hideProgressMessage(); //progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false;
+    hideProgressMessage();
 	Screen->Cursor = crDefault; Enabled = true;
 
     if (!emptyBoxes.empty()) {
@@ -1057,7 +1039,7 @@ void __fastcall TfrmRetrAsstCollectSamples::saveProgressThreadTerminated(TObject
     // were we exiting or just finished a chunk? does it matter?
     // yes, because you don't want to close the form if just finishing a chunk
 
-    if (isJobComplete()) { // job is complete
+    if (isJobComplete()) {
         if (IDYES != Application->MessageBox(L"Save job? Are all chunks completed?", L"Info", MB_YESNO)) return;
         closeJob();
         ModalResult = mrOk;
@@ -1095,19 +1077,18 @@ void TfrmRetrAsstCollectSamples::closeJob() {
 }
 
 void TfrmRetrAsstCollectSamples::collectEmpties() {
-    // does this duplicate findEmpties()?
+/** if, at the end of processing a chunk, there are any source boxes which have become empty,
+    the user may want to discard them instead of replacing them.
+    if so, provide an option to discard these empty boxes, recording it in the database
+    create tick list or switch list of boxes, empty/otherwise
+        ask user to comfirm that empty boxes are in fact empty
+        if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
+    does this duplicate findEmpties()?
 
-    // create tick list or switch list of boxes, empty/otherwise
-    // ask user to comfirm that empty boxes are in fact empty
-    // if error, create referred box (INVALID/EXTRA/MISSING CONTENT?) in `c_box_name` and/or `c_slot_allocation`
     // `c_box_name` and `c_slot_allocation` fields together == `l_box_arrival`
     // calculate if there are any empty boxes
 
-/** if, at the end of processing a chunk, there are any source boxes which have become empty,
-    the user may want to discard them instead of replacing them.
-    if so, provide an option to discard these empty boxes, recording it in the database */
-
-/*  * collect empties (all vials "accepted" or "not found") for discard
+    * collect empties (all vials "accepted" or "not found") for discard
     * at the end of processing each chunk, if source boxes are now empty
     * unlikely for test tasks but rat tanks may throw old boxes away
     * all source boxes from a reorganisation task should end up empty
