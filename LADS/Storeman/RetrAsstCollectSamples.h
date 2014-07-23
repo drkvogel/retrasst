@@ -73,6 +73,9 @@ __published:
     TBitBtn *btnAccept;
     TBitBtn *btnNotFound;
     TBitBtn *btnDefer;
+    TBitBtn *BitBtn1;
+    TBitBtn *BitBtn2;
+    TButton *Button1;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);

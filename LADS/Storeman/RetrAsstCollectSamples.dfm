@@ -332,6 +332,31 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       OnClick = btnDeferClick
       ExplicitLeft = 953
     end
+    object BitBtn1: TBitBtn
+      Left = 1070
+      Top = 24
+      Width = 92
+      Height = 25
+      Caption = 'Found Elsewhere'
+      TabOrder = 6
+    end
+    object BitBtn2: TBitBtn
+      Left = 1212
+      Top = 24
+      Width = 75
+      Height = 25
+      Caption = 'Wrong '
+      TabOrder = 7
+    end
+    object Button1: TButton
+      Left = 1168
+      Top = 40
+      Width = 75
+      Height = 25
+      Caption = 'Accept'
+      Style = bsSplitButton
+      TabOrder = 8
+    end
   end
   object Chunks: TGroupBox
     Left = 0
