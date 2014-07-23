@@ -1,9 +1,11 @@
 object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   Left = 0
   Top = 0
+  BorderIcons = []
+  BorderStyle = bsSingle
   Caption = 'Process Retrieval Job'
-  ClientHeight = 621
-  ClientWidth = 1280
+  ClientHeight = 631
+  ClientWidth = 1290
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -24,7 +26,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   object Splitter1: TSplitter
     Left = 0
     Top = 173
-    Width = 1280
+    Width = 1290
     Height = 10
     Cursor = crVSplit
     Align = alTop
@@ -35,8 +37,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   object groupRetrievalList: TGroupBox
     Left = 0
     Top = 183
-    Width = 1280
-    Height = 247
+    Width = 1290
+    Height = 257
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
@@ -44,8 +46,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     ExplicitHeight = 241
     object splitterDebug: TSplitter
       Left = 2
-      Top = 102
-      Width = 1276
+      Top = 112
+      Width = 1286
       Height = 8
       Cursor = crVSplit
       Align = alBottom
@@ -55,8 +57,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     object sgVials: TStringGrid
       Left = 2
       Top = 15
-      Width = 1276
-      Height = 87
+      Width = 1286
+      Height = 97
       Align = alClient
       DefaultDrawing = False
       DoubleBuffered = True
@@ -89,8 +91,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     end
     object panelDebug: TPanel
       Left = 2
-      Top = 110
-      Width = 1276
+      Top = 120
+      Width = 1286
       Height = 135
       Align = alBottom
       BevelEdges = []
@@ -109,7 +111,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       object memoDebug: TMemo
         Left = 4
         Top = 1
-        Width = 1196
+        Width = 1206
         Height = 133
         Align = alClient
         DoubleBuffered = False
@@ -125,7 +127,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         ExplicitWidth = 864
       end
       object btnSimAccept: TButton
-        Left = 1200
+        Left = 1210
         Top = 1
         Width = 75
         Height = 133
@@ -139,8 +141,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   end
   object groupSignOff: TGroupBox
     Left = 0
-    Top = 544
-    Width = 1280
+    Top = 554
+    Width = 1290
     Height = 77
     Align = alBottom
     Caption = 'Sign Off'
@@ -334,7 +336,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   object Chunks: TGroupBox
     Left = 0
     Top = 0
-    Width = 1280
+    Width = 1290
     Height = 173
     Align = alTop
     Caption = 'Chunks'
@@ -343,7 +345,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     object sgChunks: TStringGrid
       Left = 2
       Top = 15
-      Width = 1212
+      Width = 1222
       Height = 156
       Align = alClient
       DefaultDrawing = False
@@ -357,7 +359,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ExplicitWidth = 880
     end
     object panelLegends: TPanel
-      Left = 1214
+      Left = 1224
       Top = 15
       Width = 64
       Height = 156
@@ -481,8 +483,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   end
   object panelDetails: TPanel
     Left = 0
-    Top = 430
-    Width = 1280
+    Top = 440
+    Width = 1290
     Height = 114
     Align = alBottom
     BevelOuter = bvNone
@@ -694,7 +696,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     object groupDest: TGroupBox
       Left = 728
       Top = 0
-      Width = 552
+      Width = 562
       Height = 114
       Align = alClient
       Caption = 'Destination'
@@ -704,7 +706,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       object labelDestString: TLabel
         Left = 2
         Top = 99
-        Width = 548
+        Width = 558
         Height = 13
         Align = alBottom
         Caption = 'labelDestString'

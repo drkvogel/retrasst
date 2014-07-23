@@ -14,11 +14,6 @@ window close button
 
     just exits
 
-
-
-
-
-
 SaveProgressThread::storeSample()?
 
 
