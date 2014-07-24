@@ -40,8 +40,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
-    ExplicitWidth = 948
-    ExplicitHeight = 241
     object splitterDebug: TSplitter
       Left = 2
       Top = 102
@@ -67,8 +65,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       TabOrder = 0
       OnClick = sgVialsClick
       OnDrawCell = sgVialsDrawCell
-      ExplicitWidth = 944
-      ExplicitHeight = 81
     end
     object panelLoading: TPanel
       Left = 248
@@ -96,8 +92,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       BevelEdges = []
       Caption = 'panelDebug'
       TabOrder = 2
-      ExplicitTop = 104
-      ExplicitWidth = 944
       object Splitter2: TSplitter
         Left = 1
         Top = 1
@@ -122,7 +116,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         ParentFont = False
         ScrollBars = ssVertical
         TabOrder = 0
-        ExplicitWidth = 864
       end
       object btnSimAccept: TButton
         Left = 1200
@@ -133,7 +126,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Caption = 'Sim Accept'
         TabOrder = 1
         OnClick = btnSimAcceptClick
-        ExplicitLeft = 868
       end
     end
   end
@@ -145,10 +137,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     Align = alBottom
     Caption = 'Sign Off'
     TabOrder = 1
-    ExplicitTop = 543
-    ExplicitWidth = 988
     object editBarcode: TEdit
-      Left = 433
+      Left = 431
       Top = 15
       Width = 297
       Height = 60
@@ -161,12 +151,13 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 0
       OnKeyUp = editBarcodeKeyUp
+      ExplicitLeft = 433
       ExplicitHeight = 53
     end
     object Panel1: TPanel
       Left = 2
       Top = 15
-      Width = 263
+      Width = 327
       Height = 60
       Align = alLeft
       BevelOuter = bvNone
@@ -248,24 +239,53 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         ParentFont = False
         TabOrder = 2
         OnClick = btnAlreadyRetrievedClick
-        ExplicitLeft = 150
+      end
+      object btnBadVial: TBitBtn
+        Left = 244
+        Top = 0
+        Width = 77
+        Height = 60
+        Align = alLeft
+        Caption = 'Bad'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        Glyph.Data = {
+          76010000424D7601000000000000760000002800000020000000100000000100
+          04000000000000010000120B0000120B00001000000000000000000000000000
+          800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00300000000000
+          000037777777777777770FFFFFFFFFFFFFF07F3333FFF33333370FFFF777FFFF
+          FFF07F333777333333370FFFFFFFFFFFFFF07F3333FFFFFF33370FFFF7777BBF
+          FFF07F333777777F3FF70FFFFFFFB9BF1CC07F3FFF337F7377770F777FFFB99B
+          C1C07F7773337F377F370FFFFFFFB9BBC1C07FFFFFFF7F337FF700000077B999
+          B000777777777F33777733337377B9999B33333F733373F337FF3377377B99BB
+          9BB33377F337F377377F3737377B9B79B9B737F73337F7F7F37F33733777BB7B
+          BBB73373333377F37F3737333777BB777B9B3733333377F337F7333333777B77
+          77BB3333333337333377333333333777337B3333333333333337}
+        NumGlyphs = 2
+        ParentFont = False
+        TabOrder = 3
+        OnClick = btnBadVialClick
       end
     end
     object Panel2: TPanel
-      Left = 265
+      Left = 329
       Top = 15
-      Width = 168
+      Width = 102
       Height = 60
       Align = alLeft
       BevelOuter = bvNone
       ParentBackground = False
       TabOrder = 2
       object Label1: TLabel
-        Left = 8
+        Left = 6
         Top = 16
-        Width = 154
+        Width = 98
         Height = 25
-        Caption = 'Enter barcode >'
+        Caption = 'Barcode >'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -21
@@ -275,7 +295,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       end
     end
     object btnAccept: TBitBtn
-      Left = 730
+      Left = 728
       Top = 15
       Width = 111
       Height = 60
@@ -309,9 +329,10 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 3
       OnClick = btnAcceptClick
+      ExplicitLeft = 730
     end
     object btnNotFound: TBitBtn
-      Left = 1049
+      Left = 1047
       Top = 15
       Width = 120
       Height = 60
@@ -345,10 +366,10 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 4
       OnClick = btnNotFoundClick
-      ExplicitLeft = 847
+      ExplicitLeft = 1049
     end
     object btnDefer: TBitBtn
-      Left = 1169
+      Left = 1167
       Top = 15
       Width = 104
       Height = 60
@@ -381,10 +402,10 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 5
       OnClick = btnDeferClick
-      ExplicitLeft = 953
+      ExplicitLeft = 1169
     end
     object btnFoundElsewhere: TBitBtn
-      Left = 841
+      Left = 839
       Top = 15
       Width = 112
       Height = 60
@@ -418,10 +439,10 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 6
       OnClick = btnFoundElsewhereClick
-      ExplicitTop = 14
+      ExplicitLeft = 841
     end
     object btnWrongVial: TBitBtn
-      Left = 953
+      Left = 951
       Top = 15
       Width = 96
       Height = 60
@@ -457,8 +478,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 7
       OnClick = btnWrongVialClick
-      ExplicitLeft = 921
-      ExplicitTop = 23
+      ExplicitLeft = 953
     end
   end
   object Chunks: TGroupBox
@@ -469,7 +489,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     Align = alTop
     Caption = 'Chunks'
     TabOrder = 2
-    ExplicitWidth = 948
     object sgChunks: TStringGrid
       Left = 2
       Top = 15
@@ -484,7 +503,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       OnClick = sgChunksClick
       OnDrawCell = sgChunksDrawCell
       OnFixedCellClick = sgChunksFixedCellClick
-      ExplicitWidth = 880
     end
     object panelLegends: TPanel
       Left = 1214
@@ -494,7 +512,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 882
       object groupChunkKey: TGroupBox
         Left = 0
         Top = 0
@@ -617,8 +634,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 3
-    ExplicitTop = 424
-    ExplicitWidth = 948
     object groupSource: TGroupBox
       Left = 0
       Top = 0
@@ -843,7 +858,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Destination'
       ParentBackground = False
       TabOrder = 2
-      ExplicitWidth = 220
       object labelDestString: TLabel
         Left = 2
         Top = 99

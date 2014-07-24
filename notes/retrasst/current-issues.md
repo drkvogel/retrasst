@@ -14,6 +14,10 @@ Glyphs for buttons are in `C:\Program Files (x86)\Embarcadero\RAD Studio\11.0\Im
 
 BorderStyle
 
+## tip
+
+`git diff HEAD` does a nice diff of the staged changes, in case you added to the index already.
+
 ## exit doesn't exit
 
 exit doesn't exit!! fixed with ModalResult = mrCancel, but

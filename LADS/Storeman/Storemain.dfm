@@ -212,7 +212,7 @@ object frmStoremain: TfrmStoremain
     end
     object btnViewLists: TButton
       Left = 30
-      Top = 170
+      Top = 220
       Width = 116
       Height = 35
       Anchors = []
@@ -234,7 +234,7 @@ object frmStoremain: TfrmStoremain
     end
     object btnManage: TButton
       Left = 30
-      Top = 220
+      Top = 170
       Width = 116
       Height = 35
       Anchors = []

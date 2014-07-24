@@ -77,6 +77,7 @@ __published:
     TCheckBox *cbLog;
     TBitBtn *btnAddNote;
     TBitBtn *btnAlreadyRetrieved;
+    TBitBtn *btnBadVial;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
@@ -100,6 +101,7 @@ __published:
     void __fastcall btnFoundElsewhereClick(TObject *Sender);
     void __fastcall btnAddNoteClick(TObject *Sender);
     void __fastcall btnAlreadyRetrievedClick(TObject *Sender);
+    void __fastcall btnBadVialClick(TObject *Sender);
 private:
 	vector<string> 								info;
 	vector<string> 								warnings;

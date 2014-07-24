@@ -1237,3 +1237,9 @@ void __fastcall TfrmRetrAsstCollectSamples::btnAlreadyRetrievedClick(TObject *Se
     Application->MessageBox(L"What to do?", L"Info", MB_OK);
 }
 
+void __fastcall TfrmRetrAsstCollectSamples::btnBadVialClick(TObject *Sender) {
+    Application->MessageBox(L"Bad Vial", L"Info", MB_OK);
+    Application->MessageBox(L"What to do?", L"Info", MB_OK);
+}
+
+
