@@ -266,8 +266,7 @@ void __fastcall TfrmRetrAsstCollectSamples::sgVialsClick(TObject *Sender) { // s
     debugLog(".");
     SampleRow * sample = (SampleRow *)sgVials->Objects[0][sgVials->Row];
     ostringstream oss; oss<<"(prefer): "<<sample->debug_str(); debugLog(oss.str().c_str());
-    SampleRow * backup = sample->backup;
-    //shared_ptr< SampleRow > backup = sample->backup;
+    SampleRow * backup = sample->backup; //shared_ptr< SampleRow > backup = sample->backup;
     if (!backup) { debugLog("(no backup)"); return; }
     oss.str(""); oss<<"(backup): "<<backup->debug_str(); debugLog(oss.str().c_str());
 }
@@ -312,6 +311,10 @@ void __fastcall TfrmRetrAsstCollectSamples::btnSimAcceptClick(TObject *Sender) {
 void __fastcall TfrmRetrAsstCollectSamples::btnNotFoundClick(TObject *Sender) { notFound(); }
 
 void __fastcall TfrmRetrAsstCollectSamples::btnDeferClick(TObject *Sender) { skip(); }
+
+void __fastcall TfrmRetrAsstCollectSamples::btnWrongVialClick(TObject *Sender) { wrongVial(); }
+
+void __fastcall TfrmRetrAsstCollectSamples::btnFoundElsewhereClick(TObject *Sender) { foundElsewhere(); }
 
 void TfrmRetrAsstCollectSamples::showProgressMessage(const char * loadingMessage) {
 	panelLoading->Caption = loadingMessage;
@@ -429,10 +432,14 @@ void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) { // defa
         btnAccept->Enabled   = false;
         btnDefer->Enabled     = false;
         btnNotFound->Enabled = false;
+        btnWrongVial->Enabled = false;
+        btnFoundElsewhere->Enabled = false;
     } else {
         btnAccept->Enabled   = true;
         btnDefer->Enabled     = true;
         btnNotFound->Enabled = true;
+        btnWrongVial->Enabled = true;
+        btnFoundElsewhere->Enabled = true;
     }
 
     showCurrentRow();
@@ -741,6 +748,24 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
     }
 }
 
+void TfrmRetrAsstCollectSamples::foundElsewhere() {
+/** the vial expected to be in the source location was found somewhere else */
+// should be pretty much the same as accept but doesn't try to match the barcode, updates it and saves with a new status
+    Application->MessageBox(L"The vial that was supposed to be found in this location was found somewhere else.", L"Info", MB_OK);
+    Application->MessageBox(L"Record it's actual found location?", L"Info", MB_OK);
+    Application->MessageBox(L"Save it as normal as either COLLECTED or a new status (FOUND_ELSEWHERE?)", L"Info", MB_OK);
+}
+
+void TfrmRetrAsstCollectSamples::wrongVial() {
+/** the vial found in the source location is not the expected one */
+    Application->MessageBox(L"The vial found in this position is not the expected one. ", L"Info", MB_OK);
+    Application->MessageBox(L"Barcode should have been scanned in, accept it instead of rejecting", L"Info", MB_OK);
+    Application->MessageBox(L"Save to database as COLLECTED or new status (WRONG_VIAL?).", L"Info", MB_OK);
+}
+
+
+
+
 void TfrmRetrAsstCollectSamples::skip() { // defer
     currentAliquot()->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); // not saved to db
     nextRow();
@@ -1045,6 +1070,7 @@ void __fastcall TfrmRetrAsstCollectSamples::saveProgressThreadTerminated(TObject
         ModalResult = mrOk;
     } else {
         TfrmRetrievalAssistant::msgbox("There are unactioned samples in this retrieval job; will not be marked as finished"); // fixme
+        ModalResult = mrCancel;
     }
 }
 
@@ -1139,6 +1165,9 @@ void TfrmRetrAsstCollectSamples::collectEmpties() {
     }
 }
 
+
+
+
 // cruft
        /*
     vector<string>::const_iterator strIt;
@@ -1191,4 +1220,20 @@ catch (std::exception & e) {
     } else if (!collect->unactionedSamples) { // job finished
 		jobFinished();
 	} */
+
+
+
+
+
+
+void __fastcall TfrmRetrAsstCollectSamples::btnAddNoteClick(TObject *Sender) {
+    Application->MessageBox(L"Add a note", L"Info", MB_OK);
+    // existing form to do this?
+}
+
+
+void __fastcall TfrmRetrAsstCollectSamples::btnAlreadyRetrievedClick(TObject *Sender) {
+    Application->MessageBox(L"Vial has already been retrieved", L"Info", MB_OK);
+    Application->MessageBox(L"What to do?", L"Info", MB_OK);
+}
 

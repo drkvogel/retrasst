@@ -49,7 +49,6 @@ __published:
     TPanel *Panel2;
     TLabel *Label1;
     TButton *btnExit;
-    TCheckBox *cbLog;
     TPanel *panelDetails;
     TGroupBox *groupSource;
     TLabel *labelSite;
@@ -73,9 +72,11 @@ __published:
     TBitBtn *btnAccept;
     TBitBtn *btnNotFound;
     TBitBtn *btnDefer;
-    TBitBtn *BitBtn1;
-    TBitBtn *BitBtn2;
-    TButton *Button1;
+    TBitBtn *btnFoundElsewhere;
+    TBitBtn *btnWrongVial;
+    TCheckBox *cbLog;
+    TBitBtn *btnAddNote;
+    TBitBtn *btnAlreadyRetrieved;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall menuItemExitClick(TObject *Sender);
@@ -95,6 +96,10 @@ __published:
     void __fastcall FormResize(TObject *Sender);
     void __fastcall sgVialsClick(TObject *Sender);
     void __fastcall FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
+    void __fastcall btnWrongVialClick(TObject *Sender);
+    void __fastcall btnFoundElsewhereClick(TObject *Sender);
+    void __fastcall btnAddNoteClick(TObject *Sender);
+    void __fastcall btnAlreadyRetrievedClick(TObject *Sender);
 private:
 	vector<string> 								info;
 	vector<string> 								warnings;
@@ -114,8 +119,7 @@ private:
     SampleRow *                                 currentSample();
     SampleRow *                                 currentAliquot();
     void                                        showChunk(Chunk< SampleRow > * chunk=NULL);
-    void                                        fillRow(SampleRow * sampleRow, int rw);
-    //void                                        fillRow(shared_ptr < SampleRow > row, int rw);
+    void                                        fillRow(SampleRow * sampleRow, int rw); // shared_ptr < SampleRow > row,
     void                                        loadRows();
     void                                        addChunk(int number, int row);
     void                                        showCurrentRow();
@@ -123,6 +127,8 @@ private:
     void                                        accept(String barcode);
     void                                        notFound();
     void                                        skip();
+    void                                        foundElsewhere();
+    void                                        wrongVial();
     void                                        nextRow();
     void                                        saveProgress();
     void                                        showProgressMessage(const char * loadingMessage);
@@ -132,7 +138,7 @@ private:
     bool                                        isJobComplete();
     void                                        collectEmpties();
     std::set< int >                             emptyBoxes;
-    bool                                        unactionedSamples;
+    //bool                                        unactionedSamples;
     void                                        checkExit();
 	void                                        exit();
 	void										closeJob();

@@ -1,4 +1,77 @@
 
+## new buttons
+
+Add Note
+ no existing form (existing code?)
+ multiple notes can be added
+ existing notes can't be altered
+Already Retrieved
+Reality Schism
+
+Glyphs for buttons are in `C:\Program Files (x86)\Embarcadero\RAD Studio\11.0\Images\Buttons`
+
+## border icons
+
+BorderStyle
+
+## exit doesn't exit
+
+exit doesn't exit!! fixed with ModalResult = mrCancel, but
+
+## saveProgressThreadTerminated called twice
+
+on exit
+
+1st:
+TfrmStoremain::BtnRetrieveClick
+TfrmRetrievalAssistant::sgJobsDblClick
+
+2nd:
+TfrmStoremain::BtnRetrieveClick
+(no sgJobsDblClick)
+
+## detach from db switch?
+
+for dev w/o db?
+
+## 
+
+## updateStorage() updates everything
+
+instead of current chunk
+
+
+if (chunk.status == DONE) # no EXPECTED or IGNORED vials)
+    chunkCompleted()
+
+chunkCompleted()
+    signOff()
+    saveProgress()
+
+SaveProgressThread::Execute()
+    updateStorage() 
+    findEmpties() # updates emptyBoxes
+
+updateStorage()
+    # needs work
+
+saveProgressThreadTerminated()
+    if (!emptyBoxes.empty()):
+        collectEmpties()    
+    if (isJobComplete()):
+        closeJob()
+        ModalResult = mrOk
+    else:
+        msgbox("unactioned samples; not marked as finished")
+
+closeJob()
+    foreach `c_box_retrieval`:
+        LCDbBoxRetrieval cbr.setStatus(LCDbBoxRetrieval::COLLECTED)
+    LCDbCryoJob.setStatus(DONE)
+
+
+
+
 ## chunk should be complete
 
 SaveProgressThread::updateStorage()

@@ -1,11 +1,9 @@
 object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   Left = 0
   Top = 0
-  BorderIcons = []
-  BorderStyle = bsSingle
   Caption = 'Process Retrieval Job'
-  ClientHeight = 631
-  ClientWidth = 1290
+  ClientHeight = 621
+  ClientWidth = 1280
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -26,7 +24,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   object Splitter1: TSplitter
     Left = 0
     Top = 173
-    Width = 1290
+    Width = 1280
     Height = 10
     Cursor = crVSplit
     Align = alTop
@@ -37,8 +35,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   object groupRetrievalList: TGroupBox
     Left = 0
     Top = 183
-    Width = 1290
-    Height = 257
+    Width = 1280
+    Height = 247
     Align = alClient
     Caption = 'Retrieval List'
     TabOrder = 0
@@ -46,8 +44,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     ExplicitHeight = 241
     object splitterDebug: TSplitter
       Left = 2
-      Top = 112
-      Width = 1286
+      Top = 102
+      Width = 1276
       Height = 8
       Cursor = crVSplit
       Align = alBottom
@@ -57,8 +55,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     object sgVials: TStringGrid
       Left = 2
       Top = 15
-      Width = 1286
-      Height = 97
+      Width = 1276
+      Height = 87
       Align = alClient
       DefaultDrawing = False
       DoubleBuffered = True
@@ -91,8 +89,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     end
     object panelDebug: TPanel
       Left = 2
-      Top = 120
-      Width = 1286
+      Top = 110
+      Width = 1276
       Height = 135
       Align = alBottom
       BevelEdges = []
@@ -111,7 +109,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       object memoDebug: TMemo
         Left = 4
         Top = 1
-        Width = 1206
+        Width = 1196
         Height = 133
         Align = alClient
         DoubleBuffered = False
@@ -127,7 +125,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         ExplicitWidth = 864
       end
       object btnSimAccept: TButton
-        Left = 1210
+        Left = 1200
         Top = 1
         Width = 75
         Height = 133
@@ -141,8 +139,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   end
   object groupSignOff: TGroupBox
     Left = 0
-    Top = 554
-    Width = 1290
+    Top = 544
+    Width = 1280
     Height = 77
     Align = alBottom
     Caption = 'Sign Off'
@@ -173,9 +171,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 1
-      DesignSize = (
-        263
-        60)
       object btnExit: TButton
         Left = 0
         Top = 0
@@ -192,15 +187,68 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         TabOrder = 0
         OnClick = btnExitClick
       end
-      object cbLog: TCheckBox
-        Left = 81
-        Top = 1
-        Width = 64
-        Height = 17
-        Anchors = [akRight, akBottom]
-        Caption = 'dbg'
+      object btnAddNote: TBitBtn
+        Left = 75
+        Top = 0
+        Width = 80
+        Height = 60
+        Hint = 'Add a note'
+        Align = alLeft
+        Caption = 'Note'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Verdana'
+        Font.Style = [fsBold]
+        Glyph.Data = {
+          76010000424D7601000000000000760000002800000020000000100000000100
+          04000000000000010000120B0000120B00001000000000000000000000000000
+          800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00555500000000
+          0555555F7777777775F55500FFFFFFFFF0555577F5FFFFFFF7F550F0FEEEEEEE
+          F05557F7F777777757F550F0FFFFFFFFF05557F7F5FFFFFFF7F550F0FEEEEEEE
+          F05557F7F777777757F550F0FF777FFFF05557F7F5FFFFFFF7F550F0FEEEEEEE
+          F05557F7F777777757F550F0FF7F777FF05557F7F5FFFFFFF7F550F0FEEEEEEE
+          F05557F7F777777757F550F0FF77F7FFF05557F7F5FFFFFFF7F550F0FEEEEEEE
+          F05557F7F777777757F550F0FFFFFFFFF05557F7FF5F5F5F57F550F00F0F0F0F
+          005557F77F7F7F7F77555055070707070555575F7F7F7F7F7F55550507070707
+          0555557575757575755555505050505055555557575757575555}
+        NumGlyphs = 2
+        ParentFont = False
         TabOrder = 1
-        OnClick = cbLogClick
+        OnClick = btnAddNoteClick
+      end
+      object btnAlreadyRetrieved: TBitBtn
+        Left = 155
+        Top = 0
+        Width = 89
+        Height = 60
+        Hint = 'Vial has already been retrieved'
+        Align = alLeft
+        Caption = 'Done'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Verdana'
+        Font.Style = [fsBold]
+        Glyph.Data = {
+          76010000424D7601000000000000760000002800000020000000100000000100
+          04000000000000010000130B0000130B00001000000000000000000000000000
+          800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+          3333333333FFFFF3333333333999993333333333F77777FFF333333999999999
+          33333337777FF377FF3333993370739993333377FF373F377FF3399993000339
+          993337777F777F3377F3393999707333993337F77737333337FF993399933333
+          399377F3777FF333377F993339903333399377F33737FF33377F993333707333
+          399377F333377FF3377F993333101933399377F333777FFF377F993333000993
+          399377FF3377737FF7733993330009993933373FF3777377F7F3399933000399
+          99333773FF777F777733339993707339933333773FF7FFF77333333999999999
+          3333333777333777333333333999993333333333377777333333}
+        NumGlyphs = 2
+        ParentFont = False
+        TabOrder = 2
+        OnClick = btnAlreadyRetrievedClick
+        ExplicitLeft = 150
       end
     end
     object Panel2: TPanel
@@ -231,6 +279,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Top = 15
       Width = 111
       Height = 60
+      Hint = 'The correct vial has been found and its barcode entered'
       Align = alLeft
       Caption = '&Accept'
       Default = True
@@ -262,10 +311,11 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       OnClick = btnAcceptClick
     end
     object btnNotFound: TBitBtn
-      Left = 841
+      Left = 1049
       Top = 15
       Width = 120
       Height = 60
+      Hint = 'The vial cannot be found anywhere'
       Align = alLeft
       Cancel = True
       Caption = '&Not Found'
@@ -298,10 +348,11 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ExplicitLeft = 847
     end
     object btnDefer: TBitBtn
-      Left = 961
+      Left = 1169
       Top = 15
       Width = 104
       Height = 60
+      Hint = 'Skip for now and continue to next vial'
       Align = alLeft
       Caption = '&Defer'
       Font.Charset = DEFAULT_CHARSET
@@ -332,36 +383,88 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       OnClick = btnDeferClick
       ExplicitLeft = 953
     end
-    object BitBtn1: TBitBtn
-      Left = 1070
-      Top = 24
-      Width = 92
-      Height = 25
-      Caption = 'Found Elsewhere'
+    object btnFoundElsewhere: TBitBtn
+      Left = 841
+      Top = 15
+      Width = 112
+      Height = 60
+      Hint = 'The correct vial was found in a different source location'
+      Align = alLeft
+      Caption = 'Found'
+      Default = True
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Verdana'
+      Font.Style = [fsBold]
+      Glyph.Data = {
+        DE010000424DDE01000000000000760000002800000024000000120000000100
+        0400000000006801000000000000000000001000000000000000000000000000
+        80000080000000808000800000008000800080800000C0C0C000808080000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        3333333333333333333333330000333333333333333333333333F33333333333
+        00003333344333333333333333388F3333333333000033334224333333333333
+        338338F3333333330000333422224333333333333833338F3333333300003342
+        222224333333333383333338F3333333000034222A22224333333338F338F333
+        8F33333300003222A3A2224333333338F3838F338F33333300003A2A333A2224
+        33333338F83338F338F33333000033A33333A222433333338333338F338F3333
+        0000333333333A222433333333333338F338F33300003333333333A222433333
+        333333338F338F33000033333333333A222433333333333338F338F300003333
+        33333333A222433333333333338F338F00003333333333333A22433333333333
+        3338F38F000033333333333333A223333333333333338F830000333333333333
+        333A333333333333333338330000333333333333333333333333333333333333
+        0000}
+      NumGlyphs = 2
+      ParentFont = False
       TabOrder = 6
+      OnClick = btnFoundElsewhereClick
+      ExplicitTop = 14
     end
-    object BitBtn2: TBitBtn
-      Left = 1212
-      Top = 24
-      Width = 75
-      Height = 25
-      Caption = 'Wrong '
+    object btnWrongVial: TBitBtn
+      Left = 953
+      Top = 15
+      Width = 96
+      Height = 60
+      Hint = 
+        'The vial in the source location is not the one that should be th' +
+        'ere'
+      Align = alLeft
+      Cancel = True
+      Caption = 'Wrong'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Verdana'
+      Font.Style = [fsBold]
+      Glyph.Data = {
+        DE010000424DDE01000000000000760000002800000024000000120000000100
+        0400000000006801000000000000000000001000000000000000000000000000
+        80000080000000808000800000008000800080800000C0C0C000808080000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        333333333333333333333333000033338833333333333333333F333333333333
+        0000333911833333983333333388F333333F3333000033391118333911833333
+        38F38F333F88F33300003339111183911118333338F338F3F8338F3300003333
+        911118111118333338F3338F833338F3000033333911111111833333338F3338
+        3333F8330000333333911111183333333338F333333F83330000333333311111
+        8333333333338F3333383333000033333339111183333333333338F333833333
+        00003333339111118333333333333833338F3333000033333911181118333333
+        33338333338F333300003333911183911183333333383338F338F33300003333
+        9118333911183333338F33838F338F33000033333913333391113333338FF833
+        38F338F300003333333333333919333333388333338FFF830000333333333333
+        3333333333333333333888330000333333333333333333333333333333333333
+        0000}
+      NumGlyphs = 2
+      ParentFont = False
       TabOrder = 7
-    end
-    object Button1: TButton
-      Left = 1168
-      Top = 40
-      Width = 75
-      Height = 25
-      Caption = 'Accept'
-      Style = bsSplitButton
-      TabOrder = 8
+      OnClick = btnWrongVialClick
+      ExplicitLeft = 921
+      ExplicitTop = 23
     end
   end
   object Chunks: TGroupBox
     Left = 0
     Top = 0
-    Width = 1290
+    Width = 1280
     Height = 173
     Align = alTop
     Caption = 'Chunks'
@@ -370,7 +473,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     object sgChunks: TStringGrid
       Left = 2
       Top = 15
-      Width = 1222
+      Width = 1212
       Height = 156
       Align = alClient
       DefaultDrawing = False
@@ -384,7 +487,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ExplicitWidth = 880
     end
     object panelLegends: TPanel
-      Left = 1224
+      Left = 1214
       Top = 15
       Width = 64
       Height = 156
@@ -508,8 +611,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
   end
   object panelDetails: TPanel
     Left = 0
-    Top = 440
-    Width = 1290
+    Top = 430
+    Width = 1280
     Height = 114
     Align = alBottom
     BevelOuter = bvNone
@@ -525,6 +628,9 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Caption = 'Source'
       ParentBackground = False
       TabOrder = 0
+      DesignSize = (
+        431
+        114)
       object labelSite: TLabel
         Left = 361
         Top = 78
@@ -617,6 +723,16 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Font.Style = []
         ParentFont = False
         ExplicitWidth = 60
+      end
+      object cbLog: TCheckBox
+        Left = 361
+        Top = 17
+        Width = 35
+        Height = 17
+        Anchors = [akRight, akBottom]
+        Caption = 'dbg'
+        TabOrder = 0
+        OnClick = cbLogClick
       end
     end
     object groupSampleID: TGroupBox
@@ -721,7 +837,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     object groupDest: TGroupBox
       Left = 728
       Top = 0
-      Width = 562
+      Width = 552
       Height = 114
       Align = alClient
       Caption = 'Destination'
@@ -731,7 +847,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       object labelDestString: TLabel
         Left = 2
         Top = 99
-        Width = 558
+        Width = 548
         Height = 13
         Align = alBottom
         Caption = 'labelDestString'
