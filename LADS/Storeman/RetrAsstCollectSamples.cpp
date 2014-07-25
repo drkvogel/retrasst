@@ -432,14 +432,14 @@ void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) { // defa
         btnAccept->Enabled   = false;
         btnDefer->Enabled     = false;
         btnNotFound->Enabled = false;
-        btnWrongVial->Enabled = false;
-        btnFoundElsewhere->Enabled = false;
+        //btnWrongVial->Enabled = false;
+//        btnFoundElsewhere->Enabled = false;
     } else {
         btnAccept->Enabled   = true;
         btnDefer->Enabled     = true;
         btnNotFound->Enabled = true;
-        btnWrongVial->Enabled = true;
-        btnFoundElsewhere->Enabled = true;
+        //btnWrongVial->Enabled = true;
+        //btnFoundElsewhere->Enabled = true;
     }
 
     showCurrentRow();

@@ -72,11 +72,8 @@ __published:
     TBitBtn *btnAccept;
     TBitBtn *btnNotFound;
     TBitBtn *btnDefer;
-    TBitBtn *btnFoundElsewhere;
-    TBitBtn *btnWrongVial;
     TCheckBox *cbLog;
     TBitBtn *btnAddNote;
-    TBitBtn *btnAlreadyRetrieved;
     TBitBtn *btnBadVial;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
