@@ -67,6 +67,7 @@ private:
 	int	connection_timeout;
 	std::string	database_name;
 	std::string	username, password;
+	static	std::string	group;
 #if X_BDE
 	std::vector<TQuery *> query;
 	TDatabase	*db;
@@ -114,6 +115,7 @@ public:
 	bool	rollback( void );	// (NOT RELIABLE)
 	bool	setAutoCommit( const bool ac );
 	bool	useLocalTime( const bool lt );
+	static	void	setGroup( const std::string grp );
 	void	setUserName( const std::string un );
 	void	setPassWord( const std::string pw );
 	void	setConnectionTimeOut( int nsecs );
@@ -125,6 +127,8 @@ public:
 	II_PTR	getConnHandle( void );
 	II_PTR	getTranHandle( void );
 	void	setTranHandle( II_PTR );
+	bool 	ingSetConnEnvAPI( II_PTR  *connHandle, II_LONG param,
+		II_PTR value );
 	static	bool  	setIIApiVersion( const int iav );
 	static	void 	ingWait( IIAPI_GENPARM *genParm );
 #endif

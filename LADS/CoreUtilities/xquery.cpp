@@ -329,7 +329,7 @@ bool XQUERY::fetchingBlobs( void ) const
 	return( fetching_blobs );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool XQUERY::open( const bool mode_cursor )
+bool XQUERY::open( const int mode )
 {
 	if ( isOpen() )
 		{return( false );
@@ -342,12 +342,13 @@ bool XQUERY::open( const bool mode_cursor )
 		{singletonEnd();
 		return( false );
 		}
-	mode_select_cursor = mode_cursor;
+	mode_select = mode;
 	nrows_fetched = 0;
 #if X_BDE
 	bool	ok = bdeOpen();
 #elif X_ING
-	bool	ok = mode_cursor ? ingOpenCursor() : ingOpenSelect();
+	bool	ok = ( XQUERY::ModeLoop != mode_select )
+		? ingOpenCursor() : ingOpenSelect();
 #endif
 	if ( ! ok )
 		{singletonEnd();

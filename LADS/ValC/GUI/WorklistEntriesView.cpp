@@ -365,6 +365,7 @@ void WorklistEntriesView::addQueuedEntries(valc::SnapshotPtr snapshot,
 				= new TTestInstancePanel(this,runPanel,testName,
 										 props.leftSize,observer);
 			assignAttributes(t,entry);
+			t->setStyle();
 			runPanel->testPanels->push_back(t);
 		}
 		iter++;
@@ -386,7 +387,7 @@ void WorklistEntriesView::lineUpEntries(TSampleRunPanel *runPanel, int initX,
 		t->Position->Y = 0;
 		t->SendToBack();
 		if (count==1) {
-			t->setCompact(true,cWidth);
+			t->makeCompact(true,cWidth);
 			xPos += cJump;
 		}
 		else {
@@ -633,6 +634,7 @@ void WorklistEntriesView::addResultsEntries(valc::SnapshotPtr snapshot,
 											 testName,props.leftSize,
 											 "",props.rightSize,observer);
 				assignAttributes(t,entry);
+				t->setStyle();
 				runPanel->testPanels->push_back(t);
 			} // else no test results, therefore queued entry, therefore ignore
 		}
@@ -650,6 +652,7 @@ void WorklistEntriesView::addResultsEntries(valc::SnapshotPtr snapshot,
 												 resStr,props.rightSize,
 												 observer);
 					assignAttributes(runPanel,t,snapshot,entry,tr,r.getRunID());
+					t->setStyle();
 					runPanel->testPanels->push_back(t);
                 }
 				iterR++;
@@ -708,23 +711,24 @@ void WorklistEntriesView::assignAttributes(TSampleRunPanel *runPanel,
 {
 	assignAttributes(t,entry); // set attributes in common
 							   // with queued worklist entries
+
 	std::string res = Utils::float2str(tr->getResultValue());
 	t->setAttribute("Result",res);
+	t->setAttribute("Result Id",tr->getID());
+
 	TDateTime dt = tr->getDateAnalysed();
 	std::string d = Utils::unicodestr2str(dt.FormatString("YYYY-MM-DD (ddd)"));
 	std::string ti = Utils::unicodestr2str(dt.FormatString("HH:MM"));
 	t->setAttribute("Date Analysed",d);
 	t->setAttribute("Time Analysed",ti);
-	int resultId = tr->getID();
-	t->setAttribute("Result Id",resultId);
 
-	findAttentionNeed(sn,runPanel,t,resultId);
+	t->setQC(valcui::isQC(entry));
+
+	findAttentionNeed(sn,runPanel,t,tr);
 
 	// was this test carried out on the local analyser?
-	bool isLocal = (tr->getMachineID() == machineId);
-	if (!isLocal) {
-		t->makeNonLocal();
-    }
+	t->setLocal(tr->getMachineID() == machineId);
+
 }
 
 
@@ -732,39 +736,63 @@ void WorklistEntriesView::assignAttributes(TSampleRunPanel *runPanel,
 void WorklistEntriesView::findAttentionNeed(valc::SnapshotPtr snapshot,
                                             TSampleRunPanel *runPanel,
 											TTestInstancePanel *t,
-											int resultId)
+											const valc::TestResult *tr)
 {
-	// alert information needed too
-	try {
-		if (snapshot->hasRuleResults(resultId)) {
-			valc::RuleResults rr = snapshot->getRuleResults(resultId);
+	// the need for attention is worked out from what the rule results engine says
+	int resultId = tr->getID();
+	if (t->isQC()) {  // QCs have different results to those for unknown samples
+		try {
+			if (snapshot->hasRuleResults(resultId)) {
+				valc::RuleResults rr = snapshot->getRuleResults(resultId);
 
-			// RuleResults has summary information
-			//    int getSummaryResultCode()
-			//    string getSummaryMsg()
+				// RuleResults has summary information
+				//    int getSummaryResultCode()
+				//    string getSummaryMsg()
 
-			// each RuleResult has the following:
-			//    int resultCode
-			//    string rule
-			//    string msg
+				// each RuleResult has the following:
+				//    int resultCode
+				//    string rule
+				//    string msg
 
-			int r = rr.getSummaryResultCode();
+				int r = rr.getSummaryResultCode();
+				t->setAttribute("Result Code",r);
+				t->setAttribute("Result Summary", rr.getSummaryMsg());
+				if (r==valc::ResultCode::RESULT_CODE_FAIL
+					|| r==valc::ResultCode::RESULT_CODE_BORDERLINE
+					|| r==valc::ResultCode::RESULT_CODE_ERROR) {
+					t->needsAttention();
+					runPanel->needsAttention();
+				}
+			}
+		}
+		catch (const Exception & e) {
+			logManager->logException(std::string("Exception in WorklistEntriesView::findAttentionNeed while attempting to get QC Rule Results. More details:")
+									+ AnsiString(e.Message.c_str()).c_str());
+		}
+		catch (...) {
+			logManager->logException("Caught an unspecified kind of exception in WorklistEntriesView::findAttentionNeed while attempting to get QC Rule Results.");
+		}
+	}
+	else { // it's a test result from an unknown sample
+		try {
+
+			int r = tr->getControlStatus().summaryCode();
 			t->setAttribute("Result Code",r);
-			t->setAttribute("Result Summary", rr.getSummaryMsg());
-			if (r==valc::ResultCode::RESULT_CODE_FAIL
-				|| r==valc::ResultCode::RESULT_CODE_BORDERLINE
-				|| r==valc::ResultCode::RESULT_CODE_ERROR) {
+
+			if (r==valc::CONTROL_STATUS_ERROR || r==valc::CONTROL_STATUS_FAIL
+				|| r==valc::CONTROL_STATUS_BORDERLINE
+				|| r==valc::CONTROL_STATUS_UNCONTROLLED) {
 				t->needsAttention();
 				runPanel->needsAttention();
-            }
-        }
-	}
-	catch (const Exception & e) {
-		logManager->logException(std::string("Exception while attempting to get Rule Results. More details:")
-								+ AnsiString(e.Message.c_str()).c_str());
-	}
-	catch (...) {
-		logManager->logException("Caught an unspecified kind of exception attempting to get Rule Results.");
+			}
+		}
+		catch (const Exception & e) {
+			logManager->logException(std::string("Exception in WorklistEntriesView::findAttentionNeed while attempting to get rule results for an unknown sample. More details:")
+									+ AnsiString(e.Message.c_str()).c_str());
+		}
+		catch (...) {
+			logManager->logException("Caught an unspecified kind of exception in WorklistEntriesView::findAttentionNeed while attempting to get rule results for an unknown sample.");
+		}
 	}
 }
 

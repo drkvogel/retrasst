@@ -2,7 +2,6 @@
 #pragma hdrstop
 #include "StoreDAO.h"
 #include "RetrAsstCollectSamples.h"
-#include "LCDbAuditTrail.h"
 #include <ctime>
     // struct tm
 #include <locale>

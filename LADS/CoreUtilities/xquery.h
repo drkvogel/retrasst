@@ -19,7 +19,7 @@ private:
 	bool	accept_null;
 	bool	read_only;
 	bool	fetching_blobs;
-	bool	mode_select_cursor;
+	int	mode_select;
 	int	batch_nrows, buffered_rows, buffer_curow;
 	virtual	std::string	getClass( void );
 #if X_BDE
@@ -77,7 +77,7 @@ public:
 	void	setReadOnly( const bool ro );
 	bool	setBatch( const int bat );
 					// ACCESS FUNCTIONS
-	bool	open( const bool mode_cursor = true );
+	bool	open( const int mode = XQUERY::ModeCursor );
 	bool	fetchingBlobs( void ) const;
 	bool 	fetch( void );
 	bool 	fetch( ROSETTA *output );
@@ -88,6 +88,8 @@ public:
 	XTIME 	fetchTime( const XTIME default_value );
 	bool 	fetchSingle( ROSETTA *single );
 	bool 	close( void );
+	static	const	int	ModeCursor = 1;
+	static	const	int	ModeLoop = 2;
 };
 //===========================================================================
 #endif

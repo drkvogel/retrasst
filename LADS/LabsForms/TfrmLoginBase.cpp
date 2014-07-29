@@ -82,11 +82,10 @@ void __fastcall TfrmLoginBase::initialise( TObject * ) {
 	timer->Enabled = false;
 	LIMSParams & config = LIMSParams::instance( );
 	if( !config.checkUnique( ) || !config.checkMachine( ) ) {
-	// stop if the machine is not configured correctly
 		Application->Terminate( );
 		return;
 	}
-	auditTrail.start( );
+	// auditTrail.start( );
 }
 
 // ---------------------------------------------------------------------------
@@ -152,8 +151,7 @@ const LCDbOperator * TfrmLoginBase::logUserIn( ) {
 
 	if( locked ) {
 		auditTrail.sendEMail( user->getDescription( ) + "'s account is locked" );
-		Application->MessageBox( L"Too many login attempts; account locked.", NULL,
-			MB_ICONWARNING );
+		Application->MessageBox( L"Too many login attempts; account locked.", NULL, MB_ICONWARNING );
 		return NULL;
 	}
 

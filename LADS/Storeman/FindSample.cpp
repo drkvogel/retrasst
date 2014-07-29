@@ -66,11 +66,10 @@ void __fastcall TfrmFind::cbProjectChange(TObject *Sender)
 	}
 	if( proj != NULL && proj->isInCurrentSystem() && proj->isActive() && !proj->isCentral() ) {
 		pl.setCurrent( proj );
-		btnOK->Enabled = (!cbType->Text.IsEmpty() && !txtName->Text.IsEmpty());
 	} else {
 		pl.clearCurrentID();
-		btnOK->Enabled = false;
 	}
+	detailChange( Sender );
 }
 
 //---------------------------------------------------------------------------
@@ -78,7 +77,7 @@ void __fastcall TfrmFind::cbProjectChange(TObject *Sender)
 void __fastcall TfrmFind::detailChange(TObject *Sender)
 {
 	btnOK->Enabled = LCDbProjects::getCurrentID() != LCDbProject::NONE_SELECTED
-				  && cbType->ItemIndex >= 0 && !txtName->Text.IsEmpty();
+				&& (cbType->ItemIndex >= 0 || boxSearch) && !txtName->Text.IsEmpty();
 }
 
 //---------------------------------------------------------------------------

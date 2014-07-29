@@ -403,7 +403,7 @@ bool StoreDAO::loadBoxDetails( const std::string & barcode, const std::string & 
 	std::string sql = "select b.box_cid, external_name, barcode, box_type_cid, box_capacity, b.project_cid,"
 					" s.slot_cid, s.rack_cid, s.slot_position, s.retrieval_cid, s.status"
 					" from c_box_name b left join c_slot_allocation s on b.box_cid = s.box_cid"
-					" where b.barcode = :bar and b.project_cid = :proj and s.status not in (:rmv, :del)";
+					" where b.barcode = :bar and b.project_cid in (0,:proj) and s.status not in (:rmv, :del)";
 	if( box_type.empty() ) {
 		cq.setSQL( sql );
 	} else {
@@ -448,8 +448,7 @@ void StoreDAO::loadBoxes( int rack_id, std::vector<ROSETTA>& results)
 	cq.setSQL( "select b.box_cid, b.external_name, barcode, box_type_cid, box_capacity, b.project_cid,"
 			  " s.slot_cid, s.rack_cid, s.slot_position, retrieval_cid, s.status"
 			  " from c_slot_allocation s, c_box_name b"
-			  " where b.box_cid = s.box_cid and b.project_cid = s.project_cid"
-			  " and s.rack_cid = :rid and s.status not in ( :rmv, :del )" );
+			  " where b.box_cid = s.box_cid and s.rack_cid = :rid and s.status not in ( :rmv, :del )" );
 	cq.setParam( "rid", rack_id );
 	cq.setParam( "rmv", LCDbBoxStore::REMOVED );
 	cq.setParam( "del", LCDbBoxStore::DELETED );

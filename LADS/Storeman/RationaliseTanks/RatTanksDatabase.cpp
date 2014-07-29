@@ -531,7 +531,7 @@ void database::analiseVialsInABox(std::map<std::string,std::string> &boxstoreInf
 //----------------------------------------------------------------------------
 void database::getAvalibleBoxesForReBox(const std::string &project_cid,const std::string &aliquot,std::map<std::string, std::map<std::string,std::string> > &returnInfo)
 {
-	openProject(project_cid);
+//	openProject(project_cid);
 	std::vector<std::string> what;
 	what.push_back("box_type_cid");
 	what.push_back("external_name");
@@ -540,10 +540,12 @@ void database::getAvalibleBoxesForReBox(const std::string &project_cid,const std
 	what.push_back("aliquot_type1");
 	what.push_back("aliquot_type2");
 	what.push_back("aliquot_type3");
+	what.push_back("project_cid");
 	what.push_back("status");
-	std::string tablename = "BOX_CONTENT";
-	std::string where = " aliquot_type1 = '" + aliquot + "' OR aliquot_type2 = '" + aliquot + "' OR aliquot_type3 = '" + aliquot + "' and status = '1'";
-	runProjectQuery(what,tablename,where,returnInfo);
+	std::string tablename = "C_BOX_CONTENT";
+	std::string where = " (aliquot_type1 = '" + aliquot + "' OR aliquot_type2 = '" + aliquot + "' OR aliquot_type3 = '" + aliquot + "')"
+						" and status = 1 and project_cid in (" + project_cid + ",0)";
+	runQuery(what,tablename,where,returnInfo);
 }
 //----------------------------------------------------------------------------
 void database::scanVessel(std::map<String,String> &vessel,TMemo *Memo)
@@ -1872,10 +1874,10 @@ void database::extractBoxInformation(std::string rack_id,rackProjectData *thisra
 					what.push_back("aliquot_type1");
 					what.push_back("aliquot_type2");
 					what.push_back("aliquot_type3");
-					std::string tablename = "BOX_CONTENT";
-					std::string where = "box_type_cid  = '" + box_type_cid  + "'";
+					std::string tablename = "C_BOX_CONTENT";
+					std::string where = "box_type_cid  = " + box_type_cid;
 
-					String Query = runProjectQuery(what,tablename,where,BoxTypeInfo);
+					String Query = runQuery(what,tablename,where,BoxTypeInfo);
 				}
 			}
 			thisrack_info->BoxTypeInfo = BoxTypeInfo;
@@ -1893,10 +1895,10 @@ void database::createRetrievalList(const std::string &external_name,const std::s
 	std::vector<std::string> what;
 	what.push_back("box_type_cid");
 	what.push_back("box_size_cid");
-	std::string tablename = "BOX_CONTENT";
+	std::string tablename = "C_BOX_CONTENT";
 	std::string where = "box_type_cid  = '" + reboxType  + "'";
 	std::map<std::string, std::map<std::string,std::string> > reBoxInfo;
-	String Query = runProjectQuery(what,tablename,where,reBoxInfo);
+	String Query = runQuery(what,tablename,where,reBoxInfo);
 	std::string reBoxSize_cid = reBoxInfo[reboxType]["box_size_cid"];
 	what.clear();
 

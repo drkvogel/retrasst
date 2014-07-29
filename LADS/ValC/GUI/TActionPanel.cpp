@@ -124,7 +124,7 @@ void TActionPanel::initialiseTopArea()
 
 	// iconPanel contains the icon indicating pass/fail/maybe
 	iconPanel = new TPanel(topArea);
-	if (originator->hasAttribute("Result Code")) {
+	if (originator->isQC() && originator->hasAttribute("Result Code")) {
 		int a = originator->getIntAttribute("Result Code");
 		if (a==valc::ResultCode::RESULT_CODE_FAIL) {
 			iconPanel->StyleLookup = "AlertPanelFailIconStyle";

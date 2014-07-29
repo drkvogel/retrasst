@@ -12,12 +12,16 @@
 #include "Trace.h"   // then can do trace("...") in constructors/destructors
 #include "ConsoleWriter.h"
 
+#include "FMXTemplates.h"
+#include "API.h"
+
 #include "Utils.h"
 #include "WorklistEntriesView.h"
 #include "WorklistEntriesPositioning.h"
 #include "TTestInstancePanel.h"
 #include "TSnapshotFrame.h"
 #include "VisualComponents.h"
+#include "LogManager.h"
 
 #pragma package(smart_init)
 
@@ -70,23 +74,22 @@ __fastcall TTestInstancePanel::TTestInstancePanel(WorklistEntriesView *v,
 												  int resultSpace,
 												  SnapshotFrameObserver* ob)
 	: controller(v), TPanel(owner),
-	  testName(testName), nameWidth(nameSpace),
+	  testName(testName), nameWidth(nameSpace), qc(false),
 	  testResult(testResult), resultWidth(resultSpace), observer(ob),
 	  myBasicInfo(NULL), myNotes(NULL), myActions(NULL), clockface(NULL),
-	  compact(false),  attention(false), queued(false), local(true) // <- defaults
+	  compact(false),  attention(false), queued(false), localMachine(true) // <- defaults
 {
 	attributes = new std::map <std::string,std::string>();
 	ids = new std::map <std::string,int>();
 
-	StyleLookup = "TestResultPanelStyle"; // default
 
 	TagString = "Level:test result";   // tags used when navigating component
 									   // hierarchies and finding where we've
 									   // got to
-	Width = getWidth(nameSpace,resultSpace,compact,queued);
-	Height = Positioning::ENTRY_HEIGHT;
 	Parent = owner;
-	initialiseButtons();
+	int w = getWidth(nameSpace,resultSpace,compact,queued);
+	Width = w;  // default width, assuming for the moment it isn't to be displayed compactly
+	Height = Positioning::ENTRY_HEIGHT;
 }
 
 
@@ -108,26 +111,156 @@ __fastcall TTestInstancePanel::TTestInstancePanel(WorklistEntriesView *v,
 	: TPanel(owner),
 	  testName(testName), nameWidth(nameSpace),
 	  testResult(""), resultWidth(0), compact(false),  attention(false),
-	  controller(v), queued(true), observer(ob),  local(true),
+	  controller(v), queued(true), observer(ob),  localMachine(true),
 	  myBasicInfo(NULL), myNotes(NULL), myActions(NULL), clockface(NULL)
 {
 	attributes = new std::map <std::string,std::string>();
 	ids = new std::map <std::string,int>();
 
-	StyleLookup = "TestQueuedPanelStyle";
 	TagString = "Level:test result";   // tags used when navigating component
 									   // hierarchies and finding where we've
 									   // got to
 	Width = getWidth(nameSpace,0,compact,queued);
 	Height = Positioning::ENTRY_HEIGHT;
 	Parent = owner;
-	initialiseButtons();
 }
 
-void TTestInstancePanel::needsAttention() {
+
+void TTestInstancePanel::needsAttention()
+{
 	attention = true;
-	StyleLookup = "TestResultActionPanelStyle";
 }
+
+void TTestInstancePanel::setLocal(bool local)
+{
+	localMachine = local;
+}
+
+void TTestInstancePanel::setQC(bool s)
+{
+	qc = s;
+}
+
+bool TTestInstancePanel::isQC()
+{
+	return qc;
+}
+
+// Sets the style(s) for this panel, depending on various things like
+// queued status, attention-needing, locality of results and control status.
+// Assumes that its attributes have already been set (this should be
+// called immediately afterwards).
+void TTestInstancePanel::setStyle()
+{
+
+	StyleLookup = queued ? "TestQueuedPanelStyle"
+						 : "testinstancepanelstyle";
+	ApplyStyleLookup();  // necessary, for some reason
+
+
+	// for non-queued entries, also need to set sizes/styles of sub panels within style
+
+	if (!queued) {
+		// first the background colour
+		try {
+			TPanel *bkg = valcui::findStyleResource<TPanel>(this,"testinstancebackground");
+			bkg->StyleLookup = attention ? "TestResultActionPanelStyle"
+										 : "TestResultPanelStyle";
+			bkg->ApplyStyleLookup();
+			bkg->Width = Width;
+			bkg->Height = Height;
+		}
+		catch (const Exception & e) {
+			std::string s = "Exception thrown in TTestInstancePanel::setStyle when accessing testinstancebackground subpanel of TTestInstancePanel style. ";
+			s += Utils::unicodestr2str(e.Message);
+			controller->logManager->logException(s);
+		}
+		catch (...) {
+			std::string s = "Exception (unspecified) thrown in TTestInstancePanel::setStyle when accessing testinstancebackground subpanel of TTestInstancePanel style. ";
+		}
+
+		// then the control status panel
+		if (qc) {
+			try {
+				TPanel *cs = valcui::findStyleResource<TPanel>(this,"testcontrolstatus");
+
+				if (hasAttribute("Result Code")) {
+					int code = getIntAttribute("Result Code");
+					switch (code) {
+						case valc::ResultCode::RESULT_CODE_FAIL:
+							cs->StyleLookup = "controlyellowstyle"; break;
+						case valc::ResultCode::RESULT_CODE_BORDERLINE:
+							cs->StyleLookup = "controlamberstyle"; break;
+						case valc::ResultCode::RESULT_CODE_ERROR:
+							cs->StyleLookup = "controlgreystyle"; break;
+						case valc::ResultCode::RESULT_CODE_PASS:
+							cs->StyleLookup = "controlgreenstyle"; break;
+						default:                                // if no rules applied
+							cs->StyleLookup = "controltransparentstyle";
+					}
+					// available colours are turquoise, amber, green, grey, yellow
+				}
+				else {
+					cs->StyleLookup = "controltransparentstyle";
+				}
+				cs->ApplyStyleLookup();
+				cs->Width = resultWidth + RHS_GAP + 2;
+			}
+			catch (const Exception & e) {
+				std::string s = "Exception thrown in TTestInstancePanel::setStyle when accessing status style of a QC. ";
+				s += Utils::unicodestr2str(e.Message);
+				controller->logManager->logException(s);
+			}
+			catch (...) {
+				std::string s = "Exception (unspecified) thrown in TTestInstancePanel::setStyle when accessing status style of a QC. ";
+			}
+		}
+		else {
+			try {
+				TPanel *cs = valcui::findStyleResource<TPanel>(this,"testcontrolstatus");
+
+				if (hasAttribute("Result Code")) {
+					int code = getIntAttribute("Result Code");
+					switch (code) {
+						case valc::CONTROL_STATUS_CONFIG_ERROR_NO_RULES:
+						case valc::CONTROL_STATUS_ERROR:
+							cs->StyleLookup = "controlgreystyle"; break;
+						case valc::CONTROL_STATUS_FAIL:
+							cs->StyleLookup = "controlyellowstyle"; break;
+						case valc::CONTROL_STATUS_BORDERLINE:
+						case valc::CONTROL_STATUS_UNCONTROLLED:
+							cs->StyleLookup = "controlamberstyle"; break;
+						case valc::CONTROL_STATUS_PASS:
+							cs->StyleLookup = "controlgreenstyle"; break;
+						default:                                // if no rules applied
+							cs->StyleLookup = "controltransparentstyle";
+					}
+
+				}
+				else {
+					cs->StyleLookup = "controltransparentstyle";
+				}
+				cs->ApplyStyleLookup();
+				cs->Width = resultWidth + RHS_GAP + 2;
+			}
+			catch (const Exception & e) {
+				std::string s = "Exception thrown in TTestInstancePanel::setStyle when accessing status style for unknown sample. ";
+				s += Utils::unicodestr2str(e.Message);
+				controller->logManager->logException(s);
+			}
+			catch (...) {
+				std::string s = "Exception (unspecified) thrown in TTestInstancePanel::setStyle when accessing status style for unknown sample. ";
+			}
+        }
+
+	}
+	initialiseButtons();
+	if (!localMachine) {
+        makeNonLocal();
+    }
+}
+
+
 
 void TTestInstancePanel::initialiseButtons()
 {
@@ -238,23 +371,11 @@ void TTestInstancePanel::positionResultsButton()
 	}
 }
 
-// c is the new value for the compact boolean
-// - a button is displayed compactly if it's at the front of the list (no overlap)
-void TTestInstancePanel::setCompact(bool c, int newWidth)
-{
-	compact = c;
-	Width = newWidth;
-	positionButtons();
-	if (screen!=NULL) {
-        screen->Width = newWidth;
-    }
-}
 
 // this is called for entries in a sample run not analysed locally
 // - this is displayed as a faded effect for the panel
 void TTestInstancePanel::makeNonLocal()
 {
-	local = false;
 	// the faded effect is achieved by means of a semi-transparent
 	// white rounded rectangle in front of the panel, same size & shape
 	screen = new TRectangle(this);
@@ -272,11 +393,39 @@ void TTestInstancePanel::makeNonLocal()
 	screen->Position->Y = 0;
 	screen->HitTest = false;
 	screen->Opacity = 0.5;
-    screen->BringToFront();
+	screen->BringToFront();
    // to do: put this onto a style
 
 }
 
+
+
+// c is the new value for the compact boolean
+// - a button is displayed compactly if it's at the front of the list (no overlap)
+void TTestInstancePanel::makeCompact(bool c, int newWidth)
+{
+ 	compact = c;
+	Width = newWidth;
+
+	if (!queued) {  // need to change background style size too
+		try {
+			TPanel *bkg = valcui::findStyleResource<TPanel>(this,"testinstancebackground");
+			bkg->Width = newWidth;
+		}
+		catch (const Exception & e) {
+			std::string s = "Exception thrown in TTestInstancePanel::makeCompact when accessing style of TTestInstancePanel. ";
+			s += Utils::unicodestr2str(e.Message);
+			controller->logManager->logException(s);
+		}
+		catch (...) {
+			std::string s = "Exception (unspecified) thrown in TTestInstancePanel::makeCompact when accessing style of TTestInstancePanel. ";
+		}
+	}
+	positionButtons();
+	if (screen!=NULL) {
+        screen->Width = newWidth;
+    }
+}
 
 /** Returns the size of a displayed string, in pixels, when put on a label
   *
@@ -343,10 +492,6 @@ int TTestInstancePanel::getWidth(int n, int r, bool cmpct, bool qd)
 			   + RHS_GAP;
 	}
 }
-
-// findResultDisplayWidth was 	return Utils::findTextWidth(testResult) + RHS_GAP;
-// findPanelLeftWidth    gone too, no need, instead compare widths of displayed labels
-//                        using displayWidth
 
 
 //---------------------------------------------------------------------------

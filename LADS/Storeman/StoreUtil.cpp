@@ -291,7 +291,7 @@ LQuery Util::projectQuery( int projID, bool ddb ) {
 		projID = current;
 	}
 	const LCDbProject * proj = projList.findByID( projID );
-	if( proj == NULL || proj->isCentral() || !proj->isInCurrentSystem() ) {
+	if( proj == NULL || proj->isCentral() ) {
 		throw Exception( "Invalid project ID" );
 	} else {
 		projList.setCurrent( proj );

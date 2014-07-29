@@ -62,16 +62,16 @@ std::string XDB_ERROR::ingExpandError( II_PTR handle )
 				txt += buf;
 				break;
 			}
-		sprintf( buf, "' %ld: ", gete.ge_errorCode );
+		sprintf( buf, "' %d: ", gete.ge_errorCode );
 		txt += std::string(" '") + gete.ge_SQLSTATE + buf
 			+ ( gete.ge_message
 			? std::string(gete.ge_message) : std::string("NULL") );
 		if ( gete.ge_serverInfoAvail )
 			{
-			sprintf( buf, "\n svr_id_error     = %ld"
-				"\n svr_local error  = %ld"
-				"\n svr_id_server    = %ld"
-				"\n svr_server_type  = %ld"
+			sprintf( buf, "\n svr_id_error     = %d"
+				"\n svr_local error  = %d"
+				"\n svr_id_server    = %d"
+				"\n svr_server_type  = %d"
 				"\n svr_severity     = ",
 				gete.ge_serverInfo->svr_id_error,
 				gete.ge_serverInfo->svr_local_error,
@@ -96,7 +96,7 @@ std::string XDB_ERROR::ingExpandError( II_PTR handle )
 					txt += "(unknown)";
 					break;
 				}
-			sprintf( buf, " ( 0x%lx )\n",
+			sprintf( buf, " ( 0x%x )\n",
 				gete.ge_serverInfo->svr_severity );
 			txt += buf;
 			for( i = 0; i < gete.ge_serverInfo->svr_parmCount; i++ )
@@ -219,6 +219,7 @@ bool	XDB::ingInitialised = false;
 bool	XDB::blob_chunk_defined = false;
 int	XDB::blob_chunk_size = 2000;
 int	XDB::iiapi_version = IIAPI_VERSION_7;
+std::string	XDB::group = "";
 #endif
 //---------------------------------------------------------------------------
 XDB::XDB( const std::string target )
@@ -291,6 +292,28 @@ bool XDB::setIIApiVersion( const int iav )
 	return( true );
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+bool XDB::ingSetConnEnvAPI( II_PTR *connHandle, II_LONG param, II_PTR value )
+{
+	IIAPI_SETCONPRMPARM setConnParm;
+	if ( NULL == connHandle )
+		{return( false );
+		}
+	setConnParm.sc_genParm.gp_callback     = NULL;
+	setConnParm.sc_genParm.gp_closure      = NULL;
+	setConnParm.sc_connHandle = *connHandle;
+	setConnParm.sc_paramID    = param;
+	setConnParm.sc_paramValue = value;
+	IIapi_setConnectParam( &setConnParm );
+	ingWait( &(setConnParm.sc_genParm) );
+	if ( setConnParm.sc_genParm.gp_status != IIAPI_ST_SUCCESS )
+		{error( setConnParm.sc_genParm.gp_status,
+			"Error in setConnEnvAPI" );
+		return( false );
+		}
+	*connHandle = setConnParm.sc_connHandle;
+	return( true );
+};
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 bool XDB::ingInitAPI( void )
 {
 	IIAPI_INITPARM  initParm;
@@ -300,10 +323,18 @@ bool XDB::ingInitAPI( void )
 	envHandle = initParm.in_envHandle;
 	if ( initParm.in_status != IIAPI_ST_SUCCESS )
 		{char	ebuf[100];
-		sprintf( ebuf, "Error in IIapi_initialize, in_status=%ld",
+		sprintf( ebuf, "Error in IIapi_initialize, in_status=%d",
 			initParm.in_status );
 		error( initParm.in_status, ebuf );
 		return( false );
+		}
+	if ( ! group.empty() )
+		{if ( ! ingSetConnEnvAPI( &envHandle, IIAPI_CP_GROUP_ID,
+				(void *) group.c_str() ) )
+			{error( initParm.in_status,
+				"Error in setConnEnvAPI, failed to set group" );
+			return( false );
+			}
 		}
 	return( true );
 }
@@ -510,6 +541,11 @@ void XDB::setPassWord( const std::string pw )
 #if X_BDE
 	Session->AddPassword( pw.c_str() );
 #endif
+}
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+void XDB::setGroup( const std::string grp )
+{
+	group = grp;
 }
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 void XDB::setConnectionTimeOut( int nsecs )

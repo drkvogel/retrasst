@@ -2109,13 +2109,12 @@ IPart * PartFactory::createSiteList( ) const {
 
 	// link in the boxes once the structure is in place
 	for( Rack * r : rackList ) {
-		if( sibs && rackIDs.count( r->getID() ) == 0 ) {
+		if( sibs ) {
 			r->populate( );
-		} else {
-			for( Box * bi : boxList ) {
-				if( r->getID( ) == bi->getRackCID( ) ) {
-					r->addToList( bi );
-				}
+		}
+		for( Box * bi : boxList ) {
+			if( r->getID( ) == bi->getRackCID( ) ) {
+				r->addToList( bi );
 			}
 		}
 	}

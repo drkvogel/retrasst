@@ -6,7 +6,7 @@
         <AppType>Application</AppType>
         <MainSource>StoreMan.cpp</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
     </PropertyGroup>
@@ -52,23 +52,24 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
+        <UsePackages>true</UsePackages>
         <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
         <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
         <BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
-        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <BCC_MonitorThis>true</BCC_MonitorThis>
         <BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
         <AllPackageLibs>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib</AllPackageLibs>
         <ShowGeneralMessages>true</ShowGeneralMessages>
         <BCC_InstructionSet>5</BCC_InstructionSet>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.12.12;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.13.2;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_MinorVer>2</VerInfo_MinorVer>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_PreRelease>true</VerInfo_PreRelease>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>2057</VerInfo_Locale>
-        <VerInfo_Release>12</VerInfo_Release>
-        <VerInfo_Build>12</VerInfo_Build>
+        <VerInfo_Release>13</VerInfo_Release>
+        <VerInfo_Build>2</VerInfo_Build>
         <ILINK_LibraryPath>RetrievalLists\;RationaliseTanks\;C:\Program Files\Actian\IngresIJ\ingres\files\;..\LabsLeasing\;..\..\paulst\;..\LabsDAO\;..\LabsObjects\;..\CoreUtilities\;..\LabsForms\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <IncludePath>RetrievalLists\;RationaliseTanks\;C:\Program Files\Actian\IngresIJ\ingres\files\;..\LabsLeasing\;..\..\paulst\;..\LabsDAO\;..\LabsObjects\;..\CoreUtilities\;..\LabsForms\;$(IncludePath)</IncludePath>
         <ProjectType>CppVCLApplication</ProjectType>
@@ -123,8 +124,6 @@
         <UsePackages>true</UsePackages>
         <LinkPackageImports>vcl.bpi;rtl.bpi;vclimg.bpi;vclx.bpi</LinkPackageImports>
         <Debugger_SymbolSourcePath>C:\Users\cbird\Projects\retrieval-assistant\LADS\Storeman;C:\Users\cbird\Projects\retrieval-assistant\LADS\Storeman\Win64\Debug;$(Debugger_SymbolSourcePath)</Debugger_SymbolSourcePath>
-        <VerInfo_Build>17</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.12.17;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <Debugger_DebugSourcePath>.;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <LinkPackageStatics>IndyCore.lib;IndySystem.lib;IndyProtocols.lib</LinkPackageStatics>
     </PropertyGroup>
@@ -134,7 +133,7 @@
         <TASM_Debugging>None</TASM_Debugging>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib</LinkPackageStatics>
+        <LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib</LinkPackageStatics>
     </PropertyGroup>
     <ItemGroup>
         <None Include="C:\Program Files\Actian\IngresIJ\ingres\files\Iiapi.h">
@@ -780,22 +779,23 @@
             <DependentOn>..\..\paulst\WorkerThread.h</DependentOn>
             <BuildOrder>120</BuildOrder>
         </CppCompile>
-        <FormResources Include="RationaliseTanks\RatTanksCreateRetrievalJob.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksdbSelection.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksBoxSelection.dfm"/>
-        <FormResources Include="NewType.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksCreateExercise.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksBoxType.dfm"/>
-        <FormResources Include="ReferredBoxesSummary.dfm"/>
-        <FormResources Include="ReferredBoxes.dfm"/>
-        <FormResources Include="RetrAsstCollectEmpties.dfm"/>
-        <FormResources Include="RetrAsstCollectBoxes.dfm"/>
         <FormResources Include="RationaliseTanks\RatTanksMainDialog.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksSignIn.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksdbSelection.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksBoxType.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksBoxSelection.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksCreateRetrievalJob.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksCreateExercise.dfm"/>
+        <FormResources Include="RetrAsstCollectBoxes.dfm"/>
+        <FormResources Include="ReferredBoxesSummary.dfm"/>
+        <FormResources Include="RetrAsstCollectSamples.dfm"/>
+        <FormResources Include="RetrAsstCollectEmpties.dfm"/>
         <FormResources Include="RationaliseTanks\RatTanksPleaseWait.dfm"/>
+        <FormResources Include="ReferredBoxes.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksSignIn.dfm"/>
+        <FormResources Include="NewType.dfm"/>
         <FormResources Include="FindSample.dfm"/>
-        <FormResources Include="DiscardPrologue.dfm"/>
-        <FormResources Include="DiscardNote.dfm"/>
+        <FormResources Include="ManageListsShowList.dfm"/>
+        <FormResources Include="ManageLists.dfm"/>
         <FormResources Include="DiscardSearch.dfm"/>
         <FormResources Include="DiscardSamples.dfm"/>
         <FormResources Include="NewSection.dfm"/>
@@ -806,37 +806,36 @@
         <FormResources Include="MoveJobs.dfm"/>
         <FormResources Include="NewJob.dfm"/>
         <FormResources Include="NewExercise.dfm"/>
-        <FormResources Include="RetrAsstCollectSamples.dfm"/>
         <FormResources Include="SMLogin.dfm"/>
         <FormResources Include="showsamples.dfm"/>
         <FormResources Include="Storemain.dfm"/>
-        <FormResources Include="RetrievalLists\retrievalListMainDialog.dfm"/>
-        <FormResources Include="RetrAsstPlanSamples.dfm"/>
-        <FormResources Include="RetrAsstPlanBoxes.dfm"/>
-        <FormResources Include="RetrievalLists\RetrievalListCryovialHistoryDialog.dfm"/>
-        <FormResources Include="SampleEntry.dfm"/>
         <FormResources Include="SelectSamples.dfm"/>
-        <FormResources Include="SampleMove.dfm"/>
-        <FormResources Include="RetrievalLists\RetrievalListResultNotesDialog.dfm"/>
-        <FormResources Include="RetrievalLists\RetrievalListMainListDialog.dfm"/>
+        <FormResources Include="RetrievalLists\RetrievalListCryovialHistoryDialog.dfm"/>
+        <FormResources Include="RetrAsstPlanBoxes.dfm"/>
+        <FormResources Include="RetrAsstMain.dfm"/>
+        <FormResources Include="RetrievalListBase.dfm"/>
+        <FormResources Include="RetrAsstPlanSamples.dfm"/>
+        <FormResources Include="SampleEntry.dfm"/>
         <FormResources Include="RetrieveSamples.dfm"/>
+        <FormResources Include="SampleMove.dfm"/>
+        <FormResources Include="RetrievalLists\RetrievalListMainListDialog.dfm"/>
+        <FormResources Include="RetrievalLists\retrievalListMainDialog.dfm"/>
         <FormResources Include="RetrievalLists\RetrievalListResultsDialog.dfm"/>
-        <FormResources Include="AnalyseSamples.dfm"/>
+        <FormResources Include="RetrievalLists\RetrievalListResultNotesDialog.dfm"/>
+        <FormResources Include="DiscardPrologue.dfm"/>
         <FormResources Include="AddSpecimens.dfm"/>
+        <FormResources Include="AnalyseSamples.dfm"/>
+        <FormResources Include="DiscardNote.dfm"/>
         <FormResources Include="DiscardMethod.dfm"/>
+        <FormResources Include="BrowseSample.dfm"/>
         <FormResources Include="BoxTransfer.dfm"/>
         <FormResources Include="Configure.dfm"/>
-        <FormResources Include="BrowseSample.dfm"/>
         <FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
         <FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
         <FormResources Include="..\LabsForms\TfrmSelectDbS.dfm"/>
         <FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
         <FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
         <FormResources Include="..\LabsForms\dvSelector.dfm"/>
-        <FormResources Include="RetrievalListBase.dfm"/>
-        <FormResources Include="RetrAsstMain.dfm"/>
-        <FormResources Include="ManageLists.dfm"/>
-        <FormResources Include="ManageListsShowList.dfm"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -909,6 +908,8 @@
                     <Excluded_Packages Name="$(BDSBIN)\DataExplorerDBXPlugin180.bpl">DBExpress Data Explorer Integration</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k180.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp180.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </CPlusPlusBuilder.Personality>
             <Deployment/>

@@ -37,6 +37,8 @@ typedef ComponentsList::iterator ComponentsIterator;
 
 class WorklistEntriesView {
 
+    friend class TTestInstancePanel;
+
 public:
 
 	/** A link to the frame that contains this view */
@@ -110,7 +112,7 @@ private:
 	void addResultsEntries(valc::SnapshotPtr snapshot, const DisplayProperties &props,
 						   const valc::LocalRun &r, TSampleRunPanel *runPanel);
 	void findAttentionNeed(valc::SnapshotPtr snapshot, TSampleRunPanel *runPanel,
-						   TTestInstancePanel *t, int resultId);
+						   TTestInstancePanel *t, const valc::TestResult *tr);
 
 	void updateBarcodeWidth(const std::string &barcode,DisplayProperties &props);
     int emptyRunWidth(int barcodeWidth);

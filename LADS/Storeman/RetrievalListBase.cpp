@@ -1,7 +1,5 @@
 #include <vcl.h>
-#pragma hdrstop
 #include "RetrievalListBase.h"
-#include "LCDbAuditTrail.h"
 #include "LCDbObject.h"
 #include "LCDbProject.h"
 #include "RetrAsstPlanSamples.h"
@@ -11,6 +9,7 @@
 #include "StoreUtil.h"
 #include "StoreDAO.h"
 #include "LCDbTankMap.h"
+#pragma hdrstop
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"

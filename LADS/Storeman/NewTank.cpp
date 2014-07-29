@@ -267,12 +267,12 @@ void TfrmNewTank::TankConfirmInit()
 	short shelf = tank->getShelfNumber();
 	TxtLayName1->Text = lay->getLayoutDescription().c_str();
 	TxtPop1->Text = shelf;
-		ShowGrid( grdProps1, lay->getList() );
+	ShowGrid( grdProps1, lay->getList() );
 	if( mode == NEW_VESSEL || shelf != oldtank->getShelfNumber()
 	 || mode == ADD_LAYOUT || layout_cid != oldtank->getLayoutID() ) {
 		std::string population = getNextPopulation();
-		std::string layout = AnsiString( TxtLayName1 -> Text ).c_str();
-		tank->setContent( population, layout + ' ' + population );
+		std::string longName = "Population " + population + " (" + lay->getName() + ")";
+		tank->setContent( population, longName );
 		TxtFull1->ReadOnly = false;
 		ActiveControl = TxtFull1;
 	} else {
@@ -512,19 +512,18 @@ void __fastcall TfrmNewTank::DeleteClick(TObject *Sender)
 //---------------------------------------------------------------------------
 
 std::string TfrmNewTank::getNextPopulation() {
-	int next = 1;
-	for( Range< LCDbObject > obj = LCDbObjects::records(); obj.isValid(); ++ obj ) {
-		if( obj->getObjectType() == LCDbObject::STORAGE_POPULATION ) {
-			const char * name = obj->getName().c_str();
-			int num = atoi( name + 1 );
-			if( num >= next ) {
-				next = num + 1;
-            }
-        }
-    }
-	char buff[ 12 ];
-	std::sprintf( buff, "P%d", next );
-	return buff;
+	char name[ 12 ];
+	int pos = TxtPos->Text.ToIntDef( -1 );
+	for( char prefix = 'D'; prefix <= 'Z'; prefix ++ ) {
+		std::sprintf( name, "%c%d", prefix, pos );
+		for( const LCDbObject & obj : LCDbObjects::records() ) {
+			if( obj.getName() != name ) {
+				return name;
+			}
+		}
+	}
+	Application->MessageBox( L"No suitable population name found", NULL, MB_ICONWARNING );
+	return "???";
 }
 
 //---------------------------------------------------------------------------

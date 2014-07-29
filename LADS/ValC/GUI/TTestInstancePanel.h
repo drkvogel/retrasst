@@ -139,6 +139,12 @@ public:
 
 // For comments on methods, please see their implementations.
 
+// Note that the way TTestInstancePanel objects should be initialised is
+//    1) call a constructor
+//    2) then set its attributes
+//    3) then set the style(s)  (by calling setStyle() )
+//    4) finally, adjust if compact (by calling makeCompact() )
+
 	__fastcall TTestInstancePanel(WorklistEntriesView *v, TPanel *owner,
 								  const std::string & testName, int nameSpace,
 								  const std::string & testResult, int resultSpace,
@@ -158,9 +164,12 @@ public:
 
 	static bool goCompare(const TTestInstancePanel * first, const TTestInstancePanel * second);
 
-    void needsAttention();
-	void setCompact(bool c, int newWidth);
-	void makeNonLocal();
+	void setStyle();
+	void needsAttention();
+	void setLocal(bool local);
+	void setQC(bool s);
+	bool isQC();
+	void makeCompact(bool c, int newWidth);
 
 	bool hasAttribute(const std::string & attr);
 	std::string getAttribute(const std::string & key);
@@ -186,7 +195,7 @@ private:
 	std::string testResult;
 
 	bool attention;   // true if this is a test result in need of attention
-	bool local;       // false if the test was not carried out on the local machine
+	bool qc;          // true if this is for a QC (as opposed to an unknown sample)
 	int nameWidth;    // horizontal space taken up by the name of the test
 	int resultWidth;  // horizontal space taken up by the result from the test
 
@@ -220,6 +229,8 @@ private:
 	void positionTestNameButton();
 	void positionNotesButton();
 	void positionResultsButton();
+
+	void makeNonLocal();
 
   //	void setUpTestNameButton();  // old
 	void setUpNotesButton();

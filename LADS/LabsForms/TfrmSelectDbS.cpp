@@ -5,7 +5,6 @@
 #include "TfrmSelectDbS.h"
 #include "LCDbOperator.h"
 #include "LCDbProject.h"
-#include "LCDbAuditTrail.h"
 #include "LIMSParams.h"
 
 #pragma hdrstop

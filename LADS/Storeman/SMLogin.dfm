@@ -30,4 +30,10 @@ inherited frmSMLogin: TfrmSMLogin
     Left = 102
     ExplicitLeft = 102
   end
+  inherited timer: TTimer
+    Left = 192
+  end
+  inherited IdSMTP1: TIdSMTP
+    Left = 240
+  end
 end

@@ -29,7 +29,7 @@ private:
         auto i = std::find( m_orderedList.begin(), m_orderedList.end(), r );
         require( i != m_orderedList.end() );
         return std::distance( m_orderedList.begin(), i );
-    }
+	}
 
 public:
 
@@ -155,47 +155,47 @@ void SampleRunViewController::addResultBox(
     else
 	{
 		// Status is differently determined for QCs than for Unknowns
-        if ( isQC( worklistEntry ) )
-        {
-            std::set< valc::ResultCode, WorstFirst > resultCodes;
+		if ( isQC( worklistEntry ) )
+		{
+			std::set< valc::ResultCode, WorstFirst > resultCodes;
 
-            listResultCodes( worklistEntry, snapshot, std::inserter(resultCodes, resultCodes.begin() ) );
+			listResultCodes( worklistEntry, snapshot, std::inserter(resultCodes, resultCodes.begin() ) );
 
-            if ( resultCodes.empty() )
-            {
-                statusStyle = "status_pending";
-            }
-            else
-            {
-                switch( *(resultCodes.begin()) ) // worst-case scenario
+			if ( resultCodes.empty() )
+			{
+				statusStyle = "status_pending";
+			}
+			else
+			{
+				switch( *(resultCodes.begin()) ) // worst-case scenario
                 {
-                    case valc::ResultCode::RESULT_CODE_FAIL:             
-                    case valc::ResultCode::RESULT_CODE_ERROR:
+					case valc::ResultCode::RESULT_CODE_FAIL:
+					case valc::ResultCode::RESULT_CODE_ERROR:
                     case valc::ResultCode::RESULT_CODE_NO_RULES_APPLIED:
-                    case valc::ResultCode::RESULT_CODE_NULL:
-                        statusStyle = "status_fail"; break;
-                    case valc::ResultCode::RESULT_CODE_BORDERLINE:
-                        statusStyle = "status_warn"; break;
-                    case valc::ResultCode::RESULT_CODE_PASS:
+					case valc::ResultCode::RESULT_CODE_NULL:
+						statusStyle = "status_fail"; break;
+					case valc::ResultCode::RESULT_CODE_BORDERLINE:
+						statusStyle = "status_warn"; break;
+					case valc::ResultCode::RESULT_CODE_PASS:
 						statusStyle = "status_ok"; break;
 					default:
 						throwException( "Unexpected value for ResultCode" );
-                }
-            }
-        }
-        else
-        {
-            switch( result->getControlStatus().summaryCode() )
-            {
-            case valc::CONTROL_STATUS_CONFIG_ERROR_NO_RULES :
-            case valc::CONTROL_STATUS_ERROR                 :
-            case valc::CONTROL_STATUS_FAIL                  : statusStyle = "status_fail"; break;
-            case valc::CONTROL_STATUS_UNCONTROLLED          : 
-            case valc::CONTROL_STATUS_BORDERLINE            : statusStyle = "status_warn"; break;
-            case valc::CONTROL_STATUS_PASS                  : statusStyle = "status_ok"  ; break;
-            }
-        }
-    }
+				}
+			}
+		}
+		else
+		{
+			switch( result->getControlStatus().summaryCode() )
+			{
+			case valc::CONTROL_STATUS_CONFIG_ERROR_NO_RULES :
+			case valc::CONTROL_STATUS_ERROR                 :
+			case valc::CONTROL_STATUS_FAIL                  : statusStyle = "status_fail"; break;
+			case valc::CONTROL_STATUS_UNCONTROLLED          :
+			case valc::CONTROL_STATUS_BORDERLINE            : statusStyle = "status_warn"; break;
+			case valc::CONTROL_STATUS_PASS                  : statusStyle = "status_ok"  ; break;
+			}
+		}
+	}
 
     require( ! statusStyle.empty() );
 
