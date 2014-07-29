@@ -440,17 +440,17 @@ void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) { // defa
         fillRow(sampleRow, row+1); // row+1 for stringgrid
     }
     if (1.0 == chunk->getProgress()) { // completed
-        btnAccept->Enabled   = false;
-        btnDefer->Enabled     = false;
-        btnNotFound->Enabled = false;
-        //btnWrongVial->Enabled = false;
-//        btnFoundElsewhere->Enabled = false;
+        btnAccept->Enabled      = false;
+        btnDefer->Enabled       = false;
+        btnNotFound->Enabled    = false;
+        btnBadVial->Enabled     = false;
+        btnAddNote->Enabled     = false;
     } else {
-        btnAccept->Enabled   = true;
-        btnDefer->Enabled     = true;
-        btnNotFound->Enabled = true;
-        //btnWrongVial->Enabled = true;
-        //btnFoundElsewhere->Enabled = true;
+        btnAccept->Enabled      = true;
+        btnDefer->Enabled       = true;
+        btnNotFound->Enabled    = true;
+        btnBadVial->Enabled     = true;
+        btnAddNote->Enabled     = true;
     }
 
     showCurrentRow();
@@ -759,37 +759,14 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
     }
 }
 
-//void TfrmRetrAsstCollectSamples::foundElsewhere() {
-///** the vial expected to be in the source location was found somewhere else */
-//// should be pretty much the same as accept but doesn't try to match the barcode, updates it and saves with a new status
-//    Application->MessageBox(L"The vial that was supposed to be found in this location was found somewhere else.", L"Info", MB_OK);
-//    Application->MessageBox(L"Record it's actual found location?", L"Info", MB_OK);
-//    Application->MessageBox(L"Save it as normal as either COLLECTED or a new status (FOUND_ELSEWHERE?)", L"Info", MB_OK);
-//}
-//void TfrmRetrAsstCollectSamples::wrongVial() {
-///** the vial found in the source location is not the expected one */
-//    Application->MessageBox(L"The vial found in this position is not the expected one. ", L"Info", MB_OK);
-//    Application->MessageBox(L"Barcode should have been scanned in, accept it instead of rejecting", L"Info", MB_OK);
-//    Application->MessageBox(L"Save to database as COLLECTED or new status (WRONG_VIAL?).", L"Info", MB_OK);
-//}
 void TfrmRetrAsstCollectSamples::addNote() {
     Application->MessageBox(L"Add a note", L"Info", MB_OK);
     // existing form to do this?
 }
 
-//void TfrmRetrAsstCollectSamples::alreadyRetrieved() {
-//    Application->MessageBox(L"Vial has already been retrieved", L"Info", MB_OK);
-//    Application->MessageBox(L"What to do?", L"Info", MB_OK);
-//}
-
 void TfrmRetrAsstCollectSamples::badVial() {
     Application->MessageBox(L"Bad Vial", L"Info", MB_OK);
     Application->MessageBox(L"What to do?", L"Info", MB_OK);
-}
-
-void TfrmRetrAsstCollectSamples::skip() { // defer
-    currentAliquot()->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); // not saved to db
-    nextRow();
 }
 
 void TfrmRetrAsstCollectSamples::notFound() {
@@ -822,6 +799,28 @@ void TfrmRetrAsstCollectSamples::notFound() {
         }
     }
 }
+
+void TfrmRetrAsstCollectSamples::skip() { // defer
+    currentAliquot()->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); // not saved to db
+    nextRow();
+}
+
+//void TfrmRetrAsstCollectSamples::foundElsewhere() {
+///** the vial expected to be in the source location was found somewhere else */
+//// should be pretty much the same as accept but doesn't try to match the barcode, updates it and saves with a new status
+//    Application->MessageBox(L"The vial that was supposed to be found in this location was found somewhere else.", L"Info", MB_OK);
+//    Application->MessageBox(L"Record it's actual found location?", L"Info", MB_OK);
+//    Application->MessageBox(L"Save it as normal as either COLLECTED or a new status (FOUND_ELSEWHERE?)", L"Info", MB_OK);
+//}
+//void TfrmRetrAsstCollectSamples::wrongVial() {
+///** the vial found in the source location is not the expected one */
+//    Application->MessageBox(L"The vial found in this position is not the expected one. ", L"Info", MB_OK);
+//    Application->MessageBox(L"Barcode should have been scanned in, accept it instead of rejecting", L"Info", MB_OK);
+//    Application->MessageBox(L"Save to database as COLLECTED or new status (WRONG_VIAL?).", L"Info", MB_OK);
+//}//void TfrmRetrAsstCollectSamples::alreadyRetrieved() {//    Application->MessageBox(L"Vial has already been retrieved", L"Info", MB_OK);
+//    Application->MessageBox(L"What to do?", L"Info", MB_OK);
+//}
+
 
 SampleRow * TfrmRetrAsstCollectSamples::currentSample() {
     return currentChunk()->objectAtRel(currentChunk()->getRowRel());  //return currentChunk()->currentObject();

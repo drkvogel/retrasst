@@ -87,12 +87,9 @@ Nick
 
 ---
 
-Meeting: Deferred retrievals
-Start: 31/07/2014 11:00:00  
-End: 31/07/2014 12:00:00  
-Location: Tulip Treee  
-Organizer: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>  
-Attendees: Martin Radley <martin.radley@ctsu.ox.ac.uk>participant)
+Meeting: Deferred retrievals   Location: Tulip Treee  
+Start: 31/07/2014 11:00:00  End: 31/07/2014 12:00:00  
+Organizer: Nicholas Goodwin <nicholas.goodwin@ctsu.ox.ac.uk>, Attendees: Martin Radley <martin.radley@ctsu.ox.ac.uk>participant)
 Chris Bird <chris.bird@ctsu.ox.ac.uk>
 
 ---
