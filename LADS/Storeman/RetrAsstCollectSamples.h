@@ -94,10 +94,10 @@ __published:
     void __fastcall FormResize(TObject *Sender);
     void __fastcall sgVialsClick(TObject *Sender);
     void __fastcall FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
-    void __fastcall btnWrongVialClick(TObject *Sender);
-    void __fastcall btnFoundElsewhereClick(TObject *Sender);
+    //void __fastcall btnWrongVialClick(TObject *Sender);
+    //void __fastcall btnFoundElsewhereClick(TObject *Sender);
     void __fastcall btnAddNoteClick(TObject *Sender);
-    void __fastcall btnAlreadyRetrievedClick(TObject *Sender);
+    //void __fastcall btnAlreadyRetrievedClick(TObject *Sender);
     void __fastcall btnBadVialClick(TObject *Sender);
 private:
 	vector<string> 								info;
@@ -125,9 +125,12 @@ private:
     void                                        showDetails(SampleRow * sample);
     void                                        accept(String barcode);
     void                                        notFound();
+    void                                        addNote();
+    //void                                        alreadyRetrieved();
+    void                                        badVial();
     void                                        skip();
-    void                                        foundElsewhere();
-    void                                        wrongVial();
+    //void                                        foundElsewhere();
+    //void                                        wrongVial();
     void                                        nextRow();
     void                                        saveProgress();
     void                                        showProgressMessage(const char * loadingMessage);
