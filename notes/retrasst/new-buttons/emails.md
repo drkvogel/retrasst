@@ -1,3 +1,11 @@
+## emails about retrieval assistant, buttons, and tables
+
+Hi Martin
+ 
+I hope this now reflects this morning's discussion 
+ 
+There will be seven buttons: Enter, Not Found, Skip, Bad, Note, Save and Sign Off. 
+
 Hi Martin 
  
 We continued the discussion after you left and hope we've come up with something that fits the requirements. It has roughly six buttons: Enter, Not Found, Skip, Bad, Note and Sign Off. 
@@ -140,3 +148,60 @@ By all means feel free to comment, or not. There may be time to discuss it on Th
 -- 
 Nick 
  
+---
+
+I'm still a bit unsure what to do about how to handle saving progress 
+(in terms of cryovial_store etc), and exiting retrieval assistant. 
+ 
+I printed out all our recent emails to go downstairs and have another 
+think about it (like friday's meeting, but with myself) and am still not 
+sure I agree or understand the procedure for 'sign off', whatever that 
+means. Then I noticed a subtle difference between two of your recent 
+emails: one says there should be seven buttons, and another says there 
+should be "roughly six" buttons: 
+ 
+ > We continued the discussion after you left and hope we've come up with 
+something that fits the requirements. It has roughly six buttons: Enter, 
+Not Found, Skip, Bad, Note and Sign Off. 
+ 
+So I think we're all still unsure what should happen. 
+ 
+To restate my previous/current understanding of what I thought should 
+happen: 
+ 
+    general use of retrieval assistant 
+         changes in status are recorded to l_cryovial_retrieval and c_box_retrieval, but nothing to cryovial_store 
+ 
+    user reaches end of chunk 
+         confirm form asks for their password (see note 3) 
+             if ok 
+                 all new non-expected and non-deferred vials are saved in cryovial_store 
+                 if this completes the chunk, mark it complete visually and move to next chunk (see note 1) 
+                 if this completes the job 
+                     mark deferred vials as NOT_FOUND (note 4) 
+                     mark the job/task complete in whichever table is appropriate 
+ 
+    user exits 
+         confirm form asks for their password 
+         if ok 
+             all new non-expected and non-deferred vials are saved in cryovial_store (see note 2) 
+     
+    user selects a different chunk 
+         previously skipped samples are able to be actioned again 
+     
+    user goes to storage facility again to continue in-progress retrieval 
+         previously skipped samples able to be actioned again (due to having been saved to the database in l_c_r and c_b_r) 
+ 
+ 
+note 1. don't save it as being saved anywhere, its status is implied (possibly for performance reasons i.e. not needing to join a 
+c_retrieval_chunk table in the big query) 
+note 2. i.e. if there are any that have not already been saved because the end of the current chunk has not been reached 
+note 3. the form that asks for their password I will call "the confirm form" to avoid confusion and does not necessarily mean the job is 
+finished, though it seems as what they are doing at that point is "signing off" what they have done at that point (finishing a chunk, 
+exiting and going back to base), which I assumed would be necessary for audit trail purposes etc. 
+note 4. the only point at which vials are marked NOT_FOUND is when the job is finished. 
+ 
+Let me know what you think. 
+ 
+Chris 
+

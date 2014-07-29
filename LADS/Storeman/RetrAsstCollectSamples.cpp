@@ -298,35 +298,6 @@ void TfrmRetrAsstCollectSamples::toggleLog() {
 
 void __fastcall TfrmRetrAsstCollectSamples::menuItemExitClick(TObject *Sender) { checkExit(); }
 
-void __fastcall TfrmRetrAsstCollectSamples::btnExitClick(TObject *Sender) { checkExit(); } //exit(); }
-
-void __fastcall TfrmRetrAsstCollectSamples::btnAcceptClick(TObject *Sender) { accept(editBarcode->Text); }
-
-void __fastcall TfrmRetrAsstCollectSamples::btnSimAcceptClick(TObject *Sender) { // simulate a correct barcode scanned
-    editBarcode->Text = (currentChunk()->currentObject())->cryovial_barcode.c_str();
-    btnAcceptClick(this);
-}
-
-void __fastcall TfrmRetrAsstCollectSamples::btnAddNoteClick(TObject *Sender) { addNote(); }
-    //Application->MessageBox(L"Add a note", L"Info", MB_OK);
-    // existing form to do this?
-
-//void __fastcall TfrmRetrAsstCollectSamples::btnAlreadyRetrievedClick(TObject *Sender) { alreadyRetrieved(); }
-//     Application->MessageBox(L"Vial has already been retrieved", L"Info", MB_OK);
-//    Application->MessageBox(L"What to do?", L"Info", MB_OK);
-
-void __fastcall TfrmRetrAsstCollectSamples::btnBadVialClick(TObject *Sender) { badVial(); }
-//     Application->MessageBox(L"Bad Vial", L"Info", MB_OK);
-//    Application->MessageBox(L"What to do?", L"Info", MB_OK);
-
-void __fastcall TfrmRetrAsstCollectSamples::btnNotFoundClick(TObject *Sender) { notFound(); }
-
-void __fastcall TfrmRetrAsstCollectSamples::btnDeferClick(TObject *Sender) { skip(); }
-
-//void __fastcall TfrmRetrAsstCollectSamples::btnWrongVialClick(TObject *Sender) { wrongVial(); }
-
-//void __fastcall TfrmRetrAsstCollectSamples::btnFoundElsewhereClick(TObject *Sender) { foundElsewhere(); }
-
 void TfrmRetrAsstCollectSamples::showProgressMessage(const char * loadingMessage) {
 	panelLoading->Caption = loadingMessage;
 	panelLoading->Visible = true;
@@ -337,21 +308,6 @@ void TfrmRetrAsstCollectSamples::showProgressMessage(const char * loadingMessage
 
 void TfrmRetrAsstCollectSamples::hideProgressMessage() {
     progressBottom->Style = pbstNormal; progressBottom->Visible = false; panelLoading->Visible = false; //Screen->Cursor = crDefault;
-}
-
-void TfrmRetrAsstCollectSamples::checkExit() {
-    if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
-        exit();
-    }
-}
-
-void TfrmRetrAsstCollectSamples::exit() { // definitely exiting
-	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
-	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
-		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
-		return; // fixme what now?
-	}
-    saveProgress();//???
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::FormShow(TObject *Sender) {
@@ -444,7 +400,7 @@ void TfrmRetrAsstCollectSamples::showChunk(Chunk< SampleRow > * chunk) { // defa
         btnDefer->Enabled       = false;
         btnNotFound->Enabled    = false;
         btnBadVial->Enabled     = false;
-        btnAddNote->Enabled     = false;
+        btnAddNote->Enabled     = true;
     } else {
         btnAccept->Enabled      = true;
         btnDefer->Enabled       = true;
@@ -729,6 +685,11 @@ void TfrmRetrAsstCollectSamples::flash(TGroupBox *box, TColor other) { // TContr
     }
 }
 
+void __fastcall TfrmRetrAsstCollectSamples::btnSimAcceptClick(TObject *Sender) { // simulate a correct barcode scanned
+    editBarcode->Text = (currentChunk()->currentObject())->cryovial_barcode.c_str(); btnAcceptClick(this); }
+
+void __fastcall TfrmRetrAsstCollectSamples::btnAcceptClick(TObject *Sender) { accept(editBarcode->Text); }
+
 void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct vial; could be missing, swapped etc
     SampleRow * primary = currentSample();  // could be primary, primary w/backup, or secondary
     SampleRow * aliquot = currentAliquot(); // primary or secondary - this is a bit confusing
@@ -759,15 +720,22 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
     }
 }
 
+void __fastcall TfrmRetrAsstCollectSamples::btnAddNoteClick(TObject *Sender) { addNote(); }
+
 void TfrmRetrAsstCollectSamples::addNote() {
     Application->MessageBox(L"Add a note", L"Info", MB_OK);
     // existing form to do this?
+    // if note clicked on complete chunk, add note to chunk?
 }
+
+void __fastcall TfrmRetrAsstCollectSamples::btnBadVialClick(TObject *Sender) { badVial(); }
 
 void TfrmRetrAsstCollectSamples::badVial() {
     Application->MessageBox(L"Bad Vial", L"Info", MB_OK);
     Application->MessageBox(L"What to do?", L"Info", MB_OK);
 }
+
+void __fastcall TfrmRetrAsstCollectSamples::btnNotFoundClick(TObject *Sender) { notFound(); }
 
 void TfrmRetrAsstCollectSamples::notFound() {
     DEBUGSTREAM("Save not found row")
@@ -800,10 +768,41 @@ void TfrmRetrAsstCollectSamples::notFound() {
     }
 }
 
+void __fastcall TfrmRetrAsstCollectSamples::btnDeferClick(TObject *Sender) { skip(); }
+
 void TfrmRetrAsstCollectSamples::skip() { // defer
     currentAliquot()->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); // not saved to db
+    // fixme actually, record as DEFERRED in db
     nextRow();
 }
+
+void __fastcall TfrmRetrAsstCollectSamples::btnExitClick(TObject *Sender) { checkExit(); } //exit(); }
+
+void TfrmRetrAsstCollectSamples::checkExit() {
+    if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
+        exit();
+    }
+}
+
+void TfrmRetrAsstCollectSamples::exit() { // definitely exiting
+
+    // is this "Exit for now" or "Job finished"?
+
+    // fixme 2014-07-29
+    // "strong warning
+
+	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes"); // std::set<int> projects; projects.insert(job->getProjectID()); frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Ready to sign off boxes", projects);
+	if (!RETRASSTDEBUG && mrOk != frmConfirm->ShowModal()) {
+		Application->MessageBox(L"Signoff cancelled", L"Info", MB_OK);
+		return; // fixme what now?
+	}
+    saveProgress();//???
+}
+
+void __fastcall TfrmRetrAsstCollectSamples::btnSignOffClick(TObject *Sender) {
+    Application->MessageBox(L"What should this do?", L"Info", MB_OK);
+}
+
 
 //void TfrmRetrAsstCollectSamples::foundElsewhere() {
 ///** the vial expected to be in the source location was found somewhere else */
@@ -1185,9 +1184,6 @@ void TfrmRetrAsstCollectSamples::collectEmpties() {
     }
 }
 
-
-
-
 // cruft
        /*
     vector<string>::const_iterator strIt;
@@ -1240,5 +1236,14 @@ catch (std::exception & e) {
     } else if (!collect->unactionedSamples) { // job finished
 		jobFinished();
 	} */
+
+//void __fastcall TfrmRetrAsstCollectSamples::btnAlreadyRetrievedClick(TObject *Sender) { alreadyRetrieved(); }
+//     Application->MessageBox(L"Vial has already been retrieved", L"Info", MB_OK);
+//    Application->MessageBox(L"What to do?", L"Info", MB_OK);
+
+//void __fastcall TfrmRetrAsstCollectSamples::btnWrongVialClick(TObject *Sender) { wrongVial(); }
+
+//void __fastcall TfrmRetrAsstCollectSamples::btnFoundElsewhereClick(TObject *Sender) { foundElsewhere(); }
+
 
 

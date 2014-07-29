@@ -1,4 +1,10 @@
 
+## skip() / defer?
+
+    currentAliquot()->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); 
+    // fixme actually, record as DEFERRED in db
+
+
 ## new buttons
 
 Add Note

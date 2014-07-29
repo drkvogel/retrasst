@@ -161,8 +161,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 1
-      object btnExit: TButton
-        Left = 0
+      object btnSignOff: TButton
+        Left = 84
         Top = 0
         Width = 105
         Height = 60
@@ -175,7 +175,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 0
-        OnClick = btnExitClick
+        OnClick = btnSignOffClick
+        ExplicitLeft = 0
       end
       object btnAddNote: TBitBtn
         Left = 231
@@ -207,6 +208,24 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         ParentFont = False
         TabOrder = 1
         OnClick = btnAddNoteClick
+      end
+      object btnExit: TBitBtn
+        Left = 0
+        Top = 0
+        Width = 84
+        Height = 60
+        Align = alLeft
+        Caption = 'E&xit'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Verdana'
+        Font.Style = [fsBold]
+        Kind = bkClose
+        NumGlyphs = 2
+        ParentFont = False
+        TabOrder = 2
+        OnClick = btnExitClick
       end
     end
     object Panel2: TPanel

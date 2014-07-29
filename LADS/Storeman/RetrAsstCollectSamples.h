@@ -48,7 +48,7 @@ __published:
     TPanel *Panel1;
     TPanel *Panel2;
     TLabel *Label1;
-    TButton *btnExit;
+    TButton *btnSignOff;
     TPanel *panelDetails;
     TGroupBox *groupSource;
     TLabel *labelSite;
@@ -75,6 +75,7 @@ __published:
     TCheckBox *cbLog;
     TBitBtn *btnAddNote;
     TBitBtn *btnBadVial;
+    TBitBtn *btnExit;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall FormResize(TObject *Sender);
@@ -96,6 +97,7 @@ __published:
     void __fastcall btnBadVialClick(TObject *Sender);
     void __fastcall btnAddNoteClick(TObject *Sender);
     void __fastcall editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
+    void __fastcall btnSignOffClick(TObject *Sender);
     //void __fastcall btnWrongVialClick(TObject *Sender);
     //void __fastcall btnFoundElsewhereClick(TObject *Sender);
     //void __fastcall btnAlreadyRetrievedClick(TObject *Sender);
