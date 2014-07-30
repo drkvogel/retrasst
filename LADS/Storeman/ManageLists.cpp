@@ -3,6 +3,7 @@
 
 #include "ManageLists.h"
 #include "ManageListsShowList.h"
+#include "RetrievalListTreeView.h"
 
 #pragma package(smart_init)
 #pragma link "RetrievalListBase"
@@ -31,5 +32,7 @@ void __fastcall TfrmManageLists::sgJobsDblClick(TObject *Sender) {
     loadJobs();
 }
 
-
+void __fastcall TfrmManageLists::btnTreeViewClick(TObject *Sender) {
+    frmRetrievalTreeView->ShowModal();
+}
 

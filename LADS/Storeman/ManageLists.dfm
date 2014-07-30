@@ -49,6 +49,16 @@ inherited frmManageLists: TfrmManageLists
       inherited Panel1: TPanel
         Left = 659
         ExplicitLeft = 659
+        object btnTreeView: TButton
+          Left = 0
+          Top = 32
+          Width = 112
+          Height = 32
+          Align = alBottom
+          Caption = 'Tree View'
+          TabOrder = 1
+          OnClick = btnTreeViewClick
+        end
       end
     end
   end

@@ -73,6 +73,8 @@ object frmRetrievalJobList: TfrmRetrievalJobList
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
+      ExplicitLeft = 662
+      ExplicitTop = 13
       object groupStatusCheck: TGroupBox
         Left = 0
         Top = 0

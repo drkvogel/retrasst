@@ -11,7 +11,9 @@
 
 class TfrmManageLists : public TfrmRetrievalJobList {
 __published:	// IDE-managed Components
+    TButton *btnTreeView;
     void __fastcall sgJobsDblClick(TObject *Sender);
+    void __fastcall btnTreeViewClick(TObject *Sender);
 private:	// User declarations
 protected:
     void initCustom();

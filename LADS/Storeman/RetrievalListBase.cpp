@@ -151,6 +151,7 @@ void TfrmRetrievalJobList::init() {
 	panelDebug->Visible = cbLog->Checked;
 
     sgwJobs = new StringGridWrapper<LCDbCryoJob>(sgJobs, &vecJobs);
+    sgwJobs->addCol("boxset",   "Box set",          30);
     sgwJobs->addCol("desc",     "Description",      312);
     sgwJobs->addCol("type",     "Job type",         95);
     sgwJobs->addCol("status",   "Status",           82);
@@ -198,6 +199,7 @@ void TfrmRetrievalJobList::loadJobs() {
     int row = 1;
     for (it = vecJobs.begin(); it != vecJobs.end(); it++, row++) {
         LCDbCryoJob * job = *it;
+        sgJobs->Cells[sgwJobs->colNameToInt("boxset" )]  [row] = job->getBoxSet(); // short
         sgJobs->Cells[sgwJobs->colNameToInt("desc" )]    [row] = job->getDescription().c_str();
         sgJobs->Cells[sgwJobs->colNameToInt("type")]     [row] = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
         sgJobs->Cells[sgwJobs->colNameToInt("status")]   [row] = jobStatusString(job->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99

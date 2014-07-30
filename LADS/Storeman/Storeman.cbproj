@@ -6,7 +6,7 @@
         <AppType>Application</AppType>
         <MainSource>StoreMan.cpp</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
     </PropertyGroup>
@@ -52,24 +52,23 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-        <UsePackages>true</UsePackages>
         <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
         <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
         <BCC_AllCodeguardOptions>true</BCC_AllCodeguardOptions>
+        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <BCC_MonitorThis>true</BCC_MonitorThis>
         <BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
         <AllPackageLibs>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib</AllPackageLibs>
         <ShowGeneralMessages>true</ShowGeneralMessages>
         <BCC_InstructionSet>5</BCC_InstructionSet>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.13.2;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.12.12;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_MinorVer>2</VerInfo_MinorVer>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_PreRelease>true</VerInfo_PreRelease>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>2057</VerInfo_Locale>
-        <VerInfo_Release>13</VerInfo_Release>
-        <VerInfo_Build>2</VerInfo_Build>
+        <VerInfo_Release>12</VerInfo_Release>
+        <VerInfo_Build>12</VerInfo_Build>
         <ILINK_LibraryPath>RetrievalLists\;RationaliseTanks\;C:\Program Files\Actian\IngresIJ\ingres\files\;..\LabsLeasing\;..\..\paulst\;..\LabsDAO\;..\LabsObjects\;..\CoreUtilities\;..\LabsForms\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <IncludePath>RetrievalLists\;RationaliseTanks\;C:\Program Files\Actian\IngresIJ\ingres\files\;..\LabsLeasing\;..\..\paulst\;..\LabsDAO\;..\LabsObjects\;..\CoreUtilities\;..\LabsForms\;$(IncludePath)</IncludePath>
         <ProjectType>CppVCLApplication</ProjectType>
@@ -124,6 +123,8 @@
         <UsePackages>true</UsePackages>
         <LinkPackageImports>vcl.bpi;rtl.bpi;vclimg.bpi;vclx.bpi</LinkPackageImports>
         <Debugger_SymbolSourcePath>C:\Users\cbird\Projects\retrieval-assistant\LADS\Storeman;C:\Users\cbird\Projects\retrieval-assistant\LADS\Storeman\Win64\Debug;$(Debugger_SymbolSourcePath)</Debugger_SymbolSourcePath>
+        <VerInfo_Build>17</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.2.12.17;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <Debugger_DebugSourcePath>.;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
         <LinkPackageStatics>IndyCore.lib;IndySystem.lib;IndyProtocols.lib</LinkPackageStatics>
     </PropertyGroup>
@@ -133,7 +134,7 @@
         <TASM_Debugging>None</TASM_Debugging>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib;vclx.lib</LinkPackageStatics>
+        <LinkPackageStatics>vcl.lib;rtl.lib;vclimg.lib;IndyCore.lib;IndySystem.lib;IndyProtocols.lib</LinkPackageStatics>
     </PropertyGroup>
     <ItemGroup>
         <None Include="C:\Program Files\Actian\IngresIJ\ingres\files\Iiapi.h">
@@ -683,6 +684,12 @@
             <DependentOn>RetrievalLists\RetrievalListResultsDialog.h</DependentOn>
             <BuildOrder>113</BuildOrder>
         </CppCompile>
+        <CppCompile Include="RetrievalListTreeView.cpp">
+            <Form>frmRetrievalTreeView</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>RetrievalListTreeView.h</DependentOn>
+            <BuildOrder>133</BuildOrder>
+        </CppCompile>
         <CppCompile Include="RetrieveSamples.cpp">
             <Form>frmRetrieved</Form>
             <FormType>dfm</FormType>
@@ -836,6 +843,7 @@
         <FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
         <FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
         <FormResources Include="..\LabsForms\dvSelector.dfm"/>
+        <FormResources Include="RetrievalListTreeView.dfm"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

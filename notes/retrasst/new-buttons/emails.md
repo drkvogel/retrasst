@@ -194,7 +194,7 @@ happen:
  
  
 note 1. don't save it as being saved anywhere, its status is implied (possibly for performance reasons i.e. not needing to join a 
-c_retrieval_chunk table in the big query) 
+`c_retrieval_chunk` table in the big query) 
 note 2. i.e. if there are any that have not already been saved because the end of the current chunk has not been reached 
 note 3. the form that asks for their password I will call "the confirm form" to avoid confusion and does not necessarily mean the job is 
 finished, though it seems as what they are doing at that point is "signing off" what they have done at that point (finishing a chunk, 
@@ -205,3 +205,58 @@ Let me know what you think.
  
 Chris 
 
+---
+
+Hi Chris 
+ 
+It's worth discussing on Thursday. All I can add for now is: 
+ 
+1) The "roughly six" e-mail was after our first meeting whereas the "seven buttons" followed the second 
+ 
+2) Movement jobs go through stages: 
+ - when the job is created, the current box_store record is marked "move expected" and a new one added "slot reserved" 
+ - there's no equivalent of found or deferred since the boxes don't have to be moved in a pre-specified order 
+ - when a section has been completed, the user clicks Done; "move expected" becomes "removed" and "slot reserved" becomes "slot allocated" 
+ - when everything's been done, the user clicks Sign Off; they see the confirmation screen, then "slot allocated" become "slot confirmed" 
+ 
+I hope that helps 
+-- 
+Nick 
+
+---
+
+Two-state solution?
+
+## stuff for today 2104-07-30
+
+(from nick's big list)
+
+### Referred
+
+Check it looks at `c_slot_allocation` as well as `l_box_arrival`
+**Always** need boxset/retrieval number if history's going to be linked to it
+
+### Assistant
+
+Check disposal jobs tidied up, saved # ?
+Check created jobs picked, analysed  # ?
+
+### for discussion tomorrow
+
+`C_RETRIEVAL_JOB.box_set`    The retrieval number, used as a barcode prefix for boxes in this job
+
+show box set in retrieval list and manage lists, filter by box set e.g. like in view lists
+filter by exercise?
+could use GROUP BY SQL?
+exercise
+  box set
+    retrieval task?
+
+## tree view?
+
+box set 
+   retrieval task
+
+TfrmRetrievalJobList::loadJobs()
+    LCDbCryoJobs::records().read(LIMSDatabase::getCentralDb(), LCDbCryoJob::UNKNOWN, true)
+    job->getBoxSet();
