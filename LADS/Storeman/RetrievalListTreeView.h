@@ -7,10 +7,11 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.ComCtrls.hpp>
 #include <Vcl.Menus.hpp>
-
-#include "RetrievalListBase.h"
 #include <Vcl.Buttons.hpp>
 #include <Vcl.ExtCtrls.hpp>
+
+#include "RetrievalListBase.h"
+#include <sstream>
 
 class TfrmRetrievalTreeView : public TForm {
 __published:	// IDE-managed Components
@@ -33,9 +34,20 @@ __published:	// IDE-managed Components
     TBitBtn *btnClose;
     void __fastcall FormShow(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
+    void __fastcall cbNewJobClick(TObject *Sender);
+    void __fastcall cbInProgressClick(TObject *Sender);
+    void __fastcall cbDoneClick(TObject *Sender);
+    void __fastcall cbRejectedClick(TObject *Sender);
+    void __fastcall cbDeletedClick(TObject *Sender);
+    void __fastcall cbBoxRetrievalClick(TObject *Sender);
+    void __fastcall cbSampleRetrievalClick(TObject *Sender);
+    void __fastcall cbBoxMoveClick(TObject *Sender);
+    void __fastcall cbBoxDiscardClick(TObject *Sender);
+    void __fastcall cbSampleDiscardClick(TObject *Sender);
     void __fastcall btnCloseClick(TObject *Sender);
 private:	// User declarations
     void init();
+    void loadJobs();
     tdvecpJob           vecJobs;
     LCDbCryoJobs        jobs;
 

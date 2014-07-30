@@ -50,7 +50,6 @@ object formEditFormat: TformEditFormat
           Align = alClient
           Style = csDropDownList
           DropDownCount = 10
-          ItemHeight = 13
           TabOrder = 0
           OnChange = comboDataTypeChange
           Items.Strings = (
@@ -378,7 +377,6 @@ object formEditFormat: TformEditFormat
           Height = 21
           Align = alClient
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 0
           OnChange = comboDelimChange
         end
@@ -408,7 +406,6 @@ object formEditFormat: TformEditFormat
           Height = 21
           Align = alClient
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 0
           OnChange = comboSubDelimChange
         end
@@ -438,7 +435,6 @@ object formEditFormat: TformEditFormat
           Height = 21
           Align = alClient
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 0
           OnChange = comboEscapeChange
         end
@@ -478,7 +474,6 @@ object formEditFormat: TformEditFormat
           Height = 21
           Align = alClient
           Style = csDropDownList
-          ItemHeight = 13
           TabOrder = 1
           OnChange = comboQuoteChange
         end
@@ -659,7 +654,7 @@ object formEditFormat: TformEditFormat
     Left = 576
     Top = 16
     Bitmap = {
-      494C010110001800300010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010110001800340010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

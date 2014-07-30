@@ -13,6 +13,7 @@
 #include <Forms.hpp>
 #include <ImgList.hpp>
 #include <ActnList.hpp>
+#include <System.Actions.hpp>
 //---------------------------------------------------------------------------
 //#include <boost/date_time.hpp>
 //#include <boost/date_time/gregorian/gregorian.hpp>

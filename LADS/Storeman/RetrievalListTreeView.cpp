@@ -2,6 +2,7 @@
 #pragma hdrstop
 #include "RetrievalListTreeView.h"
 #include "LCDbJob.h"
+#include "LCDbObject.h"
 
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -17,6 +18,17 @@ void __fastcall TfrmRetrievalTreeView::FormShow(TObject *Sender) {
 void __fastcall TfrmRetrievalTreeView::FormCreate(TObject *Sender) {
     //
 }
+
+void __fastcall TfrmRetrievalTreeView::cbNewJobClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalTreeView::cbInProgressClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalTreeView::cbDoneClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalTreeView::cbDeletedClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalTreeView::cbRejectedClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalTreeView::cbBoxRetrievalClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalTreeView::cbSampleRetrievalClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalTreeView::cbBoxMoveClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalTreeView::cbBoxDiscardClick(TObject *Sender) { loadJobs(); }
+void __fastcall TfrmRetrievalTreeView::cbSampleDiscardClick(TObject *Sender) { loadJobs(); }
 
 void TfrmRetrievalTreeView::init() {
 //    cbLog->Checked      = false;//RETRASSTDEBUG;
@@ -38,7 +50,10 @@ void TfrmRetrievalTreeView::init() {
     sgwJobs->init();
 */
     //initCustom();
-    //loadJobs();
+    loadJobs();
+}
+
+void TfrmRetrievalTreeView::loadJobs() {
 
     Screen->Cursor = crSQLWait;
     LQuery qc(LIMSDatabase::getCentralDb());
@@ -61,22 +76,74 @@ void TfrmRetrievalTreeView::init() {
         vecJobs.push_back(job);
     }
     Screen->Cursor = crDefault;
-    //sgJobs->RowCount = vecJobs.size() + 1;
-    tdvecpJob::const_iterator it;
-    //int row = 1;
+
+    tdvecpJob::const_iterator it; //int row = 1;
 
 	tree->Items->Clear();
-
 	tree->Items->Add(NULL, "Exercises"); // Projects?
 	TTreeNode* root = tree->Items->GetFirstNode();
 	//sites = data;
 	//parent->Data = sites;
 	//Util::InitPropertyGrid( grdProps );
 	//Util::ShowTreeNode( SampleTree, parent, true, true );
-    TTreeNode* exercise, * boxset, *retrieval;
+    TTreeNode* tnExercise, * tnBoxset, *tnJob;
+    LCDbObject * exercise;
+    int exerciseID, boxsetID, jobID;
+
+    /*  Exercise
+            Box Set
+                Jobs */
+/*
+	typedef std::set< LCDbCryoJob * > SetOfTasks;
+    typedef std::set< SetOfTasks > SetOf
+	typedef std::map< int, SetOfVials > VialsInBoxesMap;
+    BoxsetsInExercises boxsets;
+	JobsInBoxsetsMap jobs;
+	JobsInBoxsetsMap::iterator found;
+*/
+
+/*
+    for (auto& job : vecJobs) {
+        int
+        found = .find(  );
+        if (found == .end()) { // not added yet
+            SetOfVials setOfVials;
+            setOfVials.insert(sample);
+            boxes[sourceBox] = setOfVials;
+        } else { // already in map
+            found->second.insert(sample);
+        } ostringstream oss; oss<<sample->cryovial_barcode<<" "<<sample->aliquotName<<" in box with id "<<sourceBox; updateStatus(oss.str());
+    }*/
+
+    //LCDbObject
+//		case STORAGE_EXERCISE: return "Storage exercise";
+    //TTreeNode * newNode = tree->Items->AddObject(parent, tmp, (TObject *)newDatum);
 
     for (it = vecJobs.begin(); it != vecJobs.end(); it++) { //, row++) {
         LCDbCryoJob * job = *it;
+        //if (newExercise()) {
+          //  root->AddNode(
+        //}
+        jobID       = job->getID();
+        exerciseID  = job->getExercise();
+        const LCDbObject * exercise = LCDbObjects::records().findByID(exerciseID);
+
+        boxsetID    = job->getBoxSet();
+
+        // add exercise
+        if (NULL == exercise) {
+            tree->Items->AddObject(root, "null", (TObject *)exercise);
+        } else {
+            tree->Items->AddObject(root, exercise->getDescription().c_str(), (TObject *)exercise);
+        }
+
+        // add boxset
+        ostringstream oss; oss<<"Box Set "<<to_string((long long)boxsetID);
+        //String tmp; tmp += "Box Set "+to_string((long long)boxsetID);
+        tree->Items->AddObject(root, oss.str().c_str(), (TObject *)NULL);
+
+        // add task
+        tree->Items->AddObject(root, job->getDescription().c_str(), (TObject *)job);
 
         //exercise, * boxset, *retrieval;
 //        sgJobs->Cells[sgwJobs->colNameToInt("boxset" )]  [row] = job->getBoxSet(); // short
@@ -98,5 +165,3 @@ void TfrmRetrievalTreeView::init() {
 void __fastcall TfrmRetrievalTreeView::btnCloseClick(TObject *Sender) {
     Close();
 }
-
-

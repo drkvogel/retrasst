@@ -59,6 +59,7 @@ object frmRetrievalTreeView: TfrmRetrievalTreeView
         Checked = True
         State = cbChecked
         TabOrder = 0
+        OnClick = cbNewJobClick
       end
       object cbInProgress: TCheckBox
         Left = 2
@@ -70,6 +71,7 @@ object frmRetrievalTreeView: TfrmRetrievalTreeView
         Checked = True
         State = cbChecked
         TabOrder = 1
+        OnClick = cbInProgressClick
       end
       object cbDone: TCheckBox
         Left = 2
@@ -79,6 +81,7 @@ object frmRetrievalTreeView: TfrmRetrievalTreeView
         Align = alTop
         Caption = 'Done'
         TabOrder = 2
+        OnClick = cbDoneClick
       end
       object cbDeleted: TCheckBox
         Left = 2
@@ -88,6 +91,7 @@ object frmRetrievalTreeView: TfrmRetrievalTreeView
         Align = alTop
         Caption = 'Deleted'
         TabOrder = 3
+        OnClick = cbDeletedClick
       end
       object cbRejected: TCheckBox
         Left = 2
@@ -97,6 +101,7 @@ object frmRetrievalTreeView: TfrmRetrievalTreeView
         Align = alTop
         Caption = 'Rejected'
         TabOrder = 4
+        OnClick = cbRejectedClick
       end
     end
     object groupRetrievalTypeCheck: TGroupBox
@@ -121,6 +126,7 @@ object frmRetrievalTreeView: TfrmRetrievalTreeView
         Checked = True
         State = cbChecked
         TabOrder = 0
+        OnClick = cbBoxRetrievalClick
       end
       object cbSampleRetrieval: TCheckBox
         Left = 7
@@ -132,6 +138,7 @@ object frmRetrievalTreeView: TfrmRetrievalTreeView
         Checked = True
         State = cbChecked
         TabOrder = 1
+        OnClick = cbSampleRetrievalClick
       end
       object cbBoxMove: TCheckBox
         Left = 7
@@ -141,6 +148,7 @@ object frmRetrievalTreeView: TfrmRetrievalTreeView
         Align = alTop
         Caption = 'Box Move'
         TabOrder = 2
+        OnClick = cbBoxMoveClick
       end
       object cbBoxDiscard: TCheckBox
         Left = 7
@@ -150,6 +158,7 @@ object frmRetrievalTreeView: TfrmRetrievalTreeView
         Align = alTop
         Caption = 'Box Discard'
         TabOrder = 3
+        OnClick = cbBoxDiscardClick
       end
       object cbSampleDiscard: TCheckBox
         Left = 7
@@ -159,6 +168,8 @@ object frmRetrievalTreeView: TfrmRetrievalTreeView
         Align = alTop
         Caption = 'Sample Discard'
         TabOrder = 4
+        OnClick = cbSampleDiscardClick
+        ExplicitLeft = 6
       end
     end
     object cbLog: TCheckBox
