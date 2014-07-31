@@ -85,12 +85,12 @@ void __fastcall TfrmWrongBarcode::btnReplaceClick(TObject *Sender) {
     // replace
     TfrmRetrievalAssistant::msgbox("Todo: replace expected sample with found one");
     TfrmRetrievalAssistant::msgbox("Todo: And go to next row - replace() should be a method in TfrmRetrAsstCollectSamples");
-    // e.g. frmRetrAsstCollectSamples->replace()
+    frmRetrAsstCollectSamples->replace(entered); // entered rather than editbox text in case it changed
 
     // in lcr
 
     // in cryovial store
-    frmRetrAsstCollectSamples->nextRow();
+    //frmRetrAsstCollectSamples->nextRow();
     Close();
 }
 

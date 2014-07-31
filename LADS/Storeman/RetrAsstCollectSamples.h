@@ -129,6 +129,7 @@ private:
     void                                        showCurrentRow();
     void                                        showDetails(SampleRow * sample);
     void                                        accept(String barcode);
+    void                                        replace(String barcode);
     void                                        notFound();
     void                                        addNote();
     //void                                        alreadyRetrieved();

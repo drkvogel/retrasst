@@ -772,6 +772,24 @@ void TfrmRetrAsstCollectSamples::notFound() {
     }
 }
 
+void TfrmRetrAsstCollectSamples::replace(String barcode) {
+    // replace
+
+    TfrmRetrievalAssistant::msgbox("Todo: replace expected sample with found one");
+    //TfrmRetrievalAssistant::msgbox("Todo: And go to next row - replace() should be a method in TfrmRetrAsstCollectSamples");
+    //frmRetrAsstCollectSamples->replace();
+
+    // in lcr
+    //sample->backup->lcr_record->setStatus(LCDbCryovialRetrieval::REPLACED);
+
+    // in cryovial store, or later?
+    // add record for 'new' vial
+
+
+    nextRow();
+
+}
+
 void __fastcall TfrmRetrAsstCollectSamples::btnDeferClick(TObject *Sender) { skip(); }
 
 void TfrmRetrAsstCollectSamples::skip() { // defer
