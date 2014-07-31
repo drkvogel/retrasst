@@ -62,6 +62,7 @@ USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
 USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
 USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
 USEFORM("RetrievalListTreeView.cpp", frmRetrievalTreeView);
+USEFORM("RetrAsstWrongBarcode.cpp", frmWrongBarcode);
 //---------------------------------------------------------------------------
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
@@ -122,6 +123,7 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmManageLists), &frmManageLists);
          Application->CreateForm(__classid(TfrmManListsShow), &frmManListsShow);
          Application->CreateForm(__classid(TfrmRetrievalTreeView), &frmRetrievalTreeView);
+         Application->CreateForm(__classid(TfrmWrongBarcode), &frmWrongBarcode);
          Application->Run();
 	}
 	catch (Exception &exception)

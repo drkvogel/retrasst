@@ -11,6 +11,7 @@
 #include "LPDbBoxes.h"
 #include "RetrAsstCollectEmpties.h"
 
+
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -716,7 +717,12 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
         debugLog("Save accepted row");
         nextRow();
     } else {
-        Application->MessageBox(L"Barcode not matched", L"Info", MB_OK);
+        frmWrongBarcode->ShowModal();
+//        if (IDYES == Application->MessageBox(L"Barcode not matched. Are you sure this is the right vial?", L"Info", MB_YESNO) {
+//
+//        } else {
+//
+//        }
     }
 }
 

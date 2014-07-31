@@ -275,8 +275,7 @@ email from me@home:
 
 #### Wrong vial screen
 
-Main screen: Enter, Not Found, Skip
-  
+    # Main screen: Enter, Not Found, Skip
     Not found:
         Mark NOT_FOUND; Next row
     Skip:
@@ -284,30 +283,41 @@ Main screen: Enter, Not Found, Skip
     Enter/accept:
         barcode1 = expected
         Right barcode (entered == expected):
-            Next row
+            Mark COLLECTED; Next row
         Wrong barcode (entered != expected):
             show Wrong barcode screen
             hide Replace button
             while:
                 Enter:
                     barcode2 = entered
-                    Now correct (entered = expected):
-                        Close, Mark COLLECTED, Next row
-                    Wrong and same (barcode2 == barcode1):
+                    entered == expected:    
+                        # Now correct 
+                        Close, Mark COLLECTED; Next row
+                    barcode2 == barcode1:   
+                        # Wrong and same
                         Display Replace button
                         continue
-                    Wrong and different (barcode2 != expected &&barcode2 != barcode1):
+                    barcode2 != expected && barcode2 != barcode1: 
+                        # Wrong and different                        
                         barcode1 = barcode2
                         continue
                 Replace: # may not be visible
                     Save new cryo record
-                    Mark lcr COLLECTED or WRONG(?)
-                    Next row
+                    Mark lcr COLLECTED or WRONG(?); Next row
                 Skip:
                     Mark DEFFERED, Next row
 
+#### Save, not Exit
 
+Traditional way is to prevent exit unless save pressed.
+
+### does the plan screen read NOT_FOUND `cryovial_store` records?
+
+e.g. if they were not found in a previous retrieval? 
+Yes, it reads `cryovial_store` of any status, which also includes vials marked `IGNORED`, e.g. secondaries not needed in a previous job.
+
+---
 
 putting my finger on it? making it up as you go along and being confident of it - implies something
 
-#### 
+---

@@ -8,14 +8,17 @@
 #include <Vcl.Menus.hpp>
 #include <Vcl.ComCtrls.hpp>
 #include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Buttons.hpp>
 #include "LCDbJob.h"
 #include "RetrAsstMain.h"
-#include <Vcl.Buttons.hpp>
+#include "RetrAsstWrongBarcode.h"
+
 
 class TfrmRetrAsstCollectSamples : public TForm {
     friend class RetrAsstThread;
     friend class LoadPlanThread;
     friend class SaveProgressThread;
+    friend class TfrmWrongBarcode;
 __published:
     TGroupBox *groupRetrievalList;
     TGroupBox *groupSignOff;

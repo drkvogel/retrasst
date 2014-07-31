@@ -135,7 +135,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     Width = 1280
     Height = 77
     Align = alBottom
-    Caption = 'Sign Off'
+    Caption = 'Actions'
     TabOrder = 1
     object editBarcode: TEdit
       Left = 431

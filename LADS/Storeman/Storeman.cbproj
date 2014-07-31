@@ -636,6 +636,12 @@
             <DependentOn>RetrAsstPlanSamples.h</DependentOn>
             <BuildOrder>7</BuildOrder>
         </CppCompile>
+        <CppCompile Include="RetrAsstWrongBarcode.cpp">
+            <Form>frmWrongBarcode</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>RetrAsstWrongBarcode.h</DependentOn>
+            <BuildOrder>134</BuildOrder>
+        </CppCompile>
         <CppCompile Include="RetrievalListBase.cpp">
             <Form>frmRetrievalJobList</Form>
             <FormType>dfm</FormType>
@@ -844,6 +850,7 @@
         <FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
         <FormResources Include="..\LabsForms\dvSelector.dfm"/>
         <FormResources Include="RetrievalListTreeView.dfm"/>
+        <FormResources Include="RetrAsstWrongBarcode.dfm"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
