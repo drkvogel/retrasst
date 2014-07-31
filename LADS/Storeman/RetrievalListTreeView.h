@@ -32,6 +32,8 @@ __published:	// IDE-managed Components
     TCheckBox *cbSampleDiscard;
     TCheckBox *cbLog;
     TBitBtn *btnClose;
+    TBitBtn *btnNewJob;
+    TBitBtn *btnExtendJob;
     void __fastcall FormShow(TObject *Sender);
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall cbNewJobClick(TObject *Sender);
@@ -45,6 +47,8 @@ __published:	// IDE-managed Components
     void __fastcall cbBoxDiscardClick(TObject *Sender);
     void __fastcall cbSampleDiscardClick(TObject *Sender);
     void __fastcall btnCloseClick(TObject *Sender);
+    void __fastcall btnNewJobClick(TObject *Sender);
+    void __fastcall btnExtendJobClick(TObject *Sender);
 private:	// User declarations
     void init();
     void loadJobs();

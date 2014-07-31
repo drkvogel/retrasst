@@ -196,6 +196,29 @@ object frmRetrievalTreeView: TfrmRetrievalTreeView
       ExplicitTop = 272
       ExplicitWidth = 75
     end
+    object btnNewJob: TBitBtn
+      Left = 0
+      Top = 219
+      Width = 113
+      Height = 25
+      Align = alTop
+      Caption = 'New Job'
+      TabOrder = 4
+      OnClick = btnNewJobClick
+      ExplicitLeft = 6
+      ExplicitTop = 217
+    end
+    object btnExtendJob: TBitBtn
+      Left = 0
+      Top = 244
+      Width = 113
+      Height = 25
+      Align = alTop
+      Caption = 'Extend Job'
+      TabOrder = 5
+      OnClick = btnExtendJobClick
+      ExplicitTop = 250
+    end
   end
   object MainMenu1: TMainMenu
     Left = 336

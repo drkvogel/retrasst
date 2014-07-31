@@ -260,3 +260,54 @@ box set
 TfrmRetrievalJobList::loadJobs()
     LCDbCryoJobs::records().read(LIMSDatabase::getCentralDb(), LCDbCryoJob::UNKNOWN, true)
     job->getBoxSet();
+
+email from me@home:
+
+>treeview - forget sets and maps etc for now, just fill with Exercise n, box set x, and a real job, to show the structure. Put a 'New Job' button that adds a new exercise, box set and job, or box set and job to an existing exercise, and a 'Modify/Add to exercise" (or to box set?) to add a job to a box set.
+
+### 3-hour meeting, 11am Thurs 2014-07-31
+
+>3-hour meeting going back over last week's 6-hour mega-meeting, and coming back to much the same idea that I predicted we would settle on about an hour into the first meeting, but with some extra ideas and now we all seem to agree at least. #lifeofasoftwaredeveloper
+
+#### not found
+
+"Not Found" means NOT_FOUND, skip and pick up in another job.
+
+#### Wrong vial screen
+
+Main screen: Enter, Not Found, Skip
+  
+    Not found:
+        Mark NOT_FOUND; Next row
+    Skip:
+        Mark DEFERRED; Next row
+    Enter/accept:
+        barcode1 = expected
+        Right barcode (entered == expected):
+            Next row
+        Wrong barcode (entered != expected):
+            show Wrong barcode screen
+            hide Replace button
+            while:
+                Enter:
+                    barcode2 = entered
+                    Now correct (entered = expected):
+                        Close, Mark COLLECTED, Next row
+                    Wrong and same (barcode2 == barcode1):
+                        Display Replace button
+                        continue
+                    Wrong and different (barcode2 != expected &&barcode2 != barcode1):
+                        barcode1 = barcode2
+                        continue
+                Replace: # may not be visible
+                    Save new cryo record
+                    Mark lcr COLLECTED or WRONG(?)
+                    Next row
+                Skip:
+                    Mark DEFFERED, Next row
+
+
+
+putting my finger on it? making it up as you go along and being confident of it - implies something
+
+#### 

@@ -119,9 +119,21 @@ void TfrmRetrievalTreeView::loadJobs() {
 //		case STORAGE_EXERCISE: return "Storage exercise";
     //TTreeNode * newNode = tree->Items->AddObject(parent, tmp, (TObject *)newDatum);
 
+    // for (auto& job : vecJobs)
+    int jobsets[] = { 1,1,1,1,1,2,1,1,1,3,1,4};
+    int jobcount = 0, jobset = 0;
+    enum Level { EXERCISE, BOXSET, JOB } ;
+    Level thelevel = EXERCISE;
     for (it = vecJobs.begin(); it != vecJobs.end(); it++) { //, row++) {
+        if (EXERCISE == thelevel) {
+            tnExercise = tree->Items->AddObject(root, "Exercise", (TObject *)NULL);
+        } else if (BOXSET == thelevel) {
+            tree->Items->AddObject(root, exercise->getDescription().c_str(), (TObject *)exercise);
+        } else if (JOB == thelevel) {
+
+        }
         LCDbCryoJob * job = *it;
-        //if (newExercise()) {
+        //if (newExercise) {
           //  root->AddNode(
         //}
         jobID       = job->getID();
@@ -146,17 +158,17 @@ void TfrmRetrievalTreeView::loadJobs() {
         tree->Items->AddObject(root, job->getDescription().c_str(), (TObject *)job);
 
         //exercise, * boxset, *retrieval;
-//        sgJobs->Cells[sgwJobs->colNameToInt("boxset" )]  [row] = job->getBoxSet(); // short
-//        sgJobs->Cells[sgwJobs->colNameToInt("desc" )]    [row] = job->getDescription().c_str();
-//        sgJobs->Cells[sgwJobs->colNameToInt("type")]     [row] = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
-//        sgJobs->Cells[sgwJobs->colNameToInt("status")]   [row] = jobStatusString(job->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
-//        sgJobs->Cells[sgwJobs->colNameToInt("primary")]  [row] = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str(); // int
-//        sgJobs->Cells[sgwJobs->colNameToInt("secondary")][row] = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str(); // int
-//        sgJobs->Cells[sgwJobs->colNameToInt("project")]  [row] = getProjectDescription(job->getProjectID()).c_str();
-//        sgJobs->Cells[sgwJobs->colNameToInt("reason")]   [row] = job->getReason().c_str();
-//        sgJobs->Cells[sgwJobs->colNameToInt("start")]    [row] = job->getStartDate().DateTimeString();
-//        sgJobs->Cells[sgwJobs->colNameToInt("finish")]   [row] = job->getFinishDate().DateTimeString();
-//        sgJobs->Cells[sgwJobs->colNameToInt("claimed")]  [row] = job->getClaimedUntil().DateTimeString();
+//        = job->getBoxSet(); // short
+//        = job->getDescription().c_str();
+//        = jobTypeString(job->getJobType()); // UNKNOWN, BOX_MOVE, BOX_RETRIEVAL, BOX_DISCARD, SAMPLE_RETRIEVAL, SAMPLE_DISCARD, NUM_TYPES
+//        = jobStatusString(job->getStatus()); // NEW_JOB, INPROGRESS, DONE, DELETED = 99
+//        = Util::getAliquotDescription(job->getPrimaryAliquot()).c_str(); // int
+//        = Util::getAliquotDescription(job->getSecondaryAliquot()).c_str(); // int
+//        = getProjectDescription(job->getProjectID()).c_str();
+//        = job->getReason().c_str();
+//        = job->getStartDate().DateTimeString();
+//        = job->getFinishDate().DateTimeString();
+//        = job->getClaimedUntil().DateTimeString();
 //        sgJobs->Objects[0][row] = (TObject *)job;
     }
     ActiveControl = tree;
@@ -165,3 +177,14 @@ void TfrmRetrievalTreeView::loadJobs() {
 void __fastcall TfrmRetrievalTreeView::btnCloseClick(TObject *Sender) {
     Close();
 }
+
+void __fastcall TfrmRetrievalTreeView::btnNewJobClick(TObject *Sender) {
+    // add a new exercise, box set, job
+}
+
+
+void __fastcall TfrmRetrievalTreeView::btnExtendJobClick(TObject *Sender) {
+    // add a job to an existing box set
+}
+
+
