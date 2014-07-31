@@ -691,7 +691,7 @@ void __fastcall TfrmRetrAsstCollectSamples::btnSimAcceptClick(TObject *Sender) {
 
 void __fastcall TfrmRetrAsstCollectSamples::btnAcceptClick(TObject *Sender) { accept(editBarcode->Text); }
 
-void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct vial; could be missing, swapped etc
+void TfrmRetrAsstCollectSamples::accept(String entered) { // fixme check correct vial; could be missing, swapped etc
     SampleRow * primary = currentSample();  // could be primary, primary w/backup, or secondary
     SampleRow * aliquot = currentAliquot(); // primary or secondary - this is a bit confusing
     switch (aliquot->lcr_record->getStatus()) {
@@ -703,7 +703,7 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
         case LCDbCryovialRetrieval::NOT_FOUND:
             if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) return;
     }
-    if (barcode == aliquot->cryovial_barcode.c_str()) { // save
+    if (entered == aliquot->cryovial_barcode.c_str()) { // save
         if (aliquot == primary) {
             if (primary->backup != NULL) { // has backup
                 primary->backup->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED);
@@ -717,12 +717,10 @@ void TfrmRetrAsstCollectSamples::accept(String barcode) { // fixme check correct
         debugLog("Save accepted row");
         nextRow();
     } else {
+        frmWrongBarcode->expected = aliquot->cryovial_barcode.c_str();
+        frmWrongBarcode->entered = entered;
         frmWrongBarcode->ShowModal();
-//        if (IDYES == Application->MessageBox(L"Barcode not matched. Are you sure this is the right vial?", L"Info", MB_YESNO) {
-//
-//        } else {
-//
-//        }
+        editBarcode->Text = ""; // in case not cleared up in TfrmWrongBarcode, but should be
     }
 }
 

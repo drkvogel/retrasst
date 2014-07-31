@@ -151,7 +151,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 0
       OnKeyUp = editBarcodeKeyUp
-      ExplicitHeight = 53
+      ExplicitLeft = 425
     end
     object Panel1: TPanel
       Left = 2

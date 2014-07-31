@@ -21,18 +21,27 @@ __published:	// IDE-managed Components
     TBitBtn *btnReplace;
     TGroupBox *groupBarcode;
     TLabel *labelExpected;
-    TLabel *labelBarcode1;
-    TLabel *labelBarcode2;
+    TLabel *labelPrevious;
+    TLabel *labelEntered;
     TLabel *Label1;
     TLabel *Label2;
     TLabel *Label3;
-    void __fastcall btnAcceptClick(TObject *Sender);
+    TLabel *Label4;
+    TLabel *Label5;
     void __fastcall btnDeferClick(TObject *Sender);
     void __fastcall btnAddNoteClick(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
+    void __fastcall editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
+    void __fastcall btnAcceptClick(TObject *Sender);
+    void __fastcall btnReplaceClick(TObject *Sender);
+
 private:
-    std::string         expected, barcode1, barcode2;
+    //void                accept(String entered);
+    void                accept();
+    void                refresh();
 public:
+    //std::string         expected, barcode1, barcode2;
+    String              expected, entered, previous;
     __fastcall TfrmWrongBarcode(TComponent* Owner);
 };
 
