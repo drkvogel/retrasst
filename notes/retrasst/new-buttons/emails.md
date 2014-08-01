@@ -400,3 +400,12 @@ Clicking the X calls FormClose() and it
 
 make msgbox() return IDOK etc from MessageBox().
 
+### use wstring instead of std::string?
+
+Shouldn't matter here but have been doing things like:
+
+    std::string mystring = AnsiString(myUnicodeString).c_str();
+
+which narrows (loses characters potentially). If I used `wstring`, could do:
+
+    std::wstring mywstring = editBarcode->Text.c_str();

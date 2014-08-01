@@ -10,6 +10,7 @@
 #include "SMLogin.h"
 #include "LPDbBoxes.h"
 #include "RetrAsstCollectEmpties.h"
+#include "RetrAsstAddNote.h"
 
 
 #pragma package(smart_init)
@@ -284,7 +285,7 @@ void __fastcall TfrmRetrAsstCollectSamples::sgVialsClick(TObject *Sender) { // s
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
-    if (VK_RETURN == Key) { accept(editBarcode->Text); }
+    if (VK_RETURN == Key) { accept(AnsiString(editBarcode->Text).c_str()); }
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::FormResize(TObject *Sender) { // gets called *after* FormDestroy
@@ -702,11 +703,17 @@ void TfrmRetrAsstCollectSamples::flash(TGroupBox *box, TColor other) { // TContr
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::btnSimAcceptClick(TObject *Sender) { // simulate a correct barcode scanned
-    editBarcode->Text = (currentChunk()->currentObject())->cryovial_barcode.c_str(); btnAcceptClick(this); }
+    editBarcode->Text = (currentChunk()->currentObject())->cryovial_barcode.c_str();
+    btnAcceptClick(this);
+}
 
-void __fastcall TfrmRetrAsstCollectSamples::btnAcceptClick(TObject *Sender) { accept(editBarcode->Text); }
+void __fastcall TfrmRetrAsstCollectSamples::btnAcceptClick(TObject *Sender) {
+    accept(AnsiString(editBarcode->Text).c_str());
+    //std::wstring mywstring = editBarcode->Text.c_str();
+}
 
-void TfrmRetrAsstCollectSamples::accept(String entered) { // fixme check correct vial; could be missing, swapped etc
+void TfrmRetrAsstCollectSamples::accept(string entered) { // fixme check correct vial; could be missing, swapped etc
+
     SampleRow * primary = currentSample();  // could be primary, primary w/backup, or secondary
     SampleRow * aliquot = currentAliquot(); // primary or secondary - this is a bit confusing
     switch (aliquot->lcr_record->getStatus()) {
@@ -718,7 +725,7 @@ void TfrmRetrAsstCollectSamples::accept(String entered) { // fixme check correct
         case LCDbCryovialRetrieval::NOT_FOUND:
             if (IDOK != Application->MessageBox(L"Confirm sample has now been found", L"Question", MB_OKCANCEL)) return;
     }
-    if (entered == aliquot->cryovial_barcode.c_str()) { // save
+    if (entered == aliquot->cryovial_barcode) { // save
         if (aliquot == primary) {
             if (primary->backup != NULL) { // has backup
                 primary->backup->lcr_record->setStatus(LCDbCryovialRetrieval::DEFERRED);
@@ -732,8 +739,8 @@ void TfrmRetrAsstCollectSamples::accept(String entered) { // fixme check correct
         debugLog("Save accepted row");
         nextRow();
     } else {
-        frmWrongBarcode->expected = aliquot->cryovial_barcode.c_str();
-        frmWrongBarcode->entered = entered;
+        frmWrongBarcode->expected   = aliquot->cryovial_barcode.c_str();
+        frmWrongBarcode->entered    = entered;
         frmWrongBarcode->ShowModal();
         editBarcode->Text = ""; // in case not cleared up in TfrmWrongBarcode, but should be
     }
@@ -742,9 +749,12 @@ void TfrmRetrAsstCollectSamples::accept(String entered) { // fixme check correct
 void __fastcall TfrmRetrAsstCollectSamples::btnAddNoteClick(TObject *Sender) { addNote(); }
 
 void TfrmRetrAsstCollectSamples::addNote() {
-    Application->MessageBox(L"Add a note", L"Info", MB_OK);
+    //Application->MessageBox(L"Add a note", L"Info", MB_OK);
     // fixme
-    // existing form to do this?
+    // existing form to do this? no
+    ostringstream oss; oss<<"a note"; // barcode: '"<<entered.c_str()<<"', expected: '"<<expected.c_str()<<"'";
+    frmRetrAsstAddNote->setText(oss.str());
+    frmRetrAsstAddNote->ShowModal();
     // if note clicked on complete chunk, add note to chunk?
 }
 
@@ -789,7 +799,7 @@ void TfrmRetrAsstCollectSamples::notFound() {
     }
 }
 
-void TfrmRetrAsstCollectSamples::replace(String barcode) {
+void TfrmRetrAsstCollectSamples::replace(string barcode) {
     // replace
 
     TfrmRetrievalAssistant::msgbox("Todo: replace expected sample with found one");

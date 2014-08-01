@@ -600,6 +600,12 @@
             <DependentOn>ReferredBoxesSummary.h</DependentOn>
             <BuildOrder>25</BuildOrder>
         </CppCompile>
+        <CppCompile Include="RetrAsstAddNote.cpp">
+            <Form>frmRetrAsstAddNote</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>RetrAsstAddNote.h</DependentOn>
+            <BuildOrder>135</BuildOrder>
+        </CppCompile>
         <CppCompile Include="RetrAsstCollectBoxes.cpp">
             <Form>frmRetrAsstCollectBoxes</Form>
             <FormType>dfm</FormType>
@@ -792,65 +798,66 @@
             <DependentOn>..\..\paulst\WorkerThread.h</DependentOn>
             <BuildOrder>120</BuildOrder>
         </CppCompile>
-        <FormResources Include="RationaliseTanks\RatTanksMainDialog.dfm"/>
         <FormResources Include="RationaliseTanks\RatTanksdbSelection.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksBoxType.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksBoxSelection.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksCreateRetrievalJob.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksMainDialog.dfm"/>
         <FormResources Include="RationaliseTanks\RatTanksCreateExercise.dfm"/>
-        <FormResources Include="RetrAsstCollectBoxes.dfm"/>
-        <FormResources Include="ReferredBoxesSummary.dfm"/>
-        <FormResources Include="RetrAsstCollectSamples.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksBoxType.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksCreateRetrievalJob.dfm"/>
         <FormResources Include="RetrAsstCollectEmpties.dfm"/>
-        <FormResources Include="RationaliseTanks\RatTanksPleaseWait.dfm"/>
-        <FormResources Include="ReferredBoxes.dfm"/>
+        <FormResources Include="RetrAsstCollectBoxes.dfm"/>
+        <FormResources Include="RetrAsstMain.dfm"/>
+        <FormResources Include="RetrAsstCollectSamples.dfm"/>
         <FormResources Include="RationaliseTanks\RatTanksSignIn.dfm"/>
-        <FormResources Include="NewType.dfm"/>
-        <FormResources Include="FindSample.dfm"/>
-        <FormResources Include="ManageListsShowList.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksPleaseWait.dfm"/>
+        <FormResources Include="ReferredBoxesSummary.dfm"/>
+        <FormResources Include="ReferredBoxes.dfm"/>
+        <FormResources Include="RationaliseTanks\RatTanksBoxSelection.dfm"/>
         <FormResources Include="ManageLists.dfm"/>
-        <FormResources Include="DiscardSearch.dfm"/>
-        <FormResources Include="DiscardSamples.dfm"/>
-        <FormResources Include="NewSection.dfm"/>
-        <FormResources Include="NewReason.dfm"/>
-        <FormResources Include="NewTank.dfm"/>
-        <FormResources Include="NewSite.dfm"/>
-        <FormResources Include="NewBoxType.dfm"/>
         <FormResources Include="MoveJobs.dfm"/>
-        <FormResources Include="NewJob.dfm"/>
+        <FormResources Include="ManageListsShowList.dfm"/>
+        <FormResources Include="DiscardSearch.dfm"/>
+        <FormResources Include="FindSample.dfm"/>
+        <FormResources Include="NewSite.dfm"/>
+        <FormResources Include="NewSection.dfm"/>
+        <FormResources Include="NewType.dfm"/>
+        <FormResources Include="NewTank.dfm"/>
         <FormResources Include="NewExercise.dfm"/>
+        <FormResources Include="NewBoxType.dfm"/>
+        <FormResources Include="NewReason.dfm"/>
+        <FormResources Include="NewJob.dfm"/>
+        <FormResources Include="RetrAsstPlanBoxes.dfm"/>
         <FormResources Include="SMLogin.dfm"/>
         <FormResources Include="showsamples.dfm"/>
         <FormResources Include="Storemain.dfm"/>
         <FormResources Include="SelectSamples.dfm"/>
-        <FormResources Include="RetrievalLists\RetrievalListCryovialHistoryDialog.dfm"/>
-        <FormResources Include="RetrAsstPlanBoxes.dfm"/>
-        <FormResources Include="RetrAsstMain.dfm"/>
-        <FormResources Include="RetrievalListBase.dfm"/>
+        <FormResources Include="RetrievalLists\retrievalListMainDialog.dfm"/>
+        <FormResources Include="RetrAsstWrongBarcode.dfm"/>
         <FormResources Include="RetrAsstPlanSamples.dfm"/>
+        <FormResources Include="RetrievalLists\RetrievalListCryovialHistoryDialog.dfm"/>
+        <FormResources Include="RetrievalListBase.dfm"/>
         <FormResources Include="SampleEntry.dfm"/>
         <FormResources Include="RetrieveSamples.dfm"/>
         <FormResources Include="SampleMove.dfm"/>
-        <FormResources Include="RetrievalLists\RetrievalListMainListDialog.dfm"/>
-        <FormResources Include="RetrievalLists\retrievalListMainDialog.dfm"/>
-        <FormResources Include="RetrievalLists\RetrievalListResultsDialog.dfm"/>
         <FormResources Include="RetrievalLists\RetrievalListResultNotesDialog.dfm"/>
-        <FormResources Include="DiscardPrologue.dfm"/>
-        <FormResources Include="AddSpecimens.dfm"/>
-        <FormResources Include="AnalyseSamples.dfm"/>
-        <FormResources Include="DiscardNote.dfm"/>
-        <FormResources Include="DiscardMethod.dfm"/>
-        <FormResources Include="BrowseSample.dfm"/>
-        <FormResources Include="BoxTransfer.dfm"/>
-        <FormResources Include="Configure.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmSelectDbS.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
-        <FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
-        <FormResources Include="..\LabsForms\dvSelector.dfm"/>
+        <FormResources Include="RetrievalLists\RetrievalListMainListDialog.dfm"/>
         <FormResources Include="RetrievalListTreeView.dfm"/>
-        <FormResources Include="RetrAsstWrongBarcode.dfm"/>
+        <FormResources Include="RetrievalLists\RetrievalListResultsDialog.dfm"/>
+        <FormResources Include="DiscardSamples.dfm"/>
+        <FormResources Include="AnalyseSamples.dfm"/>
+        <FormResources Include="AddSpecimens.dfm"/>
+        <FormResources Include="BoxTransfer.dfm"/>
+        <FormResources Include="DiscardMethod.dfm"/>
+        <FormResources Include="DiscardPrologue.dfm"/>
+        <FormResources Include="DiscardNote.dfm"/>
+        <FormResources Include="Configure.dfm"/>
+        <FormResources Include="BrowseSample.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmPassword.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmLoginBase.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmSelectDbS.dfm"/>
+        <FormResources Include="..\LabsForms\dvSelector.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmConfirm.dfm"/>
+        <FormResources Include="..\LabsForms\TfrmAboutBox.dfm"/>
+        <FormResources Include="RetrAsstAddNote.dfm"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -76,9 +76,9 @@ __published:
     TBitBtn *btnDefer;
     TCheckBox *cbLog;
     TBitBtn *btnAddNote;
-    TBitBtn *btnBadVial;
-    TBitBtn *btnSave;
     TBitBtn *btnSignOff;
+    TBitBtn *btnSave;
+    TBitBtn *btnBadVial;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall FormResize(TObject *Sender);
@@ -130,8 +130,8 @@ private:
     void                                        addChunk(int number, int row);
     void                                        showCurrentRow();
     void                                        showDetails(SampleRow * sample);
-    void                                        accept(String barcode);
-    void                                        replace(String barcode);
+    void                                        accept(string barcode);
+    void                                        replace(string barcode);
     void                                        notFound();
     void                                        addNote();
     //void                                        alreadyRetrieved();

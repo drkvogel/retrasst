@@ -28,6 +28,7 @@ __published:	// IDE-managed Components
     TLabel *Label3;
     TLabel *Label4;
     TLabel *Label5;
+    TLabel *labelReason;
     void __fastcall btnDeferClick(TObject *Sender);
     void __fastcall btnAddNoteClick(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
@@ -39,9 +40,10 @@ private:
     //void                accept(String entered);
     void                accept();
     void                refresh();
+    void                flash();
 public:
-    //std::string         expected, barcode1, barcode2;
-    String              expected, entered, previous;
+    std::string         expected, entered, previous;
+    //String              expected, entered, previous;
     __fastcall TfrmWrongBarcode(TComponent* Owner);
 };
 

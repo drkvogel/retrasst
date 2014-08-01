@@ -4,65 +4,66 @@
 #pragma hdrstop
 #include <tchar.h>
 //---------------------------------------------------------------------------
-USEFORM("RationaliseTanks\RatTanksMainDialog.cpp", frmRatTanksMainDialog);
 USEFORM("RationaliseTanks\RatTanksdbSelection.cpp", frmRatTankDbSelectionDialog);
-USEFORM("RationaliseTanks\RatTanksBoxType.cpp", frmRatTanksBoxType);
-USEFORM("RationaliseTanks\RatTanksBoxSelection.cpp", frmRatTanksBoxSelection);
-USEFORM("RationaliseTanks\RatTanksCreateRetrievalJob.cpp", frmRatTankCreateRetrievalJob);
+USEFORM("RationaliseTanks\RatTanksMainDialog.cpp", frmRatTanksMainDialog);
 USEFORM("RationaliseTanks\RatTanksCreateExercise.cpp", frmRatTanksRetrivalExercise);
-USEFORM("RetrAsstCollectBoxes.cpp", frmRetrAsstCollectBoxes);
-USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
-USEFORM("RetrAsstCollectSamples.cpp", frmRetrAsstCollectSamples);
+USEFORM("RationaliseTanks\RatTanksBoxType.cpp", frmRatTanksBoxType);
+USEFORM("RationaliseTanks\RatTanksCreateRetrievalJob.cpp", frmRatTankCreateRetrievalJob);
 USEFORM("RetrAsstCollectEmpties.cpp", frmCollectEmpties);
-USEFORM("RationaliseTanks\RatTanksPleaseWait.cpp", frmRatTankPleaseWait);
-USEFORM("ReferredBoxes.cpp", frmReferred);
+USEFORM("RetrAsstCollectBoxes.cpp", frmRetrAsstCollectBoxes);
+USEFORM("RetrAsstMain.cpp", frmRetrievalAssistant);
+USEFORM("RetrAsstCollectSamples.cpp", frmRetrAsstCollectSamples);
 USEFORM("RationaliseTanks\RatTanksSignIn.cpp", frmRatTankSignIn);
-USEFORM("NewType.cpp", frmNewStoreType);
-USEFORM("FindSample.cpp", frmFind);
-USEFORM("ManageListsShowList.cpp", frmManListsShow);
+USEFORM("RationaliseTanks\RatTanksPleaseWait.cpp", frmRatTankPleaseWait);
+USEFORM("ReferredBoxesSummary.cpp", frmReferredBoxesSummary);
+USEFORM("ReferredBoxes.cpp", frmReferred);
+USEFORM("RationaliseTanks\RatTanksBoxSelection.cpp", frmRatTanksBoxSelection);
 USEFORM("ManageLists.cpp", frmManageLists);
-USEFORM("DiscardSearch.cpp", frmSearch);
-USEFORM("DiscardSamples.cpp", frmDiscardSamples);
-USEFORM("NewSection.cpp", frmNewSection);
-USEFORM("NewReason.cpp", frmNewReason);
-USEFORM("NewTank.cpp", frmNewTank);
-USEFORM("NewSite.cpp", frmNewSite);
-USEFORM("NewBoxType.cpp", frmNewBoxType);
 USEFORM("MoveJobs.cpp", frmSelectJob);
-USEFORM("NewJob.cpp", frmNewJob);
+USEFORM("ManageListsShowList.cpp", frmManListsShow);
+USEFORM("DiscardSearch.cpp", frmSearch);
+USEFORM("FindSample.cpp", frmFind);
+USEFORM("NewSite.cpp", frmNewSite);
+USEFORM("NewSection.cpp", frmNewSection);
+USEFORM("NewType.cpp", frmNewStoreType);
+USEFORM("NewTank.cpp", frmNewTank);
 USEFORM("NewExercise.cpp", frmNewExercise);
+USEFORM("NewBoxType.cpp", frmNewBoxType);
+USEFORM("NewReason.cpp", frmNewReason);
+USEFORM("NewJob.cpp", frmNewJob);
+USEFORM("RetrAsstPlanBoxes.cpp", frmRetrAsstPlanBoxes);
 USEFORM("SMLogin.cpp", frmSMLogin);
 USEFORM("showsamples.cpp", frmAliquotTypes);
 USEFORM("Storemain.cpp", frmStoremain);
 USEFORM("SelectSamples.cpp", frmSelectBoxes);
-USEFORM("RetrievalLists\RetrievalListCryovialHistoryDialog.cpp", frmRetrievalListCryovialHistoryDialog);
-USEFORM("RetrAsstPlanBoxes.cpp", frmRetrAsstPlanBoxes);
-USEFORM("RetrAsstMain.cpp", frmRetrievalAssistant);
-USEFORM("RetrievalListBase.cpp", frmRetrievalJobList);
+USEFORM("RetrievalLists\retrievalListMainDialog.cpp", frmRetrievalListViewListMain);
+USEFORM("RetrAsstWrongBarcode.cpp", frmWrongBarcode);
 USEFORM("RetrAsstPlanSamples.cpp", frmRetrAsstPlanSamples);
+USEFORM("RetrievalLists\RetrievalListCryovialHistoryDialog.cpp", frmRetrievalListCryovialHistoryDialog);
+USEFORM("RetrievalListBase.cpp", frmRetrievalJobList);
 USEFORM("SampleEntry.cpp", frmRetrieveMain);
 USEFORM("RetrieveSamples.cpp", frmRetrieved);
 USEFORM("SampleMove.cpp", frmMove);
-USEFORM("RetrievalLists\RetrievalListMainListDialog.cpp", frmRetrievalListDialog);
-USEFORM("RetrievalLists\retrievalListMainDialog.cpp", frmRetrievalListViewListMain);
-USEFORM("RetrievalLists\RetrievalListResultsDialog.cpp", frmRetrievalListResultsDialog);
 USEFORM("RetrievalLists\RetrievalListResultNotesDialog.cpp", frmRetrievalListResultNotesDialog);
-USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
-USEFORM("AddSpecimens.cpp", frmAddSpecimens);
-USEFORM("AnalyseSamples.cpp", frmAnalyseSpecimens);
-USEFORM("DiscardNote.cpp", frmDiscardNote);
-USEFORM("DiscardMethod.cpp", frmDiscardMethod);
-USEFORM("BrowseSample.cpp", frmBrowse);
-USEFORM("BoxTransfer.cpp", frmBoxList);
-USEFORM("Configure.cpp", frmConfigure);
-USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
-USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
-USEFORM("..\LabsForms\TfrmSelectDbS.cpp", frmSelectDbSystem);
-USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
-USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
-USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
+USEFORM("RetrievalLists\RetrievalListMainListDialog.cpp", frmRetrievalListDialog);
 USEFORM("RetrievalListTreeView.cpp", frmRetrievalTreeView);
-USEFORM("RetrAsstWrongBarcode.cpp", frmWrongBarcode);
+USEFORM("RetrievalLists\RetrievalListResultsDialog.cpp", frmRetrievalListResultsDialog);
+USEFORM("DiscardSamples.cpp", frmDiscardSamples);
+USEFORM("AnalyseSamples.cpp", frmAnalyseSpecimens);
+USEFORM("AddSpecimens.cpp", frmAddSpecimens);
+USEFORM("BoxTransfer.cpp", frmBoxList);
+USEFORM("DiscardMethod.cpp", frmDiscardMethod);
+USEFORM("DiscardPrologue.cpp", frmDiscardPrologue);
+USEFORM("DiscardNote.cpp", frmDiscardNote);
+USEFORM("Configure.cpp", frmConfigure);
+USEFORM("BrowseSample.cpp", frmBrowse);
+USEFORM("..\LabsForms\TfrmPassword.cpp", frmPassword);
+USEFORM("..\LabsForms\TfrmLoginBase.cpp", frmLoginBase);
+USEFORM("..\LabsForms\TfrmSelectDbS.cpp", frmSelectDbSystem);
+USEFORM("..\LabsForms\dvSelector.cpp", selectorFrame); /* TFrame: File Type */
+USEFORM("..\LabsForms\TfrmConfirm.cpp", frmConfirm);
+USEFORM("..\LabsForms\TfrmAboutBox.cpp", frmAboutBox);
+USEFORM("RetrAsstAddNote.cpp", frmRetrAsstAddNote);
 //---------------------------------------------------------------------------
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
@@ -124,6 +125,7 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
          Application->CreateForm(__classid(TfrmManListsShow), &frmManListsShow);
          Application->CreateForm(__classid(TfrmRetrievalTreeView), &frmRetrievalTreeView);
          Application->CreateForm(__classid(TfrmWrongBarcode), &frmWrongBarcode);
+         Application->CreateForm(__classid(TfrmRetrAsstAddNote), &frmRetrAsstAddNote);
          Application->Run();
 	}
 	catch (Exception &exception)

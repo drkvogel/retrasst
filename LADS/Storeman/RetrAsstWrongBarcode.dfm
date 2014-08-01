@@ -23,9 +23,6 @@ object frmWrongBarcode: TfrmWrongBarcode
     Align = alBottom
     Caption = 'Actions'
     TabOrder = 0
-    ExplicitLeft = -638
-    ExplicitTop = 210
-    ExplicitWidth = 1280
     object editBarcode: TEdit
       Left = 97
       Top = 15
@@ -40,8 +37,7 @@ object frmWrongBarcode: TfrmWrongBarcode
       ParentFont = False
       TabOrder = 0
       OnKeyUp = editBarcodeKeyUp
-      ExplicitLeft = 127
-      ExplicitTop = 23
+      ExplicitHeight = 53
     end
     object Panel1: TPanel
       Left = 2
@@ -81,7 +77,6 @@ object frmWrongBarcode: TfrmWrongBarcode
         ParentFont = False
         TabOrder = 0
         OnClick = btnAddNoteClick
-        ExplicitLeft = 231
       end
     end
     object btnAccept: TBitBtn
@@ -119,7 +114,6 @@ object frmWrongBarcode: TfrmWrongBarcode
       ParentFont = False
       TabOrder = 2
       OnClick = btnAcceptClick
-      ExplicitLeft = 728
     end
     object btnDefer: TBitBtn
       Left = 505
@@ -155,7 +149,6 @@ object frmWrongBarcode: TfrmWrongBarcode
       ParentFont = False
       TabOrder = 3
       OnClick = btnDeferClick
-      ExplicitLeft = 1057
     end
     object btnReplace: TBitBtn
       Left = 609
@@ -186,7 +179,6 @@ object frmWrongBarcode: TfrmWrongBarcode
       ParentFont = False
       TabOrder = 4
       OnClick = btnReplaceClick
-      ExplicitLeft = 633
     end
   end
   object groupBarcode: TGroupBox
@@ -197,26 +189,23 @@ object frmWrongBarcode: TfrmWrongBarcode
     Align = alClient
     Caption = 'Barcode'
     TabOrder = 1
-    ExplicitLeft = -80
-    ExplicitTop = -40
-    ExplicitWidth = 879
-    ExplicitHeight = 271
+    ExplicitTop = -6
     object labelExpected: TLabel
       Left = 236
-      Top = 197
+      Top = 170
       Width = 171
       Height = 19
       Caption = '<Expected barcode>'
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clBlack
       Font.Height = -16
       Font.Name = 'Tahoma'
       Font.Style = [fsBold]
       ParentFont = False
     end
     object labelPrevious: TLabel
-      Left = 233
-      Top = 149
+      Left = 234
+      Top = 130
       Width = 101
       Height = 19
       Caption = '<barcode1>'
@@ -229,7 +218,7 @@ object frmWrongBarcode: TfrmWrongBarcode
     end
     object labelEntered: TLabel
       Left = 234
-      Top = 104
+      Top = 90
       Width = 101
       Height = 19
       Caption = '<barcode2>'
@@ -242,20 +231,20 @@ object frmWrongBarcode: TfrmWrongBarcode
     end
     object Label1: TLabel
       Left = 66
-      Top = 197
+      Top = 170
       Width = 130
       Height = 19
       Caption = 'Expected barcode:'
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clBlack
       Font.Height = -16
       Font.Name = 'Tahoma'
       Font.Style = []
       ParentFont = False
     end
     object Label2: TLabel
-      Left = 66
-      Top = 149
+      Left = 67
+      Top = 130
       Width = 136
       Height = 19
       Caption = 'Previously entered:'
@@ -268,7 +257,7 @@ object frmWrongBarcode: TfrmWrongBarcode
     end
     object Label3: TLabel
       Left = 66
-      Top = 104
+      Top = 90
       Width = 151
       Height = 19
       Caption = 'Barcode just entered:'
@@ -281,7 +270,7 @@ object frmWrongBarcode: TfrmWrongBarcode
     end
     object Label4: TLabel
       Left = 66
-      Top = 32
+      Top = 24
       Width = 341
       Height = 39
       Caption = 'Barcode not matched'
@@ -294,11 +283,24 @@ object frmWrongBarcode: TfrmWrongBarcode
     end
     object Label5: TLabel
       Left = 456
-      Top = 72
+      Top = 104
       Width = 58
       Height = 39
       Caption = 'This is some explanatory text.'
       WordWrap = True
+    end
+    object labelReason: TLabel
+      Left = 67
+      Top = 224
+      Width = 84
+      Height = 19
+      Caption = 'labelReason'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
     end
   end
 end

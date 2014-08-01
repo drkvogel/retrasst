@@ -138,6 +138,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
     Align = alBottom
     Caption = 'Actions'
     TabOrder = 1
+    ExplicitLeft = 2
+    ExplicitTop = 546
     object editBarcode: TEdit
       Left = 431
       Top = 15
@@ -152,7 +154,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 0
       OnKeyUp = editBarcodeKeyUp
-      ExplicitLeft = 425
+      ExplicitHeight = 53
     end
     object Panel1: TPanel
       Left = 2
@@ -192,37 +194,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         ParentFont = False
         TabOrder = 0
         OnClick = btnAddNoteClick
-      end
-      object btnSave: TBitBtn
-        Left = 105
-        Top = 0
-        Width = 96
-        Height = 60
-        Align = alLeft
-        Caption = '&Save'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -16
-        Font.Name = 'Verdana'
-        Font.Style = [fsBold]
-        Glyph.Data = {
-          76010000424D7601000000000000760000002800000020000000100000000100
-          04000000000000010000130B0000130B00001000000000000000000000000000
-          800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
-          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333330070
-          7700333333337777777733333333008088003333333377F73377333333330088
-          88003333333377FFFF7733333333000000003FFFFFFF77777777000000000000
-          000077777777777777770FFFFFFF0FFFFFF07F3333337F3333370FFFFFFF0FFF
-          FFF07F3FF3FF7FFFFFF70F00F0080CCC9CC07F773773777777770FFFFFFFF039
-          99337F3FFFF3F7F777F30F0000F0F09999937F7777373777777F0FFFFFFFF999
-          99997F3FF3FFF77777770F00F000003999337F773777773777F30FFFF0FF0339
-          99337F3FF7F3733777F30F08F0F0337999337F7737F73F7777330FFFF0039999
-          93337FFFF7737777733300000033333333337777773333333333}
-        NumGlyphs = 2
-        ParentFont = False
-        TabOrder = 1
-        OnClick = btnSaveClick
-        ExplicitLeft = 111
+        ExplicitLeft = 175
       end
       object btnSignOff: TBitBtn
         Left = 0
@@ -251,9 +223,39 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           5555777755555555555550055555555555555775555555555555}
         NumGlyphs = 2
         ParentFont = False
-        TabOrder = 2
+        TabOrder = 1
         OnClick = btnSignOffClick
-        ExplicitLeft = -6
+      end
+      object btnBadVial: TBitBtn
+        Left = 133
+        Top = 0
+        Width = 98
+        Height = 60
+        Align = alRight
+        Caption = 'Bad'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        Glyph.Data = {
+          76010000424D7601000000000000760000002800000020000000100000000100
+          04000000000000010000120B0000120B00001000000000000000000000000000
+          800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00300000000000
+          000037777777777777770FFFFFFFFFFFFFF07F3333FFF33333370FFFF777FFFF
+          FFF07F333777333333370FFFFFFFFFFFFFF07F3333FFFFFF33370FFFF7777BBF
+          FFF07F333777777F3FF70FFFFFFFB9BF1CC07F3FFF337F7377770F777FFFB99B
+          C1C07F7773337F377F370FFFFFFFB9BBC1C07FFFFFFF7F337FF700000077B999
+          B000777777777F33777733337377B9999B33333F733373F337FF3377377B99BB
+          9BB33377F337F377377F3737377B9B79B9B737F73337F7F7F37F33733777BB7B
+          BBB73373333377F37F3737333777BB777B9B3733333377F337F7333333777B77
+          77BB3333333337333377333333333777337B3333333333333337}
+        NumGlyphs = 2
+        ParentFont = False
+        TabOrder = 2
+        OnClick = btnBadVialClick
+        ExplicitLeft = 127
       end
     end
     object Panel2: TPanel
@@ -350,11 +352,9 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 4
       OnClick = btnNotFoundClick
-      ExplicitLeft = 833
-      ExplicitTop = 14
     end
     object btnDefer: TBitBtn
-      Left = 1057
+      Left = 959
       Top = 15
       Width = 104
       Height = 60
@@ -387,36 +387,39 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentFont = False
       TabOrder = 5
       OnClick = btnDeferClick
+      ExplicitLeft = 1057
     end
-    object btnBadVial: TBitBtn
-      Left = 959
+    object btnSave: TBitBtn
+      Left = 1182
       Top = 15
-      Width = 98
+      Width = 96
       Height = 60
-      Align = alLeft
-      Caption = 'Bad'
+      Align = alRight
+      Caption = '&Save'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
-      Font.Name = 'Tahoma'
+      Font.Name = 'Verdana'
       Font.Style = [fsBold]
       Glyph.Data = {
         76010000424D7601000000000000760000002800000020000000100000000100
-        04000000000000010000120B0000120B00001000000000000000000000000000
+        04000000000000010000130B0000130B00001000000000000000000000000000
         800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
-        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00300000000000
-        000037777777777777770FFFFFFFFFFFFFF07F3333FFF33333370FFFF777FFFF
-        FFF07F333777333333370FFFFFFFFFFFFFF07F3333FFFFFF33370FFFF7777BBF
-        FFF07F333777777F3FF70FFFFFFFB9BF1CC07F3FFF337F7377770F777FFFB99B
-        C1C07F7773337F377F370FFFFFFFB9BBC1C07FFFFFFF7F337FF700000077B999
-        B000777777777F33777733337377B9999B33333F733373F337FF3377377B99BB
-        9BB33377F337F377377F3737377B9B79B9B737F73337F7F7F37F33733777BB7B
-        BBB73373333377F37F3737333777BB777B9B3733333377F337F7333333777B77
-        77BB3333333337333377333333333777337B3333333333333337}
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333330070
+        7700333333337777777733333333008088003333333377F73377333333330088
+        88003333333377FFFF7733333333000000003FFFFFFF77777777000000000000
+        000077777777777777770FFFFFFF0FFFFFF07F3333337F3333370FFFFFFF0FFF
+        FFF07F3FF3FF7FFFFFF70F00F0080CCC9CC07F773773777777770FFFFFFFF039
+        99337F3FFFF3F7F777F30F0000F0F09999937F7777373777777F0FFFFFFFF999
+        99997F3FF3FFF77777770F00F000003999337F773777773777F30FFFF0FF0339
+        99337F3FF7F3733777F30F08F0F0337999337F7737F73F7777330FFFF0039999
+        93337FFFF7737777733300000033333333337777773333333333}
       NumGlyphs = 2
       ParentFont = False
       TabOrder = 6
-      OnClick = btnBadVialClick
+      OnClick = btnSaveClick
+      ExplicitLeft = 1202
+      ExplicitTop = 14
     end
   end
   object Chunks: TGroupBox
@@ -461,33 +464,36 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         object labelNew: TLabel
           Left = 2
           Top = 15
-          Width = 21
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'New'
           Color = clSkyBlue
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 21
         end
         object labelInProgress: TLabel
           Left = 2
           Top = 28
-          Width = 55
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'In Progress'
           Color = clMoneyGreen
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 55
         end
         object labelDone: TLabel
           Left = 2
           Top = 41
-          Width = 51
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'Completed'
           Transparent = False
+          ExplicitWidth = 51
         end
       end
       object groupVialKey: TGroupBox
@@ -501,57 +507,62 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         object labelVialKeyCollected: TLabel
           Left = 2
           Top = 41
-          Width = 47
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'Retrieved'
           Color = clAqua
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 47
         end
         object labelVialKeyExpectedBackup: TLabel
           Left = 2
           Top = 28
-          Width = 34
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'Backup'
           Color = clYellow
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 34
         end
         object labelVialKeyExpectedPrimary: TLabel
           Left = 2
           Top = 15
-          Width = 46
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'Preferred'
           Color = clHighlight
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 46
         end
         object labelVialKeyIgnored: TLabel
           Left = 2
           Top = 67
-          Width = 38
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'Ignored'
           Color = clLime
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 38
         end
         object labelVialKeyNotFound: TLabel
           Left = 2
           Top = 54
-          Width = 50
+          Width = 60
           Height = 13
           Align = alTop
           Caption = 'Not Found'
           Color = clFuchsia
           ParentColor = False
           Transparent = False
+          ExplicitWidth = 50
         end
       end
     end
@@ -726,8 +737,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           object labelPrimary: TLabel
             Left = 7
             Top = 16
-            Width = 80
-            Height = 16
+            Width = 147
+            Height = 21
             Margins.Top = 1
             Margins.Bottom = 1
             Align = alClient
@@ -739,6 +750,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
+            ExplicitWidth = 80
+            ExplicitHeight = 16
           end
         end
         object groupSecondary: TGroupBox
@@ -756,8 +769,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           object labelSecondary: TLabel
             Left = 7
             Top = 16
-            Width = 99
-            Height = 16
+            Width = 132
+            Height = 21
             Margins.Left = 5
             Margins.Top = 5
             Margins.Right = 5
@@ -771,6 +784,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
+            ExplicitWidth = 99
+            ExplicitHeight = 16
           end
         end
       end
@@ -787,7 +802,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       object labelDestString: TLabel
         Left = 2
         Top = 99
-        Width = 72
+        Width = 548
         Height = 13
         Align = alBottom
         Caption = 'labelDestString'
@@ -797,6 +812,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
+        ExplicitWidth = 72
       end
       object labelDestPos: TLabel
         Left = 6
