@@ -75,12 +75,11 @@ const char * LCDbCryovialRetrieval::statusString(int st) {
 };
 
 bool LCDbCryovialRetrieval::saveRecord(LQuery query) {
-    if (IGNORED == status) { // don't save, so will revert back to EXPECTED on next load of plan
-        return true; // not an error
-    }
+//    if (DEFERRED == status) { // don't save, so will revert back to EXPECTED on next load of plan
+//        return true; // not an error
+//    }
 	if (!saved) {
-		query.setSQL(
-			//"INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status) "
+		query.setSQL(  //"INSERT INTO l_cryovial_retrieval (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, slot_number, process_cid, time_stamp, status) "
             "INSERT INTO l_cryovial_retrieval "
                 " (rj_box_cid, position, cryovial_barcode, aliquot_type_cid, "
                 " old_box_cid, old_position, new_position, "
@@ -106,7 +105,6 @@ bool LCDbCryovialRetrieval::saveRecord(LQuery query) {
 	query.setParam("oldbox",    old_box_cid);
     query.setParam("oldpos",    old_position);
     query.setParam("newpos",    new_position);
-    //query.setParam("slot",  slot_number); // deprecated??
 	query.setParam("pid",       process_cid);
 	query.setParam("st",        status);
 	if (query.execSQL()) {

@@ -51,7 +51,6 @@ __published:
     TPanel *Panel1;
     TPanel *Panel2;
     TLabel *Label1;
-    TButton *btnSignOff;
     TPanel *panelDetails;
     TGroupBox *groupSource;
     TLabel *labelSite;
@@ -78,7 +77,8 @@ __published:
     TCheckBox *cbLog;
     TBitBtn *btnAddNote;
     TBitBtn *btnBadVial;
-    TBitBtn *btnExit;
+    TBitBtn *btnSave;
+    TBitBtn *btnSignOff;
     void __fastcall FormCreate(TObject *Sender);
     void __fastcall FormShow(TObject *Sender);
     void __fastcall FormResize(TObject *Sender);
@@ -93,7 +93,7 @@ __published:
     void __fastcall cbLogClick(TObject *Sender);
     void __fastcall timerLoadPlanTimer(TObject *Sender);
     void __fastcall btnAcceptClick(TObject *Sender);
-    void __fastcall btnExitClick(TObject *Sender);
+    void __fastcall btnSaveClick(TObject *Sender);
     void __fastcall btnDeferClick(TObject *Sender);
     void __fastcall btnSimAcceptClick(TObject *Sender);
     void __fastcall btnNotFoundClick(TObject *Sender);
@@ -101,6 +101,8 @@ __published:
     void __fastcall btnAddNoteClick(TObject *Sender);
     void __fastcall editBarcodeKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
     void __fastcall btnSignOffClick(TObject *Sender);
+    void __fastcall sgVialsContextPopup(TObject *Sender, TPoint &MousePos, bool &Handled);
+
     //void __fastcall btnWrongVialClick(TObject *Sender);
     //void __fastcall btnFoundElsewhereClick(TObject *Sender);
     //void __fastcall btnAlreadyRetrievedClick(TObject *Sender);

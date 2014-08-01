@@ -46,7 +46,7 @@
 #define RETRIEVAL_ASSISTANT_EXPECTED_COLOUR         clMoneyGreen
 #define RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR        clFuchsia
 #define RETRIEVAL_ASSISTANT_COLLECTED_COLOUR        clSkyBlue
-#define RETRIEVAL_ASSISTANT_IGNORED_COLOUR          clGray
+#define RETRIEVAL_ASSISTANT_DEFERRED_COLOUR          clGray
 
 // other
 #define RETRIEVAL_ASSISTANT_ERROR_COLOUR            clRed
@@ -433,9 +433,9 @@ public:
         processed = 0; int size = getSize(); if (0 == size) return 0;
         for (int i=0; i<size; i++) { // there could be gaps (previously deferred vials). Gotta count 'em.
             SampleRow * sample = objectAtRel(i);
-            switch (sample->lcr_record->getStatus()) { // EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND
+            switch (sample->lcr_record->getStatus()) { // EXPECTED, DEFERRED, COLLECTED, DISPOSED, NOT_FOUND
                 case LCDbCryovialRetrieval::EXPECTED:
-                case LCDbCryovialRetrieval::IGNORED:
+                case LCDbCryovialRetrieval::DEFERRED:
                     break;
                 case LCDbCryovialRetrieval::COLLECTED:
                 case LCDbCryovialRetrieval::DISPOSED:
@@ -444,7 +444,7 @@ public:
                     if (sample->backup) {
                         switch (sample->backup->lcr_record->getStatus()) {
                             case LCDbCryovialRetrieval::EXPECTED:
-                            case LCDbCryovialRetrieval::IGNORED:
+                            case LCDbCryovialRetrieval::DEFERRED:
                                 break;
                             case LCDbCryovialRetrieval::COLLECTED:
                             case LCDbCryovialRetrieval::DISPOSED:
@@ -479,7 +479,7 @@ public:
             int status = objectAtRel(i)->lcr_record->getStatus();
             switch (status) {
                 case LCDbCryovialRetrieval::EXPECTED:
-                case LCDbCryovialRetrieval::IGNORED:
+                case LCDbCryovialRetrieval::DEFERRED:
                     complete = false; break;
                 case LCDbCryovialRetrieval::COLLECTED:
                 case LCDbCryovialRetrieval::NOT_FOUND:

@@ -119,7 +119,7 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
     // vial colour key
     labelVialKeyExpectedPrimary->Color      = RETRIEVAL_ASSISTANT_EXPECTED_COLOUR;
     labelVialKeyExpectedBackup->Color       = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR;
-    labelVialKeyIgnored->Color              = RETRIEVAL_ASSISTANT_IGNORED_COLOUR;
+    labelVialKeyIgnored->Color              = RETRIEVAL_ASSISTANT_DEFERRED_COLOUR;
     labelVialKeyCollected->Color            = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR;
     labelVialKeyNotFound->Color             = RETRIEVAL_ASSISTANT_NOT_FOUND_COLOUR;
 }
@@ -127,7 +127,7 @@ __fastcall TfrmRetrAsstCollectSamples::TfrmRetrAsstCollectSamples(TComponent* Ow
 void __fastcall TfrmRetrAsstCollectSamples::FormCreate(TObject *Sender) {
     cbLog->Visible      = RETRASSTDEBUG;
     cbLog->Checked      = false;
-    sgVials->Enabled    = RETRASSTDEBUG;
+    sgVials->Enabled    = false; // dbg button enables it
     panelDebug->Visible = cbLog->Checked;
     job                 = NULL;
 }
@@ -195,8 +195,8 @@ void __fastcall TfrmRetrAsstCollectSamples::sgVialsDrawCell(TObject *Sender, int
                 // could use currentAliquot() here?
                 case LCDbCryovialRetrieval::EXPECTED:
                     background = RETRIEVAL_ASSISTANT_EXPECTED_COLOUR; break;
-                case LCDbCryovialRetrieval::IGNORED:
-                    background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
+                case LCDbCryovialRetrieval::DEFERRED:
+                    background = RETRIEVAL_ASSISTANT_DEFERRED_COLOUR; break;
                 case LCDbCryovialRetrieval::COLLECTED:
                     background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR; break;
                 case LCDbCryovialRetrieval::NOT_FOUND:
@@ -205,8 +205,8 @@ void __fastcall TfrmRetrAsstCollectSamples::sgVialsDrawCell(TObject *Sender, int
                         switch (backupStatus) {
                             case LCDbCryovialRetrieval::EXPECTED:
                                 background = RETRIEVAL_ASSISTANT_SECONDARY_COLOUR; break;
-                            case LCDbCryovialRetrieval::IGNORED:
-                                background = RETRIEVAL_ASSISTANT_IGNORED_COLOUR; break;
+                            case LCDbCryovialRetrieval::DEFERRED:
+                                background = RETRIEVAL_ASSISTANT_DEFERRED_COLOUR; break;
                             case LCDbCryovialRetrieval::COLLECTED:
                                 background = RETRIEVAL_ASSISTANT_COLLECTED_COLOUR; break;
                             default:
@@ -250,10 +250,10 @@ void __fastcall TfrmRetrAsstCollectSamples::sgChunksClick(TObject *Sender) {
     Chunk< SampleRow > * chunk = (Chunk< SampleRow > *)sgChunks->Objects[0][row];
     for (int row=0; row < chunk->getSize(); row++) {
         SampleRow * sampleRow = chunk->objectAtRel(row);
-        if (sampleRow->lcr_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
+        if (sampleRow->lcr_record->getStatus() == LCDbCryovialRetrieval::DEFERRED) {
             sampleRow->lcr_record->setStatus(LCDbCryovialRetrieval::EXPECTED);
         } else if ( sampleRow->lcr_record->getStatus() == LCDbCryovialRetrieval::NOT_FOUND && sampleRow->backup != NULL) {
-            if (sampleRow->backup->lcr_record->getStatus() == LCDbCryovialRetrieval::IGNORED) {
+            if (sampleRow->backup->lcr_record->getStatus() == LCDbCryovialRetrieval::DEFERRED) {
                 sampleRow->backup->lcr_record->setStatus(LCDbCryovialRetrieval::EXPECTED);
             }
         }
@@ -281,7 +281,10 @@ void __fastcall TfrmRetrAsstCollectSamples::FormResize(TObject *Sender) { // get
     }
 }
 
-void __fastcall TfrmRetrAsstCollectSamples::cbLogClick(TObject *Sender) { panelDebug->Visible = cbLog->Checked; }
+void __fastcall TfrmRetrAsstCollectSamples::cbLogClick(TObject *Sender) {
+    panelDebug->Visible     = cbLog->Checked;
+    sgVials->Enabled        = cbLog->Checked;
+}
 
 void __fastcall TfrmRetrAsstCollectSamples::FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift) {
 /** form's KeyPreview property needs to be set to see this */
@@ -696,7 +699,7 @@ void TfrmRetrAsstCollectSamples::accept(String entered) { // fixme check correct
     SampleRow * aliquot = currentAliquot(); // primary or secondary - this is a bit confusing
     switch (aliquot->lcr_record->getStatus()) {
         case LCDbCryovialRetrieval::EXPECTED:
-        case LCDbCryovialRetrieval::IGNORED:
+        case LCDbCryovialRetrieval::DEFERRED:
             break; // ok, carry on
         case LCDbCryovialRetrieval::COLLECTED:
 			TfrmRetrievalAssistant::msgbox("Already retrieved"); return;
@@ -706,7 +709,7 @@ void TfrmRetrAsstCollectSamples::accept(String entered) { // fixme check correct
     if (entered == aliquot->cryovial_barcode.c_str()) { // save
         if (aliquot == primary) {
             if (primary->backup != NULL) { // has backup
-                primary->backup->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED);
+                primary->backup->lcr_record->setStatus(LCDbCryovialRetrieval::DEFERRED);
             }
         } else { // it was the secondary - primary should already have been set NOT_FOUND, but make sure
             if (primary->lcr_record->getStatus() != LCDbCryovialRetrieval::NOT_FOUND) {
@@ -728,6 +731,7 @@ void __fastcall TfrmRetrAsstCollectSamples::btnAddNoteClick(TObject *Sender) { a
 
 void TfrmRetrAsstCollectSamples::addNote() {
     Application->MessageBox(L"Add a note", L"Info", MB_OK);
+    // fixme
     // existing form to do this?
     // if note clicked on complete chunk, add note to chunk?
 }
@@ -735,6 +739,7 @@ void TfrmRetrAsstCollectSamples::addNote() {
 void __fastcall TfrmRetrAsstCollectSamples::btnBadVialClick(TObject *Sender) { badVial(); }
 
 void TfrmRetrAsstCollectSamples::badVial() {
+    // fixme
     Application->MessageBox(L"Bad Vial", L"Info", MB_OK);
     Application->MessageBox(L"What to do?", L"Info", MB_OK);
 }
@@ -793,12 +798,16 @@ void TfrmRetrAsstCollectSamples::replace(String barcode) {
 void __fastcall TfrmRetrAsstCollectSamples::btnDeferClick(TObject *Sender) { skip(); }
 
 void TfrmRetrAsstCollectSamples::skip() { // defer
-    currentAliquot()->lcr_record->setStatus(LCDbCryovialRetrieval::IGNORED); // not saved to db
+    currentAliquot()->lcr_record->setStatus(LCDbCryovialRetrieval::DEFERRED); // not saved to db
     // fixme actually, record as DEFERRED in db
     nextRow();
 }
 
-void __fastcall TfrmRetrAsstCollectSamples::btnExitClick(TObject *Sender) { checkExit(); } //exit(); }
+void __fastcall TfrmRetrAsstCollectSamples::btnSaveClick(TObject *Sender) {
+    Application->MessageBox(L"C.", L"Question", MB_OK);
+    Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_OK);
+    //checkExit();
+} //exit(); }
 
 void TfrmRetrAsstCollectSamples::checkExit() {
     if (IDYES == Application->MessageBox(L"Are you sure you want to exit?\n\nCurrent progress will be saved.", L"Question", MB_YESNO)) {
@@ -822,6 +831,9 @@ void TfrmRetrAsstCollectSamples::exit() { // definitely exiting
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::btnSignOffClick(TObject *Sender) {
+    // fixme
+    // check all vials actioned in some way, i.e. not EXPECTED
+    // mark all deferred NOT_FOUND ?
     Application->MessageBox(L"What should this do?", L"Info", MB_OK);
 }
 
@@ -868,7 +880,7 @@ void TfrmRetrAsstCollectSamples::nextRow() {
     if (!sample->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed"); }
     if (sample->backup) { // fixme what is being saved if backup was not needed?
         if (!sample->backup->lcr_record->saveRecord(LIMSDatabase::getCentralDb())) { throw runtime_error("saveRecord() failed for backup"); }
-    } // deferred (IGNORED) vials are not actually saved to the database, they remain EXPECTED
+    } // deferred (DEFERRED) vials are not actually saved to the database, they remain EXPECTED
 
     int nextAbs = chunk->nextUnresolvedAbs(); // fast-forward to first non-dealt-with row
     if (nextAbs != Chunk< SampleRow >::NextUnresolvedStatus::NONE_FOUND) {
@@ -883,7 +895,7 @@ void TfrmRetrAsstCollectSamples::nextRow() {
     showChunks(); // don't need to save chunk - completedness or otherwise of 'chunk' should be implicit from box/cryo plan
     labelPrimary->Enabled = true; labelSecondary->Enabled = false; editBarcode->Clear(); ActiveControl = editBarcode; // focus for next barcode
 
-    if (Chunk< SampleRow >::Status::DONE == chunk->getStatus()) { // check if chunk is complete (no EXPECTED or IGNORED vials)
+    if (Chunk< SampleRow >::Status::DONE == chunk->getStatus()) { // check if chunk is complete (no EXPECTED or DEFERRED vials)
         chunkCompleted(chunk);
     }
 }
@@ -982,7 +994,7 @@ void SaveProgressThread::updateStorage() {
 void SaveProgressThread::updateStorage(SampleRow * aliquot, LQuery & q) {
 
 /* * should be 4 cryovial_store recs/sample: src + dest * primary + secondary
-	* new `NOT_FOUND` status (ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, NOT_FOUND, DELETED = 99) (no IGNORED status?)
+	* new `NOT_FOUND` status (ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, TRANSFERRED, NOT_FOUND, DELETED = 99) (no DEFERRED status?)
 	* NOT_FOUND will be 6, not 7 - unless there is supposed to be another new status?
 
     // handle backups
@@ -1029,7 +1041,7 @@ enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, ALIQUOTS
     if (NULL != current) {
         switch (aliquot->lcr_record->getStatus()) {
             case LCDbCryovialRetrieval::EXPECTED:
-            case LCDbCryovialRetrieval::IGNORED:
+            case LCDbCryovialRetrieval::DEFERRED:
                 return; //throw runtime_error("chunk should be complete");
             case LCDbCryovialRetrieval::COLLECTED:
                 current->setStatus(LPDbCryovialStore::TRANSFERRED); break; //???
@@ -1060,7 +1072,7 @@ enum Status { ALLOCATED, CONFIRMED, MOVE_EXPECTED, DESTROYED, ANALYSED, ALIQUOTS
 //    LPDbCryovialStore retrieved(0,0,0,0); //???
 //    switch (aliquot->lcr_record->getStatus()) {
 //        case LCDbCryovialRetrieval::EXPECTED:
-//        case LCDbCryovialRetrieval::IGNORED:
+//        case LCDbCryovialRetrieval::DEFERRED:
 //            throw runtime_error("chunk should be complete");
 //        case LCDbCryovialRetrieval::COLLECTED:
 //            retrieved.setStatus(LPDbCryovialStore::TRANSFERRED); break; //???
@@ -1228,11 +1240,11 @@ void TfrmRetrAsstCollectSamples::collectEmpties() {
 //			int status = sample->lcr_record->getStatus();
 //            switch (status) {
 //                case LCDbCryovialRetrieval::EXPECTED:
-//                case LCDbCryovialRetrieval::IGNORED:
+//                case LCDbCryovialRetrieval::DEFERRED:
 //                    if (NULL != sample->backup) {
 //                        switch (sample->backup->lcr_record->getStatus()) {
 //                            case LCDbCryovialRetrieval::EXPECTED:
-//                            case LCDbCryovialRetrieval::IGNORED:
+//                            case LCDbCryovialRetrieval::DEFERRED:
 //                                collect->unactionedSamples = true;
 //                        }
 //                    } else {
@@ -1268,4 +1280,8 @@ catch (std::exception & e) {
 //void __fastcall TfrmRetrAsstCollectSamples::btnFoundElsewhereClick(TObject *Sender) { foundElsewhere(); }
 
 
+
+void __fastcall TfrmRetrAsstCollectSamples::sgVialsContextPopup(TObject *Sender, TPoint &MousePos, bool &Handled) {
+    // bad
+}
 

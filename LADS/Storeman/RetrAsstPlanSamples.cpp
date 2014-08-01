@@ -81,6 +81,7 @@ void __fastcall SavePlanThread::debugLog() {
 void __fastcall TfrmRetrAsstPlanSamples::FormCreate(TObject *Sender) {
     cbLog->Checked      = false;//RETRASSTDEBUG;
     cbLog->Visible      = RETRASSTDEBUG;
+    //sgVials->Enabled    = false;
     panelDebug->Visible = cbLog->Checked;
     box_size            = DEFAULT_BOX_SIZE;
     job                 = NULL;
@@ -150,7 +151,7 @@ void __fastcall TfrmRetrAsstPlanSamples::btnCancelClick(TObject *Sender) {
 }
 
 void __fastcall TfrmRetrAsstPlanSamples::cbLogClick(TObject *Sender) {
-    panelDebug->Visible = cbLog->Checked;
+    panelDebug->Visible     = cbLog->Checked;
     splitterDebug->Visible  = cbLog->Checked;
 }
 
@@ -844,7 +845,8 @@ void __fastcall TfrmRetrAsstPlanSamples::btnSaveClick(TObject *Sender) {
 	}
 	frmConfirm->initialise(TfrmSMLogin::RETRIEVE, "Confirm retrieval plan");  // , projects); don't need project ids??? //status??? //std::set<int> projects; projects.insert(job->getProjectID());
 	if (IDYES == Application->MessageBox(L"Save changes? Press 'No' to go back and re-order", L"Question", MB_YESNO)
-            && (RETRASSTDEBUG || mrOk == frmConfirm->ShowModal())) {
+            //&& (RETRASSTDEBUG || mrOk == frmConfirm->ShowModal())) {
+            && mrOk == frmConfirm->ShowModal()) {
         Screen->Cursor = crSQLWait; Enabled = false;
         debugLog("starting save plan");
         showProgressMessage(loadingMessage);

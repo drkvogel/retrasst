@@ -308,14 +308,23 @@ email from me@home:
                     Mark DEFFERED, Next row
 
 what 
+
 #### Save, not Exit
 
 Traditional way is to prevent exit unless save pressed.
 
-### does the plan screen read NOT_FOUND `cryovial_store` records?
+#### does the plan screen read NOT_FOUND `cryovial_store` records?
 
 e.g. if they were not found in a previous retrieval? 
 Yes, it reads `cryovial_store` of any status, which also includes vials marked `IGNORED`, e.g. secondaries not needed in a previous job.
+
+#### DEFERRED should be saved to the database
+
+Contrary to previous behaviour, skipped vials' DEFERRED status should be saved to the database so that the status persists between sessions, i.e. visits to the storage facility, many of which might be part of the same retrieval.
+
+#### Bad vial button
+
+Or context click? 
 
 ---
 

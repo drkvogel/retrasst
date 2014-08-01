@@ -68,7 +68,7 @@ public:
         process_cid(pid), status(st)
         {}
     bool saveRecord(LQuery query);
-    enum Status { EXPECTED, IGNORED, COLLECTED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 }; //??? COLLECTED_SECONDARY
+    enum Status { EXPECTED, DEFERRED, COLLECTED, DISPOSED, NOT_FOUND, NUM_STATUSES, DELETED = 99 }; //??? COLLECTED_SECONDARY
     static const char * statusString(int st);
     int     getRJBId() { return rj_box_cid; }
     void    setRJBId(int i) { rj_box_cid = i; }

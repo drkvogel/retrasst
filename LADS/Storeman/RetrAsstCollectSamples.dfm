@@ -64,6 +64,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       ParentDoubleBuffered = False
       TabOrder = 0
       OnClick = sgVialsClick
+      OnContextPopup = sgVialsContextPopup
       OnDrawCell = sgVialsDrawCell
     end
     object panelLoading: TPanel
@@ -161,23 +162,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 1
-      object btnSignOff: TButton
-        Left = 84
-        Top = 0
-        Width = 105
-        Height = 60
-        Align = alLeft
-        Caption = '&Sign Off'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -16
-        Font.Name = 'Verdana'
-        Font.Style = [fsBold]
-        ParentFont = False
-        TabOrder = 0
-        OnClick = btnSignOffClick
-        ExplicitLeft = 0
-      end
       object btnAddNote: TBitBtn
         Left = 231
         Top = 0
@@ -206,26 +190,70 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           0555557575757575755555505050505055555557575757575555}
         NumGlyphs = 2
         ParentFont = False
-        TabOrder = 1
+        TabOrder = 0
         OnClick = btnAddNoteClick
       end
-      object btnExit: TBitBtn
-        Left = 0
+      object btnSave: TBitBtn
+        Left = 105
         Top = 0
-        Width = 84
+        Width = 96
         Height = 60
         Align = alLeft
-        Caption = 'E&xit'
+        Caption = '&Save'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -16
         Font.Name = 'Verdana'
         Font.Style = [fsBold]
-        Kind = bkClose
+        Glyph.Data = {
+          76010000424D7601000000000000760000002800000020000000100000000100
+          04000000000000010000130B0000130B00001000000000000000000000000000
+          800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333330070
+          7700333333337777777733333333008088003333333377F73377333333330088
+          88003333333377FFFF7733333333000000003FFFFFFF77777777000000000000
+          000077777777777777770FFFFFFF0FFFFFF07F3333337F3333370FFFFFFF0FFF
+          FFF07F3FF3FF7FFFFFF70F00F0080CCC9CC07F773773777777770FFFFFFFF039
+          99337F3FFFF3F7F777F30F0000F0F09999937F7777373777777F0FFFFFFFF999
+          99997F3FF3FFF77777770F00F000003999337F773777773777F30FFFF0FF0339
+          99337F3FF7F3733777F30F08F0F0337999337F7737F73F7777330FFFF0039999
+          93337FFFF7737777733300000033333333337777773333333333}
+        NumGlyphs = 2
+        ParentFont = False
+        TabOrder = 1
+        OnClick = btnSaveClick
+        ExplicitLeft = 111
+      end
+      object btnSignOff: TBitBtn
+        Left = 0
+        Top = 0
+        Width = 105
+        Height = 60
+        Align = alLeft
+        Caption = 'Sign &Off'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Verdana'
+        Font.Style = [fsBold]
+        Glyph.Data = {
+          76010000424D7601000000000000760000002800000020000000100000000100
+          04000000000000010000120B0000120B00001000000000000000000000000000
+          800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00555775777777
+          57705557757777775FF7555555555555000755555555555F777F555555555550
+          87075555555555F7577F5555555555088805555555555F755F75555555555033
+          805555555555F755F75555555555033B05555555555F755F75555555555033B0
+          5555555555F755F75555555555033B05555555555F755F75555555555033B055
+          55555555F755F75555555555033B05555555555F755F75555555555033B05555
+          555555F75FF75555555555030B05555555555F7F7F75555555555000B0555555
+          5555F777F7555555555501900555555555557777755555555555099055555555
+          5555777755555555555550055555555555555775555555555555}
         NumGlyphs = 2
         ParentFont = False
         TabOrder = 2
-        OnClick = btnExitClick
+        OnClick = btnSignOffClick
+        ExplicitLeft = -6
       end
     end
     object Panel2: TPanel

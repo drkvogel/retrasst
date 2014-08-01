@@ -145,7 +145,7 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           Width = 90
           Height = 17
           Align = alTop
-          Caption = 'Show Log'
+          Caption = 'dbg'
           TabOrder = 3
           OnClick = cbLogClick
         end
@@ -160,46 +160,50 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           object labelVialKeyExtra: TLabel
             Left = 2
             Top = 54
-            Width = 28
+            Width = 86
             Height = 13
             Align = alTop
             Caption = 'Other'
             Color = clAqua
             ParentColor = False
             Transparent = False
+            ExplicitWidth = 28
           end
           object labelVialKeySecondary: TLabel
             Left = 2
             Top = 28
-            Width = 51
+            Width = 86
             Height = 13
             Align = alTop
             Caption = 'Secondary'
             Color = clYellow
             ParentColor = False
             Transparent = False
+            ExplicitWidth = 51
           end
           object labelVialKeyPrimary: TLabel
             Left = 2
             Top = 15
-            Width = 36
+            Width = 86
             Height = 13
             Align = alTop
             Caption = 'Primary'
             Color = clHighlight
             ParentColor = False
             Transparent = False
+            ExplicitWidth = 36
           end
           object labelVialKeyCombined: TLabel
             Left = 2
             Top = 41
-            Width = 47
+            Width = 86
             Height = 13
             Align = alTop
             Caption = 'Combined'
             Color = clLime
             ParentColor = False
             Transparent = False
+            ExplicitWidth = 47
           end
         end
       end
@@ -360,11 +364,13 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           object labelPrimary: TLabel
             Left = 7
             Top = 20
-            Width = 58
-            Height = 13
+            Width = 83
+            Height = 14
             Align = alClient
             Caption = 'labelPrimary'
             Layout = tlCenter
+            ExplicitWidth = 58
+            ExplicitHeight = 13
           end
         end
         object groupSecondary: TGroupBox
@@ -382,8 +388,8 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
           object labelSecondary: TLabel
             Left = 7
             Top = 20
-            Width = 73
-            Height = 13
+            Width = 90
+            Height = 14
             Margins.Left = 5
             Margins.Top = 5
             Margins.Right = 5
@@ -391,6 +397,8 @@ object frmRetrAsstPlanSamples: TfrmRetrAsstPlanSamples
             Align = alClient
             Caption = 'labelSecondary'
             Layout = tlCenter
+            ExplicitWidth = 73
+            ExplicitHeight = 13
           end
         end
       end
