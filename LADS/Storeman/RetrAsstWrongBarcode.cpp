@@ -45,7 +45,9 @@ void TfrmWrongBarcode::accept() {
         TfrmRetrievalAssistant::msgbox("Barcode does not match last barcode entered or expected barcode");
         // continue
     } else {
-        Application->MessageBox(L"Huh?", L"Huh!", MB_OK);
+        TfrmRetrievalAssistant::msgbox("Huh?", "Huh!");
+        //using TfrmRetrievalAssistant::msgbox;
+        //msgbox("Huh?", "Huh!", MB_OK);
         throw runtime_error("huh?");
     }
     refresh();
@@ -67,6 +69,26 @@ void TfrmWrongBarcode::accept() {
                         continue
 */
 }
+
+// [LLVMbugs] [Bug 14482] New: "using declaration requires a qualified name" diag should have a fixit to insert the right qualifier if it's unique
+// http://lists.cs.uiuc.edu/pipermail/llvmbugs/2012-December/026136.html
+
+/*
+class A {
+ protected:
+  void f() {}
+};
+
+class B : public A {
+ public:
+  using f;
+};
+
+int main() {
+  B b;
+  b.f();
+}
+*/
 
 void __fastcall TfrmWrongBarcode::btnDeferClick(TObject *Sender) {
     // Mark DEFFERED, Next row

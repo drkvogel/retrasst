@@ -18,9 +18,11 @@ TfrmRetrievalJobList *frmRetrievalJobList;
 
 __fastcall TfrmRetrievalJobList::TfrmRetrievalJobList(TComponent* Owner) : TForm(Owner) { }
 
-// moved from header file: linker error under 64-bit XE4
-void TfrmRetrievalJobList::msgbox(string main, string title) {
-	Application->MessageBoxW(String(main.c_str()).c_str(), String(title.c_str()).c_str(), MB_OK);
+int TfrmRetrievalJobList::msgbox(string main, string title, int buttons) {
+/** handles std::string rather than UnicodeString to avoid things like:
+Application->MessageBox(UnicodeString(myString.c_str()).c_str(), L"A message", MB_OK);
+moved from header file: linker error under 64-bit XE4 */
+	return Application->MessageBoxW(String(main.c_str()).c_str(), String(title.c_str()).c_str(), buttons);
 }
 
 void __fastcall TfrmRetrievalJobList::FormResize(TObject *Sender) { sgwJobs->resize(); }

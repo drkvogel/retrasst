@@ -576,7 +576,7 @@ public:
     //void                combineAliquots(const vecpSampleRow & primaries, const vecpSampleRow & secondaries, vecpSampleRow & combined);
 
 	// made into class methods, NG, 17/3/14, to avoid linker error
-	static void msgbox(string main, string title="Info");
+	static int msgbox(string main, string title="Info", int buttons=MB_OK);
 };
 
 //class TfrmRetrievalAssistant : public TfrmRetrievalJobList {

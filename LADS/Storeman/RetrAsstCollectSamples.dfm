@@ -461,36 +461,33 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         object labelNew: TLabel
           Left = 2
           Top = 15
-          Width = 60
+          Width = 21
           Height = 13
           Align = alTop
           Caption = 'New'
           Color = clSkyBlue
           ParentColor = False
           Transparent = False
-          ExplicitWidth = 21
         end
         object labelInProgress: TLabel
           Left = 2
           Top = 28
-          Width = 60
+          Width = 55
           Height = 13
           Align = alTop
           Caption = 'In Progress'
           Color = clMoneyGreen
           ParentColor = False
           Transparent = False
-          ExplicitWidth = 55
         end
         object labelDone: TLabel
           Left = 2
           Top = 41
-          Width = 60
+          Width = 51
           Height = 13
           Align = alTop
           Caption = 'Completed'
           Transparent = False
-          ExplicitWidth = 51
         end
       end
       object groupVialKey: TGroupBox
@@ -504,62 +501,57 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         object labelVialKeyCollected: TLabel
           Left = 2
           Top = 41
-          Width = 60
+          Width = 47
           Height = 13
           Align = alTop
           Caption = 'Retrieved'
           Color = clAqua
           ParentColor = False
           Transparent = False
-          ExplicitWidth = 47
         end
         object labelVialKeyExpectedBackup: TLabel
           Left = 2
           Top = 28
-          Width = 60
+          Width = 34
           Height = 13
           Align = alTop
           Caption = 'Backup'
           Color = clYellow
           ParentColor = False
           Transparent = False
-          ExplicitWidth = 34
         end
         object labelVialKeyExpectedPrimary: TLabel
           Left = 2
           Top = 15
-          Width = 60
+          Width = 46
           Height = 13
           Align = alTop
           Caption = 'Preferred'
           Color = clHighlight
           ParentColor = False
           Transparent = False
-          ExplicitWidth = 46
         end
         object labelVialKeyIgnored: TLabel
           Left = 2
           Top = 67
-          Width = 60
+          Width = 38
           Height = 13
           Align = alTop
           Caption = 'Ignored'
           Color = clLime
           ParentColor = False
           Transparent = False
-          ExplicitWidth = 38
         end
         object labelVialKeyNotFound: TLabel
           Left = 2
           Top = 54
-          Width = 60
+          Width = 50
           Height = 13
           Align = alTop
           Caption = 'Not Found'
           Color = clFuchsia
           ParentColor = False
           Transparent = False
-          ExplicitWidth = 50
         end
       end
     end
@@ -734,8 +726,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           object labelPrimary: TLabel
             Left = 7
             Top = 16
-            Width = 147
-            Height = 21
+            Width = 80
+            Height = 16
             Margins.Top = 1
             Margins.Bottom = 1
             Align = alClient
@@ -747,8 +739,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
-            ExplicitWidth = 80
-            ExplicitHeight = 16
           end
         end
         object groupSecondary: TGroupBox
@@ -766,8 +756,8 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
           object labelSecondary: TLabel
             Left = 7
             Top = 16
-            Width = 132
-            Height = 21
+            Width = 99
+            Height = 16
             Margins.Left = 5
             Margins.Top = 5
             Margins.Right = 5
@@ -781,8 +771,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
             Font.Style = [fsBold]
             ParentFont = False
             Layout = tlCenter
-            ExplicitWidth = 99
-            ExplicitHeight = 16
           end
         end
       end
@@ -799,7 +787,7 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
       object labelDestString: TLabel
         Left = 2
         Top = 99
-        Width = 548
+        Width = 72
         Height = 13
         Align = alBottom
         Caption = 'labelDestString'
@@ -809,7 +797,6 @@ object frmRetrAsstCollectSamples: TfrmRetrAsstCollectSamples
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
-        ExplicitWidth = 72
       end
       object labelDestPos: TLabel
         Left = 6

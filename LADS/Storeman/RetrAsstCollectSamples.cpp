@@ -133,7 +133,19 @@ void __fastcall TfrmRetrAsstCollectSamples::FormCreate(TObject *Sender) {
 }
 
 void __fastcall TfrmRetrAsstCollectSamples::FormClose(TObject *Sender, TCloseAction &Action) {
-    exit(); //???
+
+    TMsgDlgBtn myYes = mbYes;
+    TMsgDlgBtn myNo = mbNo;
+    if (MessageDlg("Close application ?", mtConfirmation, TMsgDlgButtons() << myYes << myNo,0) == mrYes) {
+	    Action = caFree;
+    } else {
+	    //Action = caMinimize;
+        Action = caNone;
+    }
+
+    TfrmRetrievalAssistant::msgbox("closed form");
+    // Abort(); what does this do? Can't find in docs
+    //exit(); //???
 }
 
 __fastcall TfrmRetrAsstCollectSamples::~TfrmRetrAsstCollectSamples() {
@@ -903,6 +915,7 @@ void TfrmRetrAsstCollectSamples::nextRow() {
 void TfrmRetrAsstCollectSamples::chunkCompleted(Chunk< SampleRow > * chunk) {
     // Require user to sign off, skip in debug
     if (RETRASSTDEBUG) {
+        //if (mrYes != Application->MessageBox(L"'Sign off' (debug)?", L"Info", MB_YESNO)) {
         if (mrYes != Application->MessageBox(L"'Sign off' (debug)?", L"Info", MB_YESNO)) {
 		    Application->MessageBox(L"Signoff cancelled - what now?", L"Info", MB_OK); return;
         }

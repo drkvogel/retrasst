@@ -331,3 +331,72 @@ Or context click?
 putting my finger on it? making it up as you go along and being confident of it - implies something
 
 ---
+
+### new spec (with MR comments)
+
+Retrieval Assistant (second phase)
+This is my attempt to summarise what we have agreed, replacing all previous e-mail.  It’s my attempt at a spec. but it may need tweaking.
+
+Once the Retrieval Assistant has created a plan for a retrieval/disposal/rationalisation job, it takes the user to another screen to process the samples.  This will include seven buttons, colloquially known as Enter, Not Found, Skip, Bad, Note, Save and Sign Off.
+
+#### Normal Processing
+
+Each sample is initially marked as `EXPECTED` (`l_cryovial_retrieval.status = 0`).  The program shows the user the next sample from the plan and its current location (if known).  The user has three options:
+ * Enter a barcode: if it matches the barcode in the plan, that entry is set to `COLLECTED` (2, time_stamp=’now’) [and the backup to `IGNORED` (1)].  If not, it takes them to the “Wrong barcode” screen
+ * Skip: takes them to the next position, without affecting the database.  They can come back to this entry later
+ * Not Found: the program asks for confirmation before marking the current entry `NOT_FOUND` (3).  They can’t come back to it.  If there’s a backup, it’s displayed instead
+
+#### Adding Comments
+
+Clicking on "Bad", asks the user to select an entry from the samples they’ve already processed  (I imagine this could be from a context menu rather than an actual button). This can flag the sample in some way and/or add a note (Chris and I need to decide how this is represented in the database).
+
+Clicking on "Note" allows the user to add a note to the retrieval history (again, the exact details need to be worked out but I suggest we come back to this when we talk about the Manage Lists screen)
+
+#### Wrong Barcode
+
+The barcode may be wrong for any number of reasons but the user is given a simple choice: Skip or Enter the barcode again
+ * Skip takes them back to the next position on the main screen without updating the database
+ * Entering the barcode expected in the plan, takes them back to the main screen  and marks that entry `COLLECTED` (backup `IGNORED`)
+ * Entering the “wrong” barcode for a second time gives the user the option of replacing the original sample. If they confirm that this is what they want to do, the current (and backup) are marked IGNORED and a third entry added, marked with a new status `REPLACEMENT` (4)
+ * Any other barcode leaves them on the Wrong Barcode screen, waiting for the expected or the one that’s just been entered
+
+#### Save
+
+At the end of a chunk (or at any time?)  the user can save where they’re up to:
+* Entries still marked `EXPECTED` or `NOT_FOUND` will be ignored
+* Entries marked `COLLECTED` in the plan will have their current `cryovial_store` entry set to `MOVED` (`5, removed = l_cryovial_retrieval.time_stamp`) and the destination `CONFIRMED` (`1, time_stamp = l_cryovial_retrieval.time_stamp`)
+ * Entries marked `IGNORED` in the plan will have destination set to `DELETED` (99). The current cryovial_store entry will remain unchanged
+ * Entries marked `REPLACEMENT` will have their current `cryovial_store` entry set to `MOVED` and a new `cryovial_store` entry created for the destination (status = `CONFIRMED`)
+I wonder if empty source boxes should also be handled at this stage. Closing the Retrieval Assistant without saving first will result in a warning.
+
+#### Sign Off
+
+Users cannot sign off a job if any entries are still marked `EXPECTED` in the plan. Otherwise it shows them a list of `NOT_FOUND` entries to confirm. Once they do:
+* Entries marked `COLLECTED` in the plan will have their current `cryovial_store` entry set to `MOVED` (`5, removed = l_cryovial_retrieval.time_stamp`) and the destination `CONFIRMED` (`1, time_stamp = l_cryovial_retrieval.time_stamp`)
+* Entries marked `IGNORED` in the plan will have destination set to `DELETED` (99). The current `cryovial_store` entry will remain unchanged
+* Entries marked `REPLACEMENT` will have their latest `cryovial_store` entry set to `MOVED` and a new `cryovial_store` entry created (`status = CONFIRMED, l_cryovial_retrieval time_stamp`)
+* Entries marked `NOT_FOUND` in the plan will have their current `cryovial_store entry` set back to `ALLOCATED` (0) and the destination set to `DELETED` (99)
+* Empty source boxes should be dealt with
+* An entry is added to the retrieval history and the retrieval job status updated
+
+I had assumed Save would set the destination to `ALLOCATED` and this would confirm the `COLLECTED` as well as the `NOT_FOUND`. Now it’s a lot like saving, only more so. If we said they had to Save each chunk before they could Sign Off the job, it would only need to handle `NOT_FOUND` 
+
+####  Notes
+
+Currently, a `cryovial_store` status of 0 can mean `EXPECTED` or `ALLOCATED`. From now on, Create List will use 8 for `EXPECTED` in the destination records in retrieval plans.  It will not change the status of the original `cryovial_store` entries (`REMOVAL_EXPECTED` therefore becomes redundant)
+Create List may include primary and secondary aliquots in the same job (especially for HPS) but more complicated retrievals may result in more than one job. For example, a retrieval including samples from more than one project or filling in gaps in existing boxes may, behind the scenes, be split into two jobs working on the same box set.
+
+We do not need to discuss the Manage List screen yet. It may need database support. A sample retrieval will result in a new box set; the boxes will include the retrieval number as a barcode prefix. Rationalisation can result in a new box set but the barcodes probably won’t include a prefix. Box retrieval and movement jobs might have retrieval number but don’t create new boxes. Disposal jobs might create new boxes but may not need retrieval numbers! 
+
+> Written with [StackEdit](https://stackedit.io/).
+
+--- 
+
+### what to do about Exit
+
+Clicking the X calls FormClose() and it 
+
+### msgbox() return value
+
+make msgbox() return IDOK etc from MessageBox().
+
